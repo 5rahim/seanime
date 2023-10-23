@@ -7,6 +7,13 @@ import (
 
 // https://stackoverflow.com/a/72452542
 
+func NewAnilistLimiter() *Limiter {
+	//return NewLimiter(15*time.Second, 20)
+	return NewLimiter(5*time.Second, 7)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type Limiter struct {
 	tick    time.Duration
 	count   uint
@@ -28,6 +35,7 @@ func NewLimiter(tick time.Duration, count uint) *Limiter {
 	}
 	return &l
 }
+
 func (l *Limiter) Wait() {
 	l.mu.Lock()
 	defer l.mu.Unlock()

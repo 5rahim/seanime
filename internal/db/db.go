@@ -1,4 +1,4 @@
-package core
+package db
 
 import (
 	"github.com/glebarez/sqlite"
@@ -14,7 +14,7 @@ import (
 
 type Database = gorm.DB
 
-func NewDatabase(cfg *Config, logger *zerolog.Logger) (*Database, error) {
+func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
 	// Get the app data directory from the configuration
 
 	// Set the SQLite database path
@@ -22,7 +22,7 @@ func NewDatabase(cfg *Config, logger *zerolog.Logger) (*Database, error) {
 	if os.Getenv("TEST_ENV") == "true" {
 		sqlitePath = ":memory:"
 	} else {
-		sqlitePath = filepath.Join(cfg.Data.AppDataDir, cfg.Database.Name+".db")
+		sqlitePath = filepath.Join(appDataDir, dbName+".db")
 	}
 
 	// Connect to the SQLite database

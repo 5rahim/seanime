@@ -2,12 +2,11 @@ package db
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/core"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"gorm.io/gorm/clause"
 )
 
-func UpsertToken(db *core.Database, token *models.Token, logger *zerolog.Logger) (*models.Token, error) {
+func UpsertToken(db *Database, token *models.Token, logger *zerolog.Logger) (*models.Token, error) {
 
 	err := db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
@@ -22,7 +21,7 @@ func UpsertToken(db *core.Database, token *models.Token, logger *zerolog.Logger)
 
 }
 
-func GetToken(db *core.Database, logger *zerolog.Logger) string {
+func GetToken(db *Database, logger *zerolog.Logger) string {
 	var token models.Token
 	err := db.Where("id = ?", 1).First(&token).Error
 	if err != nil {

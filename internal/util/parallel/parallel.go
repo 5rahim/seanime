@@ -63,8 +63,7 @@ func (sr *SettledResults[T, R]) GetFulfilledResults() (*[]R, bool) {
 }
 
 // AllSettled executes the provided task function once, in parallel for each element in the slice passed to NewSettledResults.
-// It returns a map of fulfilled results and a map of errors.
-// The keys of the returned mapss are the elements of the slice.
+// It returns a map of fulfilled results and a map of errors whose keys are the elements of the slice.
 func (sr *SettledResults[T, R]) AllSettled(task func(item T, index int) (R, error)) (map[T]R, map[T]error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex

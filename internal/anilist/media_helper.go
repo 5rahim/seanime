@@ -13,6 +13,10 @@ var EdgeNarrowFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort}
 var EdgeBroaderFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort, MediaFormatOna, MediaFormatOva, MediaFormatMovie, MediaFormatSpecial}
 
 func (m *BaseMedia) FindEdge(relation string, formats []MediaFormat) (*BasicMedia, bool) {
+	if m.GetRelations() == nil {
+		return nil, false
+	}
+
 	edges := m.GetRelations().GetEdges()
 
 	for _, edge := range edges {
@@ -30,6 +34,12 @@ func (m *BaseMedia) FindEdge(relation string, formats []MediaFormat) (*BasicMedi
 }
 
 func (e *BaseMedia_Relations_Edges) IsBroadRelationFormat() bool {
+	if e.GetNode() == nil {
+		return false
+	}
+	if e.GetNode().GetFormat() == nil {
+		return false
+	}
 	for _, fm := range EdgeBroaderFormats {
 		if fm.String() == e.GetNode().GetFormat().String() {
 			return true
@@ -38,6 +48,12 @@ func (e *BaseMedia_Relations_Edges) IsBroadRelationFormat() bool {
 	return false
 }
 func (e *BaseMedia_Relations_Edges) IsNarrowRelationFormat() bool {
+	if e.GetNode() == nil {
+		return false
+	}
+	if e.GetNode().GetFormat() == nil {
+		return false
+	}
 	for _, fm := range EdgeNarrowFormats {
 		if fm.String() == e.GetNode().GetFormat().String() {
 			return true

@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"log"
 	"os"
@@ -14,7 +15,7 @@ import (
 
 type App struct {
 	Config        *Config
-	Database      *Database
+	Database      *db.Database
 	AnilistClient *anilist.Client
 	Logger        *zerolog.Logger
 }
@@ -45,7 +46,7 @@ func NewApp(options *ServerOptions) *App {
 
 	logger.Info().Msg("Loaded config from " + cfg.Data.AppDataDir)
 
-	db, err := NewDatabase(cfg, logger)
+	db, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		fmt.Printf("Failed to initialize database: %v\n", err)
 		os.Exit(1)

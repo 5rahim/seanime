@@ -21,7 +21,20 @@ func TestFetchMediaTrees(t *testing.T) {
 		t.Fatal("expected local files, got error")
 	}
 
-	ret, ok := FetchMediaTrees(anilistClient, localFiles, baseMediaCache, anizipCache)
+	mc, err := NewMediaContainer(&MediaContainerOptions{
+		Enhancing:      true,
+		Username:       "5unwired",
+		AnilistClient:  anilistClient,
+		LocalFiles:     localFiles,
+		BaseMediaCache: baseMediaCache,
+		AnizipCache:    anizipCache,
+	})
+
+	if err != nil {
+		t.Fatal("expected result, got error: ", err)
+	}
+
+	ret, ok := mc.FetchMediaTrees(anilistClient, localFiles, baseMediaCache, anizipCache)
 
 	if !ok {
 		t.Fatal("expected result, got error")
