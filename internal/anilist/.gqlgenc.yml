@@ -1,0 +1,14 @@
+model:
+  filename: ./models_gen.go
+client:
+  filename: ./client_gen.go
+models:
+  DateTime:
+    model: github.com/99designs/gqlgen/graphql.Time
+endpoint:
+  url: https://graphql.anilist.co
+query:
+  - "./queries/*.graphql"
+generate:
+  clientV2: true
+  clientInterfaceName: "GithubGraphQLClient"
