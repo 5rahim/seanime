@@ -10,7 +10,7 @@ type BaseMediaCache struct {
 }
 
 // NewBaseMediaCache returns a new result.Cache[int, *BaseMedia].
-// It is used to temporarily store the results of FetchMediaTreeC calls.
+// It is used to temporarily store the results of FetchMediaTree calls.
 func NewBaseMediaCache() *BaseMediaCache {
 	return &BaseMediaCache{result.NewCache[int, *BaseMedia]()}
 }

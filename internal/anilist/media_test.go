@@ -11,6 +11,7 @@ import (
 func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 	anilistClient := NewAuthedClient("")
+	cache := NewBaseMediaCache()
 
 	id := 103223  // BSD3
 	id2 := 145064 // JJK2
@@ -34,7 +35,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 		wg.Add(1)
 		go func(_m *BaseMedia) {
 			defer wg.Done()
-			err := _m.FetchMediaTree(FetchMediaTreeAll, anilistClient, rateLimit, tree)
+			err := _m.FetchMediaTree(FetchMediaTreeAll, anilistClient, rateLimit, tree, cache)
 			if err != nil {
 				t.Error("error while fetching tree,", err)
 				return
@@ -69,7 +70,7 @@ func TestBaseMedia_FetchMediaTreeC(t *testing.T) {
 	cache := NewBaseMediaCache()
 	bsdTree := NewBaseMediaRelationTree()
 
-	err = bsdMedia.FetchMediaTreeC(FetchMediaTreeAll, anilistClient, rateLimit, bsdTree, cache)
+	err = bsdMedia.FetchMediaTree(FetchMediaTreeAll, anilistClient, rateLimit, bsdTree, cache)
 
 	if err != nil {
 		t.Fatal("error while fetching bsdTree,", err)
@@ -85,7 +86,7 @@ func TestBaseMedia_FetchMediaTreeC(t *testing.T) {
 	// This time it should be fetched from the cache
 	bsdTree2 := NewBaseMediaRelationTree()
 
-	err = bsdMedia.FetchMediaTreeC(FetchMediaTreeAll, anilistClient, rateLimit, bsdTree2, cache)
+	err = bsdMedia.FetchMediaTree(FetchMediaTreeAll, anilistClient, rateLimit, bsdTree2, cache)
 
 	bsdTree2.Range(func(key int, value *BaseMedia) bool {
 		t.Log(*value.GetTitleSafe())

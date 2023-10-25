@@ -8,8 +8,8 @@ import (
 // https://stackoverflow.com/a/72452542
 
 func NewAnilistLimiter() *Limiter {
-	//return NewLimiter(15*time.Second, 20)
-	return NewLimiter(5*time.Second, 7)
+	return NewLimiter(time.Minute, 80)
+	//return NewLimiter(5*time.Second, 7)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

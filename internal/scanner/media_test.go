@@ -1,40 +1,23 @@
 package scanner
 
 import (
-	"bytes"
-	"context"
-	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
-	"strconv"
 	"testing"
 )
 
 func TestFetchMediaTrees(t *testing.T) {
 
 	anilistClient := MockGetAnilistClient()
-	localFiles, ok := MockGetTestLocalFiles()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 
+	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}
 
-	mc, err := NewMediaContainer(&MediaContainerOptions{
-		Enhancing:      true,
-		Username:       "5unwired",
-		AnilistClient:  anilistClient,
-		LocalFiles:     localFiles,
-		BaseMediaCache: baseMediaCache,
-		AnizipCache:    anizipCache,
-	})
-
-	if err != nil {
-		t.Fatal("expected result, got error: ", err)
-	}
-
-	ret, ok := mc.FetchMediaTrees(anilistClient, localFiles, baseMediaCache, anizipCache)
+	ret, ok := FetchMediaTrees(anilistClient, localFiles, baseMediaCache, anizipCache)
 
 	if !ok {
 		t.Fatal("expected result, got error")
@@ -46,118 +29,60 @@ func TestFetchMediaTrees(t *testing.T) {
 
 }
 
-type ChunkQuery struct {
-	T0 struct {
-		*anilist.BaseMedia
+func TestNewMediaContainer(t *testing.T) {
+
+	anilistClient := MockGetAnilistClient()
+	anizipCache := anizip.NewCache()
+	baseMediaCache := anilist.NewBaseMediaCache()
+
+	localFiles, ok := MockGetTestLocalFiles()
+	if !ok {
+		t.Fatal("expected local files, got error")
 	}
-	T1 struct {
-		*anilist.BaseMedia
-	}
-	//T2 struct {
-	//	*anilist.BaseMedia
-	//}
-}
 
-func TestChunkedQuery(t *testing.T) {
-
-	ac := MockGetAnilistClient()
-
-	var resp ChunkQuery
-	var vars map[string]interface{}
-
-	ids := []int{1, 21}
-
-	var query bytes.Buffer
-	query.WriteString("query AnimeByMalId { ")
-	lo.ForEach(ids, func(item int, index int) {
-		_id := strconv.Itoa(item)
-		_idx := strconv.Itoa(index)
-		query.WriteString("t" + _idx + `: Media(id: ` + _id + `, type: ANIME) {
-                id
-				idMal
-				siteUrl
-				status(version: 2)
-				season
-				type
-				format
-				bannerImage
-				episodes
-				synonyms
-				isAdult
-				countryOfOrigin
-				title {
-					userPreferred
-					romaji
-					english
-					native
-				}
-				coverImage {
-					extraLarge
-					large
-					medium
-					color
-				}
-				startDate {
-					year
-					month
-					day
-				}
-				nextAiringEpisode {
-					airingAt
-					timeUntilAiring
-					episode
-				}
-				relations {
-					edges {
-						relationType(version: 2)
-						node {
-							id
-							idMal
-							siteUrl
-							status(version: 2)
-							season
-							type
-							format
-							bannerImage
-							episodes
-							synonyms
-							isAdult
-							countryOfOrigin
-							title {
-								userPreferred
-								romaji
-								english
-								native
-							}
-							coverImage {
-								extraLarge
-								large
-								medium
-								color
-							}
-							startDate {
-								year
-								month
-								day
-							}
-							nextAiringEpisode {
-								airingAt
-								timeUntilAiring
-								episode
-							}
-						}
-					}
-				}
-            }`)
+	mc, err := NewMediaContainer(&MediaContainerOptions{
+		Enhanced:       false,
+		Username:       "5unwired",
+		AnilistClient:  anilistClient,
+		LocalFiles:     localFiles,
+		BaseMediaCache: baseMediaCache,
+		AnizipCache:    anizipCache,
 	})
-	query.WriteString("}")
-
-	err := ac.Client.Post(context.Background(), "AnimeByMalId", query.String(), &resp, vars)
 
 	if err != nil {
 		t.Fatal("expected result, got error: ", err)
 	}
 
-	t.Log(resp)
+	for _, media := range mc.AllMedia {
+		t.Log(*media.GetTitleSafe())
+	}
+}
 
+func TestEnhancedNewMediaContainer(t *testing.T) {
+
+	anilistClient := MockGetAnilistClient()
+	anizipCache := anizip.NewCache()
+	baseMediaCache := anilist.NewBaseMediaCache()
+
+	localFiles, ok := MockGetTestLocalFiles()
+	if !ok {
+		t.Fatal("expected local files, got error")
+	}
+
+	mc, err := NewMediaContainer(&MediaContainerOptions{
+		Enhanced:       true,
+		Username:       "5unwired",
+		AnilistClient:  anilistClient,
+		LocalFiles:     localFiles,
+		BaseMediaCache: baseMediaCache,
+		AnizipCache:    anizipCache,
+	})
+
+	if err != nil {
+		t.Fatal("expected result, got error: ", err)
+	}
+
+	for _, media := range mc.AllMedia {
+		t.Log(*media.GetTitleSafe())
+	}
 }
