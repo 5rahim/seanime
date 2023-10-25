@@ -10,7 +10,6 @@ import (
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/mal"
 	"github.com/seanime-app/seanime-server/internal/util/parallel"
-	"sync"
 	"time"
 )
 
@@ -62,7 +61,7 @@ func NewMediaContainer(opts *MediaContainerOptions) (*MediaContainer, error) {
 
 	// If enhancing is on, scan media from local files and get their relations
 	if opts.Enhanced {
-		_, ok := FetchMediaTrees(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache)
+		_, ok := FetchMediaFromLocalFiles(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache)
 		if ok {
 			// We assume the BaseMediaCache is populated. We overwrite AllMedia with the cache content.
 			// This is because the cache will contain all media from the user's collection and the local files.
@@ -77,17 +76,21 @@ func NewMediaContainer(opts *MediaContainerOptions) (*MediaContainer, error) {
 	return mc, nil
 }
 
-// FetchMediaTrees gets unique titles from local files.
-// It then fetches mal.SearchResultAnime from MAL.
-// It then uses these search results to get AniList IDs using anizip.Media mappings.
-// Next, it queries AniList to retrieve anilist.BaseMedia's
-func FetchMediaTrees(
+// FetchMediaFromLocalFiles gets media and their relations from local files.
+// It retrieves unique titles from local files,
+// fetches mal.SearchResultAnime from MAL,
+// uses these search results to get AniList IDs using anizip.Media mappings,
+// queries AniList to retrieve all anilist.BaseMedia using anilist.GetBaseMediaById and their relations using anilist.FetchMediaTree.
+// It does not return an error if one of the steps fails.
+// It returns the scanned media and a boolean indicating whether the process was successful.
+func FetchMediaFromLocalFiles(
 	anilistClient *anilist.Client,
 	localFiles []*LocalFile,
 	baseMediaCache *anilist.BaseMediaCache,
 	anizipCache *anizip.Cache,
 ) ([]*anilist.BaseMedia, bool) {
 	rateLimiter := limiter.NewLimiter(time.Second, 20)
+	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	// Get titles
@@ -96,6 +99,7 @@ func FetchMediaTrees(
 	})
 	titles = lo.Uniq(titles)
 
+	//titles = titles[:8]
 	//titles := []string{"Bungou Stray Dogs", "Jujutsu Kaisen", "Sousou no Frieren"}
 
 	// Get MAL media from titles
@@ -106,30 +110,28 @@ func FetchMediaTrees(
 		return mal.AdvancedSearchWithMAL(title)
 	})
 	malRes, ok := malSR.GetFulfilledResults()
-
 	if !ok {
 		return nil, false
 	}
 
 	// Get duplicate-free version of MAL media
 	malMedia := lo.UniqBy(*malRes, func(res *mal.SearchResultAnime) int { return res.ID })
-	// Get their IDs
+	// Get the MAL media IDs
 	malIds := lop.Map(malMedia, func(n *mal.SearchResultAnime, index int) int { return n.ID })
 
-	// Get AniZip mappings for each MAL ID
+	// Get AniZip mappings for each MAL ID and store them in `anizipCache`
 	// This step is necessary because MAL doesn't provide AniList IDs and some MAL media don't exist on AniList
-
-	parallel.EachTask(malIds, func(id int, index int) {
+	lop.ForEach(malIds, func(id int, index int) {
 		println("Fetching", id, "on AniZip")
+		rateLimiter2.Wait()
 		_, _ = anizipCache.GetOrSet(anizip.GetCacheKey("mal", id), func() (*anizip.Media, error) {
 			res, err := anizip.FetchAniZipMedia("mal", id)
 			return res, err
 		})
 	})
 
-	// Get the AniList IDs from the AniZip mappings
+	// Retrieve the AniList IDs from the AniZip mappings stored in the cache
 	anilistIds := make([]int, 0)
-
 	anizipCache.Range(func(key string, value *anizip.Media) bool {
 		if value != nil {
 			anilistIds = append(anilistIds, value.GetMappings().AnilistID)
@@ -137,84 +139,35 @@ func FetchMediaTrees(
 		return true
 	})
 
-	// Use the AniList IDs to get the AniList media and their relations
-	//anilistMediaResults := parallel.NewSettledResults[int, []*anilist.BaseMedia](anilistIds)
-	//anilistMediaResults.AllSettled(func(id int, index int) ([]*anilist.BaseMedia, error) {
-	//	// Wait for the rate limiter
-	//	anilistRateLimiter.Wait()
-	//
-	//	// Fetch the media
-	//	println("Fetching", id, "on AniList")
-	//	media, err := anilist.GetBaseMediaById(anilistClient, id)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	// Fetch the media's relations
-	//	tree := anilist.NewBaseMediaRelationTree()
-	//	_ = media.FetchMediaTree(anilist.FetchMediaTreeAll, anilistClient, anilistRateLimiter, tree, baseMediaCache)
-	//
-	//	// Get and return all media from the tree
-	//	ret := make([]*anilist.BaseMedia, 0)
-	//	tree.Range(func(key int, m *anilist.BaseMedia) bool {
-	//		println("Adding", *m.GetTitleSafe(), "from tree to results")
-	//		ret = append(ret, m)
-	//		return true
-	//	})
-	//
-	//	return ret, nil
-	//})
-	//
-	//scanned, ok := anilistMediaResults.GetFulfilledResults()
-
-	anilistMediaResults := parallel.NewSettledResults[int, *anilist.BaseMedia](anilistIds)
-	anilistMediaResults.AllSettled(func(id int, index int) (*anilist.BaseMedia, error) {
-		// Wait for the rate limiter
+	// Fetch all media from the AniList IDs
+	anilistMedia := make([]*anilist.BaseMedia, 0)
+	lop.ForEach(anilistIds, func(id int, index int) {
 		anilistRateLimiter.Wait()
-
-		// Fetch the media
-		println("Fetching", id, "on AniList")
 		media, err := anilist.GetBaseMediaById(anilistClient, id)
-		return media, err
+		if err == nil {
+			anilistMedia = append(anilistMedia, media)
+		} else {
+			println("error while fetching", id, err.Error())
+		}
 	})
 
-	anilistMedia, ok := anilistMediaResults.GetFulfilledResults()
-	if !ok {
-		return nil, false
-	}
-
+	// Create a new tree that will hold the fetched relations
+	// /!\ This is redundant because we already have a cache, but `FetchMediaTree` needs its
 	tree := anilist.NewBaseMediaRelationTree()
-	wg := sync.WaitGroup{}
 
-	for _, m := range *anilistMedia {
-		wg.Add(1)
-		go func(_m *anilist.BaseMedia) {
-			defer wg.Done()
-
-			err := _m.FetchMediaTree(anilist.FetchMediaTreeAll, anilistClient, rateLimiter, tree, baseMediaCache)
-			if err != nil {
-				return
-			}
-
-		}(m)
-	}
-
-	wg.Wait()
-
-	tree.Range(func(key int, value *anilist.BaseMedia) bool {
-		baseMediaCache.Set(key, value)
-		return true
+	// For each media, fetch its relations
+	// The relations are fetched in parallel and added to `baseMediaCache`
+	lop.ForEach(anilistMedia, func(m *anilist.BaseMedia, index int) {
+		// We ignore errors because we want to continue even if one of the media fails
+		_ = m.FetchMediaTree(anilist.FetchMediaTreeAll, anilistClient, anilistRateLimiter, tree, baseMediaCache)
 	})
 
+	// Retrieve all media from the cache
 	scanned := make([]*anilist.BaseMedia, 0)
 	baseMediaCache.Range(func(key int, value *anilist.BaseMedia) bool {
 		scanned = append(scanned, value)
 		return true
 	})
-
-	if !ok {
-		return nil, false
-	}
 
 	return scanned, true
 }

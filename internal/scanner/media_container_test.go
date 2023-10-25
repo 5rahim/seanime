@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestFetchMediaTrees(t *testing.T) {
+func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 	anilistClient := MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
@@ -17,15 +17,16 @@ func TestFetchMediaTrees(t *testing.T) {
 		t.Fatal("expected local files, got error")
 	}
 
-	ret, ok := FetchMediaTrees(anilistClient, localFiles, baseMediaCache, anizipCache)
+	_, ok = FetchMediaFromLocalFiles(anilistClient, localFiles, baseMediaCache, anizipCache)
 
 	if !ok {
 		t.Fatal("expected result, got error")
 	}
 
-	for _, media := range ret {
-		t.Log(*media.GetTitleSafe())
-	}
+	baseMediaCache.Range(func(key int, value *anilist.BaseMedia) bool {
+		t.Log(value.GetTitleSafe())
+		return true
+	})
 
 }
 
@@ -54,7 +55,7 @@ func TestNewMediaContainer(t *testing.T) {
 	}
 
 	for _, media := range mc.AllMedia {
-		t.Log(*media.GetTitleSafe())
+		t.Log(media.GetTitleSafe())
 	}
 }
 
@@ -83,6 +84,6 @@ func TestEnhancedNewMediaContainer(t *testing.T) {
 	}
 
 	for _, media := range mc.AllMedia {
-		t.Log(*media.GetTitleSafe())
+		t.Log(media.GetTitleSafe())
 	}
 }

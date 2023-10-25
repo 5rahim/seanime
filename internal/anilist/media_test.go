@@ -46,7 +46,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 	wg.Wait()
 
 	tree.Range(func(key int, value *BaseMedia) bool {
-		t.Log(*value.GetTitleSafe())
+		t.Log(value.GetTitleSafe())
 		return true
 	})
 
@@ -77,7 +77,7 @@ func TestBaseMedia_FetchMediaTreeC(t *testing.T) {
 	}
 
 	bsdTree.Range(func(key int, value *BaseMedia) bool {
-		t.Log(*value.GetTitleSafe())
+		t.Log(value.GetTitleSafe())
 		cache.Set(key, value)
 		return true
 	})
@@ -89,7 +89,7 @@ func TestBaseMedia_FetchMediaTreeC(t *testing.T) {
 	err = bsdMedia.FetchMediaTree(FetchMediaTreeAll, anilistClient, rateLimit, bsdTree2, cache)
 
 	bsdTree2.Range(func(key int, value *BaseMedia) bool {
-		t.Log(*value.GetTitleSafe())
+		t.Log(value.GetTitleSafe())
 		cache.Set(key, value)
 		return true
 	})

@@ -2,9 +2,10 @@ package anilist
 
 import (
 	"context"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/result"
-	"sync"
 )
 
 type BaseMediaRelationTree struct {
@@ -29,7 +30,6 @@ const (
 // It also takes a BaseMediaCache to store the fetched media in and avoid duplicate fetches.
 // It also takes a limiter.Limiter to limit the number of requests made to the AniList API.
 func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Client, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
-	wg := sync.WaitGroup{}
 
 	// If the media is in the result cache, skip
 	if tree.Has(m.ID) {
@@ -48,69 +48,78 @@ func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Cl
 
 	edges := m.GetRelations().GetEdges()
 
-	for _, _edge := range edges {
-
-		// Edge is not a sequel or prequel, skip
+	// Filter out edges that are not sequels or prequels, not released yet, not specific format, or already in the tree
+	edges = lo.Filter(edges, func(_edge *BaseMedia_Relations_Edges, _ int) bool {
 		if *_edge.RelationType != MediaRelationSequel && *_edge.RelationType != MediaRelationPrequel {
-			continue
+			return false
 		}
-
 		if *_edge.GetNode().Status == MediaStatusNotYetReleased {
-			continue
+			return false
 		}
-
-		// Edge is TV, TV_SHORT, SPECIAL, MOVIE, OVA, ONA
-		if _edge.IsBroadRelationFormat() && !tree.Has(_edge.GetNode().ID) {
-			wg.Add(1)
-
-			// A prequel edge will only fetch its prequels
-			// A sequel edge will only fetch its sequels
-			_edgeRel := rel
-			if rel == "all" && *_edge.RelationType == MediaRelationPrequel {
-				_edgeRel = FetchMediaTreePrequels
-			}
-			if rel == "all" && *_edge.RelationType == MediaRelationSequel {
-				_edgeRel = FetchMediaTreeSequels
-			}
-
-			go func(edge *BaseMedia_Relations_Edges, edgeRel *string) {
-
-				// Find the edge in the tree
-				cacheV, ok := cache.Get(edge.GetNode().ID)
-
-				// Continue with the media is in the tree or fetch it
-				edgeBaseMedia := cacheV
-				cont := false
-				if !ok {
-					// Wait for the rate limiter
-					rateLimiter.Wait()
-					println("cache MISS", edge.GetNode().ID)
-					res, err := anilistClient.BaseMediaByID(context.Background(), &edge.GetNode().ID)
-					if err == nil {
-						edgeBaseMedia = res.GetMedia()
-						cache.Set(edgeBaseMedia.ID, edgeBaseMedia)
-						cont = true
-					}
-
-				} else {
-					println("cache HIT", edge.GetNode().ID)
-					cont = true
-				}
-
-				if cont {
-					_ = edgeBaseMedia.FetchMediaTree(*edgeRel, anilistClient, rateLimiter, tree, cache)
-				}
-
-				wg.Done()
-
-			}(_edge, &_edgeRel)
-
+		if !_edge.IsBroadRelationFormat() || tree.Has(_edge.GetNode().ID) {
+			return false
 		}
+		return true
+	})
+
+	// If there are no edges left, skip
+	if len(edges) == 0 {
+		return nil
 	}
 
-	// Wait until all the edges and their edges are fetched
-	wg.Wait()
+	// Create a channel to wait for all goroutines to finish
+	doneCh := make(chan struct{})
 
-	return nil
+	// For each edge, fetch the media and add it to the tree
+	lop.ForEach(edges, func(edge *BaseMedia_Relations_Edges, _ int) {
+		edgeRel := rel
+		// If the relation is "all", but the edge is a prequel, fetch the edge's prequels
+		if rel == "all" && *edge.RelationType == MediaRelationPrequel {
+			edgeRel = FetchMediaTreePrequels
+		}
+		// If the relation is "all", but the edge is a sequel, fetch the edge's sequels
+		if rel == "all" && *edge.RelationType == MediaRelationSequel {
+			edgeRel = FetchMediaTreeSequels
+		}
+
+		// Find the edge in the cache
+		cacheV, ok := cache.Get(edge.GetNode().ID)
+
+		edgeBaseMedia := cacheV
+		cont := false
+
+		// If the edge is not in the cache, fetch it
+		if !ok {
+			// Wait for the rate limiter
+			rateLimiter.Wait()
+			res, err := anilistClient.BaseMediaByID(context.Background(), &edge.GetNode().ID)
+			if err == nil {
+				edgeBaseMedia = res.GetMedia()
+				cache.Set(edgeBaseMedia.ID, edgeBaseMedia)
+				cont = true
+			}
+
+		} else {
+			cont = true
+		}
+
+		if cont {
+			// Fetch the edge's relations
+			edgeBaseMedia.FetchMediaTree(edgeRel, anilistClient, rateLimiter, tree, cache)
+		}
+
+	})
+
+	go func() {
+		close(doneCh)
+	}()
+
+	for {
+		select {
+		case <-doneCh:
+			return nil
+		default:
+		}
+	}
 
 }

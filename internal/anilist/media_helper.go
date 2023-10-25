@@ -1,10 +1,23 @@
 package anilist
 
-func (m *BaseMedia) GetTitleSafe() *string {
+func (m *BaseMedia) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
-		return m.GetTitle().GetEnglish()
+		return *m.GetTitle().GetEnglish()
 	}
-	return m.GetTitle().GetRomaji()
+	if m.GetTitle().GetRomaji() != nil {
+		return *m.GetTitle().GetRomaji()
+	}
+	return "N/A"
+}
+
+func (m *BasicMedia) GetTitleSafe() string {
+	if m.GetTitle().GetEnglish() != nil {
+		return *m.GetTitle().GetEnglish()
+	}
+	if m.GetTitle().GetRomaji() != nil {
+		return *m.GetTitle().GetRomaji()
+	}
+	return "N/A"
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
