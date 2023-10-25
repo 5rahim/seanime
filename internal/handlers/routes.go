@@ -40,3 +40,19 @@ func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) 
 		return handler(ctx)
 	}
 }
+
+func (c *RouteCtx) GetAnilistToken() string {
+	return c.Fiber.Cookies("anilistToken", "")
+}
+
+func (c *RouteCtx) AcceptJSON() {
+	c.Fiber.Accepts(fiber.MIMEApplicationJSON)
+}
+
+func (c *RouteCtx) RespondWithData(data any) error {
+	return c.Fiber.Status(200).JSON(NewDataResponse(data))
+}
+
+func (c *RouteCtx) RespondWithError(err error) error {
+	return c.Fiber.Status(500).JSON(NewErrorResponse(err))
+}

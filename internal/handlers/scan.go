@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 )
 
@@ -12,7 +11,7 @@ type ScanRequestBody struct {
 
 func ScanLocalFiles(c *RouteCtx) error {
 
-	c.Fiber.Accepts(fiber.MIMEApplicationJSON)
+	c.AcceptJSON()
 
 	//token := c.Cookies("anilistToken", "")
 
@@ -20,17 +19,15 @@ func ScanLocalFiles(c *RouteCtx) error {
 	body := new(ScanRequestBody)
 	// Parse body
 	if err := c.Fiber.BodyParser(body); err != nil {
-		return c.Fiber.JSON(NewErrorResponse(err))
+		return c.RespondWithError(err)
 	}
 
 	// Get local files
 	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir)
 	if err != nil {
-		return c.Fiber.JSON(NewErrorResponse(err))
+		return c.RespondWithError(err)
 	}
 
-	//util.Logger.Debug().Msgf("test")
-
-	return c.Fiber.JSON(NewDataResponse(localFiles))
+	return c.RespondWithData(localFiles)
 
 }
