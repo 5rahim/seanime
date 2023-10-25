@@ -3,15 +3,18 @@ package scanner
 import (
 	"fmt"
 	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime-server/internal/util"
 	"io"
 	"os"
 	"testing"
 )
 
 func TestGetLocalFilesFromDir(t *testing.T) {
+	logger := util.NewLogger()
+
 	os.Setenv("SEA_LOCAL_DIR", "E:/Anime")
 
-	localFiles, err := GetLocalFilesFromDir(os.Getenv("SEA_LOCAL_DIR"))
+	localFiles, err := GetLocalFilesFromDir(os.Getenv("SEA_LOCAL_DIR"), logger)
 	if err != nil {
 		t.Error("expected localfiles, got error")
 	}

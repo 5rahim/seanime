@@ -9,7 +9,7 @@ type ScanRequestBody struct {
 	Username string `json:"userName"`
 }
 
-func ScanLocalFiles(c *RouteCtx) error {
+func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()
 
@@ -23,7 +23,7 @@ func ScanLocalFiles(c *RouteCtx) error {
 	}
 
 	// Get local files
-	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir)
+	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir, c.App.Logger)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

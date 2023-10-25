@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/filesystem"
@@ -78,13 +79,21 @@ func (f *LocalFile) GetParsedTitle() string {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // GetLocalFilesFromDir creates a new LocalFile for each video file
-func GetLocalFilesFromDir(dirPath string) ([]*LocalFile, error) {
+func GetLocalFilesFromDir(dirPath string, logger *zerolog.Logger) ([]*LocalFile, error) {
 	paths, err := filesystem.GetVideoFilePathsFromDir(dirPath)
+
+	logger.Debug().
+		Any("dirPath", dirPath).
+		Msg("[localfile] Retrieving local files")
 
 	// Concurrently populate localFiles
 	localFiles := lop.Map(paths, func(path string, index int) *LocalFile {
 		return NewLocalFile(path, dirPath)
 	})
+
+	logger.Debug().
+		Any("count", len(localFiles)).
+		Msg("[localfile] Retrieved local files")
 
 	return localFiles, err
 }

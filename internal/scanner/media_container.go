@@ -3,6 +3,7 @@ package scanner
 import (
 	"context"
 	"errors"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -25,6 +26,7 @@ type MediaContainerOptions struct {
 	LocalFiles     []*LocalFile
 	BaseMediaCache *anilist.BaseMediaCache
 	AnizipCache    *anizip.Cache
+	Logger         *zerolog.Logger
 }
 
 // NewMediaContainer
@@ -36,11 +38,17 @@ func NewMediaContainer(opts *MediaContainerOptions) (*MediaContainer, error) {
 		opts.Username == "" ||
 		opts.LocalFiles == nil ||
 		opts.BaseMediaCache == nil ||
-		opts.AnizipCache == nil {
+		opts.AnizipCache == nil ||
+		opts.Logger == nil {
 		return nil, errors.New("missing options")
 	}
 
 	mc := new(MediaContainer)
+
+	opts.Logger.Debug().
+		Any("enhanced", opts.Enhanced).
+		Any("username", opts.Username).
+		Msg("[media_container] Creating media container")
 
 	// Fetch user's AniList collection
 	animeCollection, err := opts.AnilistClient.AnimeCollection(context.Background(), &opts.Username)
@@ -59,8 +67,15 @@ func NewMediaContainer(opts *MediaContainerOptions) (*MediaContainer, error) {
 		}
 	}
 
+	opts.Logger.Debug().
+		Any("count", len(mc.AllMedia)).
+		Msg("[media_container] Fetched AniList collection")
+
 	// If enhancing is on, scan media from local files and get their relations
 	if opts.Enhanced {
+		opts.Logger.Debug().
+			Msg("[media_container] Fetching media from local files")
+
 		_, ok := FetchMediaFromLocalFiles(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache)
 		if ok {
 			// We assume the BaseMediaCache is populated. We overwrite AllMedia with the cache content.

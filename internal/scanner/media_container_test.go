@@ -3,6 +3,7 @@ package scanner
 import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/util"
 	"testing"
 )
 
@@ -35,6 +36,7 @@ func TestNewMediaContainer(t *testing.T) {
 	anilistClient := MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
+	logger := util.NewLogger()
 
 	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
@@ -48,6 +50,7 @@ func TestNewMediaContainer(t *testing.T) {
 		LocalFiles:     localFiles,
 		BaseMediaCache: baseMediaCache,
 		AnizipCache:    anizipCache,
+		Logger:         logger,
 	})
 
 	if err != nil {
@@ -64,6 +67,7 @@ func TestEnhancedNewMediaContainer(t *testing.T) {
 	anilistClient := MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
+	logger := util.NewLogger()
 
 	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
@@ -77,6 +81,7 @@ func TestEnhancedNewMediaContainer(t *testing.T) {
 		LocalFiles:     localFiles,
 		BaseMediaCache: baseMediaCache,
 		AnizipCache:    anizipCache,
+		Logger:         logger,
 	})
 
 	if err != nil {

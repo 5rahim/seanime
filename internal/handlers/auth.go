@@ -12,7 +12,7 @@ type AuthRequestBody struct {
 	Token string
 }
 
-func EnforceAnilistToken(c *RouteCtx) error {
+func HandleEnforceAnilistToken(c *RouteCtx) error {
 
 	token := c.Fiber.Cookies("anilistToken", "")
 
@@ -24,7 +24,7 @@ func EnforceAnilistToken(c *RouteCtx) error {
 
 }
 
-func Auth(c *RouteCtx) error {
+func HandleAuth(c *RouteCtx) error {
 
 	c.Fiber.Accepts("application/json")
 

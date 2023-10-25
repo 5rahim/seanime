@@ -10,9 +10,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	api := fiberApp.Group("/api")
 
-	api.Post("*", makeHandler(app, EnforceAnilistToken))
-	api.Post("/auth", makeHandler(app, Auth))
-	api.Post("/scan", makeHandler(app, ScanLocalFiles))
+	api.Post("*", makeHandler(app, HandleEnforceAnilistToken))
+	api.Post("/auth", makeHandler(app, HandleAuth))
+	api.Post("/scan", makeHandler(app, HandleScanLocalFiles))
+	api.Post("/test-dump", makeHandler(app, HandleManualDump))
 
 }
 
