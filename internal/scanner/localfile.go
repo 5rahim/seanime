@@ -80,7 +80,7 @@ func (f *LocalFile) GetParsedTitle() string {
 	return ""
 }
 
-func (f *LocalFile) GetTitleVariations() []string {
+func (f *LocalFile) GetTitleVariations() []*string {
 	// Get the season from the folder data
 	folderSeason := 0
 	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
@@ -121,7 +121,7 @@ func (f *LocalFile) GetTitleVariations() []string {
 	}
 
 	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
-		return make([]string, 0)
+		return make([]*string, 0)
 	}
 
 	titleVariations := make([]string, 0)
@@ -217,7 +217,7 @@ func (f *LocalFile) GetTitleVariations() []string {
 
 	titleVariations = lo.Uniq(titleVariations)
 
-	return titleVariations
+	return lo.ToSlicePtr(titleVariations)
 
 }
 

@@ -19,6 +19,24 @@ func (m *BasicMedia) GetTitleSafe() string {
 	}
 	return "N/A"
 }
+func (m *BaseMedia) HasEnglishTitle() bool {
+	return m.Title.English != nil
+}
+func (m *BaseMedia) HasRomajiTitle() bool {
+	return m.Title.Romaji != nil
+}
+func (m *BaseMedia) HasSynonyms() bool {
+	return m.Synonyms != nil
+}
+func (m *BasicMedia) HasEnglishTitle() bool {
+	return m.Title.English != nil
+}
+func (m *BasicMedia) HasRomajiTitle() bool {
+	return m.Title.Romaji != nil
+}
+func (m *BasicMedia) HasSynonyms() bool {
+	return m.Synonyms != nil
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

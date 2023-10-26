@@ -66,10 +66,10 @@ func TestLocalFile_GetTitleVariations(t *testing.T) {
 		t.Fatalf("expected local files")
 	}
 
-	p := pool.NewWithResults[[]string]()
+	p := pool.NewWithResults[[]*string]()
 	for _, lf := range localFiles {
 		lf := lf
-		p.Go(func() []string {
+		p.Go(func() []*string {
 			return lf.GetTitleVariations()
 		})
 	}
@@ -81,10 +81,10 @@ func TestLocalFile_GetTitleVariations(t *testing.T) {
 
 }
 
-func formatArr(arr ...string) string {
+func formatArr(arr ...*string) string {
 	bf := bytes.NewBuffer([]byte{})
 	for _, el := range arr {
-		bf.WriteString(el)
+		bf.WriteString(*el)
 		bf.WriteString(" --- ")
 	}
 	return bf.String()

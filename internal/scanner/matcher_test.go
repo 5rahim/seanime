@@ -1,8 +1,11 @@
 package scanner
 
-import "testing"
+import (
+	"github.com/sourcegraph/conc/pool"
+	"testing"
+)
 
-func TestMatcher_FindBestCorrespondingMedia(t *testing.T) {
+func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 	lfs, ok := MockGetTestLocalFiles()
 	if !ok {
@@ -20,6 +23,13 @@ func TestMatcher_FindBestCorrespondingMedia(t *testing.T) {
 		baseMediaCache: nil,
 	})
 
-	matcher.FindBestCorrespondingMedia(lfs[0])
+	p := pool.New()
+	for _, lf := range lfs {
+		lf := lf
+		p.Go(func() {
+			matcher.MatchLocalFileWithMedia(lf)
+		})
+	}
+	p.Wait()
 
 }

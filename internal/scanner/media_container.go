@@ -5,6 +5,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/comparison"
+	"strings"
 )
 
 type MediaContainerOptions struct {
@@ -52,4 +53,29 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc.allMedia = opts.allMedia
 
 	return mc
+}
+
+func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anilist.BaseMedia, bool) {
+	if title == nil {
+		return nil, false
+	}
+	t := strings.ToLower(*title)
+	res, found := lo.Find(mc.allMedia, func(m *anilist.BaseMedia) bool {
+		if m.HasEnglishTitle() && t == strings.ToLower(*m.Title.English) {
+			return true
+		}
+		if m.HasRomajiTitle() && t == strings.ToLower(*m.Title.Romaji) {
+			return true
+		}
+		if m.HasSynonyms() {
+			for _, syn := range m.Synonyms {
+				if t == strings.ToLower(*syn) {
+					return true
+				}
+			}
+		}
+		return false
+	})
+
+	return res, found
 }

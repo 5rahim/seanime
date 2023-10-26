@@ -1,6 +1,9 @@
 package comparison
 
-import "testing"
+import (
+	"github.com/samber/lo"
+	"testing"
+)
 
 func TestFindBestMatchWithLevenstein(t *testing.T) {
 
@@ -8,8 +11,8 @@ func TestFindBestMatchWithLevenstein(t *testing.T) {
 	titles := []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"}
 	expected := "Jujutsu Kaisen 2"
 
-	if res, ok := FindBestMatchWithLevenstein(title, titles); ok {
-		if res.Value != expected {
+	if res, ok := FindBestMatchWithLevenstein(&title, lo.ToSlicePtr(titles)); ok {
+		if *res.Value != expected {
 			t.Errorf("expected %s for %s, got %s", expected, title, res.Value)
 		}
 		if res.Distance != 0 {

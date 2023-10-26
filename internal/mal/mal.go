@@ -161,14 +161,14 @@ func AdvancedSearchWithMAL(title string) (*SearchResultAnime, error) {
 		return strings.HasPrefix(nTitle, _tsub) && n.Payload.MediaType == "TV" && !re.MatchString(nTitle)
 	})
 
-	levResult, found := comparison.FindBestMatchWithLevenstein(title, lo.Map(suggestions, func(n *SearchResultAnime, index int) string { return n.Name }))
+	levResult, found := comparison.FindBestMatchWithLevenstein(&title, lo.Map(suggestions, func(n *SearchResultAnime, index int) *string { return &n.Name }))
 
 	if !found {
 		return nil, errors.New("couldn't find a suggestion from levenshtein")
 	}
 
 	levSuggestion, found := lo.Find(suggestions, func(n *SearchResultAnime) bool {
-		return strings.ToLower(n.Name) == strings.ToLower(levResult.Value)
+		return strings.ToLower(n.Name) == strings.ToLower(*levResult.Value)
 	})
 
 	if !found {
@@ -176,8 +176,8 @@ func AdvancedSearchWithMAL(title string) (*SearchResultAnime, error) {
 	}
 
 	if foundT1 {
-		d, found := comparison.FindBestMatchWithLevenstein(tsub, []string{title, ""})
-		if found && len(d.Value) > 0 {
+		d, found := comparison.FindBestMatchWithLevenstein(&tsub, []*string{&title, new(string)})
+		if found && len(*d.Value) > 0 {
 			if d.Distance <= 1 {
 				return t1, nil
 			}

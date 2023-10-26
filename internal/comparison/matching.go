@@ -8,12 +8,12 @@ import (
 
 // LevenshteinResult is a struct that holds a string and its Levenshtein distance compared to another string.
 type LevenshteinResult struct {
-	Value    string
+	Value    *string
 	Distance int
 }
 
 // CompareWithLevenstein compares a string to a slice of strings and returns a slice of LevenshteinResult containing the Levenshtein distance for each string.
-func CompareWithLevenstein(v string, vals []string) []*LevenshteinResult {
+func CompareWithLevenstein(v *string, vals []*string) []*LevenshteinResult {
 
 	lev := metrics.NewLevenshtein()
 	lev.CaseSensitive = false
@@ -23,7 +23,7 @@ func CompareWithLevenstein(v string, vals []string) []*LevenshteinResult {
 	for _, val := range vals {
 		res = append(res, &LevenshteinResult{
 			Value:    val,
-			Distance: lev.Distance(v, val),
+			Distance: lev.Distance(*v, *val),
 		})
 	}
 
@@ -32,7 +32,7 @@ func CompareWithLevenstein(v string, vals []string) []*LevenshteinResult {
 
 // FindBestMatchWithLevenstein returns the best match from a slice of strings as a reference to a LevenshteinResult.
 // It also returns a boolean indicating whether the best match was found.
-func FindBestMatchWithLevenstein(v string, vals []string) (*LevenshteinResult, bool) {
+func FindBestMatchWithLevenstein(v *string, vals []*string) (*LevenshteinResult, bool) {
 	res := CompareWithLevenstein(v, vals)
 
 	n := lo.Reduce(res, func(prev *LevenshteinResult, curr *LevenshteinResult, index int) *LevenshteinResult {
@@ -56,11 +56,11 @@ func FindBestMatchWithLevenstein(v string, vals []string) (*LevenshteinResult, b
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type SorensenDiceResult struct {
-	Value  string
+	Value  *string
 	Rating float64
 }
 
-func CompareWithSorensenDice(v string, vals []string) []*SorensenDiceResult {
+func CompareWithSorensenDice(v *string, vals []*string) []*SorensenDiceResult {
 
 	lev := metrics.NewSorensenDice()
 	lev.CaseSensitive = false
@@ -70,14 +70,14 @@ func CompareWithSorensenDice(v string, vals []string) []*SorensenDiceResult {
 	for _, val := range vals {
 		res = append(res, &SorensenDiceResult{
 			Value:  val,
-			Rating: lev.Compare(v, val),
+			Rating: lev.Compare(*v, *val),
 		})
 	}
 
 	return res
 }
 
-func FindBestMatchWithSorensenDice(v string, vals []string) (*SorensenDiceResult, bool) {
+func FindBestMatchWithSorensenDice(v *string, vals []*string) (*SorensenDiceResult, bool) {
 	res := CompareWithSorensenDice(v, vals)
 
 	n := lo.Reduce(res, func(prev *SorensenDiceResult, curr *SorensenDiceResult, index int) *SorensenDiceResult {
@@ -97,7 +97,6 @@ func FindBestMatchWithSorensenDice(v string, vals []string) (*SorensenDiceResult
 
 	return n, true
 }
-
 func EliminateLestSimilarValue(arr []string) []string {
 	if len(arr) < 3 {
 		return arr
