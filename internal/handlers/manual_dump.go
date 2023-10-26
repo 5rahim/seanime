@@ -33,7 +33,7 @@ func HandleManualDump(c *RouteCtx) error {
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
 
-	mc, err := scanner.NewMediaContainer(&scanner.MediaContainerOptions{
+	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
 		Enhanced:       false,
 		Username:       body.Username,
 		AnilistClient:  c.App.AnilistClient,

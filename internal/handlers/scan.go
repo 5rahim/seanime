@@ -5,29 +5,38 @@ import (
 )
 
 type ScanRequestBody struct {
-	Dir      string `json:"dir"`
-	Username string `json:"userName"`
+	DirPath  string `json:"dirPath"`
+	Username string `json:"username"`
+	Enhanced bool   `json:"enhanced"`
 }
 
 func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()
 
-	//token := c.Cookies("anilistToken", "")
+	token := c.GetAnilistToken()
 
 	// Body
 	body := new(ScanRequestBody)
-	// Parse body
 	if err := c.Fiber.BodyParser(body); err != nil {
 		return c.RespondWithError(err)
 	}
 
-	// Get local files
-	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir, c.App.Logger)
+	sc := scanner.Scanner{
+		Token:         token,
+		DirPath:       body.DirPath,
+		Username:      body.Username,
+		Enhanced:      body.Enhanced,
+		AnilistClient: c.App.AnilistClient,
+		Logger:        c.App.Logger,
+		DB:            c.App.Database,
+	}
+
+	_, err := sc.Scan()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	return c.RespondWithData(localFiles)
+	return c.RespondWithData("")
 
 }

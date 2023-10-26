@@ -31,7 +31,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 }
 
-func TestNewMediaContainer(t *testing.T) {
+func TestNewMediaFetcher(t *testing.T) {
 
 	anilistClient := MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
@@ -43,7 +43,7 @@ func TestNewMediaContainer(t *testing.T) {
 		t.Fatal("expected local files, got error")
 	}
 
-	mc, err := NewMediaContainer(&MediaContainerOptions{
+	mc, err := NewMediaFetcher(&MediaFetcherOptions{
 		Enhanced:       false,
 		Username:       "5unwired",
 		AnilistClient:  anilistClient,
@@ -62,7 +62,7 @@ func TestNewMediaContainer(t *testing.T) {
 	}
 }
 
-func TestEnhancedNewMediaContainer(t *testing.T) {
+func TestEnhancedNewMediaFetcher(t *testing.T) {
 
 	anilistClient := MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
@@ -74,7 +74,7 @@ func TestEnhancedNewMediaContainer(t *testing.T) {
 		t.Fatal("expected local files, got error")
 	}
 
-	mc, err := NewMediaContainer(&MediaContainerOptions{
+	mc, err := NewMediaFetcher(&MediaFetcherOptions{
 		Enhanced:       true,
 		Username:       "5unwired",
 		AnilistClient:  anilistClient,

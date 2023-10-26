@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/matching"
+	"github.com/seanime-app/seanime-server/internal/comparison"
 	"github.com/seanime-app/seanime-server/internal/result"
 	"io"
 	"math"
@@ -161,7 +161,7 @@ func AdvancedSearchWithMAL(title string) (*SearchResultAnime, error) {
 		return strings.HasPrefix(nTitle, _tsub) && n.Payload.MediaType == "TV" && !re.MatchString(nTitle)
 	})
 
-	levResult, found := matching.FindBestMatchWithLevenstein(title, lo.Map(suggestions, func(n *SearchResultAnime, index int) string { return n.Name }))
+	levResult, found := comparison.FindBestMatchWithLevenstein(title, lo.Map(suggestions, func(n *SearchResultAnime, index int) string { return n.Name }))
 
 	if !found {
 		return nil, errors.New("couldn't find a suggestion from levenshtein")
@@ -176,7 +176,7 @@ func AdvancedSearchWithMAL(title string) (*SearchResultAnime, error) {
 	}
 
 	if foundT1 {
-		d, found := matching.FindBestMatchWithLevenstein(tsub, []string{title, ""})
+		d, found := comparison.FindBestMatchWithLevenstein(tsub, []string{title, ""})
 		if found && len(d.Value) > 0 {
 			if d.Distance <= 1 {
 				return t1, nil

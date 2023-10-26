@@ -2,4 +2,4 @@ package constants
 
 import "time"
 
-const GC_TIME = time.Minute * 10
+const GC_TIME = time.Minute * 30

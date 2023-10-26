@@ -1,4 +1,5 @@
-package matching
+// Package comparison contains helpers related to comparison, comparison and filtering of media titles.
+package comparison
 
 import (
 	"github.com/adrg/strutil/metrics"
