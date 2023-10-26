@@ -53,6 +53,51 @@ func FindBestMatchWithLevenstein(v string, vals []string) (*LevenshteinResult, b
 	return n, true
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type SorensenDiceResult struct {
+	Value  string
+	Rating float64
+}
+
+func CompareWithSorensenDice(v string, vals []string) []*SorensenDiceResult {
+
+	lev := metrics.NewSorensenDice()
+	lev.CaseSensitive = false
+
+	res := make([]*SorensenDiceResult, len(vals))
+
+	for _, val := range vals {
+		res = append(res, &SorensenDiceResult{
+			Value:  val,
+			Rating: lev.Compare(v, val),
+		})
+	}
+
+	return res
+}
+
+func FindBestMatchWithSorensenDice(v string, vals []string) (*SorensenDiceResult, bool) {
+	res := CompareWithSorensenDice(v, vals)
+
+	n := lo.Reduce(res, func(prev *SorensenDiceResult, curr *SorensenDiceResult, index int) *SorensenDiceResult {
+		if prev == nil || curr == nil {
+			return curr
+		}
+		if prev.Rating > curr.Rating {
+			return prev
+		} else {
+			return curr
+		}
+	}, &SorensenDiceResult{})
+
+	if n == nil {
+		return nil, false
+	}
+
+	return n, true
+}
+
 func EliminateLestSimilarValue(arr []string) []string {
 	if len(arr) < 3 {
 		return arr
