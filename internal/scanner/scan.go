@@ -28,6 +28,7 @@ func (scn Scanner) Scan() (any, error) {
 		return nil, err
 	}
 
+	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
 		Enhanced:       scn.Enhanced,
 		Username:       scn.Username,
@@ -41,10 +42,12 @@ func (scn Scanner) Scan() (any, error) {
 		return nil, err
 	}
 
+	// Create a new container for media
 	mc := NewMediaContainer(&MediaContainerOptions{
 		allMedia: mf.AllMedia,
 	})
 
+	// Create a new matcher
 	matcher := NewMatcher(&MatcherOptions{
 		localFiles:     localFiles,
 		mediaContainer: mc,
@@ -55,6 +58,7 @@ func (scn Scanner) Scan() (any, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	matcher.ValideMatches()
 
 	return localFiles, nil

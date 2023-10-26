@@ -21,3 +21,47 @@ func TestFindBestMatchWithLevenstein(t *testing.T) {
 	}
 
 }
+
+func TestEliminateLestSimilarValue(t *testing.T) {
+
+	titles := []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"}
+
+	res := EliminateLestSimilarValue(titles)
+
+	for _, n := range res {
+		if n == "JJK" {
+			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
+		}
+	}
+
+	titles = []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Gold"}
+
+	res = EliminateLestSimilarValue(titles)
+
+	for _, n := range res {
+		if n == "One Piece Gold" {
+			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
+		}
+	}
+
+	titles = []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Z"}
+
+	res = EliminateLestSimilarValue(titles)
+
+	for _, n := range res {
+		if n == "One Piece Z" {
+			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
+		}
+	}
+
+	titles = []string{"Mononogatari", "Mononogatari Cour 2", "Nekomonogatari"}
+
+	res = EliminateLestSimilarValue(titles)
+
+	for _, n := range res {
+		if n == "Nekomonogatari" {
+			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
+		}
+	}
+
+}

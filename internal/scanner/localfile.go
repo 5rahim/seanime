@@ -1,11 +1,15 @@
 package scanner
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/filesystem"
+	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/seanime-app/tanuki"
+	"strconv"
 	"strings"
 )
 
@@ -74,6 +78,158 @@ func (f *LocalFile) GetParsedTitle() string {
 		return f.ParsedData.Title
 	}
 	return ""
+}
+
+func (f *LocalFile) GetTitleVariations() []string {
+	// Get the season from the folder data
+	folderSeason := 0
+	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
+			return len(fpd.Season) > 0
+		})
+		if found {
+			if res := util.StringToInt(v.Season); res > 0 {
+				folderSeason = res
+			}
+		}
+	}
+
+	// Get the season from the filename
+	season := 0
+	if len(f.ParsedData.Season) > 0 {
+		if res := util.StringToInt(f.ParsedData.Season); res > 0 {
+			season = res
+		}
+	}
+
+	// Get the part from the filename
+	part := 0
+	if len(f.ParsedData.Part) > 0 {
+		if res := util.StringToInt(f.ParsedData.Part); res > 0 {
+			part = res
+		}
+	}
+
+	folderTitle := ""
+	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
+			return len(fpd.Title) > 0
+		})
+		if found {
+			folderTitle = v.Title
+		}
+	}
+
+	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
+		return make([]string, 0)
+	}
+
+	titleVariations := make([]string, 0)
+
+	bothTitles := len(f.ParsedData.Title) > 0 && len(folderTitle) > 0
+	noSeasonsOrParts := folderSeason == 0 && season == 0 && part == 0
+	bothTitlesSimilar := bothTitles && strings.Contains(folderTitle, f.ParsedData.Title)
+	eitherSeason := folderSeason > 0 || season > 0
+	eitherSeasonFirst := folderSeason == 1 || season == 1
+
+	if part > 0 {
+		if len(folderTitle) > 0 {
+			titleVariations = append(titleVariations,
+				buildTitle(folderTitle, "Part", strconv.Itoa(part)),
+				buildTitle(folderTitle, "Part", util.IntegerToOrdinal(part)),
+				buildTitle(folderTitle, "Cour", strconv.Itoa(part)),
+				buildTitle(folderTitle, "Cour", util.IntegerToOrdinal(part)),
+			)
+		}
+		if len(f.ParsedData.Title) > 0 {
+			titleVariations = append(titleVariations,
+				buildTitle(f.ParsedData.Title, "Part", strconv.Itoa(part)),
+				buildTitle(f.ParsedData.Title, "Part", util.IntegerToOrdinal(part)),
+				buildTitle(f.ParsedData.Title, "Cour", strconv.Itoa(part)),
+				buildTitle(f.ParsedData.Title, "Cour", util.IntegerToOrdinal(part)),
+			)
+		}
+	}
+
+	if noSeasonsOrParts || eitherSeasonFirst {
+		if len(folderTitle) > 0 && bothTitlesSimilar {
+			titleVariations = append(titleVariations, folderTitle)
+		}
+		if len(f.ParsedData.Title) > 0 {
+			titleVariations = append(titleVariations, f.ParsedData.Title)
+		}
+	}
+
+	if part > 0 && eitherSeason {
+		if len(folderTitle) > 0 {
+			if season > 0 {
+				titleVariations = append(titleVariations,
+					buildTitle(folderTitle, "Season", strconv.Itoa(season), "Part", strconv.Itoa(part)),
+				)
+			} else if folderSeason > 0 {
+				titleVariations = append(titleVariations,
+					buildTitle(folderTitle, "Season", strconv.Itoa(folderSeason), "Part", strconv.Itoa(part)),
+				)
+			}
+		}
+		if len(f.ParsedData.Title) > 0 {
+			if season > 0 {
+				titleVariations = append(titleVariations,
+					buildTitle(f.ParsedData.Title, "Season", strconv.Itoa(season), "Part", strconv.Itoa(part)),
+				)
+			} else if folderSeason > 0 {
+				titleVariations = append(titleVariations,
+					buildTitle(f.ParsedData.Title, "Season", strconv.Itoa(folderSeason), "Part", strconv.Itoa(part)),
+				)
+			}
+		}
+	}
+
+	if eitherSeason {
+		arr := make([]string, 0)
+
+		seas := folderSeason
+		if season > 0 {
+			seas = season
+		}
+
+		if bothTitles {
+			arr = append(arr, f.ParsedData.Title)
+			if bothTitlesSimilar {
+				arr = append(arr, folderTitle)
+			} else {
+				arr = append(arr, fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title))
+			}
+		} else if len(folderTitle) > 0 {
+			arr = append(arr, folderTitle)
+		} else if len(f.ParsedData.Title) > 0 {
+			arr = append(arr, f.ParsedData.Title)
+		}
+
+		for _, t := range arr {
+			titleVariations = append(titleVariations,
+				buildTitle(t, "Season", strconv.Itoa(seas)),
+				buildTitle(t, "S"+strconv.Itoa(seas)),
+				buildTitle(t, util.IntegerToOrdinal(seas), "Season"),
+			)
+		}
+	}
+
+	titleVariations = lo.Uniq(titleVariations)
+
+	return titleVariations
+
+}
+
+func buildTitle(vals ...string) string {
+	buf := bytes.NewBuffer([]byte{})
+	for i, v := range vals {
+		buf.WriteString(v)
+		if i != len(vals)-1 {
+			buf.WriteString(" ")
+		}
+	}
+	return buf.String()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

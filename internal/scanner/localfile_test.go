@@ -1,9 +1,11 @@
 package scanner
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/sourcegraph/conc/pool"
 	"io"
 	"os"
 	"testing"
@@ -55,4 +57,35 @@ func TestGetUniqueAnimeTitles(t *testing.T) {
 		fmt.Println(title)
 	}
 
+}
+
+func TestLocalFile_GetTitleVariations(t *testing.T) {
+
+	localFiles, ok := MockGetTestLocalFiles()
+	if !ok {
+		t.Fatalf("expected local files")
+	}
+
+	p := pool.NewWithResults[[]string]()
+	for _, lf := range localFiles {
+		lf := lf
+		p.Go(func() []string {
+			return lf.GetTitleVariations()
+		})
+	}
+	res := p.Wait()
+
+	for _, r := range res {
+		t.Log(formatArr(r...))
+	}
+
+}
+
+func formatArr(arr ...string) string {
+	bf := bytes.NewBuffer([]byte{})
+	for _, el := range arr {
+		bf.WriteString(el)
+		bf.WriteString(" --- ")
+	}
+	return bf.String()
 }

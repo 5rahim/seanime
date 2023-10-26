@@ -52,3 +52,38 @@ func FindBestMatchWithLevenstein(v string, vals []string) (*LevenshteinResult, b
 
 	return n, true
 }
+
+func EliminateLestSimilarValue(arr []string) []string {
+	if len(arr) < 3 {
+		return arr
+	}
+
+	sd := metrics.NewSorensenDice()
+	sd.CaseSensitive = false
+
+	leastSimilarIndex := -1
+	leastSimilarScore := 2.0
+
+	for i := 0; i < len(arr); i++ {
+		totalSimilarity := 0.0
+
+		for j := 0; j < len(arr); j++ {
+			if i != j {
+				score := sd.Compare(arr[i], arr[j])
+				totalSimilarity += score
+			}
+		}
+
+		if totalSimilarity < leastSimilarScore {
+			leastSimilarScore = totalSimilarity
+			leastSimilarIndex = i
+		}
+	}
+
+	if leastSimilarIndex != -1 {
+		arr = append(arr[:leastSimilarIndex], arr[leastSimilarIndex+1:]...)
+	}
+
+	return arr
+
+}

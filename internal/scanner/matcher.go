@@ -20,6 +20,9 @@ type MatcherOptions struct {
 	baseMediaCache *anilist.BaseMediaCache
 }
 
+// MatchingCache holds the previous results of the matching process.
+// The key is a slice of strings representing the title variations of a local file.
+// The value is the media ID of the best match.
 type MatchingCache struct {
 	*result.Cache[[]string, int]
 }
@@ -55,7 +58,21 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 // If the best match is above a certain threshold, set the local file's mediaId to the best match's id
 // If the best match is below a certain threshold, leave the local file's mediaId to 0
 func (m *Matcher) FindBestCorrespondingMedia(lf *LocalFile) {
+	// Check if the local file has already been matched
+	if lf.MediaId != 0 {
+		return
+	}
+	// Check if the local file has a title
+	if lf.GetParsedTitle() == "" {
+		return
+	}
 
+	// Create title variations
+	// Check cache for title variation
+
+	_ = lf.GetTitleVariations()
+
+	// Compare the local file's title with all the media titles
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

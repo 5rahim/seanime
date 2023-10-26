@@ -11,6 +11,9 @@ func ValueContainsSeson(val string) bool {
 	if strings.IndexRune(val, '第') != -1 {
 		return false
 	}
+	if ValueContainsSpecial(val) {
+		return false
+	}
 
 	if strings.Contains(val, "season") {
 		return true
