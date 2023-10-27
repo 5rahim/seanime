@@ -39,6 +39,28 @@ func (m *BaseMedia) GetAllTitles() []*string {
 	return titles
 }
 
+func (m *BaseMedia) GetCurrentEpisodeCount() int {
+	ceil := 0
+	if m.Episodes != nil {
+		ceil = *m.Episodes
+	}
+	if m.NextAiringEpisode != nil {
+		if m.NextAiringEpisode.Episode > 0 {
+			ceil = m.NextAiringEpisode.Episode - 1
+		}
+	}
+	return ceil
+}
+
+// GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
+func (m *BaseMedia) GetTotalEpisodeCount() int {
+	ceil := -1
+	if m.Episodes != nil {
+		ceil = *m.Episodes
+	}
+	return ceil
+}
+
 func (m *BaseMedia) HasEnglishTitle() bool {
 	return m.Title.English != nil
 }

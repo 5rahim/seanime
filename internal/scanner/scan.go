@@ -59,14 +59,14 @@ func (scn Scanner) Scan() (any, error) {
 		return nil, err
 	}
 
-	// Create a new hydrater
-	hydrater := &FileHydrater{
+	// Create a new hydrator
+	hydrator := &FileHydrator{
 		localFiles:     localFiles,
 		media:          mc.allMedia,
 		baseMediaCache: baseMediaCache,
 		anizipCache:    anizipCache,
 	}
-	hydrater.HydrateMetadata()
+	hydrator.HydrateMetadata()
 
 	return localFiles, nil
 

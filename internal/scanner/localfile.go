@@ -98,7 +98,7 @@ func (f *LocalFile) GetTitleVariations() []*string {
 			return len(fpd.Season) > 0
 		})
 		if found {
-			if res := util.StringToInt(v.Season); res > 0 {
+			if res, ok := util.StringToInt(v.Season); ok {
 				folderSeason = res
 			}
 		}
@@ -107,7 +107,7 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	// Get the season from the filename
 	season := 0
 	if len(f.ParsedData.Season) > 0 {
-		if res := util.StringToInt(f.ParsedData.Season); res > 0 {
+		if res, ok := util.StringToInt(f.ParsedData.Season); ok {
 			season = res
 		}
 	}
@@ -115,7 +115,7 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	// Get the part from the filename
 	part := 0
 	if len(f.ParsedData.Part) > 0 {
-		if res := util.StringToInt(f.ParsedData.Part); res > 0 {
+		if res, ok := util.StringToInt(f.ParsedData.Part); ok {
 			part = res
 		}
 	}

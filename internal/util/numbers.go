@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-func StringToInt(str string) int {
+func StringToInt(str string) (int, bool) {
 	dotIndex := strings.IndexByte(str, '.')
 	if dotIndex != -1 {
 		str = str[:dotIndex]
 	}
 	i, err := strconv.Atoi(str)
 	if err != nil {
-		return 0
+		return 0, false
 	}
-	return i
+	return i, true
 }
 
 func IntegerToRoman(number int) string {
