@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-type separatedFilePath struct {
+type SeparatedFilePath struct {
 	Filename string
 	Dirnames []string
 }
 
 // SeparateFilePath separates a path into a Filename and a slice of Dirnames.
-func SeparateFilePath(path string, prefixPath string) *separatedFilePath {
+func SeparateFilePath(path string, prefixPath string) *SeparatedFilePath {
 	path = filepath.ToSlash(path)
 	prefixPath = filepath.ToSlash(prefixPath)
 	cleaned := path
@@ -23,7 +23,7 @@ func SeparateFilePath(path string, prefixPath string) *separatedFilePath {
 	fp := filepath.ToSlash(filepath.Base(path))
 	parentsPath := filepath.ToSlash(filepath.Dir(cleaned))
 
-	return &separatedFilePath{
+	return &SeparatedFilePath{
 		Filename: fp,
 		Dirnames: strings.Split(parentsPath, "/"),
 	}
