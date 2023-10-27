@@ -2,7 +2,6 @@ package scanner
 
 import (
 	"errors"
-	"fmt"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -53,7 +52,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 		m.MatchLocalFileWithMedia(localFile)
 	})
 
-	m.valideMatches()
+	m.validateMatches()
 
 	return nil
 }
@@ -199,16 +198,17 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 		return
 	}
 
-	println(fmt.Sprintf("Local file title: %s,\nbestMedia: %s,\nrating: %f\n", lf.Name, bestMedia.GetTitleSafe(), bestTitleRes.Rating))
-
 	lf.MediaId = bestMedia.ID
+	//println(fmt.Sprintf("Local file title: %s,\nbestMedia: %s,\nrating: %f,\nlfMediaId: %d\n", lf.Name, bestMedia.GetTitleSafe(), bestTitleRes.Rating, lf.MediaId))
 
 	// Compare the local file's title with all the media titles
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (m *Matcher) valideMatches() {
+// validateMatches creates groups of local files that have the same media ID.
+// It then compares the local files' titles with the media titles and un-matches the local files that have a lower rating than the highest rating.
+func (m *Matcher) validateMatches() {
 
 	// Group local files by media ID
 	groups := lop.GroupBy(m.localFiles, func(localFile *LocalFile) int {
@@ -246,6 +246,9 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*LocalFile) {
 	for _, lf := range lfs {
 		p.Go(func() float64 {
 			t := lf.GetParsedTitle()
+			if comparison.ValueContainsSpecial(lf.Name) || comparison.ValueContainsNC(lf.Name) {
+				return 0
+			}
 			compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles)
 			if ok {
 				return compRes.Rating
@@ -267,7 +270,8 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*LocalFile) {
 	// UNLESS they are Special or NC
 	lop.ForEach(lfs, func(lf *LocalFile, _ int) {
 		if !comparison.ValueContainsSpecial(lf.Name) && !comparison.ValueContainsNC(lf.Name) {
-			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&lf.Name, titles); ok {
+			t := lf.GetParsedTitle()
+			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles); ok {
 				if compRes.Rating < highestRating {
 					lf.MediaId = 0
 				}
