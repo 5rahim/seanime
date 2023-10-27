@@ -272,7 +272,7 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*LocalFile) {
 		if !comparison.ValueContainsSpecial(lf.Name) && !comparison.ValueContainsNC(lf.Name) {
 			t := lf.GetParsedTitle()
 			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles); ok {
-				if compRes.Rating < highestRating {
+				if compRes.Rating < highestRating { // TODO Check deviation
 					lf.MediaId = 0
 				}
 			}

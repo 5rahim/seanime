@@ -7,48 +7,58 @@ import (
 	"testing"
 )
 
-func TestFileHydrator_HydrateMetadata(t *testing.T) {
+func TestScanner_Scan(t *testing.T) {
 
-	media := MockAllMedia()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	aniliztClient := MockGetAnilistClient()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
+	anilistClient := MockGetAnilistClient()
+	media := MockAllMedia()
 
-	localFiles, ok := MockGetSelectTestLocalFiles()
+	// Set base media cache
+	for _, m := range *media {
+		baseMediaCache.Set(m.ID, m)
+	}
+
+	// Get local files
+	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}
 
+	// Create a new container for media
 	mc := NewMediaContainer(&MediaContainerOptions{
 		allMedia: *media,
 	})
 
+	// Create a new matcher
 	matcher := NewMatcher(&MatcherOptions{
 		localFiles:     localFiles,
 		mediaContainer: mc,
 		baseMediaCache: baseMediaCache,
 	})
-	if err := matcher.MatchLocalFilesWithMedia(); err != nil {
+
+	err := matcher.MatchLocalFilesWithMedia()
+	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
 	}
 
-	fh := FileHydrator{
+	// Create a new hydrator
+	hydrator := &FileHydrator{
+		media:              mc.allMedia,
 		localFiles:         localFiles,
-		media:              *media,
-		baseMediaCache:     baseMediaCache,
 		anizipCache:        anizipCache,
-		anilistClient:      aniliztClient,
+		anilistClient:      anilistClient,
+		baseMediaCache:     baseMediaCache,
 		anilistRateLimiter: anilistRateLimiter,
 	}
+	hydrator.HydrateMetadata()
 
-	fh.HydrateMetadata()
-
-	for _, lf := range fh.localFiles {
+	for _, lf := range localFiles {
 		if lf == nil {
 			t.Fatal("expected base media, got nil")
 		}
-		t.Logf("LocalFile: %+v\nMetadata: %+v\n\n", lf, lf.Metadata)
+		t.Logf("LocalFile: %+v\nParsed: %+v\nMetadata: %+v\n\n", lf, lf.ParsedData, lf.Metadata)
 	}
 
 }

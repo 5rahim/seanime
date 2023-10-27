@@ -40,14 +40,14 @@ func (m *BaseMedia) GetAllTitles() []*string {
 }
 
 func (m *BaseMedia) GetCurrentEpisodeCount() int {
-	ceil := 0
-	if m.Episodes != nil {
-		ceil = *m.Episodes
-	}
+	ceil := -1
 	if m.NextAiringEpisode != nil {
 		if m.NextAiringEpisode.Episode > 0 {
 			ceil = m.NextAiringEpisode.Episode - 1
 		}
+	}
+	if m.Episodes != nil {
+		ceil = *m.Episodes
 	}
 	return ceil
 }
