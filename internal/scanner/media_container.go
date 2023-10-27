@@ -45,7 +45,7 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	synonyms := lo.Flatten(_synonymsArr)
 	engTitles = lo.Filter(engTitles, func(s *string, i int) bool { return s != nil && len(*s) > 0 })
 	romTitles = lo.Filter(romTitles, func(s *string, i int) bool { return s != nil && len(*s) > 0 })
-	synonyms = lo.Filter(synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeson(*s) })
+	synonyms = lo.Filter(synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })
 
 	mc.engTitles = engTitles
 	mc.romTitles = romTitles
@@ -77,5 +77,15 @@ func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anilist.Ba
 		return false
 	})
 
+	return res, found
+}
+
+func (mc *MediaContainer) GetMediaFromId(id int) (*anilist.BaseMedia, bool) {
+	res, found := lo.Find(mc.allMedia, func(m *anilist.BaseMedia) bool {
+		if m.ID == id {
+			return true
+		}
+		return false
+	})
 	return res, found
 }

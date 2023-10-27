@@ -8,13 +8,13 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/comparison"
 	"github.com/seanime-app/seanime-server/internal/result"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type Matcher struct {
 	localFiles     []*LocalFile
 	mediaContainer *MediaContainer
 	baseMediaCache *anilist.BaseMediaCache
-	matchingCache  *MatchingCache
 }
 
 type MatcherOptions struct {
@@ -35,7 +35,6 @@ func NewMatcher(opts *MatcherOptions) *Matcher {
 	m.localFiles = opts.localFiles
 	m.mediaContainer = opts.mediaContainer
 	m.baseMediaCache = opts.baseMediaCache
-	m.matchingCache = &MatchingCache{result.NewCache[[]string, int]()}
 	return m
 }
 
@@ -53,6 +52,8 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	lop.ForEach(m.localFiles, func(localFile *LocalFile, index int) {
 		m.MatchLocalFileWithMedia(localFile)
 	})
+
+	m.valideMatches()
 
 	return nil
 }
@@ -207,6 +208,71 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (m *Matcher) ValideMatches() {
+func (m *Matcher) valideMatches() {
+
+	// Group local files by media ID
+	groups := lop.GroupBy(m.localFiles, func(localFile *LocalFile) int {
+		return localFile.MediaId
+	})
+
+	// Remove the group with unmatched media
+	delete(groups, 0)
+
+	// Un-match files with lower ratings
+	p := pool.New()
+	for mId, files := range groups {
+		p.Go(func() {
+			if len(files) > 0 {
+				m.validateMatchGroup(mId, files)
+			}
+		})
+	}
+	p.Wait()
+
+}
+
+func (m *Matcher) validateMatchGroup(mediaId int, lfs []*LocalFile) {
+
+	media, found := m.mediaContainer.GetMediaFromId(mediaId)
+	if !found {
+		return
+	}
+
+	titles := media.GetAllTitles()
+
+	// Compare all files' parsed title with the media title
+	// Get the highest rating that will be used to un-match lower rated files
+	p := pool.NewWithResults[float64]()
+	for _, lf := range lfs {
+		p.Go(func() float64 {
+			t := lf.GetParsedTitle()
+			compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles)
+			if ok {
+				return compRes.Rating
+			}
+			return 0
+		})
+	}
+	highestRatings := p.Wait()
+
+	highestRating := lo.Reduce(highestRatings, func(prev float64, curr float64, _ int) float64 {
+		if prev > curr {
+			return prev
+		} else {
+			return curr
+		}
+	}, 0.0)
+
+	// Un-match files that have a lower rating than the ceiling
+	// UNLESS they are Special or NC
+	lop.ForEach(lfs, func(lf *LocalFile, _ int) {
+		if !comparison.ValueContainsSpecial(lf.Name) && !comparison.ValueContainsNC(lf.Name) {
+			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&lf.Name, titles); ok {
+				if compRes.Rating < highestRating {
+					lf.MediaId = 0
+				}
+			}
+		}
+	})
 
 }

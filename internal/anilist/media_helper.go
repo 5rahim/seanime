@@ -1,5 +1,10 @@
 package anilist
 
+import (
+	"github.com/samber/lo"
+	"github.com/seanime-app/seanime-server/internal/comparison"
+)
+
 func (m *BaseMedia) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
 		return *m.GetTitle().GetEnglish()
@@ -19,6 +24,21 @@ func (m *BasicMedia) GetTitleSafe() string {
 	}
 	return "N/A"
 }
+
+func (m *BaseMedia) GetAllTitles() []*string {
+	titles := make([]*string, 0)
+	if m.HasEnglishTitle() {
+		titles = append(titles, m.Title.English)
+	}
+	if m.HasRomajiTitle() {
+		titles = append(titles, m.Title.Romaji)
+	}
+	if m.HasSynonyms() && len(m.Synonyms) > 1 {
+		titles = append(titles, lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })...)
+	}
+	return titles
+}
+
 func (m *BaseMedia) HasEnglishTitle() bool {
 	return m.Title.English != nil
 }

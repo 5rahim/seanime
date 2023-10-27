@@ -68,16 +68,26 @@ func (f *LocalFile) GetParsedData() *LocalFileParsedData {
 
 // GetParsedTitle returns the parsed title. Prefers the last parsed folder title if available.
 func (f *LocalFile) GetParsedTitle() string {
-	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
-		title := f.ParsedFolderData[len(f.ParsedFolderData)-1].Title
-		if len(title) > 0 {
-			return title
-		}
-	}
 	if len(f.ParsedData.Title) > 0 {
 		return f.ParsedData.Title
 	}
+	if len(f.GetFolderTitle()) > 0 {
+		return f.GetFolderTitle()
+	}
 	return ""
+}
+
+func (f *LocalFile) GetFolderTitle() string {
+	folderTitle := ""
+	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
+			return len(fpd.Title) > 0
+		})
+		if found {
+			folderTitle = v.Title
+		}
+	}
+	return folderTitle
 }
 
 func (f *LocalFile) GetTitleVariations() []*string {
@@ -110,15 +120,7 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		}
 	}
 
-	folderTitle := ""
-	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
-		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
-			return len(fpd.Title) > 0
-		})
-		if found {
-			folderTitle = v.Title
-		}
-	}
+	folderTitle := f.GetFolderTitle()
 
 	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
 		return make([]*string, 0)
