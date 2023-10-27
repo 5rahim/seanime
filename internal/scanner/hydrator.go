@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"errors"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -14,10 +15,12 @@ import (
 )
 
 type FileHydrator struct {
-	localFiles     []*LocalFile
-	media          []*anilist.BaseMedia
-	baseMediaCache *anilist.BaseMediaCache
-	anizipCache    *anizip.Cache
+	localFiles         []*LocalFile
+	media              []*anilist.BaseMedia
+	baseMediaCache     *anilist.BaseMediaCache
+	anizipCache        *anizip.Cache
+	anilistClient      *anilist.Client
+	anilistRateLimiter *limiter.Limiter
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
@@ -57,6 +60,12 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	if !found {
 		return
 	}
+
+	// Tree contains media relations
+	tree := anilist.NewBaseMediaRelationTree()
+	// Tree analysis used for episode normalization
+	var mediaTreeAnalysis *MediaTreeAnalysis
+	treeFetched := false
 
 	// Process each local file in the group sequentially
 	lo.ForEach(lfs, func(lf *LocalFile, index int) {
@@ -111,10 +120,49 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// Absolute episode count
 		if episode > media.GetTotalEpisodeCount() {
-			// TODO: Fetch media tree, normalize episode number
+			// Fetch media tree
+			if !treeFetched {
+				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.anilistClient, rateLimiter, tree, fh.baseMediaCache); err == nil {
+
+					// Create a new media tree analysis that will be used for episode normalization
+					mta := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
+						tree:        tree,
+						anizipCache: fh.anizipCache,
+					})
+					// Hoist the media tree analysis, so it will be used by other files
+					mediaTreeAnalysis = mta
+					treeFetched = true
+
+					if err := fh.normalizeEpisodeNumber(mediaTreeAnalysis, lf, episode); err != nil {
+						// TODO
+					}
+				}
+			} else {
+				if err := fh.normalizeEpisodeNumber(mediaTreeAnalysis, lf, episode); err != nil {
+					// TODO
+				}
+			}
 			return
 		}
 
 	})
 
+}
+
+func (fh *FileHydrator) normalizeEpisodeNumber(
+	mta *MediaTreeAnalysis,
+	lf *LocalFile,
+	ep int,
+) error {
+	if mta == nil {
+		return errors.New("[hydrator] could not find media tree analysis")
+	}
+	relativeEp, ok := mta.getRelativeEpisodeNumber(ep)
+	if !ok {
+		return errors.New("[hydrator] could not normalize episode number")
+	}
+
+	lf.Metadata.Episode = relativeEp
+	lf.Metadata.AniDBEpisode = strconv.Itoa(relativeEp)
+	return nil
 }

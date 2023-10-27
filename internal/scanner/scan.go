@@ -5,6 +5,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/db"
+	"github.com/seanime-app/seanime-server/internal/limiter"
 )
 
 type Scanner struct {
@@ -21,6 +22,7 @@ func (scn Scanner) Scan() (any, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
+	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	// Get local files
 	localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
@@ -30,13 +32,14 @@ func (scn Scanner) Scan() (any, error) {
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:       scn.Enhanced,
-		Username:       scn.Username,
-		AnilistClient:  scn.AnilistClient,
-		LocalFiles:     localFiles,
-		BaseMediaCache: baseMediaCache,
-		AnizipCache:    anizipCache,
-		Logger:         scn.Logger,
+		Enhanced:           scn.Enhanced,
+		Username:           scn.Username,
+		AnilistClient:      scn.AnilistClient,
+		LocalFiles:         localFiles,
+		BaseMediaCache:     baseMediaCache,
+		AnizipCache:        anizipCache,
+		Logger:             scn.Logger,
+		AnilistRateLimiter: anilistRateLimiter,
 	})
 	if err != nil {
 		return nil, err
@@ -61,10 +64,12 @@ func (scn Scanner) Scan() (any, error) {
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		localFiles:     localFiles,
-		media:          mc.allMedia,
-		baseMediaCache: baseMediaCache,
-		anizipCache:    anizipCache,
+		media:              mc.allMedia,
+		localFiles:         localFiles,
+		anizipCache:        anizipCache,
+		anilistClient:      scn.AnilistClient,
+		baseMediaCache:     baseMediaCache,
+		anilistRateLimiter: anilistRateLimiter,
 	}
 	hydrator.HydrateMetadata()
 

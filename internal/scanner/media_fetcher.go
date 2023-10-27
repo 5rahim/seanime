@@ -20,13 +20,14 @@ type MediaFetcher struct {
 }
 
 type MediaFetcherOptions struct {
-	Enhanced       bool
-	Username       string
-	AnilistClient  *anilist.Client
-	LocalFiles     []*LocalFile
-	BaseMediaCache *anilist.BaseMediaCache
-	AnizipCache    *anizip.Cache
-	Logger         *zerolog.Logger
+	Enhanced           bool
+	Username           string
+	AnilistClient      *anilist.Client
+	LocalFiles         []*LocalFile
+	BaseMediaCache     *anilist.BaseMediaCache
+	AnizipCache        *anizip.Cache
+	Logger             *zerolog.Logger
+	AnilistRateLimiter *limiter.Limiter
 }
 
 // NewMediaFetcher
@@ -39,7 +40,8 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		opts.LocalFiles == nil ||
 		opts.BaseMediaCache == nil ||
 		opts.AnizipCache == nil ||
-		opts.Logger == nil {
+		opts.Logger == nil ||
+		opts.AnilistRateLimiter == nil {
 		return nil, errors.New("missing options")
 	}
 
@@ -76,7 +78,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		opts.Logger.Debug().
 			Msg("[media_container] Fetching media from local files")
 
-		_, ok := FetchMediaFromLocalFiles(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache)
+		_, ok := FetchMediaFromLocalFiles(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache, opts.AnilistRateLimiter)
 		if ok {
 			// We assume the BaseMediaCache is populated. We overwrite AllMedia with the cache content.
 			// This is because the cache will contain all media from the user's collection and the local files.
@@ -105,10 +107,10 @@ func FetchMediaFromLocalFiles(
 	localFiles []*LocalFile,
 	baseMediaCache *anilist.BaseMediaCache,
 	anizipCache *anizip.Cache,
+	anilistRateLimiter *limiter.Limiter,
 ) ([]*anilist.BaseMedia, bool) {
 	rateLimiter := limiter.NewLimiter(time.Second, 20)
 	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
-	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	// Get titles
 	titles := lop.Map(localFiles, func(file *LocalFile, index int) string {

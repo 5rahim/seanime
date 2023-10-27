@@ -32,6 +32,31 @@ func MockGetTestLocalFiles() ([]*LocalFile, bool) {
 	return data, true
 
 }
+func MockGetSelectTestLocalFiles() ([]*LocalFile, bool) {
+
+	// Open the JSON file
+	file, err := os.Open("../../test/sample/localfiles_selected.json")
+	if err != nil {
+		println("Error opening file:", err.Error())
+		return nil, false
+	}
+	defer file.Close()
+
+	jsonData, err := io.ReadAll(file)
+	if err != nil {
+		println("Error reading file:", err.Error())
+		return nil, false
+	}
+
+	var data []*LocalFile
+	if err := json.Unmarshal(jsonData, &data); err != nil {
+		println("Error unmarshaling JSON:", err.Error())
+		return nil, false
+	}
+
+	return data, true
+
+}
 
 type JWT struct {
 	JWT string `json:"jwt"`

@@ -3,6 +3,7 @@ package scanner
 import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"testing"
 )
@@ -12,13 +13,14 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 	anilistClient := MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
+	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}
 
-	_, ok = FetchMediaFromLocalFiles(anilistClient, localFiles, baseMediaCache, anizipCache)
+	_, ok = FetchMediaFromLocalFiles(anilistClient, localFiles, baseMediaCache, anizipCache, anilistRateLimiter)
 
 	if !ok {
 		t.Fatal("expected result, got error")
@@ -37,6 +39,7 @@ func TestNewMediaFetcher(t *testing.T) {
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	logger := util.NewLogger()
+	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
@@ -44,13 +47,14 @@ func TestNewMediaFetcher(t *testing.T) {
 	}
 
 	mc, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:       false,
-		Username:       "5unwired",
-		AnilistClient:  anilistClient,
-		LocalFiles:     localFiles,
-		BaseMediaCache: baseMediaCache,
-		AnizipCache:    anizipCache,
-		Logger:         logger,
+		Enhanced:           false,
+		Username:           "5unwired",
+		AnilistClient:      anilistClient,
+		LocalFiles:         localFiles,
+		BaseMediaCache:     baseMediaCache,
+		AnizipCache:        anizipCache,
+		Logger:             logger,
+		AnilistRateLimiter: anilistRateLimiter,
 	})
 
 	if err != nil {
@@ -68,6 +72,7 @@ func TestEnhancedNewMediaFetcher(t *testing.T) {
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	logger := util.NewLogger()
+	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	localFiles, ok := MockGetTestLocalFiles()
 	if !ok {
@@ -75,13 +80,14 @@ func TestEnhancedNewMediaFetcher(t *testing.T) {
 	}
 
 	mc, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:       true,
-		Username:       "5unwired",
-		AnilistClient:  anilistClient,
-		LocalFiles:     localFiles,
-		BaseMediaCache: baseMediaCache,
-		AnizipCache:    anizipCache,
-		Logger:         logger,
+		Enhanced:           true,
+		Username:           "5unwired",
+		AnilistClient:      anilistClient,
+		LocalFiles:         localFiles,
+		BaseMediaCache:     baseMediaCache,
+		AnizipCache:        anizipCache,
+		Logger:             logger,
+		AnilistRateLimiter: anilistRateLimiter,
 	})
 
 	if err != nil {

@@ -66,3 +66,14 @@ func (c *Map[K, V]) Range(callback func(key K, value V) bool) {
 		return callback(key.(K), ci.value)
 	})
 }
+
+// Values
+// Might be another way to do this
+func (c *Map[K, V]) Values() []V {
+	values := make([]V, 0)
+	c.store.Range(func(key, value interface{}) bool {
+		values = append(values, value.(V))
+		return true
+	})
+	return values
+}
