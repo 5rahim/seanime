@@ -30,5 +30,12 @@ func (db *Database) GetSettings() (*models.Settings, error) {
 		return nil, err
 	}
 	return &settings, nil
+}
 
+func (db *Database) GetLibraryPath() (string, error) {
+	settings, err := db.GetSettings()
+	if err != nil {
+		return "", err
+	}
+	return settings.Library.LibraryPath, nil
 }

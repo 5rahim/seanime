@@ -2,11 +2,11 @@ package scanner
 
 import (
 	"errors"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/comparison"
-	"github.com/seanime-app/seanime-server/internal/result"
 	"github.com/sourcegraph/conc/pool"
 	"math"
 )
@@ -15,27 +15,7 @@ type Matcher struct {
 	localFiles     []*LocalFile
 	mediaContainer *MediaContainer
 	baseMediaCache *anilist.BaseMediaCache
-}
-
-type MatcherOptions struct {
-	localFiles     []*LocalFile
-	mediaContainer *MediaContainer
-	baseMediaCache *anilist.BaseMediaCache
-}
-
-// MatchingCache holds the previous results of the matching process.
-// The key is a slice of strings representing the title variations of a local file.
-// The value is the media ID of the best match.
-type MatchingCache struct {
-	*result.Cache[[]string, int]
-}
-
-func NewMatcher(opts *MatcherOptions) *Matcher {
-	m := new(Matcher)
-	m.localFiles = opts.localFiles
-	m.mediaContainer = opts.mediaContainer
-	m.baseMediaCache = opts.baseMediaCache
-	return m
+	logger         *zerolog.Logger
 }
 
 // MatchLocalFilesWithMedia will match each LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
@@ -47,6 +27,8 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	if len(m.mediaContainer.allMedia) == 0 {
 		return errors.New("[matcher] no media fed into the matcher")
 	}
+
+	m.logger.Debug().Msg("matcher: Starting matching process")
 
 	// Parallelize the matching process
 	lop.ForEach(m.localFiles, func(localFile *LocalFile, index int) {
@@ -199,6 +181,12 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 		return
 	}
 
+	//m.logger.Trace().
+	//	Str("filename", lf.Name).
+	//	Str("title", lf.GetParsedTitle()).
+	//	Str("bestTitle", *bestTitleRes.Value).
+	//	Any("rating", fmt.Sprintf("%.2f", bestTitleRes.Rating)).Msg("matcher:")
+
 	lf.MediaId = bestMedia.ID
 	//println(fmt.Sprintf("Local file title: %s,\nbestMedia: %s,\nrating: %f,\nlfMediaId: %d\n", lf.Name, bestMedia.GetTitleSafe(), bestTitleRes.Rating, lf.MediaId))
 
@@ -209,6 +197,9 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 // validateMatches creates groups of local files that have the same media ID.
 // It then compares the local files' titles with the media titles and un-matches the local files that have a lower rating than the highest rating.
 func (m *Matcher) validateMatches() {
+
+	m.logger.Trace().
+		Msg("matcher: Validating matches")
 
 	// Group local files by media ID
 	groups := lop.GroupBy(m.localFiles, func(localFile *LocalFile) int {

@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"errors"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -21,11 +22,14 @@ type FileHydrator struct {
 	anizipCache        *anizip.Cache
 	anilistClient      *anilist.Client
 	anilistRateLimiter *limiter.Limiter
+	logger             *zerolog.Logger
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
 func (fh *FileHydrator) HydrateMetadata() {
 	rateLimiter := limiter.NewLimiter(5*time.Second, 20)
+
+	fh.logger.Debug().Msg("hydrator: Starting metadata hydration process")
 
 	// Group local files by media ID
 	groups := lop.GroupBy(fh.localFiles, func(localFile *LocalFile) int {
@@ -144,12 +148,12 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 					treeFetched = true
 
 					if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
-						println("an error occurred while normalizing episode number", err.Error())
+						fh.logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
 					}
 				}
 			} else {
 				if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
-					println("an error occurred while normalizing episode number", err.Error())
+					fh.logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
 				}
 			}
 			return

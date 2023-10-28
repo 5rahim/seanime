@@ -4,6 +4,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/limiter"
+	"github.com/seanime-app/seanime-server/internal/util"
 	"testing"
 )
 
@@ -13,6 +14,7 @@ func TestScanner_Scan(t *testing.T) {
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	anilistClient := MockGetAnilistClient()
+	logger := util.NewLogger()
 	media := MockAllMedia()
 
 	// Set base media cache
@@ -32,11 +34,12 @@ func TestScanner_Scan(t *testing.T) {
 	})
 
 	// Create a new matcher
-	matcher := NewMatcher(&MatcherOptions{
+	matcher := &Matcher{
 		localFiles:     localFiles,
 		mediaContainer: mc,
 		baseMediaCache: baseMediaCache,
-	})
+		logger:         logger,
+	}
 
 	// Match local files with media
 	err := matcher.MatchLocalFilesWithMedia()
@@ -52,6 +55,7 @@ func TestScanner_Scan(t *testing.T) {
 		anilistClient:      anilistClient,
 		baseMediaCache:     baseMediaCache,
 		anilistRateLimiter: anilistRateLimiter,
+		logger:             logger,
 	}
 	hydrator.HydrateMetadata()
 

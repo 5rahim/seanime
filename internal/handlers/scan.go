@@ -6,7 +6,6 @@ import (
 )
 
 type ScanRequestBody struct {
-	DirPath  string `json:"dirPath"`
 	Username string `json:"username"`
 	Enhanced bool   `json:"enhanced"`
 }
@@ -17,22 +16,25 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	token := c.GetAnilistToken()
 
+	// Retrieve the user's library path
+	libraryPath, err := c.App.Database.GetLibraryPath()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
 	// Body
 	body := new(ScanRequestBody)
 	if err := c.Fiber.BodyParser(body); err != nil {
 		return c.RespondWithError(err)
 	}
 
-	if len(body.DirPath) == 0 {
-		return c.RespondWithError(errors.New("'dirPath' is required"))
-	}
 	if len(body.Username) == 0 {
 		return c.RespondWithError(errors.New("'username' is required"))
 	}
 
 	sc := scanner.Scanner{
 		Token:         token,
-		DirPath:       body.DirPath,
+		DirPath:       libraryPath,
 		Username:      body.Username,
 		Enhanced:      body.Enhanced,
 		AnilistClient: c.App.AnilistClient,

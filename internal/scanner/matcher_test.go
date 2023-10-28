@@ -1,11 +1,14 @@
 package scanner
 
 import (
+	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"testing"
 )
 
 func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
+
+	logger := util.NewLogger()
 
 	lfs, ok := MockGetTestLocalFiles()
 	if !ok {
@@ -17,11 +20,12 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 		allMedia: *media,
 	})
 
-	matcher := NewMatcher(&MatcherOptions{
+	matcher := &Matcher{
 		localFiles:     lfs,
 		mediaContainer: mc,
 		baseMediaCache: nil,
-	})
+		logger:         logger,
+	}
 
 	p := pool.New()
 	for _, lf := range lfs {
@@ -36,6 +40,8 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 func TestMatcher_MatchLocalFilesWithMedia(t *testing.T) {
 
+	logger := util.NewLogger()
+
 	lfs, ok := MockGetTestLocalFiles()
 	if !ok {
 		t.Fatal("could not get test local files")
@@ -46,11 +52,12 @@ func TestMatcher_MatchLocalFilesWithMedia(t *testing.T) {
 		allMedia: *media,
 	})
 
-	matcher := NewMatcher(&MatcherOptions{
+	matcher := &Matcher{
 		localFiles:     lfs,
 		mediaContainer: mc,
 		baseMediaCache: nil,
-	})
+		logger:         logger,
+	}
 
 	if err := matcher.MatchLocalFilesWithMedia(); err != nil {
 		t.Fatal(err)

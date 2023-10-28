@@ -52,12 +52,17 @@ func (scn Scanner) Scan() ([]*LocalFile, error) {
 		allMedia: mf.AllMedia,
 	})
 
+	scn.Logger.Trace().
+		Any("count", len(mc.allMedia)).
+		Msg("media container: Media container created")
+
 	// Create a new matcher
-	matcher := NewMatcher(&MatcherOptions{
+	matcher := &Matcher{
 		localFiles:     localFiles,
 		mediaContainer: mc,
 		baseMediaCache: baseMediaCache,
-	})
+		logger:         scn.Logger,
+	}
 
 	err = matcher.MatchLocalFilesWithMedia()
 	if err != nil {
@@ -72,13 +77,16 @@ func (scn Scanner) Scan() ([]*LocalFile, error) {
 		anilistClient:      scn.AnilistClient,
 		baseMediaCache:     baseMediaCache,
 		anilistRateLimiter: anilistRateLimiter,
+		logger:             scn.Logger,
 	}
 	hydrator.HydrateMetadata()
 
 	// Add non-added media entries to AniList collection
 	if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
-		scn.Logger.Error().Msg("[scanner] error while adding media to planning list: " + err.Error())
+		scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 	}
+
+	scn.Logger.Debug().Msg("scanner: Scan completed")
 
 	return localFiles, nil
 

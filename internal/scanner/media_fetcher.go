@@ -80,10 +80,6 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 	//--------------------------------------------
 
-	opts.Logger.Trace().
-		Any("count", len(mc.AllMedia)).
-		Msg("media container: Fetched AniList collection")
-
 	// If enhancing is on, scan media from local files and get their relations
 	if opts.Enhanced {
 		opts.Logger.Trace().
