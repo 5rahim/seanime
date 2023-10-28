@@ -12,10 +12,15 @@ import (
 	"time"
 )
 
-type Database = gorm.DB
+type Database struct {
+	gormdb *gorm.DB
+	logger *zerolog.Logger
+}
 
 func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
 	// Get the app data directory from the configuration
+
+	logger.Info().Msg("db: Instantiating database")
 
 	// Set the SQLite database path
 	var sqlitePath string
@@ -39,31 +44,35 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		),
 	})
 	if err != nil {
-		logger.Fatal().Err(err).Msg("Failed to connect to the SQLite database")
 		return nil, err
 	}
 
 	// Migrate tables
-	err = migrateTables(db, logger)
+	err = migrateTables(db)
 	if err != nil {
+		logger.Fatal().Err(err).Msg("db: Failed to perform auto migration")
 		return nil, err
 	}
 
-	return db, nil
+	logger.Info().Msg("db: Performed auto migration")
+
+	return &Database{
+		gormdb: db,
+		logger: logger,
+	}, nil
 }
 
 // MigrateTables performs auto migration on the database
-func migrateTables(db *Database, logger *zerolog.Logger) error {
+func migrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&models.Token{},
 		&models.LocalFiles{},
+		&models.Settings{},
 	)
 	if err != nil {
-		logger.Fatal().Err(err).Msg("Failed to perform auto migration")
+
 		return err
 	}
-
-	logger.Info().Msg("Performed auto migration on the database")
 
 	return nil
 }

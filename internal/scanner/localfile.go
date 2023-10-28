@@ -240,18 +240,18 @@ func buildTitle(vals ...string) string {
 func GetLocalFilesFromDir(dirPath string, logger *zerolog.Logger) ([]*LocalFile, error) {
 	paths, err := filesystem.GetVideoFilePathsFromDir(dirPath)
 
-	logger.Debug().
+	logger.Trace().
 		Any("dirPath", dirPath).
-		Msg("[localfile] Retrieving local files")
+		Msg("localfile: Retrieving and creating local files")
 
 	// Concurrently populate localFiles
 	localFiles := lop.Map(paths, func(path string, index int) *LocalFile {
 		return NewLocalFile(path, dirPath)
 	})
 
-	logger.Debug().
+	logger.Trace().
 		Any("count", len(localFiles)).
-		Msg("[localfile] Retrieved local files")
+		Msg("localfile: Retrieved local files")
 
 	return localFiles, err
 }

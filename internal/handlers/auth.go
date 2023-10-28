@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"time"
 )
@@ -49,13 +48,13 @@ func HandleAuth(c *RouteCtx) error {
 	// Success
 	if len(getViewer.Viewer.Name) > 0 {
 
-		_, err = db.UpsertToken(c.App.Database, &models.Token{
+		_, err = c.App.Database.UpsertToken(&models.Token{
 			BaseModel: models.BaseModel{
 				ID:        1,
 				UpdatedAt: time.Now(),
 			},
 			Value: body.Token,
-		}, c.App.Logger)
+		})
 
 		if err != nil {
 			return c.Fiber.JSON(NewErrorResponse(err))

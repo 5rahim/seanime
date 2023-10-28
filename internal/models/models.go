@@ -21,3 +21,12 @@ type LocalFiles struct {
 	BaseModel
 	Value []byte `gorm:"column:value" json:"value"`
 }
+
+type Settings struct {
+	BaseModel
+	Library *LibrarySettings `gorm:"embedded" json:"library"`
+}
+
+type LibrarySettings struct {
+	LibraryPath string `gorm:"column:libraryPath" json:"libraryPath"`
+}

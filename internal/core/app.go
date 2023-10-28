@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/db"
+	"github.com/seanime-app/seanime-server/internal/scanner"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"log"
 	"os"
@@ -38,22 +39,25 @@ func NewApp(options *ServerOptions) *App {
 
 	logger := util.NewLogger()
 
+	// Load the config
 	cfg, err := NewConfig(opts.Config)
 	if err != nil {
-		fmt.Printf("Failed to initialize config: %v\n", err)
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
 		os.Exit(1)
 	}
 
-	logger.Info().Msg("Loaded config from " + cfg.Data.AppDataDir)
+	logger.Info().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
 
+	// Initialize the database
 	db, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
-		fmt.Printf("Failed to initialize database: %v\n", err)
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
 		os.Exit(1)
 	}
 
-	logger.Info().Msg("Connected to database " + cfg.Database.Name)
+	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
+	// Initialize Anilist client
 	anilistClient := anilist.NewAuthedClient("")
 
 	return &App{
@@ -76,6 +80,7 @@ func NewFiberApp(app *App) *fiber.App {
 	fiberLogger := fiberzerolog.New(fiberzerolog.Config{
 		Logger:   app.Logger,
 		SkipURIs: []string{"/internal/metrics"},
+		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
 	})
 	fiberApp.Use(fiberLogger)
 
@@ -93,6 +98,35 @@ func RunServer(app *App, fiberApp *fiber.App) {
 	app.Logger.Info().Msg("Server started at http://" + addr)
 
 	select {}
+}
+
+func (a *App) InitLibraryWatcher() {
+	// Create a new matcher
+	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
+		Logger: a.Logger,
+	})
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to initialize watcher")
+		return
+	}
+
+	// Retrieve library settings
+	librarySettings, err := a.Database.GetSettings()
+	if err != nil {
+		a.Logger.Warn().Msg("app: Did not initialize watcher, no settings found")
+		return
+	}
+
+	// Initialize library file watcher
+	err = watcher.InitLibraryFileWatcher(&scanner.WatchLibraryFilesOptions{
+		LibraryPath: librarySettings.Library.LibraryPath,
+	})
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to watch library files")
+		return
+	}
+
+	watcher.StartWatching()
 
 }
 

@@ -24,6 +24,8 @@ func (scn Scanner) Scan() ([]*LocalFile, error) {
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
+	scn.Logger.Debug().Msg("scanner: Starting scan")
+
 	// Get local files
 	localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
 	if err != nil {

@@ -13,6 +13,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	api.Post("*", makeHandler(app, HandleEnforceAnilistToken))
 	api.Post("/auth", makeHandler(app, HandleAuth))
 	api.Post("/scan", makeHandler(app, HandleScanLocalFiles))
+	api.Post("/settings/save", makeHandler(app, HandleSaveSettings))
 	api.Post("/test-dump", makeHandler(app, HandleManualDump))
 
 }

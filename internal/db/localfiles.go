@@ -2,39 +2,38 @@ package db
 
 // Should not import from scanner/localfile
 import (
-	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"gorm.io/gorm/clause"
 )
 
-func UpsertLocalFiles(db *Database, token *models.LocalFiles, logger *zerolog.Logger) (*models.LocalFiles, error) {
-	err := db.Clauses(clause.OnConflict{
+func (db *Database) UpsertLocalFiles(token *models.LocalFiles) (*models.LocalFiles, error) {
+	err := db.gormdb.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"value", "updated_at"}),
 	}).Create(token).Error
 
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to save local files in the database")
+		db.logger.Error().Err(err).Msg("Failed to save local files in the database")
 		return nil, err
 	}
 	return token, nil
 }
 
-func InsertLocalFiles(db *Database, token *models.LocalFiles, logger *zerolog.Logger) (*models.LocalFiles, error) {
-	err := db.Create(token).Error
+func (db *Database) InsertLocalFiles(token *models.LocalFiles) (*models.LocalFiles, error) {
+	err := db.gormdb.Create(token).Error
 
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to save local files in the database")
+		db.logger.Error().Err(err).Msg("Failed to save local files in the database")
 		return nil, err
 	}
 	return token, nil
 }
 
-func GetLatestLocalFiles(db *Database, token *models.LocalFiles, logger *zerolog.Logger) (*models.LocalFiles, error) {
-	err := db.Last(token).Error
+func (db *Database) GetLatestLocalFiles(token *models.LocalFiles) (*models.LocalFiles, error) {
+	err := db.gormdb.Last(token).Error
 
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to save local files in the database")
+		db.logger.Error().Err(err).Msg("Failed to save local files in the database")
 		return nil, err
 	}
 	return token, nil

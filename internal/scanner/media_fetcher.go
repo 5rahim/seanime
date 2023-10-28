@@ -49,10 +49,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 	mc := new(MediaFetcher)
 
-	opts.Logger.Debug().
+	opts.Logger.Trace().
 		Any("enhanced", opts.Enhanced).
 		Any("username", opts.Username).
-		Msg("[media_container] Creating media container")
+		Msg("media container: Creating media container")
 
 	// Fetch user's AniList collection
 	animeCollection, err := opts.AnilistClient.AnimeCollection(context.Background(), &opts.Username)
@@ -80,14 +80,14 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 	//--------------------------------------------
 
-	opts.Logger.Debug().
+	opts.Logger.Trace().
 		Any("count", len(mc.AllMedia)).
-		Msg("[media_container] Fetched AniList collection")
+		Msg("media container: Fetched AniList collection")
 
 	// If enhancing is on, scan media from local files and get their relations
 	if opts.Enhanced {
-		opts.Logger.Debug().
-			Msg("[media_container] Fetching media from local files")
+		opts.Logger.Trace().
+			Msg("media container: Fetching media from local files")
 
 		_, ok := FetchMediaFromLocalFiles(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache, opts.AnilistRateLimiter)
 		if ok {
