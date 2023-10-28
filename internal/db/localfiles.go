@@ -8,11 +8,30 @@ import (
 )
 
 func UpsertLocalFiles(db *Database, token *models.LocalFiles, logger *zerolog.Logger) (*models.LocalFiles, error) {
-
 	err := db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"value", "updated_at"}),
 	}).Create(token).Error
+
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to save local files in the database")
+		return nil, err
+	}
+	return token, nil
+}
+
+func InsertLocalFiles(db *Database, token *models.LocalFiles, logger *zerolog.Logger) (*models.LocalFiles, error) {
+	err := db.Create(token).Error
+
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to save local files in the database")
+		return nil, err
+	}
+	return token, nil
+}
+
+func GetLatestLocalFiles(db *Database, token *models.LocalFiles, logger *zerolog.Logger) (*models.LocalFiles, error) {
+	err := db.Last(token).Error
 
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to save local files in the database")

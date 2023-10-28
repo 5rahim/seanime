@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"time"
@@ -17,7 +18,7 @@ func HandleEnforceAnilistToken(c *RouteCtx) error {
 	token := c.Fiber.Cookies("anilistToken", "")
 
 	if len(token) == 0 {
-		return c.Fiber.JSON(NewErrorResponse(errors.New("missing AniList token")))
+		return c.Fiber.Status(fiber.StatusMethodNotAllowed).JSON(NewErrorResponse(errors.New("missing AniList token")))
 	}
 
 	return c.Fiber.Next()

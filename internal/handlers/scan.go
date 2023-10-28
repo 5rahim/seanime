@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 )
 
@@ -22,6 +23,13 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if len(body.DirPath) == 0 {
+		return c.RespondWithError(errors.New("'dirPath' is required"))
+	}
+	if len(body.Username) == 0 {
+		return c.RespondWithError(errors.New("'username' is required"))
+	}
+
 	sc := scanner.Scanner{
 		Token:         token,
 		DirPath:       body.DirPath,
@@ -32,11 +40,11 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		DB:            c.App.Database,
 	}
 
-	_, err := sc.Scan()
+	localFiles, err := sc.Scan()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	return c.RespondWithData("")
+	return c.RespondWithData(localFiles)
 
 }

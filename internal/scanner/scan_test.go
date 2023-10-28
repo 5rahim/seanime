@@ -38,6 +38,7 @@ func TestScanner_Scan(t *testing.T) {
 		baseMediaCache: baseMediaCache,
 	})
 
+	// Match local files with media
 	err := matcher.MatchLocalFilesWithMedia()
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())

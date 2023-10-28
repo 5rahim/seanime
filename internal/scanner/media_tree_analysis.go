@@ -25,9 +25,9 @@ type MediaTreeAnalysisBranch struct {
 	maxAbsoluteEpisode int
 }
 
-// NewMediaTreeAnalysis creates a new MediaTreeAnalysis.
-// MediaTreeAnalysis will analyze the media tree and create and store a MediaTreeAnalysisBranch for each media in the tree.
+// NewMediaTreeAnalysis will analyze the media tree and create and store a MediaTreeAnalysisBranch for each media in the tree.
 // Each MediaTreeAnalysisBranch will contain the min and max absolute episode number for the media.
+// The min and max absolute episode numbers are used to get the relative episode number from an absolute episode number.
 func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) *MediaTreeAnalysis {
 
 	relations := make([]*anilist.BaseMedia, 0)

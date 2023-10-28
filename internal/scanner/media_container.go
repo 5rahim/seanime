@@ -19,8 +19,8 @@ type MediaContainer struct {
 	allMedia  []*anilist.BaseMedia
 }
 
-// NewMediaContainer creates a new MediaContainer
-// It will create a list of all English titles, Romaji titles, and synonyms for all anilist.BaseMedia
+// NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseMedia.
+// It also provides helper functions to get an anilist.BaseMedia from a title or synonym.
 func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc := new(MediaContainer)
 

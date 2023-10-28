@@ -80,18 +80,18 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			}
 		}
 
+		if comparison.ValueContainsNC(lf.Name) {
+			lf.Metadata.Episode = 1
+			lf.Metadata.AniDBEpisode = "NC"
+			lf.Metadata.IsNC = true
+			return
+		}
 		if comparison.ValueContainsSpecial(lf.Name) {
 			lf.Metadata.IsSpecial = true
 			if episode > -1 {
 				lf.Metadata.Episode = episode
 				lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(episode)
 			}
-			return
-		}
-		if comparison.ValueContainsNC(lf.Name) {
-			lf.Metadata.Episode = 1
-			lf.Metadata.AniDBEpisode = "NC"
-			lf.Metadata.IsNC = true
 			return
 		}
 		// Movie metadata
@@ -128,9 +128,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// Absolute episode count
 		if episode > media.GetCurrentEpisodeCount() {
-			// Fetch media tree
 			if !treeFetched {
+				// Fetch media tree
+				// The media tree will be used to normalize episode numbers
 				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.anilistClient, fh.anilistRateLimiter, tree, fh.baseMediaCache); err == nil {
+
 					// Create a new media tree analysis that will be used for episode normalization
 					mta := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,
@@ -141,12 +143,12 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 					mediaTreeAnalysis = mta
 					treeFetched = true
 
-					if err := fh.normalizeEpisodeNumber(mediaTreeAnalysis, lf, episode); err != nil {
+					if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
 						println("an error occurred while normalizing episode number", err.Error())
 					}
 				}
 			} else {
-				if err := fh.normalizeEpisodeNumber(mediaTreeAnalysis, lf, episode); err != nil {
+				if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
 					println("an error occurred while normalizing episode number", err.Error())
 				}
 			}
@@ -157,7 +159,9 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 }
 
-func (fh *FileHydrator) normalizeEpisodeNumber(
+// normalizeEpisodeNumberAndHydrate will normalize the episode number and hydrate the metadata of the LocalFile.
+// If the MediaTreeAnalysis is nil, the episode number will not be normalized.
+func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	mta *MediaTreeAnalysis,
 	lf *LocalFile,
 	ep int,

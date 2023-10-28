@@ -37,7 +37,7 @@ func NewMatcher(opts *MatcherOptions) *Matcher {
 	return m
 }
 
-// MatchLocalFilesWithMedia will match a LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
+// MatchLocalFilesWithMedia will match each LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	if len(m.localFiles) == 0 {

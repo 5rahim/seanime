@@ -18,7 +18,7 @@ type Scanner struct {
 	DB            *db.Database
 }
 
-func (scn Scanner) Scan() (any, error) {
+func (scn Scanner) Scan() ([]*LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
