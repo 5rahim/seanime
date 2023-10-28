@@ -6,6 +6,7 @@ require (
 	github.com/Yamashou/gqlgenc v0.15.1
 	github.com/adrg/strutil v0.3.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/glebarez/sqlite v1.9.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/contrib/fiberzerolog v0.2.2
@@ -22,7 +23,6 @@ require (
 	github.com/99designs/gqlgen v0.17.39 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

@@ -73,6 +73,11 @@ func (scn Scanner) Scan() ([]*LocalFile, error) {
 	}
 	hydrator.HydrateMetadata()
 
+	// Add non-added media entries to AniList collection
+	if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
+		scn.Logger.Error().Msg("[scanner] error while adding media to planning list: " + err.Error())
+	}
+
 	return localFiles, nil
 
 }

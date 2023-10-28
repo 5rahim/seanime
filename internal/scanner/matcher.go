@@ -8,6 +8,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/comparison"
 	"github.com/seanime-app/seanime-server/internal/result"
 	"github.com/sourcegraph/conc/pool"
+	"math"
 )
 
 type Matcher struct {
@@ -78,27 +79,27 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 	// Using Sorensen-Dice
 	// Get the best results for each title variation
 	sdVariationRes := lop.Map(titleVariations, func(title *string, _ int) *comparison.SorensenDiceResult {
-		cats := make([]*comparison.SorensenDiceResult, 0)
+		comps := make([]*comparison.SorensenDiceResult, 0)
 		if eng, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.engTitles); found {
-			cats = append(cats, eng)
+			comps = append(comps, eng)
 		}
 		if rom, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.romTitles); found {
-			cats = append(cats, rom)
+			comps = append(comps, rom)
 		}
 		if syn, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.synonyms); found {
-			cats = append(cats, syn)
+			comps = append(comps, syn)
 		}
 		var res *comparison.SorensenDiceResult
-		if len(cats) > 1 {
-			res = lo.Reduce(cats, func(prev *comparison.SorensenDiceResult, curr *comparison.SorensenDiceResult, _ int) *comparison.SorensenDiceResult {
+		if len(comps) > 1 {
+			res = lo.Reduce(comps, func(prev *comparison.SorensenDiceResult, curr *comparison.SorensenDiceResult, _ int) *comparison.SorensenDiceResult {
 				if prev.Rating > curr.Rating {
 					return prev
 				} else {
 					return curr
 				}
-			}, cats[0])
-		} else if len(cats) == 1 {
-			return cats[0]
+			}, comps[0])
+		} else if len(comps) == 1 {
+			return comps[0]
 		}
 		return res
 	})
@@ -114,30 +115,30 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 
 	//------------------
 
-	// Using Sorensen-Dice
+	// Using Levenshtein
 	// Get the best results for each title variation
 	levVariationRes := lop.Map(titleVariations, func(title *string, _ int) *comparison.LevenshteinResult {
-		cats := make([]*comparison.LevenshteinResult, 0)
+		comps := make([]*comparison.LevenshteinResult, 0)
 		if eng, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.engTitles); found {
-			cats = append(cats, eng)
+			comps = append(comps, eng)
 		}
 		if rom, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.romTitles); found {
-			cats = append(cats, rom)
+			comps = append(comps, rom)
 		}
 		if syn, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.synonyms); found {
-			cats = append(cats, syn)
+			comps = append(comps, syn)
 		}
 		var res *comparison.LevenshteinResult
-		if len(cats) > 1 {
-			res = lo.Reduce(cats, func(prev *comparison.LevenshteinResult, curr *comparison.LevenshteinResult, _ int) *comparison.LevenshteinResult {
+		if len(comps) > 1 {
+			res = lo.Reduce(comps, func(prev *comparison.LevenshteinResult, curr *comparison.LevenshteinResult, _ int) *comparison.LevenshteinResult {
 				if prev.Distance < curr.Distance {
 					return prev
 				} else {
 					return curr
 				}
-			}, cats[0])
-		} else if len(cats) == 1 {
-			return cats[0]
+			}, comps[0])
+		} else if len(comps) == 1 {
+			return comps[0]
 		}
 		return res
 	})
@@ -201,7 +202,6 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *LocalFile) {
 	lf.MediaId = bestMedia.ID
 	//println(fmt.Sprintf("Local file title: %s,\nbestMedia: %s,\nrating: %f,\nlfMediaId: %d\n", lf.Name, bestMedia.GetTitleSafe(), bestTitleRes.Rating, lf.MediaId))
 
-	// Compare the local file's title with all the media titles
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +231,9 @@ func (m *Matcher) validateMatches() {
 
 }
 
+// validateMatchGroup compares the local files' titles under the same media
+// with the media titles and un-matches the local files that have a lower rating.
+// This is done to try and filter out wrong matches.
 func (m *Matcher) validateMatchGroup(mediaId int, lfs []*LocalFile) {
 
 	media, found := m.mediaContainer.GetMediaFromId(mediaId)
@@ -272,7 +275,9 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*LocalFile) {
 		if !comparison.ValueContainsSpecial(lf.Name) && !comparison.ValueContainsNC(lf.Name) {
 			t := lf.GetParsedTitle()
 			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles); ok {
-				if compRes.Rating < highestRating { // TODO Check deviation
+				// If the local file's rating is lower, un-match it
+				// Unless the difference is less than 0.2
+				if compRes.Rating < highestRating && math.Abs(compRes.Rating-highestRating) > 0.2 {
 					lf.MediaId = 0
 				}
 			}

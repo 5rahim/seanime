@@ -16,7 +16,9 @@ import (
 
 // MediaFetcher holds all anilist.BaseMedia that will be used for the comparison process
 type MediaFetcher struct {
-	AllMedia []*anilist.BaseMedia
+	AllMedia           []*anilist.BaseMedia
+	CollectionMediaIds []int
+	UnknownMediaIds    []int // Media IDs that are not in the user's collection
 }
 
 type MediaFetcherOptions struct {
@@ -69,6 +71,15 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		}
 	}
 
+	//--------------------------------------------
+
+	// Get the media IDs from the collection
+	mc.CollectionMediaIds = lop.Map(mc.AllMedia, func(m *anilist.BaseMedia, index int) int {
+		return m.ID
+	})
+
+	//--------------------------------------------
+
 	opts.Logger.Debug().
 		Any("count", len(mc.AllMedia)).
 		Msg("[media_container] Fetched AniList collection")
@@ -89,6 +100,17 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 			})
 		}
 	}
+
+	//--------------------------------------------
+
+	// Get the media that are not in the user's collection
+	unknownMedia := lo.Filter(mc.AllMedia, func(m *anilist.BaseMedia, _ int) bool {
+		return !lo.Contains(mc.CollectionMediaIds, m.ID)
+	})
+	// Get the media IDs that are not in the user's collection
+	mc.UnknownMediaIds = lop.Map(unknownMedia, func(m *anilist.BaseMedia, _ int) int {
+		return m.ID
+	})
 
 	return mc, nil
 }
