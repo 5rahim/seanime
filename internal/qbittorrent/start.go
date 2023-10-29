@@ -12,10 +12,6 @@ func (c *Client) getExecutableName() string {
 	switch runtime.GOOS {
 	case "windows":
 		return "qbittorrent.exe"
-	case "linux":
-		return "qbittorrent"
-	case "darwin":
-		return "qbittorrent"
 	default:
 		return "qbittorrent"
 	}
@@ -29,13 +25,13 @@ func (c *Client) getExecutablePath() string {
 
 	switch runtime.GOOS {
 	case "windows":
-		return "C:\\Program Files\\VideoLAN\\Client\\c.exe"
+		return "C:/Program Files/qBittorrent/qbittorrent.exe"
 	case "linux":
-		return "/usr/bin/c" // Default path for Client on most Linux distributions
+		return "/usr/bin/qbittorrent" // Default path for Client on most Linux distributions
 	case "darwin":
-		return "/Applications/Client.app/Contents/MacOS/Client" // Default path for Client on macOS
+		return "/Applications/Client.app/Contents/MacOS/qBittorrent" // Default path for Client on macOS
 	default:
-		return "C:\\Program Files\\VideoLAN\\Client\\c.exe"
+		return "C:/Program Files/qBittorrent/qbittorrent.exe"
 	}
 }
 
@@ -59,7 +55,7 @@ func (c *Client) Start() error {
 	cmd := exec.Command(exe)
 	err := cmd.Start()
 	if err != nil {
-		return errors.New("failed to start Client")
+		return errors.New("failed to start qBittorrent")
 	}
 
 	time.Sleep(1 * time.Second)
