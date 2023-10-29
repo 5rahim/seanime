@@ -2,11 +2,17 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/seanime-app/seanime-server/internal/core"
 	"sync"
 )
 
 func InitRoutes(app *core.App, fiberApp *fiber.App) {
+
+	fiberApp.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	api := fiberApp.Group("/api")
 
