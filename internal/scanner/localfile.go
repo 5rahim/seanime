@@ -3,12 +3,12 @@ package scanner
 import (
 	"bytes"
 	"fmt"
+	"github.com/5rahim/tanuki"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/filesystem"
 	"github.com/seanime-app/seanime-server/internal/util"
-	"github.com/seanime-app/tanuki"
 	"strconv"
 	"strings"
 )

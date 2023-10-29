@@ -3,6 +3,7 @@ module github.com/seanime-app/seanime-server
 go 1.21
 
 require (
+	github.com/5rahim/tanuki v0.1.6
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/Yamashou/gqlgenc v0.15.1
 	github.com/adrg/strutil v0.3.1
@@ -16,7 +17,6 @@ require (
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.31.0
 	github.com/samber/lo v1.38.1
-	github.com/seanime-app/tanuki v0.1.5
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
