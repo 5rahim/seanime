@@ -1,10 +1,10 @@
-package qbittorrent
+package qbittorrent_util
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	qbittorrent_model "github.com/seanime-app/seanime-server/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
 	"io"
 	"io/ioutil"
 	"mime/multipart"

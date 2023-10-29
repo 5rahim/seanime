@@ -3,8 +3,8 @@ package qbittorrent_log
 import (
 	"github.com/google/go-querystring/query"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime-server/internal/qbittorrent/util"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -26,7 +26,7 @@ func (c Client) GetLog(options *qbittorrent_model.GetLogOptions) ([]*qbittorrent
 		endpoint += "?" + params.Encode()
 	}
 	var res []*qbittorrent_model.LogEntry
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -37,7 +37,7 @@ func (c Client) GetPeerLog(lastKnownID int) ([]*qbittorrent_model.PeerLogEntry, 
 	params.Add("last_known_id", strconv.Itoa(lastKnownID))
 	endpoint := c.BaseUrl + "/peers?" + params.Encode()
 	var res []*qbittorrent_model.PeerLogEntry
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil

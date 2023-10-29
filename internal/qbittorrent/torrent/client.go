@@ -3,8 +3,8 @@ package qbittorrent_torrent
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime-server/internal/qbittorrent/util"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -29,7 +29,7 @@ func (c Client) GetList(options *qbittorrent_model.GetTorrentListOptions) ([]*qb
 		endpoint += "?" + params.Encode()
 	}
 	var res []*qbittorrent_model.Torrent
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -40,7 +40,7 @@ func (c Client) GetProperties(hash string) (*qbittorrent_model.TorrentProperties
 	params.Add("hash", hash)
 	endpoint := c.BaseUrl + "/properties?" + params.Encode()
 	var res qbittorrent_model.TorrentProperties
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -51,7 +51,7 @@ func (c Client) GetTrackers(hash string) ([]*qbittorrent_model.TorrentTracker, e
 	params.Add("hash", hash)
 	endpoint := c.BaseUrl + "/trackers?" + params.Encode()
 	var res []*qbittorrent_model.TorrentTracker
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -64,7 +64,7 @@ func (c Client) GetWebSeeds(hash string) ([]string, error) {
 	var res []struct {
 		URL string `json:"url"`
 	}
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	var seeds []string
@@ -79,7 +79,7 @@ func (c Client) GetContents(hash string) ([]*qbittorrent_model.TorrentContent, e
 	params.Add("hash", hash)
 	endpoint := c.BaseUrl + "/files?" + params.Encode()
 	var res []*qbittorrent_model.TorrentContent
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -90,7 +90,7 @@ func (c Client) GetPieceStates(hash string) ([]qbittorrent_model.TorrentPieceSta
 	params.Add("hash", hash)
 	endpoint := c.BaseUrl + "/pieceStates?" + params.Encode()
 	var res []qbittorrent_model.TorrentPieceState
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -101,7 +101,7 @@ func (c Client) GetPieceHashes(hash string) ([]string, error) {
 	params.Add("hash", hash)
 	endpoint := c.BaseUrl + "/pieceHashes?" + params.Encode()
 	var res []string
-	if err := qbittorrent.GetInto(c.Client, &res, endpoint, nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, endpoint, nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -112,7 +112,7 @@ func (c Client) StopTorrents(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/pause?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -123,7 +123,7 @@ func (c Client) ResumeTorrents(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/resume?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -135,7 +135,7 @@ func (c Client) DeleteTorrents(hashes []string, deleteFiles bool) error {
 	params.Add("hashes", value)
 	params.Add("deleteFiles", fmt.Sprintf("%v", deleteFiles))
 	endpoint := c.BaseUrl + "/delete?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -146,7 +146,7 @@ func (c Client) RecheckTorrents(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/recheck?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -157,21 +157,21 @@ func (c Client) ReannounceTorrents(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/reannounce?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c Client) AddURLs(urls []string, options *qbittorrent_model.AddTorrentsOptions) error {
-	if err := qbittorrent.PostMultipartLinks(c.Client, c.BaseUrl+"/add", options, urls); err != nil {
+	if err := qbittorrent_util.PostMultipartLinks(c.Client, c.BaseUrl+"/add", options, urls); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c Client) AddFiles(files map[string][]byte, options *qbittorrent_model.AddTorrentsOptions) error {
-	if err := qbittorrent.PostMultipartFiles(c.Client, c.BaseUrl+"/add", options, files); err != nil {
+	if err := qbittorrent_util.PostMultipartFiles(c.Client, c.BaseUrl+"/add", options, files); err != nil {
 		return err
 	}
 	return nil
@@ -181,7 +181,7 @@ func (c Client) AddTrackers(hash string, trackerURLs []string) error {
 	params := url.Values{}
 	params.Add("hash", hash)
 	params.Add("urls", strings.Join(trackerURLs, "\n"))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/addTrackers",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/addTrackers",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -193,7 +193,7 @@ func (c Client) EditTrackers(hash, old, new string) error {
 	params.Add("hash", hash)
 	params.Add("origUrl", old)
 	params.Add("newUrl", new)
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/editTracker",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/editTracker",
 		strings.NewReader(params.Encode()),
 		"application/x-www-form-urlencoded"); err != nil {
 		return err
@@ -205,7 +205,7 @@ func (c Client) RemoveTrackers(hash string, trackerURLs []string) error {
 	params := url.Values{}
 	params.Add("hash", hash)
 	params.Add("urls", strings.Join(trackerURLs, "|"))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/removeTrackers",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/removeTrackers",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (c Client) IncreasePriority(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/increasePrio?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -228,7 +228,7 @@ func (c Client) DecreasePriority(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/decreasePrio?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -239,7 +239,7 @@ func (c Client) SetMaximumPriority(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/topPrio?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -250,7 +250,7 @@ func (c Client) SetMinimumPriority(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/bottomPrio?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -262,7 +262,7 @@ func (c Client) SetFilePriorities(hash string, ids []string, priority qbittorren
 	params.Add("id", strings.Join(ids, "|"))
 	params.Add("priority", strconv.Itoa(int(priority)))
 	endpoint := c.BaseUrl + "/filePrio?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -272,7 +272,7 @@ func (c Client) GetDownloadLimits(hashes []string) (map[string]int, error) {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	var res map[string]int
-	if err := qbittorrent.GetIntoWithContentType(c.Client, &res, c.BaseUrl+"/downloadLimit",
+	if err := qbittorrent_util.GetIntoWithContentType(c.Client, &res, c.BaseUrl+"/downloadLimit",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return nil, err
 	}
@@ -283,7 +283,7 @@ func (c Client) SetDownloadLimits(hashes []string, limit int) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("limit", strconv.Itoa(limit))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setDownloadLimit",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setDownloadLimit",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -295,7 +295,7 @@ func (c Client) SetShareLimits(hashes []string, ratioLimit float64, seedingTimeL
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("ratioLimit", strconv.FormatFloat(ratioLimit, 'f', -1, 64))
 	params.Add("seedingTimeLimit", strconv.Itoa(seedingTimeLimit))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setShareLimits",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setShareLimits",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -306,7 +306,7 @@ func (c Client) GetUploadLimits(hashes []string) (map[string]int, error) {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	var res map[string]int
-	if err := qbittorrent.GetIntoWithContentType(c.Client, &res, c.BaseUrl+"/uploadLimit",
+	if err := qbittorrent_util.GetIntoWithContentType(c.Client, &res, c.BaseUrl+"/uploadLimit",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return nil, err
 	}
@@ -317,7 +317,7 @@ func (c Client) SetUploadLimits(hashes []string, limit int) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("limit", strconv.Itoa(limit))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setUploadLimit",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setUploadLimit",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -328,7 +328,7 @@ func (c Client) SetLocations(hashes []string, location string) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("location", location)
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setLocation",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setLocation",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func (c Client) SetName(hash string, name string) error {
 	params := url.Values{}
 	params.Add("hash", hash)
 	params.Add("name", name)
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/rename",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/rename",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -350,7 +350,7 @@ func (c Client) SetCategories(hashes []string, category string) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("category", category)
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setCategory",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setCategory",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func (c Client) SetCategories(hashes []string, category string) error {
 
 func (c Client) GetCategories() (map[string]*qbittorrent_model.Category, error) {
 	var res map[string]*qbittorrent_model.Category
-	if err := qbittorrent.GetInto(c.Client, &res, c.BaseUrl+"/categories", nil); err != nil {
+	if err := qbittorrent_util.GetInto(c.Client, &res, c.BaseUrl+"/categories", nil); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -369,7 +369,7 @@ func (c Client) AddCategory(category string, savePath string) error {
 	params := url.Values{}
 	params.Add("category", category)
 	params.Add("savePath", savePath)
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/createCategory",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/createCategory",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -380,7 +380,7 @@ func (c Client) EditCategory(category string, savePath string) error {
 	params := url.Values{}
 	params.Add("category", category)
 	params.Add("savePath", savePath)
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/editCategory",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/editCategory",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func (c Client) EditCategory(category string, savePath string) error {
 func (c Client) RemoveCategory(categories []string) error {
 	params := url.Values{}
 	params.Add("categories", strings.Join(categories, "\n"))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/removeCategories",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/removeCategories",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -401,7 +401,7 @@ func (c Client) SetAutomaticManagement(hashes []string, enable bool) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("enable", fmt.Sprintf("%v", enable))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setAutoManagement",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setAutoManagement",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func (c Client) ToggleSequentialDownload(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/toggleSequentialDownload?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -424,7 +424,7 @@ func (c Client) ToggleFirstLastPiecePriority(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	endpoint := c.BaseUrl + "/toggleFirstLastPiecePrio?" + params.Encode()
-	if err := qbittorrent.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
 		return err
 	}
 	return nil
@@ -434,7 +434,7 @@ func (c Client) SetForceStart(hashes []string, enable bool) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("value", fmt.Sprintf("%v", enable))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setForceStart",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setForceStart",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
@@ -445,7 +445,7 @@ func (c Client) SetSuperSeeding(hashes []string, enable bool) error {
 	params := url.Values{}
 	params.Add("hashes", strings.Join(hashes, "|"))
 	params.Add("value", fmt.Sprintf("%v", enable))
-	if err := qbittorrent.PostWithContentType(c.Client, c.BaseUrl+"/setSuperSeeding",
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/setSuperSeeding",
 		strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
