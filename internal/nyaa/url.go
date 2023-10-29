@@ -1,6 +1,9 @@
 package nyaa
 
-import "fmt"
+import (
+	"fmt"
+	_url "net/url"
+)
 
 const (
 	nyaaBaseURL    = "https://nyaa.si/?page=rss&q=+"
@@ -75,7 +78,7 @@ func buildURL(opts SearchOptions) (string, error) {
 	}
 
 	if opts.Query != "" {
-		url += opts.Query
+		url += _url.QueryEscape(opts.Query)
 	}
 
 	if opts.Provider == "nyaa" {

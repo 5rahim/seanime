@@ -4,6 +4,8 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
+// https://github.com/irevenko/go-nyaa
+
 type SearchOptions struct {
 	Provider string
 	Query    string
