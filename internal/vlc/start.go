@@ -2,14 +2,13 @@ package vlc
 
 import (
 	"errors"
-	"fmt"
 	"os/exec"
 	"runtime"
 	"strings"
 	"time"
 )
 
-func (vlc *VLC) getVLCExecutableName() string {
+func (vlc *VLC) getExecutableName() string {
 	switch runtime.GOOS {
 	case "windows":
 		return "vlc.exe"
@@ -22,7 +21,12 @@ func (vlc *VLC) getVLCExecutableName() string {
 	}
 }
 
-func (vlc *VLC) getVLCExecutablePath() string {
+func (vlc *VLC) getExecutablePath() string {
+
+	if len(vlc.Path) > 0 {
+		return vlc.Path
+	}
+
 	switch runtime.GOOS {
 	case "windows":
 		return "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
@@ -35,21 +39,20 @@ func (vlc *VLC) getVLCExecutablePath() string {
 	}
 }
 
-func (vlc *VLC) isVLCRunning(executable string) bool {
+func (vlc *VLC) isRunning(executable string) bool {
 	cmd := exec.Command("tasklist")
 	output, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Error checking for VLC:", err)
 		return false
 	}
 
 	return strings.Contains(string(output), executable)
 }
 
-func (vlc *VLC) StartVLC() error {
-	name := vlc.getVLCExecutableName()
-	exe := vlc.getVLCExecutablePath()
-	if vlc.isVLCRunning(name) {
+func (vlc *VLC) Start() error {
+	name := vlc.getExecutableName()
+	exe := vlc.getExecutablePath()
+	if vlc.isRunning(name) {
 		return nil
 	}
 

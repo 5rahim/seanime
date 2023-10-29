@@ -3,7 +3,6 @@ package vlc
 // https://github.com/CedArctic/go-vlc-ctrl/tree/master
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/rs/zerolog"
 	"io"
@@ -16,35 +15,12 @@ type VLC struct {
 	Host     string
 	Port     int
 	Password string
-	BaseURL  string // combination of Host and Port
+	Path     string
 	Logger   *zerolog.Logger
 }
 
-type NewVLCOptions struct {
-	Host     string
-	Port     int
-	Password string
-	Logger   *zerolog.Logger
-}
-
-// NewVLC builds and returns a VLC struct using the Host, Port and Password of the VLC instance
-func NewVLC(opts *NewVLCOptions) *VLC {
-
-	// Form instance Base URL
-	var BaseURL bytes.Buffer
-	BaseURL.WriteString("http://")
-	BaseURL.WriteString(opts.Host)
-	BaseURL.WriteString(":")
-	BaseURL.WriteString(strconv.Itoa(opts.Port))
-
-	// Create and return instance struct
-	return &VLC{
-		opts.Host,
-		opts.Port,
-		opts.Password,
-		BaseURL.String(),
-		opts.Logger,
-	}
+func (vlc *VLC) url() string {
+	return fmt.Sprintf("http://%s:%s", vlc.Host, strconv.Itoa(vlc.Port))
 }
 
 // RequestMaker make requests to VLC using a urlSegment provided by other functions
@@ -52,7 +28,7 @@ func (vlc *VLC) RequestMaker(urlSegment string) (response string, err error) {
 
 	// Form a GET Request
 	client := &http.Client{}
-	request, reqErr := http.NewRequest("GET", vlc.BaseURL+urlSegment, nil)
+	request, reqErr := http.NewRequest("GET", vlc.url()+urlSegment, nil)
 	if reqErr != nil {
 		err = fmt.Errorf("http request error: %s\n", reqErr)
 		return

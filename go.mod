@@ -3,6 +3,7 @@ module github.com/seanime-app/seanime-server
 go 1.21
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/Yamashou/gqlgenc v0.15.1
 	github.com/adrg/strutil v0.3.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
@@ -24,7 +25,6 @@ require (
 
 require (
 	github.com/99designs/gqlgen v0.17.39 // indirect
-	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antchfx/htmlquery v1.3.0 // indirect

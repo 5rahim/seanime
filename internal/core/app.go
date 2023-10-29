@@ -152,10 +152,11 @@ func (a *App) InitSettingsDependents() {
 	}
 
 	// Update VLC/MPC-HC
-	a.MediaPlayer.VLC = vlc.NewVLC(&vlc.NewVLCOptions{
+	a.MediaPlayer.VLC = &vlc.VLC{
 		Host:     settings.MediaPlayer.Host,
 		Port:     settings.MediaPlayer.VlcPort,
 		Password: settings.MediaPlayer.VlcPassword,
+		Path:     settings.MediaPlayer.VlcPath,
 		Logger:   a.Logger,
-	})
+	}
 }

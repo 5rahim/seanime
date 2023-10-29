@@ -90,8 +90,8 @@ type Equalizer struct {
 	Preamp  int               `json:"preamp"`
 }
 
-// ParseStatus parses GetStatus() responses to Status struct.
-func ParseStatus(statusResponse string) (status Status, err error) {
+// parseStatus parses GetStatus() responses to Status struct.
+func parseStatus(statusResponse string) (status Status, err error) {
 	err = json.Unmarshal([]byte(statusResponse), &status)
 	if err != nil {
 		return
@@ -109,7 +109,7 @@ func (vlc *VLC) GetStatus() (status Status, err error) {
 		return
 	}
 	// Parse response to Status
-	status, err = ParseStatus(response)
+	status, err = parseStatus(response)
 	return
 }
 
@@ -192,9 +192,9 @@ func (vlc *VLC) ToggleFullscreen() (err error) {
 	return
 }
 
-// AddStart adds a URI to the playlist and starts playback.
+// AddAndPlay adds a URI to the playlist and starts playback.
 // The option field is optional and can have the values: noaudio, novideo
-func (vlc *VLC) AddStart(uri string, option ...string) error {
+func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 	// Check variadic arguments and form urlSegment
 	if len(option) > 1 {
 		return errors.New("please provide only one option")
