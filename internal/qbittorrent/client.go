@@ -19,9 +19,15 @@ import (
 )
 
 type Client struct {
-	baseURL     string
-	logger      *zerolog.Logger
-	client      *http.Client
+	baseURL  string
+	logger   *zerolog.Logger
+	client   *http.Client
+	Username string
+	Password string
+	Port     int
+	Host     string
+	Path     string
+
 	Application qbittorrent_application.Client
 	Log         qbittorrent_log.Client
 	RSS         qbittorrent_rss.Client
@@ -31,56 +37,70 @@ type Client struct {
 	Transfer    qbittorrent_transfer.Client
 }
 
-func NewClient(baseURL string, logger *zerolog.Logger) *Client {
-	baseURL = baseURL + "/api/v2"
+type NewClientOptions struct {
+	Logger   *zerolog.Logger
+	Username string
+	Password string
+	Port     int
+	Host     string
+	Path     string
+}
+
+func NewClient(opts *NewClientOptions) *Client {
+	baseURL := fmt.Sprintf("http://%s:%d/api/v2", opts.Host, opts.Port)
 	client := &http.Client{}
 	return &Client{
-		baseURL: baseURL,
-		logger:  logger,
-		client:  client,
+		baseURL:  baseURL,
+		logger:   opts.Logger,
+		client:   client,
+		Username: opts.Username,
+		Password: opts.Password,
+		Port:     opts.Port,
+		Path:     opts.Path,
+		Host:     opts.Host,
 		Application: qbittorrent_application.Client{
 			BaseUrl: baseURL + "/app",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 		Log: qbittorrent_log.Client{
 			BaseUrl: baseURL + "/log",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 		RSS: qbittorrent_rss.Client{
 			BaseUrl: baseURL + "/rss",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 		Search: qbittorrent_search.Client{
 			BaseUrl: baseURL + "/search",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 		Sync: qbittorrent_sync.Client{
 			BaseUrl: baseURL + "/sync",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 		Torrent: qbittorrent_torrent.Client{
 			BaseUrl: baseURL + "/torrents",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 		Transfer: qbittorrent_transfer.Client{
 			BaseUrl: baseURL + "/transfer",
 			Client:  client,
-			Logger:  logger,
+			Logger:  opts.Logger,
 		},
 	}
 }
 
-func (c *Client) Login(username, password string) error {
+func (c *Client) Login() error {
 	endpoint := c.baseURL + "/auth/login"
 	data := url.Values{}
-	data.Add("username", username)
-	data.Add("password", password)
+	data.Add("username", c.Username)
+	data.Add("password", c.Password)
 	request, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
 	if err != nil {
 		return err
@@ -114,7 +134,7 @@ func (c *Client) Login(username, password string) error {
 	return nil
 }
 
-func (c Client) Logout() error {
+func (c *Client) Logout() error {
 	endpoint := c.baseURL + "/auth/logout"
 	request, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {

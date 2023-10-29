@@ -8,6 +8,7 @@ import (
 type SettingsBody struct {
 	Library     models.LibrarySettings     `json:"library"`
 	MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
+	Torrent     models.TorrentSettings     `json:"torrent"`
 }
 
 func HandleSaveSettings(c *RouteCtx) error {
@@ -25,6 +26,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		},
 		Library:     &body.Library,
 		MediaPlayer: &body.MediaPlayer,
+		Torrent:     &body.Torrent,
 	})
 
 	if err != nil {

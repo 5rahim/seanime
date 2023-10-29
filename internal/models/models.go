@@ -24,6 +24,7 @@ type Settings struct {
 	BaseModel
 	Library     *LibrarySettings     `gorm:"embedded" json:"library"`
 	MediaPlayer *MediaPlayerSettings `gorm:"embedded" json:"mediaPlayer"`
+	Torrent     *TorrentSettings     `gorm:"embedded" json:"torrent"`
 }
 
 type MediaPlayerSettings struct {
@@ -39,4 +40,12 @@ type MediaPlayerSettings struct {
 
 type LibrarySettings struct {
 	LibraryPath string `gorm:"column:library_path" json:"libraryPath"`
+}
+
+type TorrentSettings struct {
+	QBittorrentPath     string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`
+	QBittorrentHost     string `gorm:"column:qbittorrent_host" json:"qbittorrentHost"`
+	QBittorrentPort     int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
+	QBittorrentUsername string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
+	QBittorrentPassword string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
 }

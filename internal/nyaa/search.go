@@ -14,11 +14,10 @@ type SearchOptions struct {
 	Filter   string
 }
 
-var (
-	fp = gofeed.NewParser()
-)
-
 func Search(opts SearchOptions) ([]Torrent, error) {
+
+	fp := gofeed.NewParser()
+
 	url, err := buildURL(opts)
 	if err != nil {
 		return nil, err

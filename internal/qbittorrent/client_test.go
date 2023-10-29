@@ -8,7 +8,13 @@ import (
 
 func TestNewClient(t *testing.T) {
 
-	client := NewClient("http://localhost:8081", util.NewLogger())
+	client := NewClient(&NewClientOptions{
+		Logger:   util.NewLogger(),
+		Username: "admin",
+		Password: "adminadmin",
+		Port:     8081,
+		Host:     "127.0.0.1",
+	})
 
 	res, err := client.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
 		Filter:   "",

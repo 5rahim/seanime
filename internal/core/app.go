@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
+	"github.com/seanime-app/seanime-server/internal/qbittorrent"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/seanime-app/seanime-server/internal/vlc"
@@ -25,7 +26,8 @@ type App struct {
 		VLC   *vlc.VLC
 		MpcHc *mpchc.MpcHc
 	}
-	Watcher *scanner.Watcher
+	QBittorrent *qbittorrent.Client
+	Watcher     *scanner.Watcher
 }
 
 type ServerOptions struct {
@@ -160,18 +162,35 @@ func (a *App) InitSettingsDependents() {
 
 	// Update VLC/MPC-HC
 
-	a.MediaPlayer.VLC = &vlc.VLC{
-		Host:     settings.MediaPlayer.Host,
-		Port:     settings.MediaPlayer.VlcPort,
-		Password: settings.MediaPlayer.VlcPassword,
-		Path:     settings.MediaPlayer.VlcPath,
-		Logger:   a.Logger,
+	if settings.MediaPlayer != nil {
+		a.MediaPlayer.VLC = &vlc.VLC{
+			Host:     settings.MediaPlayer.Host,
+			Port:     settings.MediaPlayer.VlcPort,
+			Password: settings.MediaPlayer.VlcPassword,
+			Path:     settings.MediaPlayer.VlcPath,
+			Logger:   a.Logger,
+		}
+		a.MediaPlayer.MpcHc = &mpchc.MpcHc{
+			Host:   settings.MediaPlayer.Host,
+			Port:   settings.MediaPlayer.MpcPort,
+			Path:   settings.MediaPlayer.MpcPath,
+			Logger: a.Logger,
+		}
 	}
-	a.MediaPlayer.MpcHc = &mpchc.MpcHc{
-		Host:   settings.MediaPlayer.Host,
-		Port:   settings.MediaPlayer.MpcPort,
-		Path:   settings.MediaPlayer.MpcPath,
-		Logger: a.Logger,
+
+	// Update qBittorrent
+
+	if settings.Torrent != nil {
+		a.QBittorrent = qbittorrent.NewClient(&qbittorrent.NewClientOptions{
+			Logger:   a.Logger,
+			Username: settings.Torrent.QBittorrentUsername,
+			Password: settings.Torrent.QBittorrentPassword,
+			Port:     settings.Torrent.QBittorrentPort,
+			Host:     settings.Torrent.QBittorrentHost,
+			Path:     settings.Torrent.QBittorrentPath,
+		})
 	}
+
+	a.Logger.Info().Msg("app: Dependents initialized")
 
 }
