@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"errors"
+	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 )
 
@@ -47,6 +49,34 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Marshal the local files
+	bytes, err := json.Marshal(localFiles)
+	if err != nil {
+		c.App.Logger.Err(err).Msg("scan: could not save local files")
+	}
+	// Save the local files to the database
+	if _, err := c.App.Database.InsertLocalFiles(&models.LocalFiles{
+		Value: bytes,
+	}); err != nil {
+		c.App.Logger.Err(err).Msg("scan: could not save local files")
+	}
+
 	return c.RespondWithData(localFiles)
 
+}
+
+func HandleGetLocalFiles(c *RouteCtx) error {
+
+	res, err := c.App.Database.GetLatestLocalFiles(&models.LocalFiles{})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	lfsBytes := res.Value
+	var lfs []scanner.LocalFile
+	if err := json.Unmarshal(lfsBytes, &lfs); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(lfs)
 }
