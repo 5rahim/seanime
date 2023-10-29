@@ -6,9 +6,8 @@ import (
 )
 
 type SettingsBody struct {
-	Library struct {
-		LibraryPath string `json:"libraryPath"`
-	} `json:"library"`
+	Library     models.LibrarySettings     `json:"library"`
+	MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
 }
 
 func HandleSaveSettings(c *RouteCtx) error {
@@ -24,14 +23,16 @@ func HandleSaveSettings(c *RouteCtx) error {
 			ID:        1,
 			UpdatedAt: time.Now(),
 		},
-		Library: &models.LibrarySettings{
-			LibraryPath: body.Library.LibraryPath,
-		},
+		Library:     &body.Library,
+		MediaPlayer: &body.MediaPlayer,
 	})
 
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	// Refresh the settings dependents
+	c.App.InitSettingsDependents()
 
 	return c.RespondWithData(settings)
 }

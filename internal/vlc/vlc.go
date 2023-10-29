@@ -20,23 +20,30 @@ type VLC struct {
 	Logger   *zerolog.Logger
 }
 
+type NewVLCOptions struct {
+	Host     string
+	Port     int
+	Password string
+	Logger   *zerolog.Logger
+}
+
 // NewVLC builds and returns a VLC struct using the Host, Port and Password of the VLC instance
-func NewVLC(host string, port int, password string, logger *zerolog.Logger) *VLC {
+func NewVLC(opts *NewVLCOptions) *VLC {
 
 	// Form instance Base URL
 	var BaseURL bytes.Buffer
 	BaseURL.WriteString("http://")
-	BaseURL.WriteString(host)
+	BaseURL.WriteString(opts.Host)
 	BaseURL.WriteString(":")
-	BaseURL.WriteString(strconv.Itoa(port))
+	BaseURL.WriteString(strconv.Itoa(opts.Port))
 
 	// Create and return instance struct
 	return &VLC{
-		host,
-		port,
-		password,
+		opts.Host,
+		opts.Port,
+		opts.Password,
 		BaseURL.String(),
-		logger,
+		opts.Logger,
 	}
 }
 

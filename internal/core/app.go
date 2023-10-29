@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/seanime-app/seanime-server/internal/vlc"
 	"log"
 	"os"
 )
@@ -19,6 +20,9 @@ type App struct {
 	Database      *db.Database
 	AnilistClient *anilist.Client
 	Logger        *zerolog.Logger
+	MediaPlayer   struct {
+		VLC *vlc.VLC
+	}
 }
 
 type ServerOptions struct {
@@ -60,12 +64,16 @@ func NewApp(options *ServerOptions) *App {
 	// Initialize Anilist client
 	anilistClient := anilist.NewAuthedClient("")
 
-	return &App{
+	app := &App{
 		Config:        cfg,
 		Database:      db,
 		AnilistClient: anilistClient,
 		Logger:        logger,
 	}
+
+	app.InitSettingsDependents()
+
+	return app
 }
 
 func NewFiberApp(app *App) *fiber.App {
@@ -134,4 +142,20 @@ func (a *App) InitLibraryWatcher() {
 
 func (a *App) UpdateAnilistClientToken(token string) {
 	a.AnilistClient = anilist.NewAuthedClient(token)
+}
+
+func (a *App) InitSettingsDependents() {
+	settings, err := a.Database.GetSettings()
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to refresh settings")
+		return
+	}
+
+	// Update VLC/MPC-HC
+	a.MediaPlayer.VLC = vlc.NewVLC(&vlc.NewVLCOptions{
+		Host:     settings.MediaPlayer.Host,
+		Port:     settings.MediaPlayer.VlcPort,
+		Password: settings.MediaPlayer.VlcPassword,
+		Logger:   a.Logger,
+	})
 }
