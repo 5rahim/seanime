@@ -14,12 +14,14 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/gofiber/contrib/fiberzerolog v0.2.2
 	github.com/gofiber/fiber/v2 v2.50.0
+	github.com/google/go-querystring v1.1.0
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.31.0
 	github.com/samber/lo v1.38.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/net v0.17.0
 	gorm.io/gorm v1.25.5
 )
 
@@ -71,7 +73,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
