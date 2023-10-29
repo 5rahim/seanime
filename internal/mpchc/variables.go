@@ -1,4 +1,4 @@
-package mpc_hc
+package mpchc
 
 import (
 	"github.com/PuerkitoBio/goquery"

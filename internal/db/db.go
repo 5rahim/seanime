@@ -18,9 +18,6 @@ type Database struct {
 }
 
 func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
-	// Get the app data directory from the configuration
-
-	logger.Info().Msg("db: Instantiating database")
 
 	// Set the SQLite database path
 	var sqlitePath string
@@ -54,7 +51,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		return nil, err
 	}
 
-	logger.Info().Msg("db: Performed auto migration")
+	logger.Info().Msg("db: Database instanciated")
 
 	return &Database{
 		gormdb: db,

@@ -1,4 +1,4 @@
-package mpc_hc
+package mpchc
 
 import (
 	"github.com/seanime-app/seanime-server/internal/util"

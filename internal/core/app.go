@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/db"
+	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/seanime-app/seanime-server/internal/vlc"
@@ -21,8 +22,10 @@ type App struct {
 	AnilistClient *anilist.Client
 	Logger        *zerolog.Logger
 	MediaPlayer   struct {
-		VLC *vlc.VLC
+		VLC   *vlc.VLC
+		MpcHc *mpchc.MpcHc
 	}
+	Watcher *scanner.Watcher
 }
 
 type ServerOptions struct {
@@ -121,7 +124,7 @@ func (a *App) InitLibraryWatcher() {
 	// Retrieve library settings
 	librarySettings, err := a.Database.GetSettings()
 	if err != nil {
-		a.Logger.Warn().Msg("app: Did not initialize watcher, no settings found")
+		a.Logger.Debug().Msg("app: Did not initialize watcher, no settings found")
 		return
 	}
 
@@ -134,7 +137,11 @@ func (a *App) InitLibraryWatcher() {
 		return
 	}
 
-	watcher.StartWatching()
+	// Set the watcher
+	a.Watcher = watcher
+
+	// Start watching
+	a.Watcher.StartWatching()
 
 }
 
@@ -147,11 +154,12 @@ func (a *App) UpdateAnilistClientToken(token string) {
 func (a *App) InitSettingsDependents() {
 	settings, err := a.Database.GetSettings()
 	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to refresh settings")
+		a.Logger.Debug().Msg("app: Did not initialize dependents, no settings found")
 		return
 	}
 
 	// Update VLC/MPC-HC
+
 	a.MediaPlayer.VLC = &vlc.VLC{
 		Host:     settings.MediaPlayer.Host,
 		Port:     settings.MediaPlayer.VlcPort,
@@ -159,4 +167,11 @@ func (a *App) InitSettingsDependents() {
 		Path:     settings.MediaPlayer.VlcPath,
 		Logger:   a.Logger,
 	}
+	a.MediaPlayer.MpcHc = &mpchc.MpcHc{
+		Host:   settings.MediaPlayer.Host,
+		Port:   settings.MediaPlayer.MpcPort,
+		Path:   settings.MediaPlayer.MpcPath,
+		Logger: a.Logger,
+	}
+
 }

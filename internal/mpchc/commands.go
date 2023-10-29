@@ -1,4 +1,4 @@
-package mpc_hc
+package mpchc
 
 const (
 	setVolumeCmd                            = -2
