@@ -4,6 +4,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/entities"
 )
 
+// HandleGetLibraryEntries returns all library entries
 func HandleGetLibraryEntries(c *RouteCtx) error {
 
 	lfs, err := getLocalFilesFromDB(c.App.Database)
@@ -16,10 +17,14 @@ func HandleGetLibraryEntries(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	le := entities.NewLibraryEntries(&entities.NewLibraryEntriesOptions{
+	entries := entities.NewLibraryEntries(&entities.NewLibraryEntriesOptions{
 		Collection: collec,
 		LocalFiles: lfs,
 	})
 
-	return c.RespondWithData(le)
+	return c.RespondWithData(entries)
+}
+
+func HandleGetLibraryEntry(c *RouteCtx) error {
+	return nil
 }

@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-func HandleEnforceAnilistToken(c *RouteCtx) error {
+func anilistTokenMiddleware(c *fiber.Ctx) error {
 
-	token := c.Fiber.Cookies("anilistToken", "")
+	token := c.Cookies("anilistToken", "")
 
 	if len(token) == 0 {
-		return c.Fiber.Status(fiber.StatusMethodNotAllowed).JSON(NewErrorResponse(errors.New("missing AniList token")))
+		return c.Status(fiber.StatusMethodNotAllowed).JSON(NewErrorResponse(errors.New("missing AniList token")))
 	}
 
-	return c.Fiber.Next()
+	return c.Next()
 
 }
 

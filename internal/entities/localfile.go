@@ -1,11 +1,9 @@
 package entities
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/5rahim/tanuki"
 	"github.com/samber/lo"
-	"github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/filesystem"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"strconv"
@@ -212,17 +210,6 @@ func (f *LocalFile) GetTitleVariations() []*string {
 
 }
 
-func buildTitle(vals ...string) string {
-	buf := bytes.NewBuffer([]byte{})
-	for i, v := range vals {
-		buf.WriteString(v)
-		if i != len(vals)-1 {
-			buf.WriteString(" ")
-		}
-	}
-	return buf.String()
-}
-
 // NewLocalFile creates and returns a reference to a new LocalFile struct from a path
 func NewLocalFile(opath, dirPath string) *LocalFile {
 
@@ -230,14 +217,14 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 
 	// Parse filename
 	fElements := tanuki.Parse(info.Filename, tanuki.DefaultOptions)
-	parsedInfo := NewLocalFileParsedData(info.Filename, fElements)
+	parsedInfo := newLocalFileParsedData(info.Filename, fElements)
 
 	// Parse dirnames
 	parsedFolderInfo := make([]*LocalFileParsedData, 0)
 	for _, dirname := range info.Dirnames {
 		if len(dirname) > 0 {
 			pElements := tanuki.Parse(dirname, tanuki.DefaultOptions)
-			parsed := NewLocalFileParsedData(dirname, pElements)
+			parsed := newLocalFileParsedData(dirname, pElements)
 			parsedFolderInfo = append(parsedFolderInfo, parsed)
 		}
 	}
@@ -263,10 +250,10 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 
 }
 
-// NewLocalFileParsedData Converts tanuki.Elements into LocalFileParsedData.
+// newLocalFileParsedData Converts tanuki.Elements into LocalFileParsedData.
 //
 // This is used by NewLocalFile
-func NewLocalFileParsedData(original string, elements *tanuki.Elements) *LocalFileParsedData {
+func newLocalFileParsedData(original string, elements *tanuki.Elements) *LocalFileParsedData {
 	i := new(LocalFileParsedData)
 	i.Original = original
 	i.Title = elements.AnimeTitle
@@ -299,24 +286,4 @@ func NewLocalFileParsedData(original string, elements *tanuki.Elements) *LocalFi
 	}
 
 	return i
-}
-
-// GetUniqueAnimeTitles returns all parsed anime titles without duplicates
-func GetUniqueAnimeTitles(localFiles []*LocalFile) []string {
-	// Concurrently get title from each local file
-	titles := parallel.Map(localFiles, func(file *LocalFile, index int) string {
-		title := file.GetParsedTitle()
-		// Some rudimentary exclusions
-		for _, i := range []string{"SPECIALS", "SPECIAL", "EXTRA", "NC", "OP", "MOVIE", "MOVIES"} {
-			if strings.ToUpper(title) == i {
-				return ""
-			}
-		}
-		return title
-	})
-	// Keep unique title and filter out empty ones
-	titles = lo.Filter(lo.Uniq(titles), func(item string, index int) bool {
-		return len(item) > 0
-	})
-	return titles
 }

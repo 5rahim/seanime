@@ -25,8 +25,8 @@ type LibraryEntry struct {
 }
 
 type Entry struct {
-	LocalFiles     []*LocalFile       `json:"localFiles"`
 	Media          *anilist.BaseMedia `json:"media"`
+	MediaId        int                `json:"mediaId"`
 	Progress       int                `json:"progress,omitempty"`
 	Score          float64            `json:"score,omitempty"`
 	AllFilesLocked bool               `json:"allFilesLocked"`
@@ -74,7 +74,7 @@ func NewLibraryEntries(opts *NewLibraryEntriesOptions) []*LibraryEntry {
 					if slices.Contains(mIds, entry.Media.ID) {
 						lfs := groupedLfs[entry.Media.ID]
 						return &Entry{
-							//LocalFiles: lfs,
+							MediaId:        entry.Media.ID,
 							Media:          entry.Media,
 							Progress:       *entry.Progress,
 							Score:          *entry.Score,
