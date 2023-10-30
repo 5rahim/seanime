@@ -8,8 +8,19 @@ import (
 	"slices"
 )
 
+type LibraryEntryType string
+
+const (
+	LibraryEntryTypeCurrent   LibraryEntryType = "current"
+	LibraryEntryTypePlanned   LibraryEntryType = "planned"
+	LibraryEntryTypeCompleted LibraryEntryType = "completed"
+	LibraryEntryTypePaused    LibraryEntryType = "paused"
+	LibraryEntryTypeDropped   LibraryEntryType = "dropped"
+)
+
 type LibraryEntry struct {
-	Type    anilist.MediaListStatus `json:"type"`
+	Type    LibraryEntryType        `json:"type"`
+	Status  anilist.MediaListStatus `json:"status"`
 	Entries []*Entry                `json:"current"`
 }
 
@@ -83,7 +94,8 @@ func NewLibraryEntries(opts *NewLibraryEntriesOptions) []*LibraryEntry {
 
 			// Return a new LibraryEntries struct
 			return &LibraryEntry{
-				Type:    *list.Status,
+				Type:    getLibraryEntryTypeFromListStatus(*list.Status),
+				Status:  *list.Status,
 				Entries: r,
 			}
 
@@ -94,21 +106,42 @@ func NewLibraryEntries(opts *NewLibraryEntriesOptions) []*LibraryEntry {
 
 	// Merge repeating to current
 	repeat, ok := lo.Find(res, func(item *LibraryEntry) bool {
-		return item.Type == anilist.MediaListStatusRepeating
+		return item.Status == anilist.MediaListStatusRepeating
 	})
 	if ok {
 		current, ok := lo.Find(res, func(item *LibraryEntry) bool {
-			return item.Type == anilist.MediaListStatusCurrent
+			return item.Status == anilist.MediaListStatusCurrent
 		})
 		if len(repeat.Entries) > 0 && ok {
 			current.Entries = append(current.Entries, repeat.Entries...)
 		}
 		// Remove repeating from res
 		res = lo.Filter(res, func(item *LibraryEntry, index int) bool {
-			return item.Type != anilist.MediaListStatusRepeating
+			return item.Status != anilist.MediaListStatusRepeating
 		})
 	}
 
 	return res
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func getLibraryEntryTypeFromListStatus(st anilist.MediaListStatus) LibraryEntryType {
+	switch st {
+	case anilist.MediaListStatusCurrent:
+		return LibraryEntryTypeCurrent
+	case anilist.MediaListStatusRepeating:
+		return LibraryEntryTypeCurrent
+	case anilist.MediaListStatusPlanning:
+		return LibraryEntryTypePlanned
+	case anilist.MediaListStatusCompleted:
+		return LibraryEntryTypeCompleted
+	case anilist.MediaListStatusPaused:
+		return LibraryEntryTypePaused
+	case anilist.MediaListStatusDropped:
+		return LibraryEntryTypeDropped
+	default:
+		return LibraryEntryTypeCurrent
+	}
 }
