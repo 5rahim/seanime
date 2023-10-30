@@ -3,11 +3,12 @@ package scanner
 import (
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"io"
 	"os"
 )
 
-func MockGetTestLocalFiles() ([]*LocalFile, bool) {
+func MockGetTestLocalFiles() ([]*entities.LocalFile, bool) {
 
 	// Open the JSON file
 	file, err := os.Open("../../test/sample/localfiles.json")
@@ -23,7 +24,7 @@ func MockGetTestLocalFiles() ([]*LocalFile, bool) {
 		return nil, false
 	}
 
-	var data []*LocalFile
+	var data []*entities.LocalFile
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		println("Error unmarshaling JSON:", err.Error())
 		return nil, false
@@ -32,7 +33,7 @@ func MockGetTestLocalFiles() ([]*LocalFile, bool) {
 	return data, true
 
 }
-func MockGetSelectTestLocalFiles() ([]*LocalFile, bool) {
+func MockGetSelectTestLocalFiles() ([]*entities.LocalFile, bool) {
 
 	// Open the JSON file
 	file, err := os.Open("../../test/sample/localfiles_selected.json")
@@ -48,7 +49,7 @@ func MockGetSelectTestLocalFiles() ([]*LocalFile, bool) {
 		return nil, false
 	}
 
-	var data []*LocalFile
+	var data []*entities.LocalFile
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		println("Error unmarshaling JSON:", err.Error())
 		return nil, false

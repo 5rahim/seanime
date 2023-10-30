@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type AuthRequestBody struct {
-	Token string
-}
-
 func HandleEnforceAnilistToken(c *RouteCtx) error {
 
 	token := c.Fiber.Cookies("anilistToken", "")
@@ -22,6 +18,10 @@ func HandleEnforceAnilistToken(c *RouteCtx) error {
 
 	return c.Fiber.Next()
 
+}
+
+type AuthRequestBody struct {
+	Token string
 }
 
 func HandleAuth(c *RouteCtx) error {
@@ -48,12 +48,13 @@ func HandleAuth(c *RouteCtx) error {
 	// Success
 	if len(getViewer.Viewer.Name) > 0 {
 
-		_, err = c.App.Database.UpsertToken(&models.Token{
+		_, err = c.App.Database.UpsertAccount(&models.Account{
 			BaseModel: models.BaseModel{
 				ID:        1,
 				UpdatedAt: time.Now(),
 			},
-			Value: body.Token,
+			Username: getViewer.Viewer.Name,
+			Token:    body.Token,
 		})
 
 		if err != nil {

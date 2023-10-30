@@ -21,6 +21,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	api.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	api.Get("/localfiles/latest", makeHandler(app, HandleGetLocalFiles))
+	api.Get("/entries/all", makeHandler(app, HandleGetLibraryEntries))
 
 	api.Post("/settings/save", makeHandler(app, HandleSaveSettings))
 	api.Post("/test-dump", makeHandler(app, HandleManualDump))

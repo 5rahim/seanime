@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/db"
+	_db "github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
 	"github.com/seanime-app/seanime-server/internal/scanner"
@@ -19,15 +19,16 @@ import (
 
 type App struct {
 	Config        *Config
-	Database      *db.Database
+	Database      *_db.Database
 	AnilistClient *anilist.Client
 	Logger        *zerolog.Logger
 	MediaPlayer   struct {
 		VLC   *vlc.VLC
 		MpcHc *mpchc.MpcHc
 	}
-	QBittorrent *qbittorrent.Client
-	Watcher     *scanner.Watcher
+	QBittorrent       *qbittorrent.Client
+	Watcher           *scanner.Watcher
+	AnilistCollection *anilist.AnimeCollection
 }
 
 type ServerOptions struct {
@@ -58,7 +59,7 @@ func NewApp(options *ServerOptions) *App {
 	logger.Info().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
 
 	// Initialize the database
-	db, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
+	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
 		os.Exit(1)
@@ -76,7 +77,7 @@ func NewApp(options *ServerOptions) *App {
 		Logger:        logger,
 	}
 
-	app.InitSettingsDependents()
+	app.InitOrRefreshDependencies()
 
 	return app
 }
@@ -111,86 +112,4 @@ func RunServer(app *App, fiberApp *fiber.App) {
 	app.Logger.Info().Msg("Server started at http://" + addr)
 
 	select {}
-}
-
-func (a *App) InitLibraryWatcher() {
-	// Create a new matcher
-	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
-		Logger: a.Logger,
-	})
-	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to initialize watcher")
-		return
-	}
-
-	// Retrieve library settings
-	librarySettings, err := a.Database.GetSettings()
-	if err != nil {
-		a.Logger.Debug().Msg("app: Did not initialize watcher, no settings found")
-		return
-	}
-
-	// Initialize library file watcher
-	err = watcher.InitLibraryFileWatcher(&scanner.WatchLibraryFilesOptions{
-		LibraryPath: librarySettings.Library.LibraryPath,
-	})
-	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to watch library files")
-		return
-	}
-
-	// Set the watcher
-	a.Watcher = watcher
-
-	// Start watching
-	a.Watcher.StartWatching()
-
-}
-
-///////////////////////
-
-func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClient = anilist.NewAuthedClient(token)
-}
-
-func (a *App) InitSettingsDependents() {
-	settings, err := a.Database.GetSettings()
-	if err != nil {
-		a.Logger.Debug().Msg("app: Did not initialize dependents, no settings found")
-		return
-	}
-
-	// Update VLC/MPC-HC
-
-	if settings.MediaPlayer != nil {
-		a.MediaPlayer.VLC = &vlc.VLC{
-			Host:     settings.MediaPlayer.Host,
-			Port:     settings.MediaPlayer.VlcPort,
-			Password: settings.MediaPlayer.VlcPassword,
-			Path:     settings.MediaPlayer.VlcPath,
-			Logger:   a.Logger,
-		}
-		a.MediaPlayer.MpcHc = &mpchc.MpcHc{
-			Host:   settings.MediaPlayer.Host,
-			Port:   settings.MediaPlayer.MpcPort,
-			Path:   settings.MediaPlayer.MpcPath,
-			Logger: a.Logger,
-		}
-	}
-
-	// Update qBittorrent
-
-	if settings.Torrent != nil {
-		a.QBittorrent = qbittorrent.NewClient(&qbittorrent.NewClientOptions{
-			Logger:   a.Logger,
-			Username: settings.Torrent.QBittorrentUsername,
-			Password: settings.Torrent.QBittorrentPassword,
-			Port:     settings.Torrent.QBittorrentPort,
-			Host:     settings.Torrent.QBittorrentHost,
-			Path:     settings.Torrent.QBittorrentPath,
-		})
-	}
-
-	a.Logger.Info().Msg("app: Dependents initialized")
-
 }

@@ -1344,7 +1344,7 @@ type ReviewEdge struct {
 type RevisionHistory struct {
 	// The id of the media
 	ID int `json:"id"`
-	// The action taken on the objects
+	// The action taken on the entities
 	Action *RevisionHistoryAction `json:"action,omitempty"`
 	// A JSON object of the fields that changed
 	Changes *string `json:"changes,omitempty"`

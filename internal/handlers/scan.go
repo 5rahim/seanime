@@ -41,7 +41,6 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		Enhanced:      body.Enhanced,
 		AnilistClient: c.App.AnilistClient,
 		Logger:        c.App.Logger,
-		DB:            c.App.Database,
 	}
 
 	localFiles, err := sc.Scan()
@@ -63,20 +62,4 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	return c.RespondWithData(localFiles)
 
-}
-
-func HandleGetLocalFiles(c *RouteCtx) error {
-
-	res, err := c.App.Database.GetLatestLocalFiles(&models.LocalFiles{})
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	lfsBytes := res.Value
-	var lfs []scanner.LocalFile
-	if err := json.Unmarshal(lfsBytes, &lfs); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	return c.RespondWithData(lfs)
 }

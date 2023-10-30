@@ -15,6 +15,12 @@ type Token struct {
 	Value string `json:"value"`
 }
 
+type Account struct {
+	BaseModel
+	Username string `gorm:"column:username" json:"username"`
+	Token    string `gorm:"column:token" json:"token"`
+}
+
 type LocalFiles struct {
 	BaseModel
 	Value []byte `gorm:"column:value" json:"value"`

@@ -34,7 +34,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 	}
 
 	// Refresh the settings dependents
-	c.App.InitSettingsDependents()
+	c.App.InitOrRefreshDependencies()
 
 	return c.RespondWithData(settings)
 }

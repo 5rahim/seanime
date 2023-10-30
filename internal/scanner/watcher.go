@@ -92,3 +92,10 @@ func (w *Watcher) StartWatching() {
 		}
 	}()
 }
+
+func (w *Watcher) StopWatching() {
+	err := w.watcher.Close()
+	if err == nil {
+		w.logger.Debug().Err(err).Msgf("watcher: Watcher is closed")
+	}
+}

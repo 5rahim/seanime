@@ -62,9 +62,9 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 // MigrateTables performs auto migration on the database
 func migrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
-		&models.Token{},
 		&models.LocalFiles{},
 		&models.Settings{},
+		&models.Account{},
 	)
 	if err != nil {
 

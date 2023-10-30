@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"io"
@@ -41,7 +42,7 @@ func TestGetUniqueAnimeTitles(t *testing.T) {
 		return
 	}
 
-	var data []*LocalFile
+	var data []*entities.LocalFile
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		t.Error("Error unmarshaling JSON:", err)
 		return
@@ -51,7 +52,7 @@ func TestGetUniqueAnimeTitles(t *testing.T) {
 		t.Error("expected success, got error")
 	}
 
-	titles := GetUniqueAnimeTitles(data)
+	titles := entities.GetUniqueAnimeTitles(data)
 
 	for _, title := range titles {
 		fmt.Println(title)

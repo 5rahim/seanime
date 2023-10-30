@@ -8,6 +8,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/mal"
 	"github.com/seanime-app/seanime-server/internal/util/parallel"
@@ -25,7 +26,7 @@ type MediaFetcherOptions struct {
 	Enhanced           bool
 	Username           string
 	AnilistClient      *anilist.Client
-	LocalFiles         []*LocalFile
+	LocalFiles         []*entities.LocalFile
 	BaseMediaCache     *anilist.BaseMediaCache
 	AnizipCache        *anizip.Cache
 	Logger             *zerolog.Logger
@@ -122,7 +123,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 // It returns the scanned media and a boolean indicating whether the process was successful.
 func FetchMediaFromLocalFiles(
 	anilistClient *anilist.Client,
-	localFiles []*LocalFile,
+	localFiles []*entities.LocalFile,
 	baseMediaCache *anilist.BaseMediaCache,
 	anizipCache *anizip.Cache,
 	anilistRateLimiter *limiter.Limiter,
@@ -131,7 +132,7 @@ func FetchMediaFromLocalFiles(
 	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
 
 	// Get titles
-	titles := lop.Map(localFiles, func(file *LocalFile, index int) string {
+	titles := lop.Map(localFiles, func(file *entities.LocalFile, index int) string {
 		return file.GetParsedTitle()
 	})
 	titles = lo.Uniq(titles)

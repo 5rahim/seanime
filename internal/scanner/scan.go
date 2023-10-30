@@ -4,7 +4,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
-	"github.com/seanime-app/seanime-server/internal/db"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 )
 
@@ -15,10 +15,9 @@ type Scanner struct {
 	Enhanced      bool
 	AnilistClient *anilist.Client
 	Logger        *zerolog.Logger
-	DB            *db.Database
 }
 
-func (scn Scanner) Scan() ([]*LocalFile, error) {
+func (scn Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()

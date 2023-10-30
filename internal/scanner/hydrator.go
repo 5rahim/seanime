@@ -8,6 +8,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/comparison"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/sourcegraph/conc/pool"
@@ -16,7 +17,7 @@ import (
 )
 
 type FileHydrator struct {
-	localFiles         []*LocalFile
+	localFiles         []*entities.LocalFile
 	media              []*anilist.BaseMedia
 	baseMediaCache     *anilist.BaseMediaCache
 	anizipCache        *anizip.Cache
@@ -32,7 +33,7 @@ func (fh *FileHydrator) HydrateMetadata() {
 	fh.logger.Debug().Msg("hydrator: Starting metadata hydration process")
 
 	// Group local files by media ID
-	groups := lop.GroupBy(fh.localFiles, func(localFile *LocalFile) int {
+	groups := lop.GroupBy(fh.localFiles, func(localFile *entities.LocalFile) int {
 		return localFile.MediaId
 	})
 
@@ -55,7 +56,7 @@ func (fh *FileHydrator) HydrateMetadata() {
 
 func (fh *FileHydrator) hydrateGroupMetadata(
 	mId int,
-	lfs []*LocalFile,
+	lfs []*entities.LocalFile,
 	rateLimiter *limiter.Limiter,
 ) {
 
@@ -74,7 +75,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	treeFetched := false
 
 	// Process each local file in the group sequentially
-	lo.ForEach(lfs, func(lf *LocalFile, index int) {
+	lo.ForEach(lfs, func(lf *entities.LocalFile, index int) {
 
 		// Get episode number
 		episode := -1
@@ -167,7 +168,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 // If the MediaTreeAnalysis is nil, the episode number will not be normalized.
 func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	mta *MediaTreeAnalysis,
-	lf *LocalFile,
+	lf *entities.LocalFile,
 	ep int,
 ) error {
 	if mta == nil {

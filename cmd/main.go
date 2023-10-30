@@ -19,8 +19,6 @@ func main() {
 
 	handlers.InitRoutes(app, fiberApp)
 
-	app.InitLibraryWatcher()
-
 	// Start the server
 	core.RunServer(app, fiberApp)
 
