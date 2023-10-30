@@ -10,44 +10,38 @@ import (
 	"strings"
 )
 
-type LocalFile struct {
-	Path             string                 `json:"path"`
-	Name             string                 `json:"name"`
-	ParsedData       *LocalFileParsedData   `json:"parsedInfo"`
-	ParsedFolderData []*LocalFileParsedData `json:"parsedFolderInfo"`
-	Metadata         *LocalFileMetadata     `json:"metadata"`
-	Locked           bool                   `json:"locked"`
-	Ignored          bool                   `json:"ignored"`
-	MediaId          int                    `json:"mediaId"`
-}
-
-type LocalFileParsedData struct {
-	Original     string   `json:"original"`               // Same as LocalFile.Name for LocalFile.ParsedData
-	Title        string   `json:"title,omitempty"`        // Same as tanuki.Elements.AnimeTitle
-	ReleaseGroup string   `json:"releaseGroup,omitempty"` // Same as tanuki.Elements.ReleaseGroup
-	Season       string   `json:"season,omitempty"`       // First element of tanuki.Elements.AnimeSeason if not a range
-	SeasonRange  []string `json:"seasonRange,omitempty"`  // Same as tanuki.Elements.AnimeSeason if range
-	Part         string   `json:"part,omitempty"`         // First element of tanuki.Elements.AnimePart if not a range
-	PartRange    []string `json:"partRange,omitempty"`    // Same tanuki.Elements.AnimePart if range
-	Episode      string   `json:"episode,omitempty"`      // First element of tanuki.Elemenets.EpisodeNumber
-	EpisodeRange []string `json:"episodeRange,omitempty"` // Same as tanuki.Elemenets.EpisodeNumber if range
-	EpisodeTitle string   `json:"episodeTitle,omitempty"` // Same as tanuki.Elemenets.EpisodeTitle
-	Year         string   `json:"year,omitempty"`         // Same as tanuki.Elemenets.AnimeYear
-}
-
-type LocalFileMetadata struct {
-	Episode      int    `json:"episode"`
-	AniDBEpisode string `json:"aniDBEpisode"`
-	IsVersion    bool   `json:"isVersion"`
-	IsSpecial    bool   `json:"isSpecial"`
-	IsNC         bool   `json:"isNC"`
-}
-
-// LocalFileWithMedia Same as LocalFile but contains the fetched Media
-type LocalFileWithMedia struct {
-	*LocalFile
-	Media any
-}
+type (
+	LocalFile struct {
+		Path             string                 `json:"path"`
+		Name             string                 `json:"name"`
+		ParsedData       *LocalFileParsedData   `json:"parsedInfo"`
+		ParsedFolderData []*LocalFileParsedData `json:"parsedFolderInfo"`
+		Metadata         *LocalFileMetadata     `json:"metadata"`
+		Locked           bool                   `json:"locked"`
+		Ignored          bool                   `json:"ignored"`
+		MediaId          int                    `json:"mediaId"`
+	}
+	LocalFileMetadata struct {
+		Episode      int    `json:"episode"`
+		AniDBEpisode string `json:"aniDBEpisode"`
+		IsVersion    bool   `json:"isVersion"`
+		IsSpecial    bool   `json:"isSpecial"`
+		IsNC         bool   `json:"isNC"`
+	}
+	LocalFileParsedData struct {
+		Original     string   `json:"original"`               // Same as LocalFile.Name for LocalFile.ParsedData
+		Title        string   `json:"title,omitempty"`        // Same as tanuki.Elements.AnimeTitle
+		ReleaseGroup string   `json:"releaseGroup,omitempty"` // Same as tanuki.Elements.ReleaseGroup
+		Season       string   `json:"season,omitempty"`       // First element of tanuki.Elements.AnimeSeason if not a range
+		SeasonRange  []string `json:"seasonRange,omitempty"`  // Same as tanuki.Elements.AnimeSeason if range
+		Part         string   `json:"part,omitempty"`         // First element of tanuki.Elements.AnimePart if not a range
+		PartRange    []string `json:"partRange,omitempty"`    // Same tanuki.Elements.AnimePart if range
+		Episode      string   `json:"episode,omitempty"`      // First element of tanuki.Elemenets.EpisodeNumber
+		EpisodeRange []string `json:"episodeRange,omitempty"` // Same as tanuki.Elemenets.EpisodeNumber if range
+		EpisodeTitle string   `json:"episodeTitle,omitempty"` // Same as tanuki.Elemenets.EpisodeTitle
+		Year         string   `json:"year,omitempty"`         // Same as tanuki.Elemenets.AnimeYear
+	}
+)
 
 func (f *LocalFile) GetParsedData() *LocalFileParsedData {
 	return f.ParsedData

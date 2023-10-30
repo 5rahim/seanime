@@ -6,7 +6,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/scanner"
 )
 
-type ScanRequestBody struct {
+type scanRequestBody struct {
 	Enhanced bool `json:"enhanced"`
 }
 
@@ -23,7 +23,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	}
 
 	// Body
-	body := new(ScanRequestBody)
+	body := new(scanRequestBody)
 	if err := c.Fiber.BodyParser(body); err != nil {
 		return c.RespondWithError(err)
 	}

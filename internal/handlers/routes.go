@@ -18,16 +18,15 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1 := api.Group("/v1", anilistTokenMiddleware)
 
 	v1.Post("/auth", makeHandler(app, HandleAuth))
+	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))
+	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
 
 	v1Library := v1.Group("/library")
 
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
-	v1Library.Get("/entries/all", makeHandler(app, HandleGetLibraryEntries))
+	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 	v1Library.Get("/entry", makeHandler(app, HandleGetLibraryEntry))
-
-	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))
-	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
 
 }
 
