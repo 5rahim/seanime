@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
@@ -17,6 +18,7 @@ func (a *App) InitOrRefreshDependencies() {
 		a.Watcher.StopWatching()
 	}
 
+	// Get settings from database
 	settings, err := a.Database.GetSettings()
 	if err != nil {
 		a.Logger.Warn().Msg("app: Did not initialize dependencies, no settings found")
@@ -58,19 +60,23 @@ func (a *App) InitOrRefreshDependencies() {
 		a.Logger.Warn().Msg("app: Did not initialize qBittorrent module, no settings found")
 	}
 
-	// Library watcher
+	// Initialize library watcher
 
 	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
-		a.InitLibraryWatcher(settings.Library.LibraryPath)
+		a.initLibraryWatcher(settings.Library.LibraryPath)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
 	}
+
+	// Save account and Anilist collection
+	a.initAnilistData()
 
 	a.Logger.Info().Msg("app: All dependencies initialized")
 
 }
 
-func (a *App) InitLibraryWatcher(path string) {
+// InitLibraryWatcher will initialize the library watcher.
+func (a *App) initLibraryWatcher(path string) {
 	// Create a new matcher
 	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
 		Logger: a.Logger,
@@ -94,6 +100,33 @@ func (a *App) InitLibraryWatcher(path string) {
 
 	// Start watching
 	a.Watcher.StartWatching()
+
+}
+
+// initAnilistData will initialize the Anilist anime collection dependency and the account.
+// This function should be called after App.Database is initialized and after settings are updated.
+func (a *App) initAnilistData() {
+
+	acc, err := a.Database.GetAccount()
+	if err != nil {
+		return
+	}
+
+	if acc.Token == "" || acc.Username == "" {
+		return
+	}
+
+	// Set account
+	a.account = acc
+
+	// Set Anilist collection
+	a.anilistCollection, err = a.AnilistClient.AnimeCollection(context.Background(), &acc.Username)
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
+		return
+	}
+
+	a.Logger.Info().Msg("app: Fetched Anilist collection")
 
 }
 

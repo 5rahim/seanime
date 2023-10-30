@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	_db "github.com/seanime-app/seanime-server/internal/db"
+	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
 	"github.com/seanime-app/seanime-server/internal/scanner"
@@ -28,7 +29,8 @@ type App struct {
 	}
 	QBittorrent       *qbittorrent.Client
 	Watcher           *scanner.Watcher
-	AnilistCollection *anilist.AnimeCollection
+	anilistCollection *anilist.AnimeCollection
+	account           *models.Account
 }
 
 type ServerOptions struct {

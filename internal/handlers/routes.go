@@ -14,7 +14,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
-	api := fiberApp.Group("/api")
+	api := fiberApp.Group("/api/v1")
 
 	api.Post("*", makeHandler(app, HandleEnforceAnilistToken))
 	api.Post("/auth", makeHandler(app, HandleAuth))

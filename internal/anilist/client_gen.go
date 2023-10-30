@@ -1520,9 +1520,16 @@ func (t *AnimeCollection_MediaListCollection_Lists_Entries) GetMedia() *BaseMedi
 }
 
 type AnimeCollection_MediaListCollection_Lists struct {
+	Status  *MediaListStatus                                     "json:\"status,omitempty\" graphql:\"status\""
 	Entries []*AnimeCollection_MediaListCollection_Lists_Entries "json:\"entries,omitempty\" graphql:\"entries\""
 }
 
+func (t *AnimeCollection_MediaListCollection_Lists) GetStatus() *MediaListStatus {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists{}
+	}
+	return t.Status
+}
 func (t *AnimeCollection_MediaListCollection_Lists) GetEntries() []*AnimeCollection_MediaListCollection_Lists_Entries {
 	if t == nil {
 		t = &AnimeCollection_MediaListCollection_Lists{}
@@ -3070,6 +3077,7 @@ func (c *Client) DeleteEntry(ctx context.Context, mediaListEntryID *int, interce
 const AnimeCollectionDocument = `query AnimeCollection ($userName: String) {
 	MediaListCollection(userName: $userName, type: ANIME) {
 		lists {
+			status
 			entries {
 				id
 				score

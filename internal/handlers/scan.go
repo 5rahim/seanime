@@ -1,15 +1,13 @@
 package handlers
 
 import (
-	"errors"
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 )
 
 type ScanRequestBody struct {
-	Username string `json:"username"`
-	Enhanced bool   `json:"enhanced"`
+	Enhanced bool `json:"enhanced"`
 }
 
 func HandleScanLocalFiles(c *RouteCtx) error {
@@ -30,14 +28,15 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if len(body.Username) == 0 {
-		return c.RespondWithError(errors.New("'username' is required"))
+	acc, err := c.App.GetAccount()
+	if err != nil {
+		return c.RespondWithError(err)
 	}
 
 	sc := scanner.Scanner{
 		Token:         token,
 		DirPath:       libraryPath,
-		Username:      body.Username,
+		Username:      acc.Username,
 		Enhanced:      body.Enhanced,
 		AnilistClient: c.App.AnilistClient,
 		Logger:        c.App.Logger,
