@@ -132,10 +132,7 @@ func FetchMediaFromLocalFiles(
 	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
 
 	// Get titles
-	titles := lop.Map(localFiles, func(file *entities.LocalFile, index int) string {
-		return file.GetParsedTitle()
-	})
-	titles = lo.Uniq(titles)
+	titles := entities.GetUniqueAnimeTitlesFromLocalFiles(localFiles)
 
 	//titles = titles[:8]
 	//titles := []string{"Bungou Stray Dogs", "Jujutsu Kaisen", "Sousou no Frieren"}

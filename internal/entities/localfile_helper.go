@@ -3,9 +3,12 @@ package entities
 import (
 	"bytes"
 	"github.com/samber/lo"
-	"github.com/samber/lo/parallel"
+	lop "github.com/samber/lo/parallel"
+	"slices"
 	"strings"
 )
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func buildTitle(vals ...string) string {
 	buf := bytes.NewBuffer([]byte{})
@@ -18,10 +21,10 @@ func buildTitle(vals ...string) string {
 	return buf.String()
 }
 
-// GetUniqueAnimeTitles returns all parsed anime titles without duplicates
-func GetUniqueAnimeTitles(localFiles []*LocalFile) []string {
+// GetUniqueAnimeTitlesFromLocalFiles returns all parsed anime titles without duplicates
+func GetUniqueAnimeTitlesFromLocalFiles(lfs []*LocalFile) []string {
 	// Concurrently get title from each local file
-	titles := parallel.Map(localFiles, func(file *LocalFile, index int) string {
+	titles := lop.Map(lfs, func(file *LocalFile, index int) string {
 		title := file.GetParsedTitle()
 		// Some rudimentary exclusions
 		for _, i := range []string{"SPECIALS", "SPECIAL", "EXTRA", "NC", "OP", "MOVIE", "MOVIES"} {
@@ -36,4 +39,31 @@ func GetUniqueAnimeTitles(localFiles []*LocalFile) []string {
 		return len(item) > 0
 	})
 	return titles
+}
+
+func GetMediaIdsFromLocalFiles(lfs []*LocalFile) []int {
+
+	// Group local files by media id
+	groupedLfs := lop.GroupBy(lfs, func(item *LocalFile) int {
+		return item.MediaId
+	})
+
+	// Get slice of media ids from local files
+	mIds := make([]int, len(groupedLfs))
+	for key := range groupedLfs {
+		if !slices.Contains(mIds, key) {
+			mIds = append(mIds, key)
+		}
+	}
+
+	return mIds
+
+}
+
+func GetLocalFilesFromMediaId(lfs []*LocalFile, mId int) []*LocalFile {
+
+	return lo.Filter(lfs, func(item *LocalFile, _ int) bool {
+		return item.MediaId == mId
+	})
+
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/anizip"
 	_db "github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
@@ -22,6 +23,7 @@ type App struct {
 	Config        *Config
 	Database      *_db.Database
 	AnilistClient *anilist.Client
+	AnizipCache   *anizip.Cache
 	Logger        *zerolog.Logger
 	MediaPlayer   struct {
 		VLC   *vlc.VLC
@@ -69,13 +71,11 @@ func NewApp(options *ServerOptions) *App {
 
 	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
-	// Initialize Anilist client
-	anilistClient := anilist.NewAuthedClient("")
-
 	app := &App{
 		Config:        cfg,
 		Database:      db,
-		AnilistClient: anilistClient,
+		AnilistClient: anilist.NewAuthedClient(""),
+		AnizipCache:   anizip.NewCache(),
 		Logger:        logger,
 	}
 

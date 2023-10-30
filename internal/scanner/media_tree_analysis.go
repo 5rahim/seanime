@@ -76,7 +76,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) *MediaTreeAnalysis {
 }
 
 // getRelativeEpisodeNumber uses the MediaTreeAnalysis to get the relative episode number for an absolute episode number
-func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (int, bool) {
+func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, mediaId int, ok bool) {
 	// Find the MediaTreeAnalysisBranch that contains the absolute episode number
 	branch, ok := lo.Find(o.branches, func(n *MediaTreeAnalysisBranch) bool {
 		if n.minAbsoluteEpisode <= abs && n.maxAbsoluteEpisode >= abs {
@@ -85,10 +85,11 @@ func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (int, bool) {
 		return false
 	})
 	if !ok {
-		return 0, false
+		return 0, 0, false
 	}
 
-	relativeEp := abs - (branch.minAbsoluteEpisode - 1)
+	relativeEp = abs - (branch.minAbsoluteEpisode - 1)
+	mediaId = branch.media.ID
 
-	return relativeEp, true
+	return
 }

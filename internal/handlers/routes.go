@@ -26,7 +26,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
-	v1Library.Get("/entry", makeHandler(app, HandleGetLibraryEntry))
+	v1Library.Get("/entry", makeHandler(app, HandleGetMediaEntry))
 
 }
 

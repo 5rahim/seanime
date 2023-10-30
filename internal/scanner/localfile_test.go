@@ -52,7 +52,7 @@ func TestGetUniqueAnimeTitles(t *testing.T) {
 		t.Error("expected success, got error")
 	}
 
-	titles := entities.GetUniqueAnimeTitles(data)
+	titles := entities.GetUniqueAnimeTitlesFromLocalFiles(data)
 
 	for _, title := range titles {
 		fmt.Println(title)

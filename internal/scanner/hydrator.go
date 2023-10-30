@@ -177,7 +177,7 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 		return errors.New("[hydrator] could not find media tree analysis")
 	}
 
-	relativeEp, ok := mta.getRelativeEpisodeNumber(ep)
+	relativeEp, mediaId, ok := mta.getRelativeEpisodeNumber(ep)
 	if !ok {
 		lf.Metadata.Episode = ep
 		lf.Metadata.AniDBEpisode = strconv.Itoa(ep)
@@ -186,5 +186,6 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 
 	lf.Metadata.Episode = relativeEp
 	lf.Metadata.AniDBEpisode = strconv.Itoa(relativeEp)
+	lf.MediaId = mediaId
 	return nil
 }
