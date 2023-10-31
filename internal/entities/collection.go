@@ -26,10 +26,10 @@ type (
 	}
 
 	LibraryCollectionEntry struct {
-		Media          *anilist.BaseMedia `json:"media"`
-		MediaId        int                `json:"mediaId"`
-		AllFilesLocked bool               `json:"allFilesLocked"`
-		*MediaEntryDetails
+		Media             *anilist.BaseMedia `json:"media"`
+		MediaId           int                `json:"mediaId"`
+		AllFilesLocked    bool               `json:"allFilesLocked"`
+		MediaEntryDetails *MediaEntryDetails `json:"listEntry"`
 	}
 
 	NewLibraryCollectionOptions struct {
@@ -79,9 +79,11 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectio
 							Media:          entry.Media,
 							AllFilesLocked: lo.EveryBy(lfs, func(item *LocalFile) bool { return item.Locked }),
 							MediaEntryDetails: &MediaEntryDetails{
-								Progress: *entry.Progress,
-								Score:    *entry.Score,
-								Status:   entry.Status,
+								Progress:    *entry.Progress,
+								Score:       *entry.Score,
+								Status:      entry.Status,
+								StartedAt:   anilist.ToEntryStartDate(entry.StartedAt),
+								CompletedAt: anilist.ToEntryCompletionDate(entry.CompletedAt),
 							},
 						}
 					} else {

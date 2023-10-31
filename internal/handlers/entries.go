@@ -19,11 +19,18 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Get the user's anilist collection
+	anilistCollection, err := c.App.GetAnilistCollection()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
 	// Create a new media entry
 	entry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
-		MediaId:     p.MediaId,
-		LocalFiles:  lfs,
-		AnizipCache: c.App.AnizipCache,
+		MediaId:           p.MediaId,
+		LocalFiles:        lfs,
+		AnizipCache:       c.App.AnizipCache,
+		AnilistCollection: anilistCollection,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
