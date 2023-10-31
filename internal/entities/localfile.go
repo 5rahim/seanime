@@ -10,8 +10,15 @@ import (
 	"strings"
 )
 
+const (
+	LocalFileTypeMain    LocalFileType = "main"
+	LocalFileTypeSpecial LocalFileType = "special"
+	LocalFileTypeNC      LocalFileType = "nc"
+)
+
 type (
-	LocalFile struct {
+	LocalFileType string
+	LocalFile     struct {
 		Path             string                 `json:"path"`
 		Name             string                 `json:"name"`
 		ParsedData       *LocalFileParsedData   `json:"parsedInfo"`
@@ -23,11 +30,9 @@ type (
 	}
 
 	LocalFileMetadata struct {
-		Episode      int    `json:"episode"`
-		AniDBEpisode string `json:"aniDBEpisode"`
-		IsVersion    bool   `json:"isVersion"`
-		IsSpecial    bool   `json:"isSpecial"`
-		IsNC         bool   `json:"isNC"`
+		Episode      int           `json:"episode"`
+		AniDBEpisode string        `json:"aniDBEpisode"`
+		Type         LocalFileType `json:"type"`
 	}
 
 	LocalFileParsedData struct {
@@ -233,9 +238,7 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 		Metadata: &LocalFileMetadata{
 			Episode:      0,
 			AniDBEpisode: "",
-			IsVersion:    false,
-			IsSpecial:    false,
-			IsNC:         false,
+			Type:         "",
 		},
 		Locked:  false,
 		Ignored: false,

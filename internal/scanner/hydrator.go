@@ -77,6 +77,8 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	// Process each local file in the group sequentially
 	lo.ForEach(lfs, func(lf *entities.LocalFile, index int) {
 
+		lf.Metadata.Type = entities.LocalFileTypeMain
+
 		// Get episode number
 		episode := -1
 		if len(lf.ParsedData.Episode) > 0 {
@@ -86,13 +88,13 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		}
 
 		if comparison.ValueContainsNC(lf.Name) {
-			lf.Metadata.Episode = 1
-			lf.Metadata.AniDBEpisode = "NC"
-			lf.Metadata.IsNC = true
+			lf.Metadata.Episode = 0
+			lf.Metadata.AniDBEpisode = ""
+			lf.Metadata.Type = entities.LocalFileTypeNC
 			return
 		}
 		if comparison.ValueContainsSpecial(lf.Name) {
-			lf.Metadata.IsSpecial = true
+			lf.Metadata.Type = entities.LocalFileTypeSpecial
 			if episode > -1 {
 				lf.Metadata.Episode = episode
 				lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(episode)
