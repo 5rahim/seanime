@@ -31,6 +31,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 		LocalFiles:        lfs,
 		AnizipCache:       c.App.AnizipCache,
 		AnilistCollection: anilistCollection,
+		AnilistClient:     c.App.AnilistClient,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

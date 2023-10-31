@@ -25,6 +25,13 @@ func (m *BasicMedia) GetTitleSafe() string {
 	return "N/A"
 }
 
+func (m *BaseMedia) GetPreferredTitle() string {
+	if m.Title.UserPreferred != nil {
+		return *m.GetTitle().GetUserPreferred()
+	}
+	return m.GetTitleSafe()
+}
+
 func (m *BaseMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasEnglishTitle() {
