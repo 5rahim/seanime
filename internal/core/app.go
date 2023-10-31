@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/fiberzerolog"
-	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -21,22 +20,24 @@ import (
 )
 
 type App struct {
-	Config        *Config
-	Database      *_db.Database
-	AnilistClient *anilist.Client
-	AnizipCache   *anizip.Cache
-	Logger        *zerolog.Logger
-	MediaPlayer   struct {
+	Config   *Config
+	Database *_db.Database
+	Logger   *zerolog.Logger
+
+	MediaPlayer struct {
 		VLC   *vlc.VLC
 		MpcHc *mpchc.MpcHc
 	}
 	QBittorrent *qbittorrent.Client
-	Watcher     *scanner.Watcher
 
+	Watcher *scanner.Watcher
+
+	AnizipCache       *anizip.Cache
+	AnilistClient     *anilist.Client
 	anilistCollection *anilist.AnimeCollection
 	account           *models.Account
 
-	WebsocketConn *websocket.Conn
+	WSEventManager *WSEventManager
 }
 
 type ServerOptions struct {
@@ -57,7 +58,10 @@ func NewApp(options *ServerOptions) *App {
 
 	logger := util.NewLogger()
 
-	// Load the config
+	/*
+	 Initialize the config
+	 If the config file does not exist, it will be created
+	*/
 	cfg, err := NewConfig(opts.Config)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
@@ -66,7 +70,9 @@ func NewApp(options *ServerOptions) *App {
 
 	logger.Info().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
 
-	// Initialize the database
+	/*
+	 Initialize the database
+	*/
 	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
@@ -76,11 +82,12 @@ func NewApp(options *ServerOptions) *App {
 	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
 	app := &App{
-		Config:        cfg,
-		Database:      db,
-		AnilistClient: anilist.NewAuthedClient(""),
-		AnizipCache:   anizip.NewCache(),
-		Logger:        logger,
+		Config:         cfg,
+		Database:       db,
+		AnilistClient:  anilist.NewAuthedClient(""),
+		AnizipCache:    anizip.NewCache(),
+		WSEventManager: NewWSEventManager(logger),
+		Logger:         logger,
 	}
 
 	app.InitOrRefreshDependencies()

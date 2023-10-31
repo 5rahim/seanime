@@ -1,12 +1,11 @@
 package core
 
 import (
+	"github.com/seanime-app/seanime-server/internal/constants"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 )
-
-const configFileName = "config.json"
 
 type Config struct {
 	Server struct {
@@ -36,7 +35,7 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	}
 
 	// Set the config file name and type
-	viper.SetConfigName(configFileName)
+	viper.SetConfigName(constants.ConfigFileName)
 	viper.SetConfigType("json")
 	viper.SetConfigFile(configPath)
 
@@ -113,5 +112,5 @@ func getUserConfigPath(_dataDir string) (string, string, error) {
 		return "", "", err
 	}
 
-	return filepath.Join(appDataDir, configFileName), appDataDir, nil
+	return filepath.Join(appDataDir, constants.ConfigFileName), appDataDir, nil
 }

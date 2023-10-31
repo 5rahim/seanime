@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/gofiber/contrib/websocket"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"time"
 )
@@ -34,10 +33,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err = c.App.WebsocketConn.WriteMessage(websocket.TextMessage, []byte("Settings updated"))
-	if err != nil {
-		c.App.Logger.Error().Err(err).Msg("Failed to send message to websocket")
-	}
+	c.App.WSEventManager.SendEvent("settings", settings)
 
 	// Refresh the settings dependents
 	c.App.InitOrRefreshDependencies()

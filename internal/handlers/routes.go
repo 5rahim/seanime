@@ -40,8 +40,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Websocket
 	//
 
-	fiberApp.Use("/ws", websocketUpgradeMiddleware)
-	fiberApp.Get("/ws", createWebSocketHandler(app))
+	fiberApp.Use("/events", websocketUpgradeMiddleware)
+	// Create a new websocket event handler.
+	// This will be used to send real-time events to the client.
+	// It also attaches the websocket connection to the app instance, so it is available to other handlers.
+	fiberApp.Get("/events", newWebSocketEventHandler(app))
 
 }
 

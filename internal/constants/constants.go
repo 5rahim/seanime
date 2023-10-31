@@ -2,4 +2,5 @@ package constants
 
 import "time"
 
-const GC_TIME = time.Minute * 30
+const GcTime = time.Minute * 30
+const ConfigFileName = "config.json"

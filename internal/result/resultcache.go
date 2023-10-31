@@ -20,7 +20,7 @@ func NewCache[K interface{}, V any]() *Cache[K, V] {
 }
 
 func (c *Cache[K, V]) Set(key K, value V) {
-	ttl := constants.GC_TIME
+	ttl := constants.GcTime
 	c.store.Store(key, &cacheItem[K, V]{value, time.Now().Add(ttl)})
 	go func() {
 		<-time.After(ttl)
