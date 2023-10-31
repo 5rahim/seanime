@@ -17,9 +17,17 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1", anilistTokenMiddleware)
 
+	//
+	// General
+	//
+
 	v1.Post("/auth", makeHandler(app, HandleAuth))
 	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))
 	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
+
+	//
+	// Library
+	//
 
 	v1Library := v1.Group("/library")
 
@@ -27,6 +35,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 	v1Library.Get("/entry", makeHandler(app, HandleGetMediaEntry))
+
+	//
+	// Websocket
+	//
+
+	fiberApp.Use("/ws", websocketUpgradeMiddleware)
+	fiberApp.Get("/ws", createWebSocketHandler(app))
 
 }
 

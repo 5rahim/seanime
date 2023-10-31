@@ -13,6 +13,7 @@ require (
 	github.com/goccy/go-json v0.10.2
 	github.com/gocolly/colly v1.2.0
 	github.com/gofiber/contrib/fiberzerolog v0.2.2
+	github.com/gofiber/contrib/websocket v1.2.2
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/go-querystring v1.1.0
 	github.com/mmcdole/gofeed v1.2.1
@@ -34,6 +35,7 @@ require (
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/fasthttp/websocket v1.5.4 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -60,6 +62,7 @@ require (
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
+	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect

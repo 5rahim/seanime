@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/fiberzerolog"
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -29,10 +30,13 @@ type App struct {
 		VLC   *vlc.VLC
 		MpcHc *mpchc.MpcHc
 	}
-	QBittorrent       *qbittorrent.Client
-	Watcher           *scanner.Watcher
+	QBittorrent *qbittorrent.Client
+	Watcher     *scanner.Watcher
+
 	anilistCollection *anilist.AnimeCollection
 	account           *models.Account
+
+	WebsocketConn *websocket.Conn
 }
 
 type ServerOptions struct {
