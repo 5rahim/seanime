@@ -136,12 +136,13 @@ func createEpisodes(me *MediaEntry) {
 	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
 	possibleSpecialInclusion := hasEpisodeZero && noEpisodeCeiling
 
+	_, aniDBHasS1 := me.AnizipData.Episodes["S1"]
 	// AniList episode count > AniDB episode count
 	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
-	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > len(me.AnizipData.Episodes)
+	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > len(me.AnizipData.Episodes) && aniDBHasS1
 
+	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
-
 	if possibleSpecialInclusion && hasDiscrepancy {
 		progressOffset = 1
 	}

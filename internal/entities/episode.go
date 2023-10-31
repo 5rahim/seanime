@@ -42,8 +42,6 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	// Format DisplayTitle
 	if *opts.media.GetFormat() == anilist.MediaFormatMovie {
 		ep.DisplayTitle = opts.media.GetPreferredTitle()
-	} else {
-		ep.DisplayTitle = ""
 	}
 
 	//anizipEpisode, found := opts.anizipMedia.GetEpisode(opts.localFile.Metadata.AniDBEpisode)
@@ -52,6 +50,14 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	if opts.localFile != nil {
 		ep.IsDownloaded = true
 
+		switch opts.localFile.Metadata.Type {
+		case LocalFileTypeMain:
+			ep.EpisodeNumber = opts.localFile.Metadata.Episode
+			ep.ProgressNumber = opts.localFile.Metadata.Episode + opts.progressOffset
+		case LocalFileTypeSpecial:
+			ep.EpisodeNumber = opts.localFile.Metadata.Episode
+			ep.ProgressNumber = 0
+		}
 	}
 
 	return ep

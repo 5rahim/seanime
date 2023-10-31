@@ -98,6 +98,9 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			if episode > -1 {
 				lf.Metadata.Episode = episode
 				lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(episode)
+			} else {
+				lf.Metadata.Episode = 1
+				lf.Metadata.AniDBEpisode = "S1"
 			}
 			return
 		}
