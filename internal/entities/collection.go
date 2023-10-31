@@ -28,9 +28,8 @@ type (
 	LibraryCollectionEntry struct {
 		Media          *anilist.BaseMedia `json:"media"`
 		MediaId        int                `json:"mediaId"`
-		Progress       int                `json:"progress,omitempty"`
-		Score          float64            `json:"score,omitempty"`
 		AllFilesLocked bool               `json:"allFilesLocked"`
+		*MediaEntryDetails
 	}
 
 	NewLibraryCollectionOptions struct {
@@ -78,9 +77,12 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectio
 						return &LibraryCollectionEntry{
 							MediaId:        entry.Media.ID,
 							Media:          entry.Media,
-							Progress:       *entry.Progress,
-							Score:          *entry.Score,
 							AllFilesLocked: lo.EveryBy(lfs, func(item *LocalFile) bool { return item.Locked }),
+							MediaEntryDetails: &MediaEntryDetails{
+								Progress: *entry.Progress,
+								Score:    *entry.Score,
+								Status:   entry.Status,
+							},
 						}
 					} else {
 						return nil

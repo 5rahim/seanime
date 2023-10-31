@@ -9,6 +9,7 @@ type (
 	MediaEntry struct {
 		MediaId int                `json:"mediaId"`
 		Media   *anilist.BaseMedia `json:"media"`
+		*MediaEntryDetails
 
 		LocalFiles  []*LocalFile `json:"localFiles"`
 		EpisodeList struct {
@@ -17,7 +18,9 @@ type (
 		} `json:"episodeList"`
 
 		AnizipData *anizip.Media `json:"anizipData"`
+	}
 
+	MediaEntryDetails struct {
 		Progress int                      `json:"progress,omitempty"`
 		Score    float64                  `json:"score,omitempty"`
 		Status   *anilist.MediaListStatus `json:"status,omitempty"`
