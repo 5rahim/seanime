@@ -74,7 +74,7 @@ func NewCache() *Cache {
 	return &Cache{result.NewCache[string, *Media]()}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 // FetchAniZipMedia fetches anizip.Media from the AniZip API.
 func FetchAniZipMedia(from string, id int) (*Media, error) {
@@ -125,7 +125,7 @@ func FetchAniZipMediaC(from string, id int, cache *Cache) (*Media, error) {
 	return media, nil
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 func GetCacheKey(from string, id int) string {
 	return from + strconv.Itoa(id)

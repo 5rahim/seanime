@@ -193,7 +193,7 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 // validateMatches creates groups of local files that have the same media ID.
 // It then compares the local files' titles with the media titles and un-matches the local files that have a lower rating than the highest rating.

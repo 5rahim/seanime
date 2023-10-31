@@ -8,8 +8,6 @@ import (
 	"slices"
 )
 
-type LibraryCollectionListType string
-
 const (
 	LibraryCollectionEntryCurrent   LibraryCollectionListType = "current"
 	LibraryCollectionEntryPlanned   LibraryCollectionListType = "planned"
@@ -19,11 +17,14 @@ const (
 )
 
 type (
+	LibraryCollectionListType string
+
 	LibraryCollectionList struct {
 		Type    LibraryCollectionListType `json:"type"`
 		Status  anilist.MediaListStatus   `json:"status"`
 		Entries []*LibraryCollectionEntry `json:"current"`
 	}
+
 	LibraryCollectionEntry struct {
 		Media          *anilist.BaseMedia `json:"media"`
 		MediaId        int                `json:"mediaId"`
@@ -31,6 +32,7 @@ type (
 		Score          float64            `json:"score,omitempty"`
 		AllFilesLocked bool               `json:"allFilesLocked"`
 	}
+
 	NewLibraryCollectionOptions struct {
 		Collection *anilist.AnimeCollection
 		LocalFiles []*LocalFile
@@ -125,7 +127,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectio
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 func getLibraryCollectionEntryFromListStatus(st anilist.MediaListStatus) LibraryCollectionListType {
 	switch st {

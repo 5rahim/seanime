@@ -7,6 +7,19 @@ import (
 	"github.com/seanime-app/seanime-server/internal/models"
 )
 
+func HandleGetLocalFiles(c *RouteCtx) error {
+
+	lfs, err := getLocalFilesFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(lfs)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func getLocalFilesFromDB(db *db.Database) ([]*entities.LocalFile, error) {
 	res, err := db.GetLatestLocalFiles(&models.LocalFiles{})
 	if err != nil {
@@ -20,15 +33,4 @@ func getLocalFilesFromDB(db *db.Database) ([]*entities.LocalFile, error) {
 	}
 
 	return lfs, nil
-}
-
-func HandleGetLocalFiles(c *RouteCtx) error {
-
-	lfs, err := getLocalFilesFromDB(c.App.Database)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	return c.RespondWithData(lfs)
-
 }

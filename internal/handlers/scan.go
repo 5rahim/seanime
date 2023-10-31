@@ -14,6 +14,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()
 
+	// Retrieve the user's Anilist token
 	token := c.GetAnilistToken()
 
 	// Retrieve the user's library path
@@ -28,11 +29,14 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Get the user's account
+	// If the account is not defined, return an error
 	acc, err := c.App.GetAccount()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
+	// Create a new scanner
 	sc := scanner.Scanner{
 		Token:         token,
 		DirPath:       libraryPath,
@@ -42,6 +46,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		Logger:        c.App.Logger,
 	}
 
+	// Scan the library
 	localFiles, err := sc.Scan()
 	if err != nil {
 		return c.RespondWithError(err)
@@ -52,6 +57,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	if err != nil {
 		c.App.Logger.Err(err).Msg("scan: could not save local files")
 	}
+
 	// Save the local files to the database
 	if _, err := c.App.Database.InsertLocalFiles(&models.LocalFiles{
 		Value: bytes,

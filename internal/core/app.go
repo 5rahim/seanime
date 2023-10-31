@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	_db "github.com/seanime-app/seanime-server/internal/db"
+	"github.com/seanime-app/seanime-server/internal/events"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
@@ -32,12 +33,20 @@ type App struct {
 
 	Watcher *scanner.Watcher
 
-	AnizipCache       *anizip.Cache
-	AnilistClient     *anilist.Client
-	anilistCollection *anilist.AnimeCollection
-	account           *models.Account
+	// AnizipCache holds fetched AniZip media for 10 minutes.
+	// It is used by route handlers.
+	AnizipCache   *anizip.Cache
+	AnilistClient *anilist.Client
 
-	WSEventManager *WSEventManager
+	// anilistCollection holds the user's Anilist collection.
+	// It is fetched when the server starts.
+	anilistCollection *anilist.AnimeCollection
+	// Similarly, account holds the user's Anilist account.
+	account *models.Account
+
+	// WSEventManager allows the server to send events to the client via websocket and receive events.
+	// It is instanciated in the websocket route handler.
+	WSEventManager *events.WSEventManager
 }
 
 type ServerOptions struct {
@@ -86,7 +95,7 @@ func NewApp(options *ServerOptions) *App {
 		Database:       db,
 		AnilistClient:  anilist.NewAuthedClient(""),
 		AnizipCache:    anizip.NewCache(),
-		WSEventManager: NewWSEventManager(logger),
+		WSEventManager: events.NewWSEventManager(logger),
 		Logger:         logger,
 	}
 

@@ -80,7 +80,7 @@ func (m *BasicMedia) HasSynonyms() bool {
 	return m.Synonyms != nil
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 var EdgeNarrowFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort}
 var EdgeBroaderFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort, MediaFormatOna, MediaFormatOva, MediaFormatMovie, MediaFormatSpecial}

@@ -21,6 +21,7 @@ type (
 		Ignored          bool                   `json:"ignored"`
 		MediaId          int                    `json:"mediaId"`
 	}
+
 	LocalFileMetadata struct {
 		Episode      int    `json:"episode"`
 		AniDBEpisode string `json:"aniDBEpisode"`
@@ -28,6 +29,7 @@ type (
 		IsSpecial    bool   `json:"isSpecial"`
 		IsNC         bool   `json:"isNC"`
 	}
+
 	LocalFileParsedData struct {
 		Original     string   `json:"original"`               // Same as LocalFile.Name for LocalFile.ParsedData
 		Title        string   `json:"title,omitempty"`        // Same as tanuki.Elements.AnimeTitle

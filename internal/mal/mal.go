@@ -46,7 +46,7 @@ type SearchCache struct {
 	*result.Cache[int, *SearchResultAnime]
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 // SearchWithMAL uses MAL's search API to find suggestions that match the title provided.
 func SearchWithMAL(title string, slice int) ([]*SearchResultAnime, error) {

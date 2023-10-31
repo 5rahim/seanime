@@ -9,7 +9,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/vlc"
 )
 
-// InitOrRefreshDependencies will initialize or refresh App dependencies.
+// InitOrRefreshDependencies will initialize or refresh dependencies that use settings.
 // This function should be called after App.Database is initialized and after settings are updated.
 func (a *App) InitOrRefreshDependencies() {
 

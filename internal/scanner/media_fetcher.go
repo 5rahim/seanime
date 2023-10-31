@@ -112,7 +112,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	return mc, nil
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 // FetchMediaFromLocalFiles gets media and their relations from local files.
 // It retrieves unique titles from local files,

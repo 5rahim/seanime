@@ -15,7 +15,7 @@ func NewBaseMediaCache() *BaseMediaCache {
 	return &BaseMediaCache{result.NewCache[int, *BaseMedia]()}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
 
 func GetBaseMediaById(anilistClient *Client, id int) (*BaseMedia, error) {
 	res, err := anilistClient.BaseMediaByID(context.Background(), &id)

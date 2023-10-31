@@ -1,4 +1,4 @@
-package core
+package events
 
 import (
 	"github.com/gofiber/contrib/websocket"
@@ -28,6 +28,11 @@ func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 
 // SendEvent sends a websocket event to the client.
 func (m *WSEventManager) SendEvent(t string, payload interface{}) {
+	// If there's no connection, do nothing
+	if m.Conn == nil {
+		return
+	}
+
 	err := m.Conn.WriteJSON(WSEvent{
 		Type:    t,
 		Payload: payload,
@@ -35,4 +40,5 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 	if err != nil {
 		m.Logger.Err(err).Msg("ws: Failed to send message")
 	}
+	m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
 }
