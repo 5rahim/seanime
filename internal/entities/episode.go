@@ -81,7 +81,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		// progressOffset is -1, meaning the hydrator mistakenly set AniDB episode to "S1" (due to torrent name) because the episode number is 0
 		// The hydrator ASSUMES that AniDB will not include episode 0 as part of main episodes.
 		// We will remap "S1" to "1" and offset other AniDB episodes by 1
-		// e.g, ["S1", "1", "2", "3",..."12"] -> ["1", "2", "3", "4","13"]
+		// e.g, ["S1", "1", "2", "3",...,"12"] -> ["1", "2", "3", "4",...,"13"]
 		if opts.progressOffset == -1 && opts.localFile.Metadata.Type == LocalFileTypeMain {
 			if aniDBEpisode == "S1" {
 				aniDBEpisode = "1"
@@ -97,7 +97,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		ep.IsDownloaded = true
 		ep.FileMetadata = opts.localFile.Metadata
 		ep.Type = opts.localFile.Metadata.Type
-		//ep.LocalFile = opts.localFile
+		ep.LocalFile = opts.localFile
 
 		// Set episode number and progress number
 		switch opts.localFile.Metadata.Type {
