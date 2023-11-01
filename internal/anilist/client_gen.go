@@ -17,6 +17,7 @@ type GithubGraphQLClient interface {
 	BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error)
 	BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error)
 	BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error)
+	MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error)
 	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
 	ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error)
 	ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error)
@@ -2176,6 +2177,348 @@ func (t *BaseMediaById_Media_BaseMedia_Relations) GetEdges() []*BaseMediaById_Me
 	return t.Edges
 }
 
+type MediaDetailsById_Media_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MediaDetailsById_Media_StartDate) GetYear() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_StartDate{}
+	}
+	return t.Year
+}
+func (t *MediaDetailsById_Media_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_StartDate{}
+	}
+	return t.Month
+}
+func (t *MediaDetailsById_Media_StartDate) GetDay() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_StartDate{}
+	}
+	return t.Day
+}
+
+type MediaDetailsById_Media_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MediaDetailsById_Media_EndDate) GetYear() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_EndDate{}
+	}
+	return t.Year
+}
+func (t *MediaDetailsById_Media_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_EndDate{}
+	}
+	return t.Month
+}
+func (t *MediaDetailsById_Media_EndDate) GetDay() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_EndDate{}
+	}
+	return t.Day
+}
+
+type MediaDetailsById_Media_Studios_Nodes struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *MediaDetailsById_Media_Studios_Nodes) GetName() string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Studios_Nodes{}
+	}
+	return t.Name
+}
+
+type MediaDetailsById_Media_Studios struct {
+	Nodes []*MediaDetailsById_Media_Studios_Nodes "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *MediaDetailsById_Media_Studios) GetNodes() []*MediaDetailsById_Media_Studios_Nodes {
+	if t == nil {
+		t = &MediaDetailsById_Media_Studios{}
+	}
+	return t.Nodes
+}
+
+type MediaDetailsById_Media_Rankings struct {
+	Context string        "json:\"context\" graphql:\"context\""
+	Type    MediaRankType "json:\"type\" graphql:\"type\""
+	Rank    int           "json:\"rank\" graphql:\"rank\""
+	Year    *int          "json:\"year,omitempty\" graphql:\"year\""
+	Format  MediaFormat   "json:\"format\" graphql:\"format\""
+	AllTime *bool         "json:\"allTime,omitempty\" graphql:\"allTime\""
+	Season  *MediaSeason  "json:\"season,omitempty\" graphql:\"season\""
+}
+
+func (t *MediaDetailsById_Media_Rankings) GetContext() string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return t.Context
+}
+func (t *MediaDetailsById_Media_Rankings) GetType() *MediaRankType {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return &t.Type
+}
+func (t *MediaDetailsById_Media_Rankings) GetRank() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return t.Rank
+}
+func (t *MediaDetailsById_Media_Rankings) GetYear() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return t.Year
+}
+func (t *MediaDetailsById_Media_Rankings) GetFormat() *MediaFormat {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return &t.Format
+}
+func (t *MediaDetailsById_Media_Rankings) GetAllTime() *bool {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return t.AllTime
+}
+func (t *MediaDetailsById_Media_Rankings) GetSeason() *MediaSeason {
+	if t == nil {
+		t = &MediaDetailsById_Media_Rankings{}
+	}
+	return t.Season
+}
+
+type MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage{}
+	}
+	return t.Large
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage{}
+	}
+	return t.Color
+}
+
+type MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title struct {
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+}
+
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title) GetRomaji() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title{}
+	}
+	return t.Romaji
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title) GetEnglish() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title{}
+	}
+	return t.English
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title) GetNative() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title{}
+	}
+	return t.Native
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title{}
+	}
+	return t.UserPreferred
+}
+
+type MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation struct {
+	ID          int                                                                               "json:\"id\" graphql:\"id\""
+	CoverImage  *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
+	BannerImage *string                                                                           "json:\"bannerImage,omitempty\" graphql:\"bannerImage\""
+	Title       *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title      "json:\"title,omitempty\" graphql:\"title\""
+}
+
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetID() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.ID
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetCoverImage() *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.CoverImage
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetBannerImage() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.BannerImage
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetTitle() *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.Title
+}
+
+type MediaDetailsById_Media_Recommendations_Edges_Node struct {
+	MediaRecommendation *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation "json:\"mediaRecommendation,omitempty\" graphql:\"mediaRecommendation\""
+}
+
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node) GetMediaRecommendation() *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node{}
+	}
+	return t.MediaRecommendation
+}
+
+type MediaDetailsById_Media_Recommendations_Edges struct {
+	Node *MediaDetailsById_Media_Recommendations_Edges_Node "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *MediaDetailsById_Media_Recommendations_Edges) GetNode() *MediaDetailsById_Media_Recommendations_Edges_Node {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges{}
+	}
+	return t.Node
+}
+
+type MediaDetailsById_Media_Recommendations struct {
+	Edges []*MediaDetailsById_Media_Recommendations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *MediaDetailsById_Media_Recommendations) GetEdges() []*MediaDetailsById_Media_Recommendations_Edges {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations{}
+	}
+	return t.Edges
+}
+
+type MediaDetailsById_Media struct {
+	SiteURL         *string                                 "json:\"siteUrl,omitempty\" graphql:\"siteUrl\""
+	ID              int                                     "json:\"id\" graphql:\"id\""
+	Duration        *int                                    "json:\"duration,omitempty\" graphql:\"duration\""
+	Genres          []*string                               "json:\"genres,omitempty\" graphql:\"genres\""
+	AverageScore    *int                                    "json:\"averageScore,omitempty\" graphql:\"averageScore\""
+	Popularity      *int                                    "json:\"popularity,omitempty\" graphql:\"popularity\""
+	MeanScore       *int                                    "json:\"meanScore,omitempty\" graphql:\"meanScore\""
+	StartDate       *MediaDetailsById_Media_StartDate       "json:\"startDate,omitempty\" graphql:\"startDate\""
+	EndDate         *MediaDetailsById_Media_EndDate         "json:\"endDate,omitempty\" graphql:\"endDate\""
+	Studios         *MediaDetailsById_Media_Studios         "json:\"studios,omitempty\" graphql:\"studios\""
+	Rankings        []*MediaDetailsById_Media_Rankings      "json:\"rankings,omitempty\" graphql:\"rankings\""
+	Recommendations *MediaDetailsById_Media_Recommendations "json:\"recommendations,omitempty\" graphql:\"recommendations\""
+}
+
+func (t *MediaDetailsById_Media) GetSiteURL() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.SiteURL
+}
+func (t *MediaDetailsById_Media) GetID() int {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.ID
+}
+func (t *MediaDetailsById_Media) GetDuration() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Duration
+}
+func (t *MediaDetailsById_Media) GetGenres() []*string {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Genres
+}
+func (t *MediaDetailsById_Media) GetAverageScore() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.AverageScore
+}
+func (t *MediaDetailsById_Media) GetPopularity() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Popularity
+}
+func (t *MediaDetailsById_Media) GetMeanScore() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.MeanScore
+}
+func (t *MediaDetailsById_Media) GetStartDate() *MediaDetailsById_Media_StartDate {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.StartDate
+}
+func (t *MediaDetailsById_Media) GetEndDate() *MediaDetailsById_Media_EndDate {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.EndDate
+}
+func (t *MediaDetailsById_Media) GetStudios() *MediaDetailsById_Media_Studios {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Studios
+}
+func (t *MediaDetailsById_Media) GetRankings() []*MediaDetailsById_Media_Rankings {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Rankings
+}
+func (t *MediaDetailsById_Media) GetRecommendations() *MediaDetailsById_Media_Recommendations {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Recommendations
+}
+
 type CompleteMediaById_Media_CompleteMedia_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -2973,6 +3316,17 @@ func (t *BaseMediaByID) GetMedia() *BaseMedia {
 	return t.Media
 }
 
+type MediaDetailsByID struct {
+	Media *MediaDetailsById_Media "json:\"Media,omitempty\" graphql:\"Media\""
+}
+
+func (t *MediaDetailsByID) GetMedia() *MediaDetailsById_Media {
+	if t == nil {
+		t = &MediaDetailsByID{}
+	}
+	return t.Media
+}
+
 type CompleteMediaByID struct {
 	Media *CompleteMedia "json:\"Media,omitempty\" graphql:\"Media\""
 }
@@ -3485,6 +3839,82 @@ func (c *Client) BaseMediaByID(ctx context.Context, id *int, interceptors ...cli
 
 	var res BaseMediaByID
 	if err := c.Client.Post(ctx, "BaseMediaById", BaseMediaByIDDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
+	Media(id: $id, type: ANIME) {
+		siteUrl
+		id
+		duration
+		genres
+		averageScore
+		popularity
+		meanScore
+		startDate {
+			year
+			month
+			day
+		}
+		endDate {
+			year
+			month
+			day
+		}
+		studios(isMain: true) {
+			nodes {
+				name
+			}
+		}
+		rankings {
+			context
+			type
+			rank
+			year
+			format
+			allTime
+			season
+		}
+		recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
+			edges {
+				node {
+					mediaRecommendation {
+						id
+						coverImage {
+							extraLarge
+							large
+							medium
+							color
+						}
+						bannerImage
+						title {
+							romaji
+							english
+							native
+							userPreferred
+						}
+					}
+				}
+			}
+		}
+	}
+}
+`
+
+func (c *Client) MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res MediaDetailsByID
+	if err := c.Client.Post(ctx, "MediaDetailsById", MediaDetailsByIDDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}

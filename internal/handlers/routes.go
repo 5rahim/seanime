@@ -26,11 +26,17 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
 
 	//
+	// AniList
+	//
+
+	v1Anilist := v1.Group("/anilist")
+	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnilistCollection))
+
+	//
 	// Library
 	//
 
 	v1Library := v1.Group("/library")
-
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))

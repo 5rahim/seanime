@@ -62,7 +62,7 @@ func TestGetUniqueAnimeTitles(t *testing.T) {
 
 func TestLocalFile_GetTitleVariations(t *testing.T) {
 
-	localFiles, ok := MockGetTestLocalFiles()
+	localFiles, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatalf("expected local files")
 	}

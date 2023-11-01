@@ -58,6 +58,66 @@ query BaseMediaById ($id: Int) {
     }
 }
 
+# For view (will be cached)
+query MediaDetailsById ($id: Int) {
+    Media(id: $id, type: ANIME) {
+        siteUrl
+        id
+        duration
+        genres
+        averageScore
+        popularity
+        meanScore
+        startDate {
+            year
+            month
+            day
+        }
+        endDate {
+            year
+            month
+            day
+        }
+        studios(isMain: true) {
+            nodes {
+                name
+            }
+        }
+        rankings {
+            context
+            type
+            rank
+            year
+            format
+            allTime
+            season
+        }
+        recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
+            edges {
+                node {
+                    mediaRecommendation {
+                        id
+                        coverImage {
+                            extraLarge
+                            large
+                            medium
+                            color
+                        }
+                        bannerImage
+                        title {
+                            romaji
+                            english
+                            native
+                            userPreferred
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 # For view
 query CompleteMediaById ($id: Int) {
     Media(id: $id, type: ANIME) {
@@ -184,7 +244,6 @@ fragment baseMedia on Media {
         }
     }
 }
-
 
 fragment completeMedia on Media {
     id

@@ -25,8 +25,9 @@ type (
 		DownloadInfo struct {
 		} `json:"downloadInfo"`
 
-		// AnizipData holds data fetched from AniDB.
-		AnizipData *anizip.Media `json:"anizipData"`
+		//// AnizipData holds data fetched from AniDB.
+		//AnizipData *anizip.Media `json:"anizipData"`
+
 		// LocalFiles holds the local files associated with the media.
 		LocalFiles []*LocalFile `json:"localFiles"`
 	}
@@ -84,11 +85,11 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	entry.LocalFiles = lfs
 
 	// Fetch AniDB data and cache it for 10 minutes
-	anidb, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)
+	anizipData, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)
 	if err != nil {
 		return nil, err
 	}
-	entry.AnizipData = anidb
+	//entry.AnizipData = anidb
 
 	// Instantiate MediaEntryDetails
 	// If the media exist in the user's anime list, add the details
@@ -103,7 +104,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	}
 
 	// Create episode entities
-	createEpisodes(entry)
+	createEpisodes(entry, anizipData)
 
 	//entry.Episodes = episodes
 
@@ -113,9 +114,9 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 // createEpisodes
 // AniZipData, Media and LocalFiles should be defined
-func createEpisodes(me *MediaEntry) {
+func createEpisodes(me *MediaEntry, anizipData *anizip.Media) {
 
-	if me.AnizipData.Episodes == nil && len(me.AnizipData.Episodes) == 0 {
+	if anizipData.Episodes == nil && len(anizipData.Episodes) == 0 {
 		return
 	}
 
@@ -135,10 +136,10 @@ func createEpisodes(me *MediaEntry) {
 	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
 	possibleSpecialInclusion := hasEpisodeZero && noEpisodeCeiling
 
-	_, aniDBHasS1 := me.AnizipData.Episodes["S1"]
+	_, aniDBHasS1 := anizipData.Episodes["S1"]
 	// AniList episode count > AniDB episode count
 	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
-	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > me.AnizipData.GetMainEpisodeCount() && aniDBHasS1
+	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > anizipData.GetMainEpisodeCount() && aniDBHasS1
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
@@ -165,7 +166,7 @@ func createEpisodes(me *MediaEntry) {
 			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
 				localFile:            lf,
 				optionalAniDBEpisode: "",
-				anizipMedia:          me.AnizipData,
+				anizipMedia:          anizipData,
 				media:                me.Media,
 				progressOffset:       progressOffset,
 				isDownloaded:         true,

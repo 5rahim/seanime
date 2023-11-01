@@ -3,6 +3,7 @@ package scanner
 import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"testing"
@@ -10,14 +11,14 @@ import (
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
-	media := MockAllMedia()
+	media := anilist.MockGetAllMedia()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	aniliztClient := MockGetAnilistClient()
+	aniliztClient := anilist.MockGetAnilistClient()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 
-	localFiles, ok := MockGetSelectTestLocalFiles()
+	localFiles, ok := entities.MockGetSelectedLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}

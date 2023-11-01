@@ -1,6 +1,8 @@
 package scanner
 
 import (
+	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"testing"
@@ -10,11 +12,11 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 	logger := util.NewLogger()
 
-	lfs, ok := MockGetTestLocalFiles()
+	lfs, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatal("could not get test local files")
 	}
-	media := MockAllMedia()
+	media := anilist.MockGetAllMedia()
 
 	mc := NewMediaContainer(&MediaContainerOptions{
 		allMedia: *media,
@@ -42,11 +44,11 @@ func TestMatcher_MatchLocalFilesWithMedia(t *testing.T) {
 
 	logger := util.NewLogger()
 
-	lfs, ok := MockGetTestLocalFiles()
+	lfs, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatal("could not get test local files")
 	}
-	media := MockAllMedia()
+	media := anilist.MockGetAllMedia()
 
 	mc := NewMediaContainer(&MediaContainerOptions{
 		allMedia: *media,

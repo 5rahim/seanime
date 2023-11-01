@@ -3,6 +3,7 @@ package scanner
 import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"testing"
@@ -10,12 +11,12 @@ import (
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	anilistClient := MockGetAnilistClient()
+	anilistClient := anilist.MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
-	localFiles, ok := MockGetTestLocalFiles()
+	localFiles, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}
@@ -35,13 +36,13 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 func TestNewMediaFetcher(t *testing.T) {
 
-	anilistClient := MockGetAnilistClient()
+	anilistClient := anilist.MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	logger := util.NewLogger()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
-	localFiles, ok := MockGetTestLocalFiles()
+	localFiles, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}
@@ -68,13 +69,13 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestEnhancedNewMediaFetcher(t *testing.T) {
 
-	anilistClient := MockGetAnilistClient()
+	anilistClient := anilist.MockGetAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	logger := util.NewLogger()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
-	localFiles, ok := MockGetTestLocalFiles()
+	localFiles, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}

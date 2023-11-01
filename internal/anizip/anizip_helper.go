@@ -41,6 +41,18 @@ func (m *Media) GetMainEpisodeCount() int {
 	return m.EpisodeCount
 }
 
+func (e *Episode) GetTitle() string {
+	eng, ok := e.Title["en"]
+	if ok {
+		return eng
+	}
+	rom, ok := e.Title["x-jat"]
+	if ok {
+		return rom
+	}
+	return ""
+}
+
 func GetEpisodeInteger(s string) (int, bool) {
 	// Define a regular expression pattern to match integers in the string.
 	pattern := "[0-9]+"

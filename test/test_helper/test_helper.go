@@ -1,4 +1,4 @@
-package scanner
+package test_helper
 
 import (
 	"github.com/goccy/go-json"

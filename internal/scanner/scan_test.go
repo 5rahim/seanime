@@ -3,6 +3,7 @@ package scanner
 import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"testing"
@@ -13,9 +14,9 @@ func TestScanner_Scan(t *testing.T) {
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	anilistClient := MockGetAnilistClient()
+	anilistClient := anilist.MockGetAnilistClient()
 	logger := util.NewLogger()
-	media := MockAllMedia()
+	media := anilist.MockGetAllMedia()
 
 	// Set base media cache
 	for _, m := range *media {
@@ -23,7 +24,7 @@ func TestScanner_Scan(t *testing.T) {
 	}
 
 	// Get local files
-	localFiles, ok := MockGetTestLocalFiles()
+	localFiles, ok := entities.MockGetLocalFiles()
 	if !ok {
 		t.Fatal("expected local files, got error")
 	}
