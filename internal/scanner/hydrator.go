@@ -114,7 +114,8 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		// No absolute episode count
 		if episode <= media.GetCurrentEpisodeCount() {
 			// Episode 0 - Might be a special
-			// By default, we will assume that AniDB doesn't include it as main episodes (which is often the case)
+			// By default, we will assume that AniDB doesn't include Episode 0 as part of the main episodes (which is often the case)
+			// If this proves to be wrong, media_entry.go will offset the AniDBEpisode by 1 and treat "S1" as "1" when it is a main episode
 			if episode == 0 {
 				// Leave episode number as 0, assuming that the client will handle tracking correctly
 				lf.Metadata.Episode = 0

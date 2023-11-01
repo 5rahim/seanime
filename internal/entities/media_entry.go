@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (
@@ -118,8 +119,6 @@ func createEpisodes(me *MediaEntry) {
 		return
 	}
 
-	episodes := make([]*MediaEntryEpisode, 0)
-
 	// Whether downloaded episodes include a special episode "0"
 	hasEpisodeZero := lo.SomeBy(me.LocalFiles, func(lf *LocalFile) bool {
 		return lf.Metadata.Episode == 0
@@ -139,23 +138,42 @@ func createEpisodes(me *MediaEntry) {
 	_, aniDBHasS1 := me.AnizipData.Episodes["S1"]
 	// AniList episode count > AniDB episode count
 	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
-	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > len(me.AnizipData.Episodes) && aniDBHasS1
+	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > me.AnizipData.GetMainEpisodeCount() && aniDBHasS1
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
 	if possibleSpecialInclusion && hasDiscrepancy {
 		progressOffset = 1
+
+	} else if possibleSpecialInclusion && !hasDiscrepancy {
+		// Check if the Episode 0 is set to "S1"
+		epZero, ok := lo.Find(me.LocalFiles, func(lf *LocalFile) bool {
+			return lf.Metadata.Episode == 0
+		})
+		// If there is no discrepancy, but episode 0 is set to "S1", this means that the hydrator made a mistake (due to torrent name)
+		// We will remap "S1" to "1" and offset other AniDB episodes by 1
+		if ok && epZero.Metadata.AniDBEpisode == "S1" {
+			progressOffset = -1 // Signal that the hydrator mistakenly set AniDB episode to "S1"
+		}
 	}
 
-	// TODO: Parallelize
+	// Create episode entities in parallel
+	p := pool.NewWithResults[*MediaEntryEpisode]()
 	for _, lf := range me.LocalFiles {
-		episodes = append(episodes, NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
-			localFile:      lf,
-			anizipMedia:    me.AnizipData,
-			media:          me.Media,
-			progressOffset: progressOffset,
-			isDownloaded:   true,
-		}))
+		lf := lf
+		p.Go(func() *MediaEntryEpisode {
+			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
+				localFile:            lf,
+				optionalAniDBEpisode: "",
+				anizipMedia:          me.AnizipData,
+				media:                me.Media,
+				progressOffset:       progressOffset,
+				isDownloaded:         true,
+			})
+		})
 	}
+	episodes := p.Wait()
+
+	me.Episodes = episodes
 
 }
