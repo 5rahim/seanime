@@ -96,3 +96,15 @@ func MockGetCollection() *AnimeCollection {
 
 	return &data
 }
+
+func MockGetCollectionEntry(mId int) (*AnimeCollection_MediaListCollection_Lists_Entries, bool) {
+
+	collection := MockGetCollection()
+	if collection == nil {
+		return nil, false
+	}
+
+	entries, ok := collection.GetListEntryFromMediaId(mId)
+
+	return entries, ok
+}

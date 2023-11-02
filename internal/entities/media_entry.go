@@ -19,11 +19,10 @@ type (
 		// It is nil if the media is not in the user's anime list.
 		MediaEntryDetails *MediaEntryDetails `json:"listEntry"`
 
+		MediaEntryInfo *MediaEntryInfo `json:"entryInfo"`
+
 		// Episodes holds the episodes of the media.
 		Episodes []*MediaEntryEpisode `json:"episodes"`
-
-		DownloadInfo struct {
-		} `json:"downloadInfo"`
 
 		//// AnizipData holds data fetched from AniDB.
 		//AnizipData *anizip.Media `json:"anizipData"`
@@ -104,42 +103,24 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	}
 
 	// Create episode entities
-	createEpisodes(entry, anizipData)
-
-	//entry.Episodes = episodes
+	entry.hydrateEntryEpisodeData(anilistEntry, anizipData)
 
 	return entry, nil
 
 }
 
-// createEpisodes
+// hydrateEntryEpisodeData
 // AniZipData, Media and LocalFiles should be defined
-func createEpisodes(me *MediaEntry, anizipData *anizip.Media) {
+func (entry *MediaEntry) hydrateEntryEpisodeData(
+	anilistEntry *anilist.AnimeCollection_MediaListCollection_Lists_Entries,
+	anizipData *anizip.Media,
+) {
 
 	if anizipData.Episodes == nil && len(anizipData.Episodes) == 0 {
 		return
 	}
 
-	// Whether downloaded episodes include a special episode "0"
-	hasEpisodeZero := lo.SomeBy(me.LocalFiles, func(lf *LocalFile) bool {
-		return lf.Metadata.Episode == 0
-	})
-
-	// No episode number is equal to the max episode number
-	noEpisodeCeiling := lo.EveryBy(me.LocalFiles, func(lf *LocalFile) bool {
-		return lf.Metadata.Episode != me.Media.GetCurrentEpisodeCount()
-	})
-
-	// [possibleSpecialInclusion] means that there might be a discrepancy between AniList and AniDB
-	// We should use this to check.
-	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,12] //=> true
-	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
-	possibleSpecialInclusion := hasEpisodeZero && noEpisodeCeiling
-
-	_, aniDBHasS1 := anizipData.Episodes["S1"]
-	// AniList episode count > AniDB episode count
-	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
-	hasDiscrepancy := me.Media.GetCurrentEpisodeCount() > anizipData.GetMainEpisodeCount() && aniDBHasS1
+	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(entry.LocalFiles, entry.Media, anizipData)
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
@@ -148,7 +129,7 @@ func createEpisodes(me *MediaEntry, anizipData *anizip.Media) {
 
 	} else if possibleSpecialInclusion && !hasDiscrepancy {
 		// Check if the Episode 0 is set to "S1"
-		epZero, ok := lo.Find(me.LocalFiles, func(lf *LocalFile) bool {
+		epZero, ok := lo.Find(entry.LocalFiles, func(lf *LocalFile) bool {
 			return lf.Metadata.Episode == 0
 		})
 		// If there is no discrepancy, but episode 0 is set to "S1", this means that the hydrator made a mistake (due to torrent name)
@@ -158,16 +139,19 @@ func createEpisodes(me *MediaEntry, anizipData *anizip.Media) {
 		}
 	}
 
-	// Create episode entities in parallel
+	//
+	// Episode entities
+	//
+
 	p := pool.NewWithResults[*MediaEntryEpisode]()
-	for _, lf := range me.LocalFiles {
+	for _, lf := range entry.LocalFiles {
 		lf := lf
 		p.Go(func() *MediaEntryEpisode {
 			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
 				localFile:            lf,
 				optionalAniDBEpisode: "",
 				anizipMedia:          anizipData,
-				media:                me.Media,
+				media:                entry.Media,
 				progressOffset:       progressOffset,
 				isDownloaded:         true,
 			})
@@ -175,6 +159,56 @@ func createEpisodes(me *MediaEntry, anizipData *anizip.Media) {
 	}
 	episodes := p.Wait()
 
-	me.Episodes = episodes
+	//
+	// Info
+	//
+	info, err := NewMediaEntryInfo(&NewMediaEntryInfoOptions{
+		localFiles:   entry.LocalFiles,
+		anizipMedia:  anizipData,
+		anilistEntry: anilistEntry,
+		media:        entry.Media,
+	})
+	if err == nil {
+		entry.MediaEntryInfo = info
+	}
+
+	entry.Episodes = episodes
+
+}
+
+// detectDiscrepancy detects whether there is a discrepancy between AniList and AniDB.
+// e.g, AniList includes episode 0 as part of main episodes, but AniDB does not.
+func detectDiscrepancy(
+	mediaLfs []*LocalFile, // Media's local files
+	media *anilist.BaseMedia,
+	anizipData *anizip.Media,
+) (possibleSpecialInclusion bool, hasDiscrepancy bool) {
+
+	if anizipData.Episodes == nil && len(anizipData.Episodes) == 0 {
+		return false, false
+	}
+
+	// Whether downloaded episodes include a special episode "0"
+	hasEpisodeZero := lo.SomeBy(mediaLfs, func(lf *LocalFile) bool {
+		return lf.Metadata.Episode == 0
+	})
+
+	// No episode number is equal to the max episode number
+	noEpisodeCeiling := lo.EveryBy(mediaLfs, func(lf *LocalFile) bool {
+		return lf.Metadata.Episode != media.GetCurrentEpisodeCount()
+	})
+
+	// [possibleSpecialInclusion] means that there might be a discrepancy between AniList and AniDB
+	// We should use this to check.
+	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,12] //=> true
+	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
+	possibleSpecialInclusion = hasEpisodeZero && noEpisodeCeiling
+
+	_, aniDBHasS1 := anizipData.Episodes["S1"]
+	// AniList episode count > AniDB episode count
+	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
+	hasDiscrepancy = media.GetCurrentEpisodeCount() > anizipData.GetMainEpisodeCount() && aniDBHasS1
+
+	return
 
 }

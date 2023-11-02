@@ -2,6 +2,7 @@ package entities
 
 import (
 	"github.com/goccy/go-json"
+	lop "github.com/samber/lo/parallel"
 	"io"
 	"log"
 	"os"
@@ -38,6 +39,33 @@ func MockGetLocalFiles() ([]*LocalFile, bool) {
 	return data, true
 
 }
+
+func MockGetLocalFilesByMediaId(mId int) ([]*LocalFile, bool) {
+	lfs, ok := MockGetLocalFiles()
+	if !ok {
+		return nil, false
+	}
+	groupedByMediaId := lop.GroupBy(lfs, func(i *LocalFile) int {
+		return i.MediaId
+	})
+	res, ok := groupedByMediaId[mId]
+
+	return res, ok
+}
+
+func MockGetSelectedLocalFilesByMediaId(mId int) ([]*LocalFile, bool) {
+	lfs, ok := MockGetLocalFiles()
+	if !ok {
+		return nil, false
+	}
+	groupedByMediaId := lop.GroupBy(lfs, func(i *LocalFile) int {
+		return i.MediaId
+	})
+	res, ok := groupedByMediaId[mId]
+
+	return res, ok
+}
+
 func MockGetSelectedLocalFiles() ([]*LocalFile, bool) {
 
 	path, err := os.Getwd()
