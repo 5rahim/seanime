@@ -1,5 +1,6 @@
 package constants
 
 const (
-	EventExample = "example"
+	EventExample      = "example"
+	EventMediaDetails = "media-details"
 )

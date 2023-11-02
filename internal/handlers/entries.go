@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/seanime-app/seanime-server/internal/entities"
+import (
+	"github.com/seanime-app/seanime-server/internal/constants"
+	"github.com/seanime-app/seanime-server/internal/entities"
+)
 
 type mediaEntryQuery struct {
 	MediaId int `query:"mediaId" json:"mediaId"`
@@ -36,6 +39,13 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	go func() {
+		details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &p.MediaId)
+		if err == nil {
+			c.App.WSEventManager.SendEvent(constants.EventMediaDetails, details)
+		}
+	}()
 
 	return c.RespondWithData(entry)
 }

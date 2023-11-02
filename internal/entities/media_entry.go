@@ -81,7 +81,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	// Get the entry's local files
 	lfs := GetLocalFilesFromMediaId(opts.LocalFiles, opts.MediaId)
-	entry.LocalFiles = lfs
+	entry.LocalFiles = lfs // Returns empty slice if no local files are found
 
 	// Fetch AniDB data and cache it for 10 minutes
 	anizipData, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)

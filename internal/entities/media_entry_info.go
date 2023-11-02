@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/sourcegraph/conc/pool"
 	"strconv"
 )
 
@@ -15,6 +16,7 @@ type (
 		CanBatch              bool                      `json:"canBatch"`
 		BatchAll              bool                      `json:"batchAll"`
 		HasInaccurateSchedule bool                      `json:"hasInaccurateSchedule"`
+		Rewatch               bool                      `json:"rewatch"`
 	}
 
 	MediaEntryDownloadInfo struct {
@@ -140,25 +142,30 @@ func NewMediaEntryInfo(opts *NewMediaEntryInfoOptions) (*MediaEntryInfo, error) 
 	//---------------------------------
 
 	// Generate `episodesToDownload` based on `toDownloadSlice`
-	episodesToDownload := make([]*MediaEntryDownloadInfo, 0)
+	//episodesToDownload := make([]*MediaEntryDownloadInfo, 0)
+	p := pool.NewWithResults[*MediaEntryDownloadInfo]()
 	for _, ep := range toDownloadSlice {
-		str := new(MediaEntryDownloadInfo)
-		str.EpisodeNumber = ep
-		str.AniDBEpisode = strconv.Itoa(ep)
-		if ep == -1 {
-			str.EpisodeNumber = 0
-			str.AniDBEpisode = "S1"
-		}
-		str.Episode = NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
-			localFile:            nil,
-			optionalAniDBEpisode: str.AniDBEpisode,
-			anizipMedia:          opts.anizipMedia,
-			media:                opts.media,
-			progressOffset:       0,
-			isDownloaded:         false,
+		ep := ep
+		p.Go(func() *MediaEntryDownloadInfo {
+			str := new(MediaEntryDownloadInfo)
+			str.EpisodeNumber = ep
+			str.AniDBEpisode = strconv.Itoa(ep)
+			if ep == -1 {
+				str.EpisodeNumber = 0
+				str.AniDBEpisode = "S1"
+			}
+			str.Episode = NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
+				localFile:            nil,
+				optionalAniDBEpisode: str.AniDBEpisode,
+				anizipMedia:          opts.anizipMedia,
+				media:                opts.media,
+				progressOffset:       0,
+				isDownloaded:         false,
+			})
+			return str
 		})
-		episodesToDownload = append(episodesToDownload, str)
 	}
+	episodesToDownload := p.Wait()
 
 	//--------------
 
@@ -169,6 +176,10 @@ func NewMediaEntryInfo(opts *NewMediaEntryInfoOptions) (*MediaEntryInfo, error) 
 	batchAll := false
 	if canBatch && len(lfsEpSlice) == 0 && progress == 0 {
 		batchAll = true
+	}
+	rewatch := false
+	if opts.anilistEntry != nil && *opts.anilistEntry.Status == anilist.MediaListStatusCompleted {
+		rewatch = true
 	}
 
 	//println(spew.Sdump(episodesToDownload))
@@ -181,6 +192,7 @@ func NewMediaEntryInfo(opts *NewMediaEntryInfoOptions) (*MediaEntryInfo, error) 
 		EpisodesToDownload:    episodesToDownload,
 		CanBatch:              canBatch,
 		BatchAll:              batchAll,
+		Rewatch:               rewatch,
 		HasInaccurateSchedule: hasInaccurateSchedule,
 	}, nil
 }
