@@ -40,6 +40,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Fetch media details in the background and send them via websocket
 	go func() {
 		details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &p.MediaId)
 		if err == nil {

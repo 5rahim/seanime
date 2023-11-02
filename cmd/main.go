@@ -16,10 +16,13 @@ func main() {
 
 	app := core.NewApp(&core.ServerOptions{})
 	fiberApp := core.NewFiberApp(app)
+	//fiberWebApp := core.NewFiberWebApp()
 
 	handlers.InitRoutes(app, fiberApp)
 
-	// Start the server
 	core.RunServer(app, fiberApp)
+	//core.RunWebApp(app, fiberWebApp)
+
+	select {}
 
 }

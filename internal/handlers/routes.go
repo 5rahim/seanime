@@ -15,13 +15,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	}))
 
 	api := fiberApp.Group("/api")
-	v1 := api.Group("/v1", anilistTokenMiddleware)
+	v1 := api.Group("/v1")
 
 	//
 	// General
 	//
 
-	v1.Post("/auth", makeHandler(app, HandleAuth))
+	v1.Post("/auth/login", makeHandler(app, HandleLogin))
 	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))
 	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
 
@@ -29,14 +29,14 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// AniList
 	//
 
-	v1Anilist := v1.Group("/anilist")
+	v1Anilist := v1.Group("/anilist", anilistTokenMiddleware)
 	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnilistCollection))
 
 	//
 	// Library
 	//
 
-	v1Library := v1.Group("/library")
+	v1Library := v1.Group("/library", anilistTokenMiddleware)
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))

@@ -18,6 +18,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/vlc"
 	"log"
 	"os"
+	"strings"
 )
 
 type App struct {
@@ -122,6 +123,43 @@ func NewFiberApp(app *App) *fiber.App {
 
 	return fiberApp
 }
+func NewFiberWebApp() *fiber.App {
+	// Create a new fiber app
+	fiberApp := fiber.New(fiber.Config{
+		JSONEncoder:           json.Marshal,
+		JSONDecoder:           json.Unmarshal,
+		DisableStartupMessage: true,
+	})
+	// Set up a custom logger for fiber
+	//fiberLogger := fiberzerolog.New(fiberzerolog.Config{
+	//	Logger:   util.NewLogger(),
+	//	SkipURIs: []string{"/internal/metrics"},
+	//	Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
+	//})
+	//fiberApp.Use(fiberLogger)
+	//fiberApp.Use(cors.New(cors.Config{
+	//	AllowOrigins: "*",
+	//	AllowHeaders: "Origin, Content-Type, Accept",
+	//}))
+
+	fiberApp.Static("/", "./web")
+
+	// Serve pages without the ".html" extension
+	//fiberApp.Get("/:page", func(c *fiber.Ctx) error {
+	//	page := c.Params("page") + ".html"
+	//	return c.SendFile("web/" + page)
+	//})
+
+	fiberApp.Get("*", func(c *fiber.Ctx) error {
+		path := c.OriginalURL()
+		if !strings.HasSuffix(path, ".html") {
+			path += ".html"
+		}
+		return c.SendFile("web" + path)
+	})
+
+	return fiberApp
+}
 
 func RunServer(app *App, fiberApp *fiber.App) {
 	addr := fmt.Sprintf("%s:%d", app.Config.Server.Host, app.Config.Server.Port)
@@ -133,5 +171,15 @@ func RunServer(app *App, fiberApp *fiber.App) {
 
 	app.Logger.Info().Msg("Server started at http://" + addr)
 
-	select {}
+}
+
+func RunWebApp(app *App, fiberWebApp *fiber.App) {
+	webAddr := fmt.Sprintf("%s:%d", app.Config.Server.Host, 43211)
+
+	go func() {
+		log.Fatal(fiberWebApp.Listen(webAddr))
+	}()
+
+	app.Logger.Info().Msg("WebApp started at http://" + webAddr)
+
 }

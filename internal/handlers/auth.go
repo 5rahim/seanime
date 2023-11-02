@@ -24,7 +24,7 @@ type AuthRequestBody struct {
 	Token string
 }
 
-func HandleAuth(c *RouteCtx) error {
+func HandleLogin(c *RouteCtx) error {
 
 	c.Fiber.Accepts("application/json")
 
@@ -42,30 +42,28 @@ func HandleAuth(c *RouteCtx) error {
 	getViewer, err := c.App.AnilistClient.GetViewer(context.Background())
 	if err != nil {
 		c.App.Logger.Error().Msg("Could not authenticate to AniList")
-		return c.Fiber.JSON(NewErrorResponse(err))
+		return c.RespondWithError(err)
 	}
 
-	// Success
-	if len(getViewer.Viewer.Name) > 0 {
-
-		_, err = c.App.Database.UpsertAccount(&models.Account{
-			BaseModel: models.BaseModel{
-				ID:        1,
-				UpdatedAt: time.Now(),
-			},
-			Username: getViewer.Viewer.Name,
-			Token:    body.Token,
-		})
-
-		if err != nil {
-			return c.Fiber.JSON(NewErrorResponse(err))
-		}
-
-		c.App.Logger.Info().Msg("Authenticated to AniList as " + getViewer.Viewer.Name)
-
-		return c.Fiber.JSON(NewDataResponse(getViewer.Viewer.Name))
+	if len(getViewer.Viewer.Name) == 0 {
+		return c.RespondWithError(errors.New("could not find user"))
 	}
 
-	return c.Fiber.JSON(NewErrorResponse(errors.New("could not authenticate to AniList")))
+	_, err = c.App.Database.UpsertAccount(&models.Account{
+		BaseModel: models.BaseModel{
+			ID:        1,
+			UpdatedAt: time.Now(),
+		},
+		Username: getViewer.Viewer.Name,
+		Token:    body.Token,
+	})
+
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.Logger.Info().Msg("Authenticated to AniList as " + getViewer.Viewer.Name)
+
+	return c.RespondWithData(getViewer.Viewer)
 
 }
