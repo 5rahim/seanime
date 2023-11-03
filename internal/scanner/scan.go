@@ -17,7 +17,7 @@ type Scanner struct {
 	Logger        *zerolog.Logger
 }
 
-func (scn Scanner) Scan() ([]*entities.LocalFile, error) {
+func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()

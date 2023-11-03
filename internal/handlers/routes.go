@@ -21,9 +21,14 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// General
 	//
 
+	// Auth
 	v1.Post("/auth/login", makeHandler(app, HandleLogin))
+	// Settings
+	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))
+	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
+	v1.Post("/directory-selector", makeHandler(app, HandleDirectorySelector))
 
 	//
 	// AniList
@@ -92,5 +97,5 @@ func (c *RouteCtx) RespondWithData(data any) error {
 }
 
 func (c *RouteCtx) RespondWithError(err error) error {
-	return c.Fiber.Status(500).JSON(NewErrorResponse(err))
+	return c.Fiber.Status(404).JSON(NewErrorResponse(err))
 }

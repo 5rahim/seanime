@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"time"
 )
@@ -9,6 +10,19 @@ type SettingsBody struct {
 	Library     models.LibrarySettings     `json:"library"`
 	MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
 	Torrent     models.TorrentSettings     `json:"torrent"`
+}
+
+func HandleGetSettings(c *RouteCtx) error {
+
+	settings, err := c.App.Database.GetSettings()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	if settings.ID == 0 {
+		return c.RespondWithError(errors.New("no settings found"))
+	}
+
+	return c.RespondWithData(settings)
 }
 
 func HandleSaveSettings(c *RouteCtx) error {

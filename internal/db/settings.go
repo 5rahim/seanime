@@ -24,7 +24,7 @@ func (db *Database) UpsertSettings(settings *models.Settings) (*models.Settings,
 
 func (db *Database) GetSettings() (*models.Settings, error) {
 	var settings models.Settings
-	err := db.gormdb.First(&settings).Error
+	err := db.gormdb.Where("id = ?", 1).Find(&settings).Error
 
 	if err != nil {
 		return nil, err
