@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime-server/internal/models"
+	"runtime"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func HandleGetSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 	if settings.ID == 0 {
-		return c.RespondWithError(errors.New("no settings found"))
+		return c.RespondWithError(errors.New(runtime.GOOS))
 	}
 
 	return c.RespondWithData(settings)

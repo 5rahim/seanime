@@ -20,9 +20,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// General
 	//
+	v1.Get("/status", makeHandler(app, HandleStatus))
 
 	// Auth
 	v1.Post("/auth/login", makeHandler(app, HandleLogin))
+	v1.Post("/auth/logout", makeHandler(app, HandleLogout))
 	// Settings
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))

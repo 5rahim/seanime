@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"gorm.io/gorm/clause"
 )
@@ -23,8 +24,10 @@ func (db *Database) GetAccount() (*models.Account, error) {
 	var acc models.Account
 	err := db.gormdb.Last(&acc).Error
 	if err != nil {
-		db.logger.Error().Err(err).Msg("failed to get acc")
 		return nil, err
+	}
+	if acc.Username == "" || acc.Token == "" || acc.Viewer == nil {
+		return nil, errors.New("account does not exist")
 	}
 	return &acc, err
 }

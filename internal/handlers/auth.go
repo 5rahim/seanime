@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"time"
@@ -49,6 +50,12 @@ func HandleLogin(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("could not find user"))
 	}
 
+	// Marshal the viewer data
+	bytes, err := json.Marshal(getViewer.Viewer)
+	if err != nil {
+		c.App.Logger.Err(err).Msg("scan: could not save local files")
+	}
+
 	_, err = c.App.Database.UpsertAccount(&models.Account{
 		BaseModel: models.BaseModel{
 			ID:        1,
@@ -56,6 +63,7 @@ func HandleLogin(c *RouteCtx) error {
 		},
 		Username: getViewer.Viewer.Name,
 		Token:    body.Token,
+		Viewer:   bytes,
 	})
 
 	if err != nil {
@@ -64,6 +72,35 @@ func HandleLogin(c *RouteCtx) error {
 
 	c.App.Logger.Info().Msg("Authenticated to AniList as " + getViewer.Viewer.Name)
 
-	return c.RespondWithData(getViewer.Viewer)
+	status := NewStatus(c)
 
+	c.App.InitOrRefreshDependencies()
+
+	return c.RespondWithData(status)
+
+}
+
+func HandleLogout(c *RouteCtx) error {
+
+	_, err := c.App.Database.UpsertAccount(&models.Account{
+		BaseModel: models.BaseModel{
+			ID:        1,
+			UpdatedAt: time.Now(),
+		},
+		Username: "",
+		Token:    "",
+		Viewer:   nil,
+	})
+
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.Logger.Info().Msg("Logged out of AniList")
+
+	status := NewStatus(c)
+
+	c.App.InitOrRefreshDependencies()
+
+	return c.RespondWithData(status)
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"path/filepath"
@@ -8,8 +9,8 @@ import (
 )
 
 type DirectoryInfo struct {
-	Fullpath   string `json:"fullpath"`
-	FolderName string `json:"folder_name"`
+	Fullpath   string `json:"fullPath"`
+	FolderName string `json:"folderName"`
 }
 
 func HandleDirectorySelector(c *RouteCtx) error {
@@ -61,6 +62,8 @@ func HandleDirectorySelector(c *RouteCtx) error {
 		})
 	}
 
+	println(spew.Sprint(input, directoryExists, filepath.IsAbs(input)))
+
 	return c.Fiber.JSON(fiber.Map{
 		"exists":      false,
 		"suggestions": suggestions,
@@ -109,10 +112,12 @@ func getDirectoryContent(path string) ([]DirectoryInfo, error) {
 	}
 
 	for _, entry := range entries {
-		content = append(content, DirectoryInfo{
-			Fullpath:   filepath.Join(path, entry.Name()),
-			FolderName: entry.Name(),
-		})
+		if entry.IsDir() {
+			content = append(content, DirectoryInfo{
+				Fullpath:   filepath.Join(path, entry.Name()),
+				FolderName: entry.Name(),
+			})
+		}
 	}
 
 	return content, nil
