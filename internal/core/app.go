@@ -91,10 +91,13 @@ func NewApp(options *ServerOptions) *App {
 
 	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
+	// Get token from stored account or return empty string
+	anilistToken := db.GetAnilistToken()
+
 	app := &App{
 		Config:         cfg,
 		Database:       db,
-		AnilistClient:  anilist.NewAuthedClient(""),
+		AnilistClient:  anilist.NewAuthedClient(anilistToken),
 		AnizipCache:    anizip.NewCache(),
 		WSEventManager: events.NewWSEventManager(logger),
 		Logger:         logger,

@@ -9,7 +9,6 @@ import (
 )
 
 type Scanner struct {
-	Token         string
 	DirPath       string
 	Username      string
 	Enhanced      bool

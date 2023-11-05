@@ -36,14 +36,14 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// AniList
 	//
 
-	v1Anilist := v1.Group("/anilist", anilistTokenMiddleware)
+	v1Anilist := v1.Group("/anilist")
 	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnilistCollection))
 
 	//
 	// Library
 	//
 
-	v1Library := v1.Group("/library", anilistTokenMiddleware)
+	v1Library := v1.Group("/library")
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
@@ -84,10 +84,6 @@ func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) 
 		ctx.Fiber = c
 		return handler(ctx)
 	}
-}
-
-func (c *RouteCtx) GetAnilistToken() string {
-	return c.Fiber.Cookies("anilistToken", "")
 }
 
 func (c *RouteCtx) AcceptJSON() {

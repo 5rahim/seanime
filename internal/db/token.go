@@ -19,13 +19,3 @@ func (db *Database) UpsertToken(token *models.Token) (*models.Token, error) {
 	return token, nil
 
 }
-
-func (db *Database) GetToken() string {
-	var token models.Token
-	err := db.gormdb.Where("id = ?", 1).First(&token).Error
-	if err != nil {
-		db.logger.Error().Err(err).Msg("failed to get token")
-		return ""
-	}
-	return token.Value
-}

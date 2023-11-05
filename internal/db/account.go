@@ -31,3 +31,12 @@ func (db *Database) GetAccount() (*models.Account, error) {
 	}
 	return &acc, err
 }
+
+// GetAnilistToken retrieves the AniList token from the account or returns an empty string
+func (db *Database) GetAnilistToken() string {
+	acc, err := db.GetAccount()
+	if err != nil {
+		return ""
+	}
+	return acc.Token
+}

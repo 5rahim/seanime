@@ -14,9 +14,6 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()
 
-	// Retrieve the user's Anilist token
-	token := c.GetAnilistToken()
-
 	// Retrieve the user's library path
 	libraryPath, err := c.App.Database.GetLibraryPath()
 	if err != nil {
@@ -38,7 +35,6 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		Token:         token,
 		DirPath:       libraryPath,
 		Username:      acc.Username,
 		Enhanced:      body.Enhanced,

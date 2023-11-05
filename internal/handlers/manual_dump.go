@@ -16,14 +16,10 @@ func HandleManualDump(c *RouteCtx) error {
 
 	c.AcceptJSON()
 
-	token := c.GetAnilistToken()
-
 	body := new(RequestBody)
 	if err := c.Fiber.BodyParser(body); err != nil {
 		return c.RespondWithError(err)
 	}
-
-	c.App.UpdateAnilistClientToken(token)
 
 	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir, c.App.Logger)
 	if err != nil {

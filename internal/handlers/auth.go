@@ -4,22 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.com/goccy/go-json"
-	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"time"
 )
-
-func anilistTokenMiddleware(c *fiber.Ctx) error {
-
-	token := c.Cookies("anilistToken", "")
-
-	if len(token) == 0 {
-		return c.Status(fiber.StatusMethodNotAllowed).JSON(NewErrorResponse(errors.New("missing AniList token")))
-	}
-
-	return c.Next()
-
-}
 
 type AuthRequestBody struct {
 	Token string
