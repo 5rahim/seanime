@@ -10,22 +10,22 @@ import (
 )
 
 type (
-	// MediaEntryInfo is instantiated by the MediaEntry
-	MediaEntryInfo struct {
-		EpisodesToDownload    []*MediaEntryDownloadInfo `json:"episodesToDownload"`
-		CanBatch              bool                      `json:"canBatch"`
-		BatchAll              bool                      `json:"batchAll"`
-		HasInaccurateSchedule bool                      `json:"hasInaccurateSchedule"`
-		Rewatch               bool                      `json:"rewatch"`
+	// MediaEntryDownloadInfo is instantiated by the MediaEntry
+	MediaEntryDownloadInfo struct {
+		EpisodesToDownload    []*MediaEntryDownloadEpisode `json:"episodesToDownload"`
+		CanBatch              bool                         `json:"canBatch"`
+		BatchAll              bool                         `json:"batchAll"`
+		HasInaccurateSchedule bool                         `json:"hasInaccurateSchedule"`
+		Rewatch               bool                         `json:"rewatch"`
 	}
 
-	MediaEntryDownloadInfo struct {
+	MediaEntryDownloadEpisode struct {
 		EpisodeNumber int                `json:"episodeNumber"`
 		AniDBEpisode  string             `json:"aniDBEpisode"`
 		Episode       *MediaEntryEpisode `json:"episode"`
 	}
 
-	NewMediaEntryInfoOptions struct {
+	NewMediaEntryDownloadInfoOptions struct {
 		// Media's local files
 		localFiles   []*LocalFile
 		anizipMedia  *anizip.Media
@@ -34,11 +34,11 @@ type (
 	}
 )
 
-// NewMediaEntryInfo creates a new MediaEntryInfo
-func NewMediaEntryInfo(opts *NewMediaEntryInfoOptions) (*MediaEntryInfo, error) {
+// NewMediaEntryDownloadInfo creates a new MediaEntryDownloadInfo
+func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEntryDownloadInfo, error) {
 
 	if *opts.media.Status == anilist.MediaStatusNotYetReleased {
-		return &MediaEntryInfo{}, nil
+		return &MediaEntryDownloadInfo{}, nil
 	}
 	if opts.anizipMedia == nil {
 		return nil, errors.New("could not get anizip media")
@@ -142,12 +142,12 @@ func NewMediaEntryInfo(opts *NewMediaEntryInfoOptions) (*MediaEntryInfo, error) 
 	//---------------------------------
 
 	// Generate `episodesToDownload` based on `toDownloadSlice`
-	//episodesToDownload := make([]*MediaEntryDownloadInfo, 0)
-	p := pool.NewWithResults[*MediaEntryDownloadInfo]()
+	//episodesToDownload := make([]*MediaEntryDownloadEpisode, 0)
+	p := pool.NewWithResults[*MediaEntryDownloadEpisode]()
 	for _, ep := range toDownloadSlice {
 		ep := ep
-		p.Go(func() *MediaEntryDownloadInfo {
-			str := new(MediaEntryDownloadInfo)
+		p.Go(func() *MediaEntryDownloadEpisode {
+			str := new(MediaEntryDownloadEpisode)
 			str.EpisodeNumber = ep
 			str.AniDBEpisode = strconv.Itoa(ep)
 			if ep == -1 {
@@ -188,7 +188,7 @@ func NewMediaEntryInfo(opts *NewMediaEntryInfoOptions) (*MediaEntryInfo, error) 
 	//println(spew.Sprint(anizipEpSlice))
 	//println(spew.Sprint(unwatchedAnizipEpSlice))
 
-	return &MediaEntryInfo{
+	return &MediaEntryDownloadInfo{
 		EpisodesToDownload:    episodesToDownload,
 		CanBatch:              canBatch,
 		BatchAll:              batchAll,

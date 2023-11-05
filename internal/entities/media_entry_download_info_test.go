@@ -10,7 +10,7 @@ import (
 
 const mediaEntryMediaid = 98314
 
-func TestNewMediaEntryInfo(t *testing.T) {
+func TestNewMediaEntryDownloadInfo(t *testing.T) {
 
 	mediaLfs, _ := MockGetSelectedLocalFilesByMediaId(mediaEntryMediaid)
 
@@ -24,7 +24,7 @@ func TestNewMediaEntryInfo(t *testing.T) {
 		t.Fatalf("could not get anilist entry for %d", mediaEntryMediaid)
 	}
 
-	info, err := NewMediaEntryInfo(&NewMediaEntryInfoOptions{
+	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
 		localFiles:   mediaLfs,
 		anizipMedia:  anizipData,
 		anilistEntry: anilistEntry,

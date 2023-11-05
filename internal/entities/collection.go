@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/sourcegraph/conc/pool"
 	"slices"
+	"sort"
 )
 
 const (
@@ -26,10 +27,10 @@ type (
 	}
 
 	LibraryCollectionEntry struct {
-		Media             *anilist.BaseMedia `json:"media"`
-		MediaId           int                `json:"mediaId"`
-		AllFilesLocked    bool               `json:"allFilesLocked"`
-		MediaEntryDetails *MediaEntryDetails `json:"listEntry"`
+		Media                 *anilist.BaseMedia     `json:"media"`
+		MediaId               int                    `json:"mediaId"`
+		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"`
+		MediaEntryListData    *MediaEntryListData    `json:"listData"`
 	}
 
 	NewLibraryCollectionOptions struct {
@@ -73,12 +74,17 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectio
 				entry := entry
 				p2.Go(func() *LibraryCollectionEntry {
 					if slices.Contains(mIds, entry.Media.ID) {
-						lfs := groupedLfs[entry.Media.ID]
+
+						libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
+							groupedLocalFiles: &groupedLfs,
+							mediaId:           entry.Media.ID,
+						})
+
 						return &LibraryCollectionEntry{
-							MediaId:        entry.Media.ID,
-							Media:          entry.Media,
-							AllFilesLocked: lo.EveryBy(lfs, func(item *LocalFile) bool { return item.Locked }),
-							MediaEntryDetails: &MediaEntryDetails{
+							MediaId:               entry.Media.ID,
+							Media:                 entry.Media,
+							MediaEntryLibraryData: libraryData,
+							MediaEntryListData: &MediaEntryListData{
 								Progress:    *entry.Progress,
 								Score:       *entry.Score,
 								Status:      entry.Status,
@@ -96,6 +102,9 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectio
 			// Filter out nil entries
 			r = lo.Filter(r, func(item *LibraryCollectionEntry, index int) bool {
 				return item != nil
+			})
+			sort.Slice(r, func(i, j int) bool {
+				return r[i].Media.GetTitleSafe() < r[j].Media.GetTitleSafe()
 			})
 
 			// Return a new LibraryEntries struct

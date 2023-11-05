@@ -1,17 +1,20 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/constants"
 	"github.com/seanime-app/seanime-server/internal/entities"
 )
 
-type mediaEntryQuery struct {
-	MediaId int `query:"mediaId" json:"mediaId"`
-}
-
 func HandleGetMediaEntry(c *RouteCtx) error {
 
-	p := new(mediaEntryQuery)
+	type query struct {
+		MediaId int `query:"mediaId" json:"mediaId"`
+	}
+
+	p := new(query)
 	if err := c.Fiber.QueryParser(p); err != nil {
 		return c.RespondWithError(err)
 	}
@@ -49,4 +52,53 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	}()
 
 	return c.RespondWithData(entry)
+}
+
+func HandleToggleEntryLockedStatus(c *RouteCtx) error {
+
+	type body struct {
+		MediaId int `json:"mediaId"`
+	}
+
+	p := new(body)
+	if err := c.Fiber.BodyParser(p); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get all the local files
+	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Group local files by media id
+	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) int {
+		return item.MediaId
+	})
+
+	selectLfs, ok := groupedLfs[p.MediaId]
+	if !ok {
+		return c.RespondWithError(errors.New("no local files found for media id"))
+	}
+
+	// Flip the locked status of all the local files for the given media
+	allLocked := lo.EveryBy(selectLfs, func(item *entities.LocalFile) bool {
+		return item.Locked
+	})
+
+	lfs = lop.Map(lfs, func(item *entities.LocalFile, _ int) *entities.LocalFile {
+		if item.MediaId == p.MediaId && p.MediaId != 0 {
+			item.Locked = !allLocked
+		}
+		return item
+	})
+
+	// Save the local files
+	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(retLfs)
+
 }

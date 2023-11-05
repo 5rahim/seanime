@@ -17,9 +17,9 @@ type (
 
 		// If the media exist in the user's anime list, instantiate details.
 		// It is nil if the media is not in the user's anime list.
-		MediaEntryDetails *MediaEntryDetails `json:"listEntry"`
+		MediaEntryListData *MediaEntryListData `json:"listData"`
 
-		MediaEntryInfo *MediaEntryInfo `json:"entryInfo"`
+		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo"`
 
 		// Episodes holds the episodes of the media.
 		Episodes []*MediaEntryEpisode `json:"episodes"`
@@ -31,8 +31,8 @@ type (
 		LocalFiles []*LocalFile `json:"localFiles"`
 	}
 
-	// MediaEntryDetails holds the details of the list entry.
-	MediaEntryDetails struct {
+	// MediaEntryListData holds the details of the AniList entry.
+	MediaEntryListData struct {
 		Progress    int                      `json:"progress,omitempty"`
 		Score       float64                  `json:"score,omitempty"`
 		Status      *anilist.MediaListStatus `json:"status,omitempty"`
@@ -90,10 +90,10 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	}
 	//entry.AnizipData = anidb
 
-	// Instantiate MediaEntryDetails
+	// Instantiate MediaEntryListData
 	// If the media exist in the user's anime list, add the details
 	if found {
-		entry.MediaEntryDetails = &MediaEntryDetails{
+		entry.MediaEntryListData = &MediaEntryListData{
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
 			Status:      anilistEntry.Status,
@@ -162,14 +162,14 @@ func (entry *MediaEntry) hydrateEntryEpisodeData(
 	//
 	// Info
 	//
-	info, err := NewMediaEntryInfo(&NewMediaEntryInfoOptions{
+	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
 		localFiles:   entry.LocalFiles,
 		anizipMedia:  anizipData,
 		anilistEntry: anilistEntry,
 		media:        entry.Media,
 	})
 	if err == nil {
-		entry.MediaEntryInfo = info
+		entry.MediaEntryDownloadInfo = info
 	}
 
 	entry.Episodes = episodes
