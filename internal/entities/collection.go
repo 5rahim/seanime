@@ -22,7 +22,7 @@ type (
 	LibraryCollectionList struct {
 		Type    LibraryCollectionListType `json:"type"`
 		Status  anilist.MediaListStatus   `json:"status"`
-		Entries []*LibraryCollectionEntry `json:"current"`
+		Entries []*LibraryCollectionEntry `json:"entries"`
 	}
 
 	LibraryCollectionEntry struct {
