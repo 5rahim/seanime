@@ -50,8 +50,10 @@ func HandleSaveSettings(c *RouteCtx) error {
 
 	c.App.WSEventManager.SendEvent("settings", settings)
 
+	status := NewStatus(c)
+
 	// Refresh the settings dependents
 	c.App.InitOrRefreshDependencies()
 
-	return c.RespondWithData(settings)
+	return c.RespondWithData(status)
 }
