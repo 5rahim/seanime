@@ -54,6 +54,11 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	return c.RespondWithData(entry)
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+// HandleToggleEntryLockedStatus
+//
+// Toggles the locked status of all the local files for the given media
 func HandleToggleEntryLockedStatus(c *RouteCtx) error {
 
 	type body struct {
@@ -72,9 +77,7 @@ func HandleToggleEntryLockedStatus(c *RouteCtx) error {
 	}
 
 	// Group local files by media id
-	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) int {
-		return item.MediaId
-	})
+	groupedLfs := entities.GetGroupedLocalFiles(lfs)
 
 	selectLfs, ok := groupedLfs[p.MediaId]
 	if !ok {

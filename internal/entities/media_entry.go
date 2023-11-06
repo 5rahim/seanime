@@ -111,7 +111,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 // hydrateEntryEpisodeData
 // AniZipData, Media and LocalFiles should be defined
-func (entry *MediaEntry) hydrateEntryEpisodeData(
+func (e *MediaEntry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.AnimeCollection_MediaListCollection_Lists_Entries,
 	anizipData *anizip.Media,
 ) {
@@ -120,7 +120,7 @@ func (entry *MediaEntry) hydrateEntryEpisodeData(
 		return
 	}
 
-	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(entry.LocalFiles, entry.Media, anizipData)
+	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(e.LocalFiles, e.Media, anizipData)
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
@@ -129,7 +129,7 @@ func (entry *MediaEntry) hydrateEntryEpisodeData(
 
 	} else if possibleSpecialInclusion && !hasDiscrepancy {
 		// Check if the Episode 0 is set to "S1"
-		epZero, ok := lo.Find(entry.LocalFiles, func(lf *LocalFile) bool {
+		epZero, ok := lo.Find(e.LocalFiles, func(lf *LocalFile) bool {
 			return lf.Metadata.Episode == 0
 		})
 		// If there is no discrepancy, but episode 0 is set to "S1", this means that the hydrator made a mistake (due to torrent name)
@@ -144,14 +144,14 @@ func (entry *MediaEntry) hydrateEntryEpisodeData(
 	//
 
 	p := pool.NewWithResults[*MediaEntryEpisode]()
-	for _, lf := range entry.LocalFiles {
+	for _, lf := range e.LocalFiles {
 		lf := lf
 		p.Go(func() *MediaEntryEpisode {
 			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
 				localFile:            lf,
 				optionalAniDBEpisode: "",
 				anizipMedia:          anizipData,
-				media:                entry.Media,
+				media:                e.Media,
 				progressOffset:       progressOffset,
 				isDownloaded:         true,
 			})
@@ -163,18 +163,20 @@ func (entry *MediaEntry) hydrateEntryEpisodeData(
 	// Info
 	//
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		localFiles:   entry.LocalFiles,
+		localFiles:   e.LocalFiles,
 		anizipMedia:  anizipData,
 		anilistEntry: anilistEntry,
-		media:        entry.Media,
+		media:        e.Media,
 	})
 	if err == nil {
-		entry.MediaEntryDownloadInfo = info
+		e.MediaEntryDownloadInfo = info
 	}
 
-	entry.Episodes = episodes
+	e.Episodes = episodes
 
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // detectDiscrepancy detects whether there is a discrepancy between AniList and AniDB.
 // e.g, AniList includes episode 0 as part of main episodes, but AniDB does not.

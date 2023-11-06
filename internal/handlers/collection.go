@@ -2,7 +2,7 @@ package handlers
 
 import "github.com/seanime-app/seanime-server/internal/entities"
 
-// HandleGetLibraryCollection returns the library collection (groups of entries)
+// HandleGetLibraryCollection returns the library collection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	lfs, err := getLocalFilesFromDB(c.App.Database)
@@ -10,15 +10,28 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	collec, err := c.App.GetAnilistCollection()
+	anilistCollection, err := c.App.GetAnilistCollection()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	entries := entities.NewLibraryCollection(&entities.NewLibraryCollectionOptions{
-		Collection: collec,
-		LocalFiles: lfs,
+	libraryCollection := entities.NewLibraryCollection(&entities.NewLibraryCollectionOptions{
+		AnilistCollection: anilistCollection,
+		AnilistClient:     c.App.AnilistClient,
+		AnizipCache:       c.App.AnizipCache,
+		LocalFiles:        lfs,
 	})
 
-	return c.RespondWithData(entries)
+	return c.RespondWithData(libraryCollection)
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+//func HandleGetContinueWatching(c *RouteCtx) error {
+//
+//	type ContinueWatching struct {
+//		Entry *entities.MediaEntry `json:"entry"`
+//	}
+//
+//	return nil
+//}

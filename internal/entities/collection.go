@@ -4,6 +4,7 @@ import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
 	"slices"
 	"sort"
@@ -18,6 +19,10 @@ const (
 )
 
 type (
+	LibraryCollection struct {
+		ContinueWatchingList []*MediaEntryEpisode     `json:"continueWatchingList"`
+		Lists                []*LibraryCollectionList `json:"lists"`
+	}
 	LibraryCollectionListType string
 
 	LibraryCollectionList struct {
@@ -29,38 +34,34 @@ type (
 	LibraryCollectionEntry struct {
 		Media                 *anilist.BaseMedia     `json:"media"`
 		MediaId               int                    `json:"mediaId"`
-		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"`
-		MediaEntryListData    *MediaEntryListData    `json:"listData"`
+		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"` // Library data
+		MediaEntryListData    *MediaEntryListData    `json:"listData"`    // AniList list data
 	}
 
 	NewLibraryCollectionOptions struct {
-		Collection *anilist.AnimeCollection
-		LocalFiles []*LocalFile
+		AnilistCollection *anilist.AnimeCollection
+		LocalFiles        []*LocalFile
+		AnizipCache       *anizip.Cache
+		AnilistClient     *anilist.Client
 	}
 )
 
-func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectionList {
+// NewLibraryCollection creates a new LibraryCollection.
+// A LibraryCollection consists of a list of LibraryCollectionLisy (one for each status).
+func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection {
 
 	// Group local files by media id
-	groupedLfs := lop.GroupBy(opts.LocalFiles, func(item *LocalFile) int {
-		return item.MediaId
-	})
-
+	groupedLfs := GetGroupedLocalFiles(opts.LocalFiles)
 	// Get slice of media ids from local files
-	mIds := make([]int, len(groupedLfs))
-	for key := range groupedLfs {
-		if !slices.Contains(mIds, key) {
-			mIds = append(mIds, key)
-		}
-	}
+	mIds := GetMediaIdsFromLocalFiles(opts.LocalFiles)
 
 	// Get lists from collection
-	lists := opts.Collection.GetMediaListCollection().GetLists()
+	aniLists := opts.AnilistCollection.GetMediaListCollection().GetLists()
 
 	// Create a new LibraryCollectionList for each list
 	// This is done in parallel
 	p := pool.NewWithResults[*LibraryCollectionList]()
-	for _, list := range lists {
+	for _, list := range aniLists {
 		list := list
 		p.Go(func() *LibraryCollectionList {
 
@@ -117,26 +118,115 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) []*LibraryCollectio
 		})
 	}
 
-	res := p.Wait()
+	lists := p.Wait()
 
 	// Merge repeating to current
-	repeat, ok := lo.Find(res, func(item *LibraryCollectionList) bool {
+	repeat, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
 		return item.Status == anilist.MediaListStatusRepeating
 	})
 	if ok {
-		current, ok := lo.Find(res, func(item *LibraryCollectionList) bool {
+		current, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
 			return item.Status == anilist.MediaListStatusCurrent
 		})
 		if len(repeat.Entries) > 0 && ok {
 			current.Entries = append(current.Entries, repeat.Entries...)
 		}
-		// Remove repeating from res
-		res = lo.Filter(res, func(item *LibraryCollectionList, index int) bool {
+		// Remove repeating from lists
+		lists = lo.Filter(lists, func(item *LibraryCollectionList, index int) bool {
 			return item.Status != anilist.MediaListStatusRepeating
 		})
 	}
 
-	return res
+	lCollec := new(LibraryCollection)
+	lCollec.Lists = lists
+	lCollec.CreateContinueWatchingList(
+		opts.LocalFiles,
+		opts.AnilistCollection,
+		opts.AnizipCache,
+		opts.AnilistClient,
+	)
+
+	return lCollec
+
+}
+
+// CreateContinueWatchingList creates a list of continue watching.
+// This should be called after the lists have been created.
+func (lc *LibraryCollection) CreateContinueWatchingList(
+	localFiles []*LocalFile,
+	anilistCollection *anilist.AnimeCollection,
+	anizipCache *anizip.Cache,
+	anilistClient *anilist.Client,
+) {
+
+	// Create media entry for media in "Current" list
+	current, found := lo.Find(lc.Lists, func(item *LibraryCollectionList) bool {
+		return item.Status == anilist.MediaListStatusCurrent
+	})
+	if !found {
+		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Return empty slice
+		return
+	}
+	mIds := make([]int, len(current.Entries))
+	for i, entry := range current.Entries {
+		mIds[i] = entry.MediaId
+	}
+
+	mEntryPool := pool.NewWithResults[*MediaEntry]()
+	for _, mId := range mIds {
+		mId := mId
+		mEntryPool.Go(func() *MediaEntry {
+			me, _ := NewMediaEntry(&NewMediaEntryOptions{
+				MediaId:           mId,
+				LocalFiles:        localFiles,
+				AnilistCollection: anilistCollection,
+				AnizipCache:       anizipCache,
+				AnilistClient:     anilistClient,
+			})
+			return me
+		})
+	}
+	mEntries := mEntryPool.Wait()
+	mEntries = lo.Filter(mEntries, func(item *MediaEntry, index int) bool {
+		return item != nil
+	})
+
+	if len(mEntries) == 0 {
+		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Return empty slice
+		return
+	}
+
+	// Sort by progress
+	sort.Slice(mEntries, func(i, j int) bool {
+		return mEntries[i].MediaEntryListData.Progress > mEntries[j].MediaEntryListData.Progress
+	})
+
+	// Remove entries whose user's progress is equal to the latest episode's progress number, meaning the user has watched the latest episode
+	mEntries = lop.Map(mEntries, func(mEntry *MediaEntry, index int) *MediaEntry {
+		if !mEntry.HasWatchedAll() {
+			return mEntry
+		}
+		return nil
+	})
+	mEntries = lo.Filter(mEntries, func(item *MediaEntry, index int) bool {
+		return item != nil
+	})
+
+	// Get the next episode for each media entry
+	mEpisodes := lop.Map(mEntries, func(mEntry *MediaEntry, index int) *MediaEntryEpisode {
+		ep, ok := mEntry.FindNextEpisode()
+		if ok {
+			return ep
+		}
+		return nil
+	})
+	mEpisodes = lo.Filter(mEpisodes, func(item *MediaEntryEpisode, index int) bool {
+		return item != nil
+	})
+
+	lc.ContinueWatchingList = mEpisodes
+
+	return
 
 }
 

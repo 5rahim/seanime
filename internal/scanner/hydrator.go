@@ -56,7 +56,7 @@ func (fh *FileHydrator) HydrateMetadata() {
 
 func (fh *FileHydrator) hydrateGroupMetadata(
 	mId int,
-	lfs []*entities.LocalFile,
+	lfs []*entities.LocalFile, // Grouped local files
 	rateLimiter *limiter.Limiter,
 ) {
 
@@ -73,6 +73,23 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	// Tree analysis used for episode normalization
 	var mediaTreeAnalysis *MediaTreeAnalysis
 	treeFetched := false
+
+	//offset := 0
+	//// Check if one local file in the group has episode 0
+	//hasEpisodeZero := lo.SomeBy(lfs, func(lf *entities.LocalFile) bool {
+	//	if ep, ok := util.StringToInt(lf.ParsedData.Episode); ok {
+	//		return ep == 0
+	//	}
+	//	return false
+	//})
+	//if hasEpisodeZero {
+	//	// Fetch AniZip data
+	//	anizipMedia, _ := anizip.FetchAniZipMediaC("anilist", media.ID, fh.anizipCache)
+	//	discrepancy, _ := detectDiscrepancy(lfs, media, anizipMedia)
+	//	if discrepancy {
+	//		offset = 1
+	//	}
+	//}
 
 	// Process each local file in the group sequentially
 	lo.ForEach(lfs, func(lf *entities.LocalFile, index int) {
