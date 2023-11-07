@@ -19,6 +19,8 @@ type (
 		// It is nil if the media is not in the user's anime list.
 		MediaEntryListData *MediaEntryListData `json:"listData"`
 
+		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"`
+
 		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo"`
 
 		// Episodes holds the episodes of the media.
@@ -54,7 +56,6 @@ type (
 func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	if opts.AnilistCollection == nil ||
-		opts.LocalFiles == nil ||
 		opts.AnizipCache == nil ||
 		opts.AnilistClient == nil {
 		return nil, errors.New("missing arguments when creating media entry")
@@ -82,6 +83,12 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// Get the entry's local files
 	lfs := GetLocalFilesFromMediaId(opts.LocalFiles, opts.MediaId)
 	entry.LocalFiles = lfs // Returns empty slice if no local files are found
+
+	libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
+		entryLocalFiles: lfs,
+		mediaId:         entry.Media.ID,
+	})
+	entry.MediaEntryLibraryData = libraryData
 
 	// Fetch AniDB data and cache it for 10 minutes
 	anizipData, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)

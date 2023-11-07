@@ -10,17 +10,16 @@ type (
 	}
 
 	NewMediaEntryLibraryDataOptions struct {
-		groupedLocalFiles *map[int][]*LocalFile
-		mediaId           int
+		entryLocalFiles []*LocalFile
+		mediaId         int
 	}
 )
 
 func NewMediaEntryLibraryData(opts *NewMediaEntryLibraryDataOptions) (*MediaEntryLibraryData, bool) {
-	entryLfs, found := (*opts.groupedLocalFiles)[opts.mediaId]
-	if !found {
+	if opts.entryLocalFiles == nil {
 		return nil, false
 	}
 	return &MediaEntryLibraryData{
-		AllFilesLocked: lo.EveryBy(entryLfs, func(item *LocalFile) bool { return item.Locked }),
+		AllFilesLocked: lo.EveryBy(opts.entryLocalFiles, func(item *LocalFile) bool { return item.Locked }),
 	}, true
 }

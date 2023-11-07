@@ -76,9 +76,10 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection 
 				p2.Go(func() *LibraryCollectionEntry {
 					if slices.Contains(mIds, entry.Media.ID) {
 
+						entryLfs, _ := groupedLfs[entry.Media.ID]
 						libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
-							groupedLocalFiles: &groupedLfs,
-							mediaId:           entry.Media.ID,
+							entryLocalFiles: entryLfs,
+							mediaId:         entry.Media.ID,
 						})
 
 						return &LibraryCollectionEntry{
