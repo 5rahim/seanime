@@ -3362,6 +3362,10 @@ const (
 	ModRoleSocialMedia ModRole = "SOCIAL_MEDIA"
 	// A retired moderator
 	ModRoleRetired ModRole = "RETIRED"
+	// A character data moderator
+	ModRoleCharacterData ModRole = "CHARACTER_DATA"
+	// A staff data moderator
+	ModRoleStaffData ModRole = "STAFF_DATA"
 )
 
 var AllModRole = []ModRole{
@@ -3378,11 +3382,13 @@ var AllModRole = []ModRole{
 	ModRoleLeadSocialMedia,
 	ModRoleSocialMedia,
 	ModRoleRetired,
+	ModRoleCharacterData,
+	ModRoleStaffData,
 }
 
 func (e ModRole) IsValid() bool {
 	switch e {
-	case ModRoleAdmin, ModRoleLeadDeveloper, ModRoleDeveloper, ModRoleLeadCommunity, ModRoleCommunity, ModRoleDiscordCommunity, ModRoleLeadAnimeData, ModRoleAnimeData, ModRoleLeadMangaData, ModRoleMangaData, ModRoleLeadSocialMedia, ModRoleSocialMedia, ModRoleRetired:
+	case ModRoleAdmin, ModRoleLeadDeveloper, ModRoleDeveloper, ModRoleLeadCommunity, ModRoleCommunity, ModRoleDiscordCommunity, ModRoleLeadAnimeData, ModRoleAnimeData, ModRoleLeadMangaData, ModRoleMangaData, ModRoleLeadSocialMedia, ModRoleSocialMedia, ModRoleRetired, ModRoleCharacterData, ModRoleStaffData:
 		return true
 	}
 	return false

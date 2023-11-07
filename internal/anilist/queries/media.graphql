@@ -68,6 +68,7 @@ query MediaDetailsById ($id: Int) {
         averageScore
         popularity
         meanScore
+        description
         startDate {
             year
             month
@@ -192,6 +193,11 @@ fragment basicMedia on Media {
         month
         day
     }
+    endDate {
+        year
+        month
+        day
+    }
     nextAiringEpisode {
         airingAt
         timeUntilAiring
@@ -226,6 +232,11 @@ fragment baseMedia on Media {
         color
     }
     startDate {
+        year
+        month
+        day
+    }
+    endDate {
         year
         month
         day
@@ -278,6 +289,11 @@ fragment completeMedia on Media {
         color
     }
     startDate {
+        year
+        month
+        day
+    }
+    endDate {
         year
         month
         day

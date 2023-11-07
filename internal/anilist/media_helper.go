@@ -141,3 +141,46 @@ func (e *BaseMedia_Relations_Edges) IsNarrowRelationFormat() bool {
 	}
 	return false
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (m *BaseMedia) ToBasicMedia() *BasicMedia {
+	if m == nil {
+		return nil
+	}
+	return &BasicMedia{
+		ID:              m.ID,
+		IDMal:           m.IDMal,
+		Format:          m.Format,
+		Episodes:        m.Episodes,
+		Status:          m.Status,
+		Synonyms:        m.Synonyms,
+		BannerImage:     m.BannerImage,
+		Season:          m.Season,
+		Type:            m.Type,
+		IsAdult:         m.IsAdult,
+		CountryOfOrigin: m.CountryOfOrigin,
+		Title: &BasicMedia_Title{
+			UserPreferred: m.GetTitle().GetUserPreferred(),
+			Romaji:        m.GetTitle().GetRomaji(),
+			English:       m.GetTitle().GetEnglish(),
+			Native:        m.GetTitle().GetNative(),
+		},
+		CoverImage: &BasicMedia_CoverImage{
+			ExtraLarge: m.GetCoverImage().GetExtraLarge(),
+			Large:      m.GetCoverImage().GetLarge(),
+			Medium:     m.GetCoverImage().GetMedium(),
+			Color:      m.GetCoverImage().GetColor(),
+		},
+		StartDate: &BasicMedia_StartDate{
+			Year:  m.GetStartDate().GetYear(),
+			Month: m.GetStartDate().GetMonth(),
+			Day:   m.GetStartDate().GetDay(),
+		},
+		NextAiringEpisode: &BasicMedia_NextAiringEpisode{
+			AiringAt:        m.GetNextAiringEpisode().GetAiringAt(),
+			TimeUntilAiring: m.GetNextAiringEpisode().GetTimeUntilAiring(),
+			Episode:         m.GetNextAiringEpisode().GetEpisode(),
+		},
+	}
+}

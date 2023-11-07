@@ -4,8 +4,10 @@ import (
 	"errors"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
+	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/constants"
 	"github.com/seanime-app/seanime-server/internal/entities"
+	"github.com/seanime-app/seanime-server/internal/result"
 )
 
 func HandleGetMediaEntry(c *RouteCtx) error {
@@ -52,6 +54,34 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	}()
 
 	return c.RespondWithData(entry)
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+var (
+	detailsCache = result.NewCache[int, *anilist.MediaDetailsById_Media]()
+)
+
+func HandleGetMediaDetails(c *RouteCtx) error {
+	type query struct {
+		MediaId int `query:"mediaId" json:"mediaId"`
+	}
+
+	p := new(query)
+	if err := c.Fiber.QueryParser(p); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if details, ok := detailsCache.Get(p.MediaId); ok {
+		return c.RespondWithData(details)
+	}
+	details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &p.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	detailsCache.Set(p.MediaId, details.GetMedia())
+
+	return c.RespondWithData(details.GetMedia())
 }
 
 //----------------------------------------------------------------------------------------------------------------------

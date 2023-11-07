@@ -29,7 +29,8 @@ type (
 		FileMetadata *LocalFileMetadata `json:"fileMetadata"`
 		IsInvalid    bool               `json:"isInvalid"`
 		// Alerts the user that there is a discrepancy between AniList and AniDB
-		MetadataIssue string `json:"metadataIssue,omitempty"`
+		MetadataIssue string              `json:"metadataIssue,omitempty"`
+		BasicMedia    *anilist.BasicMedia `json:"basicMedia,omitempty"`
 	}
 
 	MediaEntryEpisodeMetadata struct {
@@ -62,7 +63,7 @@ type (
 // `localFile` is optional.
 func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
-
+	entryEp.BasicMedia = opts.media.ToBasicMedia()
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
 
@@ -145,7 +146,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				}
 			}
 
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode)
+			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.media)
 
 		}
 
@@ -182,7 +183,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				hydrated = true
 			}
 
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode)
+			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.media)
 		}
 
 	}
@@ -195,7 +196,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	return entryEp
 }
 
-func NewEpisodeMetadata(episode *anizip.Episode) *MediaEntryEpisodeMetadata {
+func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *MediaEntryEpisodeMetadata {
 	if episode == nil {
 		return nil
 	}
@@ -203,6 +204,9 @@ func NewEpisodeMetadata(episode *anizip.Episode) *MediaEntryEpisodeMetadata {
 	md := new(MediaEntryEpisodeMetadata)
 
 	md.Image = episode.Image
+	if len(episode.Image) == 0 {
+		md.Image = *media.GetBannerImage()
+	}
 	md.AirDate = episode.Airdate
 	md.Length = episode.Length
 	if episode.Runtime > 0 {

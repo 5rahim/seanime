@@ -108,6 +108,7 @@ type BasicMedia struct {
 	Title             *BasicMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BasicMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate         *BasicMedia_StartDate         "json:\"startDate,omitempty\" graphql:\"startDate\""
+	EndDate           *BasicMedia_EndDate           "json:\"endDate,omitempty\" graphql:\"endDate\""
 	NextAiringEpisode *BasicMedia_NextAiringEpisode "json:\"nextAiringEpisode,omitempty\" graphql:\"nextAiringEpisode\""
 }
 
@@ -201,6 +202,12 @@ func (t *BasicMedia) GetStartDate() *BasicMedia_StartDate {
 	}
 	return t.StartDate
 }
+func (t *BasicMedia) GetEndDate() *BasicMedia_EndDate {
+	if t == nil {
+		t = &BasicMedia{}
+	}
+	return t.EndDate
+}
 func (t *BasicMedia) GetNextAiringEpisode() *BasicMedia_NextAiringEpisode {
 	if t == nil {
 		t = &BasicMedia{}
@@ -224,6 +231,7 @@ type BaseMedia struct {
 	Title             *BaseMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BaseMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate         *BaseMedia_StartDate         "json:\"startDate,omitempty\" graphql:\"startDate\""
+	EndDate           *BaseMedia_EndDate           "json:\"endDate,omitempty\" graphql:\"endDate\""
 	NextAiringEpisode *BaseMedia_NextAiringEpisode "json:\"nextAiringEpisode,omitempty\" graphql:\"nextAiringEpisode\""
 	Relations         *BaseMedia_Relations         "json:\"relations,omitempty\" graphql:\"relations\""
 }
@@ -318,6 +326,12 @@ func (t *BaseMedia) GetStartDate() *BaseMedia_StartDate {
 	}
 	return t.StartDate
 }
+func (t *BaseMedia) GetEndDate() *BaseMedia_EndDate {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.EndDate
+}
 func (t *BaseMedia) GetNextAiringEpisode() *BaseMedia_NextAiringEpisode {
 	if t == nil {
 		t = &BaseMedia{}
@@ -352,6 +366,7 @@ type CompleteMedia struct {
 	Title             *CompleteMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *CompleteMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate         *CompleteMedia_StartDate         "json:\"startDate,omitempty\" graphql:\"startDate\""
+	EndDate           *CompleteMedia_EndDate           "json:\"endDate,omitempty\" graphql:\"endDate\""
 	NextAiringEpisode *CompleteMedia_NextAiringEpisode "json:\"nextAiringEpisode,omitempty\" graphql:\"nextAiringEpisode\""
 	Relations         *CompleteMedia_Relations         "json:\"relations,omitempty\" graphql:\"relations\""
 }
@@ -476,6 +491,12 @@ func (t *CompleteMedia) GetStartDate() *CompleteMedia_StartDate {
 	}
 	return t.StartDate
 }
+func (t *CompleteMedia) GetEndDate() *CompleteMedia_EndDate {
+	if t == nil {
+		t = &CompleteMedia{}
+	}
+	return t.EndDate
+}
 func (t *CompleteMedia) GetNextAiringEpisode() *CompleteMedia_NextAiringEpisode {
 	if t == nil {
 		t = &CompleteMedia{}
@@ -574,6 +595,31 @@ func (t *BasicMedia_StartDate) GetMonth() *int {
 func (t *BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -692,6 +738,31 @@ func (t *BaseMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type BaseMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BaseMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BaseMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BaseMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BaseMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type BaseMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -802,6 +873,31 @@ func (t *BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
 func (t *BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type BaseMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -949,6 +1045,31 @@ func (t *CompleteMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type CompleteMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *CompleteMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &CompleteMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *CompleteMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &CompleteMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *CompleteMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &CompleteMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type CompleteMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -1059,6 +1180,31 @@ func (t *CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *in
 func (t *CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -1278,6 +1424,31 @@ func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Start
 	return t.Day
 }
 
+type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -1388,6 +1559,31 @@ func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relat
 func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -1649,6 +1845,31 @@ func (t *SearchAnimeShortMedia_Page_Media_BasicMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type SearchAnimeShortMedia_Page_Media_BasicMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -1781,6 +2002,31 @@ func (t *BasicMediaByMalId_Media_BasicMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type BasicMediaByMalId_Media_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BasicMediaByMalId_Media_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BasicMediaByMalId_Media_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BasicMediaByMalId_Media_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BasicMediaByMalId_Media_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BasicMediaByMalId_Media_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BasicMediaByMalId_Media_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type BasicMediaByMalId_Media_BasicMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -1891,6 +2137,31 @@ func (t *BasicMediaById_Media_BasicMedia_StartDate) GetMonth() *int {
 func (t *BasicMediaById_Media_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &BasicMediaById_Media_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type BasicMediaById_Media_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BasicMediaById_Media_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BasicMediaById_Media_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BasicMediaById_Media_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BasicMediaById_Media_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BasicMediaById_Media_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BasicMediaById_Media_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -2009,6 +2280,31 @@ func (t *BaseMediaById_Media_BaseMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type BaseMediaById_Media_BaseMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseMediaById_Media_BaseMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BaseMediaById_Media_BaseMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BaseMediaById_Media_BaseMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type BaseMediaById_Media_BaseMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -2119,6 +2415,31 @@ func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate
 func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -2439,6 +2760,7 @@ type MediaDetailsById_Media struct {
 	AverageScore    *int                                    "json:\"averageScore,omitempty\" graphql:\"averageScore\""
 	Popularity      *int                                    "json:\"popularity,omitempty\" graphql:\"popularity\""
 	MeanScore       *int                                    "json:\"meanScore,omitempty\" graphql:\"meanScore\""
+	Description     *string                                 "json:\"description,omitempty\" graphql:\"description\""
 	StartDate       *MediaDetailsById_Media_StartDate       "json:\"startDate,omitempty\" graphql:\"startDate\""
 	EndDate         *MediaDetailsById_Media_EndDate         "json:\"endDate,omitempty\" graphql:\"endDate\""
 	Studios         *MediaDetailsById_Media_Studios         "json:\"studios,omitempty\" graphql:\"studios\""
@@ -2487,6 +2809,12 @@ func (t *MediaDetailsById_Media) GetMeanScore() *int {
 		t = &MediaDetailsById_Media{}
 	}
 	return t.MeanScore
+}
+func (t *MediaDetailsById_Media) GetDescription() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Description
 }
 func (t *MediaDetailsById_Media) GetStartDate() *MediaDetailsById_Media_StartDate {
 	if t == nil {
@@ -2608,6 +2936,31 @@ func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type CompleteMediaById_Media_CompleteMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type CompleteMediaById_Media_CompleteMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -2718,6 +3071,31 @@ func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_S
 func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -2904,6 +3282,31 @@ func (t *ListMedia_Page_Media_BasicMedia_StartDate) GetDay() *int {
 	return t.Day
 }
 
+type ListMedia_Page_Media_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *ListMedia_Page_Media_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &ListMedia_Page_Media_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *ListMedia_Page_Media_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &ListMedia_Page_Media_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *ListMedia_Page_Media_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &ListMedia_Page_Media_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
 type ListMedia_Page_Media_BasicMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
@@ -3071,6 +3474,31 @@ func (t *ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_StartDate) GetMon
 func (t *ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_StartDate) GetDay() *int {
 	if t == nil {
 		t = &ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate{}
 	}
 	return t.Day
 }
@@ -3487,6 +3915,11 @@ fragment baseMedia on Media {
 		month
 		day
 	}
+	endDate {
+		year
+		month
+		day
+	}
 	nextAiringEpisode {
 		airingAt
 		timeUntilAiring
@@ -3527,6 +3960,11 @@ fragment basicMedia on Media {
 		color
 	}
 	startDate {
+		year
+		month
+		day
+	}
+	endDate {
 		year
 		month
 		day
@@ -3596,6 +4034,11 @@ fragment basicMedia on Media {
 		month
 		day
 	}
+	endDate {
+		year
+		month
+		day
+	}
 	nextAiringEpisode {
 		airingAt
 		timeUntilAiring
@@ -3660,6 +4103,11 @@ fragment basicMedia on Media {
 		month
 		day
 	}
+	endDate {
+		year
+		month
+		day
+	}
 	nextAiringEpisode {
 		airingAt
 		timeUntilAiring
@@ -3716,6 +4164,11 @@ fragment basicMedia on Media {
 		color
 	}
 	startDate {
+		year
+		month
+		day
+	}
+	endDate {
 		year
 		month
 		day
@@ -3780,6 +4233,11 @@ fragment baseMedia on Media {
 		month
 		day
 	}
+	endDate {
+		year
+		month
+		day
+	}
 	nextAiringEpisode {
 		airingAt
 		timeUntilAiring
@@ -3824,6 +4282,11 @@ fragment basicMedia on Media {
 		month
 		day
 	}
+	endDate {
+		year
+		month
+		day
+	}
 	nextAiringEpisode {
 		airingAt
 		timeUntilAiring
@@ -3858,6 +4321,7 @@ const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
 		averageScore
 		popularity
 		meanScore
+		description
 		startDate {
 			year
 			month
@@ -3965,6 +4429,11 @@ fragment completeMedia on Media {
 		month
 		day
 	}
+	endDate {
+		year
+		month
+		day
+	}
 	nextAiringEpisode {
 		airingAt
 		timeUntilAiring
@@ -4005,6 +4474,11 @@ fragment basicMedia on Media {
 		color
 	}
 	startDate {
+		year
+		month
+		day
+	}
+	endDate {
 		year
 		month
 		day
@@ -4074,6 +4548,11 @@ fragment basicMedia on Media {
 		color
 	}
 	startDate {
+		year
+		month
+		day
+	}
+	endDate {
 		year
 		month
 		day
@@ -4158,6 +4637,11 @@ fragment basicMedia on Media {
 		color
 	}
 	startDate {
+		year
+		month
+		day
+	}
+	endDate {
 		year
 		month
 		day
