@@ -197,11 +197,13 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 }
 
 func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *MediaEntryEpisodeMetadata {
-	if episode == nil {
-		return nil
-	}
-
 	md := new(MediaEntryEpisodeMetadata)
+
+	// No AniZip data
+	if episode == nil {
+		md.Image = *media.GetCoverImage().GetLarge()
+		return md
+	}
 
 	md.Image = episode.Image
 	if len(episode.Image) == 0 {

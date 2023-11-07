@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
+	"sort"
 )
 
 type (
@@ -23,11 +24,8 @@ type (
 
 		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo"`
 
-		// Episodes holds the episodes of the media.
-		Episodes []*MediaEntryEpisode `json:"episodes"`
-
-		//// AnizipData holds data fetched from AniDB.
-		//AnizipData *anizip.Media `json:"anizipData"`
+		Episodes    []*MediaEntryEpisode `json:"episodes"`
+		NextEpisode *MediaEntryEpisode   `json:"nextEpisode"`
 
 		// LocalFiles holds the local files associated with the media.
 		LocalFiles []*LocalFile `json:"localFiles"`
@@ -165,6 +163,10 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 		})
 	}
 	episodes := p.Wait()
+	// Sort by progress number
+	sort.Slice(episodes, func(i, j int) bool {
+		return episodes[i].ProgressNumber < episodes[j].ProgressNumber
+	})
 
 	//
 	// Info
@@ -180,6 +182,11 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	}
 
 	e.Episodes = episodes
+
+	nextEp, found := e.FindNextEpisode()
+	if found {
+		e.NextEpisode = nextEp
+	}
 
 }
 
