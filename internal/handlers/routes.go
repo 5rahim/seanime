@@ -49,6 +49,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 	v1Library.Get("/entry", makeHandler(app, HandleGetMediaEntry))
 	v1Library.Get("/entry/media-details", makeHandler(app, HandleGetMediaDetails))
+	v1Library.Post("/entry/media-list-data", makeHandler(app, HandleEditMediaListData))
 	v1Library.Post("/entry/toggle-locked", makeHandler(app, HandleToggleEntryLockedStatus))
 
 	//
@@ -97,5 +98,5 @@ func (c *RouteCtx) RespondWithData(data any) error {
 }
 
 func (c *RouteCtx) RespondWithError(err error) error {
-	return c.Fiber.Status(404).JSON(NewErrorResponse(err))
+	return c.Fiber.Status(500).JSON(NewErrorResponse(err))
 }

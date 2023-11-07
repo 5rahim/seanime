@@ -14,6 +14,12 @@ func (a *App) GetAnilistCollection() (*anilist.AnimeCollection, error) {
 		return a.anilistCollection, nil
 	}
 
+	return a.RefreshAnilistCollection()
+
+}
+
+func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
+
 	// If the account is nil, return false
 	if a.account == nil {
 		return nil, errors.New("no account was found")

@@ -26,6 +26,26 @@ mutation UpdateEntry (
     }
 }
 
+mutation UpdateMediaListEntry (
+    $mediaId: Int
+    $status: MediaListStatus
+    $scoreRaw: Int
+    $progress: Int
+    $startedAt: FuzzyDateInput
+    $completedAt: FuzzyDateInput
+) {
+    SaveMediaListEntry(
+        mediaId: $mediaId
+        status: $status
+        scoreRaw: $scoreRaw
+        progress: $progress
+        startedAt: $startedAt
+        completedAt: $completedAt
+    ) {
+        id
+    }
+}
+
 mutation DeleteEntry (
     $mediaListEntryId: Int
 ) {

@@ -11,6 +11,7 @@ import (
 
 type GithubGraphQLClient interface {
 	UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error)
+	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
@@ -1270,6 +1271,17 @@ type UpdateEntry_SaveMediaListEntry struct {
 func (t *UpdateEntry_SaveMediaListEntry) GetID() int {
 	if t == nil {
 		t = &UpdateEntry_SaveMediaListEntry{}
+	}
+	return t.ID
+}
+
+type UpdateMediaListEntry_SaveMediaListEntry struct {
+	ID int "json:\"id\" graphql:\"id\""
+}
+
+func (t *UpdateMediaListEntry_SaveMediaListEntry) GetID() int {
+	if t == nil {
+		t = &UpdateMediaListEntry_SaveMediaListEntry{}
 	}
 	return t.ID
 }
@@ -3678,6 +3690,17 @@ func (t *UpdateEntry) GetSaveMediaListEntry() *UpdateEntry_SaveMediaListEntry {
 	return t.SaveMediaListEntry
 }
 
+type UpdateMediaListEntry struct {
+	SaveMediaListEntry *UpdateMediaListEntry_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
+}
+
+func (t *UpdateMediaListEntry) GetSaveMediaListEntry() *UpdateMediaListEntry_SaveMediaListEntry {
+	if t == nil {
+		t = &UpdateMediaListEntry{}
+	}
+	return t.SaveMediaListEntry
+}
+
 type DeleteEntry struct {
 	DeleteMediaListEntry *DeleteEntry_DeleteMediaListEntry "json:\"DeleteMediaListEntry,omitempty\" graphql:\"DeleteMediaListEntry\""
 }
@@ -3822,6 +3845,35 @@ func (c *Client) UpdateEntry(ctx context.Context, mediaID *int, status *MediaLis
 
 	var res UpdateEntry
 	if err := c.Client.Post(ctx, "UpdateEntry", UpdateEntryDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateMediaListEntryDocument = `mutation UpdateMediaListEntry ($mediaId: Int, $status: MediaListStatus, $scoreRaw: Int, $progress: Int, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput) {
+	SaveMediaListEntry(mediaId: $mediaId, status: $status, scoreRaw: $scoreRaw, progress: $progress, startedAt: $startedAt, completedAt: $completedAt) {
+		id
+	}
+}
+`
+
+func (c *Client) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
+	vars := map[string]interface{}{
+		"mediaId":     mediaID,
+		"status":      status,
+		"scoreRaw":    scoreRaw,
+		"progress":    progress,
+		"startedAt":   startedAt,
+		"completedAt": completedAt,
+	}
+
+	var res UpdateMediaListEntry
+	if err := c.Client.Post(ctx, "UpdateMediaListEntry", UpdateMediaListEntryDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}

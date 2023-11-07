@@ -19,18 +19,17 @@ func (c *Client) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, lo
 
 	status := MediaListStatusPlanning
 
+	scoreRaw := 0
+	progress := 0
+
 	lo.ForEach(mIds, func(id int, index int) {
 		rateLimiter.Wait()
-		_, err := c.UpdateEntry(
+		_, err := c.UpdateMediaListEntry(
 			context.Background(),
 			&id,
 			&status,
-			nil,
-			nil,
-			nil,
-			nil,
-			nil,
-			nil,
+			&scoreRaw,
+			&progress,
 			nil,
 			nil,
 		)
