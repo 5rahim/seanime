@@ -47,10 +47,19 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
+	// Retrive MediaEntry
 	v1Library.Get("/entry", makeHandler(app, HandleGetMediaEntry))
+	// Retrive Media Details
 	v1Library.Get("/entry/media-details", makeHandler(app, HandleGetMediaDetails))
+	// Edit Media List Data from AniList
 	v1Library.Post("/entry/media-list-data", makeHandler(app, HandleEditMediaListData))
-	v1Library.Post("/entry/toggle-locked", makeHandler(app, HandleToggleEntryLockedStatus))
+	// Media Entry Bulk Action
+	v1Library.Post("/entry/bulk-action", makeHandler(app, HandleMediaEntryBulkAction))
+	// Open Media Entry in File Explorer
+	v1Library.Post("/entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
+
+	// Open Media Player
+	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultPlayer))
 
 	//
 	// Websocket

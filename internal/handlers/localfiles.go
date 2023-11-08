@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/goccy/go-json"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/db"
 	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/models"
@@ -15,6 +17,48 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(lfs)
+
+}
+
+// HandleUpdateLocalFileMetadata
+// POST
+func HandleUpdateLocalFileMetadata(c *RouteCtx) error {
+
+	type body struct {
+		Path     string                      `json:"path"`
+		Metadata *entities.LocalFileMetadata `json:"metadata"`
+		Locked   bool                        `json:"locked"`
+		Ignored  bool                        `json:"ignored"`
+	}
+
+	p := new(body)
+	if err := c.Fiber.BodyParser(p); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get all the local files
+	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	lf, found := lo.Find(lfs, func(i *entities.LocalFile) bool {
+		return i.Path == p.Path
+	})
+	if !found {
+		return c.RespondWithError(errors.New("local file not found"))
+	}
+	lf.Metadata = p.Metadata
+	lf.Locked = p.Locked
+	lf.Ignored = p.Ignored
+
+	// Save the local files
+	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(retLfs)
 
 }
 
