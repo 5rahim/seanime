@@ -3,6 +3,7 @@ package filesystem
 import (
 	"errors"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -53,4 +54,11 @@ func GetVideoFilePathsFromDir(dirPath string) ([]string, error) {
 	}
 
 	return filePaths, nil
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func FileExists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return !errors.Is(err, os.ErrNotExist)
 }

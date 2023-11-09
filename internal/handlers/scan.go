@@ -7,7 +7,9 @@ import (
 )
 
 type scanRequestBody struct {
-	Enhanced bool `json:"enhanced"`
+	Enhanced         bool `json:"enhanced"`
+	SkipLockedFiles  bool `json:"skipLockedFiles"`
+	SkipIgnoredFiles bool `json:"skipIgnoredFiles"`
 }
 
 func HandleScanLocalFiles(c *RouteCtx) error {
@@ -33,14 +35,19 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	existingLfs, _ := getLocalFilesFromDB(c.App.Database)
+
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:        libraryPath,
-		Username:       acc.Username,
-		Enhanced:       body.Enhanced,
-		AnilistClient:  c.App.AnilistClient,
-		Logger:         c.App.Logger,
-		WSEventManager: c.App.WSEventManager,
+		DirPath:            libraryPath,
+		Username:           acc.Username,
+		Enhanced:           body.Enhanced,
+		AnilistClient:      c.App.AnilistClient,
+		Logger:             c.App.Logger,
+		WSEventManager:     c.App.WSEventManager,
+		ExistingLocalFiles: existingLfs,
+		SkipLockedFiles:    body.SkipLockedFiles,
+		SkipIgnoredFiles:   body.SkipIgnoredFiles,
 	}
 
 	// Scan the library

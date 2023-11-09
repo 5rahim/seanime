@@ -13,11 +13,42 @@ import (
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (f *LocalFile) IsParsedEpisodeValid() bool {
+	if f == nil || f.ParsedData == nil {
+		return false
+	}
+	return len(f.ParsedData.Episode) > 0
+}
+
+// GetEpisodeNumber returns the metadata episode number.
+// This requires the LocalFile to be hydrated.
 func (f *LocalFile) GetEpisodeNumber() int {
 	return f.Metadata.Episode
 }
+
+// GetType returns the metadata type.
+// This requires the LocalFile to be hydrated.
+func (f *LocalFile) GetType() LocalFileType {
+	return f.Metadata.Type
+}
+
+// GetMetadata returns the file metadata.
+// This requires the LocalFile to be hydrated.
+func (f *LocalFile) GetMetadata() *LocalFileMetadata {
+	return f.Metadata
+}
+
+// GetAniDBEpisode returns the metadata AniDB episode number.
+// This requires the LocalFile to be hydrated.
 func (f *LocalFile) GetAniDBEpisode() string {
 	return f.Metadata.AniDBEpisode
+}
+
+func (f *LocalFile) IsLocked() bool {
+	return f.Locked
+}
+func (f *LocalFile) IsIgnored() bool {
+	return f.Ignored
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -90,7 +121,7 @@ func (f *LocalFile) GetParsedData() *LocalFileParsedData {
 	return f.ParsedData
 }
 
-// GetParsedTitle returns the parsed title. Prefers the last parsed folder title if available.
+// GetParsedTitle returns the parsed title of the LocalFile. Falls back to the folder title if the file title is empty.
 func (f *LocalFile) GetParsedTitle() string {
 	if len(f.ParsedData.Title) > 0 {
 		return f.ParsedData.Title

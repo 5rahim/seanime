@@ -22,7 +22,7 @@ func (m *Media) GetMappings() *Mappings {
 	return m.Mappings
 }
 
-func (m *Media) GetEpisode(id string) (*Episode, bool) {
+func (m *Media) FindEpisode(id string) (*Episode, bool) {
 	if m.Episodes == nil {
 		return nil, false
 	}
@@ -53,7 +53,7 @@ func (e *Episode) GetTitle() string {
 	return ""
 }
 
-func GetEpisodeInteger(s string) (int, bool) {
+func ExtractEpisodeInteger(s string) (int, bool) {
 	// Define a regular expression pattern to match integers in the string.
 	pattern := "[0-9]+"
 

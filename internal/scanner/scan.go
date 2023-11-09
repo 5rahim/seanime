@@ -2,20 +2,25 @@ package scanner
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/events"
+	"github.com/seanime-app/seanime-server/internal/filesystem"
 	"github.com/seanime-app/seanime-server/internal/limiter"
 )
 
 type Scanner struct {
-	DirPath        string
-	Username       string
-	Enhanced       bool
-	AnilistClient  *anilist.Client
-	Logger         *zerolog.Logger
-	WSEventManager *events.WSEventManager
+	DirPath            string
+	Username           string
+	Enhanced           bool
+	AnilistClient      *anilist.Client
+	Logger             *zerolog.Logger
+	WSEventManager     *events.WSEventManager
+	ExistingLocalFiles []*entities.LocalFile
+	SkipLockedFiles    bool
+	SkipIgnoredFiles   bool
 }
 
 func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
@@ -31,6 +36,31 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
 	if err != nil {
 		return nil, err
+	}
+
+	// TODO: If SkipLockedFiles or SkipIgnoredFiles is true, filter out skipped files (1)
+
+	// Get skipped files depending on options
+	skippedLfs := make([]*entities.LocalFile, 0)
+	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
+		// Retrive skipped files from existing local files
+		for _, lf := range scn.ExistingLocalFiles {
+			if scn.SkipLockedFiles && lf.IsLocked() {
+				skippedLfs = append(skippedLfs, lf)
+			} else if scn.SkipIgnoredFiles && lf.IsIgnored() {
+				skippedLfs = append(skippedLfs, lf)
+			}
+		}
+
+		// Remove skipped files for local files that will be hydrated
+		localFiles = lo.Filter(localFiles, func(lf *entities.LocalFile, _ int) bool {
+			for _, sf := range skippedLfs {
+				if lf.Path == sf.Path {
+					return false
+				}
+			}
+			return true
+		})
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 20)
@@ -98,6 +128,15 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
 
 	scn.Logger.Debug().Msg("scanner: Scan completed")
+
+	// Merge skipped files with scanned files
+	if len(skippedLfs) > 0 {
+		for _, sf := range skippedLfs {
+			if filesystem.FileExists(sf.Path) {
+				localFiles = append(localFiles, sf)
+			}
+		}
+	}
 
 	return localFiles, nil
 
