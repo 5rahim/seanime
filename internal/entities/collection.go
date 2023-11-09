@@ -22,6 +22,8 @@ type (
 	LibraryCollection struct {
 		ContinueWatchingList []*MediaEntryEpisode     `json:"continueWatchingList"`
 		Lists                []*LibraryCollectionList `json:"lists"`
+		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
+		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 	}
 	LibraryCollectionListType string
 
@@ -50,13 +52,42 @@ type (
 // A LibraryCollection consists of a list of LibraryCollectionLisy (one for each status).
 func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection {
 
-	// Group local files by media id
-	groupedLfs := GetGroupedLocalFiles(opts.LocalFiles)
-	// Get slice of media ids from local files
-	mIds := GetMediaIdsFromLocalFiles(opts.LocalFiles)
-
 	// Get lists from collection
 	aniLists := opts.AnilistCollection.GetMediaListCollection().GetLists()
+
+	lc := new(LibraryCollection)
+
+	// Create lists
+	lc.hydrateCollectionLists(
+		opts.LocalFiles,
+		aniLists,
+	)
+
+	// Add Continue Watching list
+	lc.hydrateContinueWatchingList(
+		opts.LocalFiles,
+		opts.AnilistCollection,
+		opts.AnizipCache,
+		opts.AnilistClient,
+	)
+
+	lc.hydrateRest(opts.LocalFiles)
+
+	return lc
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (lc *LibraryCollection) hydrateCollectionLists(
+	localFiles []*LocalFile,
+	aniLists []*anilist.AnimeCollection_MediaListCollection_Lists,
+) {
+
+	// Group local files by media id
+	groupedLfs := GetGroupedLocalFiles(localFiles)
+	// Get slice of media ids from local files
+	mIds := GetMediaIdsFromLocalFiles(localFiles)
 
 	// Create a new LibraryCollectionList for each list
 	// This is done in parallel
@@ -138,22 +169,15 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection 
 		})
 	}
 
-	lCollec := new(LibraryCollection)
-	lCollec.Lists = lists
-	lCollec.CreateContinueWatchingList(
-		opts.LocalFiles,
-		opts.AnilistCollection,
-		opts.AnizipCache,
-		opts.AnilistClient,
-	)
-
-	return lCollec
-
+	// Lists
+	lc.Lists = lists
 }
 
-// CreateContinueWatchingList creates a list of continue watching.
+//----------------------------------------------------------------------------------------------------------------------
+
+// hydrateContinueWatchingList creates a list of continue watching.
 // This should be called after the lists have been created.
-func (lc *LibraryCollection) CreateContinueWatchingList(
+func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	anilistCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
@@ -228,6 +252,20 @@ func (lc *LibraryCollection) CreateContinueWatchingList(
 	lc.ContinueWatchingList = mEpisodes
 
 	return
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (lc *LibraryCollection) hydrateRest(localFiles []*LocalFile) {
+
+	lc.UnmatchedLocalFiles = lo.Filter(localFiles, func(lf *LocalFile, index int) bool {
+		return lf.MediaId == 0
+	})
+
+	lc.IgnoredLocalFiles = lo.Filter(localFiles, func(lf *LocalFile, index int) bool {
+		return lf.Ignored == true
+	})
 
 }
 

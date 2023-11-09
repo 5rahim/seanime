@@ -6,7 +6,6 @@ import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/constants"
 	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/result"
 	"os"
@@ -50,14 +49,6 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
-
-	// Fetch media details in the background and send them via websocket
-	go func() {
-		details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &p.MediaId)
-		if err == nil {
-			c.App.WSEventManager.SendEvent(constants.EventMediaDetails, details)
-		}
-	}()
 
 	return c.RespondWithData(entry)
 }

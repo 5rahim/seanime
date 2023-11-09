@@ -55,7 +55,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		Any("username", opts.Username).
 		Msg("media container: Creating media container")
 
-	// Fetch user's AniList collection
+	// Fetch latest user's AniList collection
 	animeCollection, err := opts.AnilistClient.AnimeCollection(context.Background(), &opts.Username)
 	if err != nil {
 		return nil, err

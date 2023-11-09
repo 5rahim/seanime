@@ -9,31 +9,22 @@ import (
 
 type (
 	MediaEntryEpisode struct {
-		Type LocalFileType `json:"type"`
-		// Formatted title
-		// e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
-		DisplayTitle string `json:"displayTitle"`
-		// e.g, "Shibuya Incident - Gate, Open"
-		EpisodeTitle string `json:"episodeTitle"`
-
-		EpisodeNumber int `json:"episodeNumber"`
-		// ProgressNumber is the source of truth for tracking purposes. It should exactly map to AniList.
-		// Usually the same as EpisodeNumber, unless episode 0 is included by AniList.
-		// e.g, Movie: 1, Show: 0,1,2...
-		ProgressNumber int        `json:"progressNumber"`
-		LocalFile      *LocalFile `json:"localFile"`
-		IsDownloaded   bool       `json:"isDownloaded"`
-
-		EpisodeMetadata *MediaEntryEpisodeMetadata `json:"episodeMetadata"`
-		// Used for settings
-		FileMetadata *LocalFileMetadata `json:"fileMetadata"`
-		IsInvalid    bool               `json:"isInvalid"`
-		// Alerts the user that there is a discrepancy between AniList and AniDB
-		MetadataIssue string              `json:"metadataIssue,omitempty"`
-		BasicMedia    *anilist.BasicMedia `json:"basicMedia,omitempty"`
+		Type            LocalFileType              `json:"type"`
+		DisplayTitle    string                     `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
+		EpisodeTitle    string                     `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
+		EpisodeNumber   int                        `json:"episodeNumber"`
+		ProgressNumber  int                        `json:"progressNumber"` // Usually the same as EpisodeNumber, unless episode 0 is included by AniList.
+		LocalFile       *LocalFile                 `json:"localFile"`
+		IsDownloaded    bool                       `json:"isDownloaded"`            // Is in the local files
+		EpisodeMetadata *MediaEntryEpisodeMetadata `json:"episodeMetadata"`         // (image, airDate, length, summary, overview)
+		FileMetadata    *LocalFileMetadata         `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
+		IsInvalid       bool                       `json:"isInvalid"`               // No AniZip data
+		MetadataIssue   string                     `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
+		BasicMedia      *anilist.BasicMedia        `json:"basicMedia,omitempty"`
 	}
 
 	MediaEntryEpisodeMetadata struct {
+		AniDBId  int    `json:"aniDBId,omitempty"`
 		Image    string `json:"image,omitempty"`
 		AirDate  string `json:"airDate,omitempty"`
 		Length   int    `json:"length,omitempty"`
@@ -66,11 +57,6 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	entryEp.BasicMedia = opts.media.ToBasicMedia()
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
-
-	if *opts.media.GetFormat() == anilist.MediaFormatMovie {
-		entryEp.DisplayTitle = opts.media.GetPreferredTitle()
-		entryEp.EpisodeTitle = "Complete Movie"
-	}
 
 	hydrated := false
 
@@ -119,8 +105,14 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 			switch opts.localFile.Metadata.Type {
 			case LocalFileTypeMain:
 				if foundAnizipEpisode {
-					entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.localFile.Metadata.Episode)
-					entryEp.EpisodeTitle = anizipEpisode.GetTitle()
+					if *opts.media.GetFormat() == anilist.MediaFormatMovie {
+						entryEp.DisplayTitle = opts.media.GetPreferredTitle()
+						entryEp.EpisodeTitle = "Complete Movie"
+					} else {
+						entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.localFile.Metadata.Episode)
+						entryEp.EpisodeTitle = anizipEpisode.GetTitle()
+					}
+
 					hydrated = true // Hydrated
 				}
 			case LocalFileTypeSpecial:
@@ -145,16 +137,17 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 					hydrated = true // Hydrated
 				}
 			}
-
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.media)
-
+		} else {
+			hydrated = true // Hydrated
 		}
+		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.media)
 
 	}
 
 	// LocalFile does not exist
 	if !hydrated && len(opts.optionalAniDBEpisode) > 0 {
 
+		// Get the AniZip episode
 		if anizipEpisode, foundAnizipEpisode := opts.anizipMedia.GetEpisode(opts.optionalAniDBEpisode); foundAnizipEpisode {
 
 			entryEp.IsDownloaded = false
@@ -171,8 +164,13 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				entryEp.EpisodeNumber = episodeInt
 				switch entryEp.Type {
 				case LocalFileTypeMain:
-					entryEp.DisplayTitle = "Episode " + strconv.Itoa(episodeInt)
-					entryEp.EpisodeTitle = anizipEpisode.GetTitle()
+					if *opts.media.GetFormat() == anilist.MediaFormatMovie {
+						entryEp.DisplayTitle = opts.media.GetPreferredTitle()
+						entryEp.EpisodeTitle = "Complete Movie"
+					} else {
+						entryEp.DisplayTitle = "Episode " + strconv.Itoa(episodeInt)
+						entryEp.EpisodeTitle = anizipEpisode.GetTitle()
+					}
 				case LocalFileTypeSpecial:
 					entryEp.DisplayTitle = "Special " + strconv.Itoa(episodeInt)
 					entryEp.EpisodeTitle = anizipEpisode.GetTitle()
@@ -205,9 +203,14 @@ func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *Medi
 		return md
 	}
 
+	md.AniDBId = episode.AnidbEid
+
 	md.Image = episode.Image
-	if len(episode.Image) == 0 {
+	if len(episode.Image) == 0 && media.GetBannerImage() != nil {
 		md.Image = *media.GetBannerImage()
+	}
+	if len(md.Image) == 0 && media.GetCoverImage().GetLarge() != nil {
+		md.Image = *media.GetCoverImage().GetLarge()
 	}
 	md.AirDate = episode.Airdate
 	md.Length = episode.Length

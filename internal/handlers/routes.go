@@ -47,9 +47,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
+
+	v1Library.Post("/localfile/update", makeHandler(app, HandleUpdateLocalFileData))
+
 	// Retrive MediaEntry
 	v1Library.Get("/entry", makeHandler(app, HandleGetMediaEntry))
-	// Retrive Media Details
+	// Retrive Media Details from AniList
 	v1Library.Get("/entry/media-details", makeHandler(app, HandleGetMediaDetails))
 	// Edit Media List Data from AniList
 	v1Library.Post("/entry/media-list-data", makeHandler(app, HandleEditMediaListData))

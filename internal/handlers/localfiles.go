@@ -20,15 +20,16 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 
 }
 
-// HandleUpdateLocalFileMetadata
+// HandleUpdateLocalFileData
 // POST
-func HandleUpdateLocalFileMetadata(c *RouteCtx) error {
+func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 	type body struct {
 		Path     string                      `json:"path"`
 		Metadata *entities.LocalFileMetadata `json:"metadata"`
 		Locked   bool                        `json:"locked"`
 		Ignored  bool                        `json:"ignored"`
+		MediaId  int                         `json:"mediaId"`
 	}
 
 	p := new(body)
@@ -51,6 +52,7 @@ func HandleUpdateLocalFileMetadata(c *RouteCtx) error {
 	lf.Metadata = p.Metadata
 	lf.Locked = p.Locked
 	lf.Ignored = p.Ignored
+	lf.MediaId = p.MediaId
 
 	// Save the local files
 	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)

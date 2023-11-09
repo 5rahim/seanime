@@ -35,11 +35,12 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:       libraryPath,
-		Username:      acc.Username,
-		Enhanced:      body.Enhanced,
-		AnilistClient: c.App.AnilistClient,
-		Logger:        c.App.Logger,
+		DirPath:        libraryPath,
+		Username:       acc.Username,
+		Enhanced:       body.Enhanced,
+		AnilistClient:  c.App.AnilistClient,
+		Logger:         c.App.Logger,
+		WSEventManager: c.App.WSEventManager,
 	}
 
 	// Scan the library

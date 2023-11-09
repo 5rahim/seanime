@@ -29,6 +29,8 @@ type (
 
 		// LocalFiles holds the local files associated with the media.
 		LocalFiles []*LocalFile `json:"localFiles"`
+
+		AniDBId int `json:"aniDBId"`
 	}
 
 	// MediaEntryListData holds the details of the AniList entry.
@@ -93,7 +95,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	//entry.AnizipData = anidb
+	entry.AniDBId = anizipData.GetMappings().AnidbID
 
 	// Instantiate MediaEntryListData
 	// If the media exist in the user's anime list, add the details
@@ -165,7 +167,7 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	episodes := p.Wait()
 	// Sort by progress number
 	sort.Slice(episodes, func(i, j int) bool {
-		return episodes[i].ProgressNumber < episodes[j].ProgressNumber
+		return episodes[i].EpisodeNumber < episodes[j].EpisodeNumber
 	})
 
 	//
