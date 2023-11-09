@@ -32,7 +32,21 @@ func ValueContainsSpecial(val string) bool {
 		regexp.MustCompile(`(?i)(^|(?P<show>.*?)[ _.\-(]+)(SP|OAV|OVA|OAD|ONA) ?(?P<ep>\d{1,2})(-(?P<ep2>[0-9]{1,3}))? ?(?P<title>.*)$`),
 		regexp.MustCompile(`(?i)[-._( ](OVA|ONA)[-._) ]`),
 		regexp.MustCompile(`(?i)[-._ ](S|SP)(?P<season>(0|00))([Ee]\d)`),
-		regexp.MustCompile(`[[({]?(OVA|ONA|OAV|OAD|SP|SPECIAL)[])}]?`),
+		regexp.MustCompile(`[({\[]?(OVA|ONA|OAV|OAD|SP|SPECIAL)[])}]?`),
+	}
+
+	for _, regex := range regexes {
+		if regex.MatchString(val) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func ValueContainsIgnoredKeywords(val string) bool {
+	regexes := []*regexp.Regexp{
+		regexp.MustCompile(`(?i)^\s?[({\[]?\s?(EXTRAS?|OVAS?|OTHERS?|SPECIALS|MOVIES|SEASONS|NC)\s?[])}]?\s?$`),
 	}
 
 	for _, regex := range regexes {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
+	"github.com/seanime-app/seanime-server/internal/comparison"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"slices"
 	"strconv"
@@ -147,9 +148,13 @@ func (f *LocalFile) GetFolderTitle() string {
 
 // GetTitleVariations is used for matching.
 func (f *LocalFile) GetTitleVariations() []*string {
+	//folderDepth := 0
+
 	// Get the season from the folder data
 	folderSeason := 0
 	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+		//folderDepth = len(f.ParsedFolderData)
+
 		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
 			return len(fpd.Season) > 0
 		})
@@ -177,6 +182,10 @@ func (f *LocalFile) GetTitleVariations() []*string {
 	}
 
 	folderTitle := f.GetFolderTitle()
+
+	if comparison.ValueContainsIgnoredKeywords(folderTitle) {
+		folderTitle = ""
+	}
 
 	if len(f.ParsedData.Title) == 0 && len(folderTitle) == 0 {
 		return make([]*string, 0)
@@ -216,6 +225,9 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		if len(f.ParsedData.Title) > 0 {
 			titleVariations = append(titleVariations, f.ParsedData.Title)
 		}
+		if bothTitles && !bothTitlesSimilar {
+			titleVariations = append(titleVariations, fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title))
+		}
 	}
 
 	if part > 0 && eitherSeason {
@@ -251,11 +263,12 @@ func (f *LocalFile) GetTitleVariations() []*string {
 			seas = season
 		}
 
+		// Both titles are present
 		if bothTitles {
+			// Add filename parsed title
 			arr = append(arr, f.ParsedData.Title)
-			if bothTitlesSimilar {
-				arr = append(arr, folderTitle)
-			} else {
+			arr = append(arr, folderTitle)
+			if !bothTitlesSimilar {
 				arr = append(arr, fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title))
 			}
 		} else if len(folderTitle) > 0 {

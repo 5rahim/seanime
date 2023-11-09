@@ -74,23 +74,6 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	var mediaTreeAnalysis *MediaTreeAnalysis
 	treeFetched := false
 
-	//offset := 0
-	//// Check if one local file in the group has episode 0
-	//hasEpisodeZero := lo.SomeBy(lfs, func(lf *entities.LocalFile) bool {
-	//	if ep, ok := util.StringToInt(lf.ParsedData.Episode); ok {
-	//		return ep == 0
-	//	}
-	//	return false
-	//})
-	//if hasEpisodeZero {
-	//	// Fetch AniZip data
-	//	anizipMedia, _ := anizip.FetchAniZipMediaC("anilist", media.ID, fh.anizipCache)
-	//	discrepancy, _ := detectDiscrepancy(lfs, media, anizipMedia)
-	//	if discrepancy {
-	//		offset = 1
-	//	}
-	//}
-
 	// Process each local file in the group sequentially
 	lo.ForEach(lfs, func(lf *entities.LocalFile, index int) {
 
@@ -113,8 +96,14 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		if comparison.ValueContainsSpecial(lf.Name) {
 			lf.Metadata.Type = entities.LocalFileTypeSpecial
 			if episode > -1 {
-				lf.Metadata.Episode = episode
-				lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(episode)
+				// ep14 (13 original) -> ep1 s1
+				if episode > media.GetCurrentEpisodeCount() {
+					lf.Metadata.Episode = episode - media.GetCurrentEpisodeCount()
+					lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(episode-media.GetCurrentEpisodeCount())
+				} else {
+					lf.Metadata.Episode = episode
+					lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(episode)
+				}
 			} else {
 				lf.Metadata.Episode = 1
 				lf.Metadata.AniDBEpisode = "S1"
@@ -160,7 +149,6 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
 				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.anilistClient, fh.anilistRateLimiter, tree, fh.baseMediaCache); err == nil {
-
 					// Create a new media tree analysis that will be used for episode normalization
 					mta := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,
@@ -170,15 +158,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 					// Hoist the media tree analysis, so it will be used by other files
 					mediaTreeAnalysis = mta
 					treeFetched = true
-
-					if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
-						fh.logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
-					}
 				}
-			} else {
-				if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
-					fh.logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
-				}
+			}
+			if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
+				fh.logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
 			}
 			return
 		}

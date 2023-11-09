@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -179,14 +180,12 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 	}
 
 	if bestTitleRes.Rating < 0.5 {
+		m.logger.Warn().
+			Str("filename", lf.Name).
+			Str("bestTitle", *bestTitleRes.Value).
+			Any("rating", fmt.Sprintf("%.2f", bestTitleRes.Rating)).Msg("matcher: File rejected")
 		return
 	}
-
-	//m.logger.Trace().
-	//	Str("filename", lf.Name).
-	//	Str("title", lf.GetParsedTitle()).
-	//	Str("bestTitle", *bestTitleRes.Value).
-	//	Any("rating", fmt.Sprintf("%.2f", bestTitleRes.Rating)).Msg("matcher:")
 
 	lf.MediaId = bestMedia.ID
 	//println(fmt.Sprintf("Local file title: %s,\nbestMedia: %s,\nrating: %f,\nlfMediaId: %d\n", lf.Name, bestMedia.GetTitleSafe(), bestTitleRes.Rating, lf.MediaId))
