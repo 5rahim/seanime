@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/seanime-app/seanime-server/internal/anilist"
+import (
+	"github.com/seanime-app/seanime-server/internal/anilist"
+	"strconv"
+)
 
 func HandleGetAnilistCollection(c *RouteCtx) error {
 
@@ -47,4 +50,25 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 	_, _ = c.App.RefreshAnilistCollection()
 
 	return c.RespondWithData(ret)
+}
+
+// HandleGetAnilistMediaDetails
+// GET /v1/anilist/media-details/:id
+func HandleGetAnilistMediaDetails(c *RouteCtx) error {
+
+	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if details, ok := detailsCache.Get(mId); ok {
+		return c.RespondWithData(details)
+	}
+	details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &mId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	detailsCache.Set(mId, details.GetMedia())
+
+	return c.RespondWithData(details.GetMedia())
 }

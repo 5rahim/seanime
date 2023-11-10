@@ -38,18 +38,18 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	}
 
 	fh := FileHydrator{
-		localFiles:         localFiles,
-		media:              *media,
-		baseMediaCache:     baseMediaCache,
-		anizipCache:        anizipCache,
-		anilistClient:      aniliztClient,
-		anilistRateLimiter: anilistRateLimiter,
-		logger:             logger,
+		LocalFiles:         localFiles,
+		Media:              *media,
+		BaseMediaCache:     baseMediaCache,
+		AnizipCache:        anizipCache,
+		AnilistClient:      aniliztClient,
+		AnilistRateLimiter: anilistRateLimiter,
+		Logger:             logger,
 	}
 
 	fh.HydrateMetadata()
 
-	for _, lf := range fh.localFiles {
+	for _, lf := range fh.LocalFiles {
 		if lf == nil {
 			t.Fatal("expected base media, got nil")
 		}

@@ -16,24 +16,26 @@ import (
 	"time"
 )
 
+// FileHydrator hydrates the metadata of (matched) LocalFiles.
 type FileHydrator struct {
-	localFiles         []*entities.LocalFile
-	media              []*anilist.BaseMedia
-	baseMediaCache     *anilist.BaseMediaCache
-	anizipCache        *anizip.Cache
-	anilistClient      *anilist.Client
-	anilistRateLimiter *limiter.Limiter
-	logger             *zerolog.Logger
+	LocalFiles         []*entities.LocalFile // Local files to hydrate
+	Media              []*anilist.BaseMedia  // All media used to hydrate local files
+	BaseMediaCache     *anilist.BaseMediaCache
+	AnizipCache        *anizip.Cache
+	AnilistClient      *anilist.Client
+	AnilistRateLimiter *limiter.Limiter
+	Logger             *zerolog.Logger
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
+// It will divide the LocalFiles into groups based on their media ID and process each group in parallel.
 func (fh *FileHydrator) HydrateMetadata() {
 	rateLimiter := limiter.NewLimiter(5*time.Second, 20)
 
-	fh.logger.Debug().Msg("hydrator: Starting metadata hydration process")
+	fh.Logger.Debug().Msg("hydrator: Starting metadata hydration process")
 
 	// Group local files by media ID
-	groups := lop.GroupBy(fh.localFiles, func(localFile *entities.LocalFile) int {
+	groups := lop.GroupBy(fh.LocalFiles, func(localFile *entities.LocalFile) int {
 		return localFile.MediaId
 	})
 
@@ -61,7 +63,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 ) {
 
 	// Get the media
-	media, found := lo.Find(fh.media, func(media *anilist.BaseMedia) bool {
+	media, found := lo.Find(fh.Media, func(media *anilist.BaseMedia) bool {
 		return media.ID == mId
 	})
 	if !found {
@@ -148,11 +150,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			if !treeFetched {
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
-				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.anilistClient, fh.anilistRateLimiter, tree, fh.baseMediaCache); err == nil {
+				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClient, fh.AnilistRateLimiter, tree, fh.BaseMediaCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
 					mta := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,
-						anizipCache: fh.anizipCache,
+						anizipCache: fh.AnizipCache,
 						rateLimiter: rateLimiter,
 					})
 					// Hoist the media tree analysis, so it will be used by other files
@@ -161,7 +163,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				}
 			}
 			if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
-				fh.logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
+				fh.Logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
 			}
 			return
 		}

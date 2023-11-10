@@ -108,13 +108,13 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		media:              mc.allMedia,
-		localFiles:         localFiles,
-		anizipCache:        anizipCache,
-		anilistClient:      scn.AnilistClient,
-		baseMediaCache:     baseMediaCache,
-		anilistRateLimiter: anilistRateLimiter,
-		logger:             scn.Logger,
+		Media:              mc.allMedia,
+		LocalFiles:         localFiles,
+		AnizipCache:        anizipCache,
+		AnilistClient:      scn.AnilistClient,
+		BaseMediaCache:     baseMediaCache,
+		AnilistRateLimiter: anilistRateLimiter,
+		Logger:             scn.Logger,
 	}
 	hydrator.HydrateMetadata()
 

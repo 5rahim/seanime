@@ -55,7 +55,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// Get details for AniList media
 	// GET /v1/anilist/media-details
-	v1Anilist.Get("/media-details", makeHandler(app, HandleGetMediaDetails))
+	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
 
 	// Edit Media List Data from AniList
 	// POST /v1/anilist/list-entry
@@ -84,7 +84,15 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// Retrive MediaEntry
 	// GET /v1/library/media-entry
-	v1Library.Get("/media-entry", makeHandler(app, HandleGetMediaEntry))
+	v1Library.Get("/media-entry/:id", makeHandler(app, HandleGetMediaEntry))
+
+	// Get suggestions for a prospective Media Entry
+	// POST /v1/library/collection
+	v1Library.Post("/media-entry/suggestions", makeHandler(app, HandleFindProspectiveMediaEntrySuggestions))
+
+	// Create Media Entry from directory path and AniList media id
+	// POST /v1/library/media-entry/manual-match
+	v1Library.Post("/media-entry/manual-match", makeHandler(app, HandleMediaEntryManualMatch))
 
 	// Media Entry Bulk Action
 	// PATCH /v1/library/entry/bulk-action
@@ -115,7 +123,7 @@ type RouteCtx struct {
 
 // RouteCtx pool
 // This is used to avoid allocating memory for each request
-var pool = sync.Pool{
+var syncPool = sync.Pool{
 	New: func() interface{} {
 		return &RouteCtx{}
 	},
@@ -123,8 +131,8 @@ var pool = sync.Pool{
 
 func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		ctx := pool.Get().(*RouteCtx)
-		defer pool.Put(ctx)
+		ctx := syncPool.Get().(*RouteCtx)
+		defer syncPool.Put(ctx)
 		ctx.App = app
 		ctx.Fiber = c
 		return handler(ctx)

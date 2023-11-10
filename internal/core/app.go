@@ -13,6 +13,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
+	"github.com/seanime-app/seanime-server/internal/result"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/seanime-app/seanime-server/internal/vlc"
@@ -38,6 +39,8 @@ type App struct {
 	// It is used by route handlers.
 	AnizipCache   *anizip.Cache
 	AnilistClient *anilist.Client
+
+	ResultCaches []*result.Cache[any, any]
 
 	// anilistCollection holds the user's Anilist collection.
 	// It is fetched when the server starts.

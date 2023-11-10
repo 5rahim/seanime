@@ -1,28 +1,32 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/entities"
+	"github.com/seanime-app/seanime-server/internal/limiter"
+	"github.com/seanime-app/seanime-server/internal/mal"
 	"github.com/seanime-app/seanime-server/internal/result"
+	"github.com/seanime-app/seanime-server/internal/scanner"
+	"github.com/sourcegraph/conc/pool"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
+	"strconv"
 	"strings"
 )
 
 func HandleGetMediaEntry(c *RouteCtx) error {
 
-	type query struct {
-		MediaId int `query:"mediaId" json:"mediaId"`
-	}
-
-	p := new(query)
-	if err := c.Fiber.QueryParser(p); err != nil {
+	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	if err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -40,7 +44,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 
 	// Create a new media entry
 	entry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
-		MediaId:           p.MediaId,
+		MediaId:           mId,
 		LocalFiles:        lfs,
 		AnizipCache:       c.App.AnizipCache,
 		AnilistCollection: anilistCollection,
@@ -58,28 +62,6 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 var (
 	detailsCache = result.NewCache[int, *anilist.MediaDetailsById_Media]()
 )
-
-func HandleGetMediaDetails(c *RouteCtx) error {
-	type query struct {
-		MediaId int `query:"mediaId" json:"mediaId"`
-	}
-
-	p := new(query)
-	if err := c.Fiber.QueryParser(p); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	if details, ok := detailsCache.Get(p.MediaId); ok {
-		return c.RespondWithData(details)
-	}
-	details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &p.MediaId)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-	detailsCache.Set(p.MediaId, details.GetMedia())
-
-	return c.RespondWithData(details.GetMedia())
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -221,3 +203,156 @@ func HandleStartDefaultPlayer(c *RouteCtx) error {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+var (
+	malCache     = result.NewCache[string, []*mal.SearchResultAnime]()
+	anilistCache = result.NewCache[int, *anilist.BasicMedia]()
+)
+
+func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
+
+	type body struct {
+		Dir string `json:"dir"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Retrive local files
+	lfs, err := getLocalFilesFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Group local files by dir
+	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
+		return filepath.Dir(item.Path)
+	})
+
+	selectedLfs, found := groupedLfs[b.Dir]
+	if !found {
+		return c.RespondWithError(errors.New("no local files found for selected directory"))
+	}
+
+	title := selectedLfs[0].GetParsedTitle()
+
+	// Fetch 8 suggestions from MAL
+	malSuggestions, err := mal.SearchWithMAL(title, 8)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	if len(malSuggestions) == 0 {
+		return c.RespondWithData([]*anilist.BasicMedia{})
+	}
+
+	// Cache the results (10 minutes)
+	malCache.Set(title, malSuggestions)
+
+	anilistRateLimist := limiter.NewAnilistLimiter()
+	p2 := pool.NewWithResults[*anilist.BasicMedia]()
+	for _, s := range malSuggestions {
+		s := s
+		p2.Go(func() *anilist.BasicMedia {
+			anilistRateLimist.Wait()
+			// Check if the media has already been fetched
+			media, found := anilistCache.Get(s.ID)
+			if found {
+				return media
+			}
+			// Otherwise, fetch the media
+			mediaRes, err := c.App.AnilistClient.BasicMediaByMalID(context.Background(), &s.ID)
+			if err != nil {
+				return nil
+			}
+			media = mediaRes.GetMedia()
+			// Cache the media
+			anilistCache.Set(s.ID, media)
+			return media
+		})
+	}
+	anilistMedia := p2.Wait()
+	anilistMedia = lo.Filter(anilistMedia, func(item *anilist.BasicMedia, _ int) bool {
+		return item != nil
+	})
+
+	return c.RespondWithData(anilistMedia)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func HandleMediaEntryManualMatch(c *RouteCtx) error {
+
+	type body struct {
+		Dir     string `json:"dir"`
+		MediaId int    `json:"mediaId"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Retrive local files
+	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Group local files by dir
+	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
+		return filepath.Dir(item.Path)
+	})
+
+	selectedLfs, found := groupedLfs[b.Dir]
+	if !found {
+		return c.RespondWithError(errors.New("no local files found for selected directory"))
+	}
+
+	// Add the media id to the selected local files
+	selectedLfs = lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) *entities.LocalFile {
+		item.MediaId = b.MediaId
+		return item
+	})
+	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.Path })
+
+	// Get the media
+	mediaRes, err := c.App.AnilistClient.BaseMediaByID(context.Background(), &b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	fh := scanner.FileHydrator{
+		LocalFiles:         selectedLfs,
+		Media:              []*anilist.BaseMedia{mediaRes.GetMedia()},
+		BaseMediaCache:     anilist.NewBaseMediaCache(),
+		AnizipCache:        anizip.NewCache(),
+		AnilistClient:      c.App.AnilistClient,
+		AnilistRateLimiter: limiter.NewAnilistLimiter(),
+		Logger:             c.App.Logger,
+	}
+
+	fh.HydrateMetadata()
+
+	// Remove select local files from the slice
+	lfs = lo.Filter(lfs, func(item *entities.LocalFile, _ int) bool {
+		if slices.Contains(selectedPaths, item.Path) {
+			return false
+		}
+		return true
+	})
+
+	// Add the hydrated local files to the slice
+	lfs = append(lfs, selectedLfs...)
+
+	// Update the local files
+	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(retLfs)
+
+}
