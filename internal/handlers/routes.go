@@ -27,42 +27,72 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/auth/logout", makeHandler(app, HandleLogout))
 	// Settings
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
-	v1.Post("/settings/save", makeHandler(app, HandleSaveSettings))
+	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
+
+	// Directory selector input
+	// POST /v1/directory-selector
 	v1.Post("/directory-selector", makeHandler(app, HandleDirectorySelector))
+
+	// Open directory in explorer
+	// POST /v1/open-in-explorer
+	v1.Post("/open-in-explorer", makeHandler(app, HandleOpenInExplorer))
+
+	// Open Media Player
+	// POST /v1/media-player/start
+	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultPlayer))
 
 	//
 	// AniList
 	//
 
 	v1Anilist := v1.Group("/anilist")
+
+	// Get cached AniList collection
+	// GET /v1/anilist/collection
 	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnilistCollection))
+
+	// Get details for AniList media
+	// GET /v1/anilist/media-details
+	v1Anilist.Get("/media-details", makeHandler(app, HandleGetMediaDetails))
+
+	// Edit Media List Data from AniList
+	// POST /v1/anilist/list-entry
+	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
 
 	//
 	// Library
 	//
 
 	v1Library := v1.Group("/library")
+
+	// Scan the library
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
-	v1Library.Get("/localfiles/all", makeHandler(app, HandleGetLocalFiles))
+
+	// Get all the local files from the database
+	// GET /v1/library/local-files
+	v1Library.Get("/local-files", makeHandler(app, HandleGetLocalFiles))
+
+	// Get the library collection
+	// GET /v1/library/collection
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 
-	v1Library.Post("/localfile/update", makeHandler(app, HandleUpdateLocalFileData))
+	// Update local file data
+	// PATCH /v1/library/local-file
+	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
 
 	// Retrive MediaEntry
-	v1Library.Get("/entry", makeHandler(app, HandleGetMediaEntry))
-	// Retrive Media Details from AniList
-	v1Library.Get("/entry/media-details", makeHandler(app, HandleGetMediaDetails))
-	// Edit Media List Data from AniList
-	v1Library.Post("/entry/media-list-data", makeHandler(app, HandleEditMediaListData))
-	// Media Entry Bulk Action
-	v1Library.Post("/entry/bulk-action", makeHandler(app, HandleMediaEntryBulkAction))
-	// Open Media Entry in File Explorer
-	v1Library.Post("/entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
+	// GET /v1/library/media-entry
+	v1Library.Get("/media-entry", makeHandler(app, HandleGetMediaEntry))
 
-	// Open Media Player
-	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultPlayer))
+	// Media Entry Bulk Action
+	// PATCH /v1/library/entry/bulk-action
+	v1Library.Patch("/media-entry/bulk-action", makeHandler(app, HandleMediaEntryBulkAction))
+
+	// Open Media Entry in File Explorer
+	// POST /v1/library/media-entry/open-in-explorer
+	v1Library.Post("/media-entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
 
 	//
 	// Websocket

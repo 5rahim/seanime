@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
+	"path/filepath"
 	"slices"
 	"sort"
 )
@@ -24,6 +25,7 @@ type (
 		Lists                []*LibraryCollectionList `json:"lists"`
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
+		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
 	}
 	LibraryCollectionListType string
 
@@ -45,6 +47,12 @@ type (
 		LocalFiles        []*LocalFile
 		AnizipCache       *anizip.Cache
 		AnilistClient     *anilist.Client
+	}
+
+	UnmatchedGroup struct {
+		Dir         string                `json:"dir"`
+		LocalFiles  []*LocalFile          `json:"localFiles"`
+		Suggestions []*anilist.BasicMedia `json:"suggestions"`
 	}
 )
 
@@ -72,6 +80,8 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection 
 	)
 
 	lc.hydrateRest(opts.LocalFiles)
+
+	lc.hydrateUnmatchedGroups()
 
 	return lc
 
@@ -253,6 +263,28 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 
 	return
 
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (lc *LibraryCollection) hydrateUnmatchedGroups() {
+
+	groups := make([]*UnmatchedGroup, 0)
+
+	// Group by directory
+	groupedLfs := lop.GroupBy(lc.UnmatchedLocalFiles, func(lf *LocalFile) string {
+		return filepath.Dir(lf.Path)
+	})
+
+	for key, value := range groupedLfs {
+		groups = append(groups, &UnmatchedGroup{
+			Dir:         key,
+			LocalFiles:  value,
+			Suggestions: make([]*anilist.BasicMedia, 0),
+		})
+	}
+
+	lc.UnmatchedGroups = groups
 }
 
 //----------------------------------------------------------------------------------------------------------------------
