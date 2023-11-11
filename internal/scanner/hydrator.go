@@ -17,6 +17,7 @@ import (
 )
 
 // FileHydrator hydrates the metadata of (matched) LocalFiles.
+// LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
 	LocalFiles         []*entities.LocalFile // Local files to hydrate
 	Media              []*anilist.BaseMedia  // All media used to hydrate local files

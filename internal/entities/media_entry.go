@@ -13,24 +13,15 @@ type (
 	// MediaEntry is a container for all data related to a media.
 	// It is the primary data structure used by the frontend.
 	MediaEntry struct {
-		MediaId int                `json:"mediaId"`
-		Media   *anilist.BaseMedia `json:"media"`
-
-		// If the media exist in the user's anime list, instantiate details.
-		// It is nil if the media is not in the user's anime list.
-		MediaEntryListData *MediaEntryListData `json:"listData"`
-
-		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"`
-
+		MediaId                int                     `json:"mediaId"`
+		Media                  *anilist.BaseMedia      `json:"media"`
+		MediaEntryListData     *MediaEntryListData     `json:"listData"`
+		MediaEntryLibraryData  *MediaEntryLibraryData  `json:"libraryData"`
 		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo"`
-
-		Episodes    []*MediaEntryEpisode `json:"episodes"`
-		NextEpisode *MediaEntryEpisode   `json:"nextEpisode"`
-
-		// LocalFiles holds the local files associated with the media.
-		LocalFiles []*LocalFile `json:"localFiles"`
-
-		AniDBId int `json:"aniDBId"`
+		Episodes               []*MediaEntryEpisode    `json:"episodes"`
+		NextEpisode            *MediaEntryEpisode      `json:"nextEpisode"`
+		LocalFiles             []*LocalFile            `json:"localFiles"`
+		AniDBId                int                     `json:"aniDBId"`
 	}
 
 	// MediaEntryListData holds the details of the AniList entry.

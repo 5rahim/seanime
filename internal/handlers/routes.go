@@ -49,9 +49,14 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Anilist := v1.Group("/anilist")
 
-	// Get cached AniList collection
+	// Get "cached" AniList collection
 	// GET /v1/anilist/collection
 	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnilistCollection))
+
+	// Get (up-to-date) AniList collection
+	// This refreshes the collection held by the app
+	// POST /v1/anilist/collection
+	v1Anilist.Post("/collection", makeHandler(app, HandleGetAnilistCollection))
 
 	// Get details for AniList media
 	// GET /v1/anilist/media-details

@@ -7,8 +7,10 @@ import (
 
 func HandleGetAnilistCollection(c *RouteCtx) error {
 
+	bypassCache := c.Fiber.Method() == "POST"
+
 	// Get the user's anilist collection
-	anilistCollection, err := c.App.GetAnilistCollection()
+	anilistCollection, err := c.App.GetAnilistCollection(bypassCache)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

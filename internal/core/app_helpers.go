@@ -7,10 +7,10 @@ import (
 	"github.com/seanime-app/seanime-server/internal/models"
 )
 
-func (a *App) GetAnilistCollection() (*anilist.AnimeCollection, error) {
+func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 
 	// Get Anilist Collection from App if it exists
-	if a.anilistCollection != nil {
+	if !bypassCache && a.anilistCollection != nil {
 		return a.anilistCollection, nil
 	}
 

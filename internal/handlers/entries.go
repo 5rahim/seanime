@@ -37,7 +37,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	}
 
 	// Get the user's anilist collection
-	anilistCollection, err := c.App.GetAnilistCollection()
+	anilistCollection, err := c.App.GetAnilistCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -312,8 +312,11 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	}
 
 	// Add the media id to the selected local files
+	// Also, lock the files
 	selectedLfs = lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) *entities.LocalFile {
 		item.MediaId = b.MediaId
+		item.Locked = true
+		item.Ignored = false
 		return item
 	})
 	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.Path })
