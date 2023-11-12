@@ -165,10 +165,11 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	// Info
 	//
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		localFiles:   e.LocalFiles,
-		anizipMedia:  anizipData,
-		anilistEntry: anilistEntry,
-		media:        e.Media,
+		localFiles:  e.LocalFiles,
+		anizipMedia: anizipData,
+		progress:    anilistEntry.Progress,
+		status:      anilistEntry.Status,
+		media:       e.Media,
 	})
 	if err == nil {
 		e.MediaEntryDownloadInfo = info

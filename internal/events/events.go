@@ -1,5 +1,6 @@
 package events
 
 const (
-	EventScanProgress = "scan-progress"
+	EventScanProgress          = "scan-progress"
+	RefreshedAnilistCollection = "refreshed-anilist-collection"
 )

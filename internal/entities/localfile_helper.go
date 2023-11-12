@@ -88,7 +88,7 @@ func GetUniqueAnimeTitlesFromLocalFiles(lfs []*LocalFile) []string {
 func GetMediaIdsFromLocalFiles(lfs []*LocalFile) []int {
 
 	// Group local files by media id
-	groupedLfs := GetGroupedLocalFiles(lfs)
+	groupedLfs := GroupLocalFilesByMediaID(lfs)
 
 	// Get slice of media ids from local files
 	mIds := make([]int, len(groupedLfs))
@@ -110,12 +110,42 @@ func GetLocalFilesFromMediaId(lfs []*LocalFile, mId int) []*LocalFile {
 
 }
 
-func GetGroupedLocalFiles(lfs []*LocalFile) (groupedLfs map[int][]*LocalFile) {
+// GroupLocalFilesByMediaID groups local files by media id
+func GroupLocalFilesByMediaID(lfs []*LocalFile) (groupedLfs map[int][]*LocalFile) {
 	groupedLfs = lop.GroupBy(lfs, func(item *LocalFile) int {
 		return item.MediaId
 	})
 
 	return
+}
+
+// CheckLocalFileGroupIsValidEntry checks if there are any main episodes with valid episodes
+func CheckLocalFileGroupIsValidEntry(lfs []*LocalFile) bool {
+	// Check if there are any main episodes with valid parsed data
+	return lo.SomeBy(lfs, func(lf *LocalFile) bool { return lf.GetType() == LocalFileTypeMain && lf.GetEpisodeNumber() > 1 })
+}
+
+// FindLatestLocalFileFromGroup returns the "main" episode with the highest episode number.
+// Returns false if there are no episodes.
+func FindLatestLocalFileFromGroup(lfs []*LocalFile) (*LocalFile, bool) {
+	// Check if there are any main episodes with valid parsed data
+	if !CheckLocalFileGroupIsValidEntry(lfs) {
+		return nil, false
+	}
+	if lfs == nil || len(lfs) == 0 {
+		return nil, false
+	}
+	// Get the episode with the highest progress number
+	latest := lfs[0]
+	for _, lf := range lfs {
+		if lf.GetType() == LocalFileTypeMain && lf.GetEpisodeNumber() > latest.GetEpisodeNumber() {
+			latest = lf
+		}
+	}
+	if latest == nil || latest.GetType() != LocalFileTypeMain {
+		return nil, false
+	}
+	return latest, true
 }
 
 func (f *LocalFile) GetParsedData() *LocalFileParsedData {

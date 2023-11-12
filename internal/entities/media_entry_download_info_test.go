@@ -25,10 +25,11 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 	}
 
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		localFiles:   mediaLfs,
-		anizipMedia:  anizipData,
-		anilistEntry: anilistEntry,
-		media:        anilistEntry.Media,
+		localFiles:  mediaLfs,
+		anizipMedia: anizipData,
+		progress:    anilistEntry.Progress,
+		status:      anilistEntry.Status,
+		media:       anilistEntry.Media,
 	})
 
 	if assert.NoError(t, err) {

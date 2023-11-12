@@ -95,7 +95,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 ) {
 
 	// Group local files by media id
-	groupedLfs := GetGroupedLocalFiles(localFiles)
+	groupedLfs := GroupLocalFilesByMediaID(localFiles)
 	// Get slice of media ids from local files
 	mIds := GetMediaIdsFromLocalFiles(localFiles)
 

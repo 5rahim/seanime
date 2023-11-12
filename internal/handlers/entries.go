@@ -84,7 +84,7 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Group local files by media id
-	groupedLfs := entities.GetGroupedLocalFiles(lfs)
+	groupedLfs := entities.GroupLocalFilesByMediaID(lfs)
 
 	selectLfs, ok := groupedLfs[p.MediaId]
 	if !ok {
@@ -357,5 +357,32 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(retLfs)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func HandleGetMissingEpisodes(c *RouteCtx) error {
+
+	lfs, err := getLocalFilesFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get the user's anilist collection
+	// Do not bypass the cache, since this handler might be called multiple times, and we don't want to spam the API
+	// A cron job will refresh the cache every 10 minutes
+	anilistCollection, err := c.App.GetAnilistCollection(false)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	missingEps := entities.NewMissingEpisodes(&entities.NewMissingEpisodesOptions{
+		AnilistCollection: anilistCollection,
+		LocalFiles:        lfs,
+		AnizipCache:       c.App.AnizipCache,
+	})
+
+	return c.RespondWithData(missingEps.Episodes)
 
 }

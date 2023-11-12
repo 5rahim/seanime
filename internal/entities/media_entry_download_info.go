@@ -27,10 +27,11 @@ type (
 
 	NewMediaEntryDownloadInfoOptions struct {
 		// Media's local files
-		localFiles   []*LocalFile
-		anizipMedia  *anizip.Media
-		media        *anilist.BaseMedia
-		anilistEntry *anilist.AnimeCollection_MediaListCollection_Lists_Entries
+		localFiles  []*LocalFile
+		anizipMedia *anizip.Media
+		media       *anilist.BaseMedia
+		progress    *int
+		status      *anilist.MediaListStatus
 	}
 )
 
@@ -50,11 +51,12 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 
 	// Get progress, if the media isn't in the user's list, progress is 0
 	progress := 0
-	if opts.anilistEntry != nil {
-		// Set progress if entry exist
-		progress = *opts.anilistEntry.GetProgress()
+	if opts.progress != nil {
+		progress = *opts.progress
+	}
+	if opts.status != nil {
 		// If the media is completed, set progress is 0
-		if *opts.anilistEntry.Status == anilist.MediaListStatusCompleted {
+		if *opts.status == anilist.MediaListStatusCompleted {
 			progress = 0
 		}
 	}
@@ -178,7 +180,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		batchAll = true
 	}
 	rewatch := false
-	if opts.anilistEntry != nil && *opts.anilistEntry.Status == anilist.MediaListStatusCompleted {
+	if opts.status != nil && *opts.status == anilist.MediaListStatusCompleted {
 		rewatch = true
 	}
 

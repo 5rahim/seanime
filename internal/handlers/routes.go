@@ -83,6 +83,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/library/collection
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 
+	// Get missing episodes
+	// GET /v1/library/missing-episodes
+	v1Library.Get("/missing-episodes", makeHandler(app, HandleGetMissingEpisodes))
+
 	// Update local file data
 	// PATCH /v1/library/local-file
 	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
