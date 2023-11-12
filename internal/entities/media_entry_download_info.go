@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
+	"slices"
 	"strconv"
 )
 
@@ -49,37 +50,49 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	}
 	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(opts.localFiles, opts.media, opts.anizipMedia)
 
+	// I - Progress
 	// Get progress, if the media isn't in the user's list, progress is 0
+	// If the media is completed, set progress is 0
 	progress := 0
 	if opts.progress != nil {
 		progress = *opts.progress
 	}
 	if opts.status != nil {
-		// If the media is completed, set progress is 0
 		if *opts.status == anilist.MediaListStatusCompleted {
 			progress = 0
 		}
 	}
 
-	// We will assume that Episode 0 is 1 if it is included by AniList
-	mediaEpSlice := generateEpSlice(opts.media.GetCurrentEpisodeCount())
-	unwatchedEpSlice := lo.Filter(mediaEpSlice, func(i int, _ int) bool { return i > progress })
+	// II - Create episode number slices for Anilist and Anizip
+	// We assume that Episode 0 is 1 if it is included by AniList
+	mediaEpSlice := generateEpSlice(opts.media.GetCurrentEpisodeCount())                         // e.g, [1,2,3,4]
+	unwatchedEpSlice := lo.Filter(mediaEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
-	anizipEpSlice := generateEpSlice(opts.anizipMedia.GetMainEpisodeCount())
-	unwatchedAnizipEpSlice := lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress })
+	anizipEpSlice := generateEpSlice(opts.anizipMedia.GetMainEpisodeCount())                            // e.g, [1,2,3,4]
+	unwatchedAnizipEpSlice := lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
+	// If Anizip has more episodes
+	// e.g, Anizip: 2, Anilist: 1
+	if opts.anizipMedia.GetMainEpisodeCount() > opts.media.GetCurrentEpisodeCount() {
+		diff := opts.anizipMedia.GetMainEpisodeCount() - opts.media.GetCurrentEpisodeCount()
+		// Remove the difference from the Anizip slice
+		anizipEpSlice = anizipEpSlice[:len(anizipEpSlice)-diff]                                            // e.g, [1,2] -> [1]
+		unwatchedAnizipEpSlice = lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, [1,2] -> [1]
+	}
+
+	// III - Handle discrepancy (inclusion of episode 0 by AniList)
+	// If there Anilist has more episodes than Anizip
+	// e.g, Anilist: 13, Anizip: 12
 	if hasDiscrepancy {
-		// Add -1 to slice, -1 is "S1"
+		// Add -1 to Anizip slice, -1 is "S1"
 		anizipEpSlice = append([]int{-1}, anizipEpSlice...) // e.g, [-1,1,2,...,12]
-		unwatchedAnizipEpSlice = anizipEpSlice
+		unwatchedAnizipEpSlice = anizipEpSlice              // e.g, [-1,1,2,...,12]
 		if progress > 0 {
-			// e.g, progress = 1 (0), -> ["S1",1,2,3,...,12]
-			// e.g, progress = 2 (1), -> [1,2,3, ...,12]
 			unwatchedAnizipEpSlice = lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress-1 })
 		}
 	}
 
-	// Filter out unavailable episodes
+	// Filter out unavailable episodes for the slices
 	if opts.media.NextAiringEpisode != nil {
 		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i < opts.media.NextAiringEpisode.Episode })
 		if hasDiscrepancy {
@@ -121,7 +134,9 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		// Get all episode numbers of main local files
 		for _, lf := range opts.localFiles {
 			if lf.Metadata.Type == LocalFileTypeMain {
-				lfsEpSlice = append(lfsEpSlice, lf.Metadata.Episode)
+				if !slices.Contains(lfsEpSlice, lf.GetEpisodeNumber()) {
+					lfsEpSlice = append(lfsEpSlice, lf.GetEpisodeNumber())
+				}
 			}
 		}
 		// If there is a discrepancy and local files include episode 0, add -1 ("S1") to slice
@@ -183,12 +198,6 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	if opts.status != nil && *opts.status == anilist.MediaListStatusCompleted {
 		rewatch = true
 	}
-
-	//println(spew.Sdump(episodesToDownload))
-	//println(spew.Sprint(mediaEpSlice))
-	//println(spew.Sprint(unwatchedEpSlice))
-	//println(spew.Sprint(anizipEpSlice))
-	//println(spew.Sprint(unwatchedAnizipEpSlice))
 
 	return &MediaEntryDownloadInfo{
 		EpisodesToDownload:    episodesToDownload,
