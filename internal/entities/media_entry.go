@@ -22,6 +22,7 @@ type (
 		NextEpisode            *MediaEntryEpisode      `json:"nextEpisode"`
 		LocalFiles             []*LocalFile            `json:"localFiles"`
 		AniDBId                int                     `json:"aniDBId"`
+		CurrentEpisodeCount    int                     `json:"currentEpisodeCount"`
 	}
 
 	// MediaEntryListData holds the details of the AniList entry.
@@ -70,6 +71,8 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	} else {
 		entry.Media = anilistEntry.Media
 	}
+
+	entry.CurrentEpisodeCount = anilistEntry.GetMedia().GetCurrentEpisodeCount()
 
 	// Get the entry's local files
 	lfs := GetLocalFilesFromMediaId(opts.LocalFiles, opts.MediaId)

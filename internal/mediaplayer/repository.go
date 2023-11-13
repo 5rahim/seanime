@@ -19,25 +19,31 @@ type (
 	}
 
 	playbackStatus struct {
-		completionPercentage float64
-		playing              bool
-		filename             string
-		duration             int // in ms
+		CompletionPercentage float64 `json:"completionPercentage"`
+		Playing              bool    `json:"playing"`
+		Filename             string  `json:"filename"`
+		Duration             int     `json:"duration"` // in ms
 	}
 )
 
 func (m *Repository) Play(path string) error {
 	switch m.Default {
 	case "vlc":
-		m.VLC.Start()
-		err := m.VLC.AddAndPlay(path)
+		err := m.VLC.Start()
+		if err != nil {
+			return err
+		}
+		err = m.VLC.AddAndPlay(path)
 		if err != nil {
 			return err
 		}
 		return nil
 	case "mpc-hc":
-		m.MpcHc.Start()
-		_, err := m.MpcHc.OpenAndPlay(path)
+		err := m.MpcHc.Start()
+		if err != nil {
+			return err
+		}
+		_, err = m.MpcHc.OpenAndPlay(path)
 		if err != nil {
 			return err
 		}
@@ -54,6 +60,8 @@ func (m *Repository) StartTracking() {
 	var filename string
 	var completed bool
 
+	m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, nil)
+
 	go func() {
 		for {
 			select {
@@ -64,7 +72,7 @@ func (m *Repository) StartTracking() {
 				var status interface{}
 				var err error
 
-				// Check the status based on the default player
+				// Get the status based on the default player
 				switch m.Default {
 				case "vlc":
 					status, err = m.VLC.GetStatus()
@@ -73,6 +81,7 @@ func (m *Repository) StartTracking() {
 				}
 
 				if err != nil {
+					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, nil)
 					m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
 					close(done) // Signal to exit the goroutine
 					return
@@ -81,29 +90,31 @@ func (m *Repository) StartTracking() {
 				// Process the status
 				playback, ok := m.processStatus(m.Default, status)
 				if !ok {
+					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, nil)
 					m.Logger.Error().Msg("mediaplayer: Failed to process status")
 					close(done) // Signal to exit the goroutine
 					return
 				}
 
 				if filename == "" {
-					filename = playback.filename
+					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, playback)
+					filename = playback.Filename
 					completed = false
 				}
 				// reset completed status if filename changes
-				if filename != "" && filename != playback.filename {
-					m.WSEventManager.SendEvent("mediaplayer-fresh-start", playback)
-					filename = playback.filename
+				if filename != "" && filename != playback.Filename {
+					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, playback)
+					filename = playback.Filename
 					completed = false
 				}
 
-				if playback.completionPercentage > 0.9 && playback.filename == filename && !completed {
+				if playback.CompletionPercentage > 0.9 && playback.Filename == filename && !completed {
+					m.WSEventManager.SendEvent(events.MediaPlayerVideoCompleted, playback)
 					m.Logger.Debug().Msg("mediaplayer: Video completed")
-					m.WSEventManager.SendEvent("mediaplayer-video-completed", playback)
 					completed = true
 				}
 
-				m.WSEventManager.SendEvent("mediaplayer-status", playback)
+				//m.WSEventManager.SendEvent(events.MediaPlayerPlaybackStatus, playback)
 			}
 		}
 	}()
@@ -116,10 +127,10 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 		st := status.(*vlc.Status)
 
 		ret := &playbackStatus{
-			completionPercentage: st.Position,
-			playing:              st.State == "playing",
-			filename:             st.Information.Category["meta"].Filename,
-			duration:             int(st.Length * 1000),
+			CompletionPercentage: st.Position,
+			Playing:              st.State == "playing",
+			Filename:             st.Information.Category["meta"].Filename,
+			Duration:             int(st.Length * 1000),
 		}
 
 		return ret, true
@@ -128,10 +139,10 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 		st := status.(*mpchc.Variables)
 
 		ret := &playbackStatus{
-			completionPercentage: st.Position / st.Duration,
-			playing:              st.State == 2,
-			filename:             st.File,
-			duration:             int(st.Duration),
+			CompletionPercentage: st.Position / st.Duration,
+			Playing:              st.State == 2,
+			Filename:             st.File,
+			Duration:             int(st.Duration),
 		}
 
 		return ret, true
