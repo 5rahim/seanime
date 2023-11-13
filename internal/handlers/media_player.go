@@ -22,10 +22,11 @@ func HandlePlayVideo(c *RouteCtx) error {
 
 	// Create a new media player repository
 	mediaPlayerRepo := mediaplayer.Repository{
-		Logger:  c.App.Logger,
-		Default: settings.MediaPlayer.Default,
-		VLC:     c.App.MediaPlayer.VLC,
-		MpcHc:   c.App.MediaPlayer.MpcHc,
+		Logger:         c.App.Logger,
+		Default:        settings.MediaPlayer.Default,
+		VLC:            c.App.MediaPlayer.VLC,
+		MpcHc:          c.App.MediaPlayer.MpcHc,
+		WSEventManager: c.App.WSEventManager,
 	}
 
 	// Play the video

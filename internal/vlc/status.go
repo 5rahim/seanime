@@ -92,7 +92,7 @@ type Equalizer struct {
 }
 
 // parseStatus parses GetStatus() responses to Status struct.
-func parseStatus(statusResponse string) (status Status, err error) {
+func parseStatus(statusResponse string) (status *Status, err error) {
 	err = json.Unmarshal([]byte(statusResponse), &status)
 	if err != nil {
 		return
@@ -101,7 +101,7 @@ func parseStatus(statusResponse string) (status Status, err error) {
 }
 
 // GetStatus returns a Status object containing information of the instances' status
-func (vlc *VLC) GetStatus() (status Status, err error) {
+func (vlc *VLC) GetStatus() (status *Status, err error) {
 	// Make request
 	var response string
 	response, err = vlc.RequestMaker("/requests/status.json")

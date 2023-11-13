@@ -5,6 +5,10 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type IWSEventManager interface {
+	SendEvent(t string, payload interface{})
+}
+
 type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
