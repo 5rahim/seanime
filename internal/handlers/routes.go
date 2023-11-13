@@ -41,7 +41,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// Open Media Player
 	// POST /v1/media-player/start
-	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultPlayer))
+	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultMediaPlayer))
+
+	// POST /v1/media-player/play
+	v1.Post("/media-player/play", makeHandler(app, HandlePlayVideo))
 
 	//
 	// AniList

@@ -19,7 +19,11 @@ func TestVLC_Play(t *testing.T) {
 	err := vlc.Start()
 	assert.Nil(t, err)
 
-	err = vlc.AddAndPlay("E:\\ANIME\\Violet.Evergarden.The.Movie.1080p.Dual.Audio.BDRip.10.bits.DD.x265-EMBER.mkv")
+	err = vlc.AddAndPlay("E:\\Anime\\[Judas] Golden Kamuy (Seasons 1-2) [BD 1080p][HEVC x265 10bit][Eng-Subs]\\[Judas] Golden Kamuy - S2\\[Judas] Golden Kamuy S2 - 16.mkv")
+
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	time.Sleep(400 * time.Millisecond)
 

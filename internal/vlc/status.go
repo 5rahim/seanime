@@ -3,6 +3,7 @@ package vlc
 import (
 	"errors"
 	"github.com/goccy/go-json"
+	"net/url"
 	"strconv"
 )
 
@@ -199,7 +200,7 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 	if len(option) > 1 {
 		return errors.New("please provide only one option")
 	}
-	urlSegment := "/requests/status.json?command=in_play&input=" + uri
+	urlSegment := "/requests/status.json?command=in_play&input=" + url.PathEscape(uri)
 	if len(option) == 1 {
 		if (option[0] != "noaudio") && (option[0] != "novideo") {
 			return errors.New("invalid option")
@@ -212,13 +213,13 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 
 // Add adds a URI to the playlist
 func (vlc *VLC) Add(uri string) (err error) {
-	_, err = vlc.RequestMaker("/requests/status.json?command=in_enqueue&input=" + uri)
+	_, err = vlc.RequestMaker("/requests/status.json?command=in_enqueue&input=" + url.PathEscape(uri))
 	return
 }
 
 // AddSubtitle adds a subtitle from URI to currently playing file
 func (vlc *VLC) AddSubtitle(uri string) (err error) {
-	_, err = vlc.RequestMaker("/requests/status.json?command=addsubtitle&val=" + uri)
+	_, err = vlc.RequestMaker("/requests/status.json?command=addsubtitle&val=" + url.PathEscape(uri))
 	return
 }
 

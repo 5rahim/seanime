@@ -178,32 +178,6 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func HandleStartDefaultPlayer(c *RouteCtx) error {
-
-	settings, err := c.App.Database.GetSettings()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	switch settings.MediaPlayer.Default {
-	case "vlc":
-		err = c.App.MediaPlayer.VLC.Start()
-		if err != nil {
-			return c.RespondWithError(err)
-		}
-	case "mpc-hc":
-		err = c.App.MediaPlayer.MpcHc.Start()
-		if err != nil {
-			return c.RespondWithError(err)
-		}
-	}
-
-	return c.RespondWithData(true)
-
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 var (
 	malCache     = result.NewCache[string, []*mal.SearchResultAnime]()
 	anilistCache = result.NewCache[int, *anilist.BasicMedia]()
