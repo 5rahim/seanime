@@ -12,6 +12,7 @@ import (
 type GithubGraphQLClient interface {
 	UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
+	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
@@ -1282,6 +1283,17 @@ type UpdateMediaListEntry_SaveMediaListEntry struct {
 func (t *UpdateMediaListEntry_SaveMediaListEntry) GetID() int {
 	if t == nil {
 		t = &UpdateMediaListEntry_SaveMediaListEntry{}
+	}
+	return t.ID
+}
+
+type UpdateMediaListEntryProgress_SaveMediaListEntry struct {
+	ID int "json:\"id\" graphql:\"id\""
+}
+
+func (t *UpdateMediaListEntryProgress_SaveMediaListEntry) GetID() int {
+	if t == nil {
+		t = &UpdateMediaListEntryProgress_SaveMediaListEntry{}
 	}
 	return t.ID
 }
@@ -3701,6 +3713,17 @@ func (t *UpdateMediaListEntry) GetSaveMediaListEntry() *UpdateMediaListEntry_Sav
 	return t.SaveMediaListEntry
 }
 
+type UpdateMediaListEntryProgress struct {
+	SaveMediaListEntry *UpdateMediaListEntryProgress_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
+}
+
+func (t *UpdateMediaListEntryProgress) GetSaveMediaListEntry() *UpdateMediaListEntryProgress_SaveMediaListEntry {
+	if t == nil {
+		t = &UpdateMediaListEntryProgress{}
+	}
+	return t.SaveMediaListEntry
+}
+
 type DeleteEntry struct {
 	DeleteMediaListEntry *DeleteEntry_DeleteMediaListEntry "json:\"DeleteMediaListEntry,omitempty\" graphql:\"DeleteMediaListEntry\""
 }
@@ -3874,6 +3897,31 @@ func (c *Client) UpdateMediaListEntry(ctx context.Context, mediaID *int, status 
 
 	var res UpdateMediaListEntry
 	if err := c.Client.Post(ctx, "UpdateMediaListEntry", UpdateMediaListEntryDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateMediaListEntryProgressDocument = `mutation UpdateMediaListEntryProgress ($mediaId: Int, $progress: Int) {
+	SaveMediaListEntry(mediaId: $mediaId, progress: $progress) {
+		id
+	}
+}
+`
+
+func (c *Client) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
+	vars := map[string]interface{}{
+		"mediaId":  mediaID,
+		"progress": progress,
+	}
+
+	var res UpdateMediaListEntryProgress
+	if err := c.Client.Post(ctx, "UpdateMediaListEntryProgress", UpdateMediaListEntryProgressDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -4757,4 +4805,21 @@ func (c *Client) GetViewer(ctx context.Context, interceptors ...clientv2.Request
 	}
 
 	return &res, nil
+}
+
+var DocumentOperationNames = map[string]string{
+	UpdateEntryDocument:                  "UpdateEntry",
+	UpdateMediaListEntryDocument:         "UpdateMediaListEntry",
+	UpdateMediaListEntryProgressDocument: "UpdateMediaListEntryProgress",
+	DeleteEntryDocument:                  "DeleteEntry",
+	AnimeCollectionDocument:              "AnimeCollection",
+	SearchAnimeShortMediaDocument:        "SearchAnimeShortMedia",
+	BasicMediaByMalIDDocument:            "BasicMediaByMalId",
+	BasicMediaByIDDocument:               "BasicMediaById",
+	BaseMediaByIDDocument:                "BaseMediaById",
+	MediaDetailsByIDDocument:             "MediaDetailsById",
+	CompleteMediaByIDDocument:            "CompleteMediaById",
+	ListMediaDocument:                    "ListMedia",
+	ListRecentMediaDocument:              "ListRecentMedia",
+	GetViewerDocument:                    "GetViewer",
 }

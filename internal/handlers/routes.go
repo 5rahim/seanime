@@ -65,9 +65,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/anilist/media-details
 	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
 
-	// Edit Media List Data from AniList
+	// Edit AniList Media List Data
 	// POST /v1/anilist/list-entry
 	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
+
+	// Edit AniList Media List Entry's score
+	// POST /v1/anilist/list-entry
+	v1Anilist.Post("/list-entry/progress", makeHandler(app, HandleEditAnilistListEntryProgress))
 
 	//
 	// Library

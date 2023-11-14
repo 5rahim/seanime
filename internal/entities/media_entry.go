@@ -72,7 +72,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 		entry.Media = anilistEntry.Media
 	}
 
-	entry.CurrentEpisodeCount = anilistEntry.GetMedia().GetCurrentEpisodeCount()
+	entry.CurrentEpisodeCount = entry.Media.GetCurrentEpisodeCount()
 
 	// Get the entry's local files
 	lfs := GetLocalFilesFromMediaId(opts.LocalFiles, opts.MediaId)

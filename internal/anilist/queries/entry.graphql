@@ -46,6 +46,18 @@ mutation UpdateMediaListEntry (
     }
 }
 
+mutation UpdateMediaListEntryProgress (
+    $mediaId: Int
+    $progress: Int
+) {
+    SaveMediaListEntry(
+        mediaId: $mediaId
+        progress: $progress
+    ) {
+        id
+    }
+}
+
 mutation DeleteEntry (
     $mediaListEntryId: Int
 ) {

@@ -44,8 +44,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=
 github.com/PuerkitoBio/goquery v1.8.0/go.mod h1:ypIiRMtY7COPGk+I/YbZLbxsxn9g5ejnI2HSMtkjZvI=
-github.com/Yamashou/gqlgenc v0.15.1 h1:pva+W/myYSo0f7greV0joKe1wFsRo8tZtI52CWojrhI=
-github.com/Yamashou/gqlgenc v0.15.1/go.mod h1:yKaNzczoGrIElG3mG8j2Bg3imv4WyIjLSTRBtvhfMtU=
+github.com/Yamashou/gqlgenc v0.16.0 h1:k1X/dvwnkiDImaeYw+C1j+GDX3MnzB4aONOTE6Mrku4=
+github.com/Yamashou/gqlgenc v0.16.0/go.mod h1:yKaNzczoGrIElG3mG8j2Bg3imv4WyIjLSTRBtvhfMtU=
 github.com/adrg/strutil v0.3.1 h1:OLvSS7CSJO8lBii4YmBt8jiK9QOtB9CzCzwl4Ic/Fz4=
 github.com/adrg/strutil v0.3.1/go.mod h1:8h90y18QLrs11IBffcGX3NW/GFBXCMcNg4M7H6MspPA=
 github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 h1:bvNMNQO63//z+xNgfBlViaCIJKLlCJ6/fmUseuG0wVQ=

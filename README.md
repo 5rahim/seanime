@@ -37,4 +37,6 @@ watching with third-party media players and download new episodes.
 go get github.com/Yamashou/gqlgenc
 cd internal/anilist
 go run github.com/Yamashou/gqlgenc
+cd ../..
+go mod tidy
 ```

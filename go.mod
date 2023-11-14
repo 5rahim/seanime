@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/5rahim/tanuki v0.1.6
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/Yamashou/gqlgenc v0.15.1
+	github.com/Yamashou/gqlgenc v0.16.0
 	github.com/adrg/strutil v0.3.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
