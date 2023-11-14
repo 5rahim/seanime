@@ -31,21 +31,21 @@ func (m *Repository) Play(path string) error {
 	case "vlc":
 		err := m.VLC.Start()
 		if err != nil {
-			return err
+			return errors.New("could not start media player")
 		}
 		err = m.VLC.AddAndPlay(path)
 		if err != nil {
-			return err
+			return errors.New("could not open and play video, try again")
 		}
 		return nil
 	case "mpc-hc":
 		err := m.MpcHc.Start()
 		if err != nil {
-			return err
+			return errors.New("could not start media player")
 		}
 		_, err = m.MpcHc.OpenAndPlay(path)
 		if err != nil {
-			return err
+			return errors.New("could not open and play video, try again")
 		}
 		return nil
 	default:
@@ -59,6 +59,9 @@ func (m *Repository) StartTracking() {
 	done := make(chan struct{})
 	var filename string
 	var completed bool
+	var retries int
+	var sRetries int
+	var started bool
 
 	m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, nil)
 
@@ -81,19 +84,62 @@ func (m *Repository) StartTracking() {
 				}
 
 				if err != nil {
-					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, nil)
-					m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
-					close(done) // Signal to exit the goroutine
-					return
+					// Retry 2 times before exiting, only if the tracking has started
+					if started || (!started && retries >= 2) {
+						if !started {
+							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Failed to get status")
+						} else {
+							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Closed")
+						}
+						m.Logger.Error().Msg("mediaplayer: Failed to get status")
+						m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
+						switch m.Default {
+						case "vlc":
+							m.VLC.Stop()
+						case "mpc-hc":
+							m.MpcHc.Stop()
+						}
+						close(done) // Signal to exit the goroutine
+						return
+					}
+					if !started {
+						retries++
+						m.Logger.Error().Msgf("mediaplayer: Failed to get status, retrying (%d/%d)", retries, 2)
+						continue
+					}
 				}
 
 				// Process the status
 				playback, ok := m.processStatus(m.Default, status)
+
+				// Signal that the tracking has started
+				if !started && err == nil && ok {
+					started = true
+				}
+
 				if !ok {
-					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, nil)
-					m.Logger.Error().Msg("mediaplayer: Failed to process status")
-					close(done) // Signal to exit the goroutine
-					return
+					if started || (!started && sRetries >= 2) {
+						if !started {
+							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Failed to process status")
+						} else {
+							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Closed")
+						}
+						m.Logger.Error().Msg("mediaplayer: Failed to process status")
+						m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
+						switch m.Default {
+						case "vlc":
+							m.VLC.Stop()
+						case "mpc-hc":
+							m.MpcHc.Stop()
+						}
+						close(done) // Signal to exit the goroutine
+						return
+					}
+					if !started {
+						sRetries++
+						m.Logger.Error().Msgf("mediaplayer: Failed to process status, retrying (%d/%d)", sRetries, 2)
+						continue
+					}
 				}
 
 				if filename == "" {
@@ -101,6 +147,7 @@ func (m *Repository) StartTracking() {
 					filename = playback.Filename
 					completed = false
 				}
+
 				// reset completed status if filename changes
 				if filename != "" && filename != playback.Filename {
 					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, playback)
@@ -125,6 +172,9 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 	case "vlc":
 		// Process VLC status
 		st := status.(*vlc.Status)
+		if st == nil {
+			return nil, false
+		}
 
 		ret := &playbackStatus{
 			CompletionPercentage: st.Position,
@@ -137,6 +187,9 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 	case "mpc-hc":
 		// Process MPC-HC status
 		st := status.(*mpchc.Variables)
+		if st == nil {
+			return nil, false
+		}
 
 		ret := &playbackStatus{
 			CompletionPercentage: st.Position / st.Duration,
