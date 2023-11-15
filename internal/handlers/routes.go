@@ -119,6 +119,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Post("/media-entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
 
 	//
+	// Nyaa
+	//
+
+	v1.Post("/nyaa/search", makeHandler(app, HandleNyaaSearch))
+
+	//
 	// Websocket
 	//
 

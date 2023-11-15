@@ -18,6 +18,7 @@ type (
 		BatchAll              bool                         `json:"batchAll"`
 		HasInaccurateSchedule bool                         `json:"hasInaccurateSchedule"`
 		Rewatch               bool                         `json:"rewatch"`
+		AbsoluteOffset        int                          `json:"absoluteOffset"`
 	}
 
 	MediaEntryDownloadEpisode struct {
@@ -205,6 +206,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		BatchAll:              batchAll,
 		Rewatch:               rewatch,
 		HasInaccurateSchedule: hasInaccurateSchedule,
+		AbsoluteOffset:        opts.anizipMedia.GetOffset(),
 	}, nil
 }
 

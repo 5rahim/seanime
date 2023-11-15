@@ -166,6 +166,9 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 
 			if episodeInt, ok := anizip.ExtractEpisodeInteger(opts.optionalAniDBEpisode); ok {
 				entryEp.EpisodeNumber = episodeInt
+				if foundAnizipEpisode {
+					entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.anizipMedia.GetOffset()
+				}
 				switch entryEp.Type {
 				case LocalFileTypeMain:
 					if *opts.media.GetFormat() == anilist.MediaFormatMovie {

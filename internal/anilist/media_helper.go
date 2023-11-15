@@ -14,6 +14,15 @@ func (m *BaseMedia) GetTitleSafe() string {
 	}
 	return "N/A"
 }
+func (m *BaseMedia) GetRomajiTitleSafe() string {
+	if m.GetTitle().GetRomaji() != nil {
+		return *m.GetTitle().GetRomaji()
+	}
+	if m.GetTitle().GetEnglish() != nil {
+		return *m.GetTitle().GetEnglish()
+	}
+	return "N/A"
+}
 
 func (m *BasicMedia) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
