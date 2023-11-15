@@ -41,6 +41,22 @@ func (m *Media) GetMainEpisodeCount() int {
 	return m.EpisodeCount
 }
 
+// GetOffset returns the offset of the first episode relatived to the absolute episode number.
+// e.g, if the first episode's absolute number is 13, then the offset is 12.
+func (m *Media) GetOffset() int {
+	if m == nil {
+		return 0
+	}
+	firstEp, found := m.FindEpisode("1")
+	if !found {
+		return 0
+	}
+	if firstEp.AbsoluteEpisodeNumber == 0 {
+		return 0
+	}
+	return firstEp.AbsoluteEpisodeNumber - 1
+}
+
 func (e *Episode) GetTitle() string {
 	eng, ok := e.Title["en"]
 	if ok {

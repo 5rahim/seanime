@@ -5,8 +5,10 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime-server/internal/limiter"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
+	"time"
 )
 
 type (
@@ -24,6 +26,7 @@ type (
 func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 	missing := new(MissingEpisodes)
+	rateLimiter := limiter.NewLimiter(time.Second, 20)
 
 	groupedLfs := GroupLocalFilesByMediaID(opts.LocalFiles)
 
@@ -41,11 +44,11 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			if !found {
 				return nil
 			}
-			// If the latest local file is the same or higher than the current episode count, skip
+			//If the latest local file is the same or higher than the current episode count, skip
 			if entry.Media.GetCurrentEpisodeCount() <= latestLf.GetEpisodeNumber() {
 				return nil
 			}
-
+			rateLimiter.Wait()
 			// Fetch anizip media
 			anizipMedia, err := anizip.FetchAniZipMediaC("anilist", entry.Media.ID, opts.AnizipCache)
 			if err != nil {
