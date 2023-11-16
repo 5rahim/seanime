@@ -3,7 +3,6 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
-	"github.com/5rahim/tanuki"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
@@ -11,7 +10,6 @@ import (
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"strings"
-	"unicode"
 )
 
 // https://github.com/irevenko/go-nyaa
@@ -24,10 +22,7 @@ type (
 		SortBy   string
 		Filter   string
 	}
-	DetailedTorrent struct {
-		Torrent
-		Resolution string `json:"resolution"`
-	}
+
 	SearchMultipleOptions struct {
 		Provider string
 		Query    []string
@@ -108,14 +103,6 @@ func SearchMultiple(opts SearchMultipleOptions) ([]*DetailedTorrent, error) {
 	}
 
 	return ret, nil
-}
-
-func (t *Torrent) toDetailedTorrent() *DetailedTorrent {
-	elements := tanuki.Parse(t.Name, tanuki.DefaultOptions)
-	return &DetailedTorrent{
-		Torrent:    *t,
-		Resolution: elements.VideoResolution,
-	}
 }
 
 func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
@@ -249,107 +236,4 @@ func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
 	}
 
 	return ret, true
-}
-
-// (jjk|jujutsu kaisen)
-func getTitleGroup(titles []string) string {
-	return fmt.Sprintf("(%s)", strings.Join(titles, "|"))
-}
-
-func getAbsoluteGroup(title string, opts *BuildSearchQueryOptions) string {
-	return fmt.Sprintf("(%s(%d))", title, *opts.EpisodeNumber+*opts.AbsoluteOffset)
-}
-
-// (s01e01)
-func getSeasonAndEpisodeGroup(season int, ep int) string {
-	if season == 0 {
-		season = 1
-	}
-	return fmt.Sprintf(`"s%se%s"`, zeropad(season), zeropad(ep))
-}
-
-// (01|e01|e01v|ep01|ep1)
-func getEpisodeGroup(ep int) string {
-	pEp := zeropad(ep)
-	//return fmt.Sprintf(`("%s"|"e%s"|"e%sv"|"%sv"|"ep%s"|"ep%d")`, pEp, pEp, pEp, pEp, pEp, ep)
-	return fmt.Sprintf(`(%s|e%s|e%sv|%sv|ep%s|ep%d)`, pEp, pEp, pEp, pEp, pEp, ep)
-}
-
-// (season 1|season 01|s1|s01)
-func getSeasonGroup(season int) string {
-	// Season section
-	seasonBuff := bytes.NewBufferString("")
-	// e.g. S1, season 1, season 01
-	if season != 0 {
-		seasonBuff.WriteString(fmt.Sprintf(`("%s%d"|`, "season ", season))
-		seasonBuff.WriteString(fmt.Sprintf(`"%s%s"|`, "season ", zeropad(season)))
-		seasonBuff.WriteString(fmt.Sprintf(`"%s%d"|`, "s", season))
-		seasonBuff.WriteString(fmt.Sprintf(`"%s%s")`, "s", zeropad(season)))
-		//seasonBuff.WriteString(fmt.Sprintf(`(%s%d|`, "season ", season))
-		//seasonBuff.WriteString(fmt.Sprintf(`%s%s|`, "season ", zeropad(season)))
-		//seasonBuff.WriteString(fmt.Sprintf(`%s%d|`, "s", season))
-		//seasonBuff.WriteString(fmt.Sprintf(`%s%s)`, "s", zeropad(season)))
-	}
-	return seasonBuff.String()
-}
-func getPartGroup(part int) string {
-	partBuff := bytes.NewBufferString("")
-	if part != 0 {
-		partBuff.WriteString(fmt.Sprintf(`("%s%d")`, "part ", part))
-	}
-	return partBuff.String()
-}
-
-func getBatchGroup(m *anilist.BaseMedia) string {
-	buff := bytes.NewBufferString("")
-	buff.WriteString("(")
-	// e.g. 01-12
-	s1 := fmt.Sprintf(`"%s%s%s"`, zeropad("1"), " - ", zeropad(m.GetTotalEpisodeCount()))
-	buff.WriteString(s1)
-	buff.WriteString("|")
-	// e.g. 01~12
-	s2 := fmt.Sprintf(`"%s%s%s"`, zeropad("1"), " ~ ", zeropad(m.GetTotalEpisodeCount()))
-	buff.WriteString(s2)
-	buff.WriteString("|")
-	// e.g. 01~12
-	buff.WriteString(`"Batch"|`)
-	buff.WriteString(`"Complete"|`)
-	buff.WriteString(`"+ OVA"|`)
-	buff.WriteString(`"+ Specials"|`)
-	buff.WriteString(`"+ Special"|`)
-	buff.WriteString(`"Seasons"|`)
-	buff.WriteString(`"Parts"`)
-	buff.WriteString(")")
-	return buff.String()
-}
-
-func zeropad(v interface{}) string {
-	switch i := v.(type) {
-	case int:
-		return fmt.Sprintf("%02d", i)
-	case string:
-		return fmt.Sprintf("%02s", i)
-	default:
-		return ""
-	}
-}
-
-func isMostlyLatinString(str string) bool {
-	if len(str) <= 0 {
-		return false
-	}
-	latinLength := 0
-	nonLatinLength := 0
-	for _, r := range str {
-		if isLatinRune(r) {
-			latinLength++
-		} else {
-			nonLatinLength++
-		}
-	}
-	return latinLength > nonLatinLength
-}
-
-func isLatinRune(r rune) bool {
-	return unicode.In(r, unicode.Latin)
 }
