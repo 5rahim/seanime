@@ -12,8 +12,8 @@ import (
 	"github.com/seanime-app/seanime-server/internal/events"
 	"github.com/seanime-app/seanime-server/internal/models"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
+	"github.com/seanime-app/seanime-server/internal/nyaa"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
-	"github.com/seanime-app/seanime-server/internal/result"
 	"github.com/seanime-app/seanime-server/internal/scanner"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/seanime-app/seanime-server/internal/vlc"
@@ -23,34 +23,21 @@ import (
 )
 
 type App struct {
-	Config   *Config
-	Database *_db.Database
-	Logger   *zerolog.Logger
-
-	MediaPlayer struct {
+	Config            *Config
+	Database          *_db.Database
+	Logger            *zerolog.Logger
+	QBittorrent       *qbittorrent.Client
+	Watcher           *scanner.Watcher
+	AnizipCache       *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+	AnilistClient     *anilist.Client
+	NyaaSearchCache   *nyaa.SearchCache
+	anilistCollection *anilist.AnimeCollection
+	account           *models.Account
+	WSEventManager    *events.WSEventManager
+	MediaPlayer       struct {
 		VLC   *vlc.VLC
 		MpcHc *mpchc.MpcHc
 	}
-	QBittorrent *qbittorrent.Client
-
-	Watcher *scanner.Watcher
-
-	// AnizipCache holds fetched AniZip media for 10 minutes.
-	// It is used by route handlers.
-	AnizipCache   *anizip.Cache
-	AnilistClient *anilist.Client
-
-	ResultCaches []*result.Cache[any, any]
-
-	// anilistCollection holds the user's Anilist collection.
-	// It is fetched when the server starts.
-	anilistCollection *anilist.AnimeCollection
-	// Similarly, account holds the user's Anilist account.
-	account *models.Account
-
-	// WSEventManager allows the server to send events to the client via websocket and receive events.
-	// It is instanciated in the websocket route handler.
-	WSEventManager *events.WSEventManager
 }
 
 type ServerOptions struct {
@@ -64,9 +51,7 @@ func NewApp(options *ServerOptions) *App {
 
 	// Set up a default config if none is provided
 	if options.Config == nil {
-		opts.Config = &ConfigOptions{
-			DataDirPath: "",
-		}
+		opts.Config = &DefaultConfig
 	}
 
 	logger := util.NewLogger()
@@ -98,12 +83,13 @@ func NewApp(options *ServerOptions) *App {
 	anilistToken := db.GetAnilistToken()
 
 	app := &App{
-		Config:         cfg,
-		Database:       db,
-		AnilistClient:  anilist.NewAuthedClient(anilistToken),
-		AnizipCache:    anizip.NewCache(),
-		WSEventManager: events.NewWSEventManager(logger),
-		Logger:         logger,
+		Config:          cfg,
+		Database:        db,
+		AnilistClient:   anilist.NewAuthedClient(anilistToken),
+		AnizipCache:     anizip.NewCache(),
+		NyaaSearchCache: nyaa.NewSearchCache(),
+		WSEventManager:  events.NewWSEventManager(logger),
+		Logger:          logger,
 	}
 
 	app.InitOrRefreshDependencies()
@@ -136,25 +122,8 @@ func NewFiberWebApp() *fiber.App {
 		JSONDecoder:           json.Unmarshal,
 		DisableStartupMessage: true,
 	})
-	// Set up a custom logger for fiber
-	//fiberLogger := fiberzerolog.New(fiberzerolog.Config{
-	//	Logger:   util.NewLogger(),
-	//	SkipURIs: []string{"/internal/metrics"},
-	//	Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
-	//})
-	//fiberApp.Use(fiberLogger)
-	//fiberApp.Use(cors.New(cors.Config{
-	//	AllowOrigins: "*",
-	//	AllowHeaders: "Origin, Content-Type, Accept",
-	//}))
 
 	fiberApp.Static("/", "./web")
-
-	// Serve pages without the ".html" extension
-	//fiberApp.Get("/:page", func(c *fiber.Ctx) error {
-	//	page := c.Params("page") + ".html"
-	//	return c.SendFile("web/" + page)
-	//})
 
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
 		path := c.OriginalURL()

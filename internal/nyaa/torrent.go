@@ -1,6 +1,9 @@
 package nyaa
 
-import "github.com/5rahim/tanuki"
+import (
+	"github.com/5rahim/tanuki"
+	"github.com/seanime-app/seanime-server/internal/comparison"
+)
 
 type (
 	Torrent struct {
@@ -30,13 +33,22 @@ type (
 	DetailedTorrent struct {
 		Torrent
 		Resolution string `json:"resolution"`
+		IsBatch    bool   `json:"isBatch"` // /!\ will be true if the torrent is a movie
 	}
 )
 
 func (t *Torrent) toDetailedTorrent() *DetailedTorrent {
 	elements := tanuki.Parse(t.Name, tanuki.DefaultOptions)
+
+	isBatch := false
+
+	if len(elements.EpisodeNumber) > 1 || comparison.ValueContainsBatchKeywords(t.Name) {
+		isBatch = true
+	}
+
 	return &DetailedTorrent{
 		Torrent:    *t,
 		Resolution: elements.VideoResolution,
+		IsBatch:    isBatch,
 	}
 }

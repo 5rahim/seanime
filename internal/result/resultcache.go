@@ -28,6 +28,14 @@ func (c *Cache[K, V]) Set(key K, value V) {
 	}()
 }
 
+func (c *Cache[K, V]) SetT(key K, value V, ttl time.Duration) {
+	c.store.Store(key, &cacheItem[K, V]{value, time.Now().Add(ttl)})
+	go func() {
+		<-time.After(ttl)
+		c.Delete(key)
+	}()
+}
+
 func (c *Cache[K, V]) Get(key K) (V, bool) {
 	item, ok := c.store.Load(key)
 	if !ok {

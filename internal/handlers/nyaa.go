@@ -11,6 +11,7 @@ import (
 	"github.com/seanime-app/seanime-server/internal/nyaa"
 	"github.com/seanime-app/seanime-server/internal/util"
 	"github.com/sourcegraph/conc/pool"
+	"sort"
 	"strconv"
 )
 
@@ -32,7 +33,8 @@ type (
 func HandleNyaaSearch(c *RouteCtx) error {
 
 	type body struct {
-		Query          string             `json:"query"`
+		QuickSearch    *bool              `json:"quickSearch"`
+		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
 		Media          *anilist.BaseMedia `json:"media"`
@@ -45,19 +47,27 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if b.Media == nil || b.Batch == nil || b.EpisodeNumber == nil || b.AbsoluteOffset == nil || b.Resolution == nil {
+	if b.QuickSearch == nil ||
+		b.Media == nil ||
+		b.Batch == nil ||
+		b.EpisodeNumber == nil ||
+		b.AbsoluteOffset == nil ||
+		b.Resolution == nil ||
+		b.Query == nil {
 		return c.RespondWithError(errors.New("missing arguments"))
 	}
 
 	ret := make([]*nyaa.DetailedTorrent, 0)
 
-	if len(b.Query) == 0 {
+	// Use quick search if the user turned it on OR has not specified a query
+	if *b.QuickSearch || len(*b.Query) == 0 {
 		queries, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
 			Media:          b.Media,
 			Batch:          b.Batch,
 			EpisodeNumber:  b.EpisodeNumber,
 			Resolution:     b.Resolution,
 			AbsoluteOffset: b.AbsoluteOffset,
+			Title:          b.Query,
 		})
 		if !ok {
 			return c.RespondWithError(errors.New("could not build search query"))
@@ -68,6 +78,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 			Category: "anime-eng",
 			SortBy:   "seeders",
 			Filter:   "",
+			Cache:    c.App.NyaaSearchCache,
 		})
 		if err != nil {
 			return c.RespondWithError(err)
@@ -76,10 +87,11 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	} else {
 		res, err := nyaa.Search(nyaa.SearchOptions{
 			Provider: "nyaa",
-			Query:    b.Query,
+			Query:    *b.Query,
 			Category: "anime-eng",
 			SortBy:   "seeders",
 			Filter:   "",
+			Cache:    c.App.NyaaSearchCache,
 		})
 		if err != nil {
 			return c.RespondWithError(err)
@@ -111,6 +123,18 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	previews := p.Wait()
 	previews = lo.Filter(previews, func(i *TorrentPreview, _ int) bool {
 		return i != nil
+	})
+
+	// sort both by seeders
+	sort.Slice(ret, func(i, j int) bool {
+		iS, _ := strconv.Atoi(ret[i].Seeders)
+		jS, _ := strconv.Atoi(ret[j].Seeders)
+		return iS > jS
+	})
+	sort.Slice(previews, func(i, j int) bool {
+		iS, _ := strconv.Atoi(previews[i].Torrent.Seeders)
+		jS, _ := strconv.Atoi(previews[j].Torrent.Seeders)
+		return iS > jS
 	})
 
 	return c.RespondWithData(TorrentSearchData{
@@ -164,6 +188,10 @@ func createTorrentPreview(
 		episodeNumber = episodeNumber - absoluteOffset
 	}
 
+	if *media.GetFormat() == anilist.MediaFormatMovie {
+		episodeNumber = 1
+	}
+
 	ret := &TorrentPreview{
 		IsBatch:      episodeNumber == -2,
 		Resolution:   elements.VideoResolution,
@@ -181,6 +209,9 @@ func createTorrentPreview(
 			ProgressOffset:       0,
 			IsDownloaded:         false,
 		})
+		if ret.Episode.IsInvalid { // remove invalid episodes
+			return nil, false
+		}
 		ret.EpisodeNumber = lo.ToPtr(episodeNumber)
 	}
 

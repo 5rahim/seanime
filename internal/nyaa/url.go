@@ -73,7 +73,7 @@ func buildURL(opts SearchOptions) (string, error) {
 	} else if opts.Provider == "sukebei" {
 		url = sukebeiBaseURL
 	} else {
-		err := fmt.Errorf("provider option could be nyaa or sukebei\nsee docs: https://github.com/irevenko/go-nyaa#provider")
+		err := fmt.Errorf("provider option could be nyaa or sukebei")
 		return "", err
 	}
 
@@ -133,7 +133,7 @@ func buildURL(opts SearchOptions) (string, error) {
 			case "software-games":
 				url += categorySoftwareGames
 			default:
-				err := fmt.Errorf("such nyaa category option does not exitst\nsee docs: https://github.com/irevenko/go-nyaa#category")
+				err := fmt.Errorf("such nyaa category option does not exitst")
 				return "", err
 			}
 		}
@@ -163,7 +163,7 @@ func buildURL(opts SearchOptions) (string, error) {
 			case "real-life-videos":
 				url += categoryRealLifeVideos
 			default:
-				err := fmt.Errorf("such sukebei category option does not exitst\nsee docs: https://github.com/irevenko/go-nyaa#category")
+				err := fmt.Errorf("such sukebei category option does not exitst")
 				return "", err
 			}
 		}
@@ -184,7 +184,7 @@ func buildURL(opts SearchOptions) (string, error) {
 		case "date":
 			url += sortByDate
 		default:
-			err := fmt.Errorf("such sort option does not exitst\nsee docs: https://github.com/irevenko/go-nyaa#sortby")
+			err := fmt.Errorf("such sort option does not exitst")
 			return "", err
 		}
 	}
@@ -198,7 +198,7 @@ func buildURL(opts SearchOptions) (string, error) {
 		case "trusted-only":
 			url += filterTrustedOnly
 		default:
-			err := fmt.Errorf("such filter option does not exitst\nsee docs: https://github.com/irevenko/go-nyaa#filter")
+			err := fmt.Errorf("such filter option does not exitst")
 			return "", err
 		}
 	}

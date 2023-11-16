@@ -194,7 +194,9 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	}
 
 	if !hydrated {
-		entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
+		if opts.LocalFile != nil {
+			entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
+		}
 		entryEp.EpisodeTitle = ""
 		entryEp.IsInvalid = true
 		return entryEp

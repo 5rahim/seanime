@@ -24,6 +24,10 @@ type ConfigOptions struct {
 	DataDirPath string
 }
 
+var DefaultConfig = ConfigOptions{
+	DataDirPath: "",
+}
+
 // NewConfig initializes the config, checks if the config file exists, and generates a default one if not.
 func NewConfig(options *ConfigOptions) (*Config, error) {
 
