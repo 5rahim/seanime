@@ -48,7 +48,7 @@ func TestBuildSearchQuery(t *testing.T) {
 		Batch:          lo.ToPtr(false),
 		EpisodeNumber:  lo.ToPtr(16),
 		AbsoluteOffset: lo.ToPtr(24),
-		Quality:        lo.ToPtr(""),
+		Resolution:     lo.ToPtr(""),
 		//Title:          lo.ToPtr("Re zero"),
 	})
 	assert.True(t, ok)

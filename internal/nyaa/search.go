@@ -3,6 +3,7 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
+	"github.com/5rahim/tanuki"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
@@ -23,6 +24,10 @@ type (
 		SortBy   string
 		Filter   string
 	}
+	DetailedTorrent struct {
+		Torrent
+		Resolution string `json:"resolution"`
+	}
 	SearchMultipleOptions struct {
 		Provider string
 		Query    []string
@@ -36,11 +41,11 @@ type (
 		Batch          *bool
 		EpisodeNumber  *int
 		AbsoluteOffset *int
-		Quality        *string
+		Resolution     *string
 	}
 )
 
-func Search(opts SearchOptions) ([]Torrent, error) {
+func Search(opts SearchOptions) ([]*DetailedTorrent, error) {
 
 	fp := gofeed.NewParser()
 
@@ -58,15 +63,21 @@ func Search(opts SearchOptions) ([]Torrent, error) {
 
 	res := convertRSS(feed)
 
-	return res, nil
+	ret := make([]*DetailedTorrent, 0)
+	for _, torrent := range res {
+		ret = append(ret, torrent.toDetailedTorrent())
+	}
+
+	return ret, nil
 }
 
-func SearchMultiple(opts SearchMultipleOptions) ([]Torrent, error) {
+func SearchMultiple(opts SearchMultipleOptions) ([]*DetailedTorrent, error) {
 
 	fp := gofeed.NewParser()
 
 	p := pool.NewWithResults[[]Torrent]()
 	for _, query := range opts.Query {
+		query := query
 		p.Go(func() []Torrent {
 			url, err := buildURL(SearchOptions{
 				Provider: opts.Provider,
@@ -91,12 +102,25 @@ func SearchMultiple(opts SearchMultipleOptions) ([]Torrent, error) {
 	})
 	res := lo.Flatten(slicesSlice)
 
-	return res, nil
+	ret := make([]*DetailedTorrent, 0)
+	for _, torrent := range res {
+		ret = append(ret, torrent.toDetailedTorrent())
+	}
+
+	return ret, nil
+}
+
+func (t *Torrent) toDetailedTorrent() *DetailedTorrent {
+	elements := tanuki.Parse(t.Name, tanuki.DefaultOptions)
+	return &DetailedTorrent{
+		Torrent:    *t,
+		Resolution: elements.VideoResolution,
+	}
 }
 
 func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
 
-	if opts.Media == nil || opts.Batch == nil || opts.EpisodeNumber == nil || opts.AbsoluteOffset == nil || opts.Quality == nil {
+	if opts.Media == nil || opts.Batch == nil || opts.EpisodeNumber == nil || opts.AbsoluteOffset == nil || opts.Resolution == nil {
 		return make([]string, 0), false
 	}
 
@@ -209,12 +233,12 @@ func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
 
 	println(spew.Sdump(titleStr, batchStr, normalStr))
 
-	query := fmt.Sprintf("%s%s%s%s", titleStr, batchStr, normalStr, *opts.Quality)
+	query := fmt.Sprintf("%s%s%s%s", titleStr, batchStr, normalStr, *opts.Resolution)
 	query2 := ""
 
 	// Absolute episode addition
 	if !*opts.Batch && *opts.AbsoluteOffset > 0 {
-		query2 = fmt.Sprintf("%s%s", getAbsoluteGroup(titleStr, opts), *opts.Quality) // e.g. jujutsu kaisen 25
+		query2 = fmt.Sprintf("%s%s", getAbsoluteGroup(titleStr, opts), *opts.Resolution) // e.g. jujutsu kaisen 25
 	}
 
 	println(spew.Sdump(query, query2))

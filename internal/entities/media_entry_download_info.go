@@ -173,12 +173,12 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 				str.AniDBEpisode = "S1"
 			}
 			str.Episode = NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
-				localFile:            nil,
-				optionalAniDBEpisode: str.AniDBEpisode,
-				anizipMedia:          opts.anizipMedia,
-				media:                opts.media,
-				progressOffset:       0,
-				isDownloaded:         false,
+				LocalFile:            nil,
+				OptionalAniDBEpisode: str.AniDBEpisode,
+				AnizipMedia:          opts.anizipMedia,
+				Media:                opts.media,
+				ProgressOffset:       0,
+				IsDownloaded:         false,
 			})
 			return str
 		})

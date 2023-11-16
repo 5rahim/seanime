@@ -34,70 +34,70 @@ type (
 	}
 
 	NewMediaEntryEpisodeOptions struct {
-		localFile            *LocalFile
-		anizipMedia          *anizip.Media
-		media                *anilist.BaseMedia
-		optionalAniDBEpisode string
-		// progressOffset will offset the ProgressNumber for a specific MAIN file
+		LocalFile            *LocalFile
+		AnizipMedia          *anizip.Media
+		Media                *anilist.BaseMedia
+		OptionalAniDBEpisode string
+		// ProgressOffset will offset the ProgressNumber for a specific MAIN file
 		// This is used when there is a discrepancy between AniList and AniDB
 		// When this is -1, it means that a re-mapping of AniDB Episode is needed
-		progressOffset int
-		isDownloaded   bool
+		ProgressOffset int
+		IsDownloaded   bool
 	}
 )
 
 // NewMediaEntryEpisode creates a new episode entity.
 //
 // It is used to list existing local files as episodes
-// OR list non-downloaded episodes by passing the `optionalAniDBEpisode` parameter.
+// OR list non-downloaded episodes by passing the `OptionalAniDBEpisode` parameter.
 //
-// `anizipMedia` should be defined.
-// `localFile` is optional.
+// `AnizipMedia` should be defined.
+// `LocalFile` is optional.
 func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
-	entryEp.BasicMedia = opts.media.ToBasicMedia()
+	entryEp.BasicMedia = opts.Media.ToBasicMedia()
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
 
 	hydrated := false
 
 	// LocalFile exists
-	if opts.localFile != nil {
+	if opts.LocalFile != nil {
 
-		aniDBEp := opts.localFile.Metadata.AniDBEpisode
+		aniDBEp := opts.LocalFile.Metadata.AniDBEpisode
 
-		// progressOffset is -1, meaning the hydrator mistakenly set AniDB episode to "S1" (due to torrent name) because the episode number is 0
+		// ProgressOffset is -1, meaning the hydrator mistakenly set AniDB episode to "S1" (due to torrent name) because the episode number is 0
 		// The hydrator ASSUMES that AniDB will not include episode 0 as part of main episodes.
 		// We will remap "S1" to "1" and offset other AniDB episodes by 1
 		// e.g, ["S1", "1", "2", "3",...,"12"] -> ["1", "2", "3", "4",...,"13"]
-		if opts.progressOffset == -1 && opts.localFile.GetType() == LocalFileTypeMain {
+		if opts.ProgressOffset == -1 && opts.LocalFile.GetType() == LocalFileTypeMain {
 			if aniDBEp == "S1" {
 				aniDBEp = "1"
-				opts.progressOffset = 0
+				opts.ProgressOffset = 0
 			} else {
 				// e.g, "1" -> "2" etc...
-				aniDBEp = anizip.OffsetEpisode(aniDBEp, opts.progressOffset)
+				aniDBEp = anizip.OffsetEpisode(aniDBEp, opts.ProgressOffset)
 			}
 			entryEp.MetadataIssue = "forced_remapping"
 		}
 
-		anizipEpisode, foundAnizipEpisode := opts.anizipMedia.FindEpisode(aniDBEp)
+		anizipEpisode, foundAnizipEpisode := opts.AnizipMedia.FindEpisode(aniDBEp)
 
 		entryEp.IsDownloaded = true
-		entryEp.FileMetadata = opts.localFile.GetMetadata()
-		entryEp.Type = opts.localFile.GetType()
-		entryEp.LocalFile = opts.localFile
+		entryEp.FileMetadata = opts.LocalFile.GetMetadata()
+		entryEp.Type = opts.LocalFile.GetType()
+		entryEp.LocalFile = opts.LocalFile
 
 		// Set episode number and progress number
-		switch opts.localFile.Metadata.Type {
+		switch opts.LocalFile.Metadata.Type {
 		case LocalFileTypeMain:
-			entryEp.EpisodeNumber = opts.localFile.GetEpisodeNumber()
-			entryEp.ProgressNumber = opts.localFile.GetEpisodeNumber() + opts.progressOffset
+			entryEp.EpisodeNumber = opts.LocalFile.GetEpisodeNumber()
+			entryEp.ProgressNumber = opts.LocalFile.GetEpisodeNumber() + opts.ProgressOffset
 			if foundAnizipEpisode {
-				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.anizipMedia.GetOffset()
+				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnizipMedia.GetOffset()
 			}
 		case LocalFileTypeSpecial:
-			entryEp.EpisodeNumber = opts.localFile.GetEpisodeNumber()
+			entryEp.EpisodeNumber = opts.LocalFile.GetEpisodeNumber()
 			entryEp.ProgressNumber = 0
 		case LocalFileTypeNC:
 			entryEp.EpisodeNumber = 0
@@ -106,14 +106,14 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 
 		// Set titles
 		if len(entryEp.DisplayTitle) == 0 {
-			switch opts.localFile.Metadata.Type {
+			switch opts.LocalFile.Metadata.Type {
 			case LocalFileTypeMain:
 				if foundAnizipEpisode {
-					if *opts.media.GetFormat() == anilist.MediaFormatMovie {
-						entryEp.DisplayTitle = opts.media.GetPreferredTitle()
+					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 						entryEp.EpisodeTitle = "Complete Movie"
 					} else {
-						entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.localFile.GetEpisodeNumber())
+						entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
 						entryEp.EpisodeTitle = anizipEpisode.GetTitle()
 					}
 
@@ -136,7 +136,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 					entryEp.EpisodeTitle = ""
 					hydrated = true // Hydrated
 				} else {
-					entryEp.DisplayTitle = opts.localFile.GetParsedTitle()
+					entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
 					entryEp.EpisodeTitle = ""
 					hydrated = true // Hydrated
 				}
@@ -144,35 +144,35 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		} else {
 			hydrated = true // Hydrated
 		}
-		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.media)
+		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
 
 	}
 
 	// LocalFile does not exist
-	if !hydrated && len(opts.optionalAniDBEpisode) > 0 {
+	if !hydrated && len(opts.OptionalAniDBEpisode) > 0 {
 
 		// Get the AniZip episode
-		if anizipEpisode, foundAnizipEpisode := opts.anizipMedia.FindEpisode(opts.optionalAniDBEpisode); foundAnizipEpisode {
+		if anizipEpisode, foundAnizipEpisode := opts.AnizipMedia.FindEpisode(opts.OptionalAniDBEpisode); foundAnizipEpisode {
 
 			entryEp.IsDownloaded = false
 			entryEp.Type = LocalFileTypeMain
-			if strings.HasPrefix(opts.optionalAniDBEpisode, "S") {
+			if strings.HasPrefix(opts.OptionalAniDBEpisode, "S") {
 				entryEp.Type = LocalFileTypeSpecial
-			} else if strings.HasPrefix(opts.optionalAniDBEpisode, "OP") || strings.HasPrefix(opts.optionalAniDBEpisode, "ED") {
+			} else if strings.HasPrefix(opts.OptionalAniDBEpisode, "OP") || strings.HasPrefix(opts.OptionalAniDBEpisode, "ED") {
 				entryEp.Type = LocalFileTypeNC
 			}
 			entryEp.EpisodeNumber = 0
 			entryEp.ProgressNumber = 0
 
-			if episodeInt, ok := anizip.ExtractEpisodeInteger(opts.optionalAniDBEpisode); ok {
+			if episodeInt, ok := anizip.ExtractEpisodeInteger(opts.OptionalAniDBEpisode); ok {
 				entryEp.EpisodeNumber = episodeInt
 				if foundAnizipEpisode {
-					entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.anizipMedia.GetOffset()
+					entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnizipMedia.GetOffset()
 				}
 				switch entryEp.Type {
 				case LocalFileTypeMain:
-					if *opts.media.GetFormat() == anilist.MediaFormatMovie {
-						entryEp.DisplayTitle = opts.media.GetPreferredTitle()
+					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 						entryEp.EpisodeTitle = "Complete Movie"
 					} else {
 						entryEp.DisplayTitle = "Episode " + strconv.Itoa(episodeInt)
@@ -182,19 +182,19 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 					entryEp.DisplayTitle = "Special " + strconv.Itoa(episodeInt)
 					entryEp.EpisodeTitle = anizipEpisode.GetTitle()
 				case LocalFileTypeNC:
-					entryEp.DisplayTitle = opts.optionalAniDBEpisode
+					entryEp.DisplayTitle = opts.OptionalAniDBEpisode
 					entryEp.EpisodeTitle = ""
 				}
 				hydrated = true
 			}
 
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.media)
+			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
 		}
 
 	}
 
 	if !hydrated {
-		entryEp.DisplayTitle = opts.localFile.GetParsedTitle()
+		entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
 		entryEp.EpisodeTitle = ""
 		entryEp.IsInvalid = true
 		return entryEp

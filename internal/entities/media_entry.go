@@ -152,12 +152,12 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 		lf := lf
 		p.Go(func() *MediaEntryEpisode {
 			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
-				localFile:            lf,
-				optionalAniDBEpisode: "",
-				anizipMedia:          anizipData,
-				media:                e.Media,
-				progressOffset:       progressOffset,
-				isDownloaded:         true,
+				LocalFile:            lf,
+				OptionalAniDBEpisode: "",
+				AnizipMedia:          anizipData,
+				Media:                e.Media,
+				ProgressOffset:       progressOffset,
+				IsDownloaded:         true,
 			})
 		})
 	}

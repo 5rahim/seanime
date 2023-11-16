@@ -57,6 +57,19 @@ func ValueContainsIgnoredKeywords(val string) bool {
 
 	return false
 }
+func ValueContainsBatchKeywords(val string) bool {
+	regexes := []*regexp.Regexp{
+		regexp.MustCompile(`(?i)[({\[]?\s?(EXTRAS|OVAS|OTHERS|SPECIALS|MOVIES|SEASONS|BATCH|COMPLETE|COMPLETE SERIES)\s?[])}]?\s?`),
+	}
+
+	for _, regex := range regexes {
+		if regex.MatchString(val) {
+			return true
+		}
+	}
+
+	return false
+}
 
 func ValueContainsNC(val string) bool {
 	regexes := []*regexp.Regexp{
