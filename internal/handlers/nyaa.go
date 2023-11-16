@@ -25,7 +25,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	ret := make([]nyaa.Torrent, 0)
 
 	if len(b.Query) == 0 {
-		query, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
+		queries, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
 			Media:          b.Media,
 			Batch:          b.Batch,
 			EpisodeNumber:  b.EpisodeNumber,
@@ -35,11 +35,11 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		if !ok {
 			return c.RespondWithError(errors.New("could not build search query"))
 		}
-		res, err := nyaa.Search(nyaa.SearchOptions{
+		res, err := nyaa.SearchMultiple(nyaa.SearchMultipleOptions{
 			Provider: "nyaa",
-			Query:    query,
-			Category: "anime",
-			SortBy:   "downloads",
+			Query:    queries,
+			Category: "anime-eng",
+			SortBy:   "seeders",
 			Filter:   "",
 		})
 		if err != nil {
@@ -50,8 +50,8 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		res, err := nyaa.Search(nyaa.SearchOptions{
 			Provider: "nyaa",
 			Query:    b.Query,
-			Category: "anime",
-			SortBy:   "downloads",
+			Category: "anime-eng",
+			SortBy:   "seeders",
 			Filter:   "",
 		})
 		if err != nil {

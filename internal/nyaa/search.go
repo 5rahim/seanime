@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/sourcegraph/conc/pool"
 	"strings"
 	"unicode"
 )
@@ -22,7 +23,15 @@ type (
 		SortBy   string
 		Filter   string
 	}
+	SearchMultipleOptions struct {
+		Provider string
+		Query    []string
+		Category string
+		SortBy   string
+		Filter   string
+	}
 	BuildSearchQueryOptions struct {
+		Title          *string
 		Media          *anilist.BaseMedia
 		Batch          *bool
 		EpisodeNumber  *int
@@ -40,6 +49,8 @@ func Search(opts SearchOptions) ([]Torrent, error) {
 		return nil, err
 	}
 
+	println(url)
+
 	feed, err := fp.ParseURL(url)
 	if err != nil {
 		return nil, err
@@ -50,22 +61,48 @@ func Search(opts SearchOptions) ([]Torrent, error) {
 	return res, nil
 }
 
-func BuildSearchQuery(opts *BuildSearchQueryOptions) (string, bool) {
+func SearchMultiple(opts SearchMultipleOptions) ([]Torrent, error) {
 
-	if opts.Media == nil || opts.Batch == nil || opts.EpisodeNumber == nil || opts.AbsoluteOffset == nil {
-		return "", false
+	fp := gofeed.NewParser()
+
+	p := pool.NewWithResults[[]Torrent]()
+	for _, query := range opts.Query {
+		p.Go(func() []Torrent {
+			url, err := buildURL(SearchOptions{
+				Provider: opts.Provider,
+				Query:    query,
+				Category: opts.Category,
+				SortBy:   opts.SortBy,
+				Filter:   opts.Filter,
+			})
+			if err != nil {
+				return nil
+			}
+			feed, err := fp.ParseURL(url)
+			if err != nil {
+				return nil
+			}
+			return convertRSS(feed)
+		})
+	}
+	slicesSlice := p.Wait()
+	slicesSlice = lo.Filter(slicesSlice, func(i []Torrent, _ int) bool {
+		return i != nil
+	})
+	res := lo.Flatten(slicesSlice)
+
+	return res, nil
+}
+
+func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
+
+	if opts.Media == nil || opts.Batch == nil || opts.EpisodeNumber == nil || opts.AbsoluteOffset == nil || opts.Quality == nil {
+		return make([]string, 0), false
 	}
 
+	_ = *opts.EpisodeNumber
 	romTitle := opts.Media.GetRomajiTitleSafe()
 	engTitle := opts.Media.GetTitleSafe()
-
-	//episodes := []string{strconv.Itoa(*opts.EpisodeNumber)} FIXME remove
-	//// We include the offsetted episode if it's within the total episode count
-	//if *opts.AbsoluteOffset > 0 && opts.Media.GetCurrentEpisodeCount() > (*opts.EpisodeNumber+*opts.AbsoluteOffset) {
-	//	episodes = append(episodes, strconv.Itoa(*opts.EpisodeNumber+*opts.AbsoluteOffset))
-	//}
-
-	//parsedRom :=
 
 	season := 0
 	part := 0
@@ -102,32 +139,29 @@ func BuildSearchQuery(opts *BuildSearchQueryOptions) (string, bool) {
 		}
 	}
 
-	//// use tanuki to try and get a clean title
-	//parsedRom := tanuki.Parse(romTitle, tanuki.DefaultOptions)
-	//if parsedRom.AnimeTitle != "" {
-	//	titles = append(titles, parsedRom.AnimeTitle)
-	//}
-	//if engTitle != "" {
-	//	parsedEng := tanuki.Parse(engTitle, tanuki.DefaultOptions)
-	//	if parsedEng.AnimeTitle != "" {
-	//		titles = append(titles, parsedEng.AnimeTitle)
-	//	}
-	//}
+	if season == 0 && (strings.Contains(strings.ToLower(romTitle), " iii") || strings.Contains(strings.ToLower(engTitle), " iii")) {
+		season = 3
+	}
+	if season == 0 && (strings.Contains(strings.ToLower(romTitle), " ii") || strings.Contains(strings.ToLower(engTitle), " ii")) {
+		season = 2
+	}
+
+	split := strings.Split(romTitle, ":")
+	if len(split) > 1 && len(split[0]) > 8 {
+		titles = append(titles, split[0])
+	}
 
 	for i, title := range titles {
 		titles[i] = strings.TrimSpace(strings.ReplaceAll(title, ":", " "))
 		titles[i] = strings.TrimSpace(strings.ReplaceAll(titles[i], "-", " "))
 		titles[i] = strings.Join(strings.Fields(titles[i]), " ")
 		titles[i] = strings.ToLower(titles[i])
+		if season != 0 {
+			titles[i] = strings.ReplaceAll(titles[i], " iii", "")
+			titles[i] = strings.ReplaceAll(titles[i], " ii", "")
+		}
 	}
 	titles = lo.Uniq(titles)
-
-	//// Add some synonyms FIXME remove
-	//for _, syn := range opts.Media.Synonyms {
-	//	if len(*syn) > 4 && isMostlyLatinString(*syn) {
-	//		titles = append(titles, *syn)
-	//	}
-	//}
 
 	//
 	// Parameters
@@ -138,34 +172,131 @@ func BuildSearchQuery(opts *BuildSearchQueryOptions) (string, bool) {
 		canBatch = true
 	}
 
-	// Batch section
+	normalBuff := bytes.NewBufferString("")
+
+	// Batch section - empty unless:
 	// 1. If the media is finished and has more than 1 episode
 	// 2. If the media is not a movie
 	// 3. If the media is not a single episode
-	batchBuff := bytes.NewBufferString("") // this will be joined by |
+	batchBuff := bytes.NewBufferString("")
 	if *opts.Batch && canBatch && *opts.Media.GetFormat() != anilist.MediaFormatMovie && opts.Media.GetTotalEpisodeCount() != 1 {
-		batchBuff.WriteString("(")
-		// e.g. 01-12
-		s1 := fmt.Sprintf("%s%s%s", zeropad("1"), " - ", zeropad(opts.Media.GetTotalEpisodeCount()))
-		batchBuff.WriteString(s1)
-		batchBuff.WriteString("|")
-		// e.g. 01~12
-		s2 := fmt.Sprintf("%s%s%s", zeropad("1"), " ~ ", zeropad(opts.Media.GetTotalEpisodeCount()))
-		batchBuff.WriteString(s2)
-		batchBuff.WriteString("|")
-		// e.g. 01~12
-		batchBuff.WriteString("Batch")
-		batchBuff.WriteString("|")
-		batchBuff.WriteString("Complete")
-		batchBuff.WriteString(")")
+		if season != 0 {
+			batchBuff.WriteString(getSeasonGroup(season))
+		}
+		if part != 0 {
+			batchBuff.WriteString(getPartGroup(part))
+		}
+		batchBuff.WriteString(getBatchGroup(opts.Media))
+
+	} else {
+
+		normalBuff.WriteString(getSeasonGroup(season))
+		if part != 0 {
+			normalBuff.WriteString(getPartGroup(part))
+		}
+		normalBuff.WriteString(getEpisodeGroup(*opts.EpisodeNumber))
+
 	}
+
+	titleStr := getTitleGroup(titles)
 	batchStr := batchBuff.String()
+	normalStr := normalBuff.String()
 
-	titleStr := fmt.Sprintf("(%s)", strings.Join(titles, "|"))
+	// Replace titleStr if user provided one
+	if opts.Title != nil && *opts.Title != "" {
+		titleStr = fmt.Sprintf(`(%s)`, *opts.Title)
+	}
 
-	println(spew.Sdump(titleStr, batchStr))
+	println(spew.Sdump(titleStr, batchStr, normalStr))
 
-	return "", false
+	query := fmt.Sprintf("%s%s%s%s", titleStr, batchStr, normalStr, *opts.Quality)
+	query2 := ""
+
+	// Absolute episode addition
+	if !*opts.Batch && *opts.AbsoluteOffset > 0 {
+		query2 = fmt.Sprintf("%s%s", getAbsoluteGroup(titleStr, opts), *opts.Quality) // e.g. jujutsu kaisen 25
+	}
+
+	println(spew.Sdump(query, query2))
+
+	ret := []string{query}
+	if query2 != "" {
+		ret = append(ret, query2)
+	}
+
+	return ret, true
+}
+
+// (jjk|jujutsu kaisen)
+func getTitleGroup(titles []string) string {
+	return fmt.Sprintf("(%s)", strings.Join(titles, "|"))
+}
+
+func getAbsoluteGroup(title string, opts *BuildSearchQueryOptions) string {
+	return fmt.Sprintf("(%s(%d))", title, *opts.EpisodeNumber+*opts.AbsoluteOffset)
+}
+
+// (s01e01)
+func getSeasonAndEpisodeGroup(season int, ep int) string {
+	if season == 0 {
+		season = 1
+	}
+	return fmt.Sprintf(`"s%se%s"`, zeropad(season), zeropad(ep))
+}
+
+// (01|e01|e01v|ep01|ep1)
+func getEpisodeGroup(ep int) string {
+	pEp := zeropad(ep)
+	//return fmt.Sprintf(`("%s"|"e%s"|"e%sv"|"%sv"|"ep%s"|"ep%d")`, pEp, pEp, pEp, pEp, pEp, ep)
+	return fmt.Sprintf(`(%s|e%s|e%sv|%sv|ep%s|ep%d)`, pEp, pEp, pEp, pEp, pEp, ep)
+}
+
+// (season 1|season 01|s1|s01)
+func getSeasonGroup(season int) string {
+	// Season section
+	seasonBuff := bytes.NewBufferString("")
+	// e.g. S1, season 1, season 01
+	if season != 0 {
+		seasonBuff.WriteString(fmt.Sprintf(`("%s%d"|`, "season ", season))
+		seasonBuff.WriteString(fmt.Sprintf(`"%s%s"|`, "season ", zeropad(season)))
+		seasonBuff.WriteString(fmt.Sprintf(`"%s%d"|`, "s", season))
+		seasonBuff.WriteString(fmt.Sprintf(`"%s%s")`, "s", zeropad(season)))
+		//seasonBuff.WriteString(fmt.Sprintf(`(%s%d|`, "season ", season))
+		//seasonBuff.WriteString(fmt.Sprintf(`%s%s|`, "season ", zeropad(season)))
+		//seasonBuff.WriteString(fmt.Sprintf(`%s%d|`, "s", season))
+		//seasonBuff.WriteString(fmt.Sprintf(`%s%s)`, "s", zeropad(season)))
+	}
+	return seasonBuff.String()
+}
+func getPartGroup(part int) string {
+	partBuff := bytes.NewBufferString("")
+	if part != 0 {
+		partBuff.WriteString(fmt.Sprintf(`("%s%d")`, "part ", part))
+	}
+	return partBuff.String()
+}
+
+func getBatchGroup(m *anilist.BaseMedia) string {
+	buff := bytes.NewBufferString("")
+	buff.WriteString("(")
+	// e.g. 01-12
+	s1 := fmt.Sprintf(`"%s%s%s"`, zeropad("1"), " - ", zeropad(m.GetTotalEpisodeCount()))
+	buff.WriteString(s1)
+	buff.WriteString("|")
+	// e.g. 01~12
+	s2 := fmt.Sprintf(`"%s%s%s"`, zeropad("1"), " ~ ", zeropad(m.GetTotalEpisodeCount()))
+	buff.WriteString(s2)
+	buff.WriteString("|")
+	// e.g. 01~12
+	buff.WriteString(`"Batch"|`)
+	buff.WriteString(`"Complete"|`)
+	buff.WriteString(`"+ OVA"|`)
+	buff.WriteString(`"+ Specials"|`)
+	buff.WriteString(`"+ Special"|`)
+	buff.WriteString(`"Seasons"|`)
+	buff.WriteString(`"Parts"`)
+	buff.WriteString(")")
+	return buff.String()
 }
 
 func zeropad(v interface{}) string {

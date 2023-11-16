@@ -13,8 +13,8 @@ func TestSearch(t *testing.T) {
 	res, err := Search(SearchOptions{
 		Provider: "nyaa",
 		Query:    "one piece",
-		Category: "anime",
-		SortBy:   "downloads",
+		Category: "anime-eng",
+		SortBy:   "seeders",
 		Filter:   "",
 	})
 
@@ -33,9 +33,9 @@ func TestBuildSearchQuery(t *testing.T) {
 	assert.NotNil(t, collec)
 
 	//entry, found := collec.GetListEntryFromMediaId(161645) //
-	//entry, found := collec.GetListEntryFromMediaId(145064) // jjk2
+	entry, found := collec.GetListEntryFromMediaId(145064) // jjk2
 	//entry, found := collec.GetListEntryFromMediaId(163205) // mononogatari 2
-	entry, found := collec.GetListEntryFromMediaId(146065) // mushoku tensei season 2
+	//entry, found := collec.GetListEntryFromMediaId(146065) // mushoku tensei season 2
 	//entry, found := collec.GetListEntryFromMediaId(140439) // mob psycho 3
 	//entry, found := collec.GetListEntryFromMediaId(119661) // rezero season 2 part 2
 	//entry, found := collec.GetListEntryFromMediaId(131681) // attack on titan season 4 part 2
@@ -43,15 +43,28 @@ func TestBuildSearchQuery(t *testing.T) {
 	assert.True(t, found)
 	assert.NotNil(t, entry.Media)
 
-	ret, ok := BuildSearchQuery(&BuildSearchQueryOptions{
+	queries, ok := BuildSearchQuery(&BuildSearchQueryOptions{
 		Media:          entry.Media,
-		Batch:          lo.ToPtr(true),
-		EpisodeNumber:  lo.ToPtr(6),
-		AbsoluteOffset: lo.ToPtr(0),
-		Quality:        lo.ToPtr("1080"),
+		Batch:          lo.ToPtr(false),
+		EpisodeNumber:  lo.ToPtr(16),
+		AbsoluteOffset: lo.ToPtr(24),
+		Quality:        lo.ToPtr(""),
+		//Title:          lo.ToPtr("Re zero"),
 	})
 	assert.True(t, ok)
 
-	t.Log(spew.Sdump(ret))
+	res, err := SearchMultiple(SearchMultipleOptions{
+		Provider: "nyaa",
+		Query:    queries,
+		Category: "anime-eng",
+		SortBy:   "seeders",
+		Filter:   "",
+	})
+	assert.NoError(t, err, "error searching nyaa")
+
+	t.Log("=====================================")
+	for _, torrent := range res {
+		t.Log(spew.Sdump(torrent.Name))
+	}
 
 }
