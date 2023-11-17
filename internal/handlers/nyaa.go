@@ -72,6 +72,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		if !ok {
 			return c.RespondWithError(errors.New("could not build search query"))
 		}
+		c.App.Logger.Trace().Msgf("nyaa query: %+v", queries)
 		res, err := nyaa.SearchMultiple(nyaa.SearchMultipleOptions{
 			Provider: "nyaa",
 			Query:    queries,

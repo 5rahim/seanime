@@ -3,7 +3,6 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
@@ -289,8 +288,6 @@ func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
 	if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
 		query2 = titleStr
 	}
-
-	println(spew.Sdump(query, query2))
 
 	ret := []string{query}
 	if query2 != "" {

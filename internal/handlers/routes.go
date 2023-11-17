@@ -125,6 +125,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/nyaa/search", makeHandler(app, HandleNyaaSearch))
 
 	//
+	// qBittorrent
+	//
+
+	v1.Post("/download", makeHandler(app, HandleDownloadNyaaTorrents))
+
+	//
 	// Websocket
 	//
 

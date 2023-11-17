@@ -2,8 +2,8 @@ package qbittorrent_util
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
 	"io"
 	"io/ioutil"
