@@ -111,8 +111,7 @@ func (c Client) StopTorrents(hashes []string) error {
 	value := strings.Join(hashes, "|")
 	params := url.Values{}
 	params.Add("hashes", value)
-	endpoint := c.BaseUrl + "/pause?" + params.Encode()
-	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/pause", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
 	return nil
@@ -122,8 +121,8 @@ func (c Client) ResumeTorrents(hashes []string) error {
 	value := strings.Join(hashes, "|")
 	params := url.Values{}
 	params.Add("hashes", value)
-	endpoint := c.BaseUrl + "/resume?" + params.Encode()
-	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
+	//endpoint := c.BaseUrl + "/resume?" + params.Encode()
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/resume", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
 	return nil
@@ -261,8 +260,8 @@ func (c Client) SetFilePriorities(hash string, ids []string, priority qbittorren
 	params.Add("hash", hash)
 	params.Add("id", strings.Join(ids, "|"))
 	params.Add("priority", strconv.Itoa(int(priority)))
-	endpoint := c.BaseUrl + "/filePrio?" + params.Encode()
-	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
+	//endpoint := c.BaseUrl + "/filePrio?" + params.Encode()
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/filePrio", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
 	return nil

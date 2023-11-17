@@ -50,13 +50,13 @@ func TestScanner_Scan(t *testing.T) {
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		media:              mc.allMedia,
-		localFiles:         localFiles,
-		anizipCache:        anizipCache,
-		anilistClient:      anilistClient,
-		baseMediaCache:     baseMediaCache,
-		anilistRateLimiter: anilistRateLimiter,
-		logger:             logger,
+		Media:              mc.allMedia,
+		LocalFiles:         localFiles,
+		AnizipCache:        anizipCache,
+		AnilistClient:      anilistClient,
+		BaseMediaCache:     baseMediaCache,
+		AnilistRateLimiter: anilistRateLimiter,
+		Logger:             logger,
 	}
 	hydrator.HydrateMetadata()
 

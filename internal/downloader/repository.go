@@ -1,15 +1,12 @@
 package downloader
 
 import (
-	"errors"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime-server/internal/entities"
 	"github.com/seanime-app/seanime-server/internal/events"
-	"github.com/seanime-app/seanime-server/internal/nyaa"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
-	"time"
 )
 
 type (
@@ -26,6 +23,12 @@ type (
 		MissingEpisodeNumbers []int
 		AbsoluteOffset        int
 		Media                 *anilist.BaseMedia
+	}
+
+	TmpLocalFile struct {
+		torrentContent *qbittorrent_model.TorrentContent
+		localFile      *entities.LocalFile
+		index          int
 	}
 )
 
@@ -57,80 +60,26 @@ func (r *QbittorrentRepository) RemoveTorrents(hashes []string) error {
 
 }
 
-func (r *QbittorrentRepository) SmartSelect(opts *SmartSelect) error {
-	if !opts.Enabled {
-		return nil
-	}
+func (r *QbittorrentRepository) PauseTorrents(hashes []string) error {
 
-	// 3. on smartSelect, wait for torrents to finish loading, then select the appropriate files
-	// 3.1 - on duplicate episode numbers, return error
-	// 3.2 - on missing episode numbers, return error
-
-	if len(opts.Magnets) != 1 {
-		return errors.New("incorrect number of magnets")
-	}
-
-	if opts.Enabled && opts.Media == nil {
-		return errors.New("no media found")
-	}
-
-	magnet := opts.Magnets[0]
-	// get hash
-	hash, ok := nyaa.ExtractHashFromMagnet(magnet)
-	if !ok {
-		return errors.New("could not extract hash")
-	}
-
-	// ticker
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-
-	// Set a timeout of 30 seconds
-	timeout := time.After(30 * time.Second)
-
-	// exit
-	done := make(chan struct{})
-
-	var err error
-
-	var contents []*qbittorrent_model.TorrentContent
-
-	contentsChan := make(chan []*qbittorrent_model.TorrentContent)
-
-	// get torrent contents when it's done loading
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				ret, _ := r.Client.Torrent.GetContents(hash)
-				if ret != nil && len(ret) > 0 {
-					contentsChan <- ret
-					return
-				}
-			case <-timeout:
-				return
-			}
-		}
-	}()
-
-workDone:
-	for {
-		select {
-		case <-done:
-			break workDone
-		case <-timeout:
-			err = errors.New("timeout occurred: unable to retrieve torrent content")
-			close(done)
-		case contents = <-contentsChan:
-			close(done)
-		}
-	}
+	err := r.Client.Torrent.StopTorrents(hashes)
 
 	if err != nil {
-		return err
+		r.Logger.Err(err).Msg("downloader: Error while pausing torrents")
 	}
 
-	println(spew.Sdump(contents))
+	return err
 
-	return nil
+}
+
+func (r *QbittorrentRepository) ResumeTorrents(hashes []string) error {
+
+	err := r.Client.Torrent.StopTorrents(hashes)
+
+	if err != nil {
+		r.Logger.Err(err).Msg("downloader: Error while resuming torrents")
+	}
+
+	return err
+
 }

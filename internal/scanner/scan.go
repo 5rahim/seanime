@@ -125,11 +125,8 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 	}
 
-	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
-
-	scn.Logger.Debug().Msg("scanner: Scan completed")
-
 	// Merge skipped files with scanned files
+	// Only files that exist (this removes deleted/moved files)
 	if len(skippedLfs) > 0 {
 		for _, sf := range skippedLfs {
 			if filesystem.FileExists(sf.Path) {
@@ -137,6 +134,9 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 			}
 		}
 	}
+
+	scn.Logger.Debug().Msg("scanner: Scan completed")
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
 
 	return localFiles, nil
 

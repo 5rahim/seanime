@@ -45,6 +45,9 @@ func TestSmartSelect(t *testing.T) {
 	// get repo
 	repo := getRepo(t)
 
+	err := repo.Client.Start()
+	assert.NoError(t, err)
+
 	// get magnet
 	magnet, err := nyaa.TorrentMagnet(url)
 	assert.NoError(t, err)
@@ -65,11 +68,11 @@ func TestSmartSelect(t *testing.T) {
 		Magnets:               []string{magnet},
 		Enabled:               true,
 		MissingEpisodeNumbers: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
-		AbsoluteOffset:        0,
+		AbsoluteOffset:        12,
 		Media:                 anilistEntry.Media,
 	})
 
-	err = repo.RemoveTorrents([]string{hash})
+	err = repo.PauseTorrents([]string{hash})
 
 }
 
