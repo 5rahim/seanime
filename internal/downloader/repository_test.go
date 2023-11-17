@@ -24,6 +24,9 @@ func getRepo(t *testing.T) *QbittorrentRepository {
 		Path:     "C:/Program Files/qBittorrent/qbittorrent.exe",
 	})
 
+	err := qBittorrentClient.Login()
+	assert.NoError(t, err)
+
 	// create repository
 	repo := &QbittorrentRepository{
 		Logger:         logger,

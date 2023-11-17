@@ -105,6 +105,7 @@ func (r *QbittorrentRepository) SmartSelect(opts *SmartSelect) error {
 				ret, _ := r.Client.Torrent.GetContents(hash)
 				if ret != nil && len(ret) > 0 {
 					contentsChan <- ret
+					return
 				}
 			case <-timeout:
 				return

@@ -132,10 +132,10 @@ func (c Client) ResumeTorrents(hashes []string) error {
 func (c Client) DeleteTorrents(hashes []string, deleteFiles bool) error {
 	value := strings.Join(hashes, "|")
 	params := url.Values{}
-	params.Add("hashes", value)
 	params.Add("deleteFiles", fmt.Sprintf("%v", deleteFiles))
-	endpoint := c.BaseUrl + "/delete?" + params.Encode()
-	if err := qbittorrent_util.Post(c.Client, endpoint, nil); err != nil {
+	params.Add("hashes", value)
+	//endpoint := c.BaseUrl + "/delete?" + params.Encode()
+	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/delete", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
 		return err
 	}
 	return nil
