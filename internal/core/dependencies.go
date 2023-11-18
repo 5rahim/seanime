@@ -99,7 +99,7 @@ func (a *App) initLibraryWatcher(path string) {
 	a.Watcher = watcher
 
 	// Start watching
-	a.Watcher.StartWatching()
+	//a.Watcher.StartWatching() FIXME
 
 }
 

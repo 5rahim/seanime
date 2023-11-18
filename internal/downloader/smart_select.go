@@ -17,8 +17,9 @@ import (
 )
 
 // SmartSelect will select only episodes that are missing from the batch.
-// It will return an error is SmartSelect.Magnets has more than one magnet.
+// It will return an error is SmartSelect.Magnets has more than one magnet link.
 // The torrent will be deleted when an error occurs.
+// SmartSelect will block until it is done.
 func (r *QbittorrentRepository) SmartSelect(opts *SmartSelect) error {
 	if !opts.Enabled {
 		return nil

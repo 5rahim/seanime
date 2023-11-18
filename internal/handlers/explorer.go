@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
@@ -19,14 +18,19 @@ func HandleOpenInExplorer(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	dir := p.Path
+	openDirInExplorer(p.Path)
+
+	return c.RespondWithData(true)
+
+}
+
+func openDirInExplorer(dir string) {
 	cmd := ""
 	var args []string
 
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "explorer"
-		// Convert the directory path to lowercase for case-insensitivity
 		lowerCasePath := strings.ToLower(dir)
 		args = []string{lowerCasePath}
 	case "darwin":
@@ -36,13 +40,10 @@ func HandleOpenInExplorer(c *RouteCtx) error {
 		cmd = "xdg-open"
 		args = []string{dir}
 	default:
-		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
+		return
 	}
 	cmdObj := exec.Command(cmd, args...)
 	cmdObj.Stdout = os.Stdout
 	cmdObj.Stderr = os.Stderr
 	_ = cmdObj.Run()
-
-	return c.RespondWithData(true)
-
 }

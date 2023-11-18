@@ -129,6 +129,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1.Post("/download", makeHandler(app, HandleDownloadNyaaTorrents))
+	v1.Get("/torrents", makeHandler(app, HandleGetActiveTorrentList))
+	v1.Post("/torrent", makeHandler(app, HandleTorrentAction))
 
 	//
 	// Websocket
