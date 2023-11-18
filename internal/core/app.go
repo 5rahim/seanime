@@ -22,30 +22,36 @@ import (
 	"strings"
 )
 
-type App struct {
-	Config            *Config
-	Database          *_db.Database
-	Logger            *zerolog.Logger
-	QBittorrent       *qbittorrent.Client
-	Watcher           *scanner.Watcher
-	AnizipCache       *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-	AnilistClient     *anilist.Client
-	NyaaSearchCache   *nyaa.SearchCache
-	anilistCollection *anilist.AnimeCollection
-	account           *models.Account
-	WSEventManager    *events.WSEventManager
-	MediaPlayer       struct {
-		VLC   *vlc.VLC
-		MpcHc *mpchc.MpcHc
+type (
+	App struct {
+		Config            *Config
+		Database          *_db.Database
+		Logger            *zerolog.Logger
+		QBittorrent       *qbittorrent.Client
+		Watcher           *scanner.Watcher
+		AnizipCache       *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+		AnilistClient     *anilist.Client
+		NyaaSearchCache   *nyaa.SearchCache
+		anilistCollection *anilist.AnimeCollection
+		account           *models.Account
+		WSEventManager    *events.WSEventManager
+		MediaPlayer       struct {
+			VLC   *vlc.VLC
+			MpcHc *mpchc.MpcHc
+		}
 	}
-}
 
-type ServerOptions struct {
-	Config *ConfigOptions
+	AppOptions struct {
+		Config *ConfigOptions
+	}
+)
+
+var DefaultAppOptions = AppOptions{
+	Config: &DefaultConfig,
 }
 
 // NewApp creates a new server instance
-func NewApp(options *ServerOptions) *App {
+func NewApp(options *AppOptions) *App {
 
 	opts := *options
 
@@ -56,10 +62,8 @@ func NewApp(options *ServerOptions) *App {
 
 	logger := util.NewLogger()
 
-	/*
-	 Initialize the config
-	 If the config file does not exist, it will be created
-	*/
+	// Initialize the config
+	// If the config file does not exist, it will be created
 	cfg, err := NewConfig(opts.Config)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
@@ -68,14 +72,15 @@ func NewApp(options *ServerOptions) *App {
 
 	logger.Info().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
 
-	/*
-	 Initialize the database
-	*/
+	// Initialize the database
 	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
 		os.Exit(1)
 	}
+
+	// Delete old local file entries
+	db.CleanUpLocalFiles()
 
 	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
@@ -115,6 +120,7 @@ func NewFiberApp(app *App) *fiber.App {
 
 	return fiberApp
 }
+
 func NewFiberWebApp() *fiber.App {
 	// Create a new fiber app
 	fiberApp := fiber.New(fiber.Config{

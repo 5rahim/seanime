@@ -38,8 +38,10 @@ func getRepo(t *testing.T) *QbittorrentRepository {
 	return repo
 }
 
-const url = "https://nyaa.si/view/1661695" // spy x family (01-25)
-const mediaId = 142838                     // spy x family part 2
+// const url = "https://nyaa.si/view/1661695" // spy x family (01-25)
+// const mediaId = 142838                     // spy x family part 2
+const url = "https://nyaa.si/view/1553978" // kakegurui season 1 + season 2
+const mediaId = 100876                     // kakegurui xx
 
 func TestSmartSelect(t *testing.T) {
 	// get repo
@@ -67,10 +69,11 @@ func TestSmartSelect(t *testing.T) {
 	err = repo.SmartSelect(&SmartSelect{
 		Magnets:               []string{magnet},
 		Enabled:               true,
-		MissingEpisodeNumbers: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
-		AbsoluteOffset:        12,
+		MissingEpisodeNumbers: []int{10, 11, 12},
+		AbsoluteOffset:        0,
 		Media:                 anilistEntry.Media,
 	})
+	assert.NoError(t, err)
 
 	err = repo.PauseTorrents([]string{hash})
 

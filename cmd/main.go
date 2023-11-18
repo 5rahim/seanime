@@ -15,7 +15,7 @@ func main() {
 	myFigure.Print()
 	fmt.Println()
 
-	app := core.NewApp(&core.ServerOptions{})
+	app := core.NewApp(&core.DefaultAppOptions)
 	fiberApp := core.NewFiberApp(app)
 	//fiberWebApp := core.NewFiberWebApp()
 
