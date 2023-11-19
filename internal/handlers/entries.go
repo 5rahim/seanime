@@ -148,7 +148,7 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("local file not found"))
 	}
 
-	dir := filepath.Dir(lf.Path)
+	dir := filepath.Dir(lf.GetPath())
 	cmd := ""
 	var args []string
 
@@ -202,7 +202,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 	// Group local files by dir
 	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
-		return filepath.Dir(item.Path)
+		return filepath.Dir(item.GetPath())
 	})
 
 	selectedLfs, found := groupedLfs[b.Dir]
@@ -277,7 +277,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	// Group local files by dir
 	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
-		return filepath.Dir(item.Path)
+		return filepath.Dir(item.GetPath())
 	})
 
 	selectedLfs, found := groupedLfs[b.Dir]
@@ -293,7 +293,6 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		item.Ignored = false
 		return item
 	})
-	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.Path })
 
 	// Get the media
 	mediaRes, err := c.App.AnilistClient.BaseMediaByID(context.Background(), &b.MediaId)
@@ -313,9 +312,10 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	fh.HydrateMetadata()
 
-	// Remove select local files from the slice
+	// Remove select local files from the databse slice, we will add them (hydrated) later
+	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.GetPath() })
 	lfs = lo.Filter(lfs, func(item *entities.LocalFile, _ int) bool {
-		if slices.Contains(selectedPaths, item.Path) {
+		if slices.Contains(selectedPaths, item.GetPath()) {
 			return false
 		}
 		return true

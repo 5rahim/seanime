@@ -31,8 +31,8 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 		MediaId  int                         `json:"mediaId"`
 	}
 
-	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -43,15 +43,15 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 	}
 
 	lf, found := lo.Find(lfs, func(i *entities.LocalFile) bool {
-		return i.Path == p.Path
+		return i.HasSamePath(b.Path)
 	})
 	if !found {
 		return c.RespondWithError(errors.New("local file not found"))
 	}
-	lf.Metadata = p.Metadata
-	lf.Locked = p.Locked
-	lf.Ignored = p.Ignored
-	lf.MediaId = p.MediaId
+	lf.Metadata = b.Metadata
+	lf.Locked = b.Locked
+	lf.Ignored = b.Ignored
+	lf.MediaId = b.MediaId
 
 	// Save the local files
 	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)

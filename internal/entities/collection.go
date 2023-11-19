@@ -273,7 +273,7 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 
 	// Group by directory
 	groupedLfs := lop.GroupBy(lc.UnmatchedLocalFiles, func(lf *LocalFile) string {
-		return filepath.Dir(lf.Path)
+		return filepath.Dir(lf.GetPath())
 	})
 
 	for key, value := range groupedLfs {

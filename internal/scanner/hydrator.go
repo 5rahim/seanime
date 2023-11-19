@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// FileHydrator hydrates the metadata of (matched) LocalFiles.
+// FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
 	LocalFiles         []*entities.LocalFile // Local files to hydrate
@@ -153,7 +153,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				// The media tree will be used to normalize episode numbers
 				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClient, fh.AnilistRateLimiter, tree, fh.BaseMediaCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
-					mta := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
+					mta, _ := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,
 						anizipCache: fh.AnizipCache,
 						rateLimiter: rateLimiter,

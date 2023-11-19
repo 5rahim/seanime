@@ -38,8 +38,6 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		return nil, err
 	}
 
-	// TODO: If SkipLockedFiles or SkipIgnoredFiles is true, filter out skipped files (1)
-
 	// Get skipped files depending on options
 	skippedLfs := make([]*entities.LocalFile, 0)
 	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
@@ -52,12 +50,10 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 			}
 		}
 
-		// Remove skipped files for local files that will be hydrated
+		// Remove skipped files from local files that will be hydrated
 		localFiles = lo.Filter(localFiles, func(lf *entities.LocalFile, _ int) bool {
-			for _, sf := range skippedLfs {
-				if lf.Path == sf.Path {
-					return false
-				}
+			if lf.IsIncluded(skippedLfs) {
+				return false
 			}
 			return true
 		})

@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"errors"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
@@ -8,27 +9,30 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-type MediaTreeAnalysisOptions struct {
-	tree        *anilist.BaseMediaRelationTree
-	anizipCache *anizip.Cache
-	rateLimiter *limiter.Limiter
-}
+type (
+	MediaTreeAnalysisOptions struct {
+		tree        *anilist.BaseMediaRelationTree
+		anizipCache *anizip.Cache
+		rateLimiter *limiter.Limiter
+	}
 
-type MediaTreeAnalysis struct {
-	branches []*MediaTreeAnalysisBranch
-}
+	MediaTreeAnalysis struct {
+		branches []*MediaTreeAnalysisBranch
+	}
 
-type MediaTreeAnalysisBranch struct {
-	media              *anilist.BaseMedia
-	anizipMedia        *anizip.Media
-	minAbsoluteEpisode int
-	maxAbsoluteEpisode int
-}
+	MediaTreeAnalysisBranch struct {
+		media              *anilist.BaseMedia
+		anizipMedia        *anizip.Media
+		minAbsoluteEpisode int
+		maxAbsoluteEpisode int
+		totalEpisodeCount  int
+	}
+)
 
 // NewMediaTreeAnalysis will analyze the media tree and create and store a MediaTreeAnalysisBranch for each media in the tree.
 // Each MediaTreeAnalysisBranch will contain the min and max absolute episode number for the media.
 // The min and max absolute episode numbers are used to get the relative episode number from an absolute episode number.
-func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) *MediaTreeAnalysis {
+func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, error) {
 
 	relations := make([]*anilist.BaseMedia, 0)
 	opts.tree.Range(func(key int, value *anilist.BaseMedia) bool {
@@ -39,39 +43,54 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) *MediaTreeAnalysis {
 	// Get Anizip data for all related media in the tree
 	// With each Anizip media, get the min and max absolute episode number
 	// Create new MediaTreeAnalysisBranch for each Anizip media
-	p := pool.NewWithResults[*MediaTreeAnalysisBranch]()
+	p := pool.NewWithResults[*MediaTreeAnalysisBranch]().WithErrors()
 	for _, rel := range relations {
 		rel := rel
-		p.Go(func() *MediaTreeAnalysisBranch {
+		p.Go(func() (*MediaTreeAnalysisBranch, error) {
 			opts.rateLimiter.Wait()
-			if azm, err := anizip.FetchAniZipMedia("anilist", rel.ID); err == nil {
-
-				// Get the first episode
-				firstEp, ok := azm.Episodes["1"]
-				// If the first episode exists and has a valid absolute episode number, create a new MediaTreeAnalysisBranch
-				if azm.Episodes != nil && ok && firstEp.AbsoluteEpisodeNumber > 0 {
-					return &MediaTreeAnalysisBranch{
-						media:              rel,
-						anizipMedia:        azm,
-						minAbsoluteEpisode: firstEp.AbsoluteEpisodeNumber,
-						// The max absolute episode number is the first episode's absolute episode number plus the total episode count minus 1
-						// We subtract 1 because the first episode's absolute episode number is already included in the total episode count
-						// e.g, if the first episode's absolute episode number is 13 and the total episode count is 12, the max absolute episode number is 24
-						maxAbsoluteEpisode: (firstEp.AbsoluteEpisodeNumber - 1) + rel.GetTotalEpisodeCount(),
-					}
-				}
-
-			} else if err != nil {
-				println("anizip.FetchAniZipMedia error:", err.Error())
+			azm, err := anizip.FetchAniZipMedia("anilist", rel.ID)
+			if err != nil {
+				return nil, err
+			}
+			// Get the first episode
+			firstEp, ok := azm.Episodes["1"]
+			if !ok {
+				return &MediaTreeAnalysisBranch{}, errors.New("no first episode")
 			}
 
-			return &MediaTreeAnalysisBranch{}
+			// discrepancy: "seasonNumber":1,"episodeNumber":12,"absoluteEpisodeNumber":13,
+			// this happens when the media has a seperate entry but is technically the same season
+			// when we detect this, we should use the "episodeNumber" as the absoluteEpisodeNumber
+			// this is a hacky fix, but it works for the cases I've seen so far
+			shouldUseEpisodeNumber := firstEp.EpisodeNumber > 1 && firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber == 1
+
+			absoluteEpisodeNumber := firstEp.AbsoluteEpisodeNumber
+			if shouldUseEpisodeNumber {
+				absoluteEpisodeNumber = firstEp.AbsoluteEpisodeNumber - 1 // we offset by one
+			}
+
+			// If the first episode exists and has a valid absolute episode number, create a new MediaTreeAnalysisBranch
+			if azm.Episodes != nil && firstEp.AbsoluteEpisodeNumber > 0 {
+				return &MediaTreeAnalysisBranch{
+					media:              rel,
+					anizipMedia:        azm,
+					minAbsoluteEpisode: absoluteEpisodeNumber,
+					// The max absolute episode number is the first episode's absolute episode number plus the total episode count minus 1
+					// We subtract 1 because the first episode's absolute episode number is already included in the total episode count
+					// e.g, if the first episode's absolute episode number is 13 and the total episode count is 12, the max absolute episode number is 24
+					maxAbsoluteEpisode: (absoluteEpisodeNumber - 1) + rel.GetTotalEpisodeCount(),
+					totalEpisodeCount:  rel.GetTotalEpisodeCount(),
+				}, nil
+			}
+
+			return &MediaTreeAnalysisBranch{}, errors.New("could not analyze media tree branch")
 
 		})
 	}
-	branches := p.Wait()
+	branches, _ := p.Wait()
+	// we ignore the errors
 
-	return &MediaTreeAnalysis{branches: branches}
+	return &MediaTreeAnalysis{branches: branches}, nil
 
 }
 

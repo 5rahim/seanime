@@ -8,23 +8,25 @@ import (
 	"github.com/seanime-app/seanime-server/internal/result"
 )
 
-type BaseMediaRelationTree struct {
-	*result.Map[int, *BaseMedia]
-}
+type (
+	BaseMediaRelationTree struct {
+		*result.Map[int, *BaseMedia]
+	}
 
-// NewBaseMediaRelationTree returns a new result.Map[int, *BaseMedia].
-// It is used to store the results of FetchMediaTree or FetchMediaTree calls.
-func NewBaseMediaRelationTree() *BaseMediaRelationTree {
-	return &BaseMediaRelationTree{result.NewResultMap[int, *BaseMedia]()}
-}
-
-type FetchMediaTreeRelation = string
+	FetchMediaTreeRelation = string
+)
 
 const (
 	FetchMediaTreeSequels  FetchMediaTreeRelation = "sequels"
 	FetchMediaTreePrequels FetchMediaTreeRelation = "prequels"
 	FetchMediaTreeAll      FetchMediaTreeRelation = "all"
 )
+
+// NewBaseMediaRelationTree returns a new result.Map[int, *BaseMedia].
+// It is used to store the results of FetchMediaTree or FetchMediaTree calls.
+func NewBaseMediaRelationTree() *BaseMediaRelationTree {
+	return &BaseMediaRelationTree{result.NewResultMap[int, *BaseMedia]()}
+}
 
 // FetchMediaTree populates the BaseMediaRelationTree with the given media's sequels and prequels.
 // It also takes a BaseMediaCache to store the fetched media in and avoid duplicate fetches.

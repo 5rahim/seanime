@@ -52,6 +52,28 @@ func (f *LocalFile) IsIgnored() bool {
 	return f.Ignored
 }
 
+// GetPath returns the lowercased path of the LocalFile.
+// Use this for comparison.
+func (f *LocalFile) GetPath() string {
+	return strings.ToLower(f.Path)
+}
+func (f *LocalFile) HasSamePath(path string) bool {
+	return strings.ToLower(f.Path) == strings.ToLower(path)
+}
+
+func (f *LocalFile) Equals(lf *LocalFile) bool {
+	return strings.ToLower(f.Path) == strings.ToLower(lf.Path)
+}
+
+func (f *LocalFile) IsIncluded(lfs []*LocalFile) bool {
+	for _, lf := range lfs {
+		if f.Equals(lf) {
+			return true
+		}
+	}
+	return false
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 func buildTitle(vals ...string) string {
