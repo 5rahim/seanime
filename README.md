@@ -5,7 +5,7 @@
 <h2 align="center"><b>Seanime Server</b></h2>
 
 <h4 align="center">User-friendly, self-hosted server that brings you a Netflix-like experience for your local
-anime.</h4>
+anime library.</h4>
 
 <img src="images/main_6.png" alt="preview" width="100%"/>
 
