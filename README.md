@@ -13,10 +13,11 @@ anime library.</h4>
 
 Here are the main features of Seanime Server:
 
-- Web interface.
+- One-step scan of your anime library.
+- User-friendly web interface.
 - Seamless integration with AniList.
 - Scanner that automatically match local files with corresponding anime.
-- **No mandatory folder structure** / No need for renaming.
+- No mandatory folder structure / No need for renaming.
 - Support for torrents with absolute episode numbers.
 - Integrated torrent search engine with Nyaa and qBittorrent integration to download new episodes.
 - Automatically update your progress on AniList when you watch an episode using VLC or MPC-HC.
@@ -67,8 +68,6 @@ media.json
 
 # Screenshots
 
-# Screenshots
-
 ## Library
 
 <img src="images/img.png" alt="preview" width="100%"/>
@@ -77,6 +76,10 @@ media.json
 
 <img src="images/img_12.png" alt="preview" width="100%"/>
 
+## Torrent search & download
+
+<img src="images/img_1.png" alt="preview" width="100%"/>
+
 ## Discover
 
 <img src="images/img_11.png" alt="preview" width="100%"/>
@@ -84,10 +87,6 @@ media.json
 ## Schedule
 
 <img src="images/img_13.png" alt="preview" width="100%"/>
-
-## Torrent search & download
-
-<img src="images/img_14.png" alt="preview" width="100%"/>
 
 ## Progress tracking
 
