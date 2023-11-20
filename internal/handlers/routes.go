@@ -86,6 +86,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/library/local-files
 	v1Library.Get("/local-files", makeHandler(app, HandleGetLocalFiles))
 
+	// POST /v1/library/local-files
+	v1Library.Post("/local-files", makeHandler(app, HandleLocalFileBulkAction))
+
 	// Get the library collection
 	// GET /v1/library/collection
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))

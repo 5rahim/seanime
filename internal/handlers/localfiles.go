@@ -19,6 +19,46 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func HandleLocalFileBulkAction(c *RouteCtx) error {
+
+	type body struct {
+		Action string `json:"action"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get all the local files
+	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	switch b.Action {
+	case "lock":
+		for _, lf := range lfs {
+			lf.Locked = true
+		}
+	case "unlock":
+		for _, lf := range lfs {
+			lf.Locked = false
+		}
+	}
+
+	// Save the local files
+	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(retLfs)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 // HandleUpdateLocalFileData
 // POST
 func HandleUpdateLocalFileData(c *RouteCtx) error {
