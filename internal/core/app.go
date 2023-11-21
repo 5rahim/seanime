@@ -155,7 +155,7 @@ func RunServer(app *App, fiberApp *fiber.App) {
 }
 
 func RunWebApp(app *App, fiberWebApp *fiber.App) {
-	webAddr := fmt.Sprintf("%s:%d", app.Config.Server.Host, 43211)
+	webAddr := fmt.Sprintf("%s:%d", app.Config.Web.Host, app.Config.Web.Port)
 
 	go func() {
 		log.Fatal(fiberWebApp.Listen(webAddr))

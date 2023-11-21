@@ -53,6 +53,7 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 					}
 				case <-timeout:
 					ticker.Stop()
+					return
 				}
 			}
 		}()
