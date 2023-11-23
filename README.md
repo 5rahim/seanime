@@ -9,6 +9,9 @@ anime library.</h4>
 
 <img src="images/main_6.png" alt="preview" width="100%"/>
 
+🚨 This project is a hobby, it's not meant to fix every shortcoming or include every requested feature. Some features
+might not work as intended. Feel free to fork the project, contribute or open issues.
+
 # Features
 
 Here are the main features of Seanime Server:
@@ -31,6 +34,11 @@ It demands an internet connection to fetch metadata.
 
 - Add support for automatic syncing with MyAnimeList & Kitsu.
 - Add support for deleting files.
+- Scan logging.
+
+# Setup
+
+[How to use Seanime.](https://seanime.rahim.app/getting-started)
 
 # Development
 
