@@ -1,0 +1,91 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    main: ./cmd
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      #      - arm
+      - amd64
+      - arm64
+    goarm:
+      - 6
+      - 7
+    ignore:
+      - goos: windows
+        goarch: arm
+#      - goos: darwin
+#        goarch: 386
+#      - goos: linux
+#        goarch: 386
+
+checksum:
+  name_template: 'checksums.txt'
+
+archives:
+  - id: sea-archive
+    name_template: '{{- .ProjectName }}-
+        {{- .Version }}_
+        {{- if eq .Os "darwin" }}MacOS
+        {{- else }}{{- title .Os }}{{ end }}_
+        {{- if eq .Arch "amd64" }}x86_64
+        {{- else if eq .Arch "386" }}i386
+        {{- else }}{{ .Arch }}{{ end }}
+        {{- if .Arm }}v{{ .Arm }}{{ end -}}'
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - web/*
+      - README.md
+      - LICENSE.md
+
+nfpms:
+  - file_name_template: '{{- .ProjectName }}-
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}'
+    homepage: 'https://github.com/5rahim/seanime-server'
+    maintainer: 5rahim <talkwithrahim@gmail.com>
+    description: |-
+      Enhance your local anime library experience!
+    license: MIT
+
+    bindir: /usr/local/bin
+    section: utils
+
+    deb:
+      lintian_overrides:
+        - statically-linked-binary
+        - changelog-file-missing-in-native-package
+
+    formats:
+      - deb
+      - rpm
+
+release:
+  github:
+    owner: 5rahim
+    name: seanime-server
+
+  draft: true
+
+  replace_existing_draft: true
+
+  name_template: "v{{.Version}}"
+  header: |
+    ## What's new?
+
+  footer: |
+    ---
+    [Open an issue](https://github.com/5rahim/seanime-server/issues/new/choose)
+    Compare: https://github.com/5rahim/seanime-server/compare/{{ .PreviousTag }}...{{ .Tag }}

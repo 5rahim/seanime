@@ -67,6 +67,7 @@ media.json
   of [Tanuki](https://github.com/5rahim/tanuki)
 - [Anikki](https://github.com/Kylart/Anikki/) - Inspired GraphQL fragments
 - [Lunarr](https://github.com/lunarr-app/lunarr-go/) - Inspired the use of GORM
+- [Mangal](https://github.com/metafates/mangal) - Release note script
 
 # Screenshots
 

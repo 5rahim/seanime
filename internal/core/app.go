@@ -134,7 +134,20 @@ func NewFiberWebApp() *fiber.App {
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
 		path := c.OriginalURL()
 		if !strings.HasSuffix(path, ".html") {
-			path += ".html"
+			if strings.Contains(path, "?") {
+				// Split the path into the actual path and the query string
+				parts := strings.SplitN(path, "?", 2)
+				actualPath := parts[0]
+				queryString := parts[1]
+
+				// Add ".html" to the actual path
+				actualPath += ".html"
+
+				// Reassemble the path with the query string
+				path = actualPath + "?" + queryString
+			} else {
+				path += ".html"
+			}
 		}
 		return c.SendFile("web" + path)
 	})
