@@ -14,6 +14,8 @@ func main() {
 	myFigure := figure.NewFigure("Seanime", "big", true)
 	myFigure.Print()
 	fmt.Println()
+	fmt.Println("(alpha version, use at your own risk)")
+	fmt.Println()
 
 	app := core.NewApp(&core.DefaultAppOptions)
 	fiberApp := core.NewFiberApp(app)

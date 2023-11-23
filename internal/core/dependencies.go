@@ -61,17 +61,17 @@ func (a *App) InitOrRefreshDependencies() {
 	}
 
 	// Initialize library watcher
-
-	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
-		a.initLibraryWatcher(settings.Library.LibraryPath)
-	} else {
-		a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
-	}
+	// FIXME
+	//if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
+	//	a.initLibraryWatcher(settings.Library.LibraryPath)
+	//} else {
+	//	a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
+	//}
 
 	// Save account and Anilist collection
 	a.initAnilistData()
 
-	a.Logger.Info().Msg("app: All dependencies initialized")
+	a.Logger.Info().Msg("app: Initialized dependencies")
 
 }
 
@@ -99,7 +99,7 @@ func (a *App) initLibraryWatcher(path string) {
 	a.Watcher = watcher
 
 	// Start watching
-	//a.Watcher.StartWatching() FIXME
+	a.Watcher.StartWatching() // FIXME
 
 }
 

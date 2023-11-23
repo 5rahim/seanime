@@ -174,6 +174,6 @@ func RunWebApp(app *App, fiberWebApp *fiber.App) {
 		log.Fatal(fiberWebApp.Listen(webAddr))
 	}()
 
-	app.Logger.Info().Msg("WebApp started at http://" + webAddr)
+	app.Logger.Info().Msg("Web App started at http://" + webAddr)
 
 }
