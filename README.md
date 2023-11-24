@@ -71,7 +71,7 @@ media.json
 
 ## Acknowledgements
 
-- [Anitogo](https://github.com/Kylart/Anikki/) - Anime video filename parser. Original version
+- [Anitogo](https://github.com/nssteinbrenner/anitogo) - Anime video filename parser. Original version
   of [Tanuki](https://github.com/5rahim/tanuki)
 - [Anikki](https://github.com/Kylart/Anikki/) - Inspired GraphQL fragments
 - [Lunarr](https://github.com/lunarr-app/lunarr-go/) - Inspired the use of GORM
@@ -79,11 +79,15 @@ media.json
 
 # Screenshots
 
+<center>
+<img src="images/terminal.png" alt="preview" width="50%"/>
+</center>
+
 ## Library
 
 <img src="images/img.png" alt="preview" width="100%"/>
 
-## View
+## Media page
 
 <img src="images/img_12.png" alt="preview" width="100%"/>
 
