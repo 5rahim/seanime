@@ -27,6 +27,16 @@ type LocalFiles struct {
 	Value []byte `gorm:"column:value" json:"value"`
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+type AnifyMediaEpisodeImages struct {
+	BaseModel
+	MediaId string `gorm:"column:media_id" json:"mediaId"`
+	Value   []byte `gorm:"column:value" json:"value"`
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 type Settings struct {
 	BaseModel
 	Library     *LibrarySettings     `gorm:"embedded" json:"library"`

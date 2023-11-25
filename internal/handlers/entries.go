@@ -30,6 +30,10 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// EXPERIMENTAL
+	// Fetch the Anify episode covers
+	fetchMediaImagesEntry(c, mId)
+
 	// Get all the local files
 	lfs, err := getLocalFilesFromDB(c.App.Database)
 	if err != nil {
@@ -44,11 +48,12 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 
 	// Create a new media entry
 	entry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
-		MediaId:           mId,
-		LocalFiles:        lfs,
-		AnizipCache:       c.App.AnizipCache,
-		AnilistCollection: anilistCollection,
-		AnilistClient:     c.App.AnilistClient,
+		MediaId:                    mId,
+		LocalFiles:                 lfs,
+		AnizipCache:                c.App.AnizipCache,
+		AnilistCollection:          anilistCollection,
+		AnilistClient:              c.App.AnilistClient,
+		AnifyEpisodeImageContainer: c.App.AnifyEpisodeImageContainer,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -352,9 +357,10 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 	}
 
 	missingEps := entities.NewMissingEpisodes(&entities.NewMissingEpisodesOptions{
-		AnilistCollection: anilistCollection,
-		LocalFiles:        lfs,
-		AnizipCache:       c.App.AnizipCache,
+		AnilistCollection:          anilistCollection,
+		LocalFiles:                 lfs,
+		AnizipCache:                c.App.AnizipCache,
+		AnifyEpisodeImageContainer: c.App.AnifyEpisodeImageContainer,
 	})
 
 	return c.RespondWithData(missingEps.Episodes)

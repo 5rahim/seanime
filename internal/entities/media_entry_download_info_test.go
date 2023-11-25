@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
+	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/stretchr/testify/assert"
@@ -34,11 +35,12 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 	}
 
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		localFiles:  nil,
-		anizipMedia: anizipData,
-		progress:    lo.ToPtr(0),
-		status:      lo.ToPtr(anilist.MediaListStatusCurrent),
-		media:       anilistEntry.Media,
+		localFiles:                 nil,
+		anizipMedia:                anizipData,
+		progress:                   lo.ToPtr(0),
+		status:                     lo.ToPtr(anilist.MediaListStatusCurrent),
+		media:                      anilistEntry.Media,
+		anifyEpisodeImageContainer: anify.NewEpisodeImageContainer(),
 	})
 
 	if assert.NoError(t, err) {

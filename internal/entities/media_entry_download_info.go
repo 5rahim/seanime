@@ -3,6 +3,7 @@ package entities
 import (
 	"errors"
 	"github.com/samber/lo"
+	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
@@ -29,11 +30,12 @@ type (
 
 	NewMediaEntryDownloadInfoOptions struct {
 		// Media's local files
-		localFiles  []*LocalFile
-		anizipMedia *anizip.Media
-		media       *anilist.BaseMedia
-		progress    *int
-		status      *anilist.MediaListStatus
+		localFiles                 []*LocalFile
+		anizipMedia                *anizip.Media
+		media                      *anilist.BaseMedia
+		progress                   *int
+		status                     *anilist.MediaListStatus
+		anifyEpisodeImageContainer *anify.EpisodeImageContainer
 	}
 )
 
@@ -173,12 +175,13 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 				str.AniDBEpisode = "S1"
 			}
 			str.Episode = NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
-				LocalFile:            nil,
-				OptionalAniDBEpisode: str.AniDBEpisode,
-				AnizipMedia:          opts.anizipMedia,
-				Media:                opts.media,
-				ProgressOffset:       0,
-				IsDownloaded:         false,
+				LocalFile:                  nil,
+				OptionalAniDBEpisode:       str.AniDBEpisode,
+				AnizipMedia:                opts.anizipMedia,
+				Media:                      opts.media,
+				ProgressOffset:             0,
+				IsDownloaded:               false,
+				AnifyEpisodeImageContainer: opts.anifyEpisodeImageContainer,
 			})
 			return str
 		})

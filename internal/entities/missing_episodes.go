@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
+	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/limiter"
@@ -17,9 +18,10 @@ type (
 	}
 
 	NewMissingEpisodesOptions struct {
-		AnilistCollection *anilist.AnimeCollection
-		LocalFiles        []*LocalFile
-		AnizipCache       *anizip.Cache
+		AnilistCollection          *anilist.AnimeCollection
+		LocalFiles                 []*LocalFile
+		AnizipCache                *anizip.Cache
+		AnifyEpisodeImageContainer *anify.EpisodeImageContainer
 	}
 )
 
@@ -57,11 +59,12 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 			// Get download info
 			downloadInfo, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-				localFiles:  lfs,
-				anizipMedia: anizipMedia,
-				progress:    entry.Progress,
-				status:      entry.Status,
-				media:       entry.Media,
+				localFiles:                 lfs,
+				anizipMedia:                anizipMedia,
+				progress:                   entry.Progress,
+				status:                     entry.Status,
+				media:                      entry.Media,
+				anifyEpisodeImageContainer: opts.AnifyEpisodeImageContainer,
 			})
 			if err != nil {
 				return nil
