@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/5rahim/tanuki"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/seanime-app/seanime-server/internal/comparison"
@@ -204,13 +203,12 @@ func createTorrentPreview(
 	// If the torrent is a batch, we don't need to set the episode
 	if episodeNumber != -2 {
 		ret.Episode = entities.NewMediaEntryEpisode(&entities.NewMediaEntryEpisodeOptions{
-			LocalFile:                  nil,
-			OptionalAniDBEpisode:       strconv.Itoa(episodeNumber),
-			AnizipMedia:                anizipMedia,
-			Media:                      media,
-			ProgressOffset:             0,
-			IsDownloaded:               false,
-			AnifyEpisodeImageContainer: anify.NewEpisodeImageContainer(), // TODO: fix this
+			LocalFile:            nil,
+			OptionalAniDBEpisode: strconv.Itoa(episodeNumber),
+			AnizipMedia:          anizipMedia,
+			Media:                media,
+			ProgressOffset:       0,
+			IsDownloaded:         false,
 		})
 		if ret.Episode.IsInvalid { // remove invalid episodes
 			return nil, false

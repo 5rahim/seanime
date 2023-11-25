@@ -3,7 +3,6 @@ package entities
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
@@ -37,12 +36,11 @@ type (
 
 	// NewMediaEntryOptions is a constructor for MediaEntry.
 	NewMediaEntryOptions struct {
-		MediaId                    int
-		LocalFiles                 []*LocalFile // All local files
-		AnizipCache                *anizip.Cache
-		AnilistCollection          *anilist.AnimeCollection
-		AnilistClient              *anilist.Client
-		AnifyEpisodeImageContainer *anify.EpisodeImageContainer
+		MediaId           int
+		LocalFiles        []*LocalFile // All local files
+		AnizipCache       *anizip.Cache
+		AnilistCollection *anilist.AnimeCollection
+		AnilistClient     *anilist.Client
 	}
 )
 
@@ -109,7 +107,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	}
 
 	// Create episode entities
-	entry.hydrateEntryEpisodeData(anilistEntry, anizipData, opts.AnifyEpisodeImageContainer)
+	entry.hydrateEntryEpisodeData(anilistEntry, anizipData)
 
 	return entry, nil
 
@@ -120,7 +118,6 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 func (e *MediaEntry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.AnimeCollection_MediaListCollection_Lists_Entries,
 	anizipData *anizip.Media,
-	anifyEpisodeImageContainer *anify.EpisodeImageContainer,
 ) {
 
 	if anizipData.Episodes == nil && len(anizipData.Episodes) == 0 {
@@ -155,13 +152,12 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 		lf := lf
 		p.Go(func() *MediaEntryEpisode {
 			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
-				LocalFile:                  lf,
-				OptionalAniDBEpisode:       "",
-				AnizipMedia:                anizipData,
-				Media:                      e.Media,
-				ProgressOffset:             progressOffset,
-				IsDownloaded:               true,
-				AnifyEpisodeImageContainer: anifyEpisodeImageContainer,
+				LocalFile:            lf,
+				OptionalAniDBEpisode: "",
+				AnizipMedia:          anizipData,
+				Media:                e.Media,
+				ProgressOffset:       progressOffset,
+				IsDownloaded:         true,
 			})
 		})
 	}
@@ -175,12 +171,11 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	// Info
 	//
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		localFiles:                 e.LocalFiles,
-		anizipMedia:                anizipData,
-		progress:                   anilistEntry.Progress,
-		status:                     anilistEntry.Status,
-		anifyEpisodeImageContainer: anifyEpisodeImageContainer,
-		media:                      e.Media,
+		localFiles:  e.LocalFiles,
+		anizipMedia: anizipData,
+		progress:    anilistEntry.Progress,
+		status:      anilistEntry.Status,
+		media:       e.Media,
 	})
 	if err == nil {
 		e.MediaEntryDownloadInfo = info

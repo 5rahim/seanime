@@ -3,7 +3,6 @@ package entities
 import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
@@ -213,12 +212,11 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 		mId := mId
 		mEntryPool.Go(func() *MediaEntry {
 			me, _ := NewMediaEntry(&NewMediaEntryOptions{
-				MediaId:                    mId,
-				LocalFiles:                 localFiles,
-				AnilistCollection:          anilistCollection,
-				AnizipCache:                anizipCache,
-				AnilistClient:              anilistClient,
-				AnifyEpisodeImageContainer: anify.NewEpisodeImageContainer(), // TODO: Implement
+				MediaId:           mId,
+				LocalFiles:        localFiles,
+				AnilistCollection: anilistCollection,
+				AnizipCache:       anizipCache,
+				AnilistClient:     anilistClient,
 			})
 			return me
 		})

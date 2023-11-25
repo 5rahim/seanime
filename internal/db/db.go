@@ -65,7 +65,6 @@ func migrateTables(db *gorm.DB) error {
 		&models.LocalFiles{},
 		&models.Settings{},
 		&models.Account{},
-		&models.AnifyMediaEpisodeImages{},
 	)
 	if err != nil {
 

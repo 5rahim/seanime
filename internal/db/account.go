@@ -17,6 +17,7 @@ func (db *Database) UpsertAccount(acc *models.Account) (*models.Account, error) 
 		return nil, err
 	}
 	return acc, nil
+
 }
 
 func (db *Database) GetAccount() (*models.Account, error) {

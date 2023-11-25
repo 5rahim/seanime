@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/mpchc"
 	"github.com/seanime-app/seanime-server/internal/qbittorrent"
@@ -104,34 +103,6 @@ func (a *App) initLibraryWatcher(path string) {
 
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-
-// Anify Media Images Entries
-
-// initAnifyMediaImagesEntries gets the entries from the database and adds them to App instance.
-// This is run in a goroutine.
-// It should be run after the database is instanciated.
-func (a *App) initAnifyMediaImagesEntries() {
-
-	go func() {
-
-		res, err := a.Database.GetAnifyMediaEpisodeImagesEntries()
-
-		if err != nil {
-			return
-		}
-
-		println(spew.Sdump(len(res)))
-
-		a.AnifyEpisodeImageContainer.SetEntries(res)
-		return
-
-	}()
-
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 // initAnilistData will initialize the Anilist anime collection dependency and the account.
 // This function should be called after App.Database is initialized and after settings are updated.
 func (a *App) initAnilistData() {
@@ -158,8 +129,6 @@ func (a *App) initAnilistData() {
 	a.Logger.Info().Msg("app: Fetched Anilist collection")
 
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 func (a *App) UpdateAnilistClientToken(token string) {
 	a.AnilistClient = anilist.NewAuthedClient(token)

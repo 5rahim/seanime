@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	_db "github.com/seanime-app/seanime-server/internal/db"
@@ -25,19 +24,18 @@ import (
 
 type (
 	App struct {
-		Config                     *Config
-		Database                   *_db.Database
-		Logger                     *zerolog.Logger
-		QBittorrent                *qbittorrent.Client
-		Watcher                    *scanner.Watcher
-		AnizipCache                *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClient              *anilist.Client
-		NyaaSearchCache            *nyaa.SearchCache
-		AnifyEpisodeImageContainer *anify.EpisodeImageContainer
-		anilistCollection          *anilist.AnimeCollection
-		account                    *models.Account
-		WSEventManager             *events.WSEventManager
-		MediaPlayer                struct {
+		Config            *Config
+		Database          *_db.Database
+		Logger            *zerolog.Logger
+		QBittorrent       *qbittorrent.Client
+		Watcher           *scanner.Watcher
+		AnizipCache       *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+		AnilistClient     *anilist.Client
+		NyaaSearchCache   *nyaa.SearchCache
+		anilistCollection *anilist.AnimeCollection
+		account           *models.Account
+		WSEventManager    *events.WSEventManager
+		MediaPlayer       struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 		}
@@ -90,19 +88,16 @@ func NewApp(options *AppOptions) *App {
 	anilistToken := db.GetAnilistToken()
 
 	app := &App{
-		Config:                     cfg,
-		Database:                   db,
-		AnilistClient:              anilist.NewAuthedClient(anilistToken),
-		AnizipCache:                anizip.NewCache(),
-		NyaaSearchCache:            nyaa.NewSearchCache(),
-		WSEventManager:             events.NewWSEventManager(logger),
-		AnifyEpisodeImageContainer: anify.NewEpisodeImageContainer(),
-		Logger:                     logger,
+		Config:          cfg,
+		Database:        db,
+		AnilistClient:   anilist.NewAuthedClient(anilistToken),
+		AnizipCache:     anizip.NewCache(),
+		NyaaSearchCache: nyaa.NewSearchCache(),
+		WSEventManager:  events.NewWSEventManager(logger),
+		Logger:          logger,
 	}
 
 	app.InitOrRefreshDependencies()
-
-	app.initAnifyMediaImagesEntries()
 
 	return app
 }

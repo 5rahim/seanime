@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"github.com/seanime-app/seanime-server/internal/anify"
 	"github.com/seanime-app/seanime-server/internal/anilist"
 	"github.com/seanime-app/seanime-server/internal/anizip"
 	"strconv"
@@ -35,11 +34,10 @@ type (
 	}
 
 	NewMediaEntryEpisodeOptions struct {
-		LocalFile                  *LocalFile
-		AnizipMedia                *anizip.Media
-		Media                      *anilist.BaseMedia
-		AnifyEpisodeImageContainer *anify.EpisodeImageContainer
-		OptionalAniDBEpisode       string
+		LocalFile            *LocalFile
+		AnizipMedia          *anizip.Media
+		Media                *anilist.BaseMedia
+		OptionalAniDBEpisode string
 		// ProgressOffset will offset the ProgressNumber for a specific MAIN file
 		// This is used when there is a discrepancy between AniList and AniDB
 		// When this is -1, it means that a re-mapping of AniDB Episode is needed
@@ -146,7 +144,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		} else {
 			hydrated = true // Hydrated
 		}
-		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media, opts.AnifyEpisodeImageContainer)
+		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
 
 	}
 
@@ -190,7 +188,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				hydrated = true
 			}
 
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media, opts.AnifyEpisodeImageContainer)
+			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
 		}
 
 	}
@@ -207,7 +205,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	return entryEp
 }
 
-func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia, anifyEpisodeImageContainer *anify.EpisodeImageContainer) *MediaEntryEpisodeMetadata {
+func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *MediaEntryEpisodeMetadata {
 	md := new(MediaEntryEpisodeMetadata)
 
 	// No AniZip data
@@ -219,12 +217,6 @@ func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia, anify
 	md.AniDBId = episode.AnidbEid
 
 	md.Image = episode.Image
-	if len(episode.Image) == 0 {
-		img, found := anifyEpisodeImageContainer.GetEpisodeImage(media.ID, episode.EpisodeNumber)
-		if found {
-			md.Image = img
-		}
-	}
 	if len(episode.Image) == 0 && media.GetBannerImage() != nil {
 		md.Image = *media.GetBannerImage()
 	}
