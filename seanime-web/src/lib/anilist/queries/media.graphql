@@ -1,0 +1,314 @@
+query AnimeCollection ($userName: String) {
+    MediaListCollection(userName: $userName, type: ANIME) {
+        lists {
+            status
+            entries {
+                id
+                score
+                progress
+                status
+                notes
+                repeat
+                private
+                startedAt {
+                    year
+                    month
+                    day
+                }
+                completedAt {
+                    year
+                    month
+                    day
+                }
+                media {
+                    ...baseMedia
+                }
+            }
+        }
+    }
+}
+
+
+query SearchAnimeShortMedia($page: Int, $perPage: Int, $sort: [MediaSort], $search: String, $status: [MediaStatus]){
+    Page(page: $page, perPage: $perPage){
+        pageInfo{
+            hasNextPage
+        },
+        media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: false, format_not: MUSIC){
+            ...basicMedia
+        }
+    }
+}
+
+query BasicMediaByMalId ($id: Int) {
+    Media(idMal: $id, type: ANIME) {
+        ...basicMedia
+    }
+}
+
+query BasicMediaById ($id: Int) {
+    Media(id: $id, type: ANIME) {
+        ...basicMedia
+    }
+}
+
+query BaseMediaById ($id: Int) {
+    Media(id: $id, type: ANIME) {
+        ...baseMedia
+    }
+}
+
+# For view (will be cached)
+query MediaDetailsById ($id: Int) {
+    Media(id: $id, type: ANIME) {
+        siteUrl
+        id
+        duration
+        genres
+        averageScore
+        popularity
+        meanScore
+        description
+        startDate {
+            year
+            month
+            day
+        }
+        endDate {
+            year
+            month
+            day
+        }
+        studios(isMain: true) {
+            nodes {
+                name
+            }
+        }
+        rankings {
+            context
+            type
+            rank
+            year
+            format
+            allTime
+            season
+        }
+        recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
+            edges {
+                node {
+                    mediaRecommendation {
+                        id
+                        coverImage {
+                            extraLarge
+                            large
+                            medium
+                            color
+                        }
+                        bannerImage
+                        title {
+                            romaji
+                            english
+                            native
+                            userPreferred
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+# For view
+query CompleteMediaById ($id: Int) {
+    Media(id: $id, type: ANIME) {
+        ...completeMedia
+    }
+}
+
+
+query ListMedia($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat){
+    Page(page: $page, perPage: $perPage){
+        pageInfo{
+            hasNextPage
+            total
+            perPage
+            currentPage
+            lastPage
+        },
+        media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: false, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+            ...basicMedia
+        }
+    }
+}
+
+query ListRecentMedia($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
+    Page(page: $page, perPage: $perPage){
+        pageInfo{
+            hasNextPage
+            total
+            perPage
+            currentPage
+            lastPage
+        },
+        airingSchedules(notYetAired: false, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser){
+            id
+            airingAt
+            episode
+            timeUntilAiring
+            media {
+                ...basicMedia
+            }
+        }
+    }
+}
+
+fragment basicMedia on Media {
+    id
+    idMal
+    siteUrl
+    status(version: 2)
+    season
+    type
+    format
+    bannerImage
+    episodes
+    synonyms
+    isAdult
+    countryOfOrigin
+    title {
+        userPreferred
+        romaji
+        english
+        native
+    }
+    coverImage {
+        extraLarge
+        large
+        medium
+        color
+    }
+    startDate {
+        year
+        month
+        day
+    }
+    endDate {
+        year
+        month
+        day
+    }
+    nextAiringEpisode {
+        airingAt
+        timeUntilAiring
+        episode
+    }
+}
+
+
+fragment baseMedia on Media {
+    id
+    idMal
+    siteUrl
+    status(version: 2)
+    season
+    type
+    format
+    bannerImage
+    episodes
+    synonyms
+    isAdult
+    countryOfOrigin
+    title {
+        userPreferred
+        romaji
+        english
+        native
+    }
+    coverImage {
+        extraLarge
+        large
+        medium
+        color
+    }
+    startDate {
+        year
+        month
+        day
+    }
+    endDate {
+        year
+        month
+        day
+    }
+    nextAiringEpisode {
+        airingAt
+        timeUntilAiring
+        episode
+    }
+    relations {
+        edges {
+            relationType(version: 2)
+            node {
+                ...basicMedia
+            }
+        }
+    }
+}
+
+fragment completeMedia on Media {
+    id
+    idMal
+    siteUrl
+    status(version: 2)
+    season
+    type
+    format
+    bannerImage
+    episodes
+    synonyms
+    isAdult
+    countryOfOrigin
+
+    duration
+    genres
+    averageScore
+    popularity
+    meanScore
+
+    title {
+        userPreferred
+        romaji
+        english
+        native
+    }
+    coverImage {
+        extraLarge
+        large
+        medium
+        color
+    }
+    startDate {
+        year
+        month
+        day
+    }
+    endDate {
+        year
+        month
+        day
+    }
+    nextAiringEpisode {
+        airingAt
+        timeUntilAiring
+        episode
+    }
+    relations {
+        edges {
+            relationType(version: 2)
+            node {
+                ...basicMedia
+            }
+        }
+    }
+}

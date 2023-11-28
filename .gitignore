@@ -1,4 +1,44 @@
 .idea
+logs/
+*.db
+.env
 
 test/sample
 whats-new.md
+
+##
+## Web
+##
+seanime-web/node_modules
+seanime-web/out
+seanime-web/.next
+seanime-web/.idea
+seanime-web/.env
+# dependencies
+seanime-web/.pnp
+seanime-web/.pnp.js
+seanime-web/.yarn/install-state.gz
+# testing
+seanime-web/coverage
+# next.js
+# production
+seanime-web/build
+# misc
+seanime-web/.DS_Store
+seanime-web/*.pem
+# debug
+seanime-web/npm-debug.log*
+seanime-web/yarn-debug.log*
+seanime-web/yarn-error.log*
+# local env files
+seanime-web/.env*.local
+# vercel
+seanime-web/.vercel
+# typescript
+seanime-web/*.tsbuildinfo
+seanime-web/next-env.d.ts
+seanime-web/snapshot
+seanime-web/logs
+seanime-web/analyze
+seanime-web/TODO-priv.md
+seanime-web/CHANGELOG-priv.md

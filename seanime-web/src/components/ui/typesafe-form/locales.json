@@ -1,0 +1,50 @@
+{
+  "form": {
+    "create": {
+      "fr": "Créer",
+      "en": "Create"
+    },
+    "add": {
+      "fr": "Ajouter",
+      "en": "Add"
+    },
+    "update": {
+      "fr": "Modifier",
+      "en": "Update"
+    },
+    "search": {
+      "fr": "Chercher",
+      "en": "Search"
+    },
+    "save": {
+      "fr": "Enregistrer",
+      "en": "Save"
+    },
+    "submit": {
+      "fr": "Soumettre",
+      "en": "Submit"
+    }
+  },
+  "dangerZone": {
+    "delete": {
+      "fr": "Supprimer",
+      "en": "Delete"
+    },
+    "irreversible_action": {
+      "fr": "Cette action est irréversible.",
+      "en": "This action is irreversible."
+    },
+    "name": {
+      "fr": "Zone de danger",
+      "en": "Danger Zone"
+    },
+    "confirm_delete": {
+      "fr": "Êtes-vous sûr de vouloir effectuer cette action ?",
+      "en": "Are you sure you want to confirm this action ?"
+    },
+    "cancel": {
+      "fr": "Annuler",
+      "en": "Cancel"
+    }
+  }
+}

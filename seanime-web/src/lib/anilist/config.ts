@@ -1,0 +1,11 @@
+export const ANILIST_OAUTH_URL = `https://anilist.co/api/v2/oauth/authorize?client_id=15168&response_type=token`
+
+export const ANILIST_API_ENDPOINT = `https://graphql.anilist.co`
+
+export const ANILIST_BOTTLENECK_OPTIONS = {
+    reservoir: 90, // initial value
+    reservoirRefreshAmount: 90,
+    reservoirRefreshInterval: 60 * 1000, // must be divisible by 250
+    maxConcurrent: 1,
+    minTime: 1000 / 90, // Minimum time (in milliseconds) between requests - 90 requests per minute
+}

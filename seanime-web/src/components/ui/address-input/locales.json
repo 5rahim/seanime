@@ -1,0 +1,10 @@
+{
+  "placeholder": {
+    "fr": "Entrez l'addresse",
+    "en": "Enter your address"
+  },
+  "no-address-found": {
+    "fr": "Aucune addresse trouvée",
+    "en": "No address found"
+  }
+}
