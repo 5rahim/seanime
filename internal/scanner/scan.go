@@ -3,12 +3,12 @@ package scanner
 import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/anizip"
-	"github.com/seanime-app/seanime-server/internal/entities"
-	"github.com/seanime-app/seanime-server/internal/events"
-	"github.com/seanime-app/seanime-server/internal/filesystem"
-	"github.com/seanime-app/seanime-server/internal/limiter"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anizip"
+	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/filesystem"
+	"github.com/seanime-app/seanime/internal/limiter"
 )
 
 type Scanner struct {

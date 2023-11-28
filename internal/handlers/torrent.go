@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
-	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/util"
 	"time"
 )
 

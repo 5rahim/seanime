@@ -2,7 +2,7 @@ package db
 
 // Should not import from scanner/localfile
 import (
-	"github.com/seanime-app/seanime-server/internal/models"
+	"github.com/seanime-app/seanime/internal/models"
 	"gorm.io/gorm/clause"
 )
 

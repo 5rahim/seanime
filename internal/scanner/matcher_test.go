@@ -1,9 +1,9 @@
 package scanner
 
 import (
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/entities"
-	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"testing"
 )

@@ -2,11 +2,11 @@ package downloader
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/entities"
-	"github.com/seanime-app/seanime-server/internal/events"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
 )
 
 type (

@@ -2,7 +2,7 @@
 <img src="images/logo.png" alt="preview" width="75px"/>
 </p>
 
-<h2 align="center"><b>Seanime Server</b></h2>
+<h2 align="center"><b>Seanime</b></h2>
 
 <h4 align="center">User-friendly, self-hosted server that brings you a Netflix-like experience for your local
 anime library.</h4>
@@ -13,8 +13,6 @@ anime library.</h4>
 might not work as intended. Feel free to fork the project, contribute or open issues.
 
 # Features
-
-Here are the main features of Seanime Server:
 
 - One-step scan of your anime library.
 - User-friendly web interface.
@@ -27,7 +25,7 @@ Here are the main features of Seanime Server:
 
 ### What it is not
 
-Seanime Server is not a replacement for Plex/Jellyfin as it is not meant to be a fully-fledged media server.
+Seanime is not a replacement for Plex/Jellyfin as it is not meant to be a fully-fledged media server.
 It demands an internet connection to fetch metadata.
 
 ### TODO

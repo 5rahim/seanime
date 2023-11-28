@@ -1,11 +1,11 @@
 package downloader
 
 import (
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/events"
-	"github.com/seanime-app/seanime-server/internal/nyaa"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent"
-	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/nyaa"
+	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

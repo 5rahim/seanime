@@ -6,9 +6,9 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/comparison"
-	"github.com/seanime-app/seanime-server/internal/entities"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/comparison"
+	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/sourcegraph/conc/pool"
 	"math"
 )

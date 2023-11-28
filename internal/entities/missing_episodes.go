@@ -3,9 +3,9 @@ package entities
 import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/anizip"
-	"github.com/seanime-app/seanime-server/internal/limiter"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anizip"
+	"github.com/seanime-app/seanime/internal/limiter"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
 	"time"

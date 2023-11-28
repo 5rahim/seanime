@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
-	"github.com/seanime-app/seanime-server/internal/core"
-	"github.com/seanime-app/seanime-server/internal/cron"
-	"github.com/seanime-app/seanime-server/internal/handlers"
+	"github.com/seanime-app/seanime/internal/core"
+	"github.com/seanime-app/seanime/internal/cron"
+	"github.com/seanime-app/seanime/internal/handlers"
 )
 
 func main() {

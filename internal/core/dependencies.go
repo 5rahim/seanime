@@ -2,11 +2,11 @@ package core
 
 import (
 	"context"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/mpchc"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent"
-	"github.com/seanime-app/seanime-server/internal/scanner"
-	"github.com/seanime-app/seanime-server/internal/vlc"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/vlc"
 )
 
 // InitOrRefreshDependencies will initialize or refresh dependencies that use settings.

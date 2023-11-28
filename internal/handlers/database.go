@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime-server/internal/db"
-	"github.com/seanime-app/seanime-server/internal/entities"
-	"github.com/seanime-app/seanime-server/internal/models"
+	"github.com/seanime-app/seanime/internal/db"
+	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/models"
 )
 
 func getLocalFilesFromDB(db *db.Database) ([]*entities.LocalFile, error) {

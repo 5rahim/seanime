@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/downloader"
-	"github.com/seanime-app/seanime-server/internal/nyaa"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/downloader"
+	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/sourcegraph/conc/pool"
 )
 

@@ -3,7 +3,7 @@ package nyaa
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

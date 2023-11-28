@@ -54,7 +54,7 @@ nfpms:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end -}}'
-    homepage: 'https://github.com/5rahim/seanime-server'
+    homepage: 'https://github.com/5rahim/seanime'
     maintainer: 5rahim <talkwithrahim@gmail.com>
     description: |-
       Enhance your local anime library experience!
@@ -75,7 +75,7 @@ nfpms:
 release:
   github:
     owner: 5rahim
-    name: seanime-server
+    name: seanime
 
   draft: true
 
@@ -87,5 +87,5 @@ release:
 
   footer: |
     ---
-    [Open an issue](https://github.com/5rahim/seanime-server/issues/new/choose)
-    Compare: https://github.com/5rahim/seanime-server/compare/{{ .PreviousTag }}...{{ .Tag }}
+    [Open an issue](https://github.com/5rahim/seanime/issues/new/choose)
+    Compare: https://github.com/5rahim/seanime/compare/{{ .PreviousTag }}...{{ .Tag }}

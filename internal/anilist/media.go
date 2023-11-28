@@ -2,7 +2,7 @@ package anilist
 
 import (
 	"context"
-	"github.com/seanime-app/seanime-server/internal/result"
+	"github.com/seanime-app/seanime/internal/result"
 )
 
 type BaseMediaCache struct {

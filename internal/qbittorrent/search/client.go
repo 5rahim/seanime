@@ -3,8 +3,8 @@ package qbittorrent_search
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/util"
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/qbittorrent/util"
 	"net/http"
 	"net/url"
 	"strconv"

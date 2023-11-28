@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/seanime-app/seanime-server/internal/core"
+	"github.com/seanime-app/seanime/internal/core"
 	"sync"
 )
 

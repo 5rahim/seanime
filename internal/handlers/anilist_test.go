@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anilist"
 	"testing"
 )
 

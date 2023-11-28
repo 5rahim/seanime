@@ -3,8 +3,8 @@ package core
 import (
 	"context"
 	"errors"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/models"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/models"
 )
 
 func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {

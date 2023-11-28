@@ -1,11 +1,11 @@
 package scanner
 
 import (
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/anizip"
-	"github.com/seanime-app/seanime-server/internal/entities"
-	"github.com/seanime-app/seanime-server/internal/limiter"
-	"github.com/seanime-app/seanime-server/internal/util"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anizip"
+	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/util"
 	"testing"
 )
 

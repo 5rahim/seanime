@@ -3,8 +3,8 @@ package qbittorrent_log
 import (
 	"github.com/google/go-querystring/query"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/util"
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/qbittorrent/util"
 	"net/http"
 	"net/url"
 	"strconv"

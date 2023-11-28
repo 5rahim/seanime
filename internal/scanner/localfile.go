@@ -3,8 +3,8 @@ package scanner
 import (
 	"github.com/rs/zerolog"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime-server/internal/entities"
-	"github.com/seanime-app/seanime-server/internal/filesystem"
+	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/filesystem"
 )
 
 type AugmentedLocalFile struct {

@@ -3,7 +3,7 @@ package db
 import (
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/models"
+	"github.com/seanime-app/seanime/internal/models"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"log"

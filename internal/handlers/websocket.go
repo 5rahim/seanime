@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/seanime-app/seanime-server/internal/core"
+	"github.com/seanime-app/seanime/internal/core"
 )
 
 // newWebSocketEventHandler creates a new websocket handler for real-time event communication

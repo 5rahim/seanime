@@ -2,7 +2,7 @@ package nyaa
 
 import (
 	"github.com/5rahim/tanuki"
-	"github.com/seanime-app/seanime-server/internal/comparison"
+	"github.com/seanime-app/seanime/internal/comparison"
 )
 
 type (

@@ -3,9 +3,9 @@ package mediaplayer
 import (
 	"errors"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime-server/internal/events"
-	"github.com/seanime-app/seanime-server/internal/mpchc"
-	"github.com/seanime-app/seanime-server/internal/vlc"
+	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/vlc"
 	"time"
 )
 

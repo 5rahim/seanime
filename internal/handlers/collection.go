@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime-server/internal/entities"
+import "github.com/seanime-app/seanime/internal/entities"
 
 // HandleGetLibraryCollection returns the library collection
 func HandleGetLibraryCollection(c *RouteCtx) error {

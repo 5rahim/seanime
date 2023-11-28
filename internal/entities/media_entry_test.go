@@ -2,8 +2,8 @@ package entities
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

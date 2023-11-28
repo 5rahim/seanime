@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/seanime-app/seanime-server/internal/constants"
+	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"

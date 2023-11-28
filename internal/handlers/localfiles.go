@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/entities"
+	"github.com/seanime-app/seanime/internal/entities"
 )
 
 func HandleGetLocalFiles(c *RouteCtx) error {

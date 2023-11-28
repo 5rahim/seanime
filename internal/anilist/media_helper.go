@@ -2,7 +2,7 @@ package anilist
 
 import (
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/comparison"
+	"github.com/seanime-app/seanime/internal/comparison"
 )
 
 func (m *BaseMedia) GetTitleSafe() string {

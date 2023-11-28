@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime-server/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"io"
 	"io/ioutil"
 	"mime/multipart"

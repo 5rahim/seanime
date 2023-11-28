@@ -3,8 +3,8 @@ package entities
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/anizip"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/sourcegraph/conc/pool"
 	"slices"
 	"strconv"

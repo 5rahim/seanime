@@ -1,7 +1,7 @@
 package cron
 
 import (
-	"github.com/seanime-app/seanime-server/internal/events"
+	"github.com/seanime-app/seanime/internal/events"
 )
 
 func RefreshAnilistCollectionJob(c *JobCtx) {

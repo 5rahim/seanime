@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime-server/internal/mediaplayer"
+	"github.com/seanime-app/seanime/internal/mediaplayer"
 )
 
 func HandlePlayVideo(c *RouteCtx) error {

@@ -2,7 +2,7 @@ package entities
 
 import (
 	"github.com/5rahim/tanuki"
-	"github.com/seanime-app/seanime-server/internal/filesystem"
+	"github.com/seanime-app/seanime/internal/filesystem"
 )
 
 const (

@@ -1,7 +1,7 @@
 package anilist
 
 import (
-	"github.com/seanime-app/seanime-server/internal/limiter"
+	"github.com/seanime-app/seanime/internal/limiter"
 	"sync"
 	"testing"
 	"time"

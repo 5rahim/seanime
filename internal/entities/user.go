@@ -3,8 +3,8 @@ package entities
 import (
 	"errors"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime-server/internal/anilist"
-	"github.com/seanime-app/seanime-server/internal/models"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/models"
 )
 
 type User struct {

@@ -1,4 +1,4 @@
-module github.com/seanime-app/seanime-server
+module github.com/seanime-app/seanime
 
 go 1.21
 
