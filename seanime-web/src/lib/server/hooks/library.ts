@@ -23,6 +23,7 @@ export function useScanLibrary() {
         endpoint: SeaEndpoints.SCAN_LIBRARY,
         mutationKey: ["scan-library"],
         onSuccess: async () => {
+            toast.success("Library scanned")
             await qc.refetchQueries({ queryKey: ["get-library-collection"] })
             await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
         },
