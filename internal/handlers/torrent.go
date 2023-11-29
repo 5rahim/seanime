@@ -36,7 +36,7 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 	})
 	if err != nil {
 		c.App.QBittorrent.Start()
-		timeout := time.After(time.Second * 10)
+		timeout := time.After(time.Second * 15)
 		ticker := time.NewTicker(time.Second * 1)
 		open := make(chan struct{})
 		defer ticker.Stop()
@@ -58,10 +58,11 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 			}
 		}()
 
+	work:
 		for {
 			select {
 			case <-open:
-				break
+				break work
 			case <-timeout:
 				return c.RespondWithError(err)
 			}

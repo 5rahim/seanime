@@ -19,12 +19,12 @@ func main() {
 
 	app := core.NewApp(&core.DefaultAppOptions)
 	fiberApp := core.NewFiberApp(app)
-	fiberWebApp := core.NewFiberWebApp()
+	//fiberWebApp := core.NewFiberWebApp()
 
 	handlers.InitRoutes(app, fiberApp)
 
 	core.RunServer(app, fiberApp)
-	core.RunWebApp(app, fiberWebApp)
+	//core.RunWebApp(app, fiberWebApp)
 
 	cron.RunJobs(app)
 

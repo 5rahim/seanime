@@ -13,6 +13,11 @@ func NewDataResponse[R any](data R) SeaReponse[R] {
 }
 
 func NewErrorResponse(err error) SeaReponse[any] {
+	if err == nil {
+		return SeaReponse[any]{
+			Error: "Unknown error",
+		}
+	}
 	res := SeaReponse[any]{
 		Error: err.Error(),
 	}
