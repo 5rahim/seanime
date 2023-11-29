@@ -21,6 +21,7 @@ import toast from "react-hot-toast"
 import { useSeaMutation } from "@/lib/server/queries/utils"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useRouter } from "next/navigation"
+import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 
 const isOpenAtom = atom(false)
 
@@ -54,6 +55,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const [destination, setDestination] = useState(defaultPath)
 
     const [isOpen, setIsOpen] = useAtom(isOpenAtom)
+    const setTorrentDrawerIsOpen = useSetAtom(torrentSearchDrawerIsOpenAtom)
     const selectedTorrents = useAtomValue(__torrentSearch_selectedTorrentsAtom)
 
 
@@ -76,6 +78,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         onSuccess: () => {
             toast.success("Download started")
             setIsOpen(false)
+            setTorrentDrawerIsOpen(false)
             router.push("/torrent-list")
         },
     })
