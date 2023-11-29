@@ -6,7 +6,7 @@ import { BiStar } from "@react-icons/all-files/bi/BiStar"
 export function ScoreProgressBadges({ score, progress, episodes }: {
     score: Nullish<number>,
     progress: Nullish<number>,
-    episodes: Nullish<number>
+    episodes: Nullish<number>,
 }) {
 
     const scoreColor = score ? (

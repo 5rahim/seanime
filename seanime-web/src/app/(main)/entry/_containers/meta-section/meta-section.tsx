@@ -20,12 +20,16 @@ import { Divider } from "@/components/ui/divider"
 import { Button } from "@/components/ui/button"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
 import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { useSetAtom } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { serverStatusAtom } from "@/atoms/server-status"
 
 export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
 
     const { entry, details } = props
+
+    const status = useAtomValue(serverStatusAtom)
+    const hideAudienceScore = useMemo(() => status?.settings?.anilist?.hideAudienceScore ?? false, [status?.settings?.anilist?.hideAudienceScore])
 
     const relations = (entry.media?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)
@@ -95,7 +99,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
 
                     {/*BADGES*/}
                     <div className={"items-center flex flex-wrap gap-2"}>
-                        {!!(details?.meanScore) && (
+                        {(!!details?.meanScore && !hideAudienceScore) && (
                             <Badge
                                 className={""}
                                 size={"lg"}

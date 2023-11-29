@@ -32,6 +32,11 @@ type Settings struct {
 	Library     *LibrarySettings     `gorm:"embedded" json:"library"`
 	MediaPlayer *MediaPlayerSettings `gorm:"embedded" json:"mediaPlayer"`
 	Torrent     *TorrentSettings     `gorm:"embedded" json:"torrent"`
+	Anilist     *AnilistSettings     `gorm:"embedded" json:"anilist"`
+}
+
+type AnilistSettings struct {
+	HideAudienceScore bool `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
 }
 
 type MediaPlayerSettings struct {

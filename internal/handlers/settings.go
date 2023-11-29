@@ -11,6 +11,7 @@ type SettingsBody struct {
 	Library     models.LibrarySettings     `json:"library"`
 	MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
 	Torrent     models.TorrentSettings     `json:"torrent"`
+	Anilist     models.AnilistSettings     `json:"anilist"`
 }
 
 func HandleGetSettings(c *RouteCtx) error {
@@ -42,6 +43,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		Library:     &body.Library,
 		MediaPlayer: &body.MediaPlayer,
 		Torrent:     &body.Torrent,
+		Anilist:     &body.Anilist,
 	})
 
 	if err != nil {

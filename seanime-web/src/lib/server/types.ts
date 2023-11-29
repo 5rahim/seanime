@@ -41,6 +41,11 @@ export type Settings = {
     library?: LibrarySettings
     mediaPlayer?: MediaPlayerSettings
     torrent?: TorrentSettings
+    anilist?: AnilistSettings
+}
+
+export type AnilistSettings = {
+    hideAudienceScore: boolean
 }
 
 export type MediaPlayerSettings = {

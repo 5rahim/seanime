@@ -14,6 +14,7 @@ import { FcMindMap } from "@react-icons/all-files/fc/FcMindMap"
 import { useSeaMutation } from "@/lib/server/queries/utils"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import toast from "react-hot-toast"
+import { Accordion } from "@/components/ui/accordion"
 
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
@@ -36,7 +37,7 @@ export default function Page() {
     return (
         <div className="p-12 space-y-4">
             <h2>Settings</h2>
-            <Divider/>
+            {/*<Divider/>*/}
             <TypesafeForm
                 schema={settingsSchema}
                 onSubmit={data => {
@@ -61,6 +62,9 @@ export default function Page() {
                             qbittorrentPassword: data.qbittorrentPassword,
                             qbittorrentUsername: data.qbittorrentUsername,
                         },
+                        anilist: {
+                            hideAudienceScore: data.hideAudienceScore,
+                        },
                     })
                 }}
                 defaultValues={{
@@ -78,6 +82,7 @@ export default function Page() {
                     qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
                     qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
                     qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
+                    hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
                 }}
                 stackClassName="space-y-4"
             >
@@ -85,80 +90,114 @@ export default function Page() {
                     name="libraryPath"
                     label="Library folder"
                     leftIcon={<FcFolder/>}
+                    help="Folder where your anime library is located. (Keep the casing consistent)"
                     shouldExist
                 />
                 <Divider/>
-                <Field.Select
-                    name="defaultPlayer"
-                    label="Default player"
-                    leftIcon={<FcVideoCall/>}
-                    options={[
-                        { label: "VLC", value: "vlc" },
-                        { label: "MPC-HC (Windows only)", value: "mpc-hc" },
-                    ]}
-                    help="Player that will be used to open files and track your progress automatically."
-                />
-                {/*<Divider/>*/}
-                <Field.Text
-                    name="mediaPlayerHost"
-                    label="Host (VLC/MPC-HC)"
-                />
-                <h3 className="flex gap-2 items-center"><FcVlc/> VLC</h3>
-                <div className="flex gap-4">
-                    <Field.Text
-                        name="vlcUsername"
-                        label="Username"
-                    />
-                    <Field.Text
-                        name="vlcPassword"
-                        label="Password"
-                    />
-                    <Field.Number
-                        name="vlcPort"
-                        label="Port"
-                        discrete
-                    />
-                </div>
-                <Field.Text
-                    name="vlcPath"
-                    label="Executable"
-                />
-                <h3 className="flex gap-2 items-center"><FcClapperboard/> MPC-HC</h3>
-                <div className="flex gap-4">
-                    <Field.Number
-                        name="mpcPort"
-                        label="Port"
-                        discrete
-                    />
-                </div>
-                <Field.Text
-                    name="mpcPath"
-                    label="Executable"
-                />
-                <h3 className="flex gap-2 items-center"><FcMindMap/> qBittorrent</h3>
-                <Field.Text
-                    name="qbittorrentHost"
-                    label="Host"
-                />
-                <div className="flex gap-4">
-                    <Field.Text
-                        name="qbittorrentUsername"
-                        label="Username"
-                    />
-                    <Field.Text
-                        name="qbittorrentPassword"
-                        label="Password"
-                    />
-                    <Field.Number
-                        name="qbittorrentPort"
-                        label="Port"
-                        discrete
-                    />
-                </div>
-                <Field.Text
-                    name="qbittorrentPath"
-                    label="Executable"
-                />
+
+
+                <Accordion
+                    containerClassName={"hidden md:block space-y-4"}
+                    triggerClassName={"border border-[--border] bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"}
+                    panelClassName="p-8 border border-[--border] rounded-md mt-4 space-y-4"
+                >
+                    <Accordion.Item title={"Media Player"}>
+
+                        <Field.Select
+                            name="defaultPlayer"
+                            label="Default player"
+                            leftIcon={<FcVideoCall/>}
+                            options={[
+                                { label: "VLC", value: "vlc" },
+                                { label: "MPC-HC (Windows only)", value: "mpc-hc" },
+                            ]}
+                            help="Player that will be used to open files and track your progress automatically."
+                        />
+
+                        <Field.Text
+                            name="mediaPlayerHost"
+                            label="Host"
+                        />
+
+                        <Divider/>
+
+                        <h3 className="flex gap-2 items-center"><FcVlc/> VLC</h3>
+                        <div className="flex gap-4">
+                            <Field.Text
+                                name="vlcUsername"
+                                label="Username"
+                            />
+                            <Field.Text
+                                name="vlcPassword"
+                                label="Password"
+                            />
+                            <Field.Number
+                                name="vlcPort"
+                                label="Port"
+                                discrete
+                            />
+                        </div>
+                        <Field.Text
+                            name="vlcPath"
+                            label="Application path"
+                        />
+
+                        <Divider/>
+
+                        <h3 className="flex gap-2 items-center"><FcClapperboard/> MPC-HC</h3>
+                        <div className="flex gap-4">
+                            <Field.Number
+                                name="mpcPort"
+                                label="Port"
+                                discrete
+                            />
+                        </div>
+                        <Field.Text
+                            name="mpcPath"
+                            label="Application path"
+                        />
+
+                    </Accordion.Item>
+
+
+                    <Accordion.Item title={"qBittorrent"}>
+                        <h3 className="flex gap-2 items-center"><FcMindMap/> qBittorrent</h3>
+                        <Field.Text
+                            name="qbittorrentHost"
+                            label="Host"
+                        />
+                        <div className="flex gap-4">
+                            <Field.Text
+                                name="qbittorrentUsername"
+                                label="Username"
+                            />
+                            <Field.Text
+                                name="qbittorrentPassword"
+                                label="Password"
+                            />
+                            <Field.Number
+                                name="qbittorrentPort"
+                                label="Port"
+                                discrete
+                            />
+                        </div>
+                        <Field.Text
+                            name="qbittorrentPath"
+                            label="Application path"
+                        />
+                    </Accordion.Item>
+
+
+                    <Accordion.Item title={"AniList"}>
+
+                        <Field.Switch
+                            name="hideAudienceScore"
+                            label="Hide audience score"
+                        />
+                    </Accordion.Item>
+
+                </Accordion>
+
                 <Field.Submit role="save" isLoading={isPending}/>
             </TypesafeForm>
         </div>
