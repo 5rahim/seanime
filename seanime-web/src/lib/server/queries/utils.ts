@@ -49,7 +49,7 @@ export async function buildSeaQuery<T, D extends any = any>(
 
 type SeaMutationProps<R, V = unknown> = UseMutationOptions<R, SeaError, V, unknown> & {
     endpoint: SeaEndpoints
-    method?: "post" | "get" | "patch"
+    method?: "post" | "get" | "patch" | "delete"
 }
 
 export function useSeaMutation<R, V = void>(

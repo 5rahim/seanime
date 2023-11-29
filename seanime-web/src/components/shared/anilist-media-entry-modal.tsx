@@ -35,16 +35,17 @@ const entrySchema = createTypesafeFormSchema(({ z, presets }) => z.object({
         day: value.getUTCDate(),
         month: value.getUTCMonth() + 1,
         year: value.getUTCFullYear(),
-    }) : undefined),
+    }) : null),
     completedAt: presets.datePicker.nullish().transform(value => value ? ({
         day: value.getUTCDate(),
         month: value.getUTCMonth() + 1,
         year: value.getUTCFullYear(),
-    }) : undefined),
+    }) : null),
 }))
 
 
 export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (props) => {
+    const [open, toggle] = useToggle(false)
 
     const { children, media, listData, ...rest } = props
 
@@ -63,19 +64,31 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         },
     })
 
-    const [open, toggle] = useToggle(false)
+    const { mutate: deleteEntry, isPending: isDeleting } = useSeaMutation<any, { mediaId: number }>({
+        endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
+        mutationKey: ["delete-anilist-list-entry"],
+        method: "delete",
+        onSuccess: async () => {
+            toast.success("Entry removed")
+            toggle(false)
+            await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
+            await qc.refetchQueries({ queryKey: ["get-library-collection"] })
+            await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+        },
+    })
 
-    if (!user || !listData) return null
+
+    if (!user) return null
 
     return (
         <>
-            <IconButton
+            {!!listData && <IconButton
                 intent={"gray-subtle"}
-                icon={!!listData ? <AiFillEdit/> : <BiPlus/>}
+                icon={<AiFillEdit/>}
                 rounded
                 size={"sm"}
                 onClick={toggle}
-            />
+            />}
 
             {(!listData) && <IconButton
                 intent={"primary-subtle"}
@@ -85,6 +98,10 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 onClick={() => mutate({
                     mediaId: media?.id || 0,
                     status: "PLANNING",
+                    score: 0,
+                    progress: 0,
+                    startedAt: null,
+                    completedAt: null,
                 })}
             />}
 
@@ -220,16 +237,17 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                         intent={"alert-basic"}
                                         rounded
                                         size={"md"}
-                                        // onClick={() => deleteEntry({
-                                        //     mediaListEntryId: state.id,
-                                        //     status: state.status!,
-                                        // })}
+                                        isLoading={isDeleting}
+                                        onClick={() => deleteEntry({
+                                            mediaId: media?.id!,
+                                        })}
                                     >Confirm</Button>
                                 </Disclosure.Panel>
                             </Disclosure>
                         </div>
 
-                        <Field.Submit role={"save"} disableIfInvalid={true} isLoading={isPending}/>
+                        <Field.Submit role={"save"} disableIfInvalid={true} isLoading={isPending}
+                                      isDisabled={isDeleting}/>
                     </div>
                 </TypesafeForm>}
 

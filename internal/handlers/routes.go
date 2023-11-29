@@ -65,11 +65,15 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/anilist/media-details
 	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
 
-	// Edit AniList Media List Data
+	// Edit AniList List Entry
 	// POST /v1/anilist/list-entry
 	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
 
-	// Edit AniList Media List Entry's score
+	// Delete AniList List Entry
+	// POST /v1/anilist/list-entry
+	v1Anilist.Delete("/list-entry", makeHandler(app, HandleDeleteAnilistListEntry))
+
+	// Edit AniList List Entry's progress
 	// POST /v1/anilist/list-entry
 	v1Anilist.Post("/list-entry/progress", makeHandler(app, HandleEditAnilistListEntryProgress))
 
@@ -101,7 +105,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// PATCH /v1/library/local-file
 	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
 
-	// Retrive MediaEntry
+	// Retrieve MediaEntry
 	// GET /v1/library/media-entry
 	v1Library.Get("/media-entry/:id", makeHandler(app, HandleGetMediaEntry))
 
