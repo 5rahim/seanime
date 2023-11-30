@@ -16,7 +16,7 @@ type SeaError = AxiosError<{ error: string }>
 
 type SeaQuery<D> = {
     endpoint: SeaEndpoints | string
-    method: "post" | "get" | "patch"
+    method: "post" | "get" | "patch" | "delete"
     data?: D
     params?: D
 }
