@@ -1,12 +1,8 @@
 import { LocalFile, MediaEntry } from "@/lib/server/types"
 import { useAtom } from "jotai/react"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { atomWithImmer } from "jotai-immer"
 import toast from "react-hot-toast"
-import { getAniDBEpisodeInteger } from "@/lib/server/utils"
-import { Nullish } from "@/types/common"
-import { NumberInput } from "@/components/ui/number-input"
-import { Select } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import * as upath from "upath"
 import { Button } from "@/components/ui/button"
@@ -21,7 +17,7 @@ export type BulkDeleteFilesModalProps = {
     entry: MediaEntry
 }
 
-export const _bulkDeleteFilesModalIsOpenAtom = atomWithImmer(true)
+export const _bulkDeleteFilesModalIsOpenAtom = atomWithImmer(false)
 const _episodeDeleteActionFilesAtom = atomWithImmer<{ file: LocalFile, selected: boolean }[]>([])
 
 
