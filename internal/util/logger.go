@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -14,9 +13,9 @@ func NewLogger() *zerolog.Logger {
 		Out:        os.Stdout,
 		TimeFormat: time.DateTime,
 	}
-	output.FormatFieldValue = func(i interface{}) string {
-		return fmt.Sprintf("\"%s\"", i)
-	}
+	//output.FormatFieldValue = func(i interface{}) string {
+	//	return fmt.Sprintf("\"%s\"", i)
+	//}
 	logger := zerolog.New(output).With().Timestamp().Logger()
 	return &logger
 }

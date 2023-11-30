@@ -86,12 +86,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Scan the library
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 
+	// DELETE /v1/library/empty-directories
+	v1Library.Delete("/empty-directories", makeHandler(app, HandleRemoveEmptyDirectories))
+
 	// Get all the local files from the database
 	// GET /v1/library/local-files
 	v1Library.Get("/local-files", makeHandler(app, HandleGetLocalFiles))
 
 	// POST /v1/library/local-files
 	v1Library.Post("/local-files", makeHandler(app, HandleLocalFileBulkAction))
+
+	// DELETE /v1/library/local-files
+	v1Library.Delete("/local-files", makeHandler(app, HandleDeleteLocalFiles))
 
 	// Get the library collection
 	// GET /v1/library/collection

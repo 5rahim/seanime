@@ -177,6 +177,25 @@ export function useLocalFileBulkAction() {
 
 }
 
+export function useRemoveEmptyDirectories() {
+
+    // Return data is ignored
+    const { mutate, isPending } = useSeaMutation<null>({
+        endpoint: SeaEndpoints.EMPTY_DIRECTORIES,
+        mutationKey: ["remove-empty-directories"],
+        method: "delete",
+        onSuccess: async () => {
+            toast.success("Empty directories removed")
+        },
+    })
+
+    return {
+        removeEmptyDirectories: () => mutate(),
+        isPending,
+    }
+
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 type UpdateLocalFileVariables = {

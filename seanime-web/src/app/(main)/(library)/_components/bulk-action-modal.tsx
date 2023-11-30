@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { BiLockAlt } from "@react-icons/all-files/bi/BiLockAlt"
 import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { useLocalFileBulkAction } from "@/lib/server/hooks/library"
+import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/lib/server/hooks/library"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 
 export const bulkActionModalAtomIsOpen = atom<boolean>(false)
 
@@ -15,6 +16,16 @@ export function BulkActionModal() {
 
     const { lockFiles, unlockFiles, isPending } = useLocalFileBulkAction()
 
+    const { removeEmptyDirectories, isPending: isRemoving } = useRemoveEmptyDirectories()
+
+    const confirmRemoveEmptyDirs = useConfirmationDialog({
+        title: "Remove empty directories",
+        description: "This action will remove all empty directories in the library. Are you sure you want to continue?",
+        onConfirm: () => {
+            removeEmptyDirectories()
+        },
+    })
+
     return (
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isClosable title={"Bulk actions"}
                bodyClassName={"space-y-4"}>
@@ -22,23 +33,33 @@ export function BulkActionModal() {
                 {/*<p>These actions do not affect ignored files.</p>*/}
                 <Button
                     leftIcon={<BiLockAlt/>}
-                    intent={"white-subtle"}
+                    intent={"white-link"}
                     className={"w-full"}
-                    isLoading={isPending}
+                    isDisabled={isPending || isRemoving}
                     onClick={lockFiles}
                 >
                     Lock all files
                 </Button>
                 <Button
                     leftIcon={<BiLockOpenAlt/>}
-                    intent={"white-subtle"}
+                    intent={"white-link"}
                     className={"w-full"}
-                    isLoading={isPending}
+                    isDisabled={isPending || isRemoving}
                     onClick={unlockFiles}
                 >
                     Unlock all files
                 </Button>
+                <Button
+                    intent={"white-link"}
+                    className={"w-full"}
+                    isDisabled= {isPending}
+                    isLoading={isRemoving}
+                    onClick={() => confirmRemoveEmptyDirs.open()}
+                >
+                    Remove empty directories
+                </Button>
             </AppLayoutStack>
+            <ConfirmationDialog {...confirmRemoveEmptyDirs} />
         </Modal>
     )
 

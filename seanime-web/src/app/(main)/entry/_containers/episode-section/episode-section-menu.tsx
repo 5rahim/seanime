@@ -6,6 +6,14 @@ import { DropdownMenu } from "@/components/ui/dropdown-menu"
 import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
 import { useOpenDefaultMediaPlayer, useOpenMediaEntryInExplorer } from "@/lib/server/hooks/settings"
 import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
+import {
+    _bulkDeleteFilesModalIsOpenAtom,
+    BulkDeleteFilesModal,
+} from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
+import { useSetAtom } from "jotai"
+import { BiArrowToRight } from "@react-icons/all-files/bi/BiArrowToRight"
+import { BiRightArrow } from "@react-icons/all-files/bi/BiRightArrow"
+import { BiRightArrowAlt } from "@react-icons/all-files/bi/BiRightArrowAlt"
 
 export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
 
@@ -16,13 +24,15 @@ export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
 
     const { unmatchAll, isPending } = useMediaEntryBulkAction(entry.mediaId)
 
-    const confirmUnmatch = useConfirmationDialog({
+    const confirmDeleteFiles = useConfirmationDialog({
         title: "Unmatch all files",
         description: "Are you sure you want to unmatch all files?",
         onConfirm: () => {
             unmatchAll(entry.mediaId)
         },
     })
+
+    const setBulkDeleteFilesModalOpen = useSetAtom(_bulkDeleteFilesModalIsOpenAtom)
 
 
     return (
@@ -46,17 +56,25 @@ export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
                     {/*    Offset episode numbers*/}
                     {/*</DropdownMenu.Item>*/}
                     <DropdownMenu.Item
-                        className="text-red-500 dark:text-red-200"
-                        onClick={confirmUnmatch.open}
+                        className="text-red-500 dark:text-red-200 flex justify-between"
+                        onClick={confirmDeleteFiles.open}
                         disabled={isPending}
                     >
-                        Unmatch all files
+                        <span>Unmatch all files</span> <BiRightArrowAlt />
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                        className="text-red-500 dark:text-red-200 flex justify-between"
+                        onClick={() => setBulkDeleteFilesModalOpen(true)}
+                        disabled={isPending}
+                    >
+                        <span>Delete some files</span> <BiRightArrowAlt />
                     </DropdownMenu.Item>
                 </DropdownMenu.Group>
             </DropdownMenu>
 
             {/*<BulkOffsetEpisodesModal entry={entry} isOpen={bulkOffsetEpisodeModal.active} onClose={bulkOffsetEpisodeModal.off} />*/}
-            <ConfirmationDialog {...confirmUnmatch} />
+            <ConfirmationDialog {...confirmDeleteFiles} />
+            <BulkDeleteFilesModal entry={entry} />
         </>
     )
 }

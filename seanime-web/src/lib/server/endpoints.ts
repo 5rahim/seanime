@@ -16,6 +16,7 @@ export const enum SeaEndpoints {
     /**
      * Library
      */
+    EMPTY_DIRECTORIES = "/library/empty-directories", // (POST)
     LOCAL_FILES = "/library/local-files", // (GET, POST)
     LIBRARY_COLLECTION = "/library/collection", // (GET)
     MISSING_EPISODES = "/library/missing-episodes", // (GET)

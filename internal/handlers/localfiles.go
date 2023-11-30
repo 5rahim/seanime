@@ -4,6 +4,9 @@ import (
 	"errors"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/filesystem"
+	"github.com/sourcegraph/conc/pool"
+	"os"
 )
 
 func HandleGetLocalFiles(c *RouteCtx) error {
@@ -100,5 +103,75 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(retLfs)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// HandleDeleteLocalFiles
+// DELETE
+func HandleDeleteLocalFiles(c *RouteCtx) error {
+
+	type body struct {
+		Paths []string `json:"paths"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get all the local files
+	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Delete the files
+	p := pool.NewWithResults[string]()
+	for _, path := range b.Paths {
+		path := path
+		p.Go(func() string {
+			err = os.Remove(path)
+			if err != nil {
+				return ""
+			}
+			return path
+		})
+	}
+	deletedPaths := p.Wait()
+	deletedPaths = lo.Filter(deletedPaths, func(i string, _ int) bool {
+		return i != ""
+	})
+
+	// Remove the deleted files from the local files
+	newLfs := lo.Filter(lfs, func(i *entities.LocalFile, _ int) bool {
+		return !lo.Contains(deletedPaths, i.Path)
+	})
+
+	// Check if it's the only file in the directory -> delete the directory
+
+	// Save the local files
+	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, newLfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(retLfs)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func HandleRemoveEmptyDirectories(c *RouteCtx) error {
+
+	libraryPath, err := c.App.Database.GetLibraryPath()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	filesystem.RemoveEmptyDirectories(libraryPath, c.App.Logger)
+
+	return c.RespondWithData(nil)
 
 }
