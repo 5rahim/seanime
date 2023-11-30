@@ -12,12 +12,13 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/applicat
 import { useSeaMutation } from "@/lib/server/queries/utils"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useQueryClient } from "@tanstack/react-query"
+import { atom } from "jotai"
 
 export type BulkDeleteFilesModalProps = {
     entry: MediaEntry
 }
 
-export const _bulkDeleteFilesModalIsOpenAtom = atomWithImmer(false)
+export const _bulkDeleteFilesModalIsOpenAtom = atom(false)
 const _episodeDeleteActionFilesAtom = atomWithImmer<{ file: LocalFile, selected: boolean }[]>([])
 
 
