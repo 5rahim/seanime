@@ -72,6 +72,8 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		}
 	}
 
+	// TODO: Create NormalizedMedia that will contain the BaseMedia and their BasicMedia relations
+
 	//--------------------------------------------
 
 	// Get the media IDs from the collection
