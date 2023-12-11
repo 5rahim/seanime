@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.2
+
+- 🚑️ Fixed incorrect redirection to non-existent page
+
 ## 0.1.1
 
 - ✨ Added ability to hide audience score
