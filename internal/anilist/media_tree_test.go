@@ -10,30 +10,57 @@ import (
 func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 	anilistClient := NewAuthedClient("")
+	lim := limiter.NewAnilistLimiter()
+	baseMediaCache := NewBaseMediaCache()
 
-	id := 103223 // BSD3
-	bsdMediaF, err := anilistClient.BaseMediaByID(context.Background(), &id)
-
-	if err != nil {
-		t.Fatalf("error while fetching media")
+	tests := []struct {
+		name    string
+		mediaId int
+		treeIds []int
+	}{
+		{
+			name:    "BSD3",
+			mediaId: 103223,
+			treeIds: []int{
+				21311,  // BSD1
+				21679,  // BSD2
+				103223, // BSD3
+				141249, // BSD4
+				163263, // BSD5
+			},
+		},
 	}
 
-	bsdMedia := bsdMediaF.GetMedia()
+	for _, tt := range tests {
 
-	tree := NewBaseMediaRelationTree()
+		t.Run(tt.name, func(t *testing.T) {
 
-	err = bsdMedia.FetchMediaTree(
-		FetchMediaTreeAll,
-		anilistClient,
-		limiter.NewAnilistLimiter(),
-		tree,
-		NewBaseMediaCache())
+			mediaF, err := anilistClient.BaseMediaByID(context.Background(), &tt.mediaId)
+			if err != nil {
+				t.Fatalf("error while fetching media, %v", err)
+			}
+			media := mediaF.GetMedia()
 
-	if assert.NoError(t, err) {
-		tree.Range(func(key int, value *BaseMedia) bool {
-			t.Log(value.GetTitleSafe())
-			return true
+			tree := NewBaseMediaRelationTree()
+
+			err = media.FetchMediaTree(
+				FetchMediaTreeAll,
+				anilistClient,
+				lim,
+				tree,
+				baseMediaCache,
+			)
+
+			if assert.NoError(t, err) {
+
+				for _, treeId := range tt.treeIds {
+					_, found := tree.Get(treeId)
+					assert.Truef(t, found, "expected tree to contain %d", treeId)
+				}
+			}
+
 		})
+
 	}
 
 }
