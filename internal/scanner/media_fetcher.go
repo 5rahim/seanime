@@ -55,6 +55,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		Any("username", opts.Username).
 		Msg("media container: Creating media container")
 
+	// +---------------------+
+	// |     All media       |
+	// +---------------------+
+
 	// Fetch latest user's AniList collection
 	animeCollection, err := opts.AnilistClient.AnimeCollection(context.Background(), &opts.Username)
 	if err != nil {
@@ -67,6 +71,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	for _, list := range animeCollection.GetMediaListCollection().GetLists() {
 		for _, entry := range list.GetEntries() {
 			mc.AllMedia = append(mc.AllMedia, entry.GetMedia())
+
+			// +---------------------+
+			// |        Cache        |
+			// +---------------------+
 			// We assume the BaseMediaCache is empty. Add media to cache.
 			opts.BaseMediaCache.Set(entry.GetMedia().ID, entry.GetMedia())
 		}
@@ -82,6 +90,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	})
 
 	//--------------------------------------------
+
+	// +---------------------+
+	// |      Enhanced       |
+	// +---------------------+
 
 	// If enhancing is on, scan media from local files and get their relations
 	if opts.Enhanced {
@@ -100,7 +112,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		}
 	}
 
-	//--------------------------------------------
+	// +---------------------+
+	// |   Unknown media     |
+	// +---------------------+
+	// Media that are not in the user's collection
 
 	// Get the media that are not in the user's collection
 	unknownMedia := lo.Filter(mc.AllMedia, func(m *anilist.BaseMedia, _ int) bool {
@@ -136,14 +151,14 @@ func FetchMediaFromLocalFiles(
 	// Get titles
 	titles := entities.GetUniqueAnimeTitlesFromLocalFiles(localFiles)
 
-	//titles = titles[:8]
-	//titles := []string{"Bungou Stray Dogs", "Jujutsu Kaisen", "Sousou no Frieren"}
+	// +---------------------+
+	// |   MyAnimeList       |
+	// +---------------------+
 
 	// Get MAL media from titles
 	malSR := parallel.NewSettledResults[string, *mal.SearchResultAnime](titles)
 	malSR.AllSettled(func(title string, index int) (*mal.SearchResultAnime, error) {
 		rateLimiter.Wait()
-		println("Fetching", title, "on MAL")
 		return mal.AdvancedSearchWithMAL(title)
 	})
 	malRes, ok := malSR.GetFulfilledResults()
@@ -156,16 +171,23 @@ func FetchMediaFromLocalFiles(
 	// Get the MAL media IDs
 	malIds := lop.Map(malMedia, func(n *mal.SearchResultAnime, index int) int { return n.ID })
 
+	// +---------------------+
+	// |       AniZip        |
+	// +---------------------+
+
 	// Get AniZip mappings for each MAL ID and store them in `anizipCache`
 	// This step is necessary because MAL doesn't provide AniList IDs and some MAL media don't exist on AniList
 	lop.ForEach(malIds, func(id int, index int) {
-		println("Fetching", id, "on AniZip")
 		rateLimiter2.Wait()
 		_, _ = anizipCache.GetOrSet(anizip.GetCacheKey("mal", id), func() (*anizip.Media, error) {
 			res, err := anizip.FetchAniZipMedia("mal", id)
 			return res, err
 		})
 	})
+
+	// +---------------------+
+	// |       AniList       |
+	// +---------------------+
 
 	// Retrieve the AniList IDs from the AniZip mappings stored in the cache
 	anilistIds := make([]int, 0)
@@ -184,9 +206,12 @@ func FetchMediaFromLocalFiles(
 		if err == nil {
 			anilistMedia = append(anilistMedia, media)
 		} else {
-			println("error while fetching", id, err.Error())
 		}
 	})
+
+	// +---------------------+
+	// |     MediaTree       |
+	// +---------------------+
 
 	// Create a new tree that will hold the fetched relations
 	// /!\ This is redundant because we already have a cache, but `FetchMediaTree` needs its
@@ -198,6 +223,10 @@ func FetchMediaFromLocalFiles(
 		// We ignore errors because we want to continue even if one of the media fails
 		_ = m.FetchMediaTree(anilist.FetchMediaTreeAll, anilistClient, anilistRateLimiter, tree, baseMediaCache)
 	})
+
+	// +---------------------+
+	// |        Cache        |
+	// +---------------------+
 
 	// Retrieve all media from the cache
 	scanned := make([]*anilist.BaseMedia, 0)

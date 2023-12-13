@@ -49,6 +49,12 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	if opts.media.GetCurrentEpisodeCount() == -1 {
 		return nil, errors.New("could not get current media episode count")
 	}
+
+	// +---------------------+
+	// |   Discrepancy       |
+	// +---------------------+
+
+	// Whether AniList includes episode 0 as part of main episodes, but Anizip does not, however Anizip has "S1"
 	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(opts.localFiles, opts.media, opts.anizipMedia)
 
 	// I - Progress
@@ -72,14 +78,22 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	anizipEpSlice := generateEpSlice(opts.anizipMedia.GetMainEpisodeCount())                            // e.g, [1,2,3,4]
 	unwatchedAnizipEpSlice := lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
+	// +---------------------+
+	// |   Anizip has more   |
+	// +---------------------+
+
 	// If Anizip has more episodes
 	// e.g, Anizip: 2, Anilist: 1
 	if opts.anizipMedia.GetMainEpisodeCount() > opts.media.GetCurrentEpisodeCount() {
 		diff := opts.anizipMedia.GetMainEpisodeCount() - opts.media.GetCurrentEpisodeCount()
-		// Remove the difference from the Anizip slice
+		// Remove the extra episode number from the Anizip slice
 		anizipEpSlice = anizipEpSlice[:len(anizipEpSlice)-diff]                                            // e.g, [1,2] -> [1]
 		unwatchedAnizipEpSlice = lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, [1,2] -> [1]
 	}
+
+	// +---------------------+
+	// |   Anizip has fewer  |
+	// +---------------------+
 
 	// III - Handle discrepancy (inclusion of episode 0 by AniList)
 	// If there Anilist has more episodes than Anizip
@@ -93,7 +107,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		}
 	}
 
-	// Filter out unavailable episodes for the slices
+	// Filter out episodes not aired from the slices
 	if opts.media.NextAiringEpisode != nil {
 		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i < opts.media.NextAiringEpisode.Episode })
 		if hasDiscrepancy {
@@ -103,7 +117,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		}
 	}
 
-	// Inaccurate schedule
+	// Inaccurate schedule (hacky fix)
 	hasInaccurateSchedule := false
 	if opts.media.NextAiringEpisode == nil && *opts.media.Status == anilist.MediaStatusReleasing {
 		if !hasDiscrepancy {
@@ -145,7 +159,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 			lfsEpSlice = lo.Filter(lfsEpSlice, func(i int, _ int) bool { return i != 0 })
 			lfsEpSlice = append([]int{-1}, lfsEpSlice...) // e.g, [-1,1,2,...,12]
 		}
-		// Filter out downloaed episodes
+		// Filter out downloaded episodes
 		if len(lfsEpSlice) > 0 {
 			toDownloadSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool {
 				return !lo.Contains(lfsEpSlice, i)
@@ -157,10 +171,14 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		toDownloadSlice = unwatchedAnizipEpSlice
 	}
 
-	//---------------------------------
+	// +---------------------+
+	// |   EntryEpisode      |
+	// +---------------------+
 
 	// Generate `episodesToDownload` based on `toDownloadSlice`
-	//episodesToDownload := make([]*MediaEntryDownloadEpisode, 0)
+
+	// DEVNOTE: The EntryEpisode generated has inaccurate progress numbers since not local files are passed in
+
 	p := pool.NewWithResults[*MediaEntryDownloadEpisode]()
 	for _, ep := range toDownloadSlice {
 		ep := ep

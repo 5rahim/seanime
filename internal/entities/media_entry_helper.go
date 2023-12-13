@@ -3,7 +3,7 @@ package entities
 import "github.com/samber/lo"
 
 // HasWatchedAll returns true if all episodes have been watched.
-// Returns true if there are no downloaded episodes.
+// Returns false if there are no downloaded episodes.
 func (e *MediaEntry) HasWatchedAll() bool {
 	// If there are no episodes, return nil
 	latestEp, ok := e.FindLatestEpisode()

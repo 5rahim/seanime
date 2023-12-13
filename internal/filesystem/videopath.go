@@ -30,8 +30,6 @@ func SeparateFilePath(path string, prefixPath string) *SeparatedFilePath {
 	}
 }
 
-////////////////////////////////////////////////////
-
 // GetVideoFilePathsFromDir returns a slice of strings containing the paths of all the video files in a directory.
 func GetVideoFilePathsFromDir(dirPath string) ([]string, error) {
 	filePaths := make([]string, 0)

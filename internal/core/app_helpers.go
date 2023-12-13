@@ -7,6 +7,8 @@ import (
 	"github.com/seanime-app/seanime/internal/models"
 )
 
+// GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
+// When bypassCache is true, it will always query Anilist for the user's collection
 func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 
 	// Get Anilist Collection from App if it exists
@@ -18,6 +20,7 @@ func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, 
 
 }
 
+// RefreshAnilistCollection queries Anilist for the user's collection
 func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 
 	// If the account is nil, return false

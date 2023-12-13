@@ -3,51 +3,37 @@ package anilist
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/limiter"
-	"sync"
+	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 	anilistClient := NewAuthedClient("")
-	cache := NewBaseMediaCache()
 
-	id := 103223  // BSD3
-	id2 := 145064 // JJK2
+	id := 103223 // BSD3
 	bsdMediaF, err := anilistClient.BaseMediaByID(context.Background(), &id)
-	jjkMediaF, err := anilistClient.BaseMediaByID(context.Background(), &id2)
 
 	if err != nil {
 		t.Fatalf("error while fetching media")
 	}
 
 	bsdMedia := bsdMediaF.GetMedia()
-	jjkMedia := jjkMediaF.GetMedia()
-
-	rateLimit := limiter.NewLimiter(time.Minute, 90)
 
 	tree := NewBaseMediaRelationTree()
 
-	wg := sync.WaitGroup{}
+	err = bsdMedia.FetchMediaTree(
+		FetchMediaTreeAll,
+		anilistClient,
+		limiter.NewAnilistLimiter(),
+		tree,
+		NewBaseMediaCache())
 
-	for _, m := range []*BaseMedia{bsdMedia, jjkMedia} {
-		wg.Add(1)
-		go func(_m *BaseMedia) {
-			defer wg.Done()
-			err := _m.FetchMediaTree(FetchMediaTreeAll, anilistClient, rateLimit, tree, cache)
-			if err != nil {
-				t.Error("error while fetching tree,", err)
-				return
-			}
-		}(m)
+	if assert.NoError(t, err) {
+		tree.Range(func(key int, value *BaseMedia) bool {
+			t.Log(value.GetTitleSafe())
+			return true
+		})
 	}
-
-	wg.Wait()
-
-	tree.Range(func(key int, value *BaseMedia) bool {
-		t.Log(value.GetTitleSafe())
-		return true
-	})
 
 }

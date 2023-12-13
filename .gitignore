@@ -4,7 +4,12 @@ logs/
 .env
 
 test/sample
+test/jwt.json
 whats-new.md
+
+*/mock_data.json
+
+TODO-priv.md
 
 ##
 ## Web

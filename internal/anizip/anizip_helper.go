@@ -41,7 +41,7 @@ func (m *Media) GetMainEpisodeCount() int {
 	return m.EpisodeCount
 }
 
-// GetOffset returns the offset of the first episode relatived to the absolute episode number.
+// GetOffset returns the offset of the first episode relative to the absolute episode number.
 // e.g, if the first episode's absolute number is 13, then the offset is 12.
 func (m *Media) GetOffset() int {
 	if m == nil {
@@ -70,17 +70,14 @@ func (e *Episode) GetTitle() string {
 }
 
 func ExtractEpisodeInteger(s string) (int, bool) {
-	// Define a regular expression pattern to match integers in the string.
 	pattern := "[0-9]+"
-
-	// Compile the regular expression pattern.
 	regex := regexp.MustCompile(pattern)
 
 	// Find the first match in the input string.
 	match := regex.FindString(s)
 
 	if match != "" {
-		// Convert the matched string to an integer using strconv.Atoi.
+		// Convert the matched string to an integer.
 		num, err := strconv.Atoi(match)
 		if err != nil {
 			return 0, false
@@ -88,15 +85,11 @@ func ExtractEpisodeInteger(s string) (int, bool) {
 		return num, true
 	}
 
-	// If no match was found, return an error or a default value as needed.
 	return 0, false
 }
 
 func OffsetEpisode(s string, offset int) string {
-	// Define a regular expression pattern to match integers in the string.
 	pattern := "([0-9]+)"
-
-	// Compile the regular expression pattern.
 	regex := regexp.MustCompile(pattern)
 
 	// Replace the first matched integer with the incremented value.

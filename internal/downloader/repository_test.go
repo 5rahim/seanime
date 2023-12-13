@@ -10,7 +10,110 @@ import (
 	"testing"
 )
 
-func getRepo(t *testing.T) *QbittorrentRepository {
+var destination = "E:/Anime/Temp"
+
+func TestSmartSelect(t *testing.T) {
+
+	anilistClient := anilist.NewAuthedClient("")
+
+	var dir = "E:/Anime/Temp"
+
+	// get repo
+	repo := getRepo(t, dir)
+
+	tests := []struct {
+		name             string
+		mediaId          int
+		url              string
+		selectedEpisodes []int
+		absoluteOffset   int
+	}{
+		{
+			name:             "Kakegurui xx",
+			mediaId:          1553978,
+			url:              "https://nyaa.si/view/1553978", // kakegurui season 1 + season 2
+			selectedEpisodes: []int{10, 11, 12},
+			absoluteOffset:   12,
+		},
+		{
+			name:             "Spy x Family",
+			mediaId:          1661695,
+			url:              "https://nyaa.si/view/1661695", // spy x family (01-25)
+			selectedEpisodes: []int{10, 11, 12},
+			absoluteOffset:   0,
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			err := repo.Client.Start()
+			assert.NoError(t, err)
+
+			// get magnet
+			magnet, err := nyaa.TorrentMagnet(tt.url)
+			assert.NoError(t, err)
+
+			// get hash
+			hash, ok := nyaa.ExtractHashFromMagnet(magnet)
+			assert.True(t, ok)
+
+			t.Log(tt.name, hash)
+
+			// get media
+			media, err := anilist.GetBaseMediaById(anilistClient, tt.mediaId)
+			if err != nil {
+				t.Fatalf("error getting media: %s", err.Error())
+			}
+
+			err = repo.AddMagnets([]string{magnet})
+			if err != nil {
+				t.Fatalf("error adding magnet: %s", err.Error())
+			}
+
+			err = repo.SmartSelect(&SmartSelect{
+				Magnets:               []string{magnet},
+				Enabled:               true,
+				MissingEpisodeNumbers: tt.selectedEpisodes,
+				AbsoluteOffset:        tt.absoluteOffset,
+				Media:                 media,
+			})
+
+			if assert.NoError(t, err) {
+				err = repo.PauseTorrents([]string{hash})
+			}
+
+		})
+
+	}
+
+}
+
+// Clean up
+func TestRemoveTorrents(t *testing.T) {
+
+	const url = "https://nyaa.si/view/1553978"
+
+	// get repo
+	repo := getRepo(t, destination)
+	// get magnet
+	magnet, err := nyaa.TorrentMagnet(url)
+	assert.NoError(t, err)
+	// get hash
+	hash, ok := nyaa.ExtractHashFromMagnet(magnet)
+	assert.True(t, ok)
+
+	t.Log(hash)
+
+	err = repo.RemoveTorrents([]string{hash})
+	assert.NoError(t, err)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func getRepo(t *testing.T, destination string) *QbittorrentRepository {
 
 	logger := util.NewLogger()
 	WSEventManager := events.NewMockWSEventManager(logger)
@@ -32,66 +135,8 @@ func getRepo(t *testing.T) *QbittorrentRepository {
 		Logger:         logger,
 		Client:         qBittorrentClient,
 		WSEventManager: WSEventManager,
-		Destination:    "E:/Anime/Temp",
+		Destination:    destination,
 	}
 
 	return repo
-}
-
-// const url = "https://nyaa.si/view/1661695" // spy x family (01-25)
-// const mediaId = 142838                     // spy x family part 2
-const url = "https://nyaa.si/view/1553978" // kakegurui season 1 + season 2
-const mediaId = 100876                     // kakegurui xx
-
-func TestSmartSelect(t *testing.T) {
-	// get repo
-	repo := getRepo(t)
-
-	err := repo.Client.Start()
-	assert.NoError(t, err)
-
-	// get magnet
-	magnet, err := nyaa.TorrentMagnet(url)
-	assert.NoError(t, err)
-	// get hash
-	hash, ok := nyaa.ExtractHashFromMagnet(magnet)
-	assert.True(t, ok)
-
-	t.Log(hash)
-
-	// get media
-	anilistEntry, ok := anilist.MockGetCollectionEntry(mediaId)
-	assert.True(t, ok)
-
-	err = repo.AddMagnets([]string{magnet})
-	assert.NoError(t, err)
-
-	err = repo.SmartSelect(&SmartSelect{
-		Magnets:               []string{magnet},
-		Enabled:               true,
-		MissingEpisodeNumbers: []int{10, 11, 12},
-		AbsoluteOffset:        0,
-		Media:                 anilistEntry.Media,
-	})
-	assert.NoError(t, err)
-
-	err = repo.PauseTorrents([]string{hash})
-
-}
-
-func TestRemoveTorrents(t *testing.T) {
-	// get repo
-	repo := getRepo(t)
-	// get magnet
-	magnet, err := nyaa.TorrentMagnet(url)
-	assert.NoError(t, err)
-	// get hash
-	hash, ok := nyaa.ExtractHashFromMagnet(magnet)
-	assert.True(t, ok)
-
-	t.Log(hash)
-
-	err = repo.RemoveTorrents([]string{hash})
-	assert.NoError(t, err)
-
 }

@@ -7,7 +7,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"
 
-	lfs, err := getLocalFilesFromDB(c.App.Database)
+	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}

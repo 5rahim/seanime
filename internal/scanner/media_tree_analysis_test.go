@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
@@ -11,39 +10,81 @@ import (
 	"time"
 )
 
-const mediaId = 131586 // 86 part 2
-
 func TestMediaTreeAnalysis(t *testing.T) {
 
+	allMedia := getMockedAllMedia(t)
+
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-
-	// get media
-	allMedia := anilist.MockGetAllMedia()
-	media, found := lo.Find(*allMedia, func(m *anilist.BaseMedia) bool {
-		return m.ID == mediaId
-	})
-	assert.True(t, found)
-
-	// create the tree
 	tree := anilist.NewBaseMediaRelationTree()
 
-	// fetch the tree
-	err := media.FetchMediaTree(anilist.FetchMediaTreeAll, anilist.NewAuthedClient(""), anilistRateLimiter, tree, anilist.NewBaseMediaCache())
-	assert.NoError(t, err)
+	tests := []struct {
+		name                          string
+		mediaId                       int
+		absoluteEpisodeNumber         int
+		expectedRelativeEpisodeNumber int
+	}{
+		{
+			name:                          "Media Tree Analysis for 86 - Eighty Six Part 2",
+			mediaId:                       131586, // 86 - Eighty Six Part 2
+			absoluteEpisodeNumber:         23,
+			expectedRelativeEpisodeNumber: 12,
+		},
+	}
 
-	// get analysis
-	mta, err := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
-		tree:        tree,
-		anizipCache: anizip.NewCache(),
-		rateLimiter: limiter.NewLimiter(time.Minute, 25),
-	})
-	assert.NoError(t, err)
+	for _, tt := range tests {
 
-	t.Log(spew.Sdump(mta.branches))
+		t.Run(tt.name, func(t *testing.T) {
 
-	relEp, _, ok := mta.getRelativeEpisodeNumber(23)
-	assert.True(t, ok)
+			media, found := lo.Find(allMedia, func(m *anilist.BaseMedia) bool {
+				return m.ID == tt.mediaId
+			})
+			if !found || media == nil {
+				t.Fatal("expected media, got not found")
+			}
 
-	assert.Equal(t, 12, relEp)
+			// +---------------------+
+			// |     MediaTree       |
+			// +---------------------+
+
+			err := media.FetchMediaTree(
+				anilist.FetchMediaTreeAll,
+				anilist.NewAuthedClient(""),
+				anilistRateLimiter,
+				tree,
+				anilist.NewBaseMediaCache(),
+			)
+
+			if err != nil {
+				t.Fatal("expected media tree, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |  MediaTreeAnalysis  |
+			// +---------------------+
+
+			mta, err := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
+				tree:        tree,
+				anizipCache: anizip.NewCache(),
+				rateLimiter: limiter.NewLimiter(time.Minute, 25),
+			})
+			if err != nil {
+				t.Fatal("expected media tree analysis, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |  Relative Episode   |
+			// +---------------------+
+
+			relEp, _, ok := mta.getRelativeEpisodeNumber(tt.absoluteEpisodeNumber)
+
+			if assert.Truef(t, ok, "expected relative episode number %v for absolute episode number %v, nothing found", tt.expectedRelativeEpisodeNumber, tt.absoluteEpisodeNumber) {
+
+				assert.Equal(t, tt.expectedRelativeEpisodeNumber, relEp)
+
+			}
+
+		})
+
+	}
 
 }

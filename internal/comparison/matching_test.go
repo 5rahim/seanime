@@ -13,12 +13,12 @@ func TestFindBestMatchWithLevenstein(t *testing.T) {
 
 	if res, ok := FindBestMatchWithLevenstein(&title, lo.ToSlicePtr(titles)); ok {
 		if *res.Value != expected {
-			t.Errorf("expected %s for %s, got %s", expected, title, res.Value)
+			t.Errorf("expected %s for %s, got %s", expected, title, *res.Value)
 		}
 		if res.Distance != 0 {
 			t.Errorf("expected a distance of 0, got %d", res.Distance)
 		}
-		t.Logf("value: %s, distance: %d", res.Value, res.Distance)
+		t.Logf("value: %s, distance: %d", *res.Value, res.Distance)
 	} else {
 		t.Error("expected result, got nil")
 	}

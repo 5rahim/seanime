@@ -1,5 +1,5 @@
 <p align="center">
-<img src="images/logo.png" alt="preview" width="75px"/>
+<img src="docs/images/logo.png" alt="preview" width="75px"/>
 </p>
 
 <h2 align="center"><b>Seanime</b></h2>
@@ -7,7 +7,7 @@
 <h4 align="center">User-friendly, self-hosted server that brings you a Netflix-like experience for your local
 anime library.</h4>
 
-<img src="images/main_6.png" alt="preview" width="100%"/>
+<img src="docs/images/main_6.png" alt="preview" width="100%"/>
 
 🚨 This project is a hobby, it's not meant to fix every shortcoming or include every requested feature. Some features
 might not work as intended. Feel free to fork the project, contribute or open issues.
@@ -55,16 +55,9 @@ go mod tidy
 
 ### Tests
 
-Some tests require mock data to be generated first in the `test/sample` folder.
+- Some tests require a valid AniList JWT in `test/jwt.json`
+- Do not run tests all at once.
 
-```text
-anilist_collection.json
-filepaths.json
-jwt.json
-localfiles.json
-localfiles_selected.json
-media.json
-```
 
 ## Acknowledgements
 
@@ -77,29 +70,29 @@ media.json
 # Screenshots
 
 <center>
-<img src="images/terminal.png" alt="preview" width="50%"/>
+<img src="docs/images/terminal.png" alt="preview" width="50%"/>
 </center>
 
 ## Library
 
-<img src="images/img.png" alt="preview" width="100%"/>
+<img src="docs/images/img.png" alt="preview" width="100%"/>
 
 ## Media page
 
-<img src="images/img_12.png" alt="preview" width="100%"/>
+<img src="docs/images/img_12.png" alt="preview" width="100%"/>
 
 ## Torrent search & download
 
-<img src="images/img_1.png" alt="preview" width="100%"/>
+<img src="docs/images/img_1.png" alt="preview" width="100%"/>
 
 ## Discover
 
-<img src="images/img_11.png" alt="preview" width="100%"/>
+<img src="docs/images/img_11.png" alt="preview" width="100%"/>
 
 ## Schedule
 
-<img src="images/img_13.png" alt="preview" width="100%"/>
+<img src="docs/images/img_13.png" alt="preview" width="100%"/>
 
 ## Progress tracking
 
-<img src="images/img_16.png" alt="preview" width="100%"/>
+<img src="docs/images/img_16.png" alt="preview" width="100%"/>

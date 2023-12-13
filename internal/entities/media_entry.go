@@ -45,6 +45,18 @@ type (
 )
 
 // NewMediaEntry creates a new MediaEntry based on the media id and a list of local files.
+// A MediaEntry is a container for all data related to a media.
+// It is the primary data structure used by the frontend.
+//
+// It has the following properties:
+//   - MediaEntryListData: Details of the AniList entry (if any)
+//   - MediaEntryLibraryData: Details of the local files (if any)
+//   - MediaEntryDownloadInfo: Details of the download status
+//   - Episodes: List of episodes (if any)
+//   - NextEpisode: Next episode to watch (if any)
+//   - LocalFiles: List of local files (if any)
+//   - AniDBId: AniDB id
+//   - CurrentEpisodeCount: Current episode count
 func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	if opts.AnilistCollection == nil ||
@@ -55,6 +67,10 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// Create new MediaEntry
 	entry := new(MediaEntry)
 	entry.MediaId = opts.MediaId
+
+	// +---------------------+
+	// |   AniList entry     |
+	// +---------------------+
 
 	// Get the Anilist List entry
 	anilistEntry, found := opts.AnilistCollection.GetListEntryFromMediaId(opts.MediaId)
@@ -77,6 +93,10 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	entry.CurrentEpisodeCount = entry.Media.GetCurrentEpisodeCount()
 
+	// +---------------------+
+	// |   Local files       |
+	// +---------------------+
+
 	// Get the entry's local files
 	lfs := GetLocalFilesFromMediaId(opts.LocalFiles, opts.MediaId)
 	entry.LocalFiles = lfs // Returns empty slice if no local files are found
@@ -87,7 +107,11 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	})
 	entry.MediaEntryLibraryData = libraryData
 
-	// Fetch AniDB data and cache it for 10 minutes
+	// +---------------------+
+	// |       AniZip        |
+	// +---------------------+
+
+	// Fetch AniDB data and cache it for 30 minutes
 	anizipData, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)
 	if err != nil {
 		return nil, err
@@ -106,12 +130,18 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 		}
 	}
 
+	// +---------------------+
+	// |       Episodes      |
+	// +---------------------+
+
 	// Create episode entities
 	entry.hydrateEntryEpisodeData(anilistEntry, anizipData)
 
 	return entry, nil
 
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // hydrateEntryEpisodeData
 // AniZipData, Media and LocalFiles should be defined
@@ -125,6 +155,10 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	}
 
 	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(e.LocalFiles, e.Media, anizipData)
+
+	// +---------------------+
+	// |     Discrepancy     |
+	// +---------------------+
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
@@ -143,9 +177,9 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 		}
 	}
 
-	//
-	// Episode entities
-	//
+	// +---------------------+
+	// |       Episodes      |
+	// +---------------------+
 
 	p := pool.NewWithResults[*MediaEntryEpisode]()
 	for _, lf := range e.LocalFiles {
@@ -166,10 +200,12 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	sort.Slice(episodes, func(i, j int) bool {
 		return episodes[i].EpisodeNumber < episodes[j].EpisodeNumber
 	})
+	e.Episodes = episodes
 
-	//
-	// Info
-	//
+	// +---------------------+
+	// |    Download Info    |
+	// +---------------------+
+
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
 		localFiles:  e.LocalFiles,
 		anizipMedia: anizipData,
@@ -181,8 +217,6 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 		e.MediaEntryDownloadInfo = info
 	}
 
-	e.Episodes = episodes
-
 	nextEp, found := e.FindNextEpisode()
 	if found {
 		e.NextEpisode = nextEp
@@ -193,7 +227,8 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 //----------------------------------------------------------------------------------------------------------------------
 
 // detectDiscrepancy detects whether there is a discrepancy between AniList and AniDB.
-// e.g, AniList includes episode 0 as part of main episodes, but AniDB does not.
+//   - AniList includes episode 0 as part of main episodes, but Anizip does not.
+//   - Anizip has "S1"
 func detectDiscrepancy(
 	mediaLfs []*LocalFile, // Media's local files
 	media *anilist.BaseMedia,
@@ -214,14 +249,14 @@ func detectDiscrepancy(
 		return lf.Metadata.Episode != media.GetCurrentEpisodeCount()
 	})
 
-	// [possibleSpecialInclusion] means that there might be a discrepancy between AniList and AniDB
+	// [possibleSpecialInclusion] means that there might be a discrepancy between AniList and Anizip
 	// We should use this to check.
 	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,12] //=> true
 	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
 	possibleSpecialInclusion = hasEpisodeZero && noEpisodeCeiling
 
 	_, aniDBHasS1 := anizipData.Episodes["S1"]
-	// AniList episode count > AniDB episode count
+	// AniList episode count > Anizip episode count
 	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
 	hasDiscrepancy = media.GetCurrentEpisodeCount() > anizipData.GetMainEpisodeCount() && aniDBHasS1
 

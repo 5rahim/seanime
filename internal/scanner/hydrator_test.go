@@ -11,49 +11,94 @@ import (
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
-	media := anilist.MockGetAllMedia()
+	allMedia := getMockedAllMedia(t)
+
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	aniliztClient := anilist.MockGetAnilistClient()
+	anilistClient := anilist.MockGetAnilistClient()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 
-	localFiles, ok := entities.MockGetSelectedLocalFiles()
-	if !ok {
-		t.Fatal("expected local files, got error")
+	tests := []struct {
+		name            string
+		paths           []string
+		expectedMediaId int
+	}{
+		{
+			name: "should be hydrated with id 131586",
+			paths: []string{
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 20v2 (1080p) [30072859].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 21v2 (1080p) [4B1616A5].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
+			},
+			expectedMediaId: 131586, // 86 - Eighty Six Part 2
+		},
 	}
 
-	mc := NewMediaContainer(&MediaContainerOptions{
-		allMedia: *media,
-	})
+	for _, tt := range tests {
 
-	matcher := &Matcher{
-		localFiles:     localFiles,
-		mediaContainer: mc,
-		baseMediaCache: baseMediaCache,
-		logger:         logger,
-	}
-	if err := matcher.MatchLocalFilesWithMedia(); err != nil {
-		t.Fatal("expected result, got error:", err.Error())
-	}
+		t.Run(tt.name, func(t *testing.T) {
 
-	fh := FileHydrator{
-		LocalFiles:         localFiles,
-		Media:              *media,
-		BaseMediaCache:     baseMediaCache,
-		AnizipCache:        anizipCache,
-		AnilistClient:      aniliztClient,
-		AnilistRateLimiter: anilistRateLimiter,
-		Logger:             logger,
-	}
+			// +---------------------+
+			// |   Local Files       |
+			// +---------------------+
 
-	fh.HydrateMetadata()
+			var lfs []*entities.LocalFile
+			for _, path := range tt.paths {
+				lf := entities.NewLocalFile(path, "E:/Anime")
+				lfs = append(lfs, lf)
+			}
 
-	for _, lf := range fh.LocalFiles {
-		if lf == nil {
-			t.Fatal("expected base media, got nil")
-		}
-		t.Logf("LocalFile: %+v\nMetadata: %+v\n\n", lf, lf.Metadata)
+			// +---------------------+
+			// |   MediaContainer    |
+			// +---------------------+
+
+			mc := NewMediaContainer(&MediaContainerOptions{
+				allMedia: allMedia,
+			})
+
+			// +---------------------+
+			// |      Matcher        |
+			// +---------------------+
+
+			matcher := &Matcher{
+				localFiles:     lfs,
+				mediaContainer: mc,
+				baseMediaCache: nil,
+				logger:         util.NewLogger(),
+			}
+
+			err := matcher.MatchLocalFilesWithMedia()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |   FileHydrator      |
+			// +---------------------+
+
+			fh := FileHydrator{
+				LocalFiles:         lfs,
+				AllMedia:           mc.allMedia,
+				BaseMediaCache:     baseMediaCache,
+				AnizipCache:        anizipCache,
+				AnilistClient:      anilistClient,
+				AnilistRateLimiter: anilistRateLimiter,
+				Logger:             logger,
+			}
+
+			fh.HydrateMetadata()
+
+			for _, lf := range fh.LocalFiles {
+				if lf.MediaId != tt.expectedMediaId {
+					t.Fatalf("expected media id %d, got %d", tt.expectedMediaId, lf.MediaId)
+				}
+
+				t.Logf("local file: %s,\nmedia id: %d\n", lf.Name, lf.MediaId)
+			}
+
+		})
 	}
 
 }

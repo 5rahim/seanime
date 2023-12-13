@@ -32,16 +32,24 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	scn.Logger.Debug().Msg("scanner: Starting scan")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 10)
 
+	// +---------------------+
+	// |     Local Files     |
+	// +---------------------+
+
 	// Get local files
 	localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
 	if err != nil {
 		return nil, err
 	}
 
+	// +---------------------+
+	// | Filter local files  |
+	// +---------------------+
+
 	// Get skipped files depending on options
 	skippedLfs := make([]*entities.LocalFile, 0)
 	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
-		// Retrive skipped files from existing local files
+		// Retrieve skipped files from existing local files
 		for _, lf := range scn.ExistingLocalFiles {
 			if scn.SkipLockedFiles && lf.IsLocked() {
 				skippedLfs = append(skippedLfs, lf)
@@ -61,6 +69,10 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 20)
 
+	// +---------------------+
+	// |    MediaFetcher     |
+	// +---------------------+
+
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
 		Enhanced:           scn.Enhanced,
@@ -78,6 +90,10 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 40)
 
+	// +---------------------+
+	// |   MediaContainer    |
+	// +---------------------+
+
 	// Create a new container for media
 	mc := NewMediaContainer(&MediaContainerOptions{
 		allMedia: mf.AllMedia,
@@ -86,6 +102,10 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	scn.Logger.Trace().
 		Any("count", len(mc.allMedia)).
 		Msg("media container: Media container created")
+
+	// +---------------------+
+	// |      Matcher        |
+	// +---------------------+
 
 	// Create a new matcher
 	matcher := &Matcher{
@@ -102,9 +122,13 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		return nil, err
 	}
 
+	// +---------------------+
+	// |    FileHydrator     |
+	// +---------------------+
+
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		Media:              mc.allMedia,
+		AllMedia:           mc.allMedia,
 		LocalFiles:         localFiles,
 		AnizipCache:        anizipCache,
 		AnilistClient:      scn.AnilistClient,
@@ -116,10 +140,18 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
 
+	// +---------------------+
+	// |  Add missing media  |
+	// +---------------------+
+
 	// Add non-added media entries to AniList collection
 	if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
 		scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 	}
+
+	// +---------------------+
+	// |    Merge files      |
+	// +---------------------+
 
 	// Merge skipped files with scanned files
 	// Only files that exist (this removes deleted/moved files)

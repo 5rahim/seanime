@@ -95,6 +95,8 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	return cfg, nil
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // saveConfigToFile saves the config to the config file.
 func (cfg *Config) saveConfigToFile() error {
 	viper.Set("server.host", cfg.Server.Host)

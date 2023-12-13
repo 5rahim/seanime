@@ -31,7 +31,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, err := getLocalFilesFromDB(c.App.Database)
+	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -78,7 +78,7 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	lfs, lfsId, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -113,7 +113,7 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)
+	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -136,7 +136,7 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, _, err := getLocalFilesAndIdFromDB(c.App.Database)
+	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -194,8 +194,8 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Retrive local files
-	lfs, err := getLocalFilesFromDB(c.App.Database)
+	// Retrieve local files
+	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -257,6 +257,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleMediaEntryManualMatch will match the local files in the given directory to the given media.
 func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	type body struct {
@@ -269,8 +270,8 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Retrive local files
-	lfs, dbId, err := getLocalFilesAndIdFromDB(c.App.Database)
+	// Retrieve local files
+	lfs, lfsId, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -302,7 +303,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	fh := scanner.FileHydrator{
 		LocalFiles:         selectedLfs,
-		Media:              []*anilist.BaseMedia{mediaRes.GetMedia()},
+		AllMedia:           []*anilist.BaseMedia{mediaRes.GetMedia()},
 		BaseMediaCache:     anilist.NewBaseMediaCache(),
 		AnizipCache:        anizip.NewCache(),
 		AnilistClient:      c.App.AnilistClient,
@@ -312,7 +313,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	fh.HydrateMetadata()
 
-	// Remove select local files from the databse slice, we will add them (hydrated) later
+	// Remove select local files from the database slice, we will add them (hydrated) later
 	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.GetPath() })
 	lfs = lo.Filter(lfs, func(item *entities.LocalFile, _ int) bool {
 		if slices.Contains(selectedPaths, item.GetPath()) {
@@ -325,7 +326,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	lfs = append(lfs, selectedLfs...)
 
 	// Update the local files
-	retLfs, err := saveLocalFilesInDB(c.App.Database, dbId, lfs)
+	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -338,7 +339,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 func HandleGetMissingEpisodes(c *RouteCtx) error {
 
-	lfs, err := getLocalFilesFromDB(c.App.Database)
+	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}

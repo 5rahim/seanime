@@ -1,0 +1,591 @@
+{
+  "154587": {
+    "localFiles": [
+      {
+        "path": "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv",
+        "name": "[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv",
+        "parsedInfo": {
+          "original": "[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv",
+          "title": "Sousou no Frieren",
+          "releaseGroup": "SubsPlease",
+          "episode": "01"
+        },
+        "parsedFolderInfo": [
+          {
+            "original": "Sousou no Frieren",
+            "title": "Sousou no Frieren"
+          }
+        ],
+        "metadata": {
+          "episode": 1,
+          "aniDBEpisode": "1",
+          "type": "main"
+        },
+        "locked": false,
+        "ignored": false,
+        "mediaId": 154587
+      },
+      {
+        "path": "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 02 (1080p) [E5A85899].mkv",
+        "name": "[SubsPlease] Sousou no Frieren - 02 (1080p) [E5A85899].mkv",
+        "parsedInfo": {
+          "original": "[SubsPlease] Sousou no Frieren - 02 (1080p) [E5A85899].mkv",
+          "title": "Sousou no Frieren",
+          "releaseGroup": "SubsPlease",
+          "episode": "02"
+        },
+        "parsedFolderInfo": [
+          {
+            "original": "Sousou no Frieren",
+            "title": "Sousou no Frieren"
+          }
+        ],
+        "metadata": {
+          "episode": 2,
+          "aniDBEpisode": "2",
+          "type": "main"
+        },
+        "locked": false,
+        "ignored": false,
+        "mediaId": 154587
+      },
+      {
+        "path": "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 03 (1080p) [7EF3F175].mkv",
+        "name": "[SubsPlease] Sousou no Frieren - 03 (1080p) [7EF3F175].mkv",
+        "parsedInfo": {
+          "original": "[SubsPlease] Sousou no Frieren - 03 (1080p) [7EF3F175].mkv",
+          "title": "Sousou no Frieren",
+          "releaseGroup": "SubsPlease",
+          "episode": "03"
+        },
+        "parsedFolderInfo": [
+          {
+            "original": "Sousou no Frieren",
+            "title": "Sousou no Frieren"
+          }
+        ],
+        "metadata": {
+          "episode": 3,
+          "aniDBEpisode": "3",
+          "type": "main"
+        },
+        "locked": false,
+        "ignored": false,
+        "mediaId": 154587
+      },
+      {
+        "path": "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 04 (1080p) [5ED46803].mkv",
+        "name": "[SubsPlease] Sousou no Frieren - 04 (1080p) [5ED46803].mkv",
+        "parsedInfo": {
+          "original": "[SubsPlease] Sousou no Frieren - 04 (1080p) [5ED46803].mkv",
+          "title": "Sousou no Frieren",
+          "releaseGroup": "SubsPlease",
+          "episode": "04"
+        },
+        "parsedFolderInfo": [
+          {
+            "original": "Sousou no Frieren",
+            "title": "Sousou no Frieren"
+          }
+        ],
+        "metadata": {
+          "episode": 4,
+          "aniDBEpisode": "4",
+          "type": "main"
+        },
+        "locked": false,
+        "ignored": false,
+        "mediaId": 154587
+      },
+      {
+        "path": "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 05 (1080p) [8E3F8FA5].mkv",
+        "name": "[SubsPlease] Sousou no Frieren - 05 (1080p) [8E3F8FA5].mkv",
+        "parsedInfo": {
+          "original": "[SubsPlease] Sousou no Frieren - 05 (1080p) [8E3F8FA5].mkv",
+          "title": "Sousou no Frieren",
+          "releaseGroup": "SubsPlease",
+          "episode": "05"
+        },
+        "parsedFolderInfo": [
+          {
+            "original": "Sousou no Frieren",
+            "title": "Sousou no Frieren"
+          }
+        ],
+        "metadata": {
+          "episode": 5,
+          "aniDBEpisode": "5",
+          "type": "main"
+        },
+        "locked": false,
+        "ignored": false,
+        "mediaId": 154587
+      }
+    ],
+    "anilistCollection": {
+      "MediaListCollection": {
+        "lists": [
+          {
+            "status": "CURRENT",
+            "entries": [
+              {
+                "id": 366875178,
+                "score": 9,
+                "progress": 4,
+                "status": "CURRENT",
+                "repeat": 0,
+                "private": false,
+                "startedAt": {
+                  "year": 2023,
+                  "month": 10
+                },
+                "completedAt": {},
+                "media": {
+                  "id": 154587,
+                  "idMal": 52991,
+                  "siteUrl": "https://anilist.co/anime/154587",
+                  "status": "RELEASING",
+                  "season": "FALL",
+                  "type": "ANIME",
+                  "format": "TV",
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154587-ivXNJ23SM1xB.jpg",
+                  "episodes": 28,
+                  "synonyms": [
+                    "Frieren at the Funeral",
+                    "장송의 프리렌",
+                    "Frieren: Oltre la Fine del Viaggio",
+                    "คำอธิษฐานในวันที่จากลา Frieren",
+                    "Frieren e a Jornada para o Além",
+                    "Frieren – Nach dem Ende der Reise",
+                    "葬送的芙莉蓮",
+                    "Frieren: Más allá del final del viaje",
+                    "Frieren en el funeral",
+                    "Sōsō no Furīren",
+                    "Frieren. U kresu drogi",
+                    "Frieren - Pháp sư tiễn táng",
+                    "Фрирен, провожающая в последний путь"
+                  ],
+                  "isAdult": false,
+                  "countryOfOrigin": "JP",
+                  "title": {
+                    "userPreferred": "Sousou no Frieren",
+                    "romaji": "Sousou no Frieren",
+                    "english": "Frieren: Beyond Journey’s End",
+                    "native": "葬送のフリーレン"
+                  },
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx154587-n1fmjRv4JQUd.jpg",
+                    "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx154587-n1fmjRv4JQUd.jpg",
+                    "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx154587-n1fmjRv4JQUd.jpg",
+                    "color": "#d6f1c9"
+                  },
+                  "startDate": {
+                    "year": 2023,
+                    "month": 9,
+                    "day": 29
+                  },
+                  "endDate": {},
+                  "nextAiringEpisode": {
+                    "airingAt": 1700229600,
+                    "timeUntilAiring": 223940,
+                    "episode": 11
+                  },
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 118586,
+                          "idMal": 126287,
+                          "siteUrl": "https://anilist.co/manga/118586",
+                          "status": "RELEASING",
+                          "type": "MANGA",
+                          "format": "MANGA",
+                          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/118586-1JLJiwaIlnBp.jpg",
+                          "synonyms": [
+                            "Frieren at the Funeral",
+                            "장송의 프리렌",
+                            "Frieren: Oltre la Fine del Viaggio",
+                            "คำอธิษฐานในวันที่จากลา Frieren",
+                            "Frieren e a Jornada para o Além",
+                            "Frieren – Nach dem Ende der Reise",
+                            "葬送的芙莉蓮",
+                            "Frieren After \"The End\"",
+                            "Frieren: Remnants of the Departed",
+                            "Frieren. U kresu drogi",
+                            "Frieren",
+                            "FRIEREN: Más allá del fin del viaje"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Sousou no Frieren",
+                            "romaji": "Sousou no Frieren",
+                            "english": "Frieren: Beyond Journey’s End",
+                            "native": "葬送のフリーレン"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx118586-F0Lp86XQV7du.jpg",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx118586-F0Lp86XQV7du.jpg",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/small/bx118586-F0Lp86XQV7du.jpg",
+                            "color": "#e4ae5d"
+                          },
+                          "startDate": {
+                            "year": 2020,
+                            "month": 4,
+                            "day": 28
+                          },
+                          "endDate": {}
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 169811,
+                          "idMal": 56805,
+                          "siteUrl": "https://anilist.co/anime/169811",
+                          "status": "FINISHED",
+                          "type": "ANIME",
+                          "format": "MUSIC",
+                          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/169811-jgMVZlIdH19a.jpg",
+                          "episodes": 1,
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Yuusha",
+                            "romaji": "Yuusha",
+                            "native": "勇者"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx169811-H0RW7WHkRlbH.png",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx169811-H0RW7WHkRlbH.png",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx169811-H0RW7WHkRlbH.png"
+                          },
+                          "startDate": {
+                            "year": 2023,
+                            "month": 9,
+                            "day": 29
+                          },
+                          "endDate": {
+                            "year": 2023,
+                            "month": 9,
+                            "day": 29
+                          }
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 170068,
+                          "idMal": 56885,
+                          "siteUrl": "https://anilist.co/anime/170068",
+                          "status": "RELEASING",
+                          "season": "FALL",
+                          "type": "ANIME",
+                          "format": "ONA",
+                          "synonyms": [
+                            "Sousou no Frieren Mini Anime",
+                            "Frieren: Beyond Journey’s End Mini Anime",
+                            "葬送のフリーレン ミニアニメ"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Sousou no Frieren: ●● no Mahou",
+                            "romaji": "Sousou no Frieren: ●● no Mahou",
+                            "native": "葬送のフリーレン　～●●の魔法～"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx170068-ijY3tCP8KoWP.jpg",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx170068-ijY3tCP8KoWP.jpg",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx170068-ijY3tCP8KoWP.jpg",
+                            "color": "#bbd678"
+                          },
+                          "startDate": {
+                            "year": 2023,
+                            "month": 10,
+                            "day": 11
+                          },
+                          "endDate": {}
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "146065": {
+    "localFiles": [],
+    "anilistCollection": {
+      "MediaListCollection": {
+        "lists": [
+          {
+            "status": "CURRENT",
+            "entries": [
+              {
+                "id": 366466419,
+                "score": 0,
+                "progress": 0,
+                "status": "CURRENT",
+                "repeat": 0,
+                "private": false,
+                "startedAt": {
+                  "year": 2023,
+                  "month": 10,
+                  "day": 4
+                },
+                "completedAt": {
+                  "year": 2023,
+                  "month": 10,
+                  "day": 9
+                },
+                "media": {
+                  "id": 146065,
+                  "idMal": 51179,
+                  "siteUrl": "https://anilist.co/anime/146065",
+                  "status": "FINISHED",
+                  "season": "SUMMER",
+                  "type": "ANIME",
+                  "format": "TV",
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/146065-33RDijfuxLLk.jpg",
+                  "episodes": 13,
+                  "synonyms": [
+                    "ชาตินี้พี่ต้องเทพ ภาค 2",
+                    "Mushoku Tensei: Isekai Ittara Honki Dasu 2nd Season",
+                    "Mushoku Tensei II: Jobless Reincarnation",
+                    "Mushoku Tensei II: Reencarnación desde cero",
+                    "无职转生～到了异世界就拿出真本事～第2季"
+                  ],
+                  "isAdult": false,
+                  "countryOfOrigin": "JP",
+                  "title": {
+                    "userPreferred": "Mushoku Tensei II: Isekai Ittara Honki Dasu",
+                    "romaji": "Mushoku Tensei II: Isekai Ittara Honki Dasu",
+                    "english": "Mushoku Tensei: Jobless Reincarnation Season 2",
+                    "native": "無職転生 Ⅱ ～異世界行ったら本気だす～"
+                  },
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx146065-IjirxRK26O03.png",
+                    "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx146065-IjirxRK26O03.png",
+                    "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx146065-IjirxRK26O03.png",
+                    "color": "#35aee4"
+                  },
+                  "startDate": {
+                    "year": 2023,
+                    "month": 7,
+                    "day": 3
+                  },
+                  "endDate": {
+                    "year": 2023,
+                    "month": 9,
+                    "day": 25
+                  },
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 85470,
+                          "idMal": 70261,
+                          "siteUrl": "https://anilist.co/manga/85470",
+                          "status": "FINISHED",
+                          "type": "MANGA",
+                          "format": "NOVEL",
+                          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/85470-akkFSKH9aacB.jpg",
+                          "synonyms": [
+                            "เกิดชาตินี้พี่ต้องเทพ"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Mushoku Tensei: Isekai Ittara Honki Dasu",
+                            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu",
+                            "english": "Mushoku Tensei: Jobless Reincarnation",
+                            "native": "無職転生 ～異世界行ったら本気だす～"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/nx85470-jt6BF9tDWB2X.jpg",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/nx85470-jt6BF9tDWB2X.jpg",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/small/nx85470-jt6BF9tDWB2X.jpg",
+                            "color": "#f1bb1a"
+                          },
+                          "startDate": {
+                            "year": 2014,
+                            "month": 1,
+                            "day": 23
+                          },
+                          "endDate": {
+                            "year": 2022,
+                            "month": 11,
+                            "day": 25
+                          }
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 85564,
+                          "idMal": 70259,
+                          "siteUrl": "https://anilist.co/manga/85564",
+                          "status": "RELEASING",
+                          "type": "MANGA",
+                          "format": "MANGA",
+                          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/85564-Wy8IQU3Km61c.jpg",
+                          "synonyms": [
+                            "Mushoku Tensei: Uma segunda chance"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Mushoku Tensei: Isekai Ittara Honki Dasu",
+                            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu",
+                            "english": "Mushoku Tensei: Jobless Reincarnation",
+                            "native": "無職転生 ～異世界行ったら本気だす～"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx85564-egXRASF0x9B9.jpg",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx85564-egXRASF0x9B9.jpg",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/small/bx85564-egXRASF0x9B9.jpg",
+                            "color": "#e4ae0d"
+                          },
+                          "startDate": {
+                            "year": 2014,
+                            "month": 5,
+                            "day": 2
+                          },
+                          "endDate": {}
+                        }
+                      },
+                      {
+                        "relationType": "PREQUEL",
+                        "node": {
+                          "id": 127720,
+                          "idMal": 45576,
+                          "siteUrl": "https://anilist.co/anime/127720",
+                          "status": "FINISHED",
+                          "season": "FALL",
+                          "type": "ANIME",
+                          "format": "TV",
+                          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/127720-oBpHiMWQhFVN.jpg",
+                          "episodes": 12,
+                          "synonyms": [
+                            "Mushoku Tensei: Jobless Reincarnation Part 2",
+                            "ชาตินี้พี่ต้องเทพ พาร์ท 2"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Mushoku Tensei: Isekai Ittara Honki Dasu Part 2",
+                            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu Part 2",
+                            "english": "Mushoku Tensei: Jobless Reincarnation Cour 2",
+                            "native": "無職転生 ～異世界行ったら本気だす～ 第2クール"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127720-ADJgIrUVMdU9.jpg",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx127720-ADJgIrUVMdU9.jpg",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx127720-ADJgIrUVMdU9.jpg",
+                            "color": "#d6bb1a"
+                          },
+                          "startDate": {
+                            "year": 2021,
+                            "month": 10,
+                            "day": 4
+                          },
+                          "endDate": {
+                            "year": 2021,
+                            "month": 12,
+                            "day": 20
+                          }
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 142989,
+                          "idMal": 142765,
+                          "siteUrl": "https://anilist.co/manga/142989",
+                          "status": "RELEASING",
+                          "type": "MANGA",
+                          "format": "MANGA",
+                          "synonyms": [
+                            "Mushoku Tensei - Depressed Magician"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Mushoku Tensei: Isekai Ittara Honki Dasu - Shitsui no Majutsushi-hen",
+                            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu - Shitsui no Majutsushi-hen",
+                            "native": "無職転生 ～異世界行ったら本気だす～ 失意の魔術師編"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx142989-jYDNHLwdER70.png",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx142989-jYDNHLwdER70.png",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/small/bx142989-jYDNHLwdER70.png",
+                            "color": "#e4bb28"
+                          },
+                          "startDate": {
+                            "year": 2021,
+                            "month": 12,
+                            "day": 20
+                          },
+                          "endDate": {}
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 166873,
+                          "idMal": 55888,
+                          "siteUrl": "https://anilist.co/anime/166873",
+                          "status": "NOT_YET_RELEASED",
+                          "season": "SPRING",
+                          "type": "ANIME",
+                          "format": "TV",
+                          "episodes": 12,
+                          "synonyms": [
+                            "Mushoku Tensei: Jobless Reincarnation Season 2 Part 2",
+                            "ชาตินี้พี่ต้องเทพ ภาค 2",
+                            "Mushoku Tensei: Isekai Ittara Honki Dasu 2nd Season Part 2",
+                            "Mushoku Tensei II: Jobless Reincarnation Part 2",
+                            "Mushoku Tensei II: Reencarnación desde cero",
+                            "无职转生～到了异世界就拿出真本事～第2季"
+                          ],
+                          "isAdult": false,
+                          "countryOfOrigin": "JP",
+                          "title": {
+                            "userPreferred": "Mushoku Tensei II: Isekai Ittara Honki Dasu Part 2",
+                            "romaji": "Mushoku Tensei II: Isekai Ittara Honki Dasu Part 2",
+                            "native": "無職転生 Ⅱ ～異世界行ったら本気だす～ 第2クール"
+                          },
+                          "coverImage": {
+                            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx166873-cqMLPB00KcEI.jpg",
+                            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx166873-cqMLPB00KcEI.jpg",
+                            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx166873-cqMLPB00KcEI.jpg",
+                            "color": "#6b501a"
+                          },
+                          "startDate": {
+                            "year": 2024,
+                            "month": 4
+                          },
+                          "endDate": {
+                            "year": 2024,
+                            "month": 6
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

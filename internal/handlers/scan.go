@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/scanner"
 )
 
@@ -28,6 +26,10 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// +---------------------+
+	// |      Account        |
+	// +---------------------+
+
 	// Get the user's account
 	// If the account is not defined, return an error
 	acc, err := c.App.GetAccount()
@@ -35,7 +37,15 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	existingLfs, _ := getLocalFilesFromDB(c.App.Database)
+	// Get the latest local files
+	existingLfs, _, err := c.App.Database.GetLocalFiles()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// +---------------------+
+	// |       Scanner       |
+	// +---------------------+
 
 	// Create a new scanner
 	sc := scanner.Scanner{
@@ -51,24 +61,17 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	}
 
 	// Scan the library
-	localFiles, err := sc.Scan()
+	allLfs, err := sc.Scan()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	// Marshal the local files
-	bytes, err := json.Marshal(localFiles)
+	// Insert the local files
+	lfs, err := c.App.Database.InsertLocalFiles(allLfs)
 	if err != nil {
-		c.App.Logger.Err(err).Msg("scan: could not save local files")
+		return c.RespondWithError(err)
 	}
 
-	// Save the local files to the database
-	if _, err := c.App.Database.InsertLocalFiles(&models.LocalFiles{
-		Value: bytes,
-	}); err != nil {
-		c.App.Logger.Err(err).Msg("scan: could not save local files")
-	}
-
-	return c.RespondWithData(localFiles)
+	return c.RespondWithData(lfs)
 
 }

@@ -139,6 +139,7 @@ func SearchMultiple(opts SearchMultipleOptions) ([]*DetailedTorrent, error) {
 			return ret
 		})
 	}
+
 	slicesSlice := p.Wait()
 	slicesSlice = lo.Filter(slicesSlice, func(i []*DetailedTorrent, _ int) bool {
 		return i != nil

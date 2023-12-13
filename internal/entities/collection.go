@@ -42,22 +42,21 @@ type (
 		MediaEntryListData    *MediaEntryListData    `json:"listData"`    // AniList list data
 	}
 
+	UnmatchedGroup struct {
+		Dir         string                `json:"dir"`
+		LocalFiles  []*LocalFile          `json:"localFiles"`
+		Suggestions []*anilist.BasicMedia `json:"suggestions"`
+	}
 	NewLibraryCollectionOptions struct {
 		AnilistCollection *anilist.AnimeCollection
 		LocalFiles        []*LocalFile
 		AnizipCache       *anizip.Cache
 		AnilistClient     *anilist.Client
 	}
-
-	UnmatchedGroup struct {
-		Dir         string                `json:"dir"`
-		LocalFiles  []*LocalFile          `json:"localFiles"`
-		Suggestions []*anilist.BasicMedia `json:"suggestions"`
-	}
 )
 
 // NewLibraryCollection creates a new LibraryCollection.
-// A LibraryCollection consists of a list of LibraryCollectionLisy (one for each status).
+// A LibraryCollection consists of a list of LibraryCollectionList (one for each status).
 func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection {
 
 	// Get lists from collection
@@ -185,7 +184,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// hydrateContinueWatchingList creates a list of continue watching.
+// hydrateContinueWatchingList creates a list for "continue watching".
 // This should be called after the lists have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,

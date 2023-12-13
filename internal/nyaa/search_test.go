@@ -4,6 +4,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/limiter"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -29,42 +30,68 @@ func TestSearch(t *testing.T) {
 
 func TestBuildSearchQuery(t *testing.T) {
 
-	collec := anilist.MockGetCollection()
-	assert.NotNil(t, collec)
+	anilistLimiter := limiter.NewAnilistLimiter()
 
-	//entry, found := collec.GetListEntryFromMediaId(161645) //
-	entry, found := collec.GetListEntryFromMediaId(145064) // jjk2
-	//entry, found := collec.GetListEntryFromMediaId(163205) // mononogatari 2
-	//entry, found := collec.GetListEntryFromMediaId(146065) // mushoku tensei season 2
-	//entry, found := collec.GetListEntryFromMediaId(140439) // mob psycho 3
-	//entry, found := collec.GetListEntryFromMediaId(119661) // rezero season 2 part 2
-	//entry, found := collec.GetListEntryFromMediaId(131681) // attack on titan season 4 part 2
-	//entry, found := collec.GetListEntryFromMediaId(154116) // undead unluck
-	assert.True(t, found)
-	assert.NotNil(t, entry.Media)
+	tests := []struct {
+		name           string
+		mediaId        int
+		batch          bool
+		episodeNumber  int
+		absoluteOffset int
+		resolution     string
+		title          *string
+	}{
+		{
+			name:           "ReZero kara Hajimeru Isekai Seikatsu 2nd-Season",
+			batch:          false,
+			mediaId:        108632,
+			episodeNumber:  1,
+			absoluteOffset: 24,
+			resolution:     "",
+			title:          nil,
+		},
+	}
 
-	queries, ok := BuildSearchQuery(&BuildSearchQueryOptions{
-		Media:          entry.Media,
-		Batch:          lo.ToPtr(false),
-		EpisodeNumber:  lo.ToPtr(16),
-		AbsoluteOffset: lo.ToPtr(24),
-		Resolution:     lo.ToPtr(""),
-		//Title:          lo.ToPtr("Re zero"),
-	})
-	assert.True(t, ok)
+	for _, tt := range tests {
 
-	res, err := SearchMultiple(SearchMultipleOptions{
-		Provider: "nyaa",
-		Query:    queries,
-		Category: "anime-eng",
-		SortBy:   "seeders",
-		Filter:   "",
-	})
-	assert.NoError(t, err, "error searching nyaa")
+		anilistLimiter.Wait()
 
-	t.Log("=====================================")
-	for _, torrent := range res {
-		t.Log(spew.Sdump(torrent.Name))
+		t.Run(tt.name, func(t *testing.T) {
+
+			media, err := anilist.GetBaseMediaById(anilist.NewAuthedClient(""), tt.mediaId)
+
+			if assert.NoError(t, err) &&
+				assert.NotNil(t, media) {
+
+				queries, ok := BuildSearchQuery(&BuildSearchQueryOptions{
+					Media:          media,
+					Batch:          lo.ToPtr(tt.batch),
+					EpisodeNumber:  lo.ToPtr(tt.episodeNumber),
+					AbsoluteOffset: lo.ToPtr(tt.absoluteOffset),
+					Resolution:     lo.ToPtr(tt.resolution),
+					Title:          tt.title,
+				})
+
+				if assert.True(t, ok) {
+
+					res, err := SearchMultiple(SearchMultipleOptions{
+						Provider: "nyaa",
+						Query:    queries,
+						Category: "anime-eng",
+						SortBy:   "seeders",
+						Filter:   "",
+					})
+					if assert.NoError(t, err, "error searching nyaa") {
+						for _, torrent := range res {
+							t.Log(spew.Sdump(torrent.Name))
+						}
+					}
+				}
+
+			}
+
+		})
+
 	}
 
 }

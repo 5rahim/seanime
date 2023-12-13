@@ -59,6 +59,9 @@ func HandleNyaaSearch(c *RouteCtx) error {
 
 	ret := make([]*nyaa.DetailedTorrent, 0)
 
+	// +---------------------+
+	// | Build Search query  |
+	// +---------------------+
 	// Use quick search if the user turned it on OR has not specified a query
 	if *b.QuickSearch || len(*b.Query) == 0 {
 		queries, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
@@ -73,6 +76,11 @@ func HandleNyaaSearch(c *RouteCtx) error {
 			return c.RespondWithError(errors.New("could not build search query"))
 		}
 		c.App.Logger.Trace().Msgf("nyaa query: %+v", queries)
+
+		// +---------------------+
+		// |   Search multiple   |
+		// +---------------------+
+
 		res, err := nyaa.SearchMultiple(nyaa.SearchMultipleOptions{
 			Provider: "nyaa",
 			Query:    queries,
@@ -86,6 +94,11 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		}
 		ret = res
 	} else {
+
+		// +---------------------+
+		// |       Query         |
+		// +---------------------+
+
 		res, err := nyaa.Search(nyaa.SearchOptions{
 			Provider: "nyaa",
 			Query:    *b.Query,
@@ -100,6 +113,10 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		ret = res
 	}
 
+	// +---------------------+
+	// |    Anizip Cache     |
+	// +---------------------+
+
 	// Verify that cache has the AniZip media
 	_, ok := c.App.AnizipCache.Get(anizip.GetCacheKey("anilist", b.Media.ID))
 	if !ok {
@@ -108,6 +125,10 @@ func HandleNyaaSearch(c *RouteCtx) error {
 			return c.RespondWithError(err)
 		}
 	}
+
+	// +---------------------+
+	// |   Torrent Preview   |
+	// +---------------------+
 
 	// Create torrent previews in parallel
 	p := pool.NewWithResults[*TorrentPreview]()
@@ -125,6 +146,10 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	previews = lo.Filter(previews, func(i *TorrentPreview, _ int) bool {
 		return i != nil
 	})
+
+	/*
+		Sorting
+	*/
 
 	// sort both by seeders
 	sort.Slice(ret, func(i, j int) bool {

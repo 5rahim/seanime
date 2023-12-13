@@ -51,7 +51,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		return nil, err
 	}
 
-	logger.Info().Msg("db: Database instanciated")
+	logger.Info().Msg("db: Database instantiated")
 
 	return &Database{
 		gormdb: db,
