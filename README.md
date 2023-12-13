@@ -25,13 +25,12 @@ might not work as intended. Feel free to fork the project, contribute or open is
 
 ### What it is not
 
-Seanime is not a replacement for Plex/Jellyfin as it is not meant to be a fully-fledged media server.
-It demands an internet connection to fetch metadata.
+Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
+support transcoding or streaming to other devices.
 
 ### TODO
 
 - Add support for automatic syncing with MyAnimeList & Kitsu.
-- Add support for deleting files.
 - Scan logging.
 
 # Setup
