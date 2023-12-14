@@ -19,7 +19,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 		treeIds []int
 	}{
 		{
-			name:    "BSD3",
+			name:    "Bungo Stray Dogs",
 			mediaId: 103223,
 			treeIds: []int{
 				21311,  // BSD1

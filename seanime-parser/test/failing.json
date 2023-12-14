@@ -1,0 +1,224 @@
+[
+  {
+    "issue": 1,
+    "expected": {
+      "file_name": "Evangelion_1.0_You_Are_[Not]_Alone_(1080p)_[@Home]",
+      "title": "Evangelion 1.0 You Are [Not] Alone",
+      "formatted_title": "Evangelion 1.0 You Are [Not] Alone",
+      "release_group": "@Home",
+      "video_resolution": "1080p"
+    },
+    "failing_parts": {
+      "title": "Evangelion 1.0 You Are",
+      "formatted_title": "Evangelion 1.0 You Are"
+    },
+    "reason": "Square brackets used in the title"
+  },
+  {
+    "issue": 1,
+    "expected": {
+      "file_name": "[FFF] Futsuu no Joshikousei ga [Locodol] Yatte Mita. - 01 [BAD09C76].mkv",
+      "title": "Futsuu no Joshikousei ga [Locodol] Yatte Mita",
+      "formatted_title": "Futsuu no Joshikousei ga [Locodol] Yatte Mita",
+      "episode_number": [
+        "01"
+      ],
+      "file_checksum": "BAD09C76",
+      "file_extension": "mkv",
+      "release_group": "FFF"
+    },
+    "failing_parts": {
+      "title": "Futsuu no Joshikousei ga",
+      "formatted_title": "Futsuu no Joshikousei ga"
+    },
+    "reason": "Square brackets used in the title"
+  },
+  {
+    "expected": {
+      "file_name": "[Keroro].148.[Xvid.mp3].[FE68D5F1].avi",
+      "title": "Keroro",
+      "formatted_title": "Keroro",
+      "episode_number": [
+        "148"
+      ],
+      "audio_term": [
+        "mp3"
+      ],
+      "file_checksum": "FE68D5F1",
+      "file_extension": "avi",
+      "video_term": [
+        "Xvid"
+      ]
+    },
+    "failing_parts": {
+      "title": "148",
+      "formatted_title": "148",
+      "episode_number": null,
+      "release_group": "Keroro"
+    },
+    "reason": "Title is considered as release group because of enclosing brackets"
+  },
+  {
+    "expected": {
+      "file_name": "[Rakuda].Gift.~eternal.rainbow~.01.dvd.h.264.vorbis.mkv",
+      "title": "Gift ~eternal rainbow~",
+      "formatted_title": "Gift ~eternal rainbow~",
+      "audio_term": [
+        "vorbis"
+      ],
+      "episode_number": [
+        "01"
+      ],
+      "file_extension": "mkv",
+      "release_group": "Rakuda",
+      "source": [
+        "dvd"
+      ],
+      "video_term": [
+        "h.264"
+      ]
+    },
+    "failing_parts": {
+      "title": "Gift ~eternal rainbow",
+      "formatted_title": "Gift ~eternal rainbow"
+    },
+    "reason": "Algorithm does not include the last character of the title if it is a separator (tilde, dash,...)"
+  },
+  {
+    "expected": {
+      "file_name": "「K」 Image Blu-ray WHITE & BLACK - Main (BD 1280x720 AVC AAC).mp4",
+      "title": "K",
+      "formatted_title": "K",
+      "audio_term": [
+        "AAC"
+      ],
+      "file_extension": "mp4",
+      "source": [
+        "Blu-ray",
+        "BD"
+      ],
+      "video_resolution": "1280x720",
+      "video_term": [
+        "AVC"
+      ]
+    },
+    "failing_parts": {
+      "title": "Image",
+      "formatted_title": "Image",
+      "release_group": "K"
+    },
+    "reason": "Title is considered as release group because of enclosing brackets"
+  },
+  {
+    "expected": {
+      "file_name": "Episode 14 Ore no Imouto ga Konnani Kawaii Wake ga Nai. (saison 2) VOSTFR",
+      "title": "Ore no Imouto ga Konnani Kawaii Wake ga Nai.",
+      "formatted_title": "Ore no Imouto ga Konnani Kawaii Wake ga Nai.",
+      "season_number": [
+        "2"
+      ],
+      "episode_number": [
+        "14"
+      ],
+      "language": [
+        "VOSTFR"
+      ]
+    },
+    "failing_parts": {
+      "episode_title": "Ore no Imouto ga Konnani Kawaii Wake ga Nai. (saison 2) VOSTFR",
+      "title": null,
+      "formatted_title": null
+    },
+    "reason": "Title is placed after the episode number"
+  },
+  {
+    "expected": {
+      "file_name": "[Hiryuu] Maji de Watashi ni Koi Shinasai!! - 02 [720].mkv",
+      "title": "Maji de Watashi ni Koi Shinasai!!",
+      "formatted_title": "Maji de Watashi ni Koi Shinasai!!",
+      "episode_number": [
+        "02"
+      ],
+      "file_extension": "mkv",
+      "release_group": "Hiryuu"
+    },
+    "failing_parts": {
+      "video_resolution": "720"
+    },
+    "reason": "Missing 'p' after the video resolution"
+  },
+  {
+    "expected": {
+      "year": "1998",
+      "file_name": "[LRL] 1001 Nights (1998) [DVD]",
+      "formatted_title": "1001 Nights",
+      "release_group": "LRL",
+      "source": [
+        "DVD"
+      ],
+      "title": "1001 Nights"
+    }
+  },
+  {
+    "expected": {
+      "episode_number": [
+        "32"
+      ],
+      "episode_number_alt": [
+        "83"
+      ],
+      "episode_title": "Tartaros Arc Iron Fist of the Fire Dragon",
+      "file_name": "Fairy Tail - S06E32 - Tartaros Arc Iron Fist of the Fire Dragon [Episode 83]",
+      "formatted_title": "Fairy Tail",
+      "season_number": [
+        "06"
+      ],
+      "title": "Fairy Tail"
+    },
+    "reason": "Episode number already got parsed"
+  },
+  {
+    "expected": {
+      "file_name": "The iDOLM@STER 765 Pro to Iu Monogatari.mkv",
+      "title": "The iDOLM@STER 765 Pro to Iu Monogatari",
+      "formatted_title": "The iDOLM@STER 765 Pro to Iu Monogatari",
+      "episode_title": "Pro to Iu Monogatari",
+      "file_extension": "mkv"
+    },
+    "failing_parts": {
+      "title": "The iDOLM@STER",
+      "formatted_title": "The iDOLM@STER",
+      "episode_number": [
+        "765"
+      ]
+    }
+  },
+  {
+    "expected": {
+      "file_name": "[UTW]_Accel_World_-_EX01_[BD][h264-720p_AAC][3E56EE18].mkv",
+      "title": "Accel World - EX",
+      "formatted_title": "Accel World - EX",
+      "audio_term": [
+        "AAC"
+      ],
+      "episode_number": [
+        "01"
+      ],
+      "file_checksum": "3E56EE18",
+      "file_extension": "mkv",
+      "release_group": "UTW",
+      "source": [
+        "BD"
+      ],
+      "video_resolution": "720p",
+      "video_term": [
+        "h264"
+      ]
+    },
+    "failing_parts": {
+      "title": "Accel World - EX01",
+      "formatted_title": "Accel World - EX01",
+      "episode_number": null
+    }
+  }
+]

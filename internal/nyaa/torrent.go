@@ -1,8 +1,8 @@
 package nyaa
 
 import (
-	"github.com/5rahim/tanuki"
 	"github.com/seanime-app/seanime/internal/comparison"
+	seanime_parser "github.com/seanime-app/seanime/seanime-parser"
 )
 
 type (
@@ -38,7 +38,7 @@ type (
 )
 
 func (t *Torrent) toDetailedTorrent() *DetailedTorrent {
-	elements := tanuki.Parse(t.Name, tanuki.DefaultOptions)
+	elements := seanime_parser.Parse(t.Name)
 
 	isBatch := false
 

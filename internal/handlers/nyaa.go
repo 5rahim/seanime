@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"github.com/5rahim/tanuki"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
@@ -10,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/util"
+	seanime_parser "github.com/seanime-app/seanime/seanime-parser"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
 	"strconv"
@@ -184,8 +184,8 @@ func createTorrentPreview(
 		return nil, false
 	}
 
-	elements := tanuki.Parse(torrent.Name, tanuki.DefaultOptions)
-	if len(elements.AnimeTitle) == 0 {
+	elements := seanime_parser.Parse(torrent.Name)
+	if len(elements.Title) == 0 {
 		return nil, false
 	}
 
