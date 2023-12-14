@@ -21,7 +21,7 @@ func (p *parser) parseSeason() {
 			// Extract season and episode
 			if season, sep, episode, ok := extractSeasonAndEpisode(tkn.getValue()); ok {
 				seasonPrefixTkn := newToken("S")
-				seasonPrefixTkn.setIdentifiedKeywordCategory(keywordCatSeasonPrefix)
+				seasonPrefixTkn.setIdentifiedKeywordCategory(keywordCatSeasonPrefix, keywordKindCombinedWithNumber)
 				seasonPrefixTkn.setKind(tokenKindCharacter)
 
 				seasonTkn := newToken(season)
@@ -29,7 +29,7 @@ func (p *parser) parseSeason() {
 				seasonTkn.setKind(tokenKindNumber)
 
 				sepTkn := newToken(sep)
-				sepTkn.setIdentifiedKeywordCategory(keywordCatEpisodePrefix)
+				sepTkn.setIdentifiedKeywordCategory(keywordCatEpisodePrefix, keywordKindCombinedWithNumber)
 				sepTkn.setKind(tokenKindCharacter)
 
 				episodeTkn := newToken(episode)
@@ -93,7 +93,7 @@ func (p *parser) parseSeason() {
 
 						// e.g. S
 						seasonPrefixTkn := newToken(keyword.value)
-						seasonPrefixTkn.setIdentifiedKeywordCategory(keyword.category)
+						seasonPrefixTkn.setIdentifiedKeywordCategory(keyword.category, keyword.kind)
 						seasonPrefixTkn.setKind(tokenKindWord)
 
 						// e.g. 01, 1, 3
@@ -147,7 +147,7 @@ func (p *parser) parseSeason() {
 					if nextTkn, found, _ := p.tokenManager.tokens.getTokenAfterSD(tkn); found &&
 						(nextTkn.isNumberOrLikeKind() && nextTkn.isUnknown()) {
 
-						tkn.setIdentifiedKeywordCategory(keyword.category)
+						tkn.setIdentifiedKeywordCategory(keyword.category, keyword.kind)
 						nextTkn.setMetadataCategory(metadataCat)
 
 						// Check range
@@ -180,7 +180,7 @@ func (p *parser) parseSeason() {
 					if nextTkn, found, _ := p.tokenManager.tokens.getTokenBeforeSD(tkn); found &&
 						(nextTkn.isOrdinalNumber() && nextTkn.isUnknown()) {
 
-						tkn.setIdentifiedKeywordCategory(keyword.category)
+						tkn.setIdentifiedKeywordCategory(keyword.category, keyword.kind)
 
 						if num, ok := getNumberFromOrdinal(nextTkn.getValue()); ok {
 							nextTkn.setValue(strconv.Itoa(num))
@@ -221,7 +221,7 @@ func (p *parser) parseSeason() {
 				seasonTkn.setKind(tokenKindNumber)
 
 				sepTkn := newToken(sep)
-				sepTkn.setIdentifiedKeywordCategory(keywordCatEpisodePrefix)
+				sepTkn.setIdentifiedKeywordCategory(keywordCatEpisodePrefix, keywordKindCombinedWithNumber)
 				sepTkn.setKind(tokenKindCharacter)
 
 				episodeTkn := newToken(episode)

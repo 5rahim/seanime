@@ -20,7 +20,11 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 		)
 		for {
 			if _, msg, err = c.ReadMessage(); err != nil {
-				app.Logger.Err(err).Msg("ws: Failed to read message")
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+					app.Logger.Debug().Msg("ws: client disconnected")
+				} else {
+					app.Logger.Debug().Msg("ws: Failed to read message")
+				}
 				break
 			}
 			app.Logger.Debug().Msgf("ws: message received: %+v", msg)

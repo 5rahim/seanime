@@ -52,10 +52,13 @@ func (f *LocalFile) IsIgnored() bool {
 	return f.Ignored
 }
 
-// GetPath returns the lowercased path of the LocalFile.
+// GetNormalizedPath returns the lowercase path of the LocalFile.
 // Use this for comparison.
-func (f *LocalFile) GetPath() string {
+func (f *LocalFile) GetNormalizedPath() string {
 	return strings.ToLower(f.Path)
+}
+func (f *LocalFile) GetPath() string {
+	return f.Path
 }
 func (f *LocalFile) HasSamePath(path string) bool {
 	return strings.ToLower(f.Path) == strings.ToLower(path)

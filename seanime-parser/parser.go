@@ -1,6 +1,7 @@
 package seanime_parser
 
 import (
+	"github.com/samber/lo"
 	"strings"
 )
 
@@ -95,17 +96,17 @@ func (p *parser) parseKeywords(priority string) {
 func (p *parser) identifyKeyword(tkn *token, priority string) bool {
 
 	if tkn.Kind == tokenKindCrc32 {
-		tkn.setIdentifiedKeywordCategory(keywordCatFileChecksum)
+		tkn.setIdentifiedKeywordCategory(keywordCatFileChecksum, keywordKindStandalone)
 		return true
 	}
 
 	if tkn.Kind == tokenKindPossibleVideoRes {
-		tkn.setIdentifiedKeywordCategory(keywordCatVideoResolution)
+		tkn.setIdentifiedKeywordCategory(keywordCatVideoResolution, keywordKindStandalone)
 		return true
 	}
 
 	if tkn.Kind == tokenKindYear && tkn.isEnclosed() {
-		tkn.setIdentifiedKeywordCategory(keywordCatYear)
+		tkn.setIdentifiedKeywordCategory(keywordCatYear, keywordKindStandalone)
 		return true
 	}
 
@@ -122,7 +123,7 @@ func (p *parser) identifyKeyword(tkn *token, priority string) bool {
 					seqPartsStr += t.getValue()
 				}
 				tkn.setValue(mergeValues(tkn.getValue(), []string{seqPartsStr}))
-				tkn.setIdentifiedKeywordCategory(keywordGroup.category)
+				tkn.setIdentifiedKeywordCategory(keywordGroup.category, keywordKindStandalone)
 				tkn.setKind(tokenKindWord)
 				// Remove subsequent tokens
 				for _, retTkn := range retTkns {
@@ -154,7 +155,7 @@ func (p *parser) identifyKeyword(tkn *token, priority string) bool {
 				return false
 			}
 
-			tkn.setIdentifiedKeywordCategory(keyword.category)
+			tkn.setIdentifiedKeywordCategory(keyword.category, keyword.kind)
 			return true
 		}
 	}
@@ -266,29 +267,27 @@ func (p *parser) writeFormattedTitle() {
 parenLoop:
 	for {
 		// Get opening parenthesis directly after after title token
-		openingParenTkn, found, _ := p.tokenManager.tokens.getTokenAfterSD(titleTkn)
-		if found && openingParenTkn.isOpeningBracket() && openingParenTkn.getValue() == "(" {
+		if openingParenTkn, found, _ := p.tokenManager.tokens.getTokenAfterSD(titleTkn); found && openingParenTkn.isOpeningBracket() && openingParenTkn.getValue() == "(" {
 			// Get closing parenthesis after opening parenthesis
-			closingParenTkn, found := p.tokenManager.tokens.getFirstOccurrenceAfter(
-				p.tokenManager.tokens.getIndexOf(openingParenTkn),
-				func(tkn *token) bool {
-					return tkn.getValue() == ")"
-				})
-			if found && closingParenTkn.isClosingBracket() && closingParenTkn.getValue() == ")" {
+			if closingParenTkn, found := p.tokenManager.tokens.getFirstOccurrenceAfter(p.tokenManager.tokens.getIndexOf(openingParenTkn), func(tkn *token) bool {
+				return tkn.getValue() == ")"
+			}); found &&
+				closingParenTkn.isClosingBracket() && closingParenTkn.getValue() == ")" {
 				// Get tokens between parentheses
-				inbetweenTkns, found := p.tokenManager.tokens.getFromTo(p.tokenManager.tokens.getIndexOf(openingParenTkn)+1, p.tokenManager.tokens.getIndexOf(closingParenTkn))
-				// Check if tokens between parentheses are only years or unknowns
-				_inbetweenTkns := make([]*token, 0)
-				for _, tkn := range inbetweenTkns {
-					if !tkn.isYear() && !tkn.isUnknown() {
+				if inbetweenTkns, found := p.tokenManager.tokens.getFromTo(p.tokenManager.tokens.getIndexOf(openingParenTkn)+1, p.tokenManager.tokens.getIndexOf(closingParenTkn)); found {
+					/** Check **/
+					// Check if tokens between parentheses are only years or unknowns
+					_inbetweenTkns := make([]*token, 0)
+					for _, tkn := range inbetweenTkns {
+						if !tkn.isYear() && !tkn.isUnknown() {
+							break parenLoop
+						}
+						_inbetweenTkns = append(_inbetweenTkns, tkn)
+					}
+					if len(_inbetweenTkns) == 0 {
 						break parenLoop
 					}
-					_inbetweenTkns = append(_inbetweenTkns, tkn)
-				}
-				if len(_inbetweenTkns) == 0 {
-					break parenLoop
-				}
-				if found {
+					/** End check */
 					title += " ("
 					for idx, tkn := range _inbetweenTkns {
 						title += tkn.getValue()
@@ -302,18 +301,17 @@ parenLoop:
 		}
 		break
 	}
-	// Get anime types
+	// Get anime types but only if they are standalone or movie types
 	found, animeTypeTkns := p.tokenManager.tokens.findWithKeywordCategory(keywordCatAnimeType)
 	if !found {
 		p.metadata.FormattedTitle = title
 		return
 	}
+	animeTypeTkns = lo.Filter(animeTypeTkns, func(tkn *token, _ int) bool {
+		return tkn.isStandaloneKeyword() || strings.Contains(tkn.getNormalizedValue(), "MOVIE")
+	})
 	// Get other episode numbers
-	found, otherEpisodeNumberTkns := p.tokenManager.tokens.findWithMetadataCategory(metadataOtherEpisodeNumber)
-	if !found {
-		//p.metadata.FormattedTitle = titleTkn.getValue()
-		//return
-	}
+	_, otherEpisodeNumberTkns := p.tokenManager.tokens.findWithMetadataCategory(metadataOtherEpisodeNumber)
 
 	for idx, tkn := range animeTypeTkns {
 		title += " " + tkn.getValue()

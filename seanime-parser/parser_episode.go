@@ -361,7 +361,7 @@ func (p *parser) parseKeywordsWithEpisodes() (foundEpisode bool) {
 
 					// e.g. ED
 					prefixTkn := newToken(keyword.value)
-					prefixTkn.setIdentifiedKeywordCategory(keyword.category)
+					prefixTkn.setIdentifiedKeywordCategory(keyword.category, keyword.kind)
 					prefixTkn.setKind(tokenKindWord)
 
 					// e.g. 01, 1, 3
@@ -419,7 +419,7 @@ func (p *parser) parseKeywordsWithEpisodes() (foundEpisode bool) {
 				if nextTkn, found, _ := p.tokenManager.tokens.getTokenAfterSD(tkn); found &&
 					(nextTkn.isNumberOrLikeKind() && nextTkn.isUnknown()) {
 
-					tkn.setIdentifiedKeywordCategory(keyword.category)
+					tkn.setIdentifiedKeywordCategory(keyword.category, keyword.kind)
 					nextTkn.setMetadataCategory(metadataOtherEpisodeNumber)
 					if keyword.isEpisodePrefix() {
 						foundEpisode = true

@@ -70,6 +70,16 @@ func (t *token) isKeyword() bool {
 	return t.IdentifiedKeywordCategory != keywordCatNone
 }
 
+func (t *token) isStandaloneKeyword() bool {
+	if t == nil {
+		return false
+	}
+	if t.IdentifiedKeywordCategory == keywordCatNone {
+		return false
+	}
+	return t.IdentifiedKeywordKind == keywordKindStandalone
+}
+
 func (t *token) isKeywordCategory(c keywordCategory) bool {
 	if t == nil {
 		return false

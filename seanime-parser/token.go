@@ -36,6 +36,7 @@ type token struct {
 	Category                  tokenCategory
 	Kind                      tokenKind
 	IdentifiedKeywordCategory keywordCategory
+	IdentifiedKeywordKind     keywordKind
 	Enclosed                  bool
 	Parts                     []*token
 	MetadataCategory          metadataCategory
@@ -48,6 +49,7 @@ func newToken(value string) *token {
 		Category:                  tokenCatUnknown,
 		Kind:                      tokenKindUnknown,
 		IdentifiedKeywordCategory: keywordCatNone,
+		IdentifiedKeywordKind:     keywordKindStandalone,
 		Enclosed:                  false,
 		Parts:                     nil,
 		MetadataCategory:          0,
@@ -100,12 +102,13 @@ func (t *token) setCategory(c tokenCategory) {
 //	tkn := &token{}
 //	tkn.setIdentifiedKeywordCategory(keywordCatSeasonPrefix)
 //	fmt.Println(tkn.IdentifiedKeywordCategory)  // Output: keywordCatSeasonPrefix
-func (t *token) setIdentifiedKeywordCategory(c keywordCategory) {
+func (t *token) setIdentifiedKeywordCategory(c keywordCategory, k keywordKind) {
 	if t == nil {
 		return
 	}
 
 	t.IdentifiedKeywordCategory = c
+	t.IdentifiedKeywordKind = k
 }
 
 func (t *token) setKind(k tokenKind) {

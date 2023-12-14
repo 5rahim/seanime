@@ -89,7 +89,7 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 func newLocalFileParsedData(original string, elements *seanime_parser.Metadata) *LocalFileParsedData {
 	i := new(LocalFileParsedData)
 	i.Original = original
-	i.Title = elements.Title
+	i.Title = elements.FormattedTitle
 	i.ReleaseGroup = elements.ReleaseGroup
 	i.EpisodeTitle = elements.EpisodeTitle
 	i.Year = elements.Year

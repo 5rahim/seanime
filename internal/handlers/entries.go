@@ -148,7 +148,7 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("local file not found"))
 	}
 
-	dir := filepath.Dir(lf.GetPath())
+	dir := filepath.Dir(lf.GetNormalizedPath())
 	cmd := ""
 	var args []string
 
@@ -194,6 +194,8 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	b.Dir = strings.ToLower(b.Dir)
+
 	// Retrieve local files
 	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
@@ -202,7 +204,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 	// Group local files by dir
 	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
-		return filepath.Dir(item.GetPath())
+		return filepath.Dir(item.GetNormalizedPath())
 	})
 
 	selectedLfs, found := groupedLfs[b.Dir]
@@ -278,7 +280,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	// Group local files by dir
 	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
-		return filepath.Dir(item.GetPath())
+		return filepath.Dir(item.GetNormalizedPath())
 	})
 
 	selectedLfs, found := groupedLfs[b.Dir]
@@ -314,9 +316,9 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	fh.HydrateMetadata()
 
 	// Remove select local files from the database slice, we will add them (hydrated) later
-	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.GetPath() })
+	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.GetNormalizedPath() })
 	lfs = lo.Filter(lfs, func(item *entities.LocalFile, _ int) bool {
-		if slices.Contains(selectedPaths, item.GetPath()) {
+		if slices.Contains(selectedPaths, item.GetNormalizedPath()) {
 			return false
 		}
 		return true
