@@ -76,12 +76,12 @@ export function ScannerModal() {
                             onChange={skipLockedFiles.toggle}
                             // size={"lg"}
                         />
-                        <Checkbox
-                            label={"Skip ignored files"}
-                            checked={skipIgnoredFiles.active}
-                            onChange={skipIgnoredFiles.toggle}
-                            // size={"lg"}
-                        />
+                        {/*<Checkbox*/}
+                        {/*    label={"Skip ignored files"}*/}
+                        {/*    checked={skipIgnoredFiles.active}*/}
+                        {/*    onChange={skipIgnoredFiles.toggle}*/}
+                        {/*    // size={"lg"}*/}
+                        {/*/>*/}
                     </div>
                 </div>
                 <Button

@@ -58,6 +58,11 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
     }, [])
 
     useEffect(() => {
+        setPage(0)
+        setCurrentGroup(unmatchedGroups[0])
+    }, [isOpen, unmatchedGroups])
+
+    useEffect(() => {
         setCurrentGroup(unmatchedGroups[page])
         setAnilistId(0)
         resetSuggestions()
