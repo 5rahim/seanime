@@ -226,12 +226,12 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 	// Cache the results (10 minutes)
 	malCache.Set(title, malSuggestions)
 
-	anilistRateLimist := limiter.NewAnilistLimiter()
+	anilistRateLimit := limiter.NewAnilistLimiter()
 	p2 := pool.NewWithResults[*anilist.BasicMedia]()
 	for _, s := range malSuggestions {
 		s := s
 		p2.Go(func() *anilist.BasicMedia {
-			anilistRateLimist.Wait()
+			anilistRateLimit.Wait()
 			// Check if the media has already been fetched
 			media, found := anilistCache.Get(s.ID)
 			if found {

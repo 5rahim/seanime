@@ -97,7 +97,7 @@ func NewApp(options *AppOptions) *App {
 		Logger:          logger,
 	}
 
-	app.InitOrRefreshDependencies()
+	app.InitOrRefreshModules()
 
 	return app
 }

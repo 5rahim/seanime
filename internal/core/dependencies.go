@@ -9,9 +9,9 @@ import (
 	"github.com/seanime-app/seanime/internal/vlc"
 )
 
-// InitOrRefreshDependencies will initialize or refresh dependencies that use settings.
+// InitOrRefreshModules will initialize or refresh modules that use settings.
 // This function should be called after App.Database is initialized and after settings are updated.
-func (a *App) InitOrRefreshDependencies() {
+func (a *App) InitOrRefreshModules() {
 
 	// Stop watching if already watching
 	if a.Watcher != nil {
@@ -21,7 +21,7 @@ func (a *App) InitOrRefreshDependencies() {
 	// Get settings from database
 	settings, err := a.Database.GetSettings()
 	if err != nil {
-		a.Logger.Warn().Msg("app: Did not initialize dependencies, no settings found")
+		a.Logger.Warn().Msg("app: Did not initialize modules, no settings found")
 		return
 	}
 
@@ -71,7 +71,7 @@ func (a *App) InitOrRefreshDependencies() {
 	// Save account and Anilist collection
 	a.initAnilistData()
 
-	a.Logger.Info().Msg("app: Initialized dependencies")
+	a.Logger.Info().Msg("app: Initialized modules")
 
 }
 
