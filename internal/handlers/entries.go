@@ -283,7 +283,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		return filepath.Dir(item.GetNormalizedPath())
 	})
 
-	selectedLfs, found := groupedLfs[b.Dir]
+	selectedLfs, found := groupedLfs[strings.ToLower(b.Dir)]
 	if !found {
 		return c.RespondWithError(errors.New("no local files found for selected directory"))
 	}

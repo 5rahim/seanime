@@ -49,9 +49,10 @@ func (p *parser) parseEpisode() {
 
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Searching for alt episode number
-// ---------------------------------------------------------------------------------------------------------------------
+// +---------------------+
+// |      Alt number     |
+// +---------------------+
+// e.g. 01 (12)
 
 func (p *parser) parseEpisodeBySearchingForAltNumber() bool {
 	for _, numTkn := range *p.tokenManager.tokens {
@@ -83,6 +84,11 @@ func (p *parser) parseEpisodeBySearchingForAltNumber() bool {
 	}
 	return false
 }
+
+// +---------------------+
+// |      Alt number     |
+// +---------------------+
+// e.g. {epTkn} (12)
 
 // parseKnownEpisodeAltNumber parses the alt episode number if an episode number already exists.
 func (p *parser) parseKnownEpisodeAltNumber() (foundEpisode bool) {
@@ -137,6 +143,9 @@ func (p *parser) parseKnownEpisodeAltNumber() (foundEpisode bool) {
 // parseEpisodeBySearching parses the episode number by searching for different patterns.
 func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 
+	// +---------------------+
+	// |       Case 1        |
+	// +---------------------+
 	// Check "- 01 [...]" or "- 01 480p"
 	for {
 		var openingBracketTkn *token
@@ -168,7 +177,7 @@ func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 		// Check we find a range before
 		// e.g. "01-{numTkn} [...]"
 		// making sure that the range has no delimiters
-		if rangeTkns, found := p.tokenManager.tokens.checkEpisodeRangeBefore(numTkn); found {
+		if rangeTkns, found := p.tokenManager.tokens.checkEpisodeRangeBefore(numTkn); found && isReasonableEpisodeNumber(rangeTkns[1].getValue()) {
 			// Make sure that there is no number range before the range
 			// e.g. Avoid this "009-1-02 [...]", where "1-02" is considered as a range
 			if _, found := p.tokenManager.tokens.checkNumberRangeBefore(rangeTkns[1], false); !found {
@@ -184,6 +193,9 @@ func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 			break
 		}
 
+		// +---------------------+
+		// |     Aggressive      |
+		// +---------------------+
 		// When searching aggressively
 		// Check that the number might really be an episode number
 		// e.g. if {lastNumTkn} < 10, lastNumTkn should be zero padded to avoid false positives like "Title 2"
@@ -209,6 +221,9 @@ func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 		return true // Found episode number, end
 	}
 
+	// +---------------------+
+	// |       Case 2        |
+	// +---------------------+
 	// Check for first occurrence of unknown number preceded and followed by a dash separator
 	// e.g. "- 01 -"
 	for _, numTkn := range *p.tokenManager.tokens {
@@ -224,10 +239,12 @@ func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 			continue // Check next token
 		}
 		// Check that it is not a range
-		// e.g. "01-03"
+		// e.g. "03-{numTkn} -"
 		if _, found := p.tokenManager.tokens.checkNumberRangeBefore(numTkn, false); found {
 			continue // Check next token
 		}
+		// Check that it is not a range
+		// e.g. "- {numTkn}-03"
 		if _, found := p.tokenManager.tokens.checkNumberRangeAfter(numTkn, false); found {
 			continue // Check next token
 		}
@@ -236,6 +253,9 @@ func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 		return true // Found episode number, end
 	}
 
+	// +---------------------+
+	// |       Case 3        |
+	// +---------------------+
 	// Check for last unknown number
 	for {
 		var lastNumTkn *token
@@ -258,9 +278,9 @@ func (p *parser) parseEpisodeBySearching(aggressive bool) bool {
 
 		// Check we find a range before
 		// e.g. "1 - {lastNumTkn} [...]"
-		if rangeTkns, found := p.tokenManager.tokens.checkNumberRangeBefore(lastNumTkn, true); found {
+		if rangeTkns, found := p.tokenManager.tokens.checkNumberRangeBefore(lastNumTkn, true); found && isReasonableEpisodeNumber(rangeTkns[1].getValue()) {
 			if isNumberZeroPadded(lastNumTkn.getValue()) && !isNumberZeroPadded(rangeTkns[1].getValue()) {
-
+				// Do not consider "01-1" as a range
 			} else {
 				rangeTkns[1].setMetadataCategory(metadataEpisodeNumber)
 			}

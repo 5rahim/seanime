@@ -1,5 +1,38 @@
 [
   {
+    "file_name": "[Anime Time] Evangelion 3.0+1.11 Thrice Upon A Time",
+    "title": "Evangelion 3.0+1.11 Thrice Upon A Time",
+    "formatted_title": "Evangelion 3.0+1.11 Thrice Upon A Time",
+    "release_group": "Anime Time"
+  },
+  {
+    "file_name": "One Piece Movie 11 - Film Z [BD][1080p][x264][JPN][SUB]-df68.mkv",
+    "title": "One Piece",
+    "formatted_title": "One Piece Movie 11 Film Z",
+    "anime_type": [
+      "Movie"
+    ],
+    "episode_number": [
+      "11"
+    ],
+    "episode_title": "Film Z",
+    "language": [
+      "JPN"
+    ],
+    "release_group": "df68",
+    "source": [
+      "BD"
+    ],
+    "video_resolution": "1080p",
+    "video_term": [
+      "x264"
+    ],
+    "subtitles": [
+      "SUB"
+    ],
+    "file_extension": "mkv"
+  },
+  {
     "file_name": "[Thomku] Kill la Kill 01 - 07 Batch [720p][AAC][MP4]",
     "title": "Kill la Kill",
     "formatted_title": "Kill la Kill",
@@ -2291,10 +2324,11 @@
   {
     "file_name": "[FB] Crayon Shin-Chan Movie 2 The Secret of Buri Buri Kingdom [DivX5 AC3] 1994 [852X480] V2.avi",
     "title": "Crayon Shin-Chan",
-    "formatted_title": "Crayon Shin-Chan Movie 2",
+    "formatted_title": "Crayon Shin-Chan Movie 2 The Secret of Buri Buri Kingdom",
     "episode_number": [
       "2"
     ],
+    "episode_title": "The Secret of Buri Buri Kingdom",
     "anime_type": [
       "Movie"
     ],

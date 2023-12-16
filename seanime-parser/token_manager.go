@@ -332,11 +332,6 @@ func (t *tokens) foundDashSeparatorAfter(tkn *token) bool {
 }
 
 // e.g. "01-{tkn}" or "1 ~ {tkn}"
-// When rangeWithDelimiters is true, the function will ignore delimiters when checking for a number range
-// So, "01 - {tkn}" and "01-{tkn} will return true,
-// When it's false, the function will return false for "01 - {tkn}" and true for "01-{tkn}
-//
-// Returns [0] separator, [1] number or false
 func (t *tokens) checkEpisodeRangeBefore(tkn *token) ([]*token, bool) {
 	tkns, found, nSkipped := t.getCategorySequenceBefore(t.getIndexOf(tkn), []tokenCategory{
 		tokenCatSeparator,

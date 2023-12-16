@@ -313,12 +313,25 @@ parenLoop:
 	// Get other episode numbers
 	_, otherEpisodeNumberTkns := p.tokenManager.tokens.findWithMetadataCategory(metadataOtherEpisodeNumber)
 
+	includesMovieToken := false
+
 	for idx, tkn := range animeTypeTkns {
 		title += " " + tkn.getValue()
 		if otherEpisodeNumberTkns != nil && idx < len(otherEpisodeNumberTkns) {
 			title += " " + otherEpisodeNumberTkns[idx].getValue()
 		}
+		// check movie token
+		if strings.Contains(tkn.getNormalizedValue(), "MOVIE") {
+			includesMovieToken = true
+		}
 	}
+
+	/* Include episode title if movie */
+	// Get title
+	if found, epTitleTkns := p.tokenManager.tokens.findWithMetadataCategory(metadataEpisodeTitle); found && includesMovieToken {
+		title += " " + epTitleTkns[0].getValue()
+	}
+	/* end */
 
 	p.metadata.FormattedTitle = title
 

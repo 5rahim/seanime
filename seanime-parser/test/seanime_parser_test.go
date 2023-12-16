@@ -66,7 +66,7 @@ func TestSeanimeParserIsolated(t *testing.T) {
 	data := getData()
 	assert.NotNil(t, data)
 
-	filename := "[모에-Raws] Abarenbou Rikishi!! Matsutarou #04 (ABC 1280x720 x264 AAC).mp4"
+	filename := "One Piece Movie 11 - Film Z [BD][1080p][x264][JPN][SUB]-df68.mkv"
 
 	for _, tt := range data {
 

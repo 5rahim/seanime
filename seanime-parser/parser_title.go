@@ -12,7 +12,10 @@ func (p *parser) parseEpisodeTitle() {
 	// Get all tokens after the last episode number token and before an opening bracket/file info metadata/EOF
 	found, epTkns := p.tokenManager.tokens.findWithMetadataCategory(metadataEpisodeNumber)
 	if !found {
-		return // Next try
+		found, epTkns = p.tokenManager.tokens.findWithMetadataCategory(metadataOtherEpisodeNumber)
+		if !found {
+			return // Next try
+		}
 	}
 
 	// Get the last episode number token
