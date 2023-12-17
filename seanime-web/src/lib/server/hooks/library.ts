@@ -14,7 +14,7 @@ export type ScanLibraryProps = {
     skipIgnoredFiles: boolean
 }
 
-export function useScanLibrary() {
+export function useScanLibrary({ onSuccess }: { onSuccess: () => void }) {
 
     const qc = useQueryClient()
 
@@ -26,6 +26,7 @@ export function useScanLibrary() {
             toast.success("Library scanned")
             await qc.refetchQueries({ queryKey: ["get-library-collection"] })
             await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
+            onSuccess()
         },
     })
 
