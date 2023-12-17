@@ -23,7 +23,11 @@ export function ScannerModal() {
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
 
-    const { scanLibrary, isScanning } = useScanLibrary()
+    const { scanLibrary, isScanning } = useScanLibrary({
+        onSuccess: () => {
+            setOpen(false)
+        }
+    })
 
     useEffect(() => {
         setScannerIsScanning(isScanning)

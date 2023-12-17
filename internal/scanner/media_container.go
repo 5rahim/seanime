@@ -52,21 +52,26 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc.NormalizedMedia = make([]*NormalizedMedia, 0)
 	for _, m := range opts.allMedia {
 		mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(m.ToBasicMedia()))
-		for _, edgeM := range m.GetRelations().GetEdges() {
-			if edgeM.GetNode().GetFormat().String() != anilist.MediaFormatMovie.String() &&
-				edgeM.GetNode().GetFormat().String() != anilist.MediaFormatOva.String() &&
-				edgeM.GetNode().GetFormat().String() != anilist.MediaFormatSpecial.String() &&
-				edgeM.GetNode().GetFormat().String() != anilist.MediaFormatTv.String() {
-				continue
+		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
+			for _, edgeM := range m.Relations.Edges {
+				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {
+					continue
+				}
+				if *edgeM.Node.Format != anilist.MediaFormatMovie &&
+					*edgeM.Node.Format != anilist.MediaFormatOva &&
+					*edgeM.Node.Format != anilist.MediaFormatSpecial &&
+					*edgeM.Node.Format != anilist.MediaFormatTv {
+					continue
+				}
+				if *edgeM.RelationType != anilist.MediaRelationPrequel &&
+					*edgeM.RelationType != anilist.MediaRelationSequel &&
+					*edgeM.RelationType != anilist.MediaRelationSpinOff &&
+					*edgeM.RelationType != anilist.MediaRelationAlternative &&
+					*edgeM.RelationType != anilist.MediaRelationParent {
+					continue
+				}
+				mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(edgeM.GetNode()))
 			}
-			if edgeM.GetRelationType().String() != anilist.MediaRelationPrequel.String() &&
-				edgeM.GetRelationType().String() != anilist.MediaRelationSequel.String() &&
-				edgeM.GetRelationType().String() != anilist.MediaRelationSpinOff.String() &&
-				edgeM.GetRelationType().String() != anilist.MediaRelationAlternative.String() &&
-				edgeM.GetRelationType().String() != anilist.MediaRelationParent.String() {
-				continue
-			}
-			mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(edgeM.GetNode()))
 		}
 	}
 	mc.NormalizedMedia = lo.UniqBy(mc.NormalizedMedia, func(m *NormalizedMedia) int {
