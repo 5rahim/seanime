@@ -26,6 +26,7 @@ type Scanner struct {
 func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
+	normMediaCache := NewNormalizedMediaCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -75,14 +76,15 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:           scn.Enhanced,
-		Username:           scn.Username,
-		AnilistClient:      scn.AnilistClient,
-		LocalFiles:         localFiles,
-		BaseMediaCache:     baseMediaCache,
-		AnizipCache:        anizipCache,
-		Logger:             scn.Logger,
-		AnilistRateLimiter: anilistRateLimiter,
+		Enhanced:             scn.Enhanced,
+		Username:             scn.Username,
+		AnilistClient:        scn.AnilistClient,
+		LocalFiles:           localFiles,
+		BaseMediaCache:       baseMediaCache,
+		NormalizedMediaCache: normMediaCache,
+		AnizipCache:          anizipCache,
+		Logger:               scn.Logger,
+		AnilistRateLimiter:   anilistRateLimiter,
 	})
 	if err != nil {
 		return nil, err
@@ -100,7 +102,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	})
 
 	scn.Logger.Trace().
-		Any("count", len(mc.allMedia)).
+		Any("count", len(mc.NormalizedMedia)).
 		Msg("media container: Media container created")
 
 	// +---------------------+
@@ -128,7 +130,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		AllMedia:           mc.allMedia,
+		AllMedia:           mc.NormalizedMedia,
 		LocalFiles:         localFiles,
 		AnizipCache:        anizipCache,
 		AnilistClient:      scn.AnilistClient,

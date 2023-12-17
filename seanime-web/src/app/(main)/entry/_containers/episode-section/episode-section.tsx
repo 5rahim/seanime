@@ -14,6 +14,7 @@ import { Divider } from "@/components/ui/divider"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { usePlayNextVideoOnMount, useVideoPlayer } from "@/lib/server/hooks/player"
 import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section/progress-tracking"
+import { Alert } from "@/components/ui/alert"
 
 export function EpisodeSection(props: { entry: MediaEntry }) {
     const { entry } = props
@@ -39,6 +40,10 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
 
     const ncEpisodes = useMemo(() => {
         return entry.episodes?.filter(ep => ep.type === "nc") ?? []
+    }, [entry.episodes])
+
+    const hasInvalidEpisodes = useMemo(() => {
+        return entry.episodes?.some(ep => ep.isInvalid) ?? false
     }, [entry.episodes])
 
     const episodesToWatch = useMemo(() => {
@@ -95,6 +100,14 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
 
                 </div>
 
+                {!entry.episodes?.length && <p>Not in your library</p>}
+
+                {hasInvalidEpisodes && <Alert
+                    intent="alert"
+                    description={"Some episodes are invalid. Update the metadata to fix this."}
+                />}
+
+
                 {episodesToWatch.length > 0 && (
                     <>
                         <Slider>
@@ -110,7 +123,6 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     </>
                 )}
 
-                {!entry.episodes?.length && <p>Not in your library</p>}
 
                 <div className="space-y-10">
                     <div className={"grid grid-cols-1 md:grid-cols-2 gap-4"}>

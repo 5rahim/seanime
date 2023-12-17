@@ -28,6 +28,14 @@ func NewBaseMediaRelationTree() *BaseMediaRelationTree {
 	return &BaseMediaRelationTree{result.NewResultMap[int, *BaseMedia]()}
 }
 
+func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Client, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
+	res, err := anilistClient.BaseMediaByID(context.Background(), &m.ID)
+	if err != nil {
+		return err
+	}
+	return res.GetMedia().FetchMediaTree(rel, anilistClient, rateLimiter, tree, cache)
+}
+
 // FetchMediaTree populates the BaseMediaRelationTree with the given media's sequels and prequels.
 // It also takes a BaseMediaCache to store the fetched media in and avoid duplicate fetches.
 // It also takes a limiter.Limiter to limit the number of requests made to the AniList API.

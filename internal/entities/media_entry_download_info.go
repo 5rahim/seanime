@@ -51,7 +51,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	}
 
 	// +---------------------+
-	// |   Discrepancy       |
+	// |     Discrepancy     |
 	// +---------------------+
 
 	// Whether AniList includes episode 0 as part of main episodes, but Anizip does not, however Anizip has "S1"
@@ -92,7 +92,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	}
 
 	// +---------------------+
-	// |   Anizip has fewer  |
+	// |  Anizip has fewer   |
 	// +---------------------+
 
 	// III - Handle discrepancy (inclusion of episode 0 by AniList)

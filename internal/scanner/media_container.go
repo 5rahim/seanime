@@ -5,38 +5,87 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/comparison"
+	"github.com/seanime-app/seanime/internal/result"
 	"strings"
 )
 
-type MediaContainerOptions struct {
-	allMedia []*anilist.BaseMedia
+type (
+	MediaContainerOptions struct {
+		allMedia []*anilist.BaseMedia
+	}
+
+	MediaContainer struct {
+		NormalizedMedia []*NormalizedMedia
+		engTitles       []*string
+		romTitles       []*string
+		synonyms        []*string
+		allMedia        []*anilist.BaseMedia
+	}
+
+	NormalizedMedia struct {
+		*anilist.BasicMedia
+	}
+
+	NormalizedMediaCache struct {
+		*result.Cache[int, *NormalizedMedia]
+	}
+)
+
+func NewNormalizedMedia(m *anilist.BasicMedia) *NormalizedMedia {
+	return &NormalizedMedia{
+		BasicMedia: m,
+	}
 }
 
-type MediaContainer struct {
-	engTitles []*string
-	romTitles []*string
-	synonyms  []*string
-	allMedia  []*anilist.BaseMedia
+func NewNormalizedMediaCache() *NormalizedMediaCache {
+	return &NormalizedMediaCache{result.NewCache[int, *NormalizedMedia]()}
 }
 
-// NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseMedia.
-// It also provides helper functions to get an anilist.BaseMedia from a title or synonym.
+// NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseMedia (used by Matcher).
+//
+// The list will include all anilist.BaseMedia and their relations (prequels, sequels, spin-offs, etc...) as NormalizedMedia.
+//
+// It also provides helper functions to get a NormalizedMedia from a title or synonym (used by FileHydrator).
 func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc := new(MediaContainer)
 
-	engTitles := lop.Map(opts.allMedia, func(m *anilist.BaseMedia, index int) *string {
+	mc.NormalizedMedia = make([]*NormalizedMedia, 0)
+	for _, m := range opts.allMedia {
+		mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(m.ToBasicMedia()))
+		for _, edgeM := range m.GetRelations().GetEdges() {
+			if edgeM.GetNode().GetFormat().String() != anilist.MediaFormatMovie.String() &&
+				edgeM.GetNode().GetFormat().String() != anilist.MediaFormatOva.String() &&
+				edgeM.GetNode().GetFormat().String() != anilist.MediaFormatSpecial.String() &&
+				edgeM.GetNode().GetFormat().String() != anilist.MediaFormatTv.String() {
+				continue
+			}
+			if edgeM.GetRelationType().String() != anilist.MediaRelationPrequel.String() &&
+				edgeM.GetRelationType().String() != anilist.MediaRelationSequel.String() &&
+				edgeM.GetRelationType().String() != anilist.MediaRelationSpinOff.String() &&
+				edgeM.GetRelationType().String() != anilist.MediaRelationAlternative.String() &&
+				edgeM.GetRelationType().String() != anilist.MediaRelationParent.String() {
+				continue
+			}
+			mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(edgeM.GetNode()))
+		}
+	}
+	mc.NormalizedMedia = lo.UniqBy(mc.NormalizedMedia, func(m *NormalizedMedia) int {
+		return m.ID
+	})
+
+	engTitles := lop.Map(mc.NormalizedMedia, func(m *NormalizedMedia, index int) *string {
 		if m.Title.English != nil {
 			return m.Title.English
 		}
 		return new(string)
 	})
-	romTitles := lop.Map(opts.allMedia, func(m *anilist.BaseMedia, index int) *string {
+	romTitles := lop.Map(mc.NormalizedMedia, func(m *NormalizedMedia, index int) *string {
 		if m.Title.Romaji != nil {
 			return m.Title.Romaji
 		}
 		return new(string)
 	})
-	_synonymsArr := lop.Map(opts.allMedia, func(m *anilist.BaseMedia, index int) []*string {
+	_synonymsArr := lop.Map(mc.NormalizedMedia, func(m *NormalizedMedia, index int) []*string {
 		if m.Synonyms != nil {
 			return m.Synonyms
 		}
@@ -55,12 +104,12 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	return mc
 }
 
-func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anilist.BaseMedia, bool) {
+func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*NormalizedMedia, bool) {
 	if title == nil {
 		return nil, false
 	}
 	t := strings.ToLower(*title)
-	res, found := lo.Find(mc.allMedia, func(m *anilist.BaseMedia) bool {
+	res, found := lo.Find(mc.NormalizedMedia, func(m *NormalizedMedia) bool {
 		if m.HasEnglishTitle() && t == strings.ToLower(*m.Title.English) {
 			return true
 		}
@@ -80,8 +129,8 @@ func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anilist.Ba
 	return res, found
 }
 
-func (mc *MediaContainer) GetMediaFromId(id int) (*anilist.BaseMedia, bool) {
-	res, found := lo.Find(mc.allMedia, func(m *anilist.BaseMedia) bool {
+func (mc *MediaContainer) GetMediaFromId(id int) (*NormalizedMedia, bool) {
+	res, found := lo.Find(mc.NormalizedMedia, func(m *NormalizedMedia) bool {
 		if m.ID == id {
 			return true
 		}

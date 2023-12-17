@@ -24,16 +24,6 @@ func (m *BaseMedia) GetRomajiTitleSafe() string {
 	return "N/A"
 }
 
-func (m *BasicMedia) GetTitleSafe() string {
-	if m.GetTitle().GetEnglish() != nil {
-		return *m.GetTitle().GetEnglish()
-	}
-	if m.GetTitle().GetRomaji() != nil {
-		return *m.GetTitle().GetRomaji()
-	}
-	return "N/A"
-}
-
 func (m *BaseMedia) GetPreferredTitle() string {
 	if m.Title.UserPreferred != nil {
 		return *m.GetTitle().GetUserPreferred()
@@ -70,6 +60,69 @@ func (m *BaseMedia) GetCurrentEpisodeCount() int {
 
 // GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
 func (m *BaseMedia) GetTotalEpisodeCount() int {
+	ceil := -1
+	if m.Episodes != nil {
+		ceil = *m.Episodes
+	}
+	return ceil
+}
+
+//-------------
+
+func (m *BasicMedia) GetTitleSafe() string {
+	if m.GetTitle().GetEnglish() != nil {
+		return *m.GetTitle().GetEnglish()
+	}
+	if m.GetTitle().GetRomaji() != nil {
+		return *m.GetTitle().GetRomaji()
+	}
+	return "N/A"
+}
+func (m *BasicMedia) GetRomajiTitleSafe() string {
+	if m.GetTitle().GetRomaji() != nil {
+		return *m.GetTitle().GetRomaji()
+	}
+	if m.GetTitle().GetEnglish() != nil {
+		return *m.GetTitle().GetEnglish()
+	}
+	return "N/A"
+}
+func (m *BasicMedia) GetPreferredTitle() string {
+	if m.Title.UserPreferred != nil {
+		return *m.GetTitle().GetUserPreferred()
+	}
+	return m.GetTitleSafe()
+}
+
+func (m *BasicMedia) GetAllTitles() []*string {
+	titles := make([]*string, 0)
+	if m.HasEnglishTitle() {
+		titles = append(titles, m.Title.English)
+	}
+	if m.HasRomajiTitle() {
+		titles = append(titles, m.Title.Romaji)
+	}
+	if m.HasSynonyms() && len(m.Synonyms) > 1 {
+		titles = append(titles, lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })...)
+	}
+	return titles
+}
+
+func (m *BasicMedia) GetCurrentEpisodeCount() int {
+	ceil := -1
+	if m.Episodes != nil {
+		ceil = *m.Episodes
+	}
+	if m.NextAiringEpisode != nil {
+		if m.NextAiringEpisode.Episode > 0 {
+			ceil = m.NextAiringEpisode.Episode - 1
+		}
+	}
+	return ceil
+}
+
+// GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
+func (m *BasicMedia) GetTotalEpisodeCount() int {
 	ceil := -1
 	if m.Episodes != nil {
 		ceil = *m.Episodes

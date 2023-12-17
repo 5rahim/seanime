@@ -305,12 +305,14 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	fh := scanner.FileHydrator{
 		LocalFiles:         selectedLfs,
-		AllMedia:           []*anilist.BaseMedia{mediaRes.GetMedia()},
 		BaseMediaCache:     anilist.NewBaseMediaCache(),
 		AnizipCache:        anizip.NewCache(),
 		AnilistClient:      c.App.AnilistClient,
 		AnilistRateLimiter: limiter.NewAnilistLimiter(),
 		Logger:             c.App.Logger,
+		AllMedia: []*scanner.NormalizedMedia{
+			scanner.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
+		},
 	}
 
 	fh.HydrateMetadata()

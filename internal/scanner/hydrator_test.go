@@ -58,6 +58,10 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 				allMedia: allMedia,
 			})
 
+			for _, nm := range mc.NormalizedMedia {
+				t.Logf("media id: %d, title: %s", nm.ID, nm.GetTitleSafe())
+			}
+
 			// +---------------------+
 			// |      Matcher        |
 			// +---------------------+
@@ -80,7 +84,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
 			fh := FileHydrator{
 				LocalFiles:         lfs,
-				AllMedia:           mc.allMedia,
+				AllMedia:           mc.NormalizedMedia,
 				BaseMediaCache:     baseMediaCache,
 				AnizipCache:        anizipCache,
 				AnilistClient:      anilistClient,

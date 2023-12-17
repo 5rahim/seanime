@@ -15,7 +15,7 @@ func MockGetAnilistClient() *Client {
 		log.Fatal(err)
 	}
 	// Open the JSON file
-	file, err := os.Open(filepath.Join(path, "../../test/sample/jwt.json"))
+	file, err := os.Open(filepath.Join(path, "../../test/jwt.json"))
 	if err != nil {
 		println("Error opening file:", err.Error())
 		return nil

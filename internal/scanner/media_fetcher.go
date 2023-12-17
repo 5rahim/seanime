@@ -23,14 +23,15 @@ type MediaFetcher struct {
 }
 
 type MediaFetcherOptions struct {
-	Enhanced           bool
-	Username           string
-	AnilistClient      *anilist.Client
-	LocalFiles         []*entities.LocalFile
-	BaseMediaCache     *anilist.BaseMediaCache
-	AnizipCache        *anizip.Cache
-	Logger             *zerolog.Logger
-	AnilistRateLimiter *limiter.Limiter
+	Enhanced             bool
+	Username             string
+	AnilistClient        *anilist.Client
+	LocalFiles           []*entities.LocalFile
+	BaseMediaCache       *anilist.BaseMediaCache
+	NormalizedMediaCache *NormalizedMediaCache
+	AnizipCache          *anizip.Cache
+	Logger               *zerolog.Logger
+	AnilistRateLimiter   *limiter.Limiter
 }
 
 // NewMediaFetcher
@@ -42,13 +43,14 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		opts.Username == "" ||
 		opts.LocalFiles == nil ||
 		opts.BaseMediaCache == nil ||
+		opts.NormalizedMediaCache == nil ||
 		opts.AnizipCache == nil ||
 		opts.Logger == nil ||
 		opts.AnilistRateLimiter == nil {
 		return nil, errors.New("missing options")
 	}
 
-	mc := new(MediaFetcher)
+	mf := new(MediaFetcher)
 
 	opts.Logger.Trace().
 		Any("enhanced", opts.Enhanced).
@@ -65,12 +67,12 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		return nil, err
 	}
 
-	mc.AllMedia = make([]*anilist.BaseMedia, 0)
+	mf.AllMedia = make([]*anilist.BaseMedia, 0)
 
 	// For each collection entry, append the media to AllMedia
 	for _, list := range animeCollection.GetMediaListCollection().GetLists() {
 		for _, entry := range list.GetEntries() {
-			mc.AllMedia = append(mc.AllMedia, entry.GetMedia())
+			mf.AllMedia = append(mf.AllMedia, entry.GetMedia())
 
 			// +---------------------+
 			// |        Cache        |
@@ -80,12 +82,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		}
 	}
 
-	// TODO: Create NormalizedMedia that will contain the BaseMedia and their BasicMedia relations
-
 	//--------------------------------------------
 
 	// Get the media IDs from the collection
-	mc.CollectionMediaIds = lop.Map(mc.AllMedia, func(m *anilist.BaseMedia, index int) int {
+	mf.CollectionMediaIds = lop.Map(mf.AllMedia, func(m *anilist.BaseMedia, index int) int {
 		return m.ID
 	})
 
@@ -104,9 +104,9 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		if ok {
 			// We assume the BaseMediaCache is populated. We overwrite AllMedia with the cache content.
 			// This is because the cache will contain all media from the user's collection and the local files.
-			mc.AllMedia = make([]*anilist.BaseMedia, 0)
+			mf.AllMedia = make([]*anilist.BaseMedia, 0)
 			opts.BaseMediaCache.Range(func(key int, value *anilist.BaseMedia) bool {
-				mc.AllMedia = append(mc.AllMedia, value)
+				mf.AllMedia = append(mf.AllMedia, value)
 				return true
 			})
 		}
@@ -118,15 +118,15 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	// Media that are not in the user's collection
 
 	// Get the media that are not in the user's collection
-	unknownMedia := lo.Filter(mc.AllMedia, func(m *anilist.BaseMedia, _ int) bool {
-		return !lo.Contains(mc.CollectionMediaIds, m.ID)
+	unknownMedia := lo.Filter(mf.AllMedia, func(m *anilist.BaseMedia, _ int) bool {
+		return !lo.Contains(mf.CollectionMediaIds, m.ID)
 	})
 	// Get the media IDs that are not in the user's collection
-	mc.UnknownMediaIds = lop.Map(unknownMedia, func(m *anilist.BaseMedia, _ int) int {
+	mf.UnknownMediaIds = lop.Map(unknownMedia, func(m *anilist.BaseMedia, _ int) int {
 		return m.ID
 	})
 
-	return mc, nil
+	return mf, nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------
