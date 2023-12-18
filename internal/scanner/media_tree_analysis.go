@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"errors"
+	"fmt"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
@@ -111,4 +112,15 @@ func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, m
 	mediaId = branch.media.ID
 
 	return
+}
+
+func (o *MediaTreeAnalysis) printBranches() string {
+	str := "["
+	for _, branch := range o.branches {
+		str += fmt.Sprintf("media: '%s', minAbsoluteEpisode: %d, maxAbsoluteEpisode: %d, totalEpisodeCount: %d; ", branch.media.GetTitleSafe(), branch.minAbsoluteEpisode, branch.maxAbsoluteEpisode, branch.totalEpisodeCount)
+	}
+	str = str[:len(str)-2]
+	str += "]"
+	return str
+
 }

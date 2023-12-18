@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestFileHydrator_HydrateMetadata(t *testing.T) {
+func TestScanLogger(t *testing.T) {
 
 	allMedia := getMockedAllMedia(t)
 

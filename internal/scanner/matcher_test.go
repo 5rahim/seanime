@@ -14,6 +14,8 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 	allMedia := getMockedAllMedia(t)
 
+	dir := "E:/Anime"
+
 	tests := []struct {
 		name            string
 		paths           []string
@@ -37,13 +39,18 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
+			scanLogger, err := NewScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
 			// +---------------------+
 			// |   Local Files       |
 			// +---------------------+
 
 			var lfs []*entities.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, "E:/Anime")
+				lf := entities.NewLocalFile(path, dir)
 				lfs = append(lfs, lf)
 			}
 
@@ -52,7 +59,8 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 			// +---------------------+
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				allMedia: allMedia,
+				allMedia:   allMedia,
+				ScanLogger: scanLogger,
 			})
 
 			// +---------------------+
@@ -64,9 +72,10 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 				mediaContainer: mc,
 				baseMediaCache: nil,
 				logger:         util.NewLogger(),
+				ScanLogger:     scanLogger,
 			}
 
-			err := matcher.MatchLocalFilesWithMedia()
+			err = matcher.MatchLocalFilesWithMedia()
 
 			if assert.NoError(t, err, "Error while matching local files") {
 				for _, lf := range lfs {

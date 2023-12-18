@@ -3,6 +3,7 @@ package scanner
 import (
 	"context"
 	"errors"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -20,6 +21,7 @@ type MediaFetcher struct {
 	AllMedia           []*anilist.BaseMedia
 	CollectionMediaIds []int
 	UnknownMediaIds    []int // Media IDs that are not in the user's collection
+	ScanLogger         *ScanLogger
 }
 
 type MediaFetcherOptions struct {
@@ -28,10 +30,11 @@ type MediaFetcherOptions struct {
 	AnilistClient        *anilist.Client
 	LocalFiles           []*entities.LocalFile
 	BaseMediaCache       *anilist.BaseMediaCache
-	NormalizedMediaCache *NormalizedMediaCache
 	AnizipCache          *anizip.Cache
 	Logger               *zerolog.Logger
 	AnilistRateLimiter   *limiter.Limiter
+	UseAnilistCollection bool
+	ScanLogger           *ScanLogger
 }
 
 // NewMediaFetcher
@@ -43,19 +46,25 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		opts.Username == "" ||
 		opts.LocalFiles == nil ||
 		opts.BaseMediaCache == nil ||
-		opts.NormalizedMediaCache == nil ||
 		opts.AnizipCache == nil ||
 		opts.Logger == nil ||
+		opts.ScanLogger == nil ||
 		opts.AnilistRateLimiter == nil {
 		return nil, errors.New("missing options")
 	}
 
-	mf := new(MediaFetcher)
+	opts.UseAnilistCollection = true
 
-	opts.Logger.Trace().
+	mf := new(MediaFetcher)
+	mf.ScanLogger = opts.ScanLogger
+
+	opts.Logger.Debug().
 		Any("enhanced", opts.Enhanced).
 		Any("username", opts.Username).
-		Msg("media container: Creating media container")
+		Msg("media fetcher: Creating media fetcher")
+
+	mf.ScanLogger.LogMediaFetcher(zerolog.InfoLevel).
+		Msg("Creating media fetcher")
 
 	// +---------------------+
 	// |     All media       |
@@ -69,18 +78,24 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 	mf.AllMedia = make([]*anilist.BaseMedia, 0)
 
-	// For each collection entry, append the media to AllMedia
-	for _, list := range animeCollection.GetMediaListCollection().GetLists() {
-		for _, entry := range list.GetEntries() {
-			mf.AllMedia = append(mf.AllMedia, entry.GetMedia())
+	if opts.UseAnilistCollection {
+		// For each collection entry, append the media to AllMedia
+		for _, list := range animeCollection.GetMediaListCollection().GetLists() {
+			for _, entry := range list.GetEntries() {
+				mf.AllMedia = append(mf.AllMedia, entry.GetMedia())
 
-			// +---------------------+
-			// |        Cache        |
-			// +---------------------+
-			// We assume the BaseMediaCache is empty. Add media to cache.
-			opts.BaseMediaCache.Set(entry.GetMedia().ID, entry.GetMedia())
+				// +---------------------+
+				// |        Cache        |
+				// +---------------------+
+				// We assume the BaseMediaCache is empty. Add media to cache.
+				opts.BaseMediaCache.Set(entry.GetMedia().ID, entry.GetMedia())
+			}
 		}
 	}
+
+	mf.ScanLogger.LogMediaFetcher(zerolog.DebugLevel).
+		Int("count", len(mf.AllMedia)).
+		Msg("Fetched media from AniList collection")
 
 	//--------------------------------------------
 
@@ -97,10 +112,15 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 	// If enhancing is on, scan media from local files and get their relations
 	if opts.Enhanced {
-		opts.Logger.Trace().
-			Msg("media container: Fetching media from local files")
 
-		_, ok := FetchMediaFromLocalFiles(opts.AnilistClient, opts.LocalFiles, opts.BaseMediaCache, opts.AnizipCache, opts.AnilistRateLimiter)
+		_, ok := FetchMediaFromLocalFiles(
+			opts.AnilistClient,
+			opts.LocalFiles,
+			opts.BaseMediaCache,
+			opts.AnizipCache,
+			opts.AnilistRateLimiter,
+			mf.ScanLogger,
+		)
 		if ok {
 			// We assume the BaseMediaCache is populated. We overwrite AllMedia with the cache content.
 			// This is because the cache will contain all media from the user's collection and the local files.
@@ -126,6 +146,11 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		return m.ID
 	})
 
+	mf.ScanLogger.LogMediaFetcher(zerolog.DebugLevel).
+		Int("unknownMediaCount", len(mf.UnknownMediaIds)).
+		Int("allMediaCount", len(mf.AllMedia)).
+		Msg("Finished creating media fetcher")
+
 	return mf, nil
 }
 
@@ -144,15 +169,26 @@ func FetchMediaFromLocalFiles(
 	baseMediaCache *anilist.BaseMediaCache,
 	anizipCache *anizip.Cache,
 	anilistRateLimiter *limiter.Limiter,
+	scanLogger *ScanLogger,
 ) ([]*anilist.BaseMedia, bool) {
+
+	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+		Str("module", "Enhanced").
+		Msg("Fetching media from local files")
+
 	rateLimiter := limiter.NewLimiter(time.Second, 20)
 	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
 
 	// Get titles
 	titles := entities.GetUniqueAnimeTitlesFromLocalFiles(localFiles)
 
+	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+		Str("module", "Enhanced").
+		Str("context", spew.Sprint(titles)).
+		Msg("Parsed titles from local files")
+
 	// +---------------------+
-	// |   MyAnimeList       |
+	// |     MyAnimeList     |
 	// +---------------------+
 
 	// Get MAL media from titles
@@ -170,6 +206,13 @@ func FetchMediaFromLocalFiles(
 	malMedia := lo.UniqBy(*malRes, func(res *mal.SearchResultAnime) int { return res.ID })
 	// Get the MAL media IDs
 	malIds := lop.Map(malMedia, func(n *mal.SearchResultAnime, index int) int { return n.ID })
+
+	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+		Str("module", "Enhanced").
+		Str("context", spew.Sprint(lo.Map(malMedia, func(n *mal.SearchResultAnime, _ int) string {
+			return n.Name
+		}))).
+		Msg("Fetched MAL media from titles")
 
 	// +---------------------+
 	// |       AniZip        |
@@ -209,6 +252,13 @@ func FetchMediaFromLocalFiles(
 		}
 	})
 
+	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+		Str("module", "Enhanced").
+		Str("context", spew.Sprint(lo.Map(anilistMedia, func(n *anilist.BaseMedia, _ int) string {
+			return n.GetTitleSafe()
+		}))).
+		Msg("Fetched Anilist media from MAL ids")
+
 	// +---------------------+
 	// |     MediaTree       |
 	// +---------------------+
@@ -217,6 +267,7 @@ func FetchMediaFromLocalFiles(
 	// /!\ This is redundant because we already have a cache, but `FetchMediaTree` needs its
 	tree := anilist.NewBaseMediaRelationTree()
 
+	start := time.Now()
 	// For each media, fetch its relations
 	// The relations are fetched in parallel and added to `baseMediaCache`
 	lop.ForEach(anilistMedia, func(m *anilist.BaseMedia, index int) {
@@ -234,6 +285,15 @@ func FetchMediaFromLocalFiles(
 		scanned = append(scanned, value)
 		return true
 	})
+
+	scanLogger.LogMediaFetcher(zerolog.InfoLevel).
+		Str("module", "Enhanced").
+		Int("ms", int(time.Since(start).Milliseconds())).
+		Int("count", len(scanned)).
+		Str("context", spew.Sprint(lo.Map(scanned, func(n *anilist.BaseMedia, _ int) string {
+			return n.GetTitleSafe()
+		}))).
+		Msg("Finished fetching media from local files")
 
 	return scanned, true
 }

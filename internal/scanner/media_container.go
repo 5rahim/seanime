@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/anilist"
@@ -11,11 +12,13 @@ import (
 
 type (
 	MediaContainerOptions struct {
-		allMedia []*anilist.BaseMedia
+		allMedia   []*anilist.BaseMedia
+		ScanLogger *ScanLogger
 	}
 
 	MediaContainer struct {
 		NormalizedMedia []*NormalizedMedia
+		ScanLogger      *ScanLogger
 		engTitles       []*string
 		romTitles       []*string
 		synonyms        []*string
@@ -48,6 +51,7 @@ func NewNormalizedMediaCache() *NormalizedMediaCache {
 // It also provides helper functions to get a NormalizedMedia from a title or synonym (used by FileHydrator).
 func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc := new(MediaContainer)
+	mc.ScanLogger = opts.ScanLogger
 
 	mc.NormalizedMedia = make([]*NormalizedMedia, 0)
 	for _, m := range opts.allMedia {
@@ -105,6 +109,12 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc.romTitles = romTitles
 	mc.synonyms = synonyms
 	mc.allMedia = opts.allMedia
+
+	mc.ScanLogger.LogMediaContainer(zerolog.InfoLevel).
+		Any("inputCount", len(opts.allMedia)).
+		Any("mediaCount", len(mc.NormalizedMedia)).
+		Any("titles", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
+		Msg("Created media container")
 
 	return mc
 }

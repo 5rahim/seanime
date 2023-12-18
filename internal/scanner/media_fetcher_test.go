@@ -6,9 +6,191 @@ import (
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestNewMediaFetcher(t *testing.T) {
+
+	anilistClient, _, data := anilist.MockAnilistAccount()
+	anizipCache := anizip.NewCache()
+	baseMediaCache := anilist.NewBaseMediaCache()
+	anilistRateLimiter := limiter.NewAnilistLimiter()
+
+	dir := "E:/Anime"
+
+	tests := []struct {
+		name                 string
+		paths                []string
+		enhanced             bool
+		username             string
+		jwt                  string
+		anilistClient        *anilist.Client
+		useAnilistCollection bool
+	}{
+		{
+			name: "86 - Eighty Six Part 1 & 2",
+			paths: []string{
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 20v2 (1080p) [30072859].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 21v2 (1080p) [4B1616A5].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
+			},
+			enhanced:             false,
+			username:             data.Username,
+			jwt:                  data.JWT,
+			anilistClient:        anilistClient,
+			useAnilistCollection: true,
+		},
+		{
+			name: "86 - Eighty Six Part 1 & 2",
+			paths: []string{
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 20v2 (1080p) [30072859].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 21v2 (1080p) [4B1616A5].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
+			},
+			enhanced:             true,
+			username:             data.Username,
+			jwt:                  data.JWT,
+			anilistClient:        anilistClient,
+			useAnilistCollection: false,
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			scanLogger, err := NewScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |   Local Files       |
+			// +---------------------+
+
+			var lfs []*entities.LocalFile
+			for _, path := range tt.paths {
+				lf := entities.NewLocalFile(path, dir)
+				lfs = append(lfs, lf)
+			}
+
+			// +---------------------+
+			// |    MediaFetcher     |
+			// +---------------------+
+
+			mf, err := NewMediaFetcher(&MediaFetcherOptions{
+				Enhanced:             tt.enhanced,
+				Username:             tt.username,
+				AnilistClient:        tt.anilistClient,
+				LocalFiles:           lfs,
+				BaseMediaCache:       baseMediaCache,
+				AnizipCache:          anizipCache,
+				Logger:               util.NewLogger(),
+				AnilistRateLimiter:   anilistRateLimiter,
+				ScanLogger:           scanLogger,
+				UseAnilistCollection: tt.useAnilistCollection,
+			})
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			mc := NewMediaContainer(&MediaContainerOptions{
+				allMedia:   mf.AllMedia,
+				ScanLogger: scanLogger,
+			})
+
+			for _, m := range mc.NormalizedMedia {
+				t.Log(m.GetTitleSafe())
+			}
+
+		})
+
+	}
+
+}
+
+func TestNewEnhancedMediaFetcher(t *testing.T) {
+
+	anilistClient, _, _ := anilist.MockAnilistAccount()
+	anizipCache := anizip.NewCache()
+	baseMediaCache := anilist.NewBaseMediaCache()
+	anilistRateLimiter := limiter.NewAnilistLimiter()
+
+	dir := "E:/Anime"
+
+	tests := []struct {
+		name     string
+		paths    []string
+		enhanced bool
+	}{
+		{
+			name: "86 - Eighty Six Part 1 & 2",
+			paths: []string{
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 20v2 (1080p) [30072859].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 21v2 (1080p) [4B1616A5].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
+				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
+			},
+			enhanced: false,
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			scanLogger, err := NewScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			// +---------------------+
+			// |   Local Files       |
+			// +---------------------+
+
+			var lfs []*entities.LocalFile
+			for _, path := range tt.paths {
+				lf := entities.NewLocalFile(path, dir)
+				lfs = append(lfs, lf)
+			}
+
+			// +---------------------+
+			// |    MediaFetcher     |
+			// +---------------------+
+
+			mf, err := NewMediaFetcher(&MediaFetcherOptions{
+				Enhanced:           tt.enhanced,
+				Username:           "-",
+				AnilistClient:      anilistClient,
+				LocalFiles:         lfs,
+				BaseMediaCache:     baseMediaCache,
+				AnizipCache:        anizipCache,
+				Logger:             util.NewLogger(),
+				AnilistRateLimiter: anilistRateLimiter,
+				ScanLogger:         scanLogger,
+			})
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
+
+			mc := NewMediaContainer(&MediaContainerOptions{
+				allMedia:   mf.AllMedia,
+				ScanLogger: scanLogger,
+			})
+
+			for _, m := range mc.NormalizedMedia {
+				t.Log(m.GetTitleSafe())
+			}
+
+		})
+
+	}
+
+}
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
@@ -34,9 +216,16 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 		},
 	}
 
+	dir := "E:/Anime"
+
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
+
+			scanLogger, err := NewScanLogger()
+			if err != nil {
+				t.Fatal("expected result, got error:", err.Error())
+			}
 
 			// +---------------------+
 			// |   Local Files       |
@@ -44,11 +233,22 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 			var lfs []*entities.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, "E:/Anime")
+				lf := entities.NewLocalFile(path, dir)
 				lfs = append(lfs, lf)
 			}
 
-			media, ok := FetchMediaFromLocalFiles(anilistClient, lfs, baseMediaCache, anizipCache, anilistRateLimiter)
+			// +--------------------------+
+			// | FetchMediaFromLocalFiles |
+			// +--------------------------+
+
+			media, ok := FetchMediaFromLocalFiles(
+				anilistClient,
+				lfs,
+				baseMediaCache,
+				anizipCache,
+				anilistRateLimiter,
+				scanLogger,
+			)
 			if !ok {
 				t.Fatal("could not fetch media from local files")
 			}

@@ -2,7 +2,7 @@ package scanner
 
 import (
 	"errors"
-	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -11,6 +11,7 @@ import (
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/sourcegraph/conc/pool"
 	"math"
+	"time"
 )
 
 type Matcher struct {
@@ -18,26 +19,39 @@ type Matcher struct {
 	mediaContainer *MediaContainer
 	baseMediaCache *anilist.BaseMediaCache
 	logger         *zerolog.Logger
+	ScanLogger     *ScanLogger
 }
 
 // MatchLocalFilesWithMedia will match each LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
+	start := time.Now()
+
 	if len(m.localFiles) == 0 {
+		m.ScanLogger.LogMatcher(zerolog.WarnLevel).Msg("No local files")
 		return errors.New("[matcher] no local files")
 	}
 	if len(m.mediaContainer.allMedia) == 0 {
+		m.ScanLogger.LogMatcher(zerolog.WarnLevel).Msg("No media fed into the matcher")
 		return errors.New("[matcher] no media fed into the matcher")
 	}
 
 	m.logger.Debug().Msg("matcher: Starting matching process")
 
 	// Parallelize the matching process
-	lop.ForEach(m.localFiles, func(localFile *entities.LocalFile, index int) {
+	lop.ForEach(m.localFiles, func(localFile *entities.LocalFile, _ int) {
 		m.MatchLocalFileWithMedia(localFile)
 	})
 
 	m.validateMatches()
+
+	m.ScanLogger.LogMatcher(zerolog.InfoLevel).
+		Any("ms", time.Since(start).Milliseconds()).
+		Any("files", len(m.localFiles)).
+		Any("unmatched", lo.CountBy(m.localFiles, func(localFile *entities.LocalFile) bool {
+			return localFile.MediaId == 0
+		})).
+		Msg("matcher: Finished matching process")
 
 	return nil
 }
@@ -48,10 +62,16 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 	// Check if the local file has already been matched
 	if lf.MediaId != 0 {
+		m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+			Str("filename", lf.Name).
+			Msg("File already matched")
 		return
 	}
 	// Check if the local file has a title
 	if lf.GetParsedTitle() == "" {
+		m.ScanLogger.LogMatcher(zerolog.WarnLevel).
+			Str("filename", lf.Name).
+			Msg("File has no parsed title")
 		return
 	}
 
@@ -60,18 +80,29 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 
 	titleVariations := lf.GetTitleVariations()
 
+	//m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+	//	Str("filename", lf.Name).
+	//	Any("titleVariations", len(titleVariations)).
+	//	Msg("Matching local file")
+
 	// Using Sorensen-Dice
 	// Get the best results for each title variation
 	sdVariationRes := lop.Map(titleVariations, func(title *string, _ int) *comparison.SorensenDiceResult {
 		comps := make([]*comparison.SorensenDiceResult, 0)
-		if eng, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.engTitles); found {
-			comps = append(comps, eng)
+		if len(m.mediaContainer.engTitles) > 0 {
+			if eng, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.engTitles); found {
+				comps = append(comps, eng)
+			}
 		}
-		if rom, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.romTitles); found {
-			comps = append(comps, rom)
+		if len(m.mediaContainer.romTitles) > 0 {
+			if rom, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.romTitles); found {
+				comps = append(comps, rom)
+			}
 		}
-		if syn, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.synonyms); found {
-			comps = append(comps, syn)
+		if len(m.mediaContainer.synonyms) > 0 {
+			if syn, found := comparison.FindBestMatchWithSorensenDice(title, m.mediaContainer.synonyms); found {
+				comps = append(comps, syn)
+			}
 		}
 		var res *comparison.SorensenDiceResult
 		if len(comps) > 1 {
@@ -97,20 +128,31 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		}
 	}, sdVariationRes[0])
 
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Str("filename", lf.Name).
+		Str("sdRes", spew.Sprint(sdRes)).
+		Msg("Sorensen-Dice best result")
+
 	//------------------
 
 	// Using Levenshtein
 	// Get the best results for each title variation
 	levVariationRes := lop.Map(titleVariations, func(title *string, _ int) *comparison.LevenshteinResult {
 		comps := make([]*comparison.LevenshteinResult, 0)
-		if eng, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.engTitles); found {
-			comps = append(comps, eng)
+		if len(m.mediaContainer.engTitles) > 0 {
+			if eng, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.engTitles); found {
+				comps = append(comps, eng)
+			}
 		}
-		if rom, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.romTitles); found {
-			comps = append(comps, rom)
+		if len(m.mediaContainer.romTitles) > 0 {
+			if rom, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.romTitles); found {
+				comps = append(comps, rom)
+			}
 		}
-		if syn, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.synonyms); found {
-			comps = append(comps, syn)
+		if len(m.mediaContainer.synonyms) > 0 {
+			if syn, found := comparison.FindBestMatchWithLevenstein(title, m.mediaContainer.synonyms); found {
+				comps = append(comps, syn)
+			}
 		}
 		var res *comparison.LevenshteinResult
 		if len(comps) > 1 {
@@ -127,17 +169,18 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		return res
 	})
 
-	// Retrieve the best result from all the title variations results
 	levRes := lo.Reduce(levVariationRes, func(prev *comparison.LevenshteinResult, curr *comparison.LevenshteinResult, _ int) *comparison.LevenshteinResult {
-		if prev.Value == nil {
-			return curr
-		}
 		if prev.Distance < curr.Distance {
 			return prev
 		} else {
 			return curr
 		}
-	}, &comparison.LevenshteinResult{})
+	}, levVariationRes[0])
+
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Str("filename", lf.Name).
+		Str("levRes", spew.Sprint(levRes)).
+		Msg("Levenshtein best result")
 
 	//------------------
 
@@ -149,6 +192,9 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		comparisonResValues = append(comparisonResValues, levRes.Value)
 	}
 	if len(comparisonResValues) == 0 {
+		m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+			Str("filename", lf.Name).
+			Msg("No comparison results")
 		return
 	}
 
@@ -160,6 +206,12 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		}
 		return nil
 	})
+
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Str("filename", lf.Name).
+		Any("bestTitleRes", spew.Sprint(bestTitleVariationRes)).
+		Msg("Compared best title variations from Sorensen-Dice and Levenshtein with file title variations")
+
 	// Retrieve the best result from all the title variations results
 	bestTitleRes := lo.Reduce(bestTitleVariationRes, func(prev *comparison.SorensenDiceResult, curr *comparison.SorensenDiceResult, _ int) *comparison.SorensenDiceResult {
 		if prev.Rating > curr.Rating {
@@ -169,23 +221,45 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		}
 	}, &comparison.SorensenDiceResult{})
 
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Str("filename", lf.Name).
+		Any("bestTitleRes", spew.Sprint(bestTitleRes)).
+		Msg("Best title result")
+
 	if bestTitleRes == nil {
+		m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+			Str("filename", lf.Name).
+			Msg("No best title result")
 		return
 	}
 
 	bestMedia, found := m.mediaContainer.GetMediaFromTitleOrSynonym(bestTitleRes.Value)
 
 	if !found {
+		m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+			Str("filename", lf.Name).
+			Msg("No media found from comparison result")
 		return
 	}
 
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Str("filename", lf.Name).
+		Any("title", bestMedia.GetTitleSafe()).
+		Any("id", bestMedia.ID).
+		Msg("Best media")
+
 	if bestTitleRes.Rating < 0.5 {
-		m.logger.Warn().
+		m.ScanLogger.LogMatcher(zerolog.DebugLevel).
 			Str("filename", lf.Name).
-			Str("bestTitle", *bestTitleRes.Value).
-			Any("rating", fmt.Sprintf("%.2f", bestTitleRes.Rating)).Msg("matcher: File rejected")
+			Any("rating", bestTitleRes.Rating).
+			Msg("Best title rating too low, un-matching file")
 		return
 	}
+
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Str("filename", lf.Name).
+		Any("rating", bestTitleRes.Rating).
+		Msg("Best title rating high enough, matching file")
 
 	lf.MediaId = bestMedia.ID
 	//println(fmt.Sprintf("Local file title: %s,\nbestMedia: %s,\nrating: %f,\nlfMediaId: %d\n", lf.Name, bestMedia.GetTitleSafe(), bestTitleRes.Rating, lf.MediaId))
@@ -197,8 +271,7 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 // validateMatches compares groups of local files' titles with the media titles and un-matches the local files that have a lower rating than the highest rating.
 func (m *Matcher) validateMatches() {
 
-	m.logger.Trace().
-		Msg("matcher: Validating matches")
+	m.ScanLogger.LogMatcher(zerolog.InfoLevel).Msg("Validating matches")
 
 	// Group local files by media ID
 	groups := lop.GroupBy(m.localFiles, func(localFile *entities.LocalFile) int {
@@ -228,6 +301,9 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
 
 	media, found := m.mediaContainer.GetMediaFromId(mediaId)
 	if !found {
+		m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+			Int("mediaId", mediaId).
+			Msg("Media not found in media container")
 		return
 	}
 
@@ -249,9 +325,14 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
 			return 0
 		})
 	}
-	highestRatings := p.Wait()
+	fileRatings := p.Wait()
 
-	highestRating := lo.Reduce(highestRatings, func(prev float64, curr float64, _ int) float64 {
+	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+		Int("mediaId", mediaId).
+		Any("fileRatings", fileRatings).
+		Msg("File ratings")
+
+	highestRating := lo.Reduce(fileRatings, func(prev float64, curr float64, _ int) float64 {
 		if prev > curr {
 			return prev
 		} else {
@@ -269,6 +350,23 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
 				// Unless the difference is less than 0.2
 				if compRes.Rating < highestRating && math.Abs(compRes.Rating-highestRating) > 0.2 {
 					lf.MediaId = 0
+
+					m.ScanLogger.LogMatcher(zerolog.WarnLevel).
+						Int("mediaId", mediaId).
+						Str("filename", lf.Name).
+						Any("rating", compRes.Rating).
+						Any("highestRating", highestRating).
+						Msg("Rating does not match parameters, un-matching file")
+
+				} else {
+
+					m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+						Int("mediaId", mediaId).
+						Str("filename", lf.Name).
+						Any("rating", compRes.Rating).
+						Any("highestRating", highestRating).
+						Msg("Rating matches parameters, keeping file matched")
+
 				}
 			}
 		}

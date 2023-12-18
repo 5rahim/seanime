@@ -3,6 +3,8 @@ logs/
 *.db
 .env
 
+logs
+
 test/sample
 test/jwt.json
 whats-new.md

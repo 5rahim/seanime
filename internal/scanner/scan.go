@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
@@ -17,7 +18,7 @@ type Scanner struct {
 	Enhanced           bool
 	AnilistClient      *anilist.Client
 	Logger             *zerolog.Logger
-	WSEventManager     *events.WSEventManager
+	WSEventManager     events.IWSEventManager
 	ExistingLocalFiles []*entities.LocalFile
 	SkipLockedFiles    bool
 	SkipIgnoredFiles   bool
@@ -26,9 +27,12 @@ type Scanner struct {
 func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
-	normMediaCache := NewNormalizedMediaCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
+	scanLogger, err := NewScanLogger()
+	if err != nil {
+		return nil, err
+	}
 
 	scn.Logger.Debug().Msg("scanner: Starting scan")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 10)
@@ -42,6 +46,21 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	scanLogger.logger.Info().
+		Any("count", len(localFiles)).
+		Msg("Retrieved and parsed local files")
+
+	for _, lf := range localFiles {
+		scanLogger.logger.Trace().
+			Str("path", lf.Path).
+			Any("parsedData", spew.Sdump(lf.ParsedData)).
+			Any("parsedFolderData", spew.Sdump(lf.ParsedFolderData)).
+			Msg("Parsed local file")
+	}
+
+	scanLogger.logger.Debug().
+		Msg("===========================================================================================================")
 
 	// +---------------------+
 	// | Filter local files  |
@@ -76,15 +95,15 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:             scn.Enhanced,
-		Username:             scn.Username,
-		AnilistClient:        scn.AnilistClient,
-		LocalFiles:           localFiles,
-		BaseMediaCache:       baseMediaCache,
-		NormalizedMediaCache: normMediaCache,
-		AnizipCache:          anizipCache,
-		Logger:               scn.Logger,
-		AnilistRateLimiter:   anilistRateLimiter,
+		Enhanced:           scn.Enhanced,
+		Username:           scn.Username,
+		AnilistClient:      scn.AnilistClient,
+		LocalFiles:         localFiles,
+		BaseMediaCache:     baseMediaCache,
+		AnizipCache:        anizipCache,
+		Logger:             scn.Logger,
+		AnilistRateLimiter: anilistRateLimiter,
+		ScanLogger:         scanLogger,
 	})
 	if err != nil {
 		return nil, err
@@ -98,10 +117,11 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Create a new container for media
 	mc := NewMediaContainer(&MediaContainerOptions{
-		allMedia: mf.AllMedia,
+		allMedia:   mf.AllMedia,
+		ScanLogger: scanLogger,
 	})
 
-	scn.Logger.Trace().
+	scn.Logger.Debug().
 		Any("count", len(mc.NormalizedMedia)).
 		Msg("media container: Media container created")
 
@@ -115,6 +135,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		mediaContainer: mc,
 		baseMediaCache: baseMediaCache,
 		logger:         scn.Logger,
+		ScanLogger:     scanLogger,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)
@@ -137,6 +158,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		BaseMediaCache:     baseMediaCache,
 		AnilistRateLimiter: anilistRateLimiter,
 		Logger:             scn.Logger,
+		ScanLogger:         scanLogger,
 	}
 	hydrator.HydrateMetadata()
 
@@ -167,6 +189,12 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.Logger.Debug().Msg("scanner: Scan completed")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
+
+	scanLogger.logger.Info().
+		Int("scannedFileCount", len(localFiles)).
+		Int("skippedFileCount", len(skippedLfs)).
+		Int("unknownMediaCount", len(mf.UnknownMediaIds)).
+		Msg("Scan completed")
 
 	return localFiles, nil
 

@@ -26,14 +26,16 @@ type FileHydrator struct {
 	AnilistClient      *anilist.Client
 	AnilistRateLimiter *limiter.Limiter
 	Logger             *zerolog.Logger
+	ScanLogger         *ScanLogger
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
 // It will divide the LocalFiles into groups based on their media ID and process each group in parallel.
 func (fh *FileHydrator) HydrateMetadata() {
+	start := time.Now()
 	rateLimiter := limiter.NewLimiter(5*time.Second, 20)
 
-	fh.Logger.Debug().Msg("hydrator: Starting metadata hydration process")
+	fh.Logger.Debug().Msg("hydrator: Starting metadata hydration")
 
 	// Group local files by media ID
 	groups := lop.GroupBy(fh.LocalFiles, func(localFile *entities.LocalFile) int {
@@ -42,6 +44,10 @@ func (fh *FileHydrator) HydrateMetadata() {
 
 	// Remove the group with unmatched media
 	delete(groups, 0)
+
+	fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
+		Int("entryCount", len(groups)).
+		Msg("Starting metadata hydration process")
 
 	// Process each group in parallel
 	p := pool.New()
@@ -55,6 +61,10 @@ func (fh *FileHydrator) HydrateMetadata() {
 		})
 	}
 	p.Wait()
+
+	fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
+		Any("ms", time.Since(start).Milliseconds()).
+		Msg("Finished metadata hydration")
 }
 
 func (fh *FileHydrator) hydrateGroupMetadata(
@@ -68,6 +78,9 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		return media.ID == mId
 	})
 	if !found {
+		fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
+			Int("mediaId", mId).
+			Msg("Could not find media in FileHydrator options")
 		return
 	}
 
@@ -90,12 +103,19 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			}
 		}
 
+		// NC metadata
 		if comparison.ValueContainsNC(lf.Name) {
 			lf.Metadata.Episode = 0
 			lf.Metadata.AniDBEpisode = ""
 			lf.Metadata.Type = entities.LocalFileTypeNC
+
+			/*Log */
+			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+				Msg("File has been marked as NC")
 			return
 		}
+
+		// Special metadata
 		if comparison.ValueContainsSpecial(lf.Name) {
 			lf.Metadata.Type = entities.LocalFileTypeSpecial
 			if episode > -1 {
@@ -111,12 +131,20 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				lf.Metadata.Episode = 1
 				lf.Metadata.AniDBEpisode = "S1"
 			}
+
+			/*Log */
+			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+				Msg("File has been marked as special")
 			return
 		}
 		// Movie metadata
 		if *media.Format == anilist.MediaFormatMovie {
 			lf.Metadata.Episode = 1
 			lf.Metadata.AniDBEpisode = "1"
+
+			/*Log */
+			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+				Msg("File has been marked as main")
 			return
 		}
 
@@ -134,6 +162,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 			lf.Metadata.Episode = episode
 			lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
+
+			/*Log */
+			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+				Msg("File has been marked as main")
 			return
 		}
 
@@ -143,12 +175,19 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		if episode > media.GetCurrentEpisodeCount() && media.GetTotalEpisodeCount() == 1 {
 			lf.Metadata.Episode = 1 // Coerce episode number to 1 because it is used for tracking
 			lf.Metadata.AniDBEpisode = "1"
+
+			/*Log */
+			fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+				Str("warning", "File's episode number is higher than the media's episode count, but the media only has 1 episode").
+				Msg("File has been marked as main")
 			return
 		}
 
 		// Absolute episode count
 		if episode > media.GetCurrentEpisodeCount() {
 			if !treeFetched {
+
+				mediaTreeFetchStart := time.Now()
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
 				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClient, fh.AnilistRateLimiter, tree, fh.BaseMediaCache); err == nil {
@@ -161,16 +200,62 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 					// Hoist the media tree analysis, so it will be used by other files
 					mediaTreeAnalysis = mta
 					treeFetched = true
+
+					/*Log */
+					fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
+						Int("mediaId", mId).
+						Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+						Int("requests", len(mediaTreeAnalysis.branches)).
+						Any("branches", mediaTreeAnalysis.printBranches()).
+						Msg("Media tree fetched")
+				} else {
+					fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
+						Int("mediaId", mId).
+						Str("error", err.Error()).
+						Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+						Msg("Could not fetch media tree")
 				}
 			}
+
+			// Normalize episode number
 			if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
-				fh.Logger.Warn().Str("filename", lf.Name).Msg("hydrator: Could not normalize episode number")
+
+				/*Log */
+				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+					Dict("mediaTreeAnalysis", zerolog.Dict().
+						Bool("normalized", false).
+						Str("error", err.Error()).
+						Str("reason", "Episode normalization failed"),
+					).
+					Msg("File has been marked as main")
+			} else {
+				/*Log */
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+					Dict("mediaTreeAnalysis", zerolog.Dict().
+						Bool("normalized", true).
+						Bool("hasNewMediaId", lf.MediaId != mId).
+						Int("newMediaId", lf.MediaId),
+					).
+					Msg("File has been marked as main")
 			}
 			return
 		}
 
 	})
 
+}
+
+func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *entities.LocalFile, mId int, episode int) *zerolog.Event {
+	return fh.ScanLogger.LogFileHydrator(level).
+		Str("filename", lf.Name).
+		Int("mediaId", mId).
+		Dict("vars", zerolog.Dict().
+			Str("parsedEpisode", lf.ParsedData.Episode).
+			Int("episode", episode),
+		).
+		Dict("metadata", zerolog.Dict().
+			Int("episode", lf.Metadata.Episode).
+			Str("aniDBEpisode", lf.Metadata.AniDBEpisode))
 }
 
 // normalizeEpisodeNumberAndHydrate will normalize the episode number and hydrate the metadata of the LocalFile.
@@ -190,7 +275,7 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	if !ok {
 		lf.Metadata.Episode = ep
 		lf.Metadata.AniDBEpisode = strconv.Itoa(ep)
-		return errors.New("[hydrator] could not normalize episode number")
+		return errors.New("[hydrator] could not find relative episode number from branches")
 	}
 
 	lf.Metadata.Episode = relativeEp
