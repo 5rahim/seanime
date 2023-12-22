@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.3
+
+- ✨ Added scanner logs
+- ⚡️ Improved standard scanning mode accuracy
+- 🦺 Fixed unmatched file manager
+- 🏗️ Refactored code and tests
+- ⬆️ Updated dependencies
+- 🔨 Updated release workflow
+
 ## 0.1.2
 
 - 🚑️ Fixed incorrect redirection to non-existent page

@@ -4,6 +4,7 @@ logs/
 .env
 
 logs
+web/
 
 test/sample
 test/jwt.json
@@ -23,6 +24,7 @@ seanime-parser/.git
 ##
 seanime-web/node_modules
 seanime-web/out
+seanime-web/web
 seanime-web/.next
 seanime-web/.idea
 seanime-web/.env

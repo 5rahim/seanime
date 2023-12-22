@@ -44,7 +44,7 @@ archives:
     files:
       - web/*
       - README.md
-      - LICENSE.md
+      - LICENSE
 
 nfpms:
   - file_name_template: '{{- .ProjectName }}-

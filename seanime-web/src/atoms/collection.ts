@@ -1,13 +1,14 @@
-import { atom } from "jotai"
-import { LibraryCollection } from "@/lib/server/types"
-import { atomWithStorage } from "jotai/utils"
-import { useSetAtom } from "jotai/react"
-import { useEffect } from "react"
-import { useSeaQuery } from "@/lib/server/queries/utils"
-import { SeaEndpoints } from "@/lib/server/endpoints"
+import {atom} from "jotai"
+import {LibraryCollection} from "@/lib/server/types"
+import {atomWithStorage} from "jotai/utils"
+import {useSetAtom} from "jotai/react"
+import {useEffect} from "react"
+import {useSeaQuery} from "@/lib/server/queries/utils"
+import {SeaEndpoints} from "@/lib/server/endpoints"
 
 
-export const libraryCollectionAtom = atomWithStorage<LibraryCollection | undefined>("sea-library-collection", undefined, undefined, { unstable_getOnInit: true })
+export const libraryCollectionAtom = atomWithStorage<LibraryCollection | undefined>("sea-library-collection", undefined,
+    undefined, {getOnInit: true})
 
 export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom),
     (get, set, payload: number) => {
