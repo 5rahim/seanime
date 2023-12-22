@@ -207,10 +207,10 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		return nil
 	})
 
-	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
-		Str("filename", lf.Name).
-		Any("bestTitleRes", spew.Sprint(bestTitleVariationRes)).
-		Msg("Compared best title variations from Sorensen-Dice and Levenshtein with file title variations")
+	//m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+	//	Str("filename", lf.Name).
+	//	Any("bestTitleVariationRes", spew.Sprint(bestTitleVariationRes)).
+	//	Msg("Compared best title variations from Sorensen-Dice and Levenshtein with file title variations")
 
 	// Retrieve the best result from all the title variations results
 	bestTitleRes := lo.Reduce(bestTitleVariationRes, func(prev *comparison.SorensenDiceResult, curr *comparison.SorensenDiceResult, _ int) *comparison.SorensenDiceResult {
