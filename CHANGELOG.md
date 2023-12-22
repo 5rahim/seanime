@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## 0.1.3
 
 - ✨ Added scanner logs
+- ⚡️ New filename parser
 - ⚡️ Improved standard scanning mode accuracy
 - 🦺 Fixed unmatched file manager
 - 🏗️ Refactored code and tests
