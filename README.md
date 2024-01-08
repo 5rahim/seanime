@@ -28,20 +28,12 @@ might not work as intended. Feel free to fork the project, contribute or open is
 Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
 support transcoding or streaming to other devices.
 
-### TODO
-
-- Add support for automatic syncing with MyAnimeList & Kitsu.
-- Scan logging.
-
 # Setup
 
 [How to use Seanime.](https://seanime.rahim.app/getting-started)
 
 # Development
 
-### Web interface
-
-[Repository](https://github.com/5rahim/seanime-web)
 
 ### GraphQL Codegen
 
