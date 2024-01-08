@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname=127.0.0.1 --port=43211",
+    "devnet": "next dev --hostname=192.168.1.151 --port=43211",
     "build": "next build",
     "start": "next start",
     "codegen": "graphql-codegen --config codegen.ts",

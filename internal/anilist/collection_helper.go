@@ -4,9 +4,9 @@ import "time"
 
 type (
 	EntryDate struct {
-		Year  *int "json:\"year,omitempty\""
-		Month *int "json:\"month,omitempty\""
-		Day   *int "json:\"day,omitempty\""
+		Year  *int `json:"year,omitempty"`
+		Month *int `json:"month,omitempty"`
+		Day   *int `json:"day,omitempty"`
 	}
 )
 

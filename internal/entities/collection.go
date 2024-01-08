@@ -180,6 +180,11 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 	// Lists
 	lc.Lists = lists
+
+	if lc.Lists == nil {
+		lc.Lists = make([]*LibraryCollectionList, 0)
+	}
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------

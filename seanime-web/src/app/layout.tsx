@@ -1,7 +1,7 @@
+import { ClientProviders } from "@/components/client-providers"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "../styles/globals.css"
-import { ClientProviders } from "@/components/client-providers"
 import React from "react"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={inter.className} suppressHydrationWarning>
-                {<script src="http://127.0.0.1:8097"></script>}
+            {/*{<script src="http://127.0.0.1:8097"></script>}*/}
                 <ClientProviders>
                     {children}
                 </ClientProviders>
