@@ -1,12 +1,12 @@
-import { atom, useAtom } from "jotai"
-import { Modal } from "@/components/ui/modal"
-import React from "react"
-import { Button } from "@/components/ui/button"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/ui/modal"
+import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/lib/server/hooks/library"
 import { BiLockAlt } from "@react-icons/all-files/bi/BiLockAlt"
 import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/lib/server/hooks/library"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
+import { atom, useAtom } from "jotai"
+import React from "react"
 
 export const bulkActionModalAtomIsOpen = atom<boolean>(false)
 
@@ -16,7 +16,11 @@ export function BulkActionModal() {
 
     const { lockFiles, unlockFiles, isPending } = useLocalFileBulkAction()
 
-    const { removeEmptyDirectories, isPending: isRemoving } = useRemoveEmptyDirectories()
+    const { removeEmptyDirectories, isPending: isRemoving } = useRemoveEmptyDirectories({
+        onSuccess: () => {
+            setIsOpen(false)
+        },
+    })
 
     const confirmRemoveEmptyDirs = useConfirmationDialog({
         title: "Remove empty directories",

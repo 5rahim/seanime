@@ -303,6 +303,11 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	scanLogger, err := scanner.NewScanLogger()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
 	fh := scanner.FileHydrator{
 		LocalFiles:         selectedLfs,
 		BaseMediaCache:     anilist.NewBaseMediaCache(),
@@ -310,6 +315,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		AnilistClient:      c.App.AnilistClient,
 		AnilistRateLimiter: limiter.NewAnilistLimiter(),
 		Logger:             c.App.Logger,
+		ScanLogger:         scanLogger,
 		AllMedia: []*scanner.NormalizedMedia{
 			scanner.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
 		},

@@ -180,7 +180,7 @@ export function useLocalFileBulkAction() {
 
 }
 
-export function useRemoveEmptyDirectories() {
+export function useRemoveEmptyDirectories({ onSuccess }: { onSuccess: () => void }) {
 
     // Return data is ignored
     const { mutate, isPending } = useSeaMutation<null>({
@@ -189,6 +189,7 @@ export function useRemoveEmptyDirectories() {
         method: "delete",
         onSuccess: async () => {
             toast.success("Empty directories removed")
+            onSuccess()
         },
     })
 

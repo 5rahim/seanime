@@ -25,6 +25,12 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
         addUnknownMedia({ mediaIds: unknownGroups.map(n => n.mediaId) })
     }, [unknownGroups])
 
+    React.useEffect(() => {
+        if (unknownGroups.length === 0) {
+            setIsOpen(false)
+        }
+    }, [unknownGroups])
+
     if (unknownGroups.length === 0) return null
 
     return (
@@ -47,7 +53,6 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                 </p>
 
                 <Button onClick={handleAddUnknownMedia} isLoading={isPending}>Add all</Button>
-                <p className="text-sm !mt-1 text-[--muted]">(est. {(unknownGroups.length - 1) * 3} seconds)</p>
 
                 <div className="divide divide-y divide-[--border] space-y-4">
 

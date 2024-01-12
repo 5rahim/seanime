@@ -174,23 +174,25 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	}
 	hydrator.HydrateMetadata()
 
-	//scn.WSEventManager.SendEvent(events.EventScanProgress, 80)
-	//
-	//if scn.Enhanced {
-	//	select {
-	//	case <-time.After(time.Minute):
-	//		break
-	//	}
-	//}
-	//
-	//// +---------------------+
-	//// |  Add missing media  |
-	//// +---------------------+
-	//
-	//// Add non-added media entries to AniList collection
-	//if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
-	//	scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
-	//}
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 80)
+	if scn.Enhanced {
+		select {
+		case <-time.After(time.Minute):
+			break
+		}
+	}
+
+	// +---------------------+
+	// |  Add missing media  |
+	// +---------------------+
+
+	// Add non-added media entries to AniList collection
+	// Max of 4 to avoid rate limit issues
+	if len(mf.UnknownMediaIds) < 5 {
+		if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
+			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
+		}
+	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
 
