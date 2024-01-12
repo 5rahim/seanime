@@ -1,10 +1,10 @@
 "use client"
 
 import { Dialog, Transition } from "@headlessui/react"
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 import { cva, VariantProps } from "class-variance-authority"
 import React, { Fragment } from "react"
 import { CloseButton, CloseButtonProps } from "../button"
+import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -125,7 +125,6 @@ export const Drawer = React.forwardRef<HTMLDivElement, DrawerProps>((props, ref)
                         "relative z-50",
                     )}
                     onClose={onClose}
-                    {...rest}
                     ref={ref}
                 >
 
