@@ -347,8 +347,8 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
 			t := lf.GetParsedTitle()
 			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles); ok {
 				// If the local file's rating is lower, un-match it
-				// Unless the difference is less than 0.2
-				if compRes.Rating < highestRating && math.Abs(compRes.Rating-highestRating) > 0.2 {
+				// Unless the difference is less than 0.7 (very lax since a lot of anime have very long names that can be truncated)
+				if compRes.Rating < highestRating && math.Abs(compRes.Rating-highestRating) > 0.7 {
 					lf.MediaId = 0
 
 					m.ScanLogger.LogMatcher(zerolog.WarnLevel).

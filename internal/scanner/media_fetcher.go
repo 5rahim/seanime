@@ -248,7 +248,15 @@ func FetchMediaFromLocalFiles(
 		media, err := anilist.GetBaseMediaById(anilistClient, id)
 		if err == nil {
 			anilistMedia = append(anilistMedia, media)
+			scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+				Str("module", "Enhanced").
+				Str("title", media.GetTitleSafe()).
+				Msg("Fetched Anilist media from MAL id")
 		} else {
+			scanLogger.LogMediaFetcher(zerolog.WarnLevel).
+				Str("module", "Enhanced").
+				Int("id", id).
+				Msg("Failed to fetch Anilist media from MAL id")
 		}
 	})
 

@@ -8,6 +8,8 @@ import (
 	"github.com/seanime-app/seanime/internal/handlers"
 )
 
+var development = false
+
 func main() {
 
 	fmt.Println()
@@ -18,13 +20,21 @@ func main() {
 	fmt.Println()
 
 	app := core.NewApp(&core.DefaultAppOptions)
-	fiberApp := core.NewFiberApp(app)
-	fiberWebApp := core.NewFiberWebApp()
+	if development {
+		fiberApp := core.NewFiberApp(app)
 
-	handlers.InitRoutes(app, fiberApp)
+		handlers.InitRoutes(app, fiberApp)
 
-	core.RunServer(app, fiberApp)
-	core.RunWebApp(app, fiberWebApp)
+		core.RunServer(app, fiberApp)
+	} else {
+		fiberApp := core.NewFiberApp(app)
+		fiberWebApp := core.NewFiberWebApp()
+
+		handlers.InitRoutes(app, fiberApp)
+
+		core.RunServer(app, fiberApp)
+		core.RunWebApp(app, fiberWebApp)
+	}
 
 	cron.RunJobs(app)
 

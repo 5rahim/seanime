@@ -367,3 +367,29 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+func HandleAddUnknownMedia(c *RouteCtx) error {
+
+	type body struct {
+		MediaIds []int `json:"mediaIds"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Add non-added media entries to AniList collection
+	if err := c.App.AnilistClient.AddMediaToPlanning(b.MediaIds, limiter.NewAnilistLimiter(), c.App.Logger); err != nil {
+		return c.RespondWithError(errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
+	}
+
+	// Bypass the cache
+	anilistCollection, err := c.App.GetAnilistCollection(true)
+	if err != nil {
+		return c.RespondWithError(errors.New("error: Anilist responded with an error, wait one minute before refreshing"))
+	}
+
+	return c.RespondWithData(anilistCollection)
+
+}

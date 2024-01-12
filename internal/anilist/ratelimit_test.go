@@ -8,12 +8,11 @@ import (
 )
 
 func performAPICall(rateLimiter *limiter.Limiter, i int, wg *sync.WaitGroup) int {
-	wg.Add(1)
 	defer wg.Done()
 
 	rateLimiter.Wait()
 
-	responseTime := 200 * time.Millisecond
+	responseTime := 20 * time.Millisecond
 	time.Sleep(responseTime)
 	println("performed api call", i)
 	return i
@@ -39,11 +38,22 @@ func TestRateLimitedAPICalls2(t *testing.T) {
 
 	var wg = sync.WaitGroup{}
 
-	// Create a rate limiter to limit to 90 requests per 5 seconds
-	rateLimit := limiter.NewLimiter(time.Minute, 90)
+	rateLimit := limiter.NewAnilistLimiter()
 
-	// Perform 10 API calls with rate limiting
-	for i := 1; i <= 120; i++ {
+	go func() {
+		for {
+			<-time.Tick(time.Minute)
+			println("1 minute")
+		}
+	}()
+
+	for i := 1; i <= 100; i++ {
+		wg.Add(1)
+		go performAPICall(rateLimit, i, &wg)
+	}
+
+	for i := 1; i <= 10; i++ {
+		wg.Add(1)
 		go performAPICall(rateLimit, i, &wg)
 	}
 

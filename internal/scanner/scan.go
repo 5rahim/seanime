@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/filesystem"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"time"
 )
 
 type Scanner struct {
@@ -145,6 +146,17 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		return nil, err
 	}
 
+	// When enhancing is on, wait a minute before hydrating files
+	// This is due to issues with rate limiting
+	if scn.Enhanced {
+		select {
+		case <-time.After(time.Minute):
+			break
+		}
+	}
+
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 70)
+
 	// +---------------------+
 	// |    FileHydrator     |
 	// +---------------------+
@@ -162,16 +174,25 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	}
 	hydrator.HydrateMetadata()
 
+	//scn.WSEventManager.SendEvent(events.EventScanProgress, 80)
+	//
+	//if scn.Enhanced {
+	//	select {
+	//	case <-time.After(time.Minute):
+	//		break
+	//	}
+	//}
+	//
+	//// +---------------------+
+	//// |  Add missing media  |
+	//// +---------------------+
+	//
+	//// Add non-added media entries to AniList collection
+	//if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
+	//	scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
+	//}
+
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
-
-	// +---------------------+
-	// |  Add missing media  |
-	// +---------------------+
-
-	// Add non-added media entries to AniList collection
-	if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
-		scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
-	}
 
 	// +---------------------+
 	// |    Merge files      |

@@ -27,6 +27,7 @@ export const enum SeaEndpoints {
     MEDIA_ENTRY_MANUAL_MATCH = "/library/media-entry/manual-match", // (POST)
     MEDIA_ENTRY_BULK_ACTION = "/library/media-entry/bulk-action", // (PATCH)
     OPEN_MEDIA_ENTRY_IN_EXPLORER = "/library/media-entry/open-in-explorer", // (POST)
+    MEDIA_ENTRY_UNKNOWN_MEDIA = "/library/media-entry/unknown-media", // (POST)
     /**
      * Nyaa
      */

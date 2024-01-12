@@ -1,35 +1,39 @@
-import { Button, IconButton } from "@/components/ui/button"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { LibraryCollectionList, LocalFile } from "@/lib/server/types"
-import { FiDatabase } from "@react-icons/all-files/fi/FiDatabase"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
-import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
-import { BiFolder } from "@react-icons/all-files/bi/BiFolder"
-import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
-import { cn } from "@/components/ui/core"
-import { useAtomValue, useSetAtom } from "jotai/react"
-import { _scannerModalIsOpen } from "@/app/(main)/(library)/_components/scanner-modal"
-import { _unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_components/unmatched-file-manager"
-import { useOpenInExplorer } from "@/lib/server/hooks/settings"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { bulkActionModalAtomIsOpen } from "@/app/(main)/(library)/_components/bulk-action-modal"
+import { _scannerModalIsOpen } from "@/app/(main)/(library)/_components/scanner-modal"
+import { _unknownMediaManagerIsOpen } from "@/app/(main)/(library)/_components/unknown-media-manager"
+import { _unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_components/unmatched-file-manager"
+import { serverStatusAtom } from "@/atoms/server-status"
+import { Button, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
+import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { useOpenInExplorer } from "@/lib/server/hooks/settings"
+import { LibraryCollectionList, LocalFile, UnknownGroup } from "@/lib/server/types"
+import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
+import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
+import { BiFileFind } from "@react-icons/all-files/bi/BiFileFind"
+import { BiFolder } from "@react-icons/all-files/bi/BiFolder"
+import { FiDatabase } from "@react-icons/all-files/fi/FiDatabase"
+import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import { useAtomValue, useSetAtom } from "jotai/react"
 
 export type LibraryToolbarProps = {
     collectionList: LibraryCollectionList[]
     ignoredLocalFiles: LocalFile[]
     unmatchedLocalFiles: LocalFile[]
+    unknownGroups: UnknownGroup[]
     isLoading: boolean
 }
 
 export function LibraryToolbar(props: LibraryToolbarProps) {
 
-    const { collectionList, ignoredLocalFiles, unmatchedLocalFiles } = props
+    const { collectionList, ignoredLocalFiles, unmatchedLocalFiles, unknownGroups } = props
 
     const setBulkActionIsOpen = useSetAtom(bulkActionModalAtomIsOpen)
 
     const status = useAtomValue(serverStatusAtom)
     const setScannerModalOpen = useSetAtom(_scannerModalIsOpen)
     const setUnmatchedFileManagerOpen = useSetAtom(_unmatchedFileManagerIsOpen)
+    const setUnknownMediaManagerOpen = useSetAtom(_unknownMediaManagerIsOpen)
 
     const hasScanned = collectionList.some(n => n.entries.length > 0)
 
@@ -52,6 +56,14 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     onClick={() => setUnmatchedFileManagerOpen(true)}
                 >
                     Resolve unmatched ({unmatchedLocalFiles.length})
+                </Button>}
+                {(unknownGroups.length > 0) && <Button
+                    intent="warning-outline"
+                    leftIcon={<BiFileFind />}
+                    className="animate-pulse"
+                    onClick={() => setUnknownMediaManagerOpen(true)}
+                >
+                    Resolve hidden media ({unknownGroups.length})
                 </Button>}
             </div>
             <div className="flex gap-2">

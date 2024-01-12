@@ -29,6 +29,7 @@ func NewBaseMediaRelationTree() *BaseMediaRelationTree {
 }
 
 func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Client, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
+	rateLimiter.Wait()
 	res, err := anilistClient.BaseMediaByID(context.Background(), &m.ID)
 	if err != nil {
 		return err

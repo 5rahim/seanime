@@ -131,6 +131,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// POST /v1/library/media-entry/open-in-explorer
 	v1Library.Post("/media-entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
 
+	// Add unknown media by IDs
+	// POST /v1/library/unknown-media
+	v1Library.Post("/media-entry/unknown-media", makeHandler(app, HandleAddUnknownMedia))
+
 	//
 	// Nyaa
 	//

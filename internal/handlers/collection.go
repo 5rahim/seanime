@@ -26,14 +26,3 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	return c.RespondWithData(libraryCollection)
 }
-
-//----------------------------------------------------------------------------------------------------------------------
-
-//func HandleGetContinueWatching(c *RouteCtx) error {
-//
-//	type ContinueWatching struct {
-//		Entry *entities.MediaEntry `json:"entry"`
-//	}
-//
-//	return nil
-//}

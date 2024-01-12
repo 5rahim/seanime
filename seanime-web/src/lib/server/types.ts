@@ -81,6 +81,7 @@ export type LibraryCollection = {
     unmatchedLocalFiles: LocalFile[]
     ignoredLocalFiles: LocalFile[]
     unmatchedGroups: UnmatchedGroup[]
+    unknownGroups: UnknownGroup[]
 }
 
 export type LibraryCollectionListType = "current" | "planned" | "completed" | "paused" | "dropped"
@@ -102,6 +103,11 @@ export type UnmatchedGroup = {
     dir: string
     localFiles: LocalFile[]
     suggestions: BasicMediaFragment[]
+}
+
+export type UnknownGroup = {
+    mediaId: number
+    localFiles: LocalFile[]
 }
 
 /**

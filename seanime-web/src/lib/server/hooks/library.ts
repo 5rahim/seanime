@@ -1,12 +1,13 @@
-import { useQueryClient } from "@tanstack/react-query"
-import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
-import { LibraryCollection, LocalFile, LocalFileMetadata, MediaEntryEpisode } from "@/lib/server/types"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useEffect, useMemo } from "react"
-import toast from "react-hot-toast"
-import { useAtom, useSetAtom } from "jotai/react"
 import { libraryCollectionAtom } from "@/atoms/collection"
 import { missingEpisodesAtom } from "@/atoms/missing-episodes"
+import { AnimeCollectionQuery } from "@/lib/anilist/gql/graphql"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
+import { LibraryCollection, LocalFile, LocalFileMetadata, MediaEntryEpisode } from "@/lib/server/types"
+import { useQueryClient } from "@tanstack/react-query"
+import { useAtom, useSetAtom } from "jotai/react"
+import { useEffect, useMemo } from "react"
+import toast from "react-hot-toast"
 
 export type ScanLibraryProps = {
     enhanced: boolean,
@@ -72,6 +73,7 @@ export function useLibraryCollection() {
         unmatchedLocalFiles: data?.unmatchedLocalFiles ?? [],
         ignoredLocalFiles: data?.ignoredLocalFiles ?? [],
         unmatchedGroups: data?.unmatchedGroups ?? [],
+        unknownGroups: data?.unknownGroups ?? [],
     }
 
 }
@@ -245,6 +247,33 @@ export function useUpdateLocalFile(mId?: number) {
                 },
             })
         },
+        isPending,
+    }
+
+}
+
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+export function useAddUnknownMedia() {
+
+    const qc = useQueryClient()
+
+    // Return data is ignored
+    const { mutate, isPending } = useSeaMutation<AnimeCollectionQuery, { mediaIds: number[] }>({
+        endpoint: SeaEndpoints.MEDIA_ENTRY_UNKNOWN_MEDIA,
+        mutationKey: ["add-unknown-media"],
+        onSuccess: async () => {
+            // Refetch library collection
+            toast.success("AniList is up-to-date")
+            await qc.refetchQueries({ queryKey: ["get-library-collection"] })
+            await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
+        },
+    })
+
+    return {
+        addUnknownMedia: mutate,
         isPending,
     }
 

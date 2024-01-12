@@ -26,6 +26,7 @@ type (
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
+		UnknownGroups        []*UnknownGroup          `json:"unknownGroups"`
 	}
 	LibraryCollectionListType string
 
@@ -46,6 +47,10 @@ type (
 		Dir         string                `json:"dir"`
 		LocalFiles  []*LocalFile          `json:"localFiles"`
 		Suggestions []*anilist.BasicMedia `json:"suggestions"`
+	}
+	UnknownGroup struct {
+		MediaId    int          `json:"mediaId"`
+		LocalFiles []*LocalFile `json:"localFiles"`
 	}
 	NewLibraryCollectionOptions struct {
 		AnilistCollection *anilist.AnimeCollection
@@ -97,6 +102,14 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	groupedLfs := GroupLocalFilesByMediaID(localFiles)
 	// Get slice of media ids from local files
 	mIds := GetMediaIdsFromLocalFiles(localFiles)
+	foundIds := make([]int, 0)
+
+	for _, list := range aniLists {
+		entries := list.GetEntries()
+		for _, entry := range entries {
+			foundIds = append(foundIds, entry.Media.ID)
+		}
+	}
 
 	// Create a new LibraryCollectionList for each list
 	// This is done in parallel
@@ -183,6 +196,25 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 	if lc.Lists == nil {
 		lc.Lists = make([]*LibraryCollectionList, 0)
+	}
+
+	// +---------------------+
+	// |  Unknown media ids  |
+	// +---------------------+
+
+	unknownIds := make([]int, 0)
+	for _, id := range mIds {
+		if id != 0 && !slices.Contains(foundIds, id) {
+			unknownIds = append(unknownIds, id)
+		}
+	}
+
+	lc.UnknownGroups = make([]*UnknownGroup, 0)
+	for _, id := range unknownIds {
+		lc.UnknownGroups = append(lc.UnknownGroups, &UnknownGroup{
+			MediaId:    id,
+			LocalFiles: groupedLfs[id],
+		})
 	}
 
 }

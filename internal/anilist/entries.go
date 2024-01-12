@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
-	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"sync"
 )
 
 func (c *Client) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, logger *zerolog.Logger) error {
@@ -22,21 +22,27 @@ func (c *Client) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, lo
 	scoreRaw := 0
 	progress := 0
 
-	lop.ForEach(mIds, func(id int, index int) {
-		rateLimiter.Wait()
-		_, err := c.UpdateMediaListEntry(
-			context.Background(),
-			&id,
-			&status,
-			&scoreRaw,
-			&progress,
-			nil,
-			nil,
-		)
-		if err != nil {
-			logger.Error().Msg("anilist: An error occurred while adding media to planning list: " + err.Error())
-		}
-	})
+	wg := sync.WaitGroup{}
+	for _, _id := range mIds {
+		wg.Add(1)
+		go func(id int) {
+			rateLimiter.Wait()
+			defer wg.Done()
+			_, err := c.UpdateMediaListEntry(
+				context.Background(),
+				&id,
+				&status,
+				&scoreRaw,
+				&progress,
+				nil,
+				nil,
+			)
+			if err != nil {
+				logger.Error().Msg("anilist: An error occurred while adding media to planning list: " + err.Error())
+			}
+		}(_id)
+	}
+	wg.Wait()
 
 	logger.Debug().Any("count", len(mIds)).Msg("anilist: Media added to planning list")
 

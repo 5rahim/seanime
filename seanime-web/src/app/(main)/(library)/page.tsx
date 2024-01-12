@@ -1,14 +1,15 @@
 "use client"
-import { LibraryHeader } from "@/app/(main)/(library)/_containers/library-header"
-import React from "react"
-import { LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
-import { useLibraryCollection } from "@/lib/server/hooks/library"
-import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
-import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
-import { ScannerModal } from "@/app/(main)/(library)/_components/scanner-modal"
-import { ScanProgressBar } from "@/app/(main)/(library)/_components/scan-progress-bar"
-import { UnmatchedFileManager } from "@/app/(main)/(library)/_components/unmatched-file-manager"
 import { BulkActionModal } from "@/app/(main)/(library)/_components/bulk-action-modal"
+import { ScanProgressBar } from "@/app/(main)/(library)/_components/scan-progress-bar"
+import { ScannerModal } from "@/app/(main)/(library)/_components/scanner-modal"
+import { UnknownMediaManager } from "@/app/(main)/(library)/_components/unknown-media-manager"
+import { UnmatchedFileManager } from "@/app/(main)/(library)/_components/unmatched-file-manager"
+import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
+import { LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
+import { LibraryHeader } from "@/app/(main)/(library)/_containers/library-header"
+import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
+import { useLibraryCollection } from "@/lib/server/hooks/library"
+import React from "react"
 
 export default function Library() {
 
@@ -19,16 +20,18 @@ export default function Library() {
         unmatchedLocalFiles,
         ignoredLocalFiles,
         unmatchedGroups,
+        unknownGroups,
     } = useLibraryCollection()
 
     return (
         <div>
-            <ScanProgressBar/>
-            <LibraryHeader/>
+            <ScanProgressBar />
+            <LibraryHeader />
             <LibraryToolbar
                 collectionList={libraryCollectionList}
                 unmatchedLocalFiles={unmatchedLocalFiles}
                 ignoredLocalFiles={ignoredLocalFiles}
+                unknownGroups={unknownGroups}
                 isLoading={isLoading}
             />
             <ContinueWatching
@@ -39,11 +42,14 @@ export default function Library() {
                 collectionList={libraryCollectionList}
                 isLoading={isLoading}
             />
-            <ScannerModal/>
+            <ScannerModal />
             <UnmatchedFileManager
                 unmatchedGroups={unmatchedGroups}
             />
-            <BulkActionModal/>
+            <UnknownMediaManager
+                unknownGroups={unknownGroups}
+            />
+            <BulkActionModal />
         </div>
     )
 }

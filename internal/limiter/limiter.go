@@ -9,7 +9,7 @@ import (
 
 func NewAnilistLimiter() *Limiter {
 	//return NewLimiter(15*time.Second, 18)
-	return NewLimiter(6*time.Second, 9) // 9 requests every 6 seconds
+	return NewLimiter(6*time.Second, 8)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ func NewLimiter(tick time.Duration, count uint) *Limiter {
 	}
 	l.entries = make([]time.Time, count)
 	before := time.Now().Add(-2 * tick)
-	for i, _ := range l.entries {
+	for i := range l.entries {
 		l.entries[i] = before
 	}
 	return &l
