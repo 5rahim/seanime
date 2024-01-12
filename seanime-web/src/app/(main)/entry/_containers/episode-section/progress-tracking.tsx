@@ -1,15 +1,15 @@
-import { MediaEntry, MediaPlayerPlaybackStatus } from "@/lib/server/types"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
-import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
-import { useBoolean } from "@/hooks/use-disclosure"
-import { Modal } from "@/components/ui/modal"
-import { Button } from "@/components/ui/button"
-import { useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { useSeaMutation } from "@/lib/server/queries/utils"
-import toast from "react-hot-toast"
-import { useQueryClient } from "@tanstack/react-query"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
+import { Modal } from "@/components/ui/modal"
+import { useBoolean } from "@/hooks/use-disclosure"
+import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/queries/utils"
+import { MediaEntry, MediaPlayerPlaybackStatus } from "@/lib/server/types"
+import { useQueryClient } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
+import toast from "react-hot-toast"
 
 export function ProgressTracking({ entry }: { entry: MediaEntry }) {
 
@@ -18,6 +18,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
     const trackerModal = useBoolean(false)
     const isTracking = useBoolean(false)
     const isCompleted = useBoolean(false)
+    const serverSideTracking = useBoolean(false)
     const [status, setStatus] = useState<MediaPlayerPlaybackStatus | null>(null)
 
 
@@ -38,6 +39,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         onMessage: data => {
             isTracking.on()
             trackerModal.on()
+            serverSideTracking.on()
             // Do not override previous progress tracking when we start another video (for playlists)
             if (!isCompleted.active) {
                 isCompleted.off()
@@ -66,6 +68,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             } else {
                 toast.error(data)
             }
+            serverSideTracking.off()
             // We reset everything when the player is closed ONLY when the video was not completed
             if (!isCompleted.active) {
                 isTracking.off()
@@ -83,6 +86,9 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             setStatus(null)
             isCompleted.off()
             trackerModal.off()
+            if (!serverSideTracking.active) {
+                isTracking.off()
+            }
             await qc.refetchQueries({ queryKey: ["get-media-entry", entry.mediaId] })
             await qc.refetchQueries({ queryKey: ["get-library-collection"] })
             await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })

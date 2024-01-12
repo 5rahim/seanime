@@ -1,8 +1,8 @@
-import React from "react"
-import { cn } from "@/components/ui/core"
-import Image from "next/image"
-import { AiFillPlayCircle } from "@react-icons/all-files/ai/AiFillPlayCircle"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { cn } from "@/components/ui/core"
+import { AiFillPlayCircle } from "@react-icons/all-files/ai/AiFillPlayCircle"
+import Image from "next/image"
+import React from "react"
 
 type LargeEpisodeListItemProps = {
     title: React.ReactNode
@@ -32,6 +32,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
         <div
             className={cn(
                 "rounded-md border border-[--border] overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none group/missed-episode-item cursor-pointer",
+                "user-select-none",
                 {
                     "w-[30rem]": larger,
                 },

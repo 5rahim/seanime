@@ -8,13 +8,15 @@ import (
 	"github.com/seanime-app/seanime/internal/handlers"
 )
 
-var development = true
+var development = false
+var version = "0.1.4"
 
 func main() {
 
 	fmt.Println()
 	myFigure := figure.NewFigure("Seanime", "big", true)
 	myFigure.Print()
+	fmt.Printf("						v%s\n", version)
 	fmt.Println()
 	fmt.Println("(alpha version, use at your own risk)")
 	fmt.Println()

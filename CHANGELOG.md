@@ -5,9 +5,11 @@ All notable changes to this project will be documented in this file.
 ## 0.1.4
 
 - ⚡️ Added ability to resolve hidden media
-  - Before this update, media absent from your Anilist collection would not appear in your library even if it was successfully scanned.
+  - Before this update, media absent from your Anilist collection would not appear in your library even if they were successfully scanned.
 - 🦺 Fixed crash caused by manually matching media
 - 🦺 Fixed client-side crash caused by an empty Anilist collection
+- 🦺 Fixed rate limit issue when adding media to Anilist collection during scanning
+- 🦺 Fixed some UX issues
 - ⬆️ Updated dependencies
 
 ## 0.1.3

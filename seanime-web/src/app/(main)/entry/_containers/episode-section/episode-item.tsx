@@ -1,21 +1,21 @@
-import { LocalFileType, MediaEntryEpisode } from "@/lib/server/types"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { createIsolation } from "jotai-scope"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
-import { BiDotsHorizontal } from "@react-icons/all-files/bi/BiDotsHorizontal"
 import { IconButton } from "@/components/ui/button"
-import { atom } from "jotai"
-import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
-import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
-import React, { memo } from "react"
-import { Modal } from "@/components/ui/modal"
-import { RiEyeCloseLine } from "@react-icons/all-files/ri/RiEyeCloseLine"
-import Image from "next/image"
 import { Divider } from "@/components/ui/divider"
+import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { Modal } from "@/components/ui/modal"
+import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { useUpdateLocalFile } from "@/lib/server/hooks/library"
+import { LocalFileType, MediaEntryEpisode } from "@/lib/server/types"
 import { AiFillWarning } from "@react-icons/all-files/ai/AiFillWarning"
+import { BiDotsHorizontal } from "@react-icons/all-files/bi/BiDotsHorizontal"
+import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
+import { MdInfo } from "@react-icons/all-files/md/MdInfo"
+import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
+import { atom } from "jotai"
+import { createIsolation } from "jotai-scope"
+import Image from "next/image"
+import React, { memo } from "react"
 import toast from "react-hot-toast"
 
 export const EpisodeItemIsolation = createIsolation()
@@ -172,7 +172,8 @@ function MetadataModalButton() {
 function EpisodeItemInfoModalButton() {
     const [, setIsOpen] = EpisodeItemIsolation.useAtom(__episodeItem_infoModalIsOpenAtom)
     return <IconButton
-        icon={<RiEyeCloseLine/>}
+        icon={<MdInfo />}
+        className="opacity-30 hover:opacity-100 transform-opacity"
         intent={"gray-basic"}
         size={"xs"}
         onClick={() => setIsOpen(true)}

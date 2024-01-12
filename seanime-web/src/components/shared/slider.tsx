@@ -1,9 +1,9 @@
 "use client"
-import React, { useRef, useState } from "react"
+import { cn } from "@/components/ui/core"
 import { useDraggableScroll } from "@/hooks/use-draggable-scroll"
 import { MdChevronLeft } from "@react-icons/all-files/md/MdChevronLeft"
 import { MdChevronRight } from "@react-icons/all-files/md/MdChevronRight"
-import { cn } from "@/components/ui/core"
+import React, { useRef, useState } from "react"
 import { useIsomorphicLayoutEffect, useUpdateEffect } from "react-use"
 
 interface SliderProps {
@@ -20,7 +20,8 @@ export const Slider: React.FC<SliderProps> = (props) => {
     const ref = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>
     const { events } = useDraggableScroll(ref, {
         decayRate: 0.96,
-        safeDisplacement: 20,
+        safeDisplacement: 15,
+        applyRubberBandEffect: true,
     })
 
     const [isScrolledToLeft, setIsScrolledToLeft] = useState(true)
