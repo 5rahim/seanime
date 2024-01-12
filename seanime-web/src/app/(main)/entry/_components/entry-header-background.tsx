@@ -1,5 +1,5 @@
-import { MediaEntry } from "@/lib/server/types"
 import { Skeleton } from "@/components/ui/skeleton"
+import { MediaEntry } from "@/lib/server/types"
 import Image from "next/image"
 
 export function EntryHeaderBackground({ entry }: { entry: MediaEntry }) {
@@ -17,7 +17,7 @@ export function EntryHeaderBackground({ entry }: { entry: MediaEntry }) {
                     quality={100}
                     priority
                     sizes="100vw"
-                    className="object-cover object-center z-[1]"
+                    className="object-cover [object-position:50%_25%] z-[1]"
                 />}
                 {entry.media?.bannerImage && <Skeleton className={"z-0 h-full absolute w-full"}/>}
                 <div

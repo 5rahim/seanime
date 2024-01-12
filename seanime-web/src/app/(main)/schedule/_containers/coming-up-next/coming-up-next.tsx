@@ -1,12 +1,12 @@
 import { Slider } from "@/components/shared/slider"
-import React, { useEffect, useMemo } from "react"
-import { addSeconds, formatDistanceToNow } from "date-fns"
-import Image from "next/image"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import Link from "next/link"
-import { useQueryClient } from "@tanstack/react-query"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { useAnilistCollection } from "@/lib/server/hooks/media"
+import { useQueryClient } from "@tanstack/react-query"
+import { addSeconds, formatDistanceToNow } from "date-fns"
+import Image from "next/image"
+import Link from "next/link"
+import React, { useEffect, useMemo } from "react"
 
 export function ComingUpNext() {
 
@@ -41,13 +41,13 @@ export function ComingUpNext() {
                         >
                             <div
                                 className={"absolute w-full h-full rounded-md rounded-b-none overflow-hidden z-[1]"}>
-                                {!!item.bannerImage ? <Image
-                                    src={item.bannerImage}
+                                {(!!item.bannerImage || !!item.coverImage?.large) ? <Image
+                                    src={item.bannerImage || item.coverImage?.large || ""}
                                     alt={""}
                                     fill
                                     quality={100}
                                     sizes="20rem"
-                                    className="object-cover object-center transition opacity-20"
+                                    className="object-cover object-top transition opacity-20"
                                 /> : <div
                                     className={"h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"}></div>}
                                 <div
