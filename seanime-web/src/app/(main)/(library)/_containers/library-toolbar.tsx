@@ -1,3 +1,4 @@
+"use client"
 import { bulkActionModalAtomIsOpen } from "@/app/(main)/(library)/_components/bulk-action-modal"
 import { _scannerModalIsOpen } from "@/app/(main)/(library)/_components/scanner-modal"
 import { _unknownMediaManagerIsOpen } from "@/app/(main)/(library)/_components/unknown-media-manager"

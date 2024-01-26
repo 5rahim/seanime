@@ -1,11 +1,12 @@
-import {MediaEntryEpisode} from "@/lib/server/types"
-import {memo, startTransition, useEffect, useMemo} from "react"
-import {useSetAtom} from "jotai/react"
-import {__libraryHeaderImageAtom} from "@/app/(main)/(library)/_containers/library-header"
-import {LargeEpisodeListItem} from "@/components/shared/large-episode-list-item"
-import {useRouter} from "next/navigation"
-import {Slider} from "@/components/shared/slider"
-import {formatDistanceToNow, isBefore, subYears} from "date-fns"
+"use client"
+import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_containers/library-header"
+import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
+import { Slider } from "@/components/shared/slider"
+import { MediaEntryEpisode } from "@/lib/server/types"
+import { formatDistanceToNow, isBefore, subYears } from "date-fns"
+import { useSetAtom } from "jotai/react"
+import { useRouter } from "next/navigation"
+import { memo, startTransition, useEffect, useMemo } from "react"
 
 export function ContinueWatching({list, isLoading}: {
     list: MediaEntryEpisode[],

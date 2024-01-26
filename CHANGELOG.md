@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.5
+
+- 🚑️ Fixed scanning error caused by non-existent database entries
+- ⬆️ Updated dependencies
+
 ## 0.1.4
 
 - ⚡️ Added ability to resolve hidden media

@@ -1,3 +1,4 @@
+"use client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MediaEntry } from "@/lib/server/types"
 import Image from "next/image"

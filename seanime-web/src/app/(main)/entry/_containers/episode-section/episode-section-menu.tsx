@@ -1,19 +1,15 @@
-import { MediaEntry } from "@/lib/server/types"
+"use client"
+import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
-import React from "react"
 import { DropdownMenu } from "@/components/ui/dropdown-menu"
-import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
-import { useOpenDefaultMediaPlayer, useOpenMediaEntryInExplorer } from "@/lib/server/hooks/settings"
 import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
-import {
-    _bulkDeleteFilesModalIsOpenAtom,
-    BulkDeleteFilesModal,
-} from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
-import { useSetAtom } from "jotai"
-import { BiArrowToRight } from "@react-icons/all-files/bi/BiArrowToRight"
-import { BiRightArrow } from "@react-icons/all-files/bi/BiRightArrow"
+import { useOpenDefaultMediaPlayer, useOpenMediaEntryInExplorer } from "@/lib/server/hooks/settings"
+import { MediaEntry } from "@/lib/server/types"
+import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
 import { BiRightArrowAlt } from "@react-icons/all-files/bi/BiRightArrowAlt"
+import { useSetAtom } from "jotai"
+import React from "react"
 
 export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
 

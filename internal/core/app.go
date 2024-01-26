@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
 	_db "github.com/seanime-app/seanime/internal/db"
+	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/mpchc"
@@ -77,6 +78,14 @@ func NewApp(options *AppOptions) *App {
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
 		os.Exit(1)
+	}
+
+	// Add default local file entries if there are none
+	if _, _, err := db.GetLocalFiles(); err != nil {
+		_, err := db.InsertLocalFiles(make([]*entities.LocalFile, 0))
+		if err != nil {
+			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
+		}
 	}
 
 	// Delete old local file entries

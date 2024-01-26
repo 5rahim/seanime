@@ -1,8 +1,9 @@
+"use client"
+import { cn } from "@/components/ui/core"
+import { Transition } from "@headlessui/react"
 import { atom, useAtomValue } from "jotai"
 import Image from "next/image"
 import React, { useEffect, useState } from "react"
-import { Transition } from "@headlessui/react"
-import { cn } from "@/components/ui/core"
 import { useWindowScroll } from "react-use"
 
 export const __libraryHeaderImageAtom = atom<string | null>(null)

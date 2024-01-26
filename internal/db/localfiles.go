@@ -13,7 +13,6 @@ func (db *Database) GetLocalFiles() ([]*entities.LocalFile, uint, error) {
 	var res models.LocalFiles
 	err := db.gormdb.Last(&res).Error
 	if err != nil {
-		db.logger.Error().Err(err).Msg("Failed to save local files in the database")
 		return nil, 0, err
 	}
 
@@ -105,7 +104,6 @@ func (db *Database) upsertLocalFiles(lfs *models.LocalFiles) (*models.LocalFiles
 	}).Create(lfs).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("Failed to save local files in the database")
 		return nil, err
 	}
 	return lfs, nil
@@ -115,7 +113,6 @@ func (db *Database) insertLocalFiles(lfs *models.LocalFiles) (*models.LocalFiles
 	err := db.gormdb.Create(lfs).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("Failed to save local files in the database")
 		return nil, err
 	}
 	return lfs, nil

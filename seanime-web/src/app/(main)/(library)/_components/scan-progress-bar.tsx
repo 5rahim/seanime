@@ -1,8 +1,9 @@
-import { useState } from "react"
+"use client"
+import { _scannerIsScanningAtom } from "@/app/(main)/(library)/_components/scanner-modal"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { WSEvents } from "@/lib/server/endpoints"
 import { useAtom } from "jotai/react"
-import { _scannerIsScanningAtom } from "@/app/(main)/(library)/_components/scanner-modal"
+import { useState } from "react"
 
 export function ScanProgressBar() {
 
