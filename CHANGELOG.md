@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.6
+
+- 🦺 Fixed crash caused by custom lists on Anilist
+
 ## 0.1.5
 
 - 🚑️ Fixed scanning error caused by non-existent database entries

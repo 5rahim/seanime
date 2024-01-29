@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/anilist"
@@ -98,6 +99,8 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	aniLists []*anilist.AnimeCollection_MediaListCollection_Lists,
 ) {
 
+	spew.Dump(len(aniLists))
+
 	// Group local files by media id
 	groupedLfs := GroupLocalFilesByMediaID(localFiles)
 	// Get slice of media ids from local files
@@ -117,6 +120,12 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	for _, list := range aniLists {
 		list := list
 		p.Go(func() *LibraryCollectionList {
+
+			// If the list has no status, return nil
+			// This occurs when there is a custom list
+			if list.Status == nil {
+				return nil
+			}
 
 			// For each list, get the entries
 			entries := list.GetEntries()
@@ -173,6 +182,9 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	}
 
 	lists := p.Wait()
+	lists = lo.Filter(lists, func(item *LibraryCollectionList, index int) bool {
+		return item != nil
+	})
 
 	// Merge repeating to current
 	repeat, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
