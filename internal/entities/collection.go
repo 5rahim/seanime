@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/anilist"
@@ -98,8 +97,6 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	localFiles []*LocalFile,
 	aniLists []*anilist.AnimeCollection_MediaListCollection_Lists,
 ) {
-
-	spew.Dump(len(aniLists))
 
 	// Group local files by media id
 	groupedLfs := GroupLocalFilesByMediaID(localFiles)
