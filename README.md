@@ -10,15 +10,16 @@ anime library.</h4>
 <img src="docs/images/main_6.png" alt="preview" width="100%"/>
 
 🚨 This project is a hobby, it's not meant to fix every shortcoming or include every requested feature. Some features
-might not work as intended. Feel free to fork the project, contribute or open issues.
+might not work as intended on certain devices. Feel free to fork the project, contribute or open issues.
+
+Leave a ⭐ if you like this project!
 
 # Features
 
-- One-step scan of your anime library.
 - User-friendly web interface.
 - Seamless integration with AniList.
 - Scanner that automatically match local files with corresponding anime.
-- No mandatory folder structure / No need for renaming.
+  - No mandatory folder structure / No need for renaming.
 - Support for torrents with absolute episode numbers.
 - Integrated torrent search engine with Nyaa and qBittorrent integration to download new episodes.
 - Automatically update your progress on AniList when you watch an episode using VLC or MPC-HC.
@@ -32,38 +33,30 @@ support transcoding or streaming to other devices.
 
 [How to use Seanime.](https://seanime.rahim.app/getting-started)
 
-# Development
+## Resources
 
-
-### GraphQL Codegen
-
-```bash
-go get github.com/Yamashou/gqlgenc
-cd internal/anilist
-go run github.com/Yamashou/gqlgenc
-cd ../..
-go mod tidy
-```
-
-### Tests
-
-- Some tests require a valid AniList JWT in `test/jwt.json`
-- Do not run tests all at once.
-
+- AniList API
+- [Conc](https://github.com/sourcegraph/conc)
+- [Fiber](https://gofiber.io/) - Web framework
+- [GORM](https://gorm.io/) - ORM
+- [gqlgenc](github.com/Yamashou/gqlgenc) - GraphQL codegen
+- [Next.js](https://nextjs.org/) - React framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [React Query](https://react-query.tanstack.com/) - Data fetching
+- [Chalk UI](https://chalk.rahim.app) - UI components
+- Seanime Parser - Pure Go parser for anime filenames
 
 ## Acknowledgements
 
-- [Anitogo](https://github.com/nssteinbrenner/anitogo) - Anime video filename parser. Original version
-  of [Tanuki](https://github.com/5rahim/tanuki)
 - [Anikki](https://github.com/Kylart/Anikki/) - Inspired GraphQL fragments
 - [Lunarr](https://github.com/lunarr-app/lunarr-go/) - Inspired the use of GORM
 - [Mangal](https://github.com/metafates/mangal) - Release note script
 
 # Screenshots
 
-<center>
+<p align="center">
 <img src="docs/images/terminal.png" alt="preview" width="50%"/>
-</center>
+</p>
 
 ## Library
 
