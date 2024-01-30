@@ -8,8 +8,8 @@ import (
 	"github.com/seanime-app/seanime/internal/handlers"
 )
 
-var development = false
-var version = "0.1.6"
+var development = true
+var version = "0.1.7"
 
 func main() {
 

@@ -1,18 +1,18 @@
-import { LocalFile, MediaEntry } from "@/lib/server/types"
-import { useAtom } from "jotai/react"
-import React, { useEffect } from "react"
-import { atomWithImmer } from "jotai-immer"
-import toast from "react-hot-toast"
-import { Checkbox } from "@/components/ui/checkbox"
-import * as upath from "upath"
-import { Button } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
-import { Divider } from "@/components/ui/divider"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
-import { useSeaMutation } from "@/lib/server/queries/utils"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Divider } from "@/components/ui/divider"
+import { Modal } from "@/components/ui/modal"
 import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/queries/utils"
+import { LocalFile, MediaEntry } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
+import { atomWithImmer } from "jotai-immer"
+import { useAtom } from "jotai/react"
+import React, { useEffect } from "react"
+import toast from "react-hot-toast"
+import * as upath from "upath"
 
 export type BulkDeleteFilesModalProps = {
     entry: MediaEntry
@@ -63,6 +63,7 @@ function Content({ entry }: { entry: MediaEntry }) {
             toast.success("Files removed")
             await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
             await qc.refetchQueries({ queryKey: ["get-library-collection"] })
+            setState(false)
         },
     })
 
