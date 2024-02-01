@@ -1,9 +1,9 @@
-import React from "react"
-import { cn } from "@/components/ui/core"
-import Image from "next/image"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { cn } from "@/components/ui/core"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { AiFillWarning } from "@react-icons/all-files/ai/AiFillWarning"
+import Image from "next/image"
+import React from "react"
 
 type EpisodeListItemProps = {
     media: BaseMediaFragment,
@@ -95,6 +95,8 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
                 <div className={"relative overflow-hidden"}>
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
                         className="text-lg text-red-500"/> Unidentified</p>}
+                    {isInvalid && <p className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}
+
                     <h4 className={cn("font-medium transition line-clamp-2", { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched })}>{title}</h4>
 
                     {!!episodeTitle && <p className={cn("text-sm text-[--muted] line-clamp-2")}>{episodeTitle}</p>}

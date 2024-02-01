@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/fiber/v2"
 	"os"
 	"path/filepath"
@@ -61,8 +60,6 @@ func HandleDirectorySelector(c *RouteCtx) error {
 			"error": "Error generating suggestions: " + err.Error(),
 		})
 	}
-
-	println(spew.Sprint(input, directoryExists, filepath.IsAbs(input)))
 
 	return c.Fiber.JSON(fiber.Map{
 		"exists":      false,

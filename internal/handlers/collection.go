@@ -3,6 +3,7 @@ package handlers
 import "github.com/seanime-app/seanime/internal/entities"
 
 // HandleGetLibraryCollection returns the library collection
+// GET /library/collection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"

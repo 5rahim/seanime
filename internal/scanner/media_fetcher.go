@@ -38,8 +38,9 @@ type MediaFetcherOptions struct {
 }
 
 // NewMediaFetcher
-// When enhancing is off, MediaFetcher.AllMedia will fetch all anilist.BaseMedia from the user's AniList collection.
-// When enhancing is on, MediaFetcher.AllMedia will fetch anilist.BaseMedia for each unique, parsed anime title and their relations.
+// Calling this method will kickstart the fetch process
+// When enhancing is false, MediaFetcher.AllMedia will be all anilist.BaseMedia from the user's AniList collection.
+// When enhancing is true, MediaFetcher.AllMedia will be anilist.BaseMedia for each unique, parsed anime title and their relations.
 func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 	if opts.AnilistClient == nil ||
@@ -116,14 +117,14 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 		_, ok := FetchMediaFromLocalFiles(
 			opts.AnilistClient,
 			opts.LocalFiles,
-			opts.BaseMediaCache,
+			opts.BaseMediaCache, // BaseMediaCache will be populated on success
 			opts.AnizipCache,
 			opts.AnilistRateLimiter,
 			mf.ScanLogger,
 		)
 		if ok {
 			// We assume the BaseMediaCache is populated. We overwrite AllMedia with the cache content.
-			// This is because the cache will contain all media from the user's collection and the local files.
+			// This is because the cache will contain all media from the user's collection AND scanned ones
 			mf.AllMedia = make([]*anilist.BaseMedia, 0)
 			opts.BaseMediaCache.Range(func(key int, value *anilist.BaseMedia) bool {
 				mf.AllMedia = append(mf.AllMedia, value)
@@ -156,7 +157,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// FetchMediaFromLocalFiles gets media and their relations from local files.
+// FetchMediaFromLocalFiles gets media and their relations from local file titles.
 // It retrieves unique titles from local files,
 // fetches mal.SearchResultAnime from MAL,
 // uses these search results to get AniList IDs using anizip.Media mappings,

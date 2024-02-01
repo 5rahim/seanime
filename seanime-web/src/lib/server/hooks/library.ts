@@ -49,6 +49,7 @@ export function useLibraryCollection() {
         placeholderData: prev,
     })
 
+    // Store the received data in `libraryCollectionAtom`
     useEffect(() => {
         if (!!data) {
             setLibraryCollectionAtom(data)
@@ -67,9 +68,9 @@ export function useLibraryCollection() {
     }, [data])
 
     return {
+        isLoading: isLoading,
         libraryCollectionList: sortedCollection,
         continueWatchingList: data?.continueWatchingList ?? [],
-        isLoading: isLoading,
         unmatchedLocalFiles: data?.unmatchedLocalFiles ?? [],
         ignoredLocalFiles: data?.ignoredLocalFiles ?? [],
         unmatchedGroups: data?.unmatchedGroups ?? [],

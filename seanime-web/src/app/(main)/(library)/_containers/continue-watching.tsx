@@ -8,11 +8,10 @@ import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import { memo, startTransition, useEffect, useMemo } from "react"
 
-export function ContinueWatching({list, isLoading}: {
+export function ContinueWatching({ list, isLoading }: {
     list: MediaEntryEpisode[],
     isLoading: boolean
-})
-{
+}) {
 
     if (list.length > 0) return (
         <div className="space-y-8 p-4">
@@ -38,10 +37,6 @@ const EpisodeItem = memo((props: MediaEntryEpisode) => {
     const mediaIsOlder = useMemo(() => date ? isBefore(date, subYears(new Date(), 2)) : undefined, [])
 
     useEffect(() => {
-        console.log(props.basicMedia)
-    }, []);
-
-    useEffect(() => {
         setHeaderImage(prev => {
             if (prev === null) {
                 return props.basicMedia?.bannerImage || props.episodeMetadata?.image || null
@@ -57,7 +52,7 @@ const EpisodeItem = memo((props: MediaEntryEpisode) => {
                 <span className={"opacity-40"}>/{` `}{props.basicMedia.episodes}</span>}</span>}
             topTitle={props.basicMedia?.title?.userPreferred}
             actionIcon={undefined}
-            meta={(date) ? (!mediaIsOlder ? `${formatDistanceToNow(date, {addSuffix: true})}` : new Intl.DateTimeFormat(
+            meta={(date) ? (!mediaIsOlder ? `${formatDistanceToNow(date, { addSuffix: true })}` : new Intl.DateTimeFormat(
                 "en-US", {
                     day: "2-digit",
                     month: "2-digit",

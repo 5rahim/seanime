@@ -10,12 +10,15 @@ type scanRequestBody struct {
 	SkipIgnoredFiles bool `json:"skipIgnoredFiles"`
 }
 
+// HandleScanLocalFiles will scan the user's library.
+// POST /library/scan
+// Response: entities.LocalFile[]
 func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()
 
 	// Retrieve the user's library path
-	libraryPath, err := c.App.Database.GetLibraryPath()
+	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()
 	if err != nil {
 		return c.RespondWithError(err)
 	}

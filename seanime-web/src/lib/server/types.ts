@@ -31,6 +31,7 @@ export type ServerStatus = {
         token: string
     } | null,
     settings: Settings | null
+    mal: MalInfo | null
 }
 
 /**
@@ -69,6 +70,19 @@ export type TorrentSettings = {
     qbittorrentPort: number
     qbittorrentUsername: string
     qbittorrentPassword: string
+}
+
+export type MalInfo = {
+    username: string
+    accessToken: string
+    refreshToken: string
+}
+
+export type MalAuthResponse = {
+    access_token: string
+    refresh_token: string
+    expires_in: number
+    token_type: string
 }
 
 /**

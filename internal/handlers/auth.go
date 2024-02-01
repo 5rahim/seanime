@@ -12,6 +12,13 @@ type AuthRequestBody struct {
 	Token string
 }
 
+// HandleLogin
+// POST /auth/login
+//
+//	This is called when a new JWT is obtained (after login from AniList)
+//	Saves the token
+//	Saves Anilist account data
+//	Returns new status
 func HandleLogin(c *RouteCtx) error {
 
 	c.Fiber.Accepts("application/json")
@@ -23,7 +30,7 @@ func HandleLogin(c *RouteCtx) error {
 		return c.Fiber.JSON(NewErrorResponse(err))
 	}
 
-	// Re-init the client, this time by passing the JWT token
+	// Set a new AniList client by passing to JWT token
 	c.App.UpdateAnilistClientToken(body.Token)
 
 	// Get viewer data from AniList
@@ -37,12 +44,13 @@ func HandleLogin(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("could not find user"))
 	}
 
-	// Marshal the viewer data
+	// Marshal viewer data
 	bytes, err := json.Marshal(getViewer.Viewer)
 	if err != nil {
 		c.App.Logger.Err(err).Msg("scan: could not save local files")
 	}
 
+	// Save account data in database
 	_, err = c.App.Database.UpsertAccount(&models.Account{
 		BaseModel: models.BaseModel{
 			ID:        1,
@@ -59,14 +67,18 @@ func HandleLogin(c *RouteCtx) error {
 
 	c.App.Logger.Info().Msg("Authenticated to AniList as " + getViewer.Viewer.Name)
 
+	// Create a new status
 	status := NewStatus(c)
 
 	c.App.InitOrRefreshModules()
 
+	// Return new status
 	return c.RespondWithData(status)
 
 }
 
+// HandleLogout
+// POST /auth/logout
 func HandleLogout(c *RouteCtx) error {
 
 	_, err := c.App.Database.UpsertAccount(&models.Account{

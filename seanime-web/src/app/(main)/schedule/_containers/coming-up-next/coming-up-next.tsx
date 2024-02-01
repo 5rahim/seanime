@@ -2,15 +2,12 @@ import { Slider } from "@/components/shared/slider"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { useAnilistCollection } from "@/lib/server/hooks/media"
-import { useQueryClient } from "@tanstack/react-query"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import Image from "next/image"
 import Link from "next/link"
-import React, { useEffect, useMemo } from "react"
+import React, { useMemo } from "react"
 
 export function ComingUpNext() {
-
-    const queryClient = useQueryClient()
 
     const { anilistLists } = useAnilistCollection()
     const _media = useMemo(() => {
@@ -19,12 +16,6 @@ export function ComingUpNext() {
     }, [anilistLists])
 
     const media = _media.filter(item => !!item.nextAiringEpisode?.episode).sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
-
-    useEffect(() => {
-        (async () => {
-            console.log(await queryClient.fetchQuery({ queryKey: ["get-anilist-collection"] }))
-        })()
-    }, [])
 
     if (media.length === 0) return null
 

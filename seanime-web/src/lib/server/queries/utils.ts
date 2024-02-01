@@ -1,16 +1,9 @@
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import axios, { AxiosError } from "axios"
 import { SEANIME_SERVER_URI } from "@/lib/server/constants"
-import {
-    useMutation,
-    UseMutationOptions,
-    UseMutationResult,
-    useQuery,
-    UseQueryOptions,
-    UseQueryResult,
-} from "@tanstack/react-query"
-import toast from "react-hot-toast"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useMutation, UseMutationOptions, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import axios, { AxiosError } from "axios"
 import { useEffect } from "react"
+import toast from "react-hot-toast"
 
 type SeaError = AxiosError<{ error: string }>
 
@@ -95,7 +88,7 @@ export function useSeaQuery<TData, TParams = any>(
                 endpoint: endpoint,
                 method: method,
                 params: params,
-                data: params,
+                data: data,
             })
         },
         ...options,

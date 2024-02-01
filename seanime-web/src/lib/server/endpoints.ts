@@ -14,6 +14,11 @@ export const enum SeaEndpoints {
     ANILIST_COLLECTION = "/anilist/collection", // (GET, POST)
     ANILIST_MEDIA_DETAILS = "/anilist/media-details/{id}", // (GET)
     /**
+     * MAL
+     */
+    MAL_AUTH = "/mal/auth",
+    MAL_LOGOUT = "/mal/logout",
+    /**
      * Library
      */
     EMPTY_DIRECTORIES = "/library/empty-directories", // (POST)

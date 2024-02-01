@@ -1,15 +1,15 @@
-import React, { useState } from "react"
-import { useAtom } from "jotai/react"
 import { websocketAtom, WebSocketContext } from "@/atoms/websocket"
-import { useEffectOnce } from "react-use"
 import { Spinner } from "@/components/ui/loading-spinner"
-
+import { useAtom } from "jotai/react"
+import React, { useState } from "react"
+import { useEffectOnce } from "react-use"
 
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useState(false)
 
     useEffectOnce(() => {
+
         function connectWebSocket() {
             const newSocket = new WebSocket("ws://127.0.0.1:43210/events")
 
@@ -42,11 +42,6 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             }
         }
     })
-
-    // Ensure children don't render until a connection is established
-    // if (!isConnected) {
-    //     return null;
-    // }
 
     return (
         <WebSocketContext.Provider value={socket}>

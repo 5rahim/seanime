@@ -12,6 +12,7 @@ type LargeEpisodeListItemProps = {
     topTitle?: string | null
     meta?: string | null
     larger?: boolean
+    isInvalid?: boolean
 }
 
 export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<React.ComponentPropsWithoutRef<"div">, "title">> = (props) => {
@@ -25,6 +26,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
         meta,
         title,
         larger = false,
+        isInvalid,
         ...rest
     } = props
 
@@ -68,6 +70,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
                     {(meta) &&
                         <p className={"text-[--muted]"}>{meta}</p>}
                 </div>
+                {isInvalid && <p className="text-red-300">No metadata found</p>}
             </div>
         </div>
     </>

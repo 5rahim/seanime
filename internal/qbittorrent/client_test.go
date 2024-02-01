@@ -1,6 +1,7 @@
 package qbittorrent
 
 import (
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"github.com/seanime-app/seanime/internal/util"
 	"testing"
 )

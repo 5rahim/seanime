@@ -230,8 +230,8 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// hydrateContinueWatchingList creates a list for "continue watching".
-// This should be called after the lists have been created.
+// hydrateContinueWatchingList creates a list of MediaEntryEpisode for the "continue watching" feature.
+// This should be called after the LibraryCollectionList's have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	anilistCollection *anilist.AnimeCollection,
@@ -239,19 +239,23 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	anilistClient *anilist.Client,
 ) {
 
-	// Create media entry for media in "Current" list
+	// Get currently watching
 	current, found := lo.Find(lc.Lists, func(item *LibraryCollectionList) bool {
 		return item.Status == anilist.MediaListStatusCurrent
 	})
+
+	// If no currently watching list is found, return an empty slice
 	if !found {
 		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Return empty slice
 		return
 	}
+	// Get media ids from current list
 	mIds := make([]int, len(current.Entries))
 	for i, entry := range current.Entries {
 		mIds[i] = entry.MediaId
 	}
 
+	// Create a new MediaEntry for each media id
 	mEntryPool := pool.NewWithResults[*MediaEntry]()
 	for _, mId := range mIds {
 		mId := mId
@@ -269,8 +273,9 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	mEntries := mEntryPool.Wait()
 	mEntries = lo.Filter(mEntries, func(item *MediaEntry, index int) bool {
 		return item != nil
-	})
+	}) // Filter out nil entries
 
+	// If there are no entries, return an empty slice
 	if len(mEntries) == 0 {
 		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Return empty slice
 		return
@@ -312,6 +317,8 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// hydrateUnmatchedGroups is a method of the LibraryCollection struct.
+// It is responsible for grouping unmatched local files by their directory and creating UnmatchedGroup instances for each group.
 func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 
 	groups := make([]*UnmatchedGroup, 0)
@@ -329,6 +336,7 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 		})
 	}
 
+	// Assign the created groups
 	lc.UnmatchedGroups = groups
 }
 
@@ -348,6 +356,7 @@ func (lc *LibraryCollection) hydrateRest(localFiles []*LocalFile) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// getLibraryCollectionEntryFromListStatus maps anilist.MediaListStatus to LibraryCollectionListType.
 func getLibraryCollectionEntryFromListStatus(st anilist.MediaListStatus) LibraryCollectionListType {
 	switch st {
 	case anilist.MediaListStatusCurrent:

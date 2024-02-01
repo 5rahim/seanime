@@ -16,6 +16,7 @@ import (
 )
 
 type (
+	// TorrentPreview is used to preview a torrent à la entities.MediaEntryEpisode
 	TorrentPreview struct {
 		Episode       *entities.MediaEntryEpisode `json:"episode"`                 // nil if batch
 		EpisodeNumber *int                        `json:"episodeNumber,omitempty"` // nil if batch
@@ -147,9 +148,9 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		return i != nil
 	})
 
-	/*
-		Sorting
-	*/
+	// +---------------------+
+	// |      Sorting        |
+	// +---------------------+
 
 	// sort both by seeders
 	sort.Slice(ret, func(i, j int) bool {

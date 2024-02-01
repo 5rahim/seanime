@@ -23,6 +23,7 @@ Leave a ⭐ if you like this project!
 - Support for torrents with absolute episode numbers.
 - Integrated torrent search engine with Nyaa and qBittorrent integration to download new episodes.
 - Automatically update your progress on AniList when you watch an episode using VLC or MPC-HC.
+- No data collection.
 
 ### What it is not
 

@@ -25,11 +25,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Auth
 	v1.Post("/auth/login", makeHandler(app, HandleLogin))
 	v1.Post("/auth/logout", makeHandler(app, HandleLogout))
+
 	// Settings
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
+
+	// Authenticate user with MAL
+	// POST /v1/mal/auth
+	v1.Post("/mal/auth", makeHandler(app, HandleMalAuth))
+	v1.Post("/mal/logout", makeHandler(app, HandleMalLogout))
+
 	// Other
-	v1.Post("/test-dump", makeHandler(app, HandleManualDump))
+	v1.Post("/test-dump", makeHandler(app, HandleTestDump))
 
 	// Directory selector input
 	// POST /v1/directory-selector

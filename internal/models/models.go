@@ -22,10 +22,18 @@ type Account struct {
 	Viewer   []byte `gorm:"column:viewer" json:"viewer"`
 }
 
+// +---------------------+
+// |     LocalFiles      |
+// +---------------------+
+
 type LocalFiles struct {
 	BaseModel
 	Value []byte `gorm:"column:value" json:"value"`
 }
+
+// +---------------------+
+// |       Settings      |
+// +---------------------+
 
 type Settings struct {
 	BaseModel
@@ -60,4 +68,16 @@ type TorrentSettings struct {
 	QBittorrentPort     int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
 	QBittorrentUsername string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
 	QBittorrentPassword string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
+}
+
+// +---------------------+
+// |         MAL         |
+// +---------------------+
+
+type Mal struct {
+	BaseModel
+	Username       string    `gorm:"column:username" json:"username"`
+	AccessToken    string    `gorm:"column:access_token" json:"accessToken"`
+	RefreshToken   string    `gorm:"column:refresh_token" json:"refreshToken"`
+	TokenExpiresAt time.Time `gorm:"column:token_expires_at" json:"tokenExpiresAt"`
 }

@@ -11,8 +11,7 @@ type RequestBody struct {
 	Username string `json:"userName"`
 }
 
-// HandleManualDump is a test
-func HandleManualDump(c *RouteCtx) error {
+func HandleTestDump(c *RouteCtx) error {
 
 	c.AcceptJSON()
 

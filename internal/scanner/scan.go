@@ -25,6 +25,7 @@ type Scanner struct {
 	SkipIgnoredFiles   bool
 }
 
+// Scan will scan the directory and return a list of entities.LocalFile.
 func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()

@@ -1,6 +1,18 @@
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { buildSeaQuery } from "@/lib/server/queries/utils"
+import { ServerStatus } from "@/lib/server/types"
 import { useQuery } from "@tanstack/react-query"
-import { q_login } from "@/lib/server/queries/general"
 import { useEffect, useState } from "react"
+
+async function q_login(token: string) {
+    return buildSeaQuery<ServerStatus, { token: string }>({
+        endpoint: SeaEndpoints.LOGIN,
+        method: "post",
+        data: {
+            token,
+        },
+    })
+}
 
 export function useAuth() {
 

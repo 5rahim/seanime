@@ -1,30 +1,30 @@
 "use client"
-import React, { useEffect, useMemo } from "react"
-import { VerticalNav } from "@/components/ui/vertical-nav"
+import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
+import { serverStatusAtom } from "@/atoms/server-status"
+import { useCurrentUser } from "@/atoms/user"
+import { __globalSearch_isOpenAtom } from "@/components/application/global-search"
 import { AppSidebar } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
-import { ANILIST_OAUTH_URL } from "@/lib/anilist/config"
-import { FiLogIn } from "@react-icons/all-files/fi/FiLogIn"
-import { useDisclosure } from "@/hooks/use-disclosure"
-import { Modal } from "@/components/ui/modal"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { useCurrentUser } from "@/atoms/user"
-import { usePathname } from "next/navigation"
-import { FiSettings } from "@react-icons/all-files/fi/FiSettings"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
-import { useSetAtom } from "jotai"
-import { __globalSearch_isOpenAtom } from "@/components/application/global-search"
-import { IoLibrary } from "@react-icons/all-files/io5/IoLibrary"
-import { AiOutlineClockCircle } from "@react-icons/all-files/ai/AiOutlineClockCircle"
-import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
-import { serverStatusAtom } from "@/atoms/server-status"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLink } from "@/components/ui/dropdown-menu"
+import { Modal } from "@/components/ui/modal"
+import { VerticalNav } from "@/components/ui/vertical-nav"
+import { useDisclosure } from "@/hooks/use-disclosure"
+import { ANILIST_OAUTH_URL } from "@/lib/anilist/config"
+import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/queries/utils"
 import { ServerStatus } from "@/lib/server/types"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
-import { Badge } from "@/components/ui/badge"
+import { AiOutlineClockCircle } from "@react-icons/all-files/ai/AiOutlineClockCircle"
+import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
+import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
+import { FiLogIn } from "@react-icons/all-files/fi/FiLogIn"
+import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import { FiSettings } from "@react-icons/all-files/fi/FiSettings"
+import { IoLibrary } from "@react-icons/all-files/io5/IoLibrary"
+import { useSetAtom } from "jotai"
+import { usePathname } from "next/navigation"
+import React, { useEffect, useMemo } from "react"
 
 export function MainSidebar() {
 
@@ -123,6 +123,9 @@ export function MainSidebar() {
                         <DropdownMenu trigger={<div className={"pt-1 w-full flex justify-center"}>
                             <Avatar size={"sm"} className={"cursor-pointer"} src={user?.avatar?.medium || ""}/>
                         </div>}>
+                            <DropdownMenuLink href="/mal">
+                                MyAnimeList
+                            </DropdownMenuLink>
                             <DropdownMenuItem onClick={() => logout()}>
                                 Sign out
                             </DropdownMenuItem>

@@ -1,13 +1,13 @@
 "use client"
-import React from "react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { IoLibrary } from "@react-icons/all-files/io5/IoLibrary"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
-import { AiOutlineDownload } from "@react-icons/all-files/ai/AiOutlineDownload"
-import { useRouter } from "next/navigation"
-import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Slider } from "@/components/shared/slider"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useMissingEpisodes } from "@/lib/server/hooks/library"
+import { AiOutlineDownload } from "@react-icons/all-files/ai/AiOutlineDownload"
+import { IoLibrary } from "@react-icons/all-files/io5/IoLibrary"
+import { useRouter } from "next/navigation"
+import React from "react"
 
 export function MissingEpisodes() {
     const router = useRouter()
@@ -28,6 +28,7 @@ export function MissingEpisodes() {
                             title={episode.displayTitle}
                             meta={episode.episodeMetadata?.airDate ?? undefined}
                             actionIcon={<AiOutlineDownload/>}
+                            isInvalid={episode.isInvalid}
                             onClick={() => {
                                 router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
                             }}

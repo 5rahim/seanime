@@ -163,7 +163,7 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 
 func HandleRemoveEmptyDirectories(c *RouteCtx) error {
 
-	libraryPath, err := c.App.Database.GetLibraryPath()
+	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
