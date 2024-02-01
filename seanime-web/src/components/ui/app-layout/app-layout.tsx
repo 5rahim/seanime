@@ -1,6 +1,6 @@
+import { cva, VariantProps } from "class-variance-authority"
 import React from "react"
 import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy } from "../core"
-import { cva, VariantProps } from "class-variance-authority"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -46,7 +46,7 @@ export const AppLayoutHeaderAnatomy = defineStyleAnatomy({
 export const AppLayoutSidebarAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-AppLayoutSidebar__root",
-        "hidden md:fixed md:inset-y-0 md:flex md:flex-col grow-0 shrink-0 basis-0 z-[10]",
+        "hidden md:fixed md:inset-y-0 md:flex md:flex-col grow-0 shrink-0 basis-0 z-[50]",
         "group-[.sidebar-slim]:md:w-20",
         "group-[.sidebar-sm]:md:w-48",
         "group-[.sidebar-md]:md:w-64",

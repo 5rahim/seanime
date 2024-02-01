@@ -78,11 +78,11 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         },
     })
 
-    const { mutate, isPending } = useSeaMutation<any, { mediaId: number, progress: number }>({
+    const { mutate: updateAniListProgress, isPending } = useSeaMutation<any, { mediaId: number, progress: number, episodes: number }>({
         endpoint: SeaEndpoints.ANILIST_LIST_ENTRY_PROGRESS,
         mutationKey: ["update-anilist-list-entry-progress"],
         onSuccess: async () => {
-            toast.success("Progress updated")
+            toast.success("Progress updated on AniList")
             setStatus(null)
             isCompleted.off()
             trackerModal.off()
@@ -94,6 +94,26 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
         },
     })
+
+    const { mutate: updateMALProgress } = useSeaMutation<any, { mediaId: number, progress: number }>({
+        endpoint: SeaEndpoints.MAL_LIST_ENTRY_PROGRESS,
+        mutationKey: ["update-mal-list-entry-progress"],
+        onSuccess: async () => {
+            toast.success("Progress updated on MAL")
+        },
+        onError: () => {
+            // Ignore errors
+        },
+    })
+
+    function handleUpdateProgress() {
+        updateAniListProgress({ mediaId: entry.mediaId, progress: episode!.progressNumber, episodes: entry.media?.episodes ?? 0 })
+
+        // If the media has a MAL ID, update the progress on MAL as well
+        if (entry.media?.idMal) {
+            updateMALProgress({ mediaId: entry.media?.idMal, progress: episode!.episodeNumber })
+        }
+    }
 
     return (
         <>
@@ -115,7 +135,8 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
                 <div className="bg-[--background-color] border border-[--border] rounded-md p-4 mb-4 text-center">
                     {(!!status && isCompleted.active && !!episode) ? (
                         <p className={"text-xl"}>Current progress: <Badge size={"lg"}>{episode.progressNumber} <span
-                            className={"opacity-60"}>/ {entry.currentEpisodeCount}</span></Badge>
+                            className={"opacity-60"}
+                        >/ {entry.currentEpisodeCount}</span></Badge>
                         </p>
                     ) : (
                         <p>Currently watching</p>
@@ -125,9 +146,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
                     {(!!status && isCompleted.active && canTrackProgress) && <Button
                         intent={"primary"}
                         isDisabled={false}
-                        onClick={() => {
-                            mutate({ mediaId: entry.mediaId, progress: episode!.progressNumber })
-                        }}
+                        onClick={handleUpdateProgress}
                         isLoading={isPending}
                         className="w-full"
                     >

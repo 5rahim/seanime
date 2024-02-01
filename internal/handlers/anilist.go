@@ -62,6 +62,7 @@ func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
 	type body struct {
 		MediaId  *int `json:"mediaId"`
 		Progress *int `json:"progress"`
+		Episodes *int `json:"episodes"`
 	}
 
 	p := new(body)
@@ -69,10 +70,21 @@ func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if p.MediaId == nil || p.Progress == nil || p.Episodes == nil {
+		return c.RespondWithError(errors.New("missing fields"))
+	}
+
+	status := anilist.MediaListStatusCurrent
+	if *p.Progress == *p.Episodes {
+		status = anilist.MediaListStatusCompleted
+	}
+
+	// Update the progress
 	ret, err := c.App.AnilistClient.UpdateMediaListEntryProgress(
 		c.Fiber.Context(),
 		p.MediaId,
 		p.Progress,
+		&status,
 	)
 	if err != nil {
 		return c.RespondWithError(err)

@@ -1,7 +1,9 @@
 package db
 
 import (
+	"errors"
 	"github.com/seanime-app/seanime/internal/models"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -9,7 +11,9 @@ func (db *Database) GetMalInfo() (*models.Mal, error) {
 	// Get the first entry
 	var res models.Mal
 	err := db.gormdb.First(&res).Error
-	if err != nil {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.New("MAL not connected")
+	} else if err != nil {
 		return nil, err
 	}
 	return &res, nil

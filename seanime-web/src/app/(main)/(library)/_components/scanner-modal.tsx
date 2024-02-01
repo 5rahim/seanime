@@ -1,15 +1,15 @@
+import { BetaBadge } from "@/components/application/beta-badge"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Divider } from "@/components/ui/divider"
 import { Modal } from "@/components/ui/modal"
+import { useBoolean } from "@/hooks/use-disclosure"
+import { useScanLibrary } from "@/lib/server/hooks/library"
+import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import { HiOutlineSparkles } from "@react-icons/all-files/hi/HiOutlineSparkles"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import { Checkbox } from "@/components/ui/checkbox"
 import { useEffect } from "react"
-import { HiOutlineSparkles } from "@react-icons/all-files/hi/HiOutlineSparkles"
-import { BetaBadge } from "@/components/application/beta-badge"
-import { Divider } from "@/components/ui/divider"
-import { useBoolean } from "@/hooks/use-disclosure"
-import { Button } from "@/components/ui/button"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { useScanLibrary } from "@/lib/server/hooks/library"
 
 export const _scannerModalIsOpen = atom(false)
 export const _scannerIsScanningAtom = atom(false)
@@ -67,7 +67,7 @@ export function ScannerModal() {
 
                         {enhanced.active && <ul className={"list-disc pl-14"}>
                             <li>Your Anilist anime list data is <strong>not needed</strong></li>
-                            <li>Scanning will slow down by ~25s</li>
+                            <li>Scanning will slow down considerably due to rate limits</li>
                         </ul>}
                     </div>
 

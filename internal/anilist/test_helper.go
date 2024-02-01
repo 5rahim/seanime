@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func MockGetAnilistClient() *Client {
+func MockAnilistClient() *Client {
 
 	path, err := os.Getwd()
 	if err != nil {
@@ -43,11 +43,12 @@ func MockGetAnilistClient() *Client {
 
 }
 
-func MockAnilistAccount() (*Client, *Client, *struct {
+func MockAnilistClients() (*Client, *Client, *struct {
 	JWT       string `json:"jwt"`
 	Username  string `json:"username"`
 	JWT2      string `json:"jwt2"`
 	Username2 string `json:"username2"`
+	MALJwt    string `json:"mal_jwt"`
 }) {
 
 	path, err := os.Getwd()
@@ -73,6 +74,7 @@ func MockAnilistAccount() (*Client, *Client, *struct {
 		Username  string `json:"username"`
 		JWT2      string `json:"jwt2"`
 		Username2 string `json:"username2"`
+		MALJwt    string `json:"mal_jwt"`
 	}
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		println("Error unmarshaling JSON:", err.Error())

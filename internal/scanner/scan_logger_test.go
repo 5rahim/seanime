@@ -15,7 +15,7 @@ func TestScanLogger(t *testing.T) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	anilistClient := anilist.MockGetAnilistClient()
+	anilistClient := anilist.MockAnilistClient()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 

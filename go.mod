@@ -3,9 +3,8 @@ module github.com/seanime-app/seanime
 go 1.21
 
 require (
-	github.com/5rahim/tanuki v0.1.6
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/Yamashou/gqlgenc v0.16.0
+	github.com/Yamashou/gqlgenc v0.18.0
 	github.com/adrg/strutil v0.3.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -78,7 +77,6 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

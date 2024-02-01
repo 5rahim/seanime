@@ -8,7 +8,7 @@ import (
 
 func TestAddMediaToPlanning(t *testing.T) {
 
-	_, data, _ := MockAnilistAccount()
+	_, data, _ := MockAnilistClients()
 
 	if data == nil {
 		t.Skip("no mock data")

@@ -12,7 +12,7 @@ import (
 type GithubGraphQLClient interface {
 	UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
-	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
+	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
@@ -63,6 +63,7 @@ type Query struct {
 	SiteStatistics               *SiteStatistics      "json:\"SiteStatistics,omitempty\" graphql:\"SiteStatistics\""
 	ExternalLinkSourceCollection []*MediaExternalLink "json:\"ExternalLinkSourceCollection,omitempty\" graphql:\"ExternalLinkSourceCollection\""
 }
+
 type Mutation struct {
 	UpdateUser                 *User            "json:\"UpdateUser,omitempty\" graphql:\"UpdateUser\""
 	SaveMediaListEntry         *MediaList       "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
@@ -3907,17 +3908,18 @@ func (c *Client) UpdateMediaListEntry(ctx context.Context, mediaID *int, status 
 	return &res, nil
 }
 
-const UpdateMediaListEntryProgressDocument = `mutation UpdateMediaListEntryProgress ($mediaId: Int, $progress: Int) {
-	SaveMediaListEntry(mediaId: $mediaId, progress: $progress) {
+const UpdateMediaListEntryProgressDocument = `mutation UpdateMediaListEntryProgress ($mediaId: Int, $progress: Int, $status: MediaListStatus) {
+	SaveMediaListEntry(mediaId: $mediaId, progress: $progress, status: $status) {
 		id
 	}
 }
 `
 
-func (c *Client) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
+func (c *Client) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
 	vars := map[string]interface{}{
 		"mediaId":  mediaID,
 		"progress": progress,
+		"status":   status,
 	}
 
 	var res UpdateMediaListEntryProgress

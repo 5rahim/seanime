@@ -16,35 +16,37 @@ import (
 	"strings"
 )
 
-type SearchResultPayload struct {
-	MediaType string `json:"media_type"`
-	StartYear int    `json:"start_year"`
-	Aired     string `json:"aired,omitempty"`
-	Score     string `json:"score"`
-	Status    string `json:"status"`
-}
+type (
+	SearchResultPayload struct {
+		MediaType string `json:"media_type"`
+		StartYear int    `json:"start_year"`
+		Aired     string `json:"aired,omitempty"`
+		Score     string `json:"score"`
+		Status    string `json:"status"`
+	}
 
-type SearchResultAnime struct {
-	ID           int                  `json:"id"`
-	Type         string               `json:"type"`
-	Name         string               `json:"name"`
-	URL          string               `json:"url"`
-	ImageURL     string               `json:"image_url"`
-	ThumbnailURL string               `json:"thumbnail_url"`
-	Payload      *SearchResultPayload `json:"payload"`
-	ESScore      float64              `json:"es_score"`
-}
+	SearchResultAnime struct {
+		ID           int                  `json:"id"`
+		Type         string               `json:"type"`
+		Name         string               `json:"name"`
+		URL          string               `json:"url"`
+		ImageURL     string               `json:"image_url"`
+		ThumbnailURL string               `json:"thumbnail_url"`
+		Payload      *SearchResultPayload `json:"payload"`
+		ESScore      float64              `json:"es_score"`
+	}
 
-type SearchResult struct {
-	Categories []*struct {
-		Type  string               `json:"type"`
-		Items []*SearchResultAnime `json:"items"`
-	} `json:"categories"`
-}
+	SearchResult struct {
+		Categories []*struct {
+			Type  string               `json:"type"`
+			Items []*SearchResultAnime `json:"items"`
+		} `json:"categories"`
+	}
 
-type SearchCache struct {
-	*result.Cache[int, *SearchResultAnime]
-}
+	SearchCache struct {
+		*result.Cache[int, *SearchResultAnime]
+	}
+)
 
 //----------------------------------------------------------------------------------------------------------------------
 

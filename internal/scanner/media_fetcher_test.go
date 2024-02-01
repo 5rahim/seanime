@@ -13,7 +13,7 @@ import (
 
 func TestNewMediaFetcher(t *testing.T) {
 
-	anilistClient, _, data := anilist.MockAnilistAccount()
+	anilistClient, _, data := anilist.MockAnilistClients()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -115,7 +115,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
-	anilistClient, _, _ := anilist.MockAnilistAccount()
+	anilistClient, _, _ := anilist.MockAnilistClients()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -194,7 +194,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	anilistClient := anilist.MockGetAnilistClient()
+	anilistClient := anilist.MockAnilistClient()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()

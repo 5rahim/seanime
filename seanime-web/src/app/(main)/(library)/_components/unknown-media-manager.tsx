@@ -48,7 +48,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
             <AppLayoutStack>
 
                 <p>
-                    Seanime found {unknownGroups.length} media in your local library that are absent from your AniList list.<br />
+                    Seanime found {unknownGroups.length} media in your local library that are absent from your AniList collection.<br />
                     Add them to be able to see them in your library.
                 </p>
 

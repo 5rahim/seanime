@@ -18,6 +18,7 @@ export const enum SeaEndpoints {
      */
     MAL_AUTH = "/mal/auth",
     MAL_LOGOUT = "/mal/logout",
+    MAL_LIST_ENTRY_PROGRESS = "/mal/list-entry/progress", // (POST)
     /**
      * Library
      */

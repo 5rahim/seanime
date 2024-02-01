@@ -30,11 +30,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
 
-	// Authenticate user with MAL
-	// POST /v1/mal/auth
-	v1.Post("/mal/auth", makeHandler(app, HandleMalAuth))
-	v1.Post("/mal/logout", makeHandler(app, HandleMalLogout))
-
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleTestDump))
 
@@ -83,6 +78,20 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Edit AniList List Entry's progress
 	// POST /v1/anilist/list-entry
 	v1Anilist.Post("/list-entry/progress", makeHandler(app, HandleEditAnilistListEntryProgress))
+
+	//
+	// MAL
+	//
+
+	// Authenticate user with MAL
+	// POST /v1/mal/auth
+	v1.Post("/mal/auth", makeHandler(app, HandleMALAuth))
+	// Logout from MAL
+	// POST /v1/mal/logout
+	v1.Post("/mal/logout", makeHandler(app, HandleMALLogout))
+	// Logout from MAL
+	// POST /v1/mal/progress
+	v1.Post("/mal/list-entry/progress", makeHandler(app, HandleEditMALListEntryProgress))
 
 	//
 	// Library

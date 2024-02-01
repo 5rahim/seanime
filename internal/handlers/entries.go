@@ -374,6 +374,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleAddUnknownMedia will add the given media ids to the user's AniList planning collection.
 func HandleAddUnknownMedia(c *RouteCtx) error {
 
 	type body struct {

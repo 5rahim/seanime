@@ -7,7 +7,7 @@ import { useSeaMutation } from "@/lib/server/queries/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import React from "react"
-import { BiCheckCircle, BiXCircle } from "react-icons/bi"
+import { BiCheckCircle, BiLogOut, BiXCircle } from "react-icons/bi"
 import { SiMyanimelist } from "react-icons/si"
 
 export default function Page() {
@@ -43,7 +43,7 @@ export default function Page() {
     )
 
     return (
-        <div className="p-12 space-y-4">
+        <div className="p-12 pt-0 space-y-4">
             <p className="flex justify-center w-full text-8xl relative">
                 <SiMyanimelist />
                 <Button
@@ -54,7 +54,8 @@ export default function Page() {
                     onClick={() => {
                         logout()
                     }}
-                >Logout</Button>
+                    leftIcon={<BiLogOut />}
+                >Log out</Button>
             </p>
 
             <div className="border border-[--border] rounded-[--radius] p-4 bg-[--paper] text-lg space-y-2">
@@ -63,8 +64,12 @@ export default function Page() {
                 </p>
                 <h4>Integration features:</h4>
                 <ul className="[&>li]:flex [&>li]:items-center [&>li]:gap-1.5 [&>li]:truncate">
-                    <li><BiCheckCircle className="text-green-300" /> Progress tracking</li>
-                    <li><BiXCircle className="text-red-400" /> List management <span className="text-[--muted] italic text-base"></span></li>
+                    <li><BiCheckCircle className="text-green-300" /> Progress tracking <span className="text-[--muted] italic text-base">
+                        Your progress will be automatically updated on MAL when you watch an episode on Seanime.
+                    </span></li>
+                    <li><BiXCircle className="text-red-400" /> List management <span className="text-[--muted] italic text-base">
+                        To manage your lists (status, score, ...), use the official MAL website or app.
+                    </span></li>
                     <li><BiXCircle className="text-red-400" /> List synchronization <span className="text-[--muted] italic text-base">
                         To automatically synchronize your lists between AniList and MAL, use MALSync.</span>
                     </li>
