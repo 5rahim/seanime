@@ -43,13 +43,12 @@ export default function Page() {
     )
 
     return (
-        <div className="p-12 pt-0 space-y-4">
-            <p className="flex justify-center w-full text-8xl relative">
+        <div className="p-12 pt-0 space-y-0">
+            <p className="flex justify-between items-center w-full text-8xl relative">
                 <SiMyanimelist />
                 <Button
                     intent={"alert-subtle"}
                     size={"sm"}
-                    className="absolute right-0"
                     isLoading={isPending || isSuccess}
                     onClick={() => {
                         logout()
@@ -67,12 +66,12 @@ export default function Page() {
                     <li><BiCheckCircle className="text-green-300" /> Progress tracking <span className="text-[--muted] italic text-base">
                         Your progress will be automatically updated on MAL when you watch an episode on Seanime.
                     </span></li>
+                    <li><BiCheckCircle className="text-green-300" /> List synchronization <span className="text-[--muted] italic text-base">
+                    </span>
+                    </li>
                     <li><BiXCircle className="text-red-400" /> List management <span className="text-[--muted] italic text-base">
                         To manage your lists (status, score, ...), use the official MAL website or app.
                     </span></li>
-                    <li><BiXCircle className="text-red-400" /> List synchronization <span className="text-[--muted] italic text-base">
-                        To automatically synchronize your lists between AniList and MAL, use MALSync.</span>
-                    </li>
                 </ul>
             </div>
         </div>

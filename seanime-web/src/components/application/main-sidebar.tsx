@@ -25,6 +25,8 @@ import { IoLibrary } from "@react-icons/all-files/io5/IoLibrary"
 import { useSetAtom } from "jotai"
 import { usePathname } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
+import { BiLogOut } from "react-icons/bi"
+import { SiMyanimelist } from "react-icons/si"
 
 export function MainSidebar() {
 
@@ -124,10 +126,10 @@ export function MainSidebar() {
                             <Avatar size={"sm"} className={"cursor-pointer"} src={user?.avatar?.medium || ""}/>
                         </div>}>
                             <DropdownMenuLink href="/mal">
-                                MyAnimeList
+                                <SiMyanimelist className="text-lg text-indigo-200" /> MyAnimeList
                             </DropdownMenuLink>
                             <DropdownMenuItem onClick={() => logout()}>
-                                Sign out
+                                <BiLogOut /> Sign out
                             </DropdownMenuItem>
                         </DropdownMenu>
                     </div>}
