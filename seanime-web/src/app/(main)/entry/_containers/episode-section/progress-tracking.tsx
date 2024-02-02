@@ -1,3 +1,4 @@
+import { serverStatusAtom } from "@/atoms/server-status"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,7 @@ import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/queries/utils"
 import { MediaEntry, MediaPlayerPlaybackStatus } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
+import { useAtomValue } from "jotai/react"
 import { useMemo, useState } from "react"
 import toast from "react-hot-toast"
 
@@ -15,6 +17,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
 
     const qc = useQueryClient()
 
+    const serverStatus = useAtomValue(serverStatusAtom)
     const trackerModal = useBoolean(false)
     const isTracking = useBoolean(false)
     const isCompleted = useBoolean(false)
@@ -110,7 +113,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         updateAniListProgress({ mediaId: entry.mediaId, progress: episode!.progressNumber, episodes: entry.media?.episodes ?? 0 })
 
         // If the media has a MAL ID, update the progress on MAL as well
-        if (entry.media?.idMal) {
+        if (serverStatus?.mal && entry.media?.idMal) {
             updateMALProgress({ mediaId: entry.media?.idMal, progress: episode!.episodeNumber })
         }
     }

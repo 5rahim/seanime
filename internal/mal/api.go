@@ -2,7 +2,6 @@ package mal
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/goccy/go-json"
 	"net/http"
 	"net/url"
@@ -142,8 +141,6 @@ func UpdateAnimeListStatus(accessToken string, opts *AnimeListStatusParams, mId 
 		urlData.Set("score", fmt.Sprintf("%d", *opts.Score))
 	}
 	encodedData := urlData.Encode()
-
-	spew.Dump(reqUrl)
 
 	req, err := http.NewRequest("PATCH", reqUrl, strings.NewReader(encodedData))
 	if err != nil {
