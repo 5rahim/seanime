@@ -1,3 +1,4 @@
+"use client"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -29,8 +30,8 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
     return (
         <div className="space-y-4">
 
-            <p className="text-[--muted]">Source of
-                                          truth: <span className="text-white font-semibold">{getSourceName(serverStatus?.settings?.listSync?.origin || "")}</span>
+            <p className="text-[--muted]">
+                Source of truth: <span className="text-white font-semibold">{getSourceName(serverStatus?.settings?.listSync?.origin || "")}</span>
             </p>
 
             <div className="flex items-center justify-between w-full">
@@ -43,7 +44,7 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
             </div>
 
             <div className="space-y-4">
-                {diffs.map((diff, idx) => {
+                {diffs?.map((diff, idx) => {
                     return (
                         <div key={idx + diff.kind}>
                             <DiffItem item={diff} />

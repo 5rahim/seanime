@@ -10,7 +10,7 @@ import (
 func (db *Database) GetMalInfo() (*models.Mal, error) {
 	// Get the first entry
 	var res models.Mal
-	err := db.gormdb.First(&res).Error
+	err := db.gormdb.First(&res, 1).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("MAL not connected")
 	} else if err != nil {

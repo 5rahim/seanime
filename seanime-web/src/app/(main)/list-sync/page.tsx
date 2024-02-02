@@ -1,6 +1,7 @@
 "use client"
 import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diffs"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core"
 import { TabPanels } from "@/components/ui/tabs"
 import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
@@ -43,7 +44,7 @@ export default function Page() {
         },
     })
 
-    const { data: diffsData } = useSeaQuery<ListSyncDiff[]>({
+    const { data: diffsData } = useSeaQuery<ListSyncDiff[] | string>({
         queryKey: ["list-sync-diffs"],
         endpoint: SeaEndpoints.LIST_SYNC_DIFFS,
     })
@@ -75,7 +76,9 @@ export default function Page() {
                     <TabPanels.Container>
                         <TabPanels.Panel>
                             <div className="p-4">
-                                <ListSyncDiffs diffs={diffsData ?? []} />
+                                {typeof diffsData !== "string" && !!diffsData?.length && <ListSyncDiffs diffs={diffsData ?? []} />}
+                                {typeof diffsData !== "string" && !diffsData?.length && <LuffyError title="Empty" />}
+                                {typeof diffsData === "string" && <LuffyError>{diffsData}</LuffyError>}
                             </div>
                         </TabPanels.Panel>
                         <TabPanels.Panel>
