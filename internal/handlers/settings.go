@@ -72,6 +72,8 @@ func HandleSaveSettings(c *RouteCtx) error {
 	return c.RespondWithData(status)
 }
 
+// HandleSaveListSyncSettings
+// This will also delete the cached listsync.ListSync instance
 func HandleSaveListSyncSettings(c *RouteCtx) error {
 
 	body := new(listSyncSettingsBody)
@@ -85,7 +87,7 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	settings, err := c.App.Database.UpsertSettings(&models.Settings{
+	_, err = c.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
@@ -104,9 +106,9 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	c.App.WSEventManager.SendEvent("settings", settings)
+	c.App.ListSyncCache.Delete(0)
 
-	status := NewStatus(c)
+	// DEVNOTE: Refetch server status from client
 
-	return c.RespondWithData(status)
+	return c.RespondWithData(nil)
 }

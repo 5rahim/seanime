@@ -8,19 +8,19 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-func (e *AnimeEntry) FindMetadataDiffs(other *AnimeEntry) ([]AnimeMetadataDiffType, bool) {
+func (e *AnimeEntry) FindMetadataDiffs(other *AnimeEntry) ([]AnimeMetadataDiffKind, bool) {
 	if e.IsEqual(other) {
 		return nil, false
 	}
-	var diffs []AnimeMetadataDiffType
+	var diffs []AnimeMetadataDiffKind
 	if e.Status != other.Status {
-		diffs = append(diffs, AnimeMetadataDiffTypeStatus)
+		diffs = append(diffs, AnimeMetadataDiffStatus)
 	}
 	if e.Progress != other.Progress {
-		diffs = append(diffs, AnimeMetadataDiffTypeProgress)
+		diffs = append(diffs, AnimeMetadataDiffKindProgress)
 	}
 	if e.Score != other.Score {
-		diffs = append(diffs, AnimeMetadataDiffTypeScore)
+		diffs = append(diffs, AnimeMetadataDiffKindScore)
 	}
 	return diffs, true
 }
@@ -91,6 +91,10 @@ func NewAnimeEntryFromAnilistBaseMedia(media *anilist.BaseMedia) (*AnimeEntry, b
 	if media.IDMal == nil {
 		return nil, false
 	}
+	image := ""
+	if media.GetCoverImage().GetLarge() != nil {
+		image = *media.GetCoverImage().GetLarge()
+	}
 
 	return &AnimeEntry{
 		Source:       SourceAniList,
@@ -99,7 +103,7 @@ func NewAnimeEntryFromAnilistBaseMedia(media *anilist.BaseMedia) (*AnimeEntry, b
 		DisplayTitle: media.GetTitleSafe(),
 		Url:          fmt.Sprintf("https://anilist.co/anime/%d", media.ID),
 		TotalEpisode: media.GetTotalEpisodeCount(),
-		Image:        *media.GetBannerImage(),
+		Image:        image,
 		Status:       AnimeStatusUnknown,
 		Progress:     0,
 		Score:        0,

@@ -76,11 +76,11 @@ func TestListSync_CheckDiff(t *testing.T) {
 		t.Fatalf("expected 2 diffs, got %d", len(diffs))
 	}
 
-	if diffs[0].Type != AnimeDiffTypeMissingTarget {
+	if diffs[0].Type != AnimeDiffKindMissingTarget {
 		t.Fatalf("expected first diff to be missing_in_target, got %s", diffs[0].Type)
 	}
 
-	if diffs[1].Type != AnimeDiffTypeMetadata {
+	if diffs[1].Type != AnimeDiffKindMetadata {
 		t.Fatalf("expected second diff to be metadata, got %s", diffs[1].Type)
 	}
 

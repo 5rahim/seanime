@@ -11,6 +11,7 @@ import (
 	_db "github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/listsync"
 	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/nyaa"
@@ -36,6 +37,7 @@ type (
 		anilistCollection *anilist.AnimeCollection
 		account           *models.Account
 		WSEventManager    *events.WSEventManager
+		ListSyncCache     *listsync.Cache
 		MediaPlayer       struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
@@ -103,6 +105,7 @@ func NewApp(options *AppOptions) *App {
 		AnizipCache:     anizip.NewCache(),
 		NyaaSearchCache: nyaa.NewSearchCache(),
 		WSEventManager:  events.NewWSEventManager(logger),
+		ListSyncCache:   listsync.NewCache(),
 		Logger:          logger,
 	}
 

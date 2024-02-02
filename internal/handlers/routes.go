@@ -31,6 +31,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
 	v1.Patch("/settings/list-sync", makeHandler(app, HandleSaveListSyncSettings))
 
+	// List Sync
+	v1.Get("/list-sync/diffs", makeHandler(app, HandleGetListSyncDiffs))
+	v1.Post("/list-sync/cache", makeHandler(app, HandleDeleteListSyncCache))
+
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleTestDump))
 

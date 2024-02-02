@@ -3,6 +3,7 @@ export const enum SeaEndpoints {
     LOGIN = "/auth/login",
     LOGOUT = "/auth/logout",
     SETTINGS = "/settings", // (PATCH)
+    LIST_SYNC_SETTINGS = "/settings/list-sync", // (PATCH)
     START_MEDIA_PLAYER = "/media-player/start", // (POST)
     OPEN_IN_EXPLORER = "/open-in-explorer", // (POST)
     PLAY_VIDEO = "/media-player/play",
@@ -19,6 +20,11 @@ export const enum SeaEndpoints {
     MAL_AUTH = "/mal/auth",
     MAL_LOGOUT = "/mal/logout",
     MAL_LIST_ENTRY_PROGRESS = "/mal/list-entry/progress", // (POST)
+    /**
+     * List Sync
+     */
+    LIST_SYNC_DIFFS = "/list-sync/diffs", // (GET)
+    LIST_SYNC_CACHE = "/list-sync/cache", // (POST)
     /**
      * Library
      */

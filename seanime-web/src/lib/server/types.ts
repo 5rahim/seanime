@@ -43,6 +43,7 @@ export type Settings = {
     mediaPlayer?: MediaPlayerSettings
     torrent?: TorrentSettings
     anilist?: AnilistSettings
+    listSync?: ListSyncSettings
 }
 
 export type AnilistSettings = {
@@ -71,6 +72,58 @@ export type TorrentSettings = {
     qbittorrentUsername: string
     qbittorrentPassword: string
 }
+
+/**
+ * List Sync
+ */
+
+export type ListSyncSettings = {
+    origin: string
+    automatic: boolean
+}
+
+export const enum ListSyncOrigin {
+    ANILIST = "anilist",
+    MAL = "mal"
+}
+
+export const enum ListSyncAnimeDiffKind {
+    MISSING_IN_ORIGIN = "missing_in_origin",
+    MISSING_IN_TARGET = "missing_in_target",
+    METADATA = "metadata",
+}
+
+export const enum ListSyncAnimeMetadataDiffKind {
+    SCORE = "score",
+    PROGRESS = "progress",
+    STATUS = "status",
+}
+
+
+export type ListSyncAnimeEntry = {
+    source: ListSyncOrigin
+    sourceID: number
+    malID: number
+    displayTitle: string
+    url: string
+    progress: number
+    totalEpisode: number
+    status: string
+    image: string
+    score: string
+}
+
+export type ListSyncDiff = {
+    targetSource: string
+    originEntry?: ListSyncAnimeEntry
+    targetEntry?: ListSyncAnimeEntry
+    kind: ListSyncAnimeDiffKind
+    metadataDiffKinds: ListSyncAnimeMetadataDiffKind[]
+}
+
+/**
+ * MAL
+ */
 
 export type MalInfo = {
     username: string

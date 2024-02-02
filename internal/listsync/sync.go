@@ -1,32 +1,96 @@
 package listsync
 
+import (
+	"context"
+	"errors"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/db"
+	"github.com/seanime-app/seanime/internal/mal"
+	"github.com/seanime-app/seanime/internal/result"
+)
+
 const (
-	AnimeDiffTypeMissingOrigin    AnimeDiffType         = "missing_in_origin" // Anime is missing in the origin (i.e. Delete from target)
-	AnimeDiffTypeMissingTarget    AnimeDiffType         = "missing_in_target" // Anime is missing in the target (i.e. Add to target)
-	AnimeDiffTypeMetadata         AnimeDiffType         = "metadata"          // Anime metadata is different in the origin and the target (i.e. Update in target)
-	AnimeMetadataDiffTypeScore    AnimeMetadataDiffType = "score"
-	AnimeMetadataDiffTypeProgress AnimeMetadataDiffType = "progress"
-	AnimeMetadataDiffTypeStatus   AnimeMetadataDiffType = "status"
+	ErrSettingsNotSet            = "list sync settings not set"
+	ErrOriginNotSet              = "list sync origin not set"
+	ErrNotAuthenticatedToAnilist = "not authenticated to AniList"
+	ErrMalAccountNotConnected    = "MAL account not connected"
 )
 
 type (
-	AnimeDiffType         string
-	AnimeMetadataDiffType string
-	ListSync              struct {
-		Origin  *Provider
-		Targets []*Provider
-	}
-
-	MissingAnime struct {
-		Provider      *Provider
-		OriginEntries []*AnimeEntry // Entries that are present in the origin but not in the target
-	}
-	AnimeDiff struct {
-		Provider      *Provider     // The provider that has the diff
-		OriginEntries []*AnimeEntry // Entries that are different in the origin and the target
-		Type          AnimeDiffType
+	Cache struct {
+		*result.Cache[int, *ListSync]
 	}
 )
+
+func NewCache() *Cache {
+	return &Cache{result.NewCache[int, *ListSync]()}
+}
+
+func BuildListSync(db *db.Database) (*ListSync, error) {
+	settings, err := db.GetSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.ListSync == nil {
+		return nil, errors.New(ErrSettingsNotSet)
+	}
+
+	origin := settings.ListSync.Origin
+	if origin == "" {
+		return nil, errors.New(ErrOriginNotSet)
+	}
+
+	// Anilist provider
+	anilistProvider := &Provider{}
+	account, err := db.GetAccount()
+	if err != nil {
+		return nil, err // AniList provider is required
+	}
+	if account.Token == "" {
+		return nil, errors.New(ErrNotAuthenticatedToAnilist)
+	}
+
+	anilistClient := anilist.NewAuthedClient(account.Token)
+	collection, err := anilistClient.AnimeCollection(context.Background(), &account.Username)
+	if err != nil {
+		return nil, err
+	}
+	anilistProvider = NewAnilistProvider(collection)
+
+	// MAL provider
+	malProvider := &Provider{}
+	malProvider = nil
+	malInfo, err := db.GetMalInfo()
+	if err == nil && malInfo != nil {
+		collection, err := mal.GetAnimeCollection(malInfo.AccessToken)
+		if err == nil {
+			malProvider = NewMALProvider(collection)
+		}
+	}
+
+	ls := &ListSync{}
+
+	targets := make([]*Provider, 0)
+
+	switch origin {
+	case "anilist":
+		if malProvider != nil {
+			targets = append(targets, malProvider)
+		}
+		// ... Add more providers here
+		ls = NewListSync(anilistProvider, targets)
+	case "mal":
+		if malProvider == nil {
+			return nil, errors.New(ErrMalAccountNotConnected)
+		}
+		targets = append(targets, anilistProvider)
+		// ... Add more providers here
+		ls = NewListSync(malProvider, targets)
+	}
+
+	return ls, nil
+}
 
 // NewListSync creates a new list sync
 func NewListSync(origin *Provider, targets []*Provider) *ListSync {
@@ -43,32 +107,42 @@ func (ls *ListSync) CheckDiffs() []*AnimeDiff {
 		// First, check for missing anime in the target
 		missing, ok := checkMissingFrom(ls.Origin, target)
 		if ok {
-			diff = append(diff, &AnimeDiff{
-				Provider:      target,
-				OriginEntries: missing.OriginEntries,
-				Type:          AnimeDiffTypeMissingTarget,
-			})
+			for _, entry := range missing.OriginEntries {
+				diff = append(diff, &AnimeDiff{
+					TargetSource:      target.Source,
+					OriginEntry:       entry,
+					TargetEntry:       nil,
+					Kind:              AnimeDiffKindMissingTarget,
+					MetadataDiffKinds: make([]AnimeMetadataDiffKind, 0),
+				})
+			}
 		}
 
 		// Then, check for missing anime in the origin
 		missing, ok = checkMissingFrom(target, ls.Origin)
 		if ok {
-			diff = append(diff, &AnimeDiff{
-				Provider:      target,
-				OriginEntries: missing.OriginEntries,
-				Type:          AnimeDiffTypeMissingOrigin,
-			})
+			for _, entry := range missing.OriginEntries {
+				diff = append(diff, &AnimeDiff{
+					TargetSource:      target.Source,
+					OriginEntry:       nil,
+					TargetEntry:       entry,
+					Kind:              AnimeDiffKindMissingOrigin,
+					MetadataDiffKinds: make([]AnimeMetadataDiffKind, 0),
+				})
+			}
 		}
 
 		// Finally, check for different metadata
 		for _, entry := range ls.Origin.Entries {
 			if targetEntry, ok := target.EntriesMap[entry.MalID]; ok {
-				_, found := entry.FindMetadataDiffs(targetEntry)
+				diffs, found := entry.FindMetadataDiffs(targetEntry)
 				if found {
 					diff = append(diff, &AnimeDiff{
-						Provider:      target,
-						OriginEntries: []*AnimeEntry{entry},
-						Type:          AnimeDiffTypeMetadata,
+						TargetSource:      target.Source,
+						OriginEntry:       entry,
+						TargetEntry:       targetEntry,
+						Kind:              AnimeDiffKindMetadata,
+						MetadataDiffKinds: diffs,
 					})
 				}
 			}

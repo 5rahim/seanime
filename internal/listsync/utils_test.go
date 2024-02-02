@@ -38,15 +38,15 @@ func TestAnimeEntry_FindMetadataDiffs(t *testing.T) {
 		t.Fatalf("expected diffs to be found")
 	}
 
-	if !slices.Contains(diffs, AnimeMetadataDiffTypeStatus) {
+	if !slices.Contains(diffs, AnimeMetadataDiffStatus) {
 		t.Fatalf("expected status diff to be found")
 	}
 
-	if !slices.Contains(diffs, AnimeMetadataDiffTypeProgress) {
+	if !slices.Contains(diffs, AnimeMetadataDiffKindProgress) {
 		t.Fatalf("expected progress diff to be found")
 	}
 
-	if !slices.Contains(diffs, AnimeMetadataDiffTypeScore) {
+	if !slices.Contains(diffs, AnimeMetadataDiffKindScore) {
 		t.Fatalf("expected score diff to be found")
 	}
 
