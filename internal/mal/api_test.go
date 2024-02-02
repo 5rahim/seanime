@@ -20,6 +20,19 @@ func TestGetAnimeDetails(t *testing.T) {
 	t.Log(res.Title)
 }
 
+func TestGetAnimeCollection(t *testing.T) {
+
+	info := MockJWTs()
+
+	res, err := GetAnimeCollection(info.MALJwt)
+
+	if err != nil {
+		t.Fatalf("error while fetching anime collection, %v", err)
+	}
+
+	spew.Dump(res[0])
+}
+
 func TestUpdateAnimeListStatus(t *testing.T) {
 
 	info := MockJWTs()
@@ -36,5 +49,4 @@ func TestUpdateAnimeListStatus(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error while fetching media, %v", err)
 	}
-
 }

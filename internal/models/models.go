@@ -41,6 +41,7 @@ type Settings struct {
 	MediaPlayer *MediaPlayerSettings `gorm:"embedded" json:"mediaPlayer"`
 	Torrent     *TorrentSettings     `gorm:"embedded" json:"torrent"`
 	Anilist     *AnilistSettings     `gorm:"embedded" json:"anilist"`
+	ListSync    *ListSyncSettings    `gorm:"embedded" json:"listSync"`
 }
 
 type AnilistSettings struct {
@@ -68,6 +69,11 @@ type TorrentSettings struct {
 	QBittorrentPort     int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
 	QBittorrentUsername string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
 	QBittorrentPassword string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
+}
+
+type ListSyncSettings struct {
+	Automatic bool   `gorm:"column:automatic_sync" json:"automatic"`
+	Origin    string `gorm:"column:sync_origin" json:"origin"`
 }
 
 // +---------------------+

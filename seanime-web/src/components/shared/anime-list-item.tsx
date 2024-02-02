@@ -1,28 +1,28 @@
-import React, { memo, useEffect, useLayoutEffect, useState } from "react"
-import { cn } from "@/components/ui/core"
-import Image from "next/image"
-import { Tooltip } from "@/components/ui/tooltip"
-import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
+import { getAtomicLibraryEntryAtom } from "@/atoms/collection"
+import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
-import { addSeconds, formatDistanceToNow } from "date-fns"
-import { RiSignalTowerLine } from "@react-icons/all-files/ri/RiSignalTowerLine"
-import Link from "next/link"
 import { Button, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
+import { Tooltip } from "@/components/ui/tooltip"
+import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
+import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
+import { MediaEntryLibraryData, MediaEntryListData } from "@/lib/server/types"
+import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
+import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
 import { BiPlay } from "@react-icons/all-files/bi/BiPlay"
 import { BiStar } from "@react-icons/all-files/bi/BiStar"
 import { IoLibrarySharp } from "@react-icons/all-files/io5/IoLibrarySharp"
-import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { RiSignalTowerLine } from "@react-icons/all-files/ri/RiSignalTowerLine"
+import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
+import { addSeconds, formatDistanceToNow } from "date-fns"
+import { useAtom } from "jotai"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
-import { imageShimmer } from "@/components/shared/image-helpers"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { MediaEntryLibraryData, MediaEntryListData } from "@/lib/server/types"
-import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
-import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
-import { getAtomicLibraryEntryAtom } from "@/atoms/collection"
+import Image from "next/image"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAtom } from "jotai"
+import React, { memo, useEffect, useLayoutEffect, useState } from "react"
 
 type AnimeListItemProps = {
     media: BaseMediaFragment,
@@ -105,6 +105,19 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     {/*METADATA SECTION*/}
                     <div className={"space-y-1"}>
                         <div className={"aspect-[4/2] relative rounded-md overflow-hidden mb-2"}>
+                            {showProgressBar && <div className={"absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0"}>
+                                <div
+                                    className={cn(
+                                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                                        {
+                                            "bg-brand-400": listData?.status === "CURRENT",
+                                            "bg-gray-400": listData?.status !== "CURRENT",
+                                        },
+                                    )}
+                                    style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
+                                ></div>
+                            </div>}
+
                             {(!!media.bannerImage || !!media.coverImage?.large) ? <Image
                                 src={media.bannerImage || media.coverImage?.large || ""}
                                 alt={""}

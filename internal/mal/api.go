@@ -72,6 +72,23 @@ type (
 		MediaType   MediaType   `json:"media_type"`
 		Status      MediaStatus `json:"status"`
 	}
+	AnimeListEntry struct {
+		Node struct {
+			ID          int    `json:"id"`
+			Title       string `json:"title"`
+			MainPicture struct {
+				Medium string `json:"medium"`
+				Large  string `json:"large"`
+			} `json:"main_picture"`
+		} `json:"node"`
+		ListStatus struct {
+			Status             MediaListStatus `json:"status"`
+			IsRewatching       bool            `json:"is_rewatching"`
+			NumWatchedEpisodes int             `json:"num_watched_episodes"`
+			Score              int             `json:"score"`
+			UpdatedAt          string          `json:"updated_at"`
+		} `json:"list_status"`
+	}
 )
 
 func GetAnimeDetails(accessToken string, mId int) (*BasicAnime, error) {
@@ -113,6 +130,52 @@ func GetAnimeDetails(accessToken string, mId int) (*BasicAnime, error) {
 	return &anime, nil
 }
 
+func GetAnimeCollection(accessToken string) ([]*AnimeListEntry, error) {
+
+	reqUrl := fmt.Sprintf("%s/users/@me/animelist?fields=list_status,num_episodes&limit=1000", ApiBaseURL)
+
+	// Create a new HTTP GET request
+	req, err := http.NewRequest("GET", reqUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if accessToken == "" {
+		return nil, fmt.Errorf("access token is empty")
+	}
+
+	// Set headers
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Make the HTTP request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("invalid response status %s", resp.Status)
+	}
+
+	type response struct {
+		Data   []*AnimeListEntry `json:"data"`
+		Paging struct {
+			Next string `json:"next"`
+		} `json:"paging"`
+	}
+
+	// Decode the response
+	var data response
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return nil, err
+	}
+
+	return data.Data, nil
+}
+
 type AnimeListStatusParams struct {
 	Status             *MediaListStatus
 	IsRewatching       *bool
@@ -143,6 +206,33 @@ func UpdateAnimeListStatus(accessToken string, opts *AnimeListStatusParams, mId 
 	encodedData := urlData.Encode()
 
 	req, err := http.NewRequest("PATCH", reqUrl, strings.NewReader(encodedData))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+
+	// Response
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("invalid response status %s", res.Status)
+	}
+
+	return nil
+}
+
+func DeleteAnimeListItem(accessToken string, mId int) error {
+
+	reqUrl := fmt.Sprintf("%s/anime/%d/my_list_status", ApiBaseURL, mId)
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("DELETE", reqUrl, nil)
 	if err != nil {
 		return err
 	}

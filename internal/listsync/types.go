@@ -16,7 +16,8 @@ type (
 	AnimeListStatus string
 	AnimeEntry      struct {
 		Source       Source
-		ID           int
+		SourceID     int
+		MalID        int // Used for matching
 		DisplayTitle string
 		Url          string
 		Progress     int
