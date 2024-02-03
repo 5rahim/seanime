@@ -107,10 +107,15 @@ export function useSeaQuery<TData, TParams = any>(
 
 function _handleSeaError(err: string | null | undefined): string {
     if (!err) return ""
+
+    if (err.includes("Too many requests"))
+        return "AniList: Too many requests, please wait a moment and try again."
+
     try {
         const graphqlErr = JSON.parse(err)
         return "AniList error"
-    } catch (e) {
+    }
+    catch (e) {
         return "Error: " + err
     }
 }
