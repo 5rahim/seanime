@@ -3,6 +3,8 @@ package listsync
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/mal"
@@ -73,34 +75,44 @@ func BuildListSync(db *db.Database) (*ListSync, error) {
 
 	targets := make([]*Provider, 0)
 
+	providerRepo := &ProviderRepository{
+		AnilistClient: anilistClient,
+		MalToken:      malInfo.AccessToken,
+	}
+
 	switch origin {
 	case "anilist":
 		if malProvider != nil {
 			targets = append(targets, malProvider)
 		}
 		// ... Add more providers here
-		ls = NewListSync(anilistProvider, targets)
+		ls = NewListSync(anilistProvider, targets, providerRepo)
 	case "mal":
 		if malProvider == nil {
 			return nil, errors.New(ErrMalAccountNotConnected)
 		}
 		targets = append(targets, anilistProvider)
 		// ... Add more providers here
-		ls = NewListSync(malProvider, targets)
+		ls = NewListSync(malProvider, targets, providerRepo)
 	}
 
 	return ls, nil
 }
 
 // NewListSync creates a new list sync
-func NewListSync(origin *Provider, targets []*Provider) *ListSync {
-	return &ListSync{
-		Origin:  origin,
-		Targets: targets,
+func NewListSync(origin *Provider, targets []*Provider, providerRepo *ProviderRepository) *ListSync {
+	ls := &ListSync{
+		Origin:             origin,
+		Targets:            targets,
+		ProviderRepository: providerRepo,
 	}
+
+	ls.AnimeDiffs = ls.getAnimeDiffs()
+
+	return ls
 }
 
-func (ls *ListSync) CheckDiffs() []*AnimeDiff {
+func (ls *ListSync) getAnimeDiffs() []*AnimeDiff {
 	diff := make([]*AnimeDiff, 0)
 
 	for _, target := range ls.Targets {
@@ -109,6 +121,7 @@ func (ls *ListSync) CheckDiffs() []*AnimeDiff {
 		if ok {
 			for _, entry := range missing.OriginEntries {
 				diff = append(diff, &AnimeDiff{
+					ID:                uuid.NewString(),
 					TargetSource:      target.Source,
 					OriginEntry:       entry,
 					TargetEntry:       nil,
@@ -123,6 +136,7 @@ func (ls *ListSync) CheckDiffs() []*AnimeDiff {
 		if ok {
 			for _, entry := range missing.OriginEntries {
 				diff = append(diff, &AnimeDiff{
+					ID:                uuid.NewString(),
 					TargetSource:      target.Source,
 					OriginEntry:       nil,
 					TargetEntry:       entry,
@@ -133,11 +147,12 @@ func (ls *ListSync) CheckDiffs() []*AnimeDiff {
 		}
 
 		// Finally, check for different metadata
-		for _, entry := range ls.Origin.Entries {
-			if targetEntry, ok := target.EntriesMap[entry.MalID]; ok {
+		for _, entry := range ls.Origin.AnimeEntries {
+			if targetEntry, ok := target.AnimeEntriesMap[entry.MalID]; ok {
 				diffs, found := entry.FindMetadataDiffs(targetEntry)
 				if found {
 					diff = append(diff, &AnimeDiff{
+						ID:                uuid.NewString(),
 						TargetSource:      target.Source,
 						OriginEntry:       entry,
 						TargetEntry:       targetEntry,
@@ -156,8 +171,8 @@ func (ls *ListSync) CheckDiffs() []*AnimeDiff {
 func checkMissingFrom(origin *Provider, target *Provider) (*MissingAnime, bool) {
 	missing := make([]*AnimeEntry, 0)
 
-	for _, entry := range origin.Entries {
-		if _, ok := target.EntriesMap[entry.MalID]; !ok {
+	for _, entry := range origin.AnimeEntries {
+		if _, ok := target.AnimeEntriesMap[entry.MalID]; !ok {
 			missing = append(missing, entry)
 		}
 	}
@@ -172,11 +187,26 @@ func checkMissingFrom(origin *Provider, target *Provider) (*MissingAnime, bool) 
 	}, true
 }
 
-// SyncMetadata syncs metadata between the origin and targets when a match is found.
-// It does not sync the lists themselves.
-func (ls *ListSync) SyncMetadata() {
-}
+// SyncAnime syncs anime between the origin and targets
+func (ls *ListSync) SyncAnime(diff *AnimeDiff) error {
+	var err error
+	switch diff.Kind {
+	case AnimeDiffKindMissingTarget:
+		err = ls.ProviderRepository.AddAnime(diff.TargetSource, diff.OriginEntry)
+	case AnimeDiffKindMissingOrigin:
+		err = ls.ProviderRepository.DeleteAnime(diff.TargetSource, diff.TargetEntry)
+	case AnimeDiffKindMetadata:
+		err = ls.ProviderRepository.UpdateAnime(diff.TargetSource, diff.OriginEntry)
+	}
 
-// SyncMedia syncs media between the origin and targets
-func (ls *ListSync) SyncMedia() {
+	if err != nil {
+		return err
+	}
+
+	// Remove the diff
+	ls.AnimeDiffs = lo.Filter(ls.AnimeDiffs, func(ad *AnimeDiff, _ int) bool {
+		return ad.ID != diff.ID
+	})
+
+	return nil
 }

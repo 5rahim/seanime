@@ -113,7 +113,8 @@ export type ListSyncAnimeEntry = {
     score: string
 }
 
-export type ListSyncDiff = {
+export type ListSyncAnimeDiff = {
+    id: string
     targetSource: string
     originEntry?: ListSyncAnimeEntry
     targetEntry?: ListSyncAnimeEntry

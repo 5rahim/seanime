@@ -23,7 +23,8 @@ export const enum SeaEndpoints {
     /**
      * List Sync
      */
-    LIST_SYNC_DIFFS = "/list-sync/diffs", // (GET)
+    LIST_SYNC_ANIME = "/list-sync/anime", // (POST)
+    LIST_SYNC_ANIME_DIFFS = "/list-sync/anime-diffs", // (GET)
     LIST_SYNC_CACHE = "/list-sync/cache", // (POST)
     /**
      * Library

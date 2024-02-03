@@ -3,11 +3,12 @@ import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diff
 import { serverStatusAtom } from "@/atoms/server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { TabPanels } from "@/components/ui/tabs"
 import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
-import { ListSyncDiff, ListSyncOrigin } from "@/lib/server/types"
+import { ListSyncAnimeDiff, ListSyncOrigin } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { InferType } from "prop-types"
@@ -30,24 +31,28 @@ export default function Page() {
         method: "patch",
         onSuccess: async () => {
             await qc.refetchQueries({ queryKey: ["status"] })
-            await qc.refetchQueries({ queryKey: ["list-sync-diffs"] })
+            await qc.refetchQueries({ queryKey: ["list-sync-anime-diffs"] })
             toast.success("Settings updated")
         },
     })
 
-    const { mutate: deleteCache, isPending: isDeletingCache } = useSeaMutation<null, InferType<typeof settingsSchema>>({
+    const { mutate: clearCache, isPending: isDeletingCache } = useSeaMutation({
         endpoint: SeaEndpoints.LIST_SYNC_CACHE,
         method: "post",
         onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["list-sync-diffs"] })
+            await qc.refetchQueries({ queryKey: ["list-sync-anime-diffs"] })
             toast.success("List refreshed")
         },
     })
 
-    const { data: diffsData } = useSeaQuery<ListSyncDiff[] | string>({
-        queryKey: ["list-sync-diffs"],
-        endpoint: SeaEndpoints.LIST_SYNC_DIFFS,
+    const { data: animeDiffs, isLoading } = useSeaQuery<ListSyncAnimeDiff[] | string>({
+        queryKey: ["list-sync-anime-diffs"],
+        endpoint: SeaEndpoints.LIST_SYNC_ANIME_DIFFS,
     })
+
+    function handleClearCache() {
+        clearCache()
+    }
 
 
     return (
@@ -75,11 +80,13 @@ export default function Page() {
                     </TabPanels.Nav>
                     <TabPanels.Container>
                         <TabPanels.Panel>
-                            <div className="p-4">
-                                {typeof diffsData !== "string" && !!diffsData?.length && <ListSyncDiffs diffs={diffsData ?? []} />}
-                                {typeof diffsData !== "string" && !diffsData?.length && <LuffyError title="Empty" />}
-                                {typeof diffsData === "string" && <LuffyError>{diffsData}</LuffyError>}
-                            </div>
+                            {!isLoading && <div className="p-4">
+                                {typeof animeDiffs !== "string" && !!animeDiffs?.length &&
+                                    <ListSyncDiffs diffs={animeDiffs ?? []} onClearCache={handleClearCache} isDeletingCache={isDeletingCache} />}
+                                {typeof animeDiffs !== "string" && !animeDiffs?.length && <LuffyError title="Empty" />}
+                                {typeof animeDiffs === "string" && <LuffyError>{animeDiffs}</LuffyError>}
+                            </div>}
+                            {isLoading && <LoadingSpinner />}
                         </TabPanels.Panel>
                         <TabPanels.Panel>
                             <div className="p-4">
@@ -105,11 +112,11 @@ export default function Page() {
                                         // radioLabelClassName="font-semibold flex-none flex pr-8"
                                     />
 
-                                    <Field.Checkbox
-                                        label="Automatic background sync"
-                                        help="Automatically sync your lists with the source of truth."
-                                        name="automatic"
-                                    />
+                                    {/*<Field.Checkbox*/}
+                                    {/*    label="Automatic background sync"*/}
+                                    {/*    help="Automatically sync your lists with the source of truth."*/}
+                                    {/*    name="automatic"*/}
+                                    {/*/>*/}
 
                                     <Field.Submit role="save" isLoading={isPending} />
                                 </TypesafeForm>

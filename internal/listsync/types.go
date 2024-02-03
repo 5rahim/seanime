@@ -21,14 +21,17 @@ type (
 	AnimeDiffKind         string
 	AnimeMetadataDiffKind string
 	ListSync              struct {
-		Origin  *Provider
-		Targets []*Provider
+		Origin             *Provider
+		Targets            []*Provider
+		ProviderRepository *ProviderRepository
+		AnimeDiffs         []*AnimeDiff
 	}
 	MissingAnime struct {
 		Provider      *Provider
 		OriginEntries []*AnimeEntry // Entries that are present in the origin but not in the target
 	}
 	AnimeDiff struct {
+		ID                string                  `json:"id"`
 		TargetSource      Source                  `json:"targetSource"`
 		OriginEntry       *AnimeEntry             `json:"originEntry"`
 		TargetEntry       *AnimeEntry             `json:"targetEntry"` // Entry that will be updated

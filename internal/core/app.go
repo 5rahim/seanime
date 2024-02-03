@@ -37,7 +37,7 @@ type (
 		anilistCollection *anilist.AnimeCollection
 		account           *models.Account
 		WSEventManager    *events.WSEventManager
-		ListSyncCache     *listsync.Cache
+		ListSyncCache     *listsync.Cache // DEVNOTE: Shelved
 		MediaPlayer       struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc

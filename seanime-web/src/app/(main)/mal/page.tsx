@@ -66,7 +66,8 @@ export default function Page() {
                     <li><BiCheckCircle className="text-green-300" /> Progress tracking <span className="text-[--muted] italic text-base">
                         Your progress will be automatically updated on MAL when you watch an episode on Seanime.
                     </span></li>
-                    <li><BiCheckCircle className="text-green-300" /> List synchronization <span className="text-[--muted] italic text-base">
+                    <li><BiXCircle className="text-red-400" /> List synchronization <span className="text-[--muted] italic text-base">
+                        Use MALSync to synchronize your lists between MAL and AniList.
                     </span>
                     </li>
                     <li><BiXCircle className="text-red-400" /> List management <span className="text-[--muted] italic text-base">

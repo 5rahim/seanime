@@ -13,6 +13,7 @@ type GithubGraphQLClient interface {
 	UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
+	UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
@@ -1295,6 +1296,17 @@ type UpdateMediaListEntryProgress_SaveMediaListEntry struct {
 func (t *UpdateMediaListEntryProgress_SaveMediaListEntry) GetID() int {
 	if t == nil {
 		t = &UpdateMediaListEntryProgress_SaveMediaListEntry{}
+	}
+	return t.ID
+}
+
+type UpdateMediaListEntryStatus_SaveMediaListEntry struct {
+	ID int "json:\"id\" graphql:\"id\""
+}
+
+func (t *UpdateMediaListEntryStatus_SaveMediaListEntry) GetID() int {
+	if t == nil {
+		t = &UpdateMediaListEntryStatus_SaveMediaListEntry{}
 	}
 	return t.ID
 }
@@ -3725,6 +3737,17 @@ func (t *UpdateMediaListEntryProgress) GetSaveMediaListEntry() *UpdateMediaListE
 	return t.SaveMediaListEntry
 }
 
+type UpdateMediaListEntryStatus struct {
+	SaveMediaListEntry *UpdateMediaListEntryStatus_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
+}
+
+func (t *UpdateMediaListEntryStatus) GetSaveMediaListEntry() *UpdateMediaListEntryStatus_SaveMediaListEntry {
+	if t == nil {
+		t = &UpdateMediaListEntryStatus{}
+	}
+	return t.SaveMediaListEntry
+}
+
 type DeleteEntry struct {
 	DeleteMediaListEntry *DeleteEntry_DeleteMediaListEntry "json:\"DeleteMediaListEntry,omitempty\" graphql:\"DeleteMediaListEntry\""
 }
@@ -3924,6 +3947,33 @@ func (c *Client) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int,
 
 	var res UpdateMediaListEntryProgress
 	if err := c.Client.Post(ctx, "UpdateMediaListEntryProgress", UpdateMediaListEntryProgressDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateMediaListEntryStatusDocument = `mutation UpdateMediaListEntryStatus ($mediaId: Int, $progress: Int, $status: MediaListStatus, $scoreRaw: Int) {
+	SaveMediaListEntry(mediaId: $mediaId, progress: $progress, status: $status, scoreRaw: $scoreRaw) {
+		id
+	}
+}
+`
+
+func (c *Client) UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error) {
+	vars := map[string]interface{}{
+		"mediaId":  mediaID,
+		"progress": progress,
+		"status":   status,
+		"scoreRaw": scoreRaw,
+	}
+
+	var res UpdateMediaListEntryStatus
+	if err := c.Client.Post(ctx, "UpdateMediaListEntryStatus", UpdateMediaListEntryStatusDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -4813,6 +4863,7 @@ var DocumentOperationNames = map[string]string{
 	UpdateEntryDocument:                  "UpdateEntry",
 	UpdateMediaListEntryDocument:         "UpdateMediaListEntry",
 	UpdateMediaListEntryProgressDocument: "UpdateMediaListEntryProgress",
+	UpdateMediaListEntryStatusDocument:   "UpdateMediaListEntryStatus",
 	DeleteEntryDocument:                  "DeleteEntry",
 	AnimeCollectionDocument:              "AnimeCollection",
 	SearchAnimeShortMediaDocument:        "SearchAnimeShortMedia",

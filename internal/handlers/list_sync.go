@@ -16,11 +16,11 @@ func HandleDeleteListSyncCache(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-func HandleGetListSyncDiffs(c *RouteCtx) error {
+func HandleGetListSyncAnimeDiffs(c *RouteCtx) error {
 	// Fetch the list sync instance from the cache
 	cachedLs, found := c.App.ListSyncCache.Get(0)
 	if found {
-		return c.RespondWithData(cachedLs.CheckDiffs())
+		return c.RespondWithData(cachedLs.AnimeDiffs)
 	}
 
 	ls, err := listsync.BuildListSync(c.App.Database)
@@ -31,5 +31,42 @@ func HandleGetListSyncDiffs(c *RouteCtx) error {
 	// Cache the list sync for 10 minutes
 	c.App.ListSyncCache.SetT(0, ls, time.Minute*10)
 
-	return c.RespondWithData(ls.CheckDiffs())
+	return c.RespondWithData(ls.AnimeDiffs)
+}
+
+// HandleSyncAnime
+// POST /v1/list-sync/anime
+func HandleSyncAnime(c *RouteCtx) error {
+
+	type body struct {
+		Kind listsync.AnimeDiffKind `json:"kind"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Fetch the list sync instance from the cache
+	cachedLs, found := c.App.ListSyncCache.Get(0)
+	if !found {
+		ls, err := listsync.BuildListSync(c.App.Database)
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+		c.App.ListSyncCache.SetT(0, ls, time.Minute*10)
+		cachedLs = ls
+	}
+
+	for _, diff := range cachedLs.AnimeDiffs {
+		if diff.Kind == b.Kind {
+			// Sync the anime
+			if err := cachedLs.SyncAnime(diff); err != nil {
+				return c.RespondWithError(err)
+			}
+			break
+		}
+	}
+
+	return c.RespondWithData(cachedLs.AnimeDiffs)
 }
