@@ -43,7 +43,7 @@ func TestUpdateAnimeListStatus(t *testing.T) {
 
 	err := UpdateAnimeListStatus(info.MALJwt, &AnimeListStatusParams{
 		Status:             &status,
-		NumWatchedEpisodes: &progress,
+		NumEpisodesWatched: &progress,
 	}, mId)
 
 	if err != nil {

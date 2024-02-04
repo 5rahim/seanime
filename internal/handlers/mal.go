@@ -131,7 +131,7 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 	// Update MAL list entry
 	err = mal.UpdateAnimeListStatus(malInfo.AccessToken, &mal.AnimeListStatusParams{
 		Status:             &status,
-		NumWatchedEpisodes: b.Progress,
+		NumEpisodesWatched: b.Progress,
 	}, *b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)

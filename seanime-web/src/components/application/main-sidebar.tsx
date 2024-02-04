@@ -26,6 +26,7 @@ import { useSetAtom } from "jotai"
 import { usePathname } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 import { BiLogOut } from "react-icons/bi"
+import { MdSyncAlt } from "react-icons/md"
 import { SiMyanimelist } from "react-icons/si"
 
 export function MainSidebar() {
@@ -97,12 +98,12 @@ export function MainSidebar() {
                                 href: "/torrent-list",
                                 isCurrent: pathname === "/torrent-list",
                             },
-                            // {
-                            //     icon: MdSyncAlt,
-                            //     name: "List sync",
-                            //     href: "/list-sync",
-                            //     isCurrent: pathname === "/list-sync",
-                            // },
+                            {
+                                icon: MdSyncAlt,
+                                name: "List sync",
+                                href: "/list-sync",
+                                isCurrent: pathname === "/list-sync",
+                            },
                         ]}/>
                 </div>
                 <div className={"flex w-full gap-2 flex-col"}>

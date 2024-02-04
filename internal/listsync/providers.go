@@ -52,16 +52,19 @@ func NewMALProvider(collection []*mal.AnimeListEntry) *Provider {
 
 func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 
+	anizipMedia, err := anizip.FetchAniZipMedia("mal", entry.MalID)
+	if err != nil {
+		pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch anime \"%s\" from AniZip", entry.DisplayTitle)
+		return nil
+	}
+
 	// Add the anime to the provider
 	switch to {
 	case SourceAniList:
-		anizipMedia, err := anizip.FetchAniZipMedia("mal", entry.MalID)
-		if err != nil {
-			return nil
-		}
 		// Add the anime to the AniList provider
 		anilistId := anizipMedia.Mappings.AnilistID
 		if anilistId == 0 {
+			pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch AniList ID for \"%s\"", entry.DisplayTitle)
 			return nil
 		}
 		status := ToAnilistListStatus(entry.Status)
@@ -83,9 +86,14 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
 
-		err := mal.UpdateAnimeListStatus(pr.MalToken, &mal.AnimeListStatusParams{
+		progress := entry.Score
+		if progress > anizipMedia.GetMainEpisodeCount() {
+			progress = anizipMedia.GetMainEpisodeCount()
+		}
+
+		err = mal.UpdateAnimeListStatus(pr.MalToken, &mal.AnimeListStatusParams{
 			Status:             &status,
-			NumWatchedEpisodes: &entry.Progress,
+			NumEpisodesWatched: &progress,
 			Score:              &entry.Score,
 		}, entry.MalID)
 		if err != nil {
@@ -100,16 +108,19 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 
 func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 
+	anizipMedia, err := anizip.FetchAniZipMedia("mal", entry.MalID)
+	if err != nil {
+		pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch anime \"%s\" from AniZip", entry.DisplayTitle)
+		return nil
+	}
+
 	// Add the anime to the provider
 	switch to {
 	case SourceAniList:
-		anizipMedia, err := anizip.FetchAniZipMedia("mal", entry.MalID)
-		if err != nil {
-			return nil
-		}
 		// Add the anime to the AniList provider
 		anilistId := anizipMedia.Mappings.AnilistID
 		if anilistId == 0 {
+			pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch AniList ID for \"%s\"", entry.DisplayTitle)
 			return nil
 		}
 		status := ToAnilistListStatus(entry.Status)
@@ -131,9 +142,14 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
 
-		err := mal.UpdateAnimeListStatus(pr.MalToken, &mal.AnimeListStatusParams{
+		progress := entry.Score
+		if progress > anizipMedia.GetMainEpisodeCount() {
+			progress = anizipMedia.GetMainEpisodeCount()
+		}
+
+		err = mal.UpdateAnimeListStatus(pr.MalToken, &mal.AnimeListStatusParams{
 			Status:             &status,
-			NumWatchedEpisodes: &entry.Progress,
+			NumEpisodesWatched: &progress,
 			Score:              &entry.Score,
 		}, entry.MalID)
 		if err != nil {

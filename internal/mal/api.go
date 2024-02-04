@@ -84,7 +84,7 @@ type (
 		ListStatus struct {
 			Status             MediaListStatus `json:"status"`
 			IsRewatching       bool            `json:"is_rewatching"`
-			NumWatchedEpisodes int             `json:"num_watched_episodes"`
+			NumEpisodesWatched int             `json:"num_episodes_watched"`
 			Score              int             `json:"score"`
 			UpdatedAt          string          `json:"updated_at"`
 		} `json:"list_status"`
@@ -179,7 +179,7 @@ func GetAnimeCollection(accessToken string) ([]*AnimeListEntry, error) {
 type AnimeListStatusParams struct {
 	Status             *MediaListStatus
 	IsRewatching       *bool
-	NumWatchedEpisodes *int
+	NumEpisodesWatched *int
 	Score              *int
 }
 
@@ -197,8 +197,8 @@ func UpdateAnimeListStatus(accessToken string, opts *AnimeListStatusParams, mId 
 	if opts.IsRewatching != nil {
 		urlData.Set("is_rewatching", fmt.Sprintf("%t", *opts.IsRewatching))
 	}
-	if opts.NumWatchedEpisodes != nil {
-		urlData.Set("num_watched_episodes", fmt.Sprintf("%d", *opts.NumWatchedEpisodes))
+	if opts.NumEpisodesWatched != nil {
+		urlData.Set("num_watched_episodes", fmt.Sprintf("%d", *opts.NumEpisodesWatched))
 	}
 	if opts.Score != nil {
 		urlData.Set("score", fmt.Sprintf("%d", *opts.Score))

@@ -2,10 +2,12 @@ package listsync
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/mal"
 	"github.com/sourcegraph/conc/pool"
+	"strings"
 )
 
 func (e *AnimeEntry) FindMetadataDiffs(other *AnimeEntry) ([]AnimeMetadataDiffKind, bool) {
@@ -113,6 +115,9 @@ func NewAnimeEntryFromAnilistBaseMedia(media *anilist.BaseMedia) (*AnimeEntry, b
 // NewAnimeEntryFromMALBasicAnime converts a mal.BasicAnime to an AnimeEntry
 // "Progress", "Score" are set to 0, "Status" is set to AnimeStatusUnknown
 func NewAnimeEntryFromMALBasicAnime(entry *mal.AnimeListEntry) *AnimeEntry {
+	if strings.Contains(entry.Node.Title, "Horimiya") {
+		spew.Dump(entry)
+	}
 	return &AnimeEntry{
 		Source:       SourceMAL,
 		SourceID:     entry.Node.ID,
@@ -122,7 +127,7 @@ func NewAnimeEntryFromMALBasicAnime(entry *mal.AnimeListEntry) *AnimeEntry {
 		TotalEpisode: 0, // DEVNOTE: MAL does not provide total episode count
 		Image:        entry.Node.MainPicture.Large,
 		Status:       FromMALStatusToAnimeStatus(entry.ListStatus.Status),
-		Progress:     entry.ListStatus.NumWatchedEpisodes,
+		Progress:     entry.ListStatus.NumEpisodesWatched,
 		Score:        entry.ListStatus.Score,
 	}
 }

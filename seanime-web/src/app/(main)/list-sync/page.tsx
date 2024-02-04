@@ -1,6 +1,7 @@
 "use client"
 import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diffs"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -59,7 +60,7 @@ export default function Page() {
         <div className="p-12 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
-                    <h2>List Sync</h2>
+                    <h2>List Sync <BetaBadge /></h2>
                     <p className="text-[--muted]">Sync your anime lists between different providers.</p>
                 </div>
             </div>
