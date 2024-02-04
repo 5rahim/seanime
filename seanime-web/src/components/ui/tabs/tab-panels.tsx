@@ -1,10 +1,10 @@
 "use client"
 
-import React, { Fragment } from "react"
-import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy, getChildDisplayName } from "../core"
-import { cva } from "class-variance-authority"
 import type { TabListProps as TabPrimitiveListProps, TabProps as TabPrimitiveProps } from "@headlessui/react"
 import { Tab as TabPrimitive } from "@headlessui/react"
+import { cva } from "class-variance-authority"
+import React, { Fragment } from "react"
+import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy } from "../core"
 
 
 /* -------------------------------------------------------------------------------------------------
@@ -36,6 +36,12 @@ export const TabAnatomy = defineStyleAnatomy({
     ])
 })
 
+const __TabPanelsClassNameContext = React.createContext<{
+    panelsClassName?: string
+    navClassName?: string
+    tabClassName?: string
+}>({})
+
 /* -------------------------------------------------------------------------------------------------
  * TabPanels
  * -----------------------------------------------------------------------------------------------*/
@@ -62,26 +68,22 @@ const _TabPanels = (props: TabPanelsProps) => {
         ...rest
     } = props
 
-    const itemsWithProps = React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && getChildDisplayName(child) === "TabNav") {
-            return React.cloneElement(child, { tabClassName, navClassName } as any)
-        }
-        return child
-    })
 
     return (
-        <TabPrimitive.Group
-            selectedIndex={selectedIndex}
-            onChange={onIndexChange}
-        >
-            <div
-                className={cn(TabPanelsAnatomy.panels(), panelsClassName)}
-                {...rest}
-                ref={ref}
+        <__TabPanelsClassNameContext.Provider value={{ panelsClassName, navClassName, tabClassName }}>
+            <TabPrimitive.Group
+                selectedIndex={selectedIndex}
+                onChange={onIndexChange}
             >
-                {itemsWithProps}
-            </div>
-        </TabPrimitive.Group>
+                <div
+                    className={cn(TabPanelsAnatomy.panels(), panelsClassName)}
+                    {...rest}
+                    ref={ref}
+                >
+                    {children}
+                </div>
+            </TabPrimitive.Group>
+        </__TabPanelsClassNameContext.Provider>
     )
 
 }
@@ -108,20 +110,15 @@ export const TabNav: React.FC<TabNavProps> = React.forwardRef<HTMLDivElement, Ta
         ...rest
     } = props
 
-    const itemsWithProps = React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && getChildDisplayName(child) === "Tab") {
-            return React.cloneElement(child, { tabClassName } as any)
-        }
-        return child
-    })
+    const { navClassName: contextNavClassName } = React.useContext(__TabPanelsClassNameContext)
 
     return (
         <TabPrimitive.List
-            className={cn(TabNavAnatomy.nav(), navClassName, className)}
+            className={cn(TabNavAnatomy.nav(), contextNavClassName, navClassName, className)}
             {...rest}
             ref={ref}
         >
-            {itemsWithProps}
+            {children}
         </TabPrimitive.List>
     )
 
@@ -146,13 +143,15 @@ export const Tab: React.FC<TabProps> = React.forwardRef<HTMLDivElement, TabProps
         ...rest
     } = props
 
+    const { tabClassName: contextTabClassName } = React.useContext(__TabPanelsClassNameContext)
+
     return (
         <TabPrimitive
             as={Fragment}
         >
             {({ selected }) => (
                 <div
-                    className={cn(TabAnatomy.tab(), tabClassName, className)}
+                    className={cn(TabAnatomy.tab(), contextTabClassName, tabClassName, className)}
                     {...rest}
                     ref={ref}
                     data-selected={selected}

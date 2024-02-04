@@ -23,7 +23,7 @@ func HandleGetListSyncAnimeDiffs(c *RouteCtx) error {
 		return c.RespondWithData(cachedLs.AnimeDiffs)
 	}
 
-	ls, err := listsync.BuildListSync(c.App.Database)
+	ls, err := listsync.BuildListSync(c.App.Database, c.App.Logger)
 	if err != nil {
 		return c.RespondWithData(err.Error())
 	}
@@ -50,7 +50,7 @@ func HandleSyncAnime(c *RouteCtx) error {
 	// Fetch the list sync instance from the cache
 	cachedLs, found := c.App.ListSyncCache.Get(0)
 	if !found {
-		ls, err := listsync.BuildListSync(c.App.Database)
+		ls, err := listsync.BuildListSync(c.App.Database, c.App.Logger)
 		if err != nil {
 			return c.RespondWithError(err)
 		}
@@ -67,6 +67,7 @@ func HandleSyncAnime(c *RouteCtx) error {
 			break
 		}
 	}
+	c.App.ListSyncCache.SetT(0, cachedLs, time.Minute*10)
 
 	return c.RespondWithData(cachedLs.AnimeDiffs)
 }

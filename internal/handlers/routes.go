@@ -33,9 +33,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// List Sync
 	// DEVNOTE: Shelved
-	//v1.Get("/list-sync/anime-diffs", makeHandler(app, HandleGetListSyncAnimeDiffs))
-	//v1.Post("/list-sync/cache", makeHandler(app, HandleDeleteListSyncCache))
-	//v1.Post("/list-sync/anime", makeHandler(app, HandleSyncAnime))
+	v1.Get("/list-sync/anime-diffs", makeHandler(app, HandleGetListSyncAnimeDiffs))
+	v1.Post("/list-sync/cache", makeHandler(app, HandleDeleteListSyncCache))
+	v1.Post("/list-sync/anime", makeHandler(app, HandleSyncAnime))
 
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleTestDump))

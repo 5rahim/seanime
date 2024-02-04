@@ -49,6 +49,8 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
             toast.success("List synced")
             await qc.refetchQueries({ queryKey: ["list-sync-anime-diffs"] })
         },
+        retry: 3,
+        retryDelay: 3000,
         onError: (err) => {
             if (err.response?.data?.error.includes("To many requests")) {
                 toast.error("AniList: Too many requests, please wait a few seconds.")

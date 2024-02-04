@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/db"
@@ -28,7 +29,7 @@ func NewCache() *Cache {
 	return &Cache{result.NewCache[int, *ListSync]()}
 }
 
-func BuildListSync(db *db.Database) (*ListSync, error) {
+func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 	settings, err := db.GetSettings()
 	if err != nil {
 		return nil, err
@@ -78,6 +79,7 @@ func BuildListSync(db *db.Database) (*ListSync, error) {
 	providerRepo := &ProviderRepository{
 		AnilistClient: anilistClient,
 		MalToken:      malInfo.AccessToken,
+		Logger:        logger,
 	}
 
 	switch origin {

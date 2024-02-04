@@ -68,10 +68,10 @@ export default function Page() {
                 <TabPanels
                     navClassName="border-[--border]"
                     tabClassName={cn(
-                        "text-lg rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
+                        "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                         "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
                         "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
-                        "hover:bg-[--highlight]",
+                        "dark:data-[selected=true]:bg-[--highlight]",
                     )}
                 >
                     <TabPanels.Nav>

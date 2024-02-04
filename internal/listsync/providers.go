@@ -3,6 +3,7 @@ package listsync
 import (
 	"context"
 	"errors"
+	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/mal"
@@ -17,6 +18,7 @@ type (
 	ProviderRepository struct { // Holds information used for making requests to the providers
 		AnilistClient *anilist.Client
 		MalToken      string
+		Logger        *zerolog.Logger
 	}
 )
 
@@ -73,9 +75,10 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 			&score,
 		)
 		if err != nil {
+			pr.Logger.Error().Err(err).Msgf("listsync: Failed to add anime \"%s\" to AniList", entry.DisplayTitle)
 			return err
 		}
-
+		pr.Logger.Trace().Msgf("listsync: Added anime \"%s\" to AniList", entry.DisplayTitle)
 	case SourceMAL:
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
@@ -86,8 +89,10 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 			Score:              &entry.Score,
 		}, entry.MalID)
 		if err != nil {
+			pr.Logger.Error().Err(err).Msgf("listsync: Failed to add anime \"%s\" to MAL", entry.DisplayTitle)
 			return err
 		}
+		pr.Logger.Trace().Msgf("listsync: Added anime \"%s\" to MAL", entry.DisplayTitle)
 	}
 
 	return nil
@@ -118,9 +123,10 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 			&score,
 		)
 		if err != nil {
+			pr.Logger.Error().Err(err).Msgf("listsync: Failed to update anime \"%s\" on AniList", entry.DisplayTitle)
 			return err
 		}
-
+		pr.Logger.Trace().Msgf("listsync: Updated anime \"%s\" on AniList", entry.DisplayTitle)
 	case SourceMAL:
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
@@ -131,8 +137,10 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 			Score:              &entry.Score,
 		}, entry.MalID)
 		if err != nil {
+			pr.Logger.Error().Err(err).Msgf("listsync: Failed to update anime \"%s\" on MAL", entry.DisplayTitle)
 			return err
 		}
+		pr.Logger.Trace().Msgf("listsync: Updated anime \"%s\" on MAL", entry.DisplayTitle)
 	}
 
 	return nil
@@ -158,15 +166,19 @@ func (pr *ProviderRepository) DeleteAnime(from Source, entry *AnimeEntry) error 
 			&anilistId,
 		)
 		if err != nil {
+			pr.Logger.Error().Err(err).Msgf("listsync: Failed to delete anime \"%s\" from AniList", entry.DisplayTitle)
 			return err
 		}
+		pr.Logger.Trace().Msgf("listsync: Deleted anime \"%s\" from AniList", entry.DisplayTitle)
 
 	case SourceMAL:
 		// Delete the anime from the MAL provider
 		err := mal.DeleteAnimeListItem(pr.MalToken, entry.MalID)
 		if err != nil {
+			pr.Logger.Error().Err(err).Msgf("listsync: Failed to delete anime \"%s\" from MAL", entry.DisplayTitle)
 			return err
 		}
+		pr.Logger.Trace().Msgf("listsync: Deleted anime \"%s\" from MAL", entry.DisplayTitle)
 	}
 
 	return nil

@@ -131,7 +131,7 @@ func FromAnilistFloatScore(score *float64) int {
 	if score == nil {
 		return 0
 	}
-	return int(*score * 10)
+	return int(*score)
 }
 
 func FromAnilistListStatus(status anilist.MediaListStatus) AnimeListStatus {
