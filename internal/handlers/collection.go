@@ -19,10 +19,10 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 	}
 
 	libraryCollection := entities.NewLibraryCollection(&entities.NewLibraryCollectionOptions{
-		AnilistCollection: anilistCollection,
-		AnilistClient:     c.App.AnilistClient,
-		AnizipCache:       c.App.AnizipCache,
-		LocalFiles:        lfs,
+		AnilistCollection:    anilistCollection,
+		AnilistClientWrapper: c.App.AnilistClientWrapper,
+		AnizipCache:          c.App.AnizipCache,
+		LocalFiles:           lfs,
 	})
 
 	return c.RespondWithData(libraryCollection)

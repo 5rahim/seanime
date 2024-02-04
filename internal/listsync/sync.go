@@ -54,8 +54,8 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 		return nil, errors.New(ErrNotAuthenticatedToAnilist)
 	}
 
-	anilistClient := anilist.NewAuthedClient(account.Token)
-	collection, err := anilistClient.AnimeCollection(context.Background(), &account.Username)
+	anilistClientWrapper := anilist.NewClientWrapper(account.Token)
+	collection, err := anilistClientWrapper.Client.AnimeCollection(context.Background(), &account.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -77,9 +77,9 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 	targets := make([]*Provider, 0)
 
 	providerRepo := &ProviderRepository{
-		AnilistClient: anilistClient,
-		MalToken:      malInfo.AccessToken,
-		Logger:        logger,
+		AnilistClientWrapper: anilistClientWrapper,
+		MalToken:             malInfo.AccessToken,
+		Logger:               logger,
 	}
 
 	switch origin {

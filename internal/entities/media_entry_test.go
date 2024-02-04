@@ -26,11 +26,11 @@ func TestNewMediaEntry(t *testing.T) {
 		assert.NotNil(t, anilistCollection) {
 
 		entry, err := NewMediaEntry(&NewMediaEntryOptions{
-			MediaId:           mediaId,
-			LocalFiles:        lfs,
-			AnizipCache:       anizip.NewCache(),
-			AnilistCollection: anilistCollection,
-			AnilistClient:     anilist.MockAnilistClient(),
+			MediaId:              mediaId,
+			LocalFiles:           lfs,
+			AnizipCache:          anizip.NewCache(),
+			AnilistCollection:    anilistCollection,
+			AnilistClientWrapper: anilist.MockAnilistClientWrapper(),
 		})
 
 		if assert.NoError(t, err) {
@@ -89,11 +89,11 @@ func TestNewMediaEntry2(t *testing.T) {
 		assert.NotNil(t, anilistCollection) {
 
 		entry, err := NewMediaEntry(&NewMediaEntryOptions{
-			MediaId:           mediaId,
-			LocalFiles:        lfs,
-			AnizipCache:       anizip.NewCache(),
-			AnilistCollection: anilistCollection,
-			AnilistClient:     anilist.MockAnilistClient(),
+			MediaId:              mediaId,
+			LocalFiles:           lfs,
+			AnizipCache:          anizip.NewCache(),
+			AnilistCollection:    anilistCollection,
+			AnilistClientWrapper: anilist.MockAnilistClientWrapper(),
 		})
 
 		if assert.NoError(t, err) {

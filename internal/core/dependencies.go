@@ -120,7 +120,7 @@ func (a *App) initAnilistData() {
 	a.account = acc
 
 	// Set Anilist collection
-	a.anilistCollection, err = a.AnilistClient.AnimeCollection(context.Background(), &acc.Username)
+	a.anilistCollection, err = a.AnilistClientWrapper.Client.AnimeCollection(context.Background(), &acc.Username)
 	if err != nil {
 		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
 		return
@@ -131,5 +131,5 @@ func (a *App) initAnilistData() {
 }
 
 func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClient = anilist.NewAuthedClient(token)
+	a.AnilistClientWrapper = anilist.NewClientWrapper(token)
 }

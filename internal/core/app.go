@@ -26,22 +26,23 @@ import (
 
 type (
 	App struct {
-		Config            *Config
-		Database          *_db.Database
-		Logger            *zerolog.Logger
-		QBittorrent       *qbittorrent.Client
-		Watcher           *scanner.Watcher
-		AnizipCache       *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClient     *anilist.Client
-		NyaaSearchCache   *nyaa.SearchCache
-		anilistCollection *anilist.AnimeCollection
-		account           *models.Account
-		WSEventManager    *events.WSEventManager
-		ListSyncCache     *listsync.Cache // DEVNOTE: Shelved
-		MediaPlayer       struct {
+		Config               *Config
+		Database             *_db.Database
+		Logger               *zerolog.Logger
+		QBittorrent          *qbittorrent.Client
+		Watcher              *scanner.Watcher
+		AnizipCache          *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+		AnilistClientWrapper *anilist.ClientWrapper
+		NyaaSearchCache      *nyaa.SearchCache
+		anilistCollection    *anilist.AnimeCollection
+		account              *models.Account
+		WSEventManager       *events.WSEventManager
+		ListSyncCache        *listsync.Cache // DEVNOTE: Shelved
+		MediaPlayer          struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 		}
+		Version string
 	}
 
 	AppOptions struct {
@@ -54,7 +55,7 @@ var DefaultAppOptions = AppOptions{
 }
 
 // NewApp creates a new server instance
-func NewApp(options *AppOptions) *App {
+func NewApp(options *AppOptions, version string) *App {
 
 	opts := *options
 
@@ -99,14 +100,15 @@ func NewApp(options *AppOptions) *App {
 	anilistToken := db.GetAnilistToken()
 
 	app := &App{
-		Config:          cfg,
-		Database:        db,
-		AnilistClient:   anilist.NewAuthedClient(anilistToken),
-		AnizipCache:     anizip.NewCache(),
-		NyaaSearchCache: nyaa.NewSearchCache(),
-		WSEventManager:  events.NewWSEventManager(logger),
-		ListSyncCache:   listsync.NewCache(),
-		Logger:          logger,
+		Config:               cfg,
+		Database:             db,
+		AnilistClientWrapper: anilist.NewClientWrapper(anilistToken),
+		AnizipCache:          anizip.NewCache(),
+		NyaaSearchCache:      nyaa.NewSearchCache(),
+		WSEventManager:       events.NewWSEventManager(logger),
+		ListSyncCache:        listsync.NewCache(),
+		Logger:               logger,
+		Version:              version,
 	}
 
 	app.InitOrRefreshModules()

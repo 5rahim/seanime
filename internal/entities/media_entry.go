@@ -36,11 +36,11 @@ type (
 
 	// NewMediaEntryOptions is a constructor for MediaEntry.
 	NewMediaEntryOptions struct {
-		MediaId           int
-		LocalFiles        []*LocalFile // All local files
-		AnizipCache       *anizip.Cache
-		AnilistCollection *anilist.AnimeCollection
-		AnilistClient     *anilist.Client
+		MediaId              int
+		LocalFiles           []*LocalFile // All local files
+		AnizipCache          *anizip.Cache
+		AnilistCollection    *anilist.AnimeCollection
+		AnilistClientWrapper *anilist.ClientWrapper
 	}
 )
 
@@ -61,7 +61,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	if opts.AnilistCollection == nil ||
 		opts.AnizipCache == nil ||
-		opts.AnilistClient == nil {
+		opts.AnilistClientWrapper == nil {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
 	// Create new MediaEntry
@@ -82,7 +82,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 		anilistEntry = &anilist.AnimeCollection_MediaListCollection_Lists_Entries{}
 
 		// Fetch the media
-		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClient, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClientWrapper.Client, opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}

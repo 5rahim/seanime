@@ -8,13 +8,13 @@ import (
 
 func TestAddMediaToPlanning(t *testing.T) {
 
-	_, data, _ := MockAnilistClients()
+	_, anilistClientWrapper, _ := MockAnilistClientWrappers()
 
-	if data == nil {
+	if anilistClientWrapper == nil {
 		t.Skip("no mock data")
 	}
 
-	err := data.AddMediaToPlanning(
+	err := anilistClientWrapper.Client.AddMediaToPlanning(
 		[]int{131586},
 		limiter.NewAnilistLimiter(),
 		util.NewLogger(),

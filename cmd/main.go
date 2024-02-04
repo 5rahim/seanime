@@ -21,7 +21,7 @@ func main() {
 	fmt.Println("(alpha version, use at your own risk)")
 	fmt.Println()
 
-	app := core.NewApp(&core.DefaultAppOptions)
+	app := core.NewApp(&core.DefaultAppOptions, version)
 	if development {
 		fiberApp := core.NewFiberApp(app)
 

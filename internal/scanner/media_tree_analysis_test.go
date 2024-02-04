@@ -14,6 +14,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 
 	allMedia := getMockedAllMedia(t)
 
+	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewBaseMediaRelationTree()
 
@@ -48,7 +49,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 
 			err := media.FetchMediaTree(
 				anilist.FetchMediaTreeAll,
-				anilist.NewAuthedClient(""),
+				anilistClientWrapper,
 				anilistRateLimiter,
 				tree,
 				anilist.NewBaseMediaCache(),

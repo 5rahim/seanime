@@ -19,14 +19,14 @@ import (
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles         []*entities.LocalFile // Local files to hydrate
-	AllMedia           []*NormalizedMedia    // All media used to hydrate local files
-	BaseMediaCache     *anilist.BaseMediaCache
-	AnizipCache        *anizip.Cache
-	AnilistClient      *anilist.Client
-	AnilistRateLimiter *limiter.Limiter
-	Logger             *zerolog.Logger
-	ScanLogger         *ScanLogger
+	LocalFiles           []*entities.LocalFile // Local files to hydrate
+	AllMedia             []*NormalizedMedia    // All media used to hydrate local files
+	BaseMediaCache       *anilist.BaseMediaCache
+	AnizipCache          *anizip.Cache
+	AnilistClientWrapper *anilist.ClientWrapper
+	AnilistRateLimiter   *limiter.Limiter
+	Logger               *zerolog.Logger
+	ScanLogger           *ScanLogger
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
@@ -190,7 +190,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				mediaTreeFetchStart := time.Now()
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
-				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClient, fh.AnilistRateLimiter, tree, fh.BaseMediaCache); err == nil {
+				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClientWrapper, fh.AnilistRateLimiter, tree, fh.BaseMediaCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
 					mta, _ := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,

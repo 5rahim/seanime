@@ -13,7 +13,7 @@ import (
 
 func TestNewMediaFetcher(t *testing.T) {
 
-	anilistClient, _, data := anilist.MockAnilistClients()
+	anilistClientWrapper, _, data := anilist.MockAnilistClientWrappers()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -26,7 +26,7 @@ func TestNewMediaFetcher(t *testing.T) {
 		enhanced             bool
 		username             string
 		jwt                  string
-		anilistClient        *anilist.Client
+		anilistClientWrapper *anilist.ClientWrapper
 		useAnilistCollection bool
 	}{
 		{
@@ -40,7 +40,7 @@ func TestNewMediaFetcher(t *testing.T) {
 			enhanced:             false,
 			username:             data.Username,
 			jwt:                  data.JWT,
-			anilistClient:        anilistClient,
+			anilistClientWrapper: anilistClientWrapper,
 			useAnilistCollection: true,
 		},
 		{
@@ -54,7 +54,7 @@ func TestNewMediaFetcher(t *testing.T) {
 			enhanced:             true,
 			username:             data.Username,
 			jwt:                  data.JWT,
-			anilistClient:        anilistClient,
+			anilistClientWrapper: anilistClientWrapper,
 			useAnilistCollection: false,
 		},
 	}
@@ -85,7 +85,7 @@ func TestNewMediaFetcher(t *testing.T) {
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
 				Enhanced:             tt.enhanced,
 				Username:             tt.username,
-				AnilistClient:        tt.anilistClient,
+				AnilistClientWrapper: tt.anilistClientWrapper,
 				LocalFiles:           lfs,
 				BaseMediaCache:       baseMediaCache,
 				AnizipCache:          anizipCache,
@@ -115,7 +115,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
-	anilistClient, _, _ := anilist.MockAnilistClients()
+	anilistClientWrapper, _, _ := anilist.MockAnilistClientWrappers()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -163,15 +163,15 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			// +---------------------+
 
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
-				Enhanced:           tt.enhanced,
-				Username:           "-",
-				AnilistClient:      anilistClient,
-				LocalFiles:         lfs,
-				BaseMediaCache:     baseMediaCache,
-				AnizipCache:        anizipCache,
-				Logger:             util.NewLogger(),
-				AnilistRateLimiter: anilistRateLimiter,
-				ScanLogger:         scanLogger,
+				Enhanced:             tt.enhanced,
+				Username:             "-",
+				AnilistClientWrapper: anilistClientWrapper,
+				LocalFiles:           lfs,
+				BaseMediaCache:       baseMediaCache,
+				AnizipCache:          anizipCache,
+				Logger:               util.NewLogger(),
+				AnilistRateLimiter:   anilistRateLimiter,
+				ScanLogger:           scanLogger,
 			})
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
@@ -194,7 +194,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	anilistClient := anilist.MockAnilistClient()
+	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -242,7 +242,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 			// +--------------------------+
 
 			media, ok := FetchMediaFromLocalFiles(
-				anilistClient,
+				anilistClientWrapper,
 				lfs,
 				baseMediaCache,
 				anizipCache,

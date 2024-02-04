@@ -27,7 +27,7 @@ type MediaFetcher struct {
 type MediaFetcherOptions struct {
 	Enhanced             bool
 	Username             string
-	AnilistClient        *anilist.Client
+	AnilistClientWrapper *anilist.ClientWrapper
 	LocalFiles           []*entities.LocalFile
 	BaseMediaCache       *anilist.BaseMediaCache
 	AnizipCache          *anizip.Cache
@@ -43,7 +43,7 @@ type MediaFetcherOptions struct {
 // When enhancing is true, MediaFetcher.AllMedia will be anilist.BaseMedia for each unique, parsed anime title and their relations.
 func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 
-	if opts.AnilistClient == nil ||
+	if opts.AnilistClientWrapper == nil ||
 		opts.Username == "" ||
 		opts.LocalFiles == nil ||
 		opts.BaseMediaCache == nil ||
@@ -72,7 +72,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	// +---------------------+
 
 	// Fetch latest user's AniList collection
-	animeCollection, err := opts.AnilistClient.AnimeCollection(context.Background(), &opts.Username)
+	animeCollection, err := opts.AnilistClientWrapper.Client.AnimeCollection(context.Background(), &opts.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	if opts.Enhanced {
 
 		_, ok := FetchMediaFromLocalFiles(
-			opts.AnilistClient,
+			opts.AnilistClientWrapper,
 			opts.LocalFiles,
 			opts.BaseMediaCache, // BaseMediaCache will be populated on success
 			opts.AnizipCache,
@@ -165,7 +165,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 // It does not return an error if one of the steps fails.
 // It returns the scanned media and a boolean indicating whether the process was successful.
 func FetchMediaFromLocalFiles(
-	anilistClient *anilist.Client,
+	anilistClientWrapper *anilist.ClientWrapper,
 	localFiles []*entities.LocalFile,
 	baseMediaCache *anilist.BaseMediaCache,
 	anizipCache *anizip.Cache,
@@ -246,7 +246,7 @@ func FetchMediaFromLocalFiles(
 	anilistMedia := make([]*anilist.BaseMedia, 0)
 	lop.ForEach(anilistIds, func(id int, index int) {
 		anilistRateLimiter.Wait()
-		media, err := anilist.GetBaseMediaById(anilistClient, id)
+		media, err := anilist.GetBaseMediaById(anilistClientWrapper.Client, id)
 		if err == nil {
 			anilistMedia = append(anilistMedia, media)
 			scanLogger.LogMediaFetcher(zerolog.DebugLevel).
@@ -281,7 +281,7 @@ func FetchMediaFromLocalFiles(
 	// The relations are fetched in parallel and added to `baseMediaCache`
 	lop.ForEach(anilistMedia, func(m *anilist.BaseMedia, index int) {
 		// We ignore errors because we want to continue even if one of the media fails
-		_ = m.FetchMediaTree(anilist.FetchMediaTreeAll, anilistClient, anilistRateLimiter, tree, baseMediaCache)
+		_ = m.FetchMediaTree(anilist.FetchMediaTreeAll, anilistClientWrapper, anilistRateLimiter, tree, baseMediaCache)
 	})
 
 	// +---------------------+

@@ -29,7 +29,7 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	}
 
 	// Else, get the collection from Anilist
-	collection, err := a.AnilistClient.AnimeCollection(context.Background(), &a.account.Username)
+	collection, err := a.AnilistClientWrapper.Client.AnimeCollection(context.Background(), &a.account.Username)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func MockAnilistClient() *Client {
+func MockAnilistClientWrapper() *ClientWrapper {
 
 	path, err := os.Getwd()
 	if err != nil {
@@ -37,13 +37,11 @@ func MockAnilistClient() *Client {
 		return nil
 	}
 
-	anilistClient := NewAuthedClient(data.JWT)
-
-	return anilistClient
+	return NewClientWrapper(data.JWT)
 
 }
 
-func MockAnilistClients() (*Client, *Client, *struct {
+func MockAnilistClientWrappers() (*ClientWrapper, *ClientWrapper, *struct {
 	JWT       string `json:"jwt"`
 	Username  string `json:"username"`
 	JWT2      string `json:"jwt2"`
@@ -81,9 +79,9 @@ func MockAnilistClients() (*Client, *Client, *struct {
 		return nil, nil, nil
 	}
 
-	anilistClient := NewAuthedClient(data.JWT)
-	anilistClient2 := NewAuthedClient(data.JWT2)
+	cw := NewClientWrapper(data.JWT)
+	cw2 := NewClientWrapper(data.JWT2)
 
-	return anilistClient, anilistClient2, data
+	return cw, cw2, data
 
 }

@@ -29,13 +29,13 @@ func HandleTestDump(c *RouteCtx) error {
 	anizipCache := anizip.NewCache()
 
 	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
-		Enhanced:       false,
-		Username:       body.Username,
-		AnilistClient:  c.App.AnilistClient,
-		LocalFiles:     localFiles,
-		BaseMediaCache: baseMediaCache,
-		AnizipCache:    anizipCache,
-		Logger:         c.App.Logger,
+		Enhanced:             false,
+		Username:             body.Username,
+		AnilistClientWrapper: c.App.AnilistClientWrapper,
+		LocalFiles:           localFiles,
+		BaseMediaCache:       baseMediaCache,
+		AnizipCache:          anizipCache,
+		Logger:               c.App.Logger,
 	})
 
 	if err != nil {

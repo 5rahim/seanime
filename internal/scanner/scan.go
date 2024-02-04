@@ -10,19 +10,18 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/filesystem"
 	"github.com/seanime-app/seanime/internal/limiter"
-	"time"
 )
 
 type Scanner struct {
-	DirPath            string
-	Username           string
-	Enhanced           bool
-	AnilistClient      *anilist.Client
-	Logger             *zerolog.Logger
-	WSEventManager     events.IWSEventManager
-	ExistingLocalFiles []*entities.LocalFile
-	SkipLockedFiles    bool
-	SkipIgnoredFiles   bool
+	DirPath              string
+	Username             string
+	Enhanced             bool
+	AnilistClientWrapper *anilist.ClientWrapper
+	Logger               *zerolog.Logger
+	WSEventManager       events.IWSEventManager
+	ExistingLocalFiles   []*entities.LocalFile
+	SkipLockedFiles      bool
+	SkipIgnoredFiles     bool
 }
 
 // Scan will scan the directory and return a list of entities.LocalFile.
@@ -97,15 +96,15 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:           scn.Enhanced,
-		Username:           scn.Username,
-		AnilistClient:      scn.AnilistClient,
-		LocalFiles:         localFiles,
-		BaseMediaCache:     baseMediaCache,
-		AnizipCache:        anizipCache,
-		Logger:             scn.Logger,
-		AnilistRateLimiter: anilistRateLimiter,
-		ScanLogger:         scanLogger,
+		Enhanced:             scn.Enhanced,
+		Username:             scn.Username,
+		AnilistClientWrapper: scn.AnilistClientWrapper,
+		LocalFiles:           localFiles,
+		BaseMediaCache:       baseMediaCache,
+		AnizipCache:          anizipCache,
+		Logger:               scn.Logger,
+		AnilistRateLimiter:   anilistRateLimiter,
+		ScanLogger:           scanLogger,
 	})
 	if err != nil {
 		return nil, err
@@ -147,15 +146,6 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		return nil, err
 	}
 
-	// When enhancing is on, wait a minute before hydrating files
-	// This is due to issues with rate limiting
-	if scn.Enhanced {
-		select {
-		case <-time.After(time.Minute):
-			break
-		}
-	}
-
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 70)
 
 	// +---------------------+
@@ -164,24 +154,18 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		AllMedia:           mc.NormalizedMedia,
-		LocalFiles:         localFiles,
-		AnizipCache:        anizipCache,
-		AnilistClient:      scn.AnilistClient,
-		BaseMediaCache:     baseMediaCache,
-		AnilistRateLimiter: anilistRateLimiter,
-		Logger:             scn.Logger,
-		ScanLogger:         scanLogger,
+		AllMedia:             mc.NormalizedMedia,
+		LocalFiles:           localFiles,
+		AnizipCache:          anizipCache,
+		AnilistClientWrapper: scn.AnilistClientWrapper,
+		BaseMediaCache:       baseMediaCache,
+		AnilistRateLimiter:   anilistRateLimiter,
+		Logger:               scn.Logger,
+		ScanLogger:           scanLogger,
 	}
 	hydrator.HydrateMetadata()
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 80)
-	if scn.Enhanced {
-		select {
-		case <-time.After(time.Minute):
-			break
-		}
-	}
 
 	// +---------------------+
 	// |  Add missing media  |
@@ -190,7 +174,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	// Add non-added media entries to AniList collection
 	// Max of 4 to avoid rate limit issues
 	if len(mf.UnknownMediaIds) < 5 {
-		if err = scn.AnilistClient.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
+		if err = scn.AnilistClientWrapper.Client.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
 			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 		}
 	}

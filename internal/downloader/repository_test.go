@@ -14,7 +14,7 @@ var destination = "E:/Anime/Temp"
 
 func TestSmartSelect(t *testing.T) {
 
-	anilistClient := anilist.NewAuthedClient("")
+	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 
 	var dir = "E:/Anime/Temp"
 
@@ -62,7 +62,7 @@ func TestSmartSelect(t *testing.T) {
 			t.Log(tt.name, hash)
 
 			// get media
-			media, err := anilist.GetBaseMediaById(anilistClient, tt.mediaId)
+			media, err := anilist.GetBaseMediaById(anilistClientWrapper.Client, tt.mediaId)
 			if err != nil {
 				t.Fatalf("error getting media: %s", err.Error())
 			}

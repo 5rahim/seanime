@@ -31,6 +31,7 @@ func TestSearch(t *testing.T) {
 func TestBuildSearchQuery(t *testing.T) {
 
 	anilistLimiter := limiter.NewAnilistLimiter()
+	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 
 	tests := []struct {
 		name           string
@@ -58,7 +59,7 @@ func TestBuildSearchQuery(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, err := anilist.GetBaseMediaById(anilist.NewAuthedClient(""), tt.mediaId)
+			media, err := anilist.GetBaseMediaById(anilistClientWrapper.Client, tt.mediaId)
 
 			if assert.NoError(t, err) &&
 				assert.NotNil(t, media) {

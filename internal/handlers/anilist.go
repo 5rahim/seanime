@@ -36,7 +36,7 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	ret, err := c.App.AnilistClient.UpdateMediaListEntry(
+	ret, err := c.App.AnilistClientWrapper.Client.UpdateMediaListEntry(
 		c.Fiber.Context(),
 		p.MediaId,
 		p.Status,
@@ -80,7 +80,7 @@ func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
 	}
 
 	// Update the progress
-	ret, err := c.App.AnilistClient.UpdateMediaListEntryProgress(
+	ret, err := c.App.AnilistClientWrapper.Client.UpdateMediaListEntryProgress(
 		c.Fiber.Context(),
 		p.MediaId,
 		p.Progress,
@@ -110,7 +110,7 @@ func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 	if details, ok := detailsCache.Get(mId); ok {
 		return c.RespondWithData(details)
 	}
-	details, err := c.App.AnilistClient.MediaDetailsByID(c.Fiber.Context(), &mId)
+	details, err := c.App.AnilistClientWrapper.Client.MediaDetailsByID(c.Fiber.Context(), &mId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -144,7 +144,7 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 	}
 
 	// Delete the list entry
-	ret, err := c.App.AnilistClient.DeleteEntry(
+	ret, err := c.App.AnilistClientWrapper.Client.DeleteEntry(
 		c.Fiber.Context(),
 		&listEntry.ID,
 	)

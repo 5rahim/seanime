@@ -34,7 +34,7 @@ func HandleLogin(c *RouteCtx) error {
 	c.App.UpdateAnilistClientToken(body.Token)
 
 	// Get viewer data from AniList
-	getViewer, err := c.App.AnilistClient.GetViewer(context.Background())
+	getViewer, err := c.App.AnilistClientWrapper.Client.GetViewer(context.Background())
 	if err != nil {
 		c.App.Logger.Error().Msg("Could not authenticate to AniList")
 		return c.RespondWithError(err)

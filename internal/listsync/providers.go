@@ -16,9 +16,9 @@ type (
 		AnimeEntriesMap map[int]*AnimeEntry
 	}
 	ProviderRepository struct { // Holds information used for making requests to the providers
-		AnilistClient *anilist.Client
-		MalToken      string
-		Logger        *zerolog.Logger
+		AnilistClientWrapper *anilist.ClientWrapper
+		MalToken             string
+		Logger               *zerolog.Logger
 	}
 )
 
@@ -70,7 +70,7 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 		status := ToAnilistListStatus(entry.Status)
 		score := entry.Score * 10
 
-		_, err = pr.AnilistClient.UpdateMediaListEntryStatus(
+		_, err = pr.AnilistClientWrapper.Client.UpdateMediaListEntryStatus(
 			context.Background(),
 			&anilistId,
 			&entry.Progress,
@@ -126,7 +126,7 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 		status := ToAnilistListStatus(entry.Status)
 		score := entry.Score * 10
 
-		_, err = pr.AnilistClient.UpdateMediaListEntryStatus(
+		_, err = pr.AnilistClientWrapper.Client.UpdateMediaListEntryStatus(
 			context.Background(),
 			&anilistId,
 			&entry.Progress,
@@ -177,7 +177,7 @@ func (pr *ProviderRepository) DeleteAnime(from Source, entry *AnimeEntry) error 
 			return errors.New("anilist id not found")
 		}
 
-		_, err = pr.AnilistClient.DeleteEntry(
+		_, err = pr.AnilistClientWrapper.Client.DeleteEntry(
 			context.Background(),
 			&anilistId,
 		)

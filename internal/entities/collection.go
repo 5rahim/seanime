@@ -53,10 +53,10 @@ type (
 		LocalFiles []*LocalFile `json:"localFiles"`
 	}
 	NewLibraryCollectionOptions struct {
-		AnilistCollection *anilist.AnimeCollection
-		LocalFiles        []*LocalFile
-		AnizipCache       *anizip.Cache
-		AnilistClient     *anilist.Client
+		AnilistCollection    *anilist.AnimeCollection
+		LocalFiles           []*LocalFile
+		AnizipCache          *anizip.Cache
+		AnilistClientWrapper *anilist.ClientWrapper
 	}
 )
 
@@ -80,7 +80,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection 
 		opts.LocalFiles,
 		opts.AnilistCollection,
 		opts.AnizipCache,
-		opts.AnilistClient,
+		opts.AnilistClientWrapper,
 	)
 
 	lc.hydrateRest(opts.LocalFiles)
@@ -236,7 +236,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	anilistCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
-	anilistClient *anilist.Client,
+	anilistClientWrapper *anilist.ClientWrapper,
 ) {
 
 	// Get currently watching
@@ -261,11 +261,11 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 		mId := mId
 		mEntryPool.Go(func() *MediaEntry {
 			me, _ := NewMediaEntry(&NewMediaEntryOptions{
-				MediaId:           mId,
-				LocalFiles:        localFiles,
-				AnilistCollection: anilistCollection,
-				AnizipCache:       anizipCache,
-				AnilistClient:     anilistClient,
+				MediaId:              mId,
+				LocalFiles:           localFiles,
+				AnilistCollection:    anilistCollection,
+				AnizipCache:          anizipCache,
+				AnilistClientWrapper: anilistClientWrapper,
 			})
 			return me
 		})

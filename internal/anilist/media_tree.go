@@ -28,19 +28,19 @@ func NewBaseMediaRelationTree() *BaseMediaRelationTree {
 	return &BaseMediaRelationTree{result.NewResultMap[int, *BaseMedia]()}
 }
 
-func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Client, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
+func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClientWrapper *ClientWrapper, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
 	rateLimiter.Wait()
-	res, err := anilistClient.BaseMediaByID(context.Background(), &m.ID)
+	res, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &m.ID)
 	if err != nil {
 		return err
 	}
-	return res.GetMedia().FetchMediaTree(rel, anilistClient, rateLimiter, tree, cache)
+	return res.GetMedia().FetchMediaTree(rel, anilistClientWrapper, rateLimiter, tree, cache)
 }
 
 // FetchMediaTree populates the BaseMediaRelationTree with the given media's sequels and prequels.
 // It also takes a BaseMediaCache to store the fetched media in and avoid duplicate fetches.
 // It also takes a limiter.Limiter to limit the number of requests made to the AniList API.
-func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Client, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
+func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClientWrapper *ClientWrapper, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
 
 	// If the media is in the result cache, skip
 	if tree.Has(m.ID) {
@@ -103,7 +103,7 @@ func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Cl
 		if !ok {
 			// Wait for the rate limiter
 			rateLimiter.Wait()
-			res, err := anilistClient.BaseMediaByID(context.Background(), &edge.GetNode().ID)
+			res, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &edge.GetNode().ID)
 			if err == nil {
 				edgeBaseMedia = res.GetMedia()
 				cache.Set(edgeBaseMedia.ID, edgeBaseMedia)
@@ -116,7 +116,7 @@ func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClient *Cl
 
 		if cont {
 			// Fetch the edge's relations
-			edgeBaseMedia.FetchMediaTree(edgeRel, anilistClient, rateLimiter, tree, cache)
+			edgeBaseMedia.FetchMediaTree(edgeRel, anilistClientWrapper, rateLimiter, tree, cache)
 		}
 
 	})

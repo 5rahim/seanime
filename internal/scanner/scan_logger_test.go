@@ -15,7 +15,7 @@ func TestScanLogger(t *testing.T) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	anilistClient := anilist.MockAnilistClient()
+	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 
@@ -90,14 +90,14 @@ func TestScanLogger(t *testing.T) {
 			// +---------------------+
 
 			fh := FileHydrator{
-				LocalFiles:         lfs,
-				AllMedia:           mc.NormalizedMedia,
-				BaseMediaCache:     baseMediaCache,
-				AnizipCache:        anizipCache,
-				AnilistClient:      anilistClient,
-				AnilistRateLimiter: anilistRateLimiter,
-				Logger:             logger,
-				ScanLogger:         scanLogger,
+				LocalFiles:           lfs,
+				AllMedia:             mc.NormalizedMedia,
+				BaseMediaCache:       baseMediaCache,
+				AnizipCache:          anizipCache,
+				AnilistClientWrapper: anilistClientWrapper,
+				AnilistRateLimiter:   anilistRateLimiter,
+				Logger:               logger,
+				ScanLogger:           scanLogger,
 			}
 
 			fh.HydrateMetadata()

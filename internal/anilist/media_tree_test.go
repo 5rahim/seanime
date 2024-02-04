@@ -10,7 +10,7 @@ import (
 
 func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
-	anilistClient := NewAuthedClient("")
+	anilistClientWrapper := MockAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
@@ -36,7 +36,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClient.BaseMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatalf("error while fetching media, %v", err)
 			}
@@ -46,7 +46,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 			err = media.FetchMediaTree(
 				FetchMediaTreeAll,
-				anilistClient,
+				anilistClientWrapper,
 				lim,
 				tree,
 				baseMediaCache,
@@ -68,7 +68,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
-	anilistClient := NewAuthedClient("")
+	anilistClientWrapper := MockAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
@@ -94,7 +94,7 @@ func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClient.BasicMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.Client.BasicMediaByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatalf("error while fetching media, %v", err)
 			}
@@ -104,7 +104,7 @@ func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
 			err = media.FetchMediaTree(
 				FetchMediaTreeAll,
-				anilistClient,
+				anilistClientWrapper,
 				lim,
 				tree,
 				baseMediaCache,

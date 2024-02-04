@@ -13,6 +13,7 @@ type Status struct {
 	User     *entities.User   `json:"user"`
 	Settings *models.Settings `json:"settings"`
 	Mal      *models.Mal      `json:"mal"`
+	Version  string           `json:"version"`
 }
 
 func NewStatus(c *RouteCtx) *Status {
@@ -43,6 +44,7 @@ func NewStatus(c *RouteCtx) *Status {
 		User:     user,
 		Settings: settings,
 		Mal:      mal,
+		Version:  c.App.Version,
 	}
 }
 

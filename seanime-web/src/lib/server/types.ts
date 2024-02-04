@@ -32,6 +32,7 @@ export type ServerStatus = {
     } | null,
     settings: Settings | null
     mal: MalInfo | null
+    version: string
 }
 
 /**

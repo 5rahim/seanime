@@ -16,7 +16,7 @@ import (
 
 func TestScanner_Scan(t *testing.T) {
 
-	anilistClient, _, data := anilist.MockAnilistClients()
+	anilistClientWrapper, _, data := anilist.MockAnilistClientWrappers()
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 
@@ -50,15 +50,15 @@ func TestScanner_Scan(t *testing.T) {
 			// +---------------------+
 
 			scanner := &Scanner{
-				DirPath:            dir,
-				Username:           data.Username,
-				Enhanced:           false,
-				AnilistClient:      anilistClient,
-				Logger:             util.NewLogger(),
-				WSEventManager:     wsEventManager,
-				ExistingLocalFiles: existingLfs,
-				SkipLockedFiles:    false,
-				SkipIgnoredFiles:   false,
+				DirPath:              dir,
+				Username:             data.Username,
+				Enhanced:             false,
+				AnilistClientWrapper: anilistClientWrapper,
+				Logger:               util.NewLogger(),
+				WSEventManager:       wsEventManager,
+				ExistingLocalFiles:   existingLfs,
+				SkipLockedFiles:      false,
+				SkipIgnoredFiles:     false,
 			}
 			lfs, err := scanner.Scan()
 			if err != nil {
