@@ -36,6 +36,8 @@ const EpisodeItem = memo((props: MediaEntryEpisode) => {
 
     const mediaIsOlder = useMemo(() => date ? isBefore(date, subYears(new Date(), 2)) : undefined, [])
 
+    const offset = props.progressNumber - props.episodeNumber
+
     useEffect(() => {
         setHeaderImage(prev => {
             if (prev === null) {
@@ -49,7 +51,7 @@ const EpisodeItem = memo((props: MediaEntryEpisode) => {
         <LargeEpisodeListItem
             image={props.episodeMetadata?.image}
             title={<span>{props.displayTitle} {!!props.basicMedia?.episodes &&
-                <span className={"opacity-40"}>/{` `}{props.basicMedia.episodes}</span>}</span>}
+                <span className={"opacity-40"}>/{` `}{props.basicMedia.episodes - offset}</span>}</span>}
             topTitle={props.basicMedia?.title?.userPreferred}
             actionIcon={undefined}
             meta={(date) ? (!mediaIsOlder ? `${formatDistanceToNow(date, { addSuffix: true })}` : new Intl.DateTimeFormat(

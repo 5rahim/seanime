@@ -1,20 +1,20 @@
 "use client"
-import { AppLayoutStack } from "@/components/ui/app-layout"
-import { MediaEntry, MediaEntryEpisode } from "@/lib/server/types"
-import { Button } from "@/components/ui/button"
-import { FiPlayCircle } from "@react-icons/all-files/fi/FiPlayCircle"
-import { EpisodeSectionMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-menu"
 import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
-import { Slider } from "@/components/shared/slider"
-import { memo, useMemo } from "react"
-import { formatDistanceToNow, isBefore, subYears } from "date-fns"
-import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
-import { Divider } from "@/components/ui/divider"
-import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
-import { usePlayNextVideoOnMount, useVideoPlayer } from "@/lib/server/hooks/player"
+import { EpisodeSectionMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-menu"
 import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section/progress-tracking"
+import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
+import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
+import { Slider } from "@/components/shared/slider"
 import { Alert } from "@/components/ui/alert"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Button } from "@/components/ui/button"
+import { Divider } from "@/components/ui/divider"
+import { usePlayNextVideoOnMount, useVideoPlayer } from "@/lib/server/hooks/player"
+import { MediaEntry, MediaEntryEpisode } from "@/lib/server/types"
+import { FiPlayCircle } from "@react-icons/all-files/fi/FiPlayCircle"
+import { formatDistanceToNow, isBefore, subYears } from "date-fns"
+import { memo, useMemo } from "react"
 
 export function EpisodeSection(props: { entry: MediaEntry }) {
     const { entry } = props
@@ -187,12 +187,14 @@ const SliderEpisodeItem = memo(({ episode, onPlay }: {
     const date = episode.episodeMetadata?.airDate ? new Date(episode.episodeMetadata.airDate) : undefined
     const mediaIsOlder = useMemo(() => date ? isBefore(date, subYears(new Date(), 2)) : undefined, [])
 
+    const offset = episode.progressNumber - episode.episodeNumber
+
     return (
         <LargeEpisodeListItem
             image={episode.episodeMetadata?.image}
             title={<span>{episode.displayTitle} {!!episode.basicMedia?.episodes &&
                 (episode.basicMedia.episodes != 1 &&
-                    <span className={"opacity-40"}>/{` `}{episode.basicMedia.episodes}</span>)}</span>}
+                    <span className={"opacity-40"}>/{` `}{episode.basicMedia.episodes - offset}</span>)}</span>}
             topTitle={episode.episodeTitle}
             actionIcon={undefined}
             meta={(date) ? (!mediaIsOlder ? `${formatDistanceToNow(date, { addSuffix: true })}` : new Intl.DateTimeFormat("en-US", {

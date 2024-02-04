@@ -107,7 +107,7 @@ export type ListSyncAnimeEntry = {
     displayTitle: string
     url: string
     progress: number
-    totalEpisode: number
+    totalEpisodes: number
     status: string
     image: string
     score: string

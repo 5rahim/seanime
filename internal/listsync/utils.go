@@ -2,12 +2,10 @@ package listsync
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/mal"
 	"github.com/sourcegraph/conc/pool"
-	"strings"
 )
 
 func (e *AnimeEntry) FindMetadataDiffs(other *AnimeEntry) ([]AnimeMetadataDiffKind, bool) {
@@ -99,36 +97,33 @@ func NewAnimeEntryFromAnilistBaseMedia(media *anilist.BaseMedia) (*AnimeEntry, b
 	}
 
 	return &AnimeEntry{
-		Source:       SourceAniList,
-		SourceID:     media.ID,
-		MalID:        *media.IDMal,
-		DisplayTitle: media.GetTitleSafe(),
-		Url:          fmt.Sprintf("https://anilist.co/anime/%d", media.ID),
-		TotalEpisode: media.GetTotalEpisodeCount(),
-		Image:        image,
-		Status:       AnimeStatusUnknown,
-		Progress:     0,
-		Score:        0,
+		Source:        SourceAniList,
+		SourceID:      media.ID,
+		MalID:         *media.IDMal,
+		DisplayTitle:  media.GetTitleSafe(),
+		Url:           fmt.Sprintf("https://anilist.co/anime/%d", media.ID),
+		TotalEpisodes: media.GetTotalEpisodeCount(),
+		Image:         image,
+		Status:        AnimeStatusUnknown,
+		Progress:      0,
+		Score:         0,
 	}, true
 }
 
 // NewAnimeEntryFromMALBasicAnime converts a mal.BasicAnime to an AnimeEntry
 // "Progress", "Score" are set to 0, "Status" is set to AnimeStatusUnknown
 func NewAnimeEntryFromMALBasicAnime(entry *mal.AnimeListEntry) *AnimeEntry {
-	if strings.Contains(entry.Node.Title, "Horimiya") {
-		spew.Dump(entry)
-	}
 	return &AnimeEntry{
-		Source:       SourceMAL,
-		SourceID:     entry.Node.ID,
-		MalID:        entry.Node.ID,
-		DisplayTitle: entry.Node.Title,
-		Url:          fmt.Sprintf("https://myanimelist.net/anime/%d", entry.Node.ID),
-		TotalEpisode: 0, // DEVNOTE: MAL does not provide total episode count
-		Image:        entry.Node.MainPicture.Large,
-		Status:       FromMALStatusToAnimeStatus(entry.ListStatus.Status),
-		Progress:     entry.ListStatus.NumEpisodesWatched,
-		Score:        entry.ListStatus.Score,
+		Source:        SourceMAL,
+		SourceID:      entry.Node.ID,
+		MalID:         entry.Node.ID,
+		DisplayTitle:  entry.Node.Title,
+		Url:           fmt.Sprintf("https://myanimelist.net/anime/%d", entry.Node.ID),
+		TotalEpisodes: 0, // DEVNOTE: MAL does not provide total episode count
+		Image:         entry.Node.MainPicture.Large,
+		Status:        FromMALStatusToAnimeStatus(entry.ListStatus.Status),
+		Progress:      entry.ListStatus.NumEpisodesWatched,
+		Score:         entry.ListStatus.Score,
 	}
 }
 

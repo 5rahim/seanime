@@ -44,15 +44,15 @@ type (
 	Source          string
 	AnimeListStatus string
 	AnimeEntry      struct {
-		Source       Source          `json:"source"`
-		SourceID     int             `json:"sourceID"`
-		MalID        int             `json:"malID"` // Used for matching
-		DisplayTitle string          `json:"displayTitle"`
-		Url          string          `json:"url"`
-		Progress     int             `json:"progress"`
-		TotalEpisode int             `json:"totalEpisode"`
-		Status       AnimeListStatus `json:"status"`
-		Image        string          `json:"image"`
-		Score        int             `json:"score"`
+		Source        Source          `json:"source"`
+		SourceID      int             `json:"sourceID"`
+		MalID         int             `json:"malID"` // Used for matching
+		DisplayTitle  string          `json:"displayTitle"`
+		Url           string          `json:"url"`
+		Progress      int             `json:"progress"`
+		TotalEpisodes int             `json:"totalEpisodes"`
+		Status        AnimeListStatus `json:"status"`
+		Image         string          `json:"image"`
+		Score         int             `json:"score"`
 	}
 )
