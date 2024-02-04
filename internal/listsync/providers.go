@@ -86,7 +86,7 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
 
-		progress := entry.Score
+		progress := entry.Progress
 		if progress > anizipMedia.GetMainEpisodeCount() {
 			progress = anizipMedia.GetMainEpisodeCount()
 		}
@@ -142,7 +142,7 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
 
-		progress := entry.Score
+		progress := entry.Progress
 		if progress > anizipMedia.GetMainEpisodeCount() {
 			progress = anizipMedia.GetMainEpisodeCount()
 		}
