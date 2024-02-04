@@ -30,7 +30,12 @@ func TestGetAnimeCollection(t *testing.T) {
 		t.Fatalf("error while fetching anime collection, %v", err)
 	}
 
-	spew.Dump(res[0])
+	for _, entry := range res {
+		t.Log(entry.Node.Title)
+		if entry.Node.ID == 51179 {
+			spew.Dump(entry)
+		}
+	}
 }
 
 func TestUpdateAnimeListStatus(t *testing.T) {

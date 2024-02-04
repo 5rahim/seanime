@@ -1,5 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { BetaBadge } from "@/components/application/beta-badge"
 import { Button } from "@/components/ui/button"
 import { MAL_CLIENT_ID } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
@@ -66,15 +67,13 @@ export default function Page() {
                     <li><BiCheckCircle className="text-green-300" /> Progress tracking <span className="text-[--muted] italic text-base">
                         Your progress will be automatically updated on MAL when you watch an episode on Seanime.
                     </span></li>
-                    <li><BiCheckCircle className="text-green-300" /> Partial synchronization <span className="text-[--muted] italic text-base">
-                        Details like the status and score will be synchronized from AniList to MAL when you update them on Seanime.
-                    </span></li>
-                    <li><BiXCircle className="text-red-400" /> List synchronization <span className="text-[--muted] italic text-base">
-                        Use <em className="font-semibold">MALSync</em> to fully synchronize your lists between MAL and AniList.
+                    <li><BiCheckCircle className="text-green-300" /> List synchronization <BetaBadge />
+                        <span className="text-[--muted] italic text-base">
+                            Manually synchronize your lists between AniList and MAL.
                     </span>
                     </li>
                     <li><BiXCircle className="text-red-400" /> List management <span className="text-[--muted] italic text-base">
-                        To manage your lists (status, score, ...), use the official MAL website or app.
+                        To manage your MyAnimeList lists, use the official MAL website or app.
                     </span></li>
                 </ul>
             </div>

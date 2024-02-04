@@ -54,7 +54,7 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 
 	anizipMedia, err := anizip.FetchAniZipMedia("mal", entry.MalID)
 	if err != nil {
-		pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch anime \"%s\" from AniZip", entry.DisplayTitle)
+		pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch mappings for \"%s\"", entry.DisplayTitle)
 		return nil
 	}
 
@@ -110,7 +110,7 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 
 	anizipMedia, err := anizip.FetchAniZipMedia("mal", entry.MalID)
 	if err != nil {
-		pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch anime \"%s\" from AniZip", entry.DisplayTitle)
+		pr.Logger.Error().Err(err).Msgf("listsync: Aborted. Failed to fetch mappings for \"%s\"", entry.DisplayTitle)
 		return nil
 	}
 

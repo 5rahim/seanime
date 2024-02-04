@@ -134,7 +134,7 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
             <ul className="text-sm text-[--muted] list-disc pl-4">
                 <li><em className="font-semibold">MALSync</em> is recommended for a more complete solution.</li>
                 <li>Refresh AniList (top right) to see changes reflected in Seanime.</li>
-                <li>Some items may not be synced due to mapping limitations.</li>
+                <li>Some items may not be synced due to mapping limitations. You will notice this if they re-appear in the list below.</li>
             </ul>
 
             <div>

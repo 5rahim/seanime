@@ -132,7 +132,7 @@ func GetAnimeDetails(accessToken string, mId int) (*BasicAnime, error) {
 
 func GetAnimeCollection(accessToken string) ([]*AnimeListEntry, error) {
 
-	reqUrl := fmt.Sprintf("%s/users/@me/animelist?fields=list_status,num_episodes&limit=1000", ApiBaseURL)
+	reqUrl := fmt.Sprintf("%s/users/@me/animelist?fields=list_status&limit=1000", ApiBaseURL)
 
 	// Create a new HTTP GET request
 	req, err := http.NewRequest("GET", reqUrl, nil)
