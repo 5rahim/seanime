@@ -162,6 +162,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				// Leave episode number as 0, assuming that the client will handle tracking correctly
 				lf.Metadata.Episode = 0
 				lf.Metadata.AniDBEpisode = "S1"
+
+				/*Log */
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+					Msg("File has been marked as main")
+				fh.ScanSummaryLogger.LogMetadataEpisodeZero(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 				return
 			}
 

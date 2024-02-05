@@ -143,7 +143,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                         className={cn(
                             "font-medium text-base tracking-wide line-clamp-1",
                             hasErrors && "text-red-300",
-                            hasWarnings && "text-yellow-300",
+                            hasWarnings && "text-orange-300",
                         )}
                     >{file.localFile.name}</p>
                     <Tooltip
@@ -180,13 +180,13 @@ function ScanSummaryLog(props: { log: ScanSummaryLog }) {
                     <div>
                         {log.level === "info" && <BiInfoCircle className="text-blue-300" />}
                         {log.level === "error" && <BiXCircle className="text-red-300" />}
-                        {log.level === "warning" && <BiInfoCircle className="text-yellow-300" />}
+                        {log.level === "warning" && <BiInfoCircle className="text-orange-300" />}
                     </div>
                     <p
                         className={cn(
                             "text-[--muted] hover:text-white text-sm tracking-wide line-clamp-1",
                             log.level === "error" && "text-red-300",
-                            log.level === "warning" && "text-yellow-300",
+                            log.level === "warning" && "text-orange-300",
                         )}
                     >{log.message}</p>
                 </div>

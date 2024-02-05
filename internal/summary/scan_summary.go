@@ -18,6 +18,7 @@ const (
 	LogMetadataMediaTreeFetchFailed
 	LogMetadataEpisodeNormalized
 	LogMetadataEpisodeNormalizationFailed
+	LogMetadataEpisodeZero
 	LogMetadataNC
 	LogMetadataSpecial
 	LogMetadataMain
@@ -254,6 +255,14 @@ func (l *ScanSummaryLogger) LogMetadataMain(lf *entities.LocalFile, episode int,
 	l.logType(LogMetadataMain, lf, msg)
 }
 
+func (l *ScanSummaryLogger) LogMetadataEpisodeZero(lf *entities.LocalFile, episode int, aniDBEpisode string) {
+	if l == nil {
+		return
+	}
+	msg := fmt.Sprintf("Marked as main episode. Episode %d. AniDB episode set to %s assuming AniDB does not include episode 0 in the episode count.", episode, aniDBEpisode)
+	l.logType(LogMetadataEpisodeZero, lf, msg)
+}
+
 func (l *ScanSummaryLogger) LogMetadataHydrated(lf *entities.LocalFile, mediaId int) {
 	if l == nil {
 		return
@@ -293,6 +302,8 @@ func (l *ScanSummaryLogger) logType(logType LogType, lf *entities.LocalFile, mes
 		l.log(lf, "info", message)
 	case LogMetadataMain:
 		l.log(lf, "info", message)
+	case LogMetadataEpisodeZero:
+		l.log(lf, "warning", message)
 	case LogFileNotMatched:
 		l.log(lf, "warning", message)
 	}
