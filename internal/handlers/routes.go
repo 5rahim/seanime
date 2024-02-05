@@ -126,6 +126,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/library/collection
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 
+	// Get the latest scan summaries
+	// GET /v1/library/scan-summaries
+	v1Library.Get("/scan-summaries", makeHandler(app, HandleGetLatestScanSummaries))
+
 	// Get missing episodes
 	// GET /v1/library/missing-episodes
 	v1Library.Get("/missing-episodes", makeHandler(app, HandleGetMissingEpisodes))
