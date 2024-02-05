@@ -117,8 +117,11 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Get MAL Wrapper
+	malWrapper := mal.NewWrapper(malInfo.AccessToken)
+
 	// Get anime details
-	anime, err := mal.GetAnimeDetails(malInfo.AccessToken, *b.MediaId)
+	anime, err := malWrapper.GetAnimeDetails(*b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -129,7 +132,7 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 	}
 
 	// Update MAL list entry
-	err = mal.UpdateAnimeListStatus(malInfo.AccessToken, &mal.AnimeListStatusParams{
+	err = malWrapper.UpdateAnimeListStatus(&mal.AnimeListStatusParams{
 		Status:             &status,
 		NumEpisodesWatched: b.Progress,
 	}, *b.MediaId)

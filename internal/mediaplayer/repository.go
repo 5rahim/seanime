@@ -54,7 +54,7 @@ func (m *Repository) Play(path string) error {
 }
 
 // StartTracking will start a goroutine that will monitor the status of the media player
-func (m *Repository) StartTracking() {
+func (m *Repository) StartTracking(onVideoCompleted func()) {
 	// Create a channel to signal the goroutine to exit
 	done := make(chan struct{})
 	var filename string
@@ -159,6 +159,7 @@ func (m *Repository) StartTracking() {
 					m.WSEventManager.SendEvent(events.MediaPlayerVideoCompleted, playback)
 					m.Logger.Debug().Msg("mediaplayer: Video completed")
 					completed = true
+					onVideoCompleted()
 				}
 
 				//m.WSEventManager.SendEvent(events.MediaPlayerPlaybackStatus, playback)

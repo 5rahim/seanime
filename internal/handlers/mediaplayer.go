@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"github.com/seanime-app/seanime/internal/core"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediaplayer"
 )
 
@@ -35,7 +37,17 @@ func HandlePlayVideo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaPlayerRepo.StartTracking()
+	go func(app *core.App) {
+		mediaPlayerRepo.StartTracking(func() {
+			// Send a progress update request to the client
+			// Progress will be automatically updated without having to confirm it when you watch 90% of an episode.
+			// This is enabled on the settings page.
+			if settings.Library.AutoUpdateProgress {
+				app.WSEventManager.SendEvent(events.MediaPlayerProgressUpdateRequest, nil)
+				app.Logger.Debug().Msg("mediaplayer: Automatic progress update requested")
+			}
+		})
+	}(c.App)
 
 	return nil
 }

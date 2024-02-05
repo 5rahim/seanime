@@ -46,6 +46,7 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 
 	// Anilist provider
 	anilistProvider := &Provider{}
+	// Get Anilist account
 	account, err := db.GetAccount()
 	if err != nil {
 		return nil, err // AniList provider is required
@@ -54,19 +55,26 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 		return nil, errors.New(ErrNotAuthenticatedToAnilist)
 	}
 
+	// Get Anilist collection
 	anilistClientWrapper := anilist.NewClientWrapper(account.Token)
 	collection, err := anilistClientWrapper.Client.AnimeCollection(context.Background(), &account.Username)
 	if err != nil {
 		return nil, err
 	}
+	// Create Anilist provider
 	anilistProvider = NewAnilistProvider(collection)
 
 	// MAL provider
 	malProvider := &Provider{}
 	malProvider = nil
+	// Get MAL account
 	malInfo, err := db.GetMalInfo()
+
+	malWrapper := mal.NewWrapper(malInfo.AccessToken)
+
+	// Get MAL collection
 	if err == nil && malInfo != nil {
-		collection, err := mal.GetAnimeCollection(malInfo.AccessToken)
+		collection, err := malWrapper.GetAnimeCollection()
 		if err == nil {
 			malProvider = NewMALProvider(collection)
 		}
@@ -78,7 +86,7 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 
 	providerRepo := &ProviderRepository{
 		AnilistClientWrapper: anilistClientWrapper,
-		MalToken:             malInfo.AccessToken,
+		MalWrapper:           malWrapper,
 		Logger:               logger,
 	}
 

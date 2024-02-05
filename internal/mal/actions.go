@@ -91,7 +91,7 @@ type (
 	}
 )
 
-func GetAnimeDetails(accessToken string, mId int) (*BasicAnime, error) {
+func (w *Wrapper) GetAnimeDetails(mId int) (*BasicAnime, error) {
 
 	reqUrl := fmt.Sprintf("%s/anime/%d?fields=%s", ApiBaseURL, mId, BaseAnimeFields)
 
@@ -101,12 +101,12 @@ func GetAnimeDetails(accessToken string, mId int) (*BasicAnime, error) {
 		return nil, err
 	}
 
-	if accessToken == "" {
+	if w.AccessToken == "" {
 		return nil, fmt.Errorf("access token is empty")
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Authorization", "Bearer "+w.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Make the HTTP request
@@ -130,7 +130,7 @@ func GetAnimeDetails(accessToken string, mId int) (*BasicAnime, error) {
 	return &anime, nil
 }
 
-func GetAnimeCollection(accessToken string) ([]*AnimeListEntry, error) {
+func (w *Wrapper) GetAnimeCollection() ([]*AnimeListEntry, error) {
 
 	reqUrl := fmt.Sprintf("%s/users/@me/animelist?fields=list_status&limit=1000", ApiBaseURL)
 
@@ -140,12 +140,12 @@ func GetAnimeCollection(accessToken string) ([]*AnimeListEntry, error) {
 		return nil, err
 	}
 
-	if accessToken == "" {
+	if w.AccessToken == "" {
 		return nil, fmt.Errorf("access token is empty")
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Authorization", "Bearer "+w.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Make the HTTP request
@@ -183,7 +183,7 @@ type AnimeListStatusParams struct {
 	Score              *int
 }
 
-func UpdateAnimeListStatus(accessToken string, opts *AnimeListStatusParams, mId int) error {
+func (w *Wrapper) UpdateAnimeListStatus(opts *AnimeListStatusParams, mId int) error {
 
 	reqUrl := fmt.Sprintf("%s/anime/%d/my_list_status", ApiBaseURL, mId)
 
@@ -210,7 +210,7 @@ func UpdateAnimeListStatus(accessToken string, opts *AnimeListStatusParams, mId 
 		return err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Authorization", "Bearer "+w.AccessToken)
 
 	// Response
 	res, err := client.Do(req)
@@ -226,7 +226,7 @@ func UpdateAnimeListStatus(accessToken string, opts *AnimeListStatusParams, mId 
 	return nil
 }
 
-func DeleteAnimeListItem(accessToken string, mId int) error {
+func (w *Wrapper) DeleteAnimeListItem(mId int) error {
 
 	reqUrl := fmt.Sprintf("%s/anime/%d/my_list_status", ApiBaseURL, mId)
 
@@ -237,7 +237,7 @@ func DeleteAnimeListItem(accessToken string, mId int) error {
 		return err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Authorization", "Bearer "+w.AccessToken)
 
 	// Response
 	res, err := client.Do(req)

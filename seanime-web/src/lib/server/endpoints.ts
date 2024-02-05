@@ -59,5 +59,6 @@ export const enum WSEvents {
     MEDIA_PLAYER_TRACKING_STOPPED = "media-player-tracking-stopped",
     MEDIA_PLAYER_TRACKING_STARTED = "media-player-tracking-started",
     MEDIA_PLAYER_VIDEO_COMPLETED = "media-player-video-completed",
+    MEDIA_PLAYER_PROGRESS_UPDATE_REQUEST = "media-player-progress-update-request",
     MEDIA_PLAYER_PLAYBACK_STATUS = "media-player-playback-status",
 }

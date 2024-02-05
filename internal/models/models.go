@@ -60,7 +60,8 @@ type MediaPlayerSettings struct {
 }
 
 type LibrarySettings struct {
-	LibraryPath string `gorm:"column:library_path" json:"libraryPath"`
+	LibraryPath        string `gorm:"column:library_path" json:"libraryPath"`
+	AutoUpdateProgress bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
 }
 
 type TorrentSettings struct {
@@ -86,4 +87,13 @@ type Mal struct {
 	AccessToken    string    `gorm:"column:access_token" json:"accessToken"`
 	RefreshToken   string    `gorm:"column:refresh_token" json:"refreshToken"`
 	TokenExpiresAt time.Time `gorm:"column:token_expires_at" json:"tokenExpiresAt"`
+}
+
+// +---------------------+
+// |    Scan Summary     |
+// +---------------------+
+
+type ScanSummary struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
 }

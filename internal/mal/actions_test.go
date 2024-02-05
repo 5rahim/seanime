@@ -8,8 +8,9 @@ import (
 func TestGetAnimeDetails(t *testing.T) {
 
 	info := MockJWTs()
+	malWrapper := NewWrapper(info.MALJwt)
 
-	res, err := GetAnimeDetails(info.MALJwt, 51179)
+	res, err := malWrapper.GetAnimeDetails(51179)
 
 	spew.Dump(res)
 
@@ -23,8 +24,9 @@ func TestGetAnimeDetails(t *testing.T) {
 func TestGetAnimeCollection(t *testing.T) {
 
 	info := MockJWTs()
+	malWrapper := NewWrapper(info.MALJwt)
 
-	res, err := GetAnimeCollection(info.MALJwt)
+	res, err := malWrapper.GetAnimeCollection()
 
 	if err != nil {
 		t.Fatalf("error while fetching anime collection, %v", err)
@@ -41,12 +43,13 @@ func TestGetAnimeCollection(t *testing.T) {
 func TestUpdateAnimeListStatus(t *testing.T) {
 
 	info := MockJWTs()
+	malWrapper := NewWrapper(info.MALJwt)
 
 	mId := 51179
 	progress := 2
 	status := MediaListStatusWatching
 
-	err := UpdateAnimeListStatus(info.MALJwt, &AnimeListStatusParams{
+	err := malWrapper.UpdateAnimeListStatus(&AnimeListStatusParams{
 		Status:             &status,
 		NumEpisodesWatched: &progress,
 	}, mId)

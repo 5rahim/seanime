@@ -82,9 +82,8 @@ export default function Page() {
                     <TabPanels.Container>
                         <TabPanels.Panel>
                             {!isLoading && <div className="p-4">
-                                {typeof animeDiffs !== "string" && !!animeDiffs?.length &&
+                                {typeof animeDiffs !== "string" &&
                                     <ListSyncDiffs diffs={animeDiffs ?? []} onClearCache={handleClearCache} isDeletingCache={isDeletingCache} />}
-                                {typeof animeDiffs !== "string" && !animeDiffs?.length && <LuffyError title="Empty" />}
                                 {typeof animeDiffs === "string" && <LuffyError>{animeDiffs}</LuffyError>}
                             </div>}
                             {isLoading && <LoadingSpinner />}

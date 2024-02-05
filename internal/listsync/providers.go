@@ -17,7 +17,7 @@ type (
 	}
 	ProviderRepository struct { // Holds information used for making requests to the providers
 		AnilistClientWrapper *anilist.ClientWrapper
-		MalToken             string
+		MalWrapper           *mal.Wrapper
 		Logger               *zerolog.Logger
 	}
 )
@@ -91,7 +91,7 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 			progress = anizipMedia.GetMainEpisodeCount()
 		}
 
-		err = mal.UpdateAnimeListStatus(pr.MalToken, &mal.AnimeListStatusParams{
+		err = pr.MalWrapper.UpdateAnimeListStatus(&mal.AnimeListStatusParams{
 			Status:             &status,
 			NumEpisodesWatched: &progress,
 			Score:              &entry.Score,
@@ -147,7 +147,7 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 			progress = anizipMedia.GetMainEpisodeCount()
 		}
 
-		err = mal.UpdateAnimeListStatus(pr.MalToken, &mal.AnimeListStatusParams{
+		err = pr.MalWrapper.UpdateAnimeListStatus(&mal.AnimeListStatusParams{
 			Status:             &status,
 			NumEpisodesWatched: &progress,
 			Score:              &entry.Score,
@@ -189,7 +189,7 @@ func (pr *ProviderRepository) DeleteAnime(from Source, entry *AnimeEntry) error 
 
 	case SourceMAL:
 		// Delete the anime from the MAL provider
-		err := mal.DeleteAnimeListItem(pr.MalToken, entry.MalID)
+		err := pr.MalWrapper.DeleteAnimeListItem(entry.MalID)
 		if err != nil {
 			pr.Logger.Error().Err(err).Msgf("listsync: Failed to delete anime \"%s\" from MAL", entry.DisplayTitle)
 			return err

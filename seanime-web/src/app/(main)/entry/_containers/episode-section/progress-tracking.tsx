@@ -62,6 +62,15 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         },
     })
 
+    // Request to update progress
+    useWebsocketMessageListener<MediaPlayerPlaybackStatus | null>({
+        type: WSEvents.MEDIA_PLAYER_PROGRESS_UPDATE_REQUEST,
+        onMessage: data => {
+            console.log("Automatic progress update requested")
+            handleUpdateProgress()
+        },
+    })
+
     // Stopped
     useWebsocketMessageListener<string>({
         type: WSEvents.MEDIA_PLAYER_TRACKING_STOPPED,
@@ -88,8 +97,8 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             toast.success("Progress updated on AniList")
             setStatus(null)
             isCompleted.off()
-            trackerModal.off()
             if (!serverSideTracking.active) {
+                trackerModal.off()
                 isTracking.off()
             }
             await qc.refetchQueries({ queryKey: ["get-media-entry", entry.mediaId] })
@@ -120,7 +129,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
 
     return (
         <>
-            {isTracking.active && <Button
+            {isTracking.active && canTrackProgress && <Button
                 intent={"success"}
                 className={cn({ "animate-pulse": isCompleted.active })}
                 onClick={trackerModal.on}
@@ -129,7 +138,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             </Button>}
 
             <Modal
-                isOpen={trackerModal.active}
+                isOpen={trackerModal.active && canTrackProgress}
                 onClose={trackerModal.off}
                 // isClosable
                 // title="Progress"
@@ -145,6 +154,11 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
                         <p>Currently watching</p>
                     )}
                 </div>
+                {serverStatus?.settings?.library?.autoUpdateProgress && (
+                    <p className={"text-[--muted] py-2 text-center"}>
+                        Your progress will be automatically updated
+                    </p>
+                )}
                 <div className={"flex gap-2 justify-center items-center"}>
                     {(!!status && isCompleted.active && canTrackProgress) && <Button
                         intent={"primary"}

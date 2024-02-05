@@ -36,7 +36,10 @@ export default function Page() {
 
     return (
         <div className="p-12 space-y-4">
-            <h2>Settings</h2>
+            <div className="space-y-1">
+                <h2>Settings</h2>
+                <p className="text-[--muted]">App version: {status?.version}</p>
+            </div>
             {/*<Divider/>*/}
             <TypesafeForm
                 schema={settingsSchema}
@@ -44,6 +47,7 @@ export default function Page() {
                     mutate({
                         library: {
                             libraryPath: data.libraryPath,
+                            autoUpdateProgress: data.autoUpdateProgress,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -83,6 +87,7 @@ export default function Page() {
                     qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
                     qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
                     hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
+                    autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                 }}
                 stackClassName="space-y-4"
             >
@@ -99,7 +104,7 @@ export default function Page() {
                 >
                     <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
                         <TabPanels.Nav>
-                            <TabPanels.Tab>Library</TabPanels.Tab>
+                            <TabPanels.Tab>Seanime</TabPanels.Tab>
                             <TabPanels.Tab>Media Players</TabPanels.Tab>
                             <TabPanels.Tab>qBittorrent</TabPanels.Tab>
                             <TabPanels.Tab>AniList</TabPanels.Tab>
@@ -114,6 +119,13 @@ export default function Page() {
                                         help="Folder where your anime library is located. (Keep the casing consistent)"
                                         shouldExist
                                     />
+                                    <Divider />
+                                    <Field.Switch
+                                        name="autoUpdateProgress"
+                                        label="Automatically update progress"
+                                        help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
+                                    />
+
                                 </TabPanels.Panel>
 
                                 <TabPanels.Panel className="space-y-4">

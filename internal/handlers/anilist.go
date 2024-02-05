@@ -70,21 +70,12 @@ func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if p.MediaId == nil || p.Progress == nil || p.Episodes == nil {
-		return c.RespondWithError(errors.New("missing fields"))
-	}
-
-	status := anilist.MediaListStatusCurrent
-	if *p.Progress == *p.Episodes {
-		status = anilist.MediaListStatusCompleted
-	}
-
 	// Update the progress
-	ret, err := c.App.AnilistClientWrapper.Client.UpdateMediaListEntryProgress(
+	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
 		c.Fiber.Context(),
 		p.MediaId,
 		p.Progress,
-		&status,
+		p.Episodes,
 	)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -93,7 +84,7 @@ func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
 	// Refresh the anilist collection
 	_, _ = c.App.RefreshAnilistCollection()
 
-	return c.RespondWithData(ret)
+	return c.RespondWithData(true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
