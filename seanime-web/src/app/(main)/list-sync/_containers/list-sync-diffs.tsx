@@ -1,6 +1,5 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
@@ -171,7 +170,7 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
                 </div>}
 
 
-            {!diffs?.length && <LuffyError title="Empty" />}
+            {!diffs?.length && <div className="p-4 text-[--muted] text-center">No items to sync</div>}
 
             <div className="space-y-4">
                 {diffs.map((diff, idx) => {

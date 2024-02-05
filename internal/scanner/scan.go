@@ -193,6 +193,9 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
 
+	// Hydrate the summary logger before merging files
+	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnilistCollection)
+
 	// +---------------------+
 	// |    Merge files      |
 	// +---------------------+
@@ -206,9 +209,6 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 			}
 		}
 	}
-
-	// Hydrate the summary logger
-	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnilistCollection)
 
 	scn.Logger.Debug().Msg("scanner: Scan completed")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)

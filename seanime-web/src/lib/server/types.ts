@@ -249,6 +249,10 @@ export type MediaEntryEpisodeMetadata = {
     aniDBId?: string
 }
 
+/**
+ * Local File
+ */
+
 export type LocalFile = {
     path: string
     name: string
@@ -282,6 +286,10 @@ export type LocalFileParsedData = {
     year?: string
 }
 
+/**
+ * Media Player
+ */
+
 export type MediaPlayerPlaybackStatus = {
     completionPercentage: number
     filename: string
@@ -289,7 +297,9 @@ export type MediaPlayerPlaybackStatus = {
     duration: number
 }
 
-//---
+/**
+ * Torrent
+ */
 
 export type TorrentSearchData = {
     previews: TorrentPreview[]
@@ -349,6 +359,39 @@ export type SeaTorrent = {
 }
 
 export type SeaTorrentActionProps = { hash: string, action: "pause" | "resume" | "open", dir: string }
+
+/**
+ * Scan Summary
+ */
+
+export type ScanSummary = {
+    createdAt: string
+    id: string
+    groups: ScanSummaryGroup[]
+    unmatchedFiles: ScanSummaryFile[]
+}
+
+export type ScanSummaryFile = {
+    id: string
+    localFile: LocalFile
+    logs: ScanSummaryLog[]
+}
+
+export type ScanSummaryGroup = {
+    id: string
+    files: ScanSummaryFile[]
+    mediaId: number
+    mediaTitle: string
+    mediaImage: string
+    mediaIsInCollection: boolean
+}
+
+export type ScanSummaryLog = {
+    id: string
+    filePath: string
+    message: string
+    level: "info" | "warning" | "error"
+}
 
 
 //---

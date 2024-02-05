@@ -93,6 +93,8 @@ func NewApp(options *AppOptions, version string) *App {
 
 	// Delete old local file entries
 	db.CleanUpLocalFiles()
+	// Delete old scan summaries
+	db.CleanUpScanSummaries()
 
 	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 

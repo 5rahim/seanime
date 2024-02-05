@@ -4,7 +4,13 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/summary"
+	"time"
 )
+
+type ScanSummaryItem struct {
+	CreatedAt time.Time `json:"createdAt"`
+	*summary.ScanSummary
+}
 
 func (db *Database) GetLastScanSummary() (*summary.ScanSummary, uint, error) {
 	// Get the latest entry
@@ -24,7 +30,7 @@ func (db *Database) GetLastScanSummary() (*summary.ScanSummary, uint, error) {
 	return sm, res.ID, nil
 }
 
-func (db *Database) GetScanSummaries() ([]*summary.ScanSummary, error) {
+func (db *Database) GetScanSummaries() ([]*ScanSummaryItem, error) {
 	var res []*models.ScanSummary
 	err := db.gormdb.Find(&res).Error
 	if err != nil {
@@ -32,17 +38,20 @@ func (db *Database) GetScanSummaries() ([]*summary.ScanSummary, error) {
 	}
 
 	// Unmarshal the data
-	var summaries []*summary.ScanSummary
+	var items []*ScanSummaryItem
 	for _, r := range res {
 		smBytes := r.Value
-		var sm *summary.ScanSummary
+		var sm summary.ScanSummary
 		if err := json.Unmarshal(smBytes, &sm); err != nil {
 			return nil, err
 		}
-		summaries = append(summaries, sm)
+		items = append(items, &ScanSummaryItem{
+			CreatedAt:   r.CreatedAt,
+			ScanSummary: &sm,
+		})
 	}
 
-	return summaries, nil
+	return items, nil
 }
 
 func (db *Database) InsertScanSummary(sm *summary.ScanSummary) error {

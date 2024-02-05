@@ -2,6 +2,7 @@ package summary
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/entities"
 )
@@ -27,31 +28,34 @@ type (
 	LogType int
 
 	ScanSummaryLogger struct {
-		Logs              []*ScanSummaryLoggerLog
+		Logs              []*ScanSummaryLog
 		LocalFiles        []*entities.LocalFile
 		AllMedia          []*entities.NormalizedMedia
 		AnilistCollection *anilist.AnimeCollection
 	}
 
-	ScanSummaryLoggerLog struct { // Holds a log entry. The log entry will then be used to generate a ScanSummary.
+	ScanSummaryLog struct { // Holds a log entry. The log entry will then be used to generate a ScanSummary.
+		ID       string `json:"id"`
 		FilePath string `json:"filePath"`
 		Level    string `json:"level"`
 		Message  string `json:"message"`
 	}
 
 	ScanSummary struct {
+		ID             string              `json:"id"`
 		Groups         []*ScanSummaryGroup `json:"groups"`
 		UnmatchedFiles []*ScanSummaryFile  `json:"unmatchedFiles"`
-		Files          []*ScanSummaryFile  `json:"files"`
 	}
 
 	ScanSummaryFile struct {
-		LocalFile *entities.LocalFile     `json:"localFile"`
-		Logs      []*ScanSummaryLoggerLog `json:"logs"`
+		ID        string              `json:"id"`
+		LocalFile *entities.LocalFile `json:"localFile"`
+		Logs      []*ScanSummaryLog   `json:"logs"`
 	}
 
 	ScanSummaryGroup struct {
-		LocalFiles          []*ScanSummaryFile `json:"files"`
+		ID                  string             `json:"id"`
+		Files               []*ScanSummaryFile `json:"files"`
 		MediaId             int                `json:"mediaId"`
 		MediaTitle          string             `json:"mediaTitle"`
 		MediaImage          string             `json:"mediaImage"`
@@ -61,7 +65,7 @@ type (
 
 func NewScanSummaryLogger() *ScanSummaryLogger {
 	return &ScanSummaryLogger{
-		Logs: make([]*ScanSummaryLoggerLog, 0),
+		Logs: make([]*ScanSummaryLog, 0),
 	}
 }
 
@@ -77,8 +81,9 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 		return nil
 	}
 	summary := &ScanSummary{
-		Groups:         make([]*ScanSummaryGroup, 0),
-		Files:          make([]*ScanSummaryFile, 0),
+		ID:     uuid.NewString(),
+		Groups: make([]*ScanSummaryGroup, 0),
+		//Files:          make([]*ScanSummaryFile, 0),
 		UnmatchedFiles: make([]*ScanSummaryFile, 0),
 	}
 
@@ -89,6 +94,7 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 
 		if lf.MediaId == 0 {
 			summary.UnmatchedFiles = append(summary.UnmatchedFiles, &ScanSummaryFile{
+				ID:        uuid.NewString(),
 				LocalFile: lf,
 				Logs:      l.getFileLogs(lf),
 			})
@@ -96,11 +102,12 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 		}
 
 		summaryFile := &ScanSummaryFile{
+			ID:        uuid.NewString(),
 			LocalFile: lf,
 			Logs:      l.getFileLogs(lf),
 		}
 
-		summary.Files = append(summary.Files, summaryFile)
+		//summary.Files = append(summary.Files, summaryFile)
 
 		// Add to group
 		if _, ok := groupsMap[lf.MediaId]; !ok {
@@ -131,7 +138,8 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 		}
 
 		summary.Groups = append(summary.Groups, &ScanSummaryGroup{
-			LocalFiles:          files,
+			ID:                  uuid.NewString(),
+			Files:               files,
 			MediaId:             mediaId,
 			MediaTitle:          mediaTitle,
 			MediaImage:          mediaImage,
@@ -294,15 +302,16 @@ func (l *ScanSummaryLogger) log(lf *entities.LocalFile, level string, message st
 	if l == nil {
 		return
 	}
-	l.Logs = append(l.Logs, &ScanSummaryLoggerLog{
+	l.Logs = append(l.Logs, &ScanSummaryLog{
+		ID:       uuid.NewString(),
 		FilePath: lf.Path,
 		Level:    level,
 		Message:  message,
 	})
 }
 
-func (l *ScanSummaryLogger) getFileLogs(lf *entities.LocalFile) []*ScanSummaryLoggerLog {
-	logs := make([]*ScanSummaryLoggerLog, 0)
+func (l *ScanSummaryLogger) getFileLogs(lf *entities.LocalFile) []*ScanSummaryLog {
+	logs := make([]*ScanSummaryLog, 0)
 	if l == nil {
 		return logs
 	}

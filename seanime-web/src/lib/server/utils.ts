@@ -17,3 +17,10 @@ export function getAniDBEpisodeInteger<T extends {
     const parsed = Number(metadata.aniDBEpisode.replace(/\D/g, ""))
     return !isNaN(parsed) ? parsed : undefined
 }
+
+export function formatDateAndTimeShort(date: string) {
+    return new Date(date).toLocaleString("en-US", {
+        dateStyle: "short",
+        timeStyle: "short",
+    })
+}

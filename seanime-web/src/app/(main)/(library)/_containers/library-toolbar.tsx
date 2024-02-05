@@ -16,6 +16,8 @@ import { BiFolder } from "@react-icons/all-files/bi/BiFolder"
 import { FiDatabase } from "@react-icons/all-files/fi/FiDatabase"
 import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { useAtomValue, useSetAtom } from "jotai/react"
+import React from "react"
+import { PiClockCounterClockwiseFill } from "react-icons/pi"
 
 export type LibraryToolbarProps = {
     collectionList: LibraryCollectionList[]
@@ -45,14 +47,14 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
             <div className="flex gap-2">
                 {!!status?.settings?.library?.libraryPath && hasScanned && <Button
                     intent={hasScanned ? "primary-subtle" : "primary"}
-                    leftIcon={<FiSearch/>}
+                    leftIcon={<FiSearch />}
                     onClick={() => setScannerModalOpen(true)}
                 >
                     {hasScanned ? "Refresh entries" : "Scan your library"}
                 </Button>}
                 {(unmatchedLocalFiles.length > 0) && <Button
                     intent="alert-outline"
-                    leftIcon={<FiDatabase/>}
+                    leftIcon={<FiDatabase />}
                     className="animate-pulse"
                     onClick={() => setUnmatchedFileManagerOpen(true)}
                 >
@@ -68,7 +70,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 </Button>}
             </div>
             <div className="flex gap-2">
-                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded/>} intent={"gray-basic"}/>}>
+                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent={"gray-basic"} />}>
                     <DropdownMenu.Item
                         disabled={!status?.settings?.library?.libraryPath}
                         className={cn({ "!text-[--muted]": !status?.settings?.library?.libraryPath })}
@@ -76,7 +78,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             openInExplorer(status?.settings?.library?.libraryPath ?? "")
                         }}
                     >
-                        <BiFolder/>
+                        <BiFolder />
                         <span>Open folder</span>
                     </DropdownMenu.Item>
 
@@ -95,9 +97,17 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         disabled={!hasScanned}
                         className={cn({ "!text-[--muted]": !hasScanned })}
                     >
-                        <BiCollection/>
+                        <BiCollection />
                         <span>Bulk actions</span>
                     </DropdownMenu.Item>
+
+                    <DropdownMenu.Link
+                        href="/scan-summaries"
+                        className={cn({ "!text-[--muted]": !hasScanned })}
+                    >
+                        <PiClockCounterClockwiseFill />
+                        <span>Scan summaries</span>
+                    </DropdownMenu.Link>
                 </DropdownMenu>
 
             </div>
