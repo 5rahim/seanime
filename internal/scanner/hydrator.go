@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/comparison"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/summary"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"strconv"
@@ -27,6 +28,7 @@ type FileHydrator struct {
 	AnilistRateLimiter   *limiter.Limiter
 	Logger               *zerolog.Logger
 	ScanLogger           *ScanLogger
+	ScanSummaryLogger    *summary.ScanSummaryLogger // optional
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
@@ -112,6 +114,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			/*Log */
 			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
 				Msg("File has been marked as NC")
+			fh.ScanSummaryLogger.LogMetadataNC(lf)
 			return
 		}
 
@@ -135,6 +138,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			/*Log */
 			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
 				Msg("File has been marked as special")
+			fh.ScanSummaryLogger.LogMetadataSpecial(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
 		// Movie metadata
@@ -145,6 +149,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			/*Log */
 			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
 				Msg("File has been marked as main")
+			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
 
@@ -166,6 +171,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			/*Log */
 			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
 				Msg("File has been marked as main")
+			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
 
@@ -180,6 +186,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
 				Str("warning", "File's episode number is higher than the media's episode count, but the media only has 1 episode").
 				Msg("File has been marked as main")
+			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
 
@@ -208,12 +215,14 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						Int("requests", len(mediaTreeAnalysis.branches)).
 						Any("branches", mediaTreeAnalysis.printBranches()).
 						Msg("Media tree fetched")
+					fh.ScanSummaryLogger.LogMetadataMediaTreeFetched(lf, time.Since(mediaTreeFetchStart).Milliseconds(), len(mediaTreeAnalysis.branches))
 				} else {
 					fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
 						Int("mediaId", mId).
 						Str("error", err.Error()).
 						Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
 						Msg("Could not fetch media tree")
+					fh.ScanSummaryLogger.LogMetadataMediaTreeFetchFailed(lf, err, time.Since(mediaTreeFetchStart).Milliseconds())
 				}
 			}
 
@@ -228,6 +237,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						Str("reason", "Episode normalization failed"),
 					).
 					Msg("File has been marked as main")
+				fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, err, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			} else {
 				/*Log */
 				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
@@ -237,6 +247,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						Int("newMediaId", lf.MediaId),
 					).
 					Msg("File has been marked as main")
+				fh.ScanSummaryLogger.LogMetadataEpisodeNormalized(lf, mId, episode, lf.Metadata.Episode, lf.MediaId, lf.Metadata.AniDBEpisode)
 			}
 			return
 		}

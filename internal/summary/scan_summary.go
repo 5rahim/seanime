@@ -190,15 +190,15 @@ func (l *ScanSummaryLogger) LogFileNotMatched(lf *entities.LocalFile, reason str
 	l.logType(LogFileNotMatched, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataMediaTreeFetched(lf *entities.LocalFile, ms int, requests int, branches string) {
+func (l *ScanSummaryLogger) LogMetadataMediaTreeFetched(lf *entities.LocalFile, ms int64, branches int) {
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Media tree fetched in %dms. Requests: %d. Branches: %s", ms, requests, branches)
+	msg := fmt.Sprintf("Media tree fetched in %dms. Branches: %d", ms, branches)
 	l.logType(LogMetadataMediaTreeFetched, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataMediaTreeFetchFailed(lf *entities.LocalFile, err error, ms int) {
+func (l *ScanSummaryLogger) LogMetadataMediaTreeFetchFailed(lf *entities.LocalFile, err error, ms int64) {
 	if l == nil {
 		return
 	}
@@ -206,19 +206,19 @@ func (l *ScanSummaryLogger) LogMetadataMediaTreeFetchFailed(lf *entities.LocalFi
 	l.logType(LogMetadataMediaTreeFetchFailed, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataEpisodeNormalized(lf *entities.LocalFile, mediaId int, episode int, newEpisode int, newMediaId int) {
+func (l *ScanSummaryLogger) LogMetadataEpisodeNormalized(lf *entities.LocalFile, mediaId int, episode int, newEpisode int, newMediaId int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Episode %d normalized to %d. New media ID: %d", episode, newEpisode, newMediaId)
+	msg := fmt.Sprintf("Episode %d normalized to %d. New media ID: %d. AniDB episode: %s", episode, newEpisode, newMediaId, aniDBEpisode)
 	l.logType(LogMetadataEpisodeNormalized, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *entities.LocalFile, err error) {
+func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *entities.LocalFile, err error, episode int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Episode normalization failed: %s", err.Error())
+	msg := fmt.Sprintf("Episode normalization failed: Reason \"%s\". Episode %d. AniDB episode %s", err.Error(), episode, aniDBEpisode)
 	l.logType(LogMetadataEpisodeNormalizationFailed, lf, msg)
 }
 
@@ -236,6 +236,14 @@ func (l *ScanSummaryLogger) LogMetadataSpecial(lf *entities.LocalFile, episode i
 	}
 	msg := fmt.Sprintf("Marked as special episode. Episode %d. AniDB episode: %s", episode, aniDBEpisode)
 	l.logType(LogMetadataSpecial, lf, msg)
+}
+
+func (l *ScanSummaryLogger) LogMetadataMain(lf *entities.LocalFile, episode int, aniDBEpisode string) {
+	if l == nil {
+		return
+	}
+	msg := fmt.Sprintf("Marked as main episode. Episode %d. AniDB episode: %s", episode, aniDBEpisode)
+	l.logType(LogMetadataMain, lf, msg)
 }
 
 func (l *ScanSummaryLogger) LogMetadataHydrated(lf *entities.LocalFile, mediaId int) {

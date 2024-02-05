@@ -173,6 +173,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 		AnilistRateLimiter:   anilistRateLimiter,
 		Logger:               scn.Logger,
 		ScanLogger:           scanLogger,
+		ScanSummaryLogger:    scn.ScanSummaryLogger,
 	}
 	hydrator.HydrateMetadata()
 
