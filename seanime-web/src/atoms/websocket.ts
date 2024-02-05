@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect } from "react"
-import { atom } from "jotai"
-import { SeaWebsocketEvent } from "@/lib/server/types"
 import { WSEvents } from "@/lib/server/endpoints"
+import { SeaWebsocketEvent } from "@/lib/server/types"
+import { atom } from "jotai"
+import { createContext, useContext, useEffect } from "react"
 
 export const WebSocketContext = createContext<WebSocket | null>(null)
 

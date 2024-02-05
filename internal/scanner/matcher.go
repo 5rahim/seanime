@@ -136,7 +136,7 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		Str("filename", lf.Name).
 		Str("sdRes", spew.Sprint(sdRes)).
 		Msg("Sorensen-Dice best result")
-	m.ScanSummaryLogger.LogComparison(lf, "Sorensen-Dice", *sdRes.Value, spew.Sprint(sdRes.Rating))
+	m.ScanSummaryLogger.LogComparison(lf, "Sorensen-Dice", *sdRes.Value, "Rating", spew.Sprint(sdRes.Rating))
 
 	//------------------
 
@@ -186,7 +186,7 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		Str("filename", lf.Name).
 		Str("levRes", spew.Sprint(levRes)).
 		Msg("Levenshtein best result")
-	m.ScanSummaryLogger.LogComparison(lf, "Levenshtein", *levRes.Value, spew.Sprint(levRes.Distance))
+	m.ScanSummaryLogger.LogComparison(lf, "Levenshtein", *levRes.Value, "Distance", spew.Sprint(levRes.Distance))
 
 	//------------------
 
@@ -239,7 +239,7 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 		Str("filename", lf.Name).
 		Any("bestTitleRes", spew.Sprint(bestTitleRes)).
 		Msg("Best title found")
-	m.ScanSummaryLogger.LogComparison(lf, "Sorensen-Dice (Final)", *bestTitleRes.Value, spew.Sprint(bestTitleRes.Rating))
+	m.ScanSummaryLogger.LogComparison(lf, "Sorensen-Dice (Final)", *bestTitleRes.Value, "Rating", spew.Sprint(bestTitleRes.Rating))
 
 	bestMedia, found := m.mediaContainer.GetMediaFromTitleOrSynonym(bestTitleRes.Value)
 

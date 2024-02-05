@@ -46,7 +46,7 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
         endpoint: SeaEndpoints.LIST_SYNC_ANIME,
         method: "post",
         onSuccess: async () => {
-            toast.success("List synced")
+            toast.success("Item synced")
             await qc.refetchQueries({ queryKey: ["list-sync-anime-diffs"] })
         },
         retry: 3,

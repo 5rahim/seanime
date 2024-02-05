@@ -56,6 +56,7 @@ export const enum SeaEndpoints {
 
 export const enum WSEvents {
     SCAN_PROGRESS = "scan-progress",
+    SCAN_STATUS = "scan-status",
     REFRESHED_ANILIST_COLLECTION = "refreshed-anilist-collection",
     MEDIA_PLAYER_TRACKING_STOPPED = "media-player-tracking-stopped",
     MEDIA_PLAYER_TRACKING_STARTED = "media-player-tracking-started",

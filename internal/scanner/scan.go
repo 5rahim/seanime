@@ -47,6 +47,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.Logger.Debug().Msg("scanner: Starting scan")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 10)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Retrieving local files...")
 
 	// +---------------------+
 	// |     Local Files     |
@@ -99,6 +100,11 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 20)
+	if scn.Enhanced {
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media detected from file titles...")
+	} else {
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media...")
+	}
 
 	// +---------------------+
 	// |    MediaFetcher     |
@@ -121,6 +127,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 40)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Matching local files...")
 
 	// +---------------------+
 	// |   MediaContainer    |
@@ -158,6 +165,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 70)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Hydrating metadata...")
 
 	// +---------------------+
 	// |    FileHydrator     |
@@ -186,12 +194,15 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 	// Add non-added media entries to AniList collection
 	// Max of 4 to avoid rate limit issues
 	if len(mf.UnknownMediaIds) < 5 {
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Adding missing media to AniList...")
+
 		if err = scn.AnilistClientWrapper.Client.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
 			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 		}
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Verifying file integrity...")
 
 	// Hydrate the summary logger before merging files
 	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnilistCollection)
@@ -212,6 +223,7 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	scn.Logger.Debug().Msg("scanner: Scan completed")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
 
 	scanLogger.logger.Info().
 		Int("scannedFileCount", len(localFiles)).

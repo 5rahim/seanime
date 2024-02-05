@@ -151,11 +151,12 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 	return summary
 }
 
-func (l *ScanSummaryLogger) LogComparison(lf *entities.LocalFile, algo string, bestTitle string, rating string) {
+func (l *ScanSummaryLogger) LogComparison(lf *entities.LocalFile, algo string, bestTitle string, ratingType string, rating string) {
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Comparison using %s. Best title: \"%s\". Rating: %s", algo, bestTitle, rating)
+
+	msg := fmt.Sprintf("Comparison using %s. Best title: \"%s\". %s: %s", algo, bestTitle, ratingType, rating)
 	l.logType(LogComparison, lf, msg)
 }
 

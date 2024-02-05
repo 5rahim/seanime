@@ -2,6 +2,7 @@ package events
 
 const (
 	EventScanProgress                = "scan-progress"
+	EventScanStatus                  = "scan-status"
 	RefreshedAnilistCollection       = "refreshed-anilist-collection"
 	MediaPlayerTrackingStopped       = "media-player-tracking-stopped"
 	MediaPlayerTrackingStarted       = "media-player-tracking-started"

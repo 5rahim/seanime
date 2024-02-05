@@ -12,6 +12,7 @@ import { formatDateAndTimeShort } from "@/lib/server/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import Image from "next/image"
+import Link from "next/link"
 import React from "react"
 import { BiCheckCircle, BiChevronDown, BiChevronUp, BiInfoCircle, BiXCircle } from "react-icons/bi"
 import { LuFileSearch } from "react-icons/lu"
@@ -44,7 +45,7 @@ export default function Page() {
                 <div>
                     <h2>Scan summaries</h2>
                     <p className="text-[--muted]">
-                        View the summaries of your 5 latest scans.
+                        View the logs and details of your latest scans
                     </p>
                 </div>
             </div>
@@ -64,9 +65,24 @@ export default function Page() {
                         {!!selectSummary && (
                             <div className="mt-4 space-y-4 rounded-[--radius] ">
                                 <div>
-                                    <h5>Media that were scanned</h5>
-                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups.length} anime</p>
+                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups.length} media</p>
+                                    {selectSummary.unmatchedFiles.length > 0 && (
+                                        <p className="text-orange-300">{selectSummary.unmatchedFiles.length} file{selectSummary.unmatchedFiles.length > 1
+                                            ? "s were "
+                                            : " was "}not matched</p>
+                                    )}
                                 </div>
+
+                                {selectSummary.unmatchedFiles.length > 0 && <div className="space-y-2">
+                                    <h5>Unmatched files</h5>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {selectSummary.unmatchedFiles.map(file => (
+                                            <ScanSummaryGroupItem file={file} key={file.id} />
+                                        ))}
+                                    </div>
+                                </div>}
+
+                                <h5>Media that were scanned</h5>
 
                                 <div className="space-y-4">
                                     {selectSummary.groups.map(group => (
@@ -88,7 +104,10 @@ export default function Page() {
                                                 </div>
 
                                                 <div className="space-y-1">
-                                                    <p className="font-medium tracking-wide">{group.mediaTitle}</p>
+                                                    <Link
+                                                        href={`/entry?id=${group.mediaId}`}
+                                                        className="font-medium tracking-wide"
+                                                    >{group.mediaTitle}</Link>
                                                     <p className="flex gap-1 items-center text-sm text-[--muted]">
                                                         <span className="text-lg">{group.mediaIsInCollection ?
                                                             <BiCheckCircle className="text-green-200" /> :
@@ -112,6 +131,8 @@ export default function Page() {
                                         </div>
                                     ))}
                                 </div>
+
+
                             </div>
                         )}
                     </div>
