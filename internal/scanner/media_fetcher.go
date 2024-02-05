@@ -22,6 +22,7 @@ type MediaFetcher struct {
 	CollectionMediaIds []int
 	UnknownMediaIds    []int // Media IDs that are not in the user's collection
 	ScanLogger         *ScanLogger
+	AnilistCollection  *anilist.AnimeCollection
 }
 
 type MediaFetcherOptions struct {
@@ -76,6 +77,8 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	mf.AnilistCollection = animeCollection
 
 	mf.AllMedia = make([]*anilist.BaseMedia, 0)
 

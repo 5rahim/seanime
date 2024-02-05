@@ -316,8 +316,8 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		AnilistRateLimiter:   limiter.NewAnilistLimiter(),
 		Logger:               c.App.Logger,
 		ScanLogger:           scanLogger,
-		AllMedia: []*scanner.NormalizedMedia{
-			scanner.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
+		AllMedia: []*entities.NormalizedMedia{
+			entities.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
 		},
 	}
 

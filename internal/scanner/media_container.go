@@ -6,7 +6,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/comparison"
-	"github.com/seanime-app/seanime/internal/result"
+	"github.com/seanime-app/seanime/internal/entities"
 	"strings"
 )
 
@@ -17,32 +17,14 @@ type (
 	}
 
 	MediaContainer struct {
-		NormalizedMedia []*NormalizedMedia
+		NormalizedMedia []*entities.NormalizedMedia
 		ScanLogger      *ScanLogger
 		engTitles       []*string
 		romTitles       []*string
 		synonyms        []*string
 		allMedia        []*anilist.BaseMedia
 	}
-
-	NormalizedMedia struct {
-		*anilist.BasicMedia
-	}
-
-	NormalizedMediaCache struct {
-		*result.Cache[int, *NormalizedMedia]
-	}
 )
-
-func NewNormalizedMedia(m *anilist.BasicMedia) *NormalizedMedia {
-	return &NormalizedMedia{
-		BasicMedia: m,
-	}
-}
-
-func NewNormalizedMediaCache() *NormalizedMediaCache {
-	return &NormalizedMediaCache{result.NewCache[int, *NormalizedMedia]()}
-}
 
 // NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseMedia (used by Matcher).
 //
@@ -53,9 +35,9 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc := new(MediaContainer)
 	mc.ScanLogger = opts.ScanLogger
 
-	mc.NormalizedMedia = make([]*NormalizedMedia, 0)
+	mc.NormalizedMedia = make([]*entities.NormalizedMedia, 0)
 	for _, m := range opts.allMedia {
-		mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(m.ToBasicMedia()))
+		mc.NormalizedMedia = append(mc.NormalizedMedia, entities.NewNormalizedMedia(m.ToBasicMedia()))
 		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
 			for _, edgeM := range m.Relations.Edges {
 				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {
@@ -74,27 +56,27 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 					*edgeM.RelationType != anilist.MediaRelationParent {
 					continue
 				}
-				mc.NormalizedMedia = append(mc.NormalizedMedia, NewNormalizedMedia(edgeM.GetNode()))
+				mc.NormalizedMedia = append(mc.NormalizedMedia, entities.NewNormalizedMedia(edgeM.GetNode()))
 			}
 		}
 	}
-	mc.NormalizedMedia = lo.UniqBy(mc.NormalizedMedia, func(m *NormalizedMedia) int {
+	mc.NormalizedMedia = lo.UniqBy(mc.NormalizedMedia, func(m *entities.NormalizedMedia) int {
 		return m.ID
 	})
 
-	engTitles := lop.Map(mc.NormalizedMedia, func(m *NormalizedMedia, index int) *string {
+	engTitles := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) *string {
 		if m.Title.English != nil {
 			return m.Title.English
 		}
 		return new(string)
 	})
-	romTitles := lop.Map(mc.NormalizedMedia, func(m *NormalizedMedia, index int) *string {
+	romTitles := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) *string {
 		if m.Title.Romaji != nil {
 			return m.Title.Romaji
 		}
 		return new(string)
 	})
-	_synonymsArr := lop.Map(mc.NormalizedMedia, func(m *NormalizedMedia, index int) []*string {
+	_synonymsArr := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) []*string {
 		if m.Synonyms != nil {
 			return m.Synonyms
 		}
@@ -119,12 +101,12 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	return mc
 }
 
-func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*NormalizedMedia, bool) {
+func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*entities.NormalizedMedia, bool) {
 	if title == nil {
 		return nil, false
 	}
 	t := strings.ToLower(*title)
-	res, found := lo.Find(mc.NormalizedMedia, func(m *NormalizedMedia) bool {
+	res, found := lo.Find(mc.NormalizedMedia, func(m *entities.NormalizedMedia) bool {
 		if m.HasEnglishTitle() && t == strings.ToLower(*m.Title.English) {
 			return true
 		}
@@ -144,8 +126,8 @@ func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*Normalized
 	return res, found
 }
 
-func (mc *MediaContainer) GetMediaFromId(id int) (*NormalizedMedia, bool) {
-	res, found := lo.Find(mc.NormalizedMedia, func(m *NormalizedMedia) bool {
+func (mc *MediaContainer) GetMediaFromId(id int) (*entities.NormalizedMedia, bool) {
+	res, found := lo.Find(mc.NormalizedMedia, func(m *entities.NormalizedMedia) bool {
 		if m.ID == id {
 			return true
 		}

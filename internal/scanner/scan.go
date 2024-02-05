@@ -142,11 +142,12 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	// Create a new matcher
 	matcher := &Matcher{
-		localFiles:     localFiles,
-		mediaContainer: mc,
-		baseMediaCache: baseMediaCache,
-		logger:         scn.Logger,
-		ScanLogger:     scanLogger,
+		localFiles:        localFiles,
+		mediaContainer:    mc,
+		baseMediaCache:    baseMediaCache,
+		logger:            scn.Logger,
+		ScanLogger:        scanLogger,
+		ScanSummaryLogger: scn.ScanSummaryLogger,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)
@@ -204,6 +205,9 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 			}
 		}
 	}
+
+	// Hydrate the summary logger
+	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnilistCollection)
 
 	scn.Logger.Debug().Msg("scanner: Scan completed")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)

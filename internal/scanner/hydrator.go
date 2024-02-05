@@ -19,8 +19,8 @@ import (
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles           []*entities.LocalFile // Local files to hydrate
-	AllMedia             []*NormalizedMedia    // All media used to hydrate local files
+	LocalFiles           []*entities.LocalFile       // Local files to hydrate
+	AllMedia             []*entities.NormalizedMedia // All media used to hydrate local files
 	BaseMediaCache       *anilist.BaseMediaCache
 	AnizipCache          *anizip.Cache
 	AnilistClientWrapper *anilist.ClientWrapper
@@ -74,7 +74,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 ) {
 
 	// Get the media
-	media, found := lo.Find(fh.AllMedia, func(media *NormalizedMedia) bool {
+	media, found := lo.Find(fh.AllMedia, func(media *entities.NormalizedMedia) bool {
 		return media.ID == mId
 	})
 	if !found {

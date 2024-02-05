@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/summary"
 )
 
 type scanRequestBody struct {
@@ -50,6 +51,9 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	// |       Scanner       |
 	// +---------------------+
 
+	// Create scan summary logger
+	scanSummaryLogger := summary.NewScanSummaryLogger()
+
 	// Create a new scanner
 	sc := scanner.Scanner{
 		DirPath:              libraryPath,
@@ -61,6 +65,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		ExistingLocalFiles:   existingLfs,
 		SkipLockedFiles:      body.SkipLockedFiles,
 		SkipIgnoredFiles:     body.SkipIgnoredFiles,
+		ScanSummaryLogger:    scanSummaryLogger,
 	}
 
 	// Scan the library
@@ -74,6 +79,9 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	// Save the scan summary
+	err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
 
 	return c.RespondWithData(lfs)
 
