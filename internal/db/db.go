@@ -66,6 +66,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.Settings{},
 		&models.Account{},
 		&models.Mal{},
+		&models.ScanSummary{},
 	)
 	if err != nil {
 

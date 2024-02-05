@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/filesystem"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/summary"
 )
 
 type Scanner struct {
@@ -22,6 +23,7 @@ type Scanner struct {
 	ExistingLocalFiles   []*entities.LocalFile
 	SkipLockedFiles      bool
 	SkipIgnoredFiles     bool
+	ScanSummaryLogger    *summary.ScanSummaryLogger
 }
 
 // Scan will scan the directory and return a list of entities.LocalFile.
@@ -29,10 +31,18 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
+
+	// Create a new Anilist rate limiter
 	anilistRateLimiter := limiter.NewAnilistLimiter()
+
+	// Create a new scan logger
 	scanLogger, err := NewScanLogger()
 	if err != nil {
 		return nil, err
+	}
+
+	if scn.ScanSummaryLogger == nil {
+		scn.ScanSummaryLogger = summary.NewScanSummaryLogger()
 	}
 
 	scn.Logger.Debug().Msg("scanner: Starting scan")
