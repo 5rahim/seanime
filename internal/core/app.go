@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
+	"github.com/seanime-app/seanime/internal/autodownloader"
 	_db "github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
@@ -38,6 +39,7 @@ type (
 		account              *models.Account
 		WSEventManager       *events.WSEventManager
 		ListSyncCache        *listsync.Cache // DEVNOTE: Shelved
+		AutoDownloader       *autodownloader.AutoDownloader
 		MediaPlayer          struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
@@ -101,14 +103,26 @@ func NewApp(options *AppOptions, version string) *App {
 	// Get token from stored account or return empty string
 	anilistToken := db.GetAnilistToken()
 
+	// Websocket Event Manager
+	wsEventManager := events.NewWSEventManager(logger)
+
+	// Auto downloader
+	nAutoDownloader := autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
+		Logger:            logger,
+		QbittorrentClient: nil, // Will be set in app.InitOrRefreshModules
+		WSEventManager:    wsEventManager,
+		Rules:             make([]*entities.AutoDownloaderRule, 0),
+	})
+
 	app := &App{
 		Config:               cfg,
 		Database:             db,
 		AnilistClientWrapper: anilist.NewClientWrapper(anilistToken),
 		AnizipCache:          anizip.NewCache(),
 		NyaaSearchCache:      nyaa.NewSearchCache(),
-		WSEventManager:       events.NewWSEventManager(logger),
+		WSEventManager:       wsEventManager,
 		ListSyncCache:        listsync.NewCache(),
+		AutoDownloader:       nAutoDownloader,
 		Logger:               logger,
 		Version:              version,
 	}

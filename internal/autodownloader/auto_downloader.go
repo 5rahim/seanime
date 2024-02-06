@@ -8,6 +8,10 @@ import (
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 )
 
+const (
+	NyaaRSSFeedURL = "https://nyaa.si/?page=rss&c=1_2"
+)
+
 type (
 	AutoDownloader struct {
 		Logger            *zerolog.Logger
@@ -32,4 +36,9 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		WSEventManager:    opts.WSEventManager,
 		Rules:             opts.Rules,
 	}
+}
+
+// SetSettings should be called after the settings are fetched and updated from the database.
+func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
+	ad.Settings = settings
 }

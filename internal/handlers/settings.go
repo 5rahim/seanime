@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/seanime-app/seanime/internal/autodownloader"
 	"github.com/seanime-app/seanime/internal/models"
 	"runtime"
 	"time"
@@ -132,26 +133,36 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Validation
+	if body.Interval < 2 {
+		return c.RespondWithError(errors.New("interval must be at least 2 minutes"))
+	}
+
+	autoDownloaderSettings := &models.AutoDownloaderSettings{
+		RSSUrl:                autodownloader.NyaaRSSFeedURL, // DEVNOTE: Hardcoded. Only one supported for now
+		Interval:              body.Interval,
+		Enabled:               body.Enabled,
+		DownloadAutomatically: body.DownloadAutomatically,
+	}
+
 	_, err = c.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
 		},
-		Library:     prevSettings.Library,
-		MediaPlayer: prevSettings.MediaPlayer,
-		Torrent:     prevSettings.Torrent,
-		Anilist:     prevSettings.Anilist,
-		ListSync:    prevSettings.ListSync,
-		AutoDownloader: &models.AutoDownloaderSettings{
-			RSSUrl:   body.RSSUrl,
-			Interval: body.Interval,
-			Enabled:  body.Enabled,
-		},
+		Library:        prevSettings.Library,
+		MediaPlayer:    prevSettings.MediaPlayer,
+		Torrent:        prevSettings.Torrent,
+		Anilist:        prevSettings.Anilist,
+		ListSync:       prevSettings.ListSync,
+		AutoDownloader: autoDownloaderSettings,
 	})
-
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	// Update Auto Downloader
+	c.App.AutoDownloader.SetSettings(autoDownloaderSettings)
 
 	return c.RespondWithData(true)
 }

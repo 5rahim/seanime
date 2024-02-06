@@ -109,7 +109,8 @@ type AutoDownloaderRule struct {
 }
 
 type AutoDownloaderSettings struct {
-	RSSUrl   string `gorm:"column:auto_downloader_rss_url" json:"rssUrl"`
-	Interval int    `gorm:"column:auto_downloader_interval" json:"interval"`
-	Enabled  bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
+	RSSUrl                string `gorm:"column:auto_downloader_rss_url" json:"rssUrl"`
+	Interval              int    `gorm:"column:auto_downloader_interval" json:"interval"`
+	Enabled               bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
+	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
 }

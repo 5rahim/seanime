@@ -26,10 +26,10 @@ import { useSetAtom } from "jotai"
 import { usePathname } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 import { BiLogOut } from "react-icons/bi"
-import { FaSquareRss } from "react-icons/fa6"
 import { MdSyncAlt } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
+import { TbWorldDownload } from "react-icons/tb"
 
 export function MainSidebar() {
 
@@ -101,13 +101,7 @@ export function MainSidebar() {
                                 isCurrent: pathname === "/list-sync",
                             },
                             {
-                                icon: PiClockCounterClockwiseFill,
-                                name: "Scan summaries",
-                                href: "/scan-summaries",
-                                isCurrent: pathname === "/scan-summaries",
-                            },
-                            {
-                                icon: FaSquareRss,
+                                icon: TbWorldDownload,
                                 name: "Auto downloader",
                                 href: "/auto-downloader",
                                 isCurrent: pathname === "/auto-downloader",
@@ -117,6 +111,12 @@ export function MainSidebar() {
                                 name: "Torrent list",
                                 href: "/torrent-list",
                                 isCurrent: pathname === "/torrent-list",
+                            },
+                            {
+                                icon: PiClockCounterClockwiseFill,
+                                name: "Scan summaries",
+                                href: "/scan-summaries",
+                                isCurrent: pathname === "/scan-summaries",
                             },
                         ]}/>
                 </div>

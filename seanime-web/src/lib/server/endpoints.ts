@@ -4,6 +4,7 @@ export const enum SeaEndpoints {
     LOGOUT = "/auth/logout",
     SETTINGS = "/settings", // (PATCH)
     LIST_SYNC_SETTINGS = "/settings/list-sync", // (PATCH)
+    AUTO_DOWNLOADER_SETTINGS = "/settings/auto-downloader", // (PATCH)
     START_MEDIA_PLAYER = "/media-player/start", // (POST)
     OPEN_IN_EXPLORER = "/open-in-explorer", // (POST)
     PLAY_VIDEO = "/media-player/play",
@@ -52,6 +53,12 @@ export const enum SeaEndpoints {
     DOWNLOAD = "/download", // (POST)
     TORRENTS = "/torrents", // (GET)
     TORRENT = "/torrent", // (POST)
+    /**
+     * Auto downloader
+     */
+    AUTO_DOWNLOADER_RULES = "/auto-downloader/rules", // (GET)
+    AUTO_DOWNLOADER_RULE = "/auto-downloader/rule", // (POST, PATCH)
+    AUTO_DOWNLOADER_RULE_DETAILS = "/auto-downloader/rule/{id}", // (GET, DELETE)
 }
 
 export const enum WSEvents {

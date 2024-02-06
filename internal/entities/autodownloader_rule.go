@@ -6,9 +6,9 @@ const (
 )
 
 const (
-	AutoDownloaderRuleEpisodeNext     AutoDownloaderRuleEpisodeType = "next_episodes"
-	AutoDownloaderRuleEpisodeAll      AutoDownloaderRuleEpisodeType = "all_episodes"
-	AutoDownloaderRuleEpisodeSelected AutoDownloaderRuleEpisodeType = "selected_episodes"
+	AutoDownloaderRuleEpisodeUnwatched AutoDownloaderRuleEpisodeType = "unwatched"
+	AutoDownloaderRuleEpisodeAll       AutoDownloaderRuleEpisodeType = "all"
+	AutoDownloaderRuleEpisodeSelected  AutoDownloaderRuleEpisodeType = "selected"
 )
 
 type (
@@ -25,5 +25,6 @@ type (
 		TitleComparisonType AutoDownloaderRuleTitleComparisonType `json:"titleComparisonType"`
 		EpisodeType         AutoDownloaderRuleEpisodeType         `json:"episodeType"`
 		EpisodeNumbers      []int                                 `json:"episodeNumbers,omitempty"`
+		Destination         string                                `json:"destination"`
 	}
 )

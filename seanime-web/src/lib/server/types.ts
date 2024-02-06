@@ -45,6 +45,7 @@ export type Settings = {
     torrent?: TorrentSettings
     anilist?: AnilistSettings
     listSync?: ListSyncSettings
+    autoDownloader?: AutoDownloaderSettings
 }
 
 export type AnilistSettings = {
@@ -393,6 +394,32 @@ export type ScanSummaryLog = {
     level: "info" | "warning" | "error"
 }
 
+/**
+ * Auto Downloader
+ */
+
+export type AutoDownloaderRule = {
+    dbId: number
+    enabled: boolean
+    mediaId: number
+    releaseGroups: string[]
+    resolutions: string[]
+    comparisonTitle: string
+    titleComparisonType: AutoDownloaderRuleTitleComparisonType
+    episodeType: AutoDownloaderRuleEpisodeType
+    episodeNumbers?: number[]
+    Destination: string
+}
+
+export type AutoDownloaderSettings = {
+    rssUrl: string
+    interval: number
+    enabled: boolean
+    downloadAutomatically: boolean
+}
+
+export type AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
+export type AutoDownloaderRuleEpisodeType = "unwatched" | "all" | "selected"
 
 //---
 
