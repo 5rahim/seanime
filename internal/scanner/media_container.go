@@ -59,6 +59,8 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 					*edgeM.RelationType != anilist.MediaRelationParent {
 					continue
 				}
+				// DEVNOTE: Edges fetched from the AniList AnimeCollection query do not contain NextAiringEpisode
+				// Make sure we don't overwrite the NextAiringEpisode from the original media
 				if _, found := normalizedMediaMap[edgeM.Node.ID]; !found {
 					normalizedMediaMap[edgeM.Node.ID] = entities.NewNormalizedMedia(edgeM.Node)
 				}

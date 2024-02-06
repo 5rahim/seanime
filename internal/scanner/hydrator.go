@@ -155,6 +155,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// No absolute episode count
 		// "media.GetTotalEpisodeCount() == -1" is a fix for media with unknown episode count, we will just assume that the episode number is correct
+		// FIXME: We might want to fetch the media when the episode count is unknown in order to get the correct episode count
 		if episode <= media.GetCurrentEpisodeCount() || media.GetTotalEpisodeCount() == -1 {
 			// Episode 0 - Might be a special
 			// By default, we will assume that AniDB doesn't include Episode 0 as part of the main episodes (which is often the case)
