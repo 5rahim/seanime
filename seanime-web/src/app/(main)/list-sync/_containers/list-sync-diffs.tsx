@@ -153,10 +153,12 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
             <div className="flex items-center justify-between w-full">
                 <h4>Items to sync: <Badge size="lg" className="ml-1 px-1.5">{diffs.length}</Badge></h4>
                 <div className="flex items-center gap-2">
-                    <Button size="sm" intent="white-outline" onClick={handleSyncDetails} isDisabled={disabledButton}>Sync details</Button>
-                    <Button size="sm" intent="success-outline" onClick={handleSyncAdditions} isDisabled={disabledButton}>
+                    <Button size="sm" intent="white-outline" onClick={handleSyncDetails} isDisabled={disabledButton || !diffs.length}>Sync
+                                                                                                                                      details</Button>
+                    <Button size="sm" intent="success-outline" onClick={handleSyncAdditions} isDisabled={disabledButton || !diffs.length}>
                         Sync additions</Button>
-                    <Button size="sm" intent="alert-outline" onClick={handleSyncRemovals} isDisabled={disabledButton}>Sync removals</Button>
+                    <Button size="sm" intent="alert-outline" onClick={handleSyncRemovals} isDisabled={disabledButton || !diffs.length}>Sync
+                                                                                                                                       removals</Button>
                 </div>
             </div>
 

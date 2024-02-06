@@ -1,22 +1,23 @@
-import { atom } from "jotai"
-import { useAtom } from "jotai/react"
-import { Drawer } from "@/components/ui/modal"
-import { UnmatchedGroup } from "@/lib/server/types"
-import React, { useCallback, useEffect, useState } from "react"
+import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
+import { Divider } from "@/components/ui/divider"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Drawer } from "@/components/ui/modal"
+import { NumberInput } from "@/components/ui/number-input"
+import { RadioGroup } from "@/components/ui/radio-group"
+import { useFetchMediaEntrySuggestions, useManuallyMatchLocalFiles } from "@/lib/server/hooks/media"
+import { useOpenInExplorer } from "@/lib/server/hooks/settings"
+import { UnmatchedGroup } from "@/lib/server/types"
 import { BiLeftArrow } from "@react-icons/all-files/bi/BiLeftArrow"
 import { BiRightArrow } from "@react-icons/all-files/bi/BiRightArrow"
-import { cn } from "@/components/ui/core"
-import { AppLayoutStack } from "@/components/ui/app-layout"
 import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
-import { useOpenInExplorer } from "@/lib/server/hooks/settings"
-import { Divider } from "@/components/ui/divider"
-import { NumberInput } from "@/components/ui/number-input"
 import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { useFetchMediaEntrySuggestions, useManuallyMatchLocalFiles } from "@/lib/server/hooks/media"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { RadioGroup } from "@/components/ui/radio-group"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import Image from "next/image"
+import React, { useCallback, useEffect, useState } from "react"
+import toast from "react-hot-toast"
 
 export const _unmatchedFileManagerIsOpen = atom(false)
 
@@ -90,6 +91,8 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 setPage(0)
                 setCurrentGroup(unmatchedGroups[0])
             })
+        } else {
+            toast.error("Invalid Anilist ID")
         }
     }
 
@@ -133,20 +136,20 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 </div>
 
                 <div
-                    className="bg-gray-800 p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
+                    className="bg-gray-800 border border-[--border] p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer(currentGroup.dir)}
                 >
                     <FcFolder className="text-2xl"/>
                     {currentGroup.dir}
                 </div>
 
-                <div className="bg-gray-800 p-2 px-4 rounded-md space-y-1 max-h-60 overflow-y-auto">
+                <ul className="list-disc pl-8 bg-[--background-color] p-2 px-4 rounded-md space-y-1 max-h-60 overflow-y-auto">
                     {currentGroup.localFiles.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0)))).map(lf => {
-                        return <p key={lf.path} className="">
+                        return <li key={lf.path} className="text-sm">
                             {lf.path}
-                        </p>
+                        </li>
                     })}
-                </div>
+                </ul>
 
                 {/*<Divider />*/}
 

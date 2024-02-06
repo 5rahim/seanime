@@ -69,11 +69,11 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 	malProvider = nil
 	// Get MAL account
 	malInfo, err := db.GetMalInfo()
-
-	malWrapper := mal.NewWrapper(malInfo.AccessToken)
+	var malWrapper *mal.Wrapper
 
 	// Get MAL collection
 	if err == nil && malInfo != nil {
+		malWrapper = mal.NewWrapper(malInfo.AccessToken)
 		collection, err := malWrapper.GetAnimeCollection()
 		if err == nil {
 			malProvider = NewMALProvider(collection)

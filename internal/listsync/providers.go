@@ -83,6 +83,9 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 		}
 		pr.Logger.Trace().Msgf("listsync: Added anime \"%s\" to AniList", entry.DisplayTitle)
 	case SourceMAL:
+		if pr.MalWrapper == nil {
+			return errors.New(ErrMalAccountNotConnected)
+		}
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
 
@@ -139,6 +142,9 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 		}
 		pr.Logger.Trace().Msgf("listsync: Updated anime \"%s\" on AniList", entry.DisplayTitle)
 	case SourceMAL:
+		if pr.MalWrapper == nil {
+			return errors.New(ErrMalAccountNotConnected)
+		}
 		// Add the anime to the MAL provider
 		status := ToMALStatusFromAnimeStatus(entry.Status)
 
@@ -188,6 +194,9 @@ func (pr *ProviderRepository) DeleteAnime(from Source, entry *AnimeEntry) error 
 		pr.Logger.Trace().Msgf("listsync: Deleted anime \"%s\" from AniList", entry.DisplayTitle)
 
 	case SourceMAL:
+		if pr.MalWrapper == nil {
+			return errors.New(ErrMalAccountNotConnected)
+		}
 		// Delete the anime from the MAL provider
 		err := pr.MalWrapper.DeleteAnimeListItem(entry.MalID)
 		if err != nil {
