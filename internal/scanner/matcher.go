@@ -324,6 +324,7 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
 	// Get the highest rating that will be used to un-match lower rated files
 	p := pool.NewWithResults[float64]()
 	for _, lf := range lfs {
+		lf := lf
 		p.Go(func() float64 {
 			t := lf.GetParsedTitle()
 			if comparison.ValueContainsSpecial(lf.Name) || comparison.ValueContainsNC(lf.Name) {

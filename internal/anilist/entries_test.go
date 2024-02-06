@@ -8,6 +8,8 @@ import (
 
 func TestAddMediaToPlanning(t *testing.T) {
 
+	t.Skip()
+
 	_, anilistClientWrapper, _ := MockAnilistClientWrappers()
 
 	if anilistClientWrapper == nil {

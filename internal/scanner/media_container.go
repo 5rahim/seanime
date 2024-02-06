@@ -36,8 +36,11 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc.ScanLogger = opts.ScanLogger
 
 	mc.NormalizedMedia = make([]*entities.NormalizedMedia, 0)
+
+	normalizedMediaMap := make(map[int]*entities.NormalizedMedia)
+
 	for _, m := range opts.allMedia {
-		mc.NormalizedMedia = append(mc.NormalizedMedia, entities.NewNormalizedMedia(m.ToBasicMedia()))
+		normalizedMediaMap[m.ID] = entities.NewNormalizedMedia(m.ToBasicMedia())
 		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
 			for _, edgeM := range m.Relations.Edges {
 				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {
@@ -56,13 +59,15 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 					*edgeM.RelationType != anilist.MediaRelationParent {
 					continue
 				}
-				mc.NormalizedMedia = append(mc.NormalizedMedia, entities.NewNormalizedMedia(edgeM.GetNode()))
+				if _, found := normalizedMediaMap[edgeM.Node.ID]; !found {
+					normalizedMediaMap[edgeM.Node.ID] = entities.NewNormalizedMedia(edgeM.Node)
+				}
 			}
 		}
 	}
-	mc.NormalizedMedia = lo.UniqBy(mc.NormalizedMedia, func(m *entities.NormalizedMedia) int {
-		return m.ID
-	})
+	for _, m := range normalizedMediaMap {
+		mc.NormalizedMedia = append(mc.NormalizedMedia, m)
+	}
 
 	engTitles := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) *string {
 		if m.Title.English != nil {

@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/select"
 import { Tooltip } from "@/components/ui/tooltip"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/queries/utils"
-import { ScanSummary, ScanSummaryFile, ScanSummaryLog } from "@/lib/server/types"
+import { LocalFile, ScanSummary, ScanSummaryFile, ScanSummaryLog } from "@/lib/server/types"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
@@ -17,6 +17,7 @@ import React from "react"
 import { BiCheckCircle, BiChevronDown, BiChevronUp, BiInfoCircle, BiXCircle } from "react-icons/bi"
 import { LuFileSearch } from "react-icons/lu"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
+import { TbListSearch } from "react-icons/tb"
 
 
 export default function Page() {
@@ -181,6 +182,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
             </div>
             {open && (
                 <div className="space-y-2 mt-2 border border-[--border] rounded-[--radius] p-3">
+                    <ScanSummaryFileParsedData localFile={file.localFile} />
                     {file.logs.map(log => (
                         <ScanSummaryLog key={log.id} log={log} />
                     ))}
@@ -189,6 +191,33 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
         </div>
     )
 
+}
+
+function ScanSummaryFileParsedData(props: { localFile: LocalFile }) {
+    const { localFile } = props
+
+    const folderTitles = localFile.parsedFolderInfo?.map(i => i.title).filter(Boolean).map(n => `"${n}"`).join(", ")
+    const folderSeasons = localFile.parsedFolderInfo?.map(i => i.season).filter(Boolean).map(n => `"${n}"`).join(", ")
+    const folderParts = localFile.parsedFolderInfo?.map(i => i.part).filter(Boolean).map(n => `"${n}"`).join(", ")
+
+    return (
+        <div className="">
+            <div className="flex justify-between gap-2 items-center">
+                <div className="flex gap-1 items-center">
+                    <ul className="text-sm space-y-1 [&>li]:gap-1 [&>li]:line-clamp-1 [&>li]:flex [&>li]:items-center [&>li>span]:text-[--muted] [&>li>span]:uppercase">
+                        <li><TbListSearch className="text-indigo-200" />
+                            <span>Title</span> "{localFile.parsedInfo?.title}"{!!folderTitles?.length && `, ${folderTitles}`}</li>
+                        <li><TbListSearch className="text-indigo-200" /> <span>Episode</span> "{localFile.parsedInfo?.episode || ""}"</li>
+                        <li><TbListSearch className="text-indigo-200" />
+                            <span>Season</span> "{localFile.parsedInfo?.season || ""}"{!!folderSeasons?.length && `, ${folderSeasons}`}</li>
+                        <li><TbListSearch className="text-indigo-200" />
+                            <span>Part</span> "{localFile.parsedInfo?.part || ""}"{!!folderParts?.length && `, ${folderParts}`}</li>
+                        <li><TbListSearch className="text-indigo-200" /> <span>Episode Title</span> "{localFile.parsedInfo?.episodeTitle || ""}"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 function ScanSummaryLog(props: { log: ScanSummaryLog }) {
