@@ -28,6 +28,24 @@ func (db *Database) GetAutoDownloaderRules() ([]*entities.AutoDownloaderRule, er
 	return rules, nil
 }
 
+func (db *Database) GetAutoDownloaderRule(id uint) (*entities.AutoDownloaderRule, error) {
+	var res models.AutoDownloaderRule
+	err := db.gormdb.First(&res, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal the data
+	smBytes := res.Value
+	var sm entities.AutoDownloaderRule
+	if err := json.Unmarshal(smBytes, &sm); err != nil {
+		return nil, err
+	}
+	sm.DbID = res.ID
+
+	return &sm, nil
+}
+
 func (db *Database) InsertAutoDownloaderRule(sm *entities.AutoDownloaderRule) error {
 	// Marshal the data
 	bytes, err := json.Marshal(sm)

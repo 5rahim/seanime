@@ -30,12 +30,19 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
 	v1.Patch("/settings/list-sync", makeHandler(app, HandleSaveListSyncSettings))
+	v1.Patch("/settings/auto-downloader", makeHandler(app, HandleSaveAutoDownloaderSettings))
 
 	// List Sync
-	// DEVNOTE: Shelved
 	v1.Get("/list-sync/anime-diffs", makeHandler(app, HandleGetListSyncAnimeDiffs))
 	v1.Post("/list-sync/cache", makeHandler(app, HandleDeleteListSyncCache))
 	v1.Post("/list-sync/anime", makeHandler(app, HandleSyncAnime))
+
+	// Auto Downloader
+	v1.Get("/auto-downloader/rule/:id", makeHandler(app, HandleGetAutoDownloaderRule))
+	v1.Get("/auto-downloader/rules", makeHandler(app, HandleGetAutoDownloaderRules))
+	v1.Post("/auto-downloader/rule", makeHandler(app, HandleCreateAutoDownloaderRule))
+	v1.Patch("/auto-downloader/rule", makeHandler(app, HandleUpdateAutoDownloaderRule))
+	v1.Delete("/auto-downloader/rule/:id", makeHandler(app, HandleDeleteAutoDownloaderRule))
 
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleTestDump))

@@ -16,10 +16,10 @@ type (
 	AutoDownloaderRuleEpisodeType         string
 
 	AutoDownloaderRule struct {
-		DbID                uint                                  `json:"dbId,omitempty"`
+		DbID                uint                                  `json:"dbId"` // Will be set when fetched from the database
 		Enabled             bool                                  `json:"enabled"`
 		MediaId             int                                   `json:"mediaId"`
-		ReleaseGroups       []string                              `json:"releaseGroups,omitempty"`
+		ReleaseGroups       []string                              `json:"releaseGroups"`
 		Resolutions         []string                              `json:"resolutions"`
 		ComparisonTitle     string                                `json:"comparisonTitle"`
 		TitleComparisonType AutoDownloaderRuleTitleComparisonType `json:"titleComparisonType"`

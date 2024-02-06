@@ -37,11 +37,12 @@ type LocalFiles struct {
 
 type Settings struct {
 	BaseModel
-	Library     *LibrarySettings     `gorm:"embedded" json:"library"`
-	MediaPlayer *MediaPlayerSettings `gorm:"embedded" json:"mediaPlayer"`
-	Torrent     *TorrentSettings     `gorm:"embedded" json:"torrent"`
-	Anilist     *AnilistSettings     `gorm:"embedded" json:"anilist"`
-	ListSync    *ListSyncSettings    `gorm:"embedded" json:"listSync"`
+	Library        *LibrarySettings        `gorm:"embedded" json:"library"`
+	MediaPlayer    *MediaPlayerSettings    `gorm:"embedded" json:"mediaPlayer"`
+	Torrent        *TorrentSettings        `gorm:"embedded" json:"torrent"`
+	Anilist        *AnilistSettings        `gorm:"embedded" json:"anilist"`
+	ListSync       *ListSyncSettings       `gorm:"embedded" json:"listSync"`
+	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
 }
 
 type AnilistSettings struct {
@@ -105,4 +106,10 @@ type ScanSummary struct {
 type AutoDownloaderRule struct {
 	BaseModel
 	Value []byte `gorm:"column:value" json:"value"`
+}
+
+type AutoDownloaderSettings struct {
+	RSSUrl   string `gorm:"column:auto_downloader_rss_url" json:"rssUrl"`
+	Interval int    `gorm:"column:auto_downloader_interval" json:"interval"`
+	Enabled  bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
 }

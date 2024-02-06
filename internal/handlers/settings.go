@@ -14,7 +14,7 @@ type settingsBody struct {
 	Anilist     models.AnilistSettings     `json:"anilist"`
 }
 
-type listSyncSettingsBody struct {
+type autoDownloaderSettingsBody struct {
 	Automatic bool   `json:"automatic"`
 	Origin    string `json:"origin"`
 }
@@ -41,9 +41,13 @@ func HandleSaveSettings(c *RouteCtx) error {
 	}
 
 	listSyncSettings := &models.ListSyncSettings{}
+	autoDownloaderSettings := &models.AutoDownloaderSettings{}
 	prevSettings, err := c.App.Database.GetSettings()
 	if err == nil && prevSettings.ListSync != nil {
 		listSyncSettings = prevSettings.ListSync
+	}
+	if err == nil && prevSettings.AutoDownloader != nil {
+		autoDownloaderSettings = prevSettings.AutoDownloader
 	}
 
 	settings, err := c.App.Database.UpsertSettings(&models.Settings{
@@ -51,11 +55,12 @@ func HandleSaveSettings(c *RouteCtx) error {
 			ID:        1,
 			UpdatedAt: time.Now(),
 		},
-		Library:     &body.Library,
-		MediaPlayer: &body.MediaPlayer,
-		Torrent:     &body.Torrent,
-		Anilist:     &body.Anilist,
-		ListSync:    listSyncSettings,
+		Library:        &body.Library,
+		MediaPlayer:    &body.MediaPlayer,
+		Torrent:        &body.Torrent,
+		Anilist:        &body.Anilist,
+		ListSync:       listSyncSettings,
+		AutoDownloader: autoDownloaderSettings,
 	})
 
 	if err != nil {
@@ -76,7 +81,47 @@ func HandleSaveSettings(c *RouteCtx) error {
 // This will also delete the cached listsync.ListSync instance
 func HandleSaveListSyncSettings(c *RouteCtx) error {
 
-	body := new(listSyncSettingsBody)
+	body := new(models.ListSyncSettings)
+
+	if err := c.Fiber.BodyParser(body); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	prevSettings, err := c.App.Database.GetSettings()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	_, err = c.App.Database.UpsertSettings(&models.Settings{
+		BaseModel: models.BaseModel{
+			ID:        1,
+			UpdatedAt: time.Now(),
+		},
+		Library:        prevSettings.Library,
+		MediaPlayer:    prevSettings.MediaPlayer,
+		Torrent:        prevSettings.Torrent,
+		Anilist:        prevSettings.Anilist,
+		AutoDownloader: prevSettings.AutoDownloader,
+		ListSync: &models.ListSyncSettings{
+			Automatic: body.Automatic,
+			Origin:    body.Origin,
+		},
+	})
+
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.ListSyncCache.Delete(0)
+
+	// DEVNOTE: Refetch server status from client
+
+	return c.RespondWithData(true)
+}
+
+func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
+
+	body := new(models.AutoDownloaderSettings)
 
 	if err := c.Fiber.BodyParser(body); err != nil {
 		return c.RespondWithError(err)
@@ -96,9 +141,11 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 		MediaPlayer: prevSettings.MediaPlayer,
 		Torrent:     prevSettings.Torrent,
 		Anilist:     prevSettings.Anilist,
-		ListSync: &models.ListSyncSettings{
-			Automatic: body.Automatic,
-			Origin:    body.Origin,
+		ListSync:    prevSettings.ListSync,
+		AutoDownloader: &models.AutoDownloaderSettings{
+			RSSUrl:   body.RSSUrl,
+			Interval: body.Interval,
+			Enabled:  body.Enabled,
 		},
 	})
 
@@ -106,9 +153,5 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	c.App.ListSyncCache.Delete(0)
-
-	// DEVNOTE: Refetch server status from client
-
-	return c.RespondWithData(nil)
+	return c.RespondWithData(true)
 }
