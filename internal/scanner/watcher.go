@@ -3,19 +3,21 @@ package scanner
 import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/rs/zerolog"
-	"log"
+	"github.com/seanime-app/seanime/internal/events"
 	"os"
 	"path/filepath"
 )
 
 // Watcher is a custom file system event watcher
 type Watcher struct {
-	watcher *fsnotify.Watcher
-	logger  *zerolog.Logger
+	Watcher        *fsnotify.Watcher
+	Logger         *zerolog.Logger
+	WSEventManager events.IWSEventManager
 }
 
 type NewWatcherOptions struct {
-	Logger *zerolog.Logger
+	Logger         *zerolog.Logger
+	WSEventManager events.IWSEventManager
 }
 
 // NewWatcher creates a new Watcher instance for monitoring a directory and its subdirectories
@@ -26,8 +28,9 @@ func NewWatcher(opts *NewWatcherOptions) (*Watcher, error) {
 	}
 
 	return &Watcher{
-		watcher: watcher,
-		logger:  opts.Logger,
+		Watcher:        watcher,
+		Logger:         opts.Logger,
+		WSEventManager: opts.WSEventManager,
 	}, nil
 }
 
@@ -46,7 +49,7 @@ func (w *Watcher) InitLibraryFileWatcher(opts *WatchLibraryFilesOptions) error {
 				return err
 			}
 			if info.IsDir() {
-				return w.watcher.Add(path)
+				return w.Watcher.Add(path)
 			}
 			return nil
 		})
@@ -58,7 +61,7 @@ func (w *Watcher) InitLibraryFileWatcher(opts *WatchLibraryFilesOptions) error {
 		return err
 	}
 
-	w.logger.Info().Msgf("watcher: Watching directory: \"%s\"", opts.LibraryPath)
+	w.Logger.Info().Msgf("watcher: Watching directory: \"%s\"", opts.LibraryPath)
 
 	return nil
 }
@@ -68,34 +71,34 @@ func (w *Watcher) StartWatching() {
 	go func() {
 		for {
 			select {
-			case event, ok := <-w.watcher.Events:
+			case event, ok := <-w.Watcher.Events:
 				if !ok {
 					return
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Printf("File modified: %s", event.Name)
 				}
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					log.Printf("File created: %s", event.Name)
+					w.Logger.Debug().Msgf("File created: %s", event.Name)
+					w.WSEventManager.SendEvent(events.LibraryWatcherFileAdded, event.Name)
 				}
 				if event.Op&fsnotify.Remove == fsnotify.Remove {
-					log.Printf("File removed: %s", event.Name)
+					w.Logger.Debug().Msgf("File removed: %s", event.Name)
+					w.WSEventManager.SendEvent(events.LibraryWatcherFileRemoved, event.Name)
 				}
-				// You can add more event types as needed
 
-			case err, ok := <-w.watcher.Errors:
+			case err, ok := <-w.Watcher.Errors:
 				if !ok {
 					return
 				}
-				w.logger.Warn().Err(err).Msgf("watcher: Error while watching")
+				w.Logger.Warn().Err(err).Msgf("watcher: Error while watching directory")
 			}
 		}
 	}()
 }
 
 func (w *Watcher) StopWatching() {
-	err := w.watcher.Close()
+	err := w.Watcher.Close()
 	if err == nil {
-		w.logger.Debug().Err(err).Msgf("watcher: Watcher is closed")
+		w.Logger.Debug().Err(err).Msgf("watcher: Watcher is closed")
 	}
 }

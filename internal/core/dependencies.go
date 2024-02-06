@@ -61,12 +61,11 @@ func (a *App) InitOrRefreshModules() {
 	}
 
 	// Initialize library watcher
-	// FIXME
-	//if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
-	//	a.initLibraryWatcher(settings.Library.LibraryPath)
-	//} else {
-	//	a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
-	//}
+	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
+		a.initLibraryWatcher(settings.Library.LibraryPath)
+	} else {
+		a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
+	}
 
 	// Save account and Anilist collection
 	a.initAnilistData()
@@ -79,7 +78,8 @@ func (a *App) InitOrRefreshModules() {
 func (a *App) initLibraryWatcher(path string) {
 	// Create a new matcher
 	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
-		Logger: a.Logger,
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
 	})
 	if err != nil {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize watcher")
@@ -99,7 +99,7 @@ func (a *App) initLibraryWatcher(path string) {
 	a.Watcher = watcher
 
 	// Start watching
-	a.Watcher.StartWatching() // FIXME
+	a.Watcher.StartWatching()
 
 }
 

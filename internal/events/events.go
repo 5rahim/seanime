@@ -9,4 +9,6 @@ const (
 	MediaPlayerVideoCompleted        = "media-player-video-completed"
 	MediaPlayerProgressUpdateRequest = "media-player-progress-update-request"
 	MediaPlayerPlaybackStatus        = "media-player-playback-status"
+	LibraryWatcherFileAdded          = "library-watcher-file-added"
+	LibraryWatcherFileRemoved        = "library-watcher-file-removed"
 )

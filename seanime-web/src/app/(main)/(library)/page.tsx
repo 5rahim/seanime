@@ -8,6 +8,7 @@ import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-wa
 import { LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
 import { LibraryHeader } from "@/app/(main)/(library)/_containers/library-header"
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
+import { LibraryWatcher } from "@/components/application/library-watcher"
 import { useLibraryCollection } from "@/lib/server/hooks/library"
 import React from "react"
 
@@ -26,6 +27,7 @@ export default function Library() {
     return (
         <div>
             <ScanProgressBar />
+            <LibraryWatcher />
             <LibraryHeader />
             <LibraryToolbar
                 collectionList={libraryCollectionList}

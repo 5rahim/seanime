@@ -26,6 +26,7 @@ import { useSetAtom } from "jotai"
 import { usePathname } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 import { BiLogOut } from "react-icons/bi"
+import { FaSquareRss } from "react-icons/fa6"
 import { MdSyncAlt } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
@@ -94,12 +95,6 @@ export function MainSidebar() {
                                 onClick: () => setGlobalSearchIsOpen(true),
                             },
                             {
-                                icon: BiDownload,
-                                name: "Torrent list",
-                                href: "/torrent-list",
-                                isCurrent: pathname === "/torrent-list",
-                            },
-                            {
                                 icon: MdSyncAlt,
                                 name: "List sync",
                                 href: "/list-sync",
@@ -110,6 +105,18 @@ export function MainSidebar() {
                                 name: "Scan summaries",
                                 href: "/scan-summaries",
                                 isCurrent: pathname === "/scan-summaries",
+                            },
+                            {
+                                icon: FaSquareRss,
+                                name: "Auto downloader",
+                                href: "/auto-downloader",
+                                isCurrent: pathname === "/auto-downloader",
+                            },
+                            {
+                                icon: BiDownload,
+                                name: "Torrent list",
+                                href: "/torrent-list",
+                                isCurrent: pathname === "/torrent-list",
                             },
                         ]}/>
                 </div>
