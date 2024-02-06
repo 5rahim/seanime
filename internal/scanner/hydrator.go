@@ -241,7 +241,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						Str("error", err.Error()).
 						Str("reason", "Episode normalization failed"),
 					).
-					Msg("File has been marked as main")
+					Msg("File has been marked as special")
 				fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, err, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			} else {
 				/*Log */
@@ -284,6 +284,7 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	if mta == nil {
 		lf.Metadata.Episode = ep
 		lf.Metadata.AniDBEpisode = strconv.Itoa(ep)
+		lf.Metadata.Type = entities.LocalFileTypeSpecial
 		return errors.New("[hydrator] could not find media tree analysis")
 	}
 
@@ -291,6 +292,7 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	if !ok {
 		lf.Metadata.Episode = ep
 		lf.Metadata.AniDBEpisode = strconv.Itoa(ep)
+		lf.Metadata.Type = entities.LocalFileTypeSpecial
 		return errors.New("[hydrator] could not find relative episode number from branches")
 	}
 

@@ -228,7 +228,7 @@ func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *entities.L
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Episode normalization failed: Reason \"%s\". Episode %d. AniDB episode %s", err.Error(), episode, aniDBEpisode)
+	msg := fmt.Sprintf("Episode normalization failed, file marked as Special episode. Reason \"%s\". Episode %d. AniDB episode %s", err.Error(), episode, aniDBEpisode)
 	l.logType(LogMetadataEpisodeNormalizationFailed, lf, msg)
 }
 
@@ -244,7 +244,7 @@ func (l *ScanSummaryLogger) LogMetadataSpecial(lf *entities.LocalFile, episode i
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Marked as special episode. Episode %d. AniDB episode: %s", episode, aniDBEpisode)
+	msg := fmt.Sprintf("Marked as Special episode. Episode %d. AniDB episode: %s", episode, aniDBEpisode)
 	l.logType(LogMetadataSpecial, lf, msg)
 }
 
