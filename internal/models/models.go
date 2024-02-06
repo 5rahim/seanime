@@ -97,3 +97,12 @@ type ScanSummary struct {
 	BaseModel
 	Value []byte `gorm:"column:value" json:"value"`
 }
+
+// +---------------------+
+// |   Auto downloader   |
+// +---------------------+
+
+type AutoDownloaderRule struct {
+	BaseModel
+	Value []byte `gorm:"column:value" json:"value"`
+}
