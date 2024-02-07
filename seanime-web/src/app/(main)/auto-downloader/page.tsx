@@ -220,7 +220,13 @@ function Rule(props: RuleProps) {
                             )}
                         >Rule for "{rule.comparisonTitle}"</p>
                         <p className="text-sm text-gray-400 line-clamp-1 flex gap-2 items-center">
-                            <FaSquareRss className="text-xl" />
+                            <FaSquareRss
+                                className={cn(
+                                    "text-xl",
+                                    rule.enabled ? "text-green-500" : "text-gray-500",
+                                    media?.status === "FINISHED" && "text-red-300",
+                                )}
+                            />
                             {!!rule.releaseGroups.length && <span>"{rule.releaseGroups.join(", ")}"</span>}
                             {!!rule.resolutions.length && <span>"{rule.resolutions.join(", ")}"</span>}
                             {!!media && (
