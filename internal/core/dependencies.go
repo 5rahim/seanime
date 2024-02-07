@@ -76,8 +76,15 @@ func (a *App) InitOrRefreshModules() {
 	// Save account and Anilist collection
 	a.initAnilistData()
 
+	// Initialize Auto Downloader
+	a.initAutoDownloader()
+
 	a.Logger.Info().Msg("app: Initialized modules")
 
+}
+
+func (a *App) initAutoDownloader() {
+	go a.AutoDownloader.Start()
 }
 
 // InitLibraryWatcher will initialize the library watcher.
