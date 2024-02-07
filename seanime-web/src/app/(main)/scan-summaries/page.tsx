@@ -87,7 +87,7 @@ export default function Page() {
 
                                 <div className="space-y-4">
                                     {selectSummary.groups.map(group => (
-                                        <div className="border border-[--border] rounded-[--radius] p-4 bg-gray-900 space-y-4">
+                                        <div className="border border-[--border] rounded-[--radius] p-4 bg-gray-900 space-y-4" key={group.id}>
                                             <div className="flex gap-2">
 
                                                 <div

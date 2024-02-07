@@ -1,24 +1,25 @@
-import { FaFolder } from "@react-icons/all-files/fa/FaFolder"
-import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"
+import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
-import * as upath from "upath"
+import { useBoolean } from "@/hooks/use-disclosure"
+import { SEANIME_SERVER_URI } from "@/lib/server/constants"
+import { BiCheck } from "@react-icons/all-files/bi/BiCheck"
+import { BiFolderOpen } from "@react-icons/all-files/bi/BiFolderOpen"
+import { BiFolderPlus } from "@react-icons/all-files/bi/BiFolderPlus"
+import { BiX } from "@react-icons/all-files/bi/BiX"
+import { FaFolder } from "@react-icons/all-files/fa/FaFolder"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
-import { SEANIME_SERVER_URI } from "@/lib/server/constants"
-import { useDebounce } from "use-debounce"
-import { BiCheck } from "@react-icons/all-files/bi/BiCheck"
-import { BiX } from "@react-icons/all-files/bi/BiX"
-import { BiFolderPlus } from "@react-icons/all-files/bi/BiFolderPlus"
-import { Modal } from "@/components/ui/modal"
-import { useBoolean } from "@/hooks/use-disclosure"
+import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"
 import { useUpdateEffect } from "react-use"
-import { BiFolderOpen } from "@react-icons/all-files/bi/BiFolderOpen"
+import * as upath from "upath"
+import { useDebounce } from "use-debounce"
 
 export type DirectorySelectorProps = {
     defaultValue?: string
     onSelect: (path: string) => void
     shouldExist?: boolean
-} & Omit<TextInputProps, "onSelect">
+    value: string
+} & Omit<TextInputProps, "onSelect" | "value">
 
 type DirectorySelectorResponse = {
     exists: boolean,
@@ -31,9 +32,12 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
     const {
         defaultValue,
         onSelect,
+        value,
         shouldExist,
         ...rest
     } = props
+
+    const firstRender = useRef(true)
 
     const [input, setInput] = useState(defaultValue ? upath.normalize(defaultValue) : "")
     const [debouncedInput] = useDebounce(input, 500)
@@ -50,6 +54,16 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
         },
         enabled: debouncedInput.length > 0,
     })
+
+    React.useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false
+            return
+        }
+        if (value !== input) {
+            setInput(value)
+        }
+    }, [value])
 
     useEffect(() => {
         if (input === ".") {

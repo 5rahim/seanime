@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	NyaaProvider   = "nyaa"
 	NyaaRSSFeedURL = "https://nyaa.si/?page=rss&c=1_2"
 )
 

@@ -139,7 +139,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
-		RSSUrl:                autodownloader.NyaaRSSFeedURL, // DEVNOTE: Hardcoded. Only one supported for now
+		Provider:              autodownloader.NyaaProvider, // DEVNOTE: Hardcoded. Only one supported for now
 		Interval:              body.Interval,
 		Enabled:               body.Enabled,
 		DownloadAutomatically: body.DownloadAutomatically,

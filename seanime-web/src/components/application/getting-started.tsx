@@ -1,22 +1,22 @@
-import { ServerStatus, Settings } from "@/lib/server/types"
-import { useRouter } from "next/navigation"
-import { useDefaultSettingsPaths } from "@/lib/server/hooks/settings"
-import { useSetAtom } from "jotai/react"
 import { serverStatusAtom } from "@/atoms/server-status"
-import React, { useEffect, useMemo } from "react"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
-import { Card } from "@/components/ui/card"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
-import { settingsSchema } from "@/lib/server/schemas"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
+import { Card } from "@/components/ui/card"
 import { Divider } from "@/components/ui/divider"
+import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useDefaultSettingsPaths } from "@/lib/server/hooks/settings"
+import { useSeaMutation } from "@/lib/server/queries/utils"
+import { settingsSchema } from "@/lib/server/schemas"
+import { ServerStatus, Settings } from "@/lib/server/types"
+import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
+import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
+import { FcMindMap } from "@react-icons/all-files/fc/FcMindMap"
 import { FcVideoCall } from "@react-icons/all-files/fc/FcVideoCall"
 import { FcVlc } from "@react-icons/all-files/fc/FcVlc"
-import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
-import { FcMindMap } from "@react-icons/all-files/fc/FcMindMap"
-import { useSeaMutation } from "@/lib/server/queries/utils"
-import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSetAtom } from "jotai/react"
+import { useRouter } from "next/navigation"
+import React, { useEffect, useMemo } from "react"
 
 export function GettingStarted({ status }: { status: ServerStatus }) {
     const router = useRouter()
@@ -62,6 +62,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 mutate({
                                     library: {
                                         libraryPath: data.libraryPath,
+                                        autoUpdateProgress: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

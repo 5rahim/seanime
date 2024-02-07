@@ -57,6 +57,10 @@ func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if rule.DbID == 0 {
+		return c.RespondWithError(errors.New("invalid id"))
+	}
+
 	if err := c.App.Database.UpdateAutoDownloaderRule(rule.DbID, rule); err != nil {
 		return c.RespondWithError(err)
 	}

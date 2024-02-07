@@ -1,12 +1,12 @@
 "use client"
 
-import { cn, ComponentWithAnatomy, defineStyleAnatomy, useUILocaleConfig } from "../core"
-import React, { useState } from "react"
-import locales from "./locales.json"
-import { LoadingOverlay } from "../loading-spinner"
-import { Button } from "../button"
-import { Modal } from "../modal"
 import { cva } from "class-variance-authority"
+import React, { useState } from "react"
+import { Button } from "../button"
+import { cn, ComponentWithAnatomy, defineStyleAnatomy, useUILocaleConfig } from "../core"
+import { LoadingOverlay } from "../loading-spinner"
+import { Modal } from "../modal"
+import locales from "./locales.json"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -15,15 +15,15 @@ import { cva } from "class-variance-authority"
 export const DangerZoneAnatomy = defineStyleAnatomy({
     container: cva([
         "UI-DangerZone__container",
-        "p-4 flex flex-col sm:flex-row gap-2 text-center sm:text-left rounded-md border border-[--red]"
+        "p-4 flex flex-col sm:flex-row gap-2 text-center sm:text-left rounded-md border border-red-300",
     ]),
     icon: cva([
         "UI-DangerZone__icon",
-        "place-self-center sm:place-self-start text-red-500 w-4 mt-2"
+        "place-self-center sm:place-self-start text-red-300 w-4 mt-2",
     ]),
     title: cva([
         "UI-DangerZone__title",
-        "text-lg text-[--red] font-semibold"
+        "text-lg text-red-300 font-semibold",
     ]),
     dialogTitle: cva([
         "UI-DangerZone__dialogTitle",

@@ -1,20 +1,25 @@
 "use client"
+import { RuleForm } from "@/app/(main)/auto-downloader/_containers/rule-form"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
 import { TabPanels } from "@/components/ui/tabs"
 import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { useBoolean } from "@/hooks/use-disclosure"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
 import { AutoDownloaderRule } from "@/lib/server/types"
+import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
 import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { InferType } from "prop-types"
 import React from "react"
 import toast from "react-hot-toast"
+import { FaSquareRss } from "react-icons/fa6"
 
 const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
     interval: z.number().min(2),
@@ -25,6 +30,8 @@ const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
 export default function Page() {
     const serverStatus = useAtomValue(serverStatusAtom)
     const qc = useQueryClient()
+
+    const createRuleModal = useBoolean(false)
 
     const { mutate: updateSettings, isPending } = useSeaMutation<null, InferType<typeof settingsSchema>>({
         mutationKey: ["auto-downloader-settings"],
@@ -66,20 +73,36 @@ export default function Page() {
                         <div className="p-4">
                             {isLoading && <LoadingSpinner />}
                             {!isLoading && (
-                                <div>
+                                <div className="space-y-4">
                                     <div className="w-full flex justify-end">
                                         <Button
                                             className="rounded-full"
                                             intent="success-subtle"
                                             leftIcon={<BiPlus />}
                                             onClick={() => {
-                                                // openModal("add-rule")
+                                                createRuleModal.on()
                                             }}
                                         >
                                             Add Rule
                                         </Button>
                                     </div>
+
+                                    <ul className="text-base text-[--muted] list-disc pl-4">
+                                        <li>The only provider currently supported is <em className="font-semibold">Nyaa.si</em></li>
+                                        <li>Auto Downloader uses the <em className="font-semibold">qBittorrent</em> integration to download new files
+                                        </li>
+                                        <li><em className="font-semibold">Rules</em> are parameters that define which episodes and which files to
+                                                                                     download for a specific anime
+                                        </li>
+                                        <li>The anime must already be present in your library</li>
+                                    </ul>
+
                                     {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
+                                    {(!!data?.length) && <div className="space-y-4">
+                                        {data?.map(rule => (
+                                            <Rule key={rule.dbId} rule={rule} />
+                                        ))}
+                                    </div>}
                                 </div>
                             )}
                         </div>
@@ -108,19 +131,20 @@ export default function Page() {
 
                                         <Divider />
 
-                                        {<div
+                                        <div
                                             className={cn(
-                                                !f.watch("enabled") && "pointer-events-none opacity-50 space-y-4",
+                                                "space-y-2",
+                                                !f.watch("enabled") && "pointer-events-none opacity-50",
                                             )}
                                         >
                                             <Field.Checkbox
-                                                label="Download immediately"
+                                                label="Download episodes immediately"
                                                 name="downloadAutomatically"
-                                                help="Download new episodes as soon as they are found."
+                                                help="If disabled, torrents will be added but not started"
                                             />
                                             <Field.Number
                                                 label="Interval"
-                                                help="How often to check for new episodes."
+                                                help="How often to check for new episodes"
                                                 name="interval"
                                                 leftAddon="Every"
                                                 rightAddon="minutes"
@@ -129,7 +153,7 @@ export default function Page() {
                                                 className="text-center w-20"
                                                 min={2}
                                             />
-                                        </div>}
+                                        </div>
 
                                         <Field.Submit role="save" isLoading={isPending} />
                                     </>
@@ -141,7 +165,67 @@ export default function Page() {
                 </TabPanels.Container>
             </TabPanels>
 
+
+            <Modal
+                isOpen={createRuleModal.active}
+                onClose={createRuleModal.off}
+                title="Create a new rule"
+                size="2xl"
+                isClosable
+            >
+                <RuleForm type="create" onRuleCreatedOrDeleted={() => createRuleModal.off()} />
+            </Modal>
         </div>
     )
 
+}
+
+type RuleProps = {
+    rule: AutoDownloaderRule
+}
+
+function Rule(props: RuleProps) {
+
+    const {
+        rule,
+        ...rest
+    } = props
+
+    const modal = useBoolean(false)
+
+    return (
+        <>
+            <div className="rounded-[--radius] p-3 bg-[--background-color] hover:bg-gray-800 transition-colors">
+                <div className="flex justify-between gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
+
+                    <div className="space-y-1 w-full">
+                        <p
+                            className={cn(
+                                "font-medium text-base tracking-wide line-clamp-1",
+                            )}
+                        >Rule Media ID {rule.mediaId}</p>
+                        <p className="text-sm text-gray-400 line-clamp-1 flex gap-2 items-center">
+                            <FaSquareRss className="text-xl" />
+                            <span>{"\""}{rule.comparisonTitle}{"\""}</span>
+                            {!!rule.releaseGroups.length && <span>"{rule.releaseGroups.join(", ")}"</span>}
+                            {!!rule.resolutions.length && <span>"{rule.resolutions.join(", ")}"</span>}
+                        </p>
+                    </div>
+
+                    <div>
+                        <IconButton intent="white-basic" icon={<BiChevronRight />} size="sm" />
+                    </div>
+                </div>
+            </div>
+            <Modal
+                isOpen={modal.active}
+                onClose={modal.off}
+                title="Edit rule"
+                size="2xl"
+                isClosable
+            >
+                <RuleForm type="edit" rule={rule} />
+            </Modal>
+        </>
+    )
 }

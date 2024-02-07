@@ -208,6 +208,7 @@ export type MediaEntryListData = {
 
 export type MediaEntryLibraryData = {
     allFilesLocked: boolean
+    sharedPath: string
 }
 
 export type MediaEntryDownloadInfo = {
@@ -405,21 +406,32 @@ export type AutoDownloaderRule = {
     releaseGroups: string[]
     resolutions: string[]
     comparisonTitle: string
-    titleComparisonType: AutoDownloaderRuleTitleComparisonType
-    episodeType: AutoDownloaderRuleEpisodeType
+    titleComparisonType: string
+    episodeType: string
     episodeNumbers?: number[]
-    Destination: string
+    destination: string
 }
 
 export type AutoDownloaderSettings = {
-    rssUrl: string
+    provider: string
     interval: number
     enabled: boolean
     downloadAutomatically: boolean
 }
 
 export type AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
+
+export enum AutoDownloaderRuleTitleComparisonTypeEnum {
+    CONTAINS = "contains",
+    LIKELY = "likely"
+}
 export type AutoDownloaderRuleEpisodeType = "unwatched" | "all" | "selected"
+
+export enum AutoDownloaderRuleEpisodeTypeEnum {
+    UNWATCHED = "unwatched",
+    ALL = "all",
+    SELECTED = "selected"
+}
 
 //---
 

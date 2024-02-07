@@ -1,37 +1,30 @@
 "use client"
 
+import { DirectorySelector, DirectorySelectorProps } from "@/components/shared/directory-selector"
 import { getLocalTimeZone, parseAbsolute, parseAbsoluteToLocal, Time } from "@internationalized/date"
 import addDays from "date-fns/addDays"
 import React, { forwardRef, useCallback, useMemo } from "react"
+import { TimeValue } from "react-aria"
 import { Controller, FormState, get, useController, useFormContext } from "react-hook-form"
+import { AddressInput, AddressInputProps } from "../address-input"
+import { BasicFieldOptions } from "../basic-field"
+import { Checkbox, CheckboxGroup, CheckboxGroupProps, CheckboxProps } from "../checkbox"
+import { ColorInput, ColorInputProps } from "../color-input"
+import { Combobox, ComboboxProps } from "../combobox"
+import { cn, useUILocaleConfig } from "../core"
+import { DatePicker, DatePickerProps, DateRangePicker, DateRangePickerProps, TimeInput, TimeInputProps } from "../date-time"
+import { MultiSelect, MultiSelectProps } from "../multi-select"
+import { NumberInput, NumberInputProps } from "../number-input"
+import { PriceInput, PriceInputProps } from "../price-input"
+import { currencies } from "../price-input/currencies"
+import { RadioGroup, RadioGroupProps } from "../radio-group"
+import { Select, SelectProps } from "../select"
+import { Switch, SwitchProps } from "../switch"
+import { TextInput, TextInputProps } from "../text-input"
+import { Textarea, TextareaProps } from "../textarea"
 import { createPolymorphicComponent } from "./polymorphic-component"
 import { SubmitField } from "./submit-field"
 import { useFormSchema } from "./typesafe-form"
-import { BasicFieldOptions } from "../basic-field"
-import { TextInput, TextInputProps } from "../text-input"
-import { Textarea, TextareaProps } from "../textarea"
-import {
-    DatePicker,
-    DatePickerProps,
-    DateRangePicker,
-    DateRangePickerProps,
-    TimeInput,
-    TimeInputProps,
-} from "../date-time"
-import { Select, SelectProps } from "../select"
-import { NumberInput, NumberInputProps } from "../number-input"
-import { MultiSelect, MultiSelectProps } from "../multi-select"
-import { Combobox, ComboboxProps } from "../combobox"
-import { Switch, SwitchProps } from "../switch"
-import { Checkbox, CheckboxGroup, CheckboxGroupProps, CheckboxProps } from "../checkbox"
-import { RadioGroup, RadioGroupProps } from "../radio-group"
-import { PriceInput, PriceInputProps } from "../price-input"
-import { cn, useUILocaleConfig } from "../core"
-import { currencies } from "../price-input/currencies"
-import { AddressInput, AddressInputProps } from "../address-input"
-import { ColorInput, ColorInputProps } from "../color-input"
-import { TimeValue } from "react-aria"
-import { DirectorySelector, DirectorySelectorProps } from "@/components/shared/directory-selector"
 
 // import { DirectoryInput, DirectoryInputProps } from "@/components/shared/directory-input"
 
@@ -152,6 +145,7 @@ const DirectorySelectorField = React.memo(withControlledInput(forwardRef<HTMLInp
         return <DirectorySelector
             shouldExist={shouldExist}
             {...props}
+            value={value ?? ""}
             defaultValue={defaultValue}
             onSelect={value => controller.field.onChange(value)}
             ref={ref}
@@ -459,7 +453,7 @@ const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLInputEleme
             fieldLabelClassName="text-md"
             radioContainerClassName={cn(
                 "block w-full p-4 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius]",
-                "data-[checked=true]:ring-2 ring-[--ring]",
+                "data-[checked=true]:ring-1 ring-[--ring]",
             )}
             radioControlClassName="absolute right-2 top-2 h-5 w-5 text-xs"
             radioHelpClassName="text-sm"
