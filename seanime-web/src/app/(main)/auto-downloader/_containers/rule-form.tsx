@@ -173,7 +173,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
         if (!isNaN(id) && !rule?.comparisonTitle) {
             const media = allMedia.find(media => media.id === id)
             if (media) {
-                form.setValue("comparisonTitle", media.title?.userPreferred || "")
+                form.setValue("comparisonTitle", media.title?.romaji || "")
             }
         }
         if (destination) {
@@ -230,7 +230,11 @@ export function RuleFormForm(props: RuleFormFormProps) {
 
                 <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Title</div>
-                    <Field.Text name="comparisonTitle" label="Comparison title" />
+                    <Field.Text
+                        name="comparisonTitle"
+                        label="Comparison title"
+                        help="The title to compare the torrent name with. Use a title most likely to be found in a torrent name. (e.g. the Romaji title)"
+                    />
                     <Field.RadioCards
                         label="Type of search"
                         name="titleComparisonType"

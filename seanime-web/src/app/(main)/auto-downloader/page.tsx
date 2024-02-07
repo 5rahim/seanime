@@ -1,5 +1,6 @@
 "use client"
 import { RuleForm } from "@/app/(main)/auto-downloader/_containers/rule-form"
+import { libraryCollectionAtom } from "@/atoms/collection"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
@@ -11,7 +12,7 @@ import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/t
 import { useBoolean } from "@/hooks/use-disclosure"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
-import { AutoDownloaderRule } from "@/lib/server/types"
+import { AutoDownloaderRule, LibraryCollection } from "@/lib/server/types"
 import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
 import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { useQueryClient } from "@tanstack/react-query"
@@ -30,6 +31,7 @@ const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
 export default function Page() {
     const serverStatus = useAtomValue(serverStatusAtom)
     const qc = useQueryClient()
+    const libraryCollection = useAtomValue(libraryCollectionAtom)
 
     const createRuleModal = useBoolean(false)
 
@@ -100,7 +102,11 @@ export default function Page() {
                                     {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
                                     {(!!data?.length) && <div className="space-y-4">
                                         {data?.map(rule => (
-                                            <Rule key={rule.dbId} rule={rule} />
+                                            <Rule
+                                                key={rule.dbId}
+                                                rule={rule}
+                                                libraryCollection={libraryCollection}
+                                            />
                                         ))}
                                     </div>}
                                 </div>
@@ -182,16 +188,25 @@ export default function Page() {
 
 type RuleProps = {
     rule: AutoDownloaderRule
+    libraryCollection: LibraryCollection | undefined
 }
 
 function Rule(props: RuleProps) {
 
     const {
         rule,
+        libraryCollection,
         ...rest
     } = props
 
     const modal = useBoolean(false)
+
+    const media = React.useMemo(() => {
+        return libraryCollection?.lists?.flatMap(list => list.entries)
+            ?.flatMap(entry => entry.media)
+            ?.filter(Boolean)
+            ?.find(media => media.id === rule.mediaId)
+    }, [(libraryCollection?.lists?.length || 0), rule])
 
     return (
         <>
@@ -203,12 +218,16 @@ function Rule(props: RuleProps) {
                             className={cn(
                                 "font-medium text-base tracking-wide line-clamp-1",
                             )}
-                        >Rule Media ID {rule.mediaId}</p>
+                        >Rule for "{rule.comparisonTitle}"</p>
                         <p className="text-sm text-gray-400 line-clamp-1 flex gap-2 items-center">
                             <FaSquareRss className="text-xl" />
-                            <span>{"\""}{rule.comparisonTitle}{"\""}</span>
                             {!!rule.releaseGroups.length && <span>"{rule.releaseGroups.join(", ")}"</span>}
                             {!!rule.resolutions.length && <span>"{rule.resolutions.join(", ")}"</span>}
+                            {!!media && (
+                                <>
+                                    {media.status === "FINISHED" && <span className="text-red-300">This anime is no longer airing</span>}
+                                </>
+                            )}
                         </p>
                     </div>
 
