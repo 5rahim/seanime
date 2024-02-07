@@ -129,6 +129,9 @@ func NewApp(options *AppOptions, version string) *App {
 
 	app.InitOrRefreshModules()
 
+	// Initialize the AutoDownloader
+	app.initAutoDownloader()
+
 	return app
 }
 

@@ -108,6 +108,15 @@ type AutoDownloaderRule struct {
 	Value []byte `gorm:"column:value" json:"value"`
 }
 
+type AutoDownloaderItem struct {
+	BaseModel
+	RuleID       uint   `gorm:"column:rule_id" json:"ruleId"`
+	Link         string `gorm:"column:link" json:"link"`
+	Hash         string `gorm:"column:hash" json:"hash"`
+	TorrentTitle string `gorm:"column:torrent_title" json:"torrentTitle"`
+	Downloaded   bool   `gorm:"column:downloaded" json:"downloaded"`
+}
+
 type AutoDownloaderSettings struct {
 	Provider              string `gorm:"column:auto_downloader_provider" json:"provider"`
 	Interval              int    `gorm:"column:auto_downloader_interval" json:"interval"`

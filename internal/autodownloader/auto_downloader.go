@@ -65,6 +65,11 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
 func (ad *AutoDownloader) Start() {
 	ad.Logger.Debug().Msg("autodownloader: Starting auto downloader")
 
+	// Start up qBittorrent client
+	if ad.QbittorrentClient != nil {
+
+	}
+
 	// Start the auto downloader
 	ad.start()
 }
@@ -76,19 +81,18 @@ func (ad *AutoDownloader) start() {
 		if ad.Settings != nil && ad.Settings.Interval > 0 {
 			interval = ad.Settings.Interval
 		}
-		ticker := time.NewTicker(time.Duration(interval) * time.Second)
+		ticker := time.NewTicker(time.Duration(interval) * time.Minute)
 		select {
 		case <-ad.settingsUpdatedCh:
 			break // Restart the loop
 		case <-ad.stopCh:
 			ad.active = false
-			ad.Logger.Debug().Msg("autodownloader: Stopping auto downloader")
+			ad.Logger.Debug().Msg("autodownloader: Auto Downloader stopped")
 		case <-ad.startCh:
 			ad.active = true
-			ad.Logger.Debug().Msg("autodownloader: Starting auto downloader")
+			ad.Logger.Debug().Msg("autodownloader: Auto Downloader started")
 		case <-ticker.C:
 			if ad.active {
-				ad.Logger.Debug().Msg("autodownloader: Checking for new episodes")
 				ad.checkForNewEpisodes()
 			}
 		}
@@ -98,5 +102,5 @@ func (ad *AutoDownloader) start() {
 }
 
 func (ad *AutoDownloader) checkForNewEpisodes() {
-
+	ad.Logger.Debug().Msg("autodownloader: Checking for new episodes")
 }
