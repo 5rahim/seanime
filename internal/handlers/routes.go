@@ -149,6 +149,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/library/media-entry
 	v1Library.Get("/media-entry/:id", makeHandler(app, HandleGetMediaEntry))
 
+	// Retrieve SimpleMediaEntry
+	// GET /v1/library/simple-media-entry
+	v1Library.Get("/simple-media-entry/:id", makeHandler(app, HandleGetSimpleMediaEntry))
+
 	// Get suggestions for a prospective Media Entry
 	// POST /v1/library/collection
 	v1Library.Post("/media-entry/suggestions", makeHandler(app, HandleFindProspectiveMediaEntrySuggestions))

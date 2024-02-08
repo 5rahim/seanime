@@ -57,6 +57,39 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	return c.RespondWithData(entry)
 }
 
+func HandleGetSimpleMediaEntry(c *RouteCtx) error {
+
+	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get all the local files
+	lfs, _, err := c.App.Database.GetLocalFiles()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get the user's anilist collection
+	anilistCollection, err := c.App.GetAnilistCollection(false)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Create a new media entry
+	entry, err := entities.NewSimpleMediaEntry(&entities.NewSimpleMediaEntryOptions{
+		MediaId:              mId,
+		LocalFiles:           lfs,
+		AnilistCollection:    anilistCollection,
+		AnilistClientWrapper: c.App.AnilistClientWrapper,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(entry)
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 var (

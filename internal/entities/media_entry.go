@@ -114,7 +114,14 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// Fetch AniDB data and cache it for 30 minutes
 	anizipData, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)
 	if err != nil {
-		return nil, err
+		if anilistEntry.Media != nil && anilistEntry.Media.IDMal != nil {
+			anizipData, err = anizip.FetchAniZipMediaC("mal", *anilistEntry.Media.IDMal, opts.AnizipCache)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 	entry.AniDBId = anizipData.GetMappings().AnidbID
 

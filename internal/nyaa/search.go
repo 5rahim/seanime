@@ -33,6 +33,7 @@ type (
 		Filter   string
 		Cache    *SearchCache // optional
 	}
+
 	BuildSearchQueryOptions struct {
 		Title          *string
 		Media          *anilist.BaseMedia

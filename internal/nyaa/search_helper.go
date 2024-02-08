@@ -41,10 +41,6 @@ func getSeasonGroup(season int) string {
 		seasonBuff.WriteString(fmt.Sprintf(`"%s%s"|`, "season ", zeropad(season)))
 		seasonBuff.WriteString(fmt.Sprintf(`"%s%d"|`, "s", season))
 		seasonBuff.WriteString(fmt.Sprintf(`"%s%s")`, "s", zeropad(season)))
-		//seasonBuff.WriteString(fmt.Sprintf(`(%s%d|`, "season ", season))
-		//seasonBuff.WriteString(fmt.Sprintf(`%s%s|`, "season ", zeropad(season)))
-		//seasonBuff.WriteString(fmt.Sprintf(`%s%d|`, "s", season))
-		//seasonBuff.WriteString(fmt.Sprintf(`%s%s)`, "s", zeropad(season)))
 	}
 	return seasonBuff.String()
 }

@@ -1,28 +1,28 @@
 "use client"
-import React, { useMemo } from "react"
-import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
-import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
-import { Badge } from "@/components/ui/badge"
-import { Accordion } from "@/components/ui/accordion"
-import Image from "next/image"
-import Link from "next/link"
-import capitalize from "lodash/capitalize"
-import { MediaEntry } from "@/lib/server/types"
-import { BaseMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
-import { BiHeart } from "@react-icons/all-files/bi/BiHeart"
-import { AiFillStar } from "@react-icons/all-files/ai/AiFillStar"
-import { AiOutlineStar } from "@react-icons/all-files/ai/AiOutlineStar"
-import { AiOutlineHeart } from "@react-icons/all-files/ai/AiOutlineHeart"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/score-progress-badges"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
-import addSeconds from "date-fns/addSeconds"
-import { Divider } from "@/components/ui/divider"
-import { Button } from "@/components/ui/button"
-import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { useAtomValue, useSetAtom } from "jotai/react"
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { Accordion } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Divider } from "@/components/ui/divider"
+import { BaseMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
+import { MediaEntry } from "@/lib/server/types"
+import { AiFillStar } from "@react-icons/all-files/ai/AiFillStar"
+import { AiOutlineHeart } from "@react-icons/all-files/ai/AiOutlineHeart"
+import { AiOutlineStar } from "@react-icons/all-files/ai/AiOutlineStar"
+import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
+import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
+import { BiHeart } from "@react-icons/all-files/bi/BiHeart"
+import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import addSeconds from "date-fns/addSeconds"
+import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import { useAtomValue, useSetAtom } from "jotai/react"
+import capitalize from "lodash/capitalize"
+import Image from "next/image"
+import Link from "next/link"
+import React, { useMemo } from "react"
 
 export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
 
@@ -33,7 +33,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
 
     const relations = (entry.media?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)
-        .filter(n => (n.node?.format === "TV" || n.node?.format === "OVA" || n.node?.format === "MOVIE") && (n.relationType === "PREQUEL" || n.relationType === "SEQUEL" || n.relationType === "PARENT" || n.relationType === "SIDE_STORY" || n.relationType === "ALTERNATIVE" || n.relationType === "ADAPTATION"))
+        .filter(n => (n.node?.format === "TV" || n.node?.format === "OVA" || n.node?.format === "MOVIE" || n.node?.format === "SPECIAL") && (n.relationType === "PREQUEL" || n.relationType === "SEQUEL" || n.relationType === "PARENT" || n.relationType === "SIDE_STORY" || n.relationType === "ALTERNATIVE" || n.relationType === "ADAPTATION"))
 
     const seasonMostPopular = details?.rankings?.find(r => (!!r?.season || !!r?.year) && r?.type === "POPULAR" && r.rank <= 10)
     const allTimeHighestRated = details?.rankings?.find(r => !!r?.allTime && r?.type === "RATED" && r.rank <= 100)

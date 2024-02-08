@@ -80,7 +80,7 @@ func FetchAniZipMedia(from string, id int) (*Media, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return nil, errors.New("not found")
+		return nil, errors.New("not found on AniZip")
 	}
 
 	// Read the response body

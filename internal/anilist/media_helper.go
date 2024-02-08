@@ -67,6 +67,23 @@ func (m *BaseMedia) GetTotalEpisodeCount() int {
 	return ceil
 }
 
+// GetPossibleSeasonNumber returns the possible season number for that media and -1 if it doesn't have one.
+// It looks at the synonyms and returns the highest season number found.
+func (m *BaseMedia) GetPossibleSeasonNumber() int {
+	if m == nil || m.Synonyms == nil || len(m.Synonyms) == 0 {
+		return -1
+	}
+	titles := lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })
+	if m.HasEnglishTitle() {
+		titles = append(titles, m.Title.English)
+	}
+	if m.HasRomajiTitle() {
+		titles = append(titles, m.Title.Romaji)
+	}
+	seasons := lo.Map(titles, func(s *string, i int) int { return comparison.ExtractSeasonNumber(*s) })
+	return lo.Max(seasons)
+}
+
 //-------------
 
 func (m *BasicMedia) GetTitleSafe() string {

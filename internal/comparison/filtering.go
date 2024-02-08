@@ -2,6 +2,7 @@ package comparison
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -25,6 +26,33 @@ func ValueContainsSeason(val string) bool {
 	}
 
 	return false
+}
+
+func ExtractSeasonNumber(val string) int {
+	val = strings.ToLower(val)
+
+	// Check for the word "season" followed by a number
+	re := regexp.MustCompile(`season (\d+)`)
+	matches := re.FindStringSubmatch(val)
+	if len(matches) > 1 {
+		season, err := strconv.Atoi(matches[1])
+		if err == nil {
+			return season
+		}
+	}
+
+	// Check for a number followed by "st", "nd", "rd", or "th", followed by "s" or "S"
+	re = regexp.MustCompile(`(\d+)(st|nd|rd|th) [sS]`)
+	matches = re.FindStringSubmatch(val)
+	if len(matches) > 1 {
+		season, err := strconv.Atoi(matches[1])
+		if err == nil {
+			return season
+		}
+	}
+
+	// No season number found
+	return -1
 }
 
 func ValueContainsSpecial(val string) bool {

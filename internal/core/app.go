@@ -110,6 +110,7 @@ func NewApp(options *AppOptions, version string) *App {
 	nAutoDownloader := autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
 		Logger:            logger,
 		QbittorrentClient: nil, // Will be set in app.InitOrRefreshModules
+		Database:          db,
 		WSEventManager:    wsEventManager,
 		Rules:             make([]*entities.AutoDownloaderRule, 0),
 	})

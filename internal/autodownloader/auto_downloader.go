@@ -1,7 +1,9 @@
 package autodownloader
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/models"
@@ -10,14 +12,14 @@ import (
 )
 
 const (
-	NyaaProvider   = "nyaa"
-	NyaaRSSFeedURL = "https://nyaa.si/?page=rss&c=1_2"
+	NyaaProvider = "nyaa"
 )
 
 type (
 	AutoDownloader struct {
 		Logger            *zerolog.Logger
 		QbittorrentClient *qbittorrent.Client
+		Database          *db.Database
 		WSEventManager    events.IWSEventManager
 		Rules             []*entities.AutoDownloaderRule
 		Settings          *models.AutoDownloaderSettings
@@ -32,6 +34,7 @@ type (
 		QbittorrentClient *qbittorrent.Client
 		WSEventManager    events.IWSEventManager
 		Rules             []*entities.AutoDownloaderRule
+		Database          *db.Database
 	}
 )
 
@@ -39,6 +42,7 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 	return &AutoDownloader{
 		Logger:            opts.Logger,
 		QbittorrentClient: opts.QbittorrentClient,
+		Database:          opts.Database,
 		WSEventManager:    opts.WSEventManager,
 		Rules:             opts.Rules,
 		Settings:          &models.AutoDownloaderSettings{},
@@ -63,7 +67,7 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
 // Start will start the auto downloader.
 // This should be run in a goroutine.
 func (ad *AutoDownloader) Start() {
-	ad.Logger.Debug().Msg("autodownloader: Starting auto downloader")
+	ad.Logger.Info().Msg("autodownloader: Starting auto downloader module")
 
 	// Start up qBittorrent client
 	if ad.QbittorrentClient != nil {
@@ -102,5 +106,16 @@ func (ad *AutoDownloader) start() {
 }
 
 func (ad *AutoDownloader) checkForNewEpisodes() {
-	ad.Logger.Debug().Msg("autodownloader: Checking for new episodes")
+	torrents := make([]*NormalizedTorrent, 0)
+
+	if ad.Settings.Provider == NyaaProvider {
+		nyaaTorrents, err := ad.getCurrentTorrentsFromNyaa()
+		if err != nil {
+			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from Nyaa")
+		} else {
+			torrents = nyaaTorrents
+		}
+	}
+
+	spew.Dump(torrents)
 }

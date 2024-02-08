@@ -44,6 +44,12 @@ type (
 		ProgressOffset int
 		IsDownloaded   bool
 	}
+
+	NewSimpleMediaEntryEpisodeOptions struct {
+		LocalFile    *LocalFile
+		Media        *anilist.BaseMedia
+		IsDownloaded bool
+	}
 )
 
 // NewMediaEntryEpisode creates a new episode entity.
@@ -232,4 +238,62 @@ func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *Medi
 	md.Overview = episode.Overview
 
 	return md
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaEntryEpisode {
+	entryEp := new(MediaEntryEpisode)
+	entryEp.BasicMedia = opts.Media.ToBasicMedia()
+	entryEp.DisplayTitle = ""
+	entryEp.EpisodeTitle = ""
+
+	hydrated := false
+
+	// LocalFile exists
+	if opts.LocalFile != nil {
+
+		entryEp.IsDownloaded = true
+		entryEp.FileMetadata = opts.LocalFile.GetMetadata()
+		entryEp.Type = opts.LocalFile.GetType()
+		entryEp.LocalFile = opts.LocalFile
+
+		// Set episode number and progress number
+		switch opts.LocalFile.Metadata.Type {
+		case LocalFileTypeMain:
+			entryEp.EpisodeNumber = opts.LocalFile.GetEpisodeNumber()
+			entryEp.ProgressNumber = opts.LocalFile.GetEpisodeNumber()
+			hydrated = true // Hydrated
+		case LocalFileTypeSpecial:
+			entryEp.EpisodeNumber = opts.LocalFile.GetEpisodeNumber()
+			entryEp.ProgressNumber = 0
+			hydrated = true // Hydrated
+		case LocalFileTypeNC:
+			entryEp.EpisodeNumber = 0
+			entryEp.ProgressNumber = 0
+			hydrated = true // Hydrated
+		}
+
+		// Set titles
+		if len(entryEp.DisplayTitle) == 0 {
+			entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
+			entryEp.EpisodeTitle = opts.LocalFile.ParsedData.EpisodeTitle
+		}
+
+		entryEp.EpisodeMetadata.Image = *opts.Media.GetCoverImage().GetLarge()
+
+	}
+
+	if !hydrated {
+		if opts.LocalFile != nil {
+			entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
+		}
+		entryEp.EpisodeTitle = ""
+		entryEp.IsInvalid = true
+		entryEp.MetadataIssue = "no_anizip_data"
+		return entryEp
+	}
+
+	entryEp.MetadataIssue = "no_anizip_data"
+	return entryEp
 }

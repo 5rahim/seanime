@@ -88,9 +88,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
             <MetadataModal
                 episode={episode}
             />
-            <EpisodeItemInfoModal
+            {episode.episodeMetadata?.airDate && <EpisodeItemInfoModal
                 episode={episode}
-            />
+            />}
         </EpisodeItemIsolation.Provider>
     )
 

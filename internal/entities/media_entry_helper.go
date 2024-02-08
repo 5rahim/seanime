@@ -120,3 +120,98 @@ func (e *MediaEntry) IsInAniListCollection() bool {
 	_, ok := e.FindListData()
 	return ok
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (e *SimpleMediaEntry) GetCurrentProgress() int {
+	listData, ok := e.FindListData()
+	if !ok {
+		return 0
+	}
+	return listData.Progress
+}
+
+func (e *SimpleMediaEntry) FindEpisodes() ([]*MediaEntryEpisode, bool) {
+	if !e.HasEpisodes() {
+		return nil, false
+	}
+	return e.Episodes, true
+}
+
+func (e *SimpleMediaEntry) HasEpisodes() bool {
+	if e.Episodes == nil {
+		return false
+	}
+	return len(e.Episodes) > 0
+}
+
+func (e *SimpleMediaEntry) FindNextEpisode() (*MediaEntryEpisode, bool) {
+	eps, ok := e.FindEpisodes()
+	if !ok {
+		return nil, false
+	}
+	ep, ok := lo.Find(eps, func(ep *MediaEntryEpisode) bool {
+		return ep.GetProgressNumber() == e.GetCurrentProgress()+1
+	})
+	if !ok {
+		return nil, false
+	}
+	return ep, true
+}
+
+func (e *SimpleMediaEntry) FindLatestEpisode() (*MediaEntryEpisode, bool) {
+	// If there are no episodes, return nil
+	eps, ok := e.FindEpisodes()
+	if !ok {
+		return nil, false
+	}
+	// Get the episode with the highest progress number
+	latest := eps[0]
+	for _, ep := range eps {
+		if ep.GetProgressNumber() > latest.GetProgressNumber() {
+			latest = ep
+		}
+	}
+	return latest, true
+}
+
+func (e *SimpleMediaEntry) FindLatestLocalFile() (*LocalFile, bool) {
+	lfs, ok := e.FindLocalFiles()
+	// If there are no local files, return nil
+	if !ok {
+		return nil, false
+	}
+	// Get the local file with the highest episode number
+	latest := lfs[0]
+	for _, lf := range lfs {
+		if lf.GetEpisodeNumber() > latest.GetEpisodeNumber() {
+			latest = lf
+		}
+	}
+	return latest, true
+}
+func (e *SimpleMediaEntry) FindLocalFiles() ([]*LocalFile, bool) {
+	if !e.IsDownloaded() {
+		return nil, false
+	}
+	return e.LocalFiles, true
+}
+
+// IsDownloaded returns true if there are local files.
+func (e *SimpleMediaEntry) IsDownloaded() bool {
+	if e.LocalFiles == nil {
+		return false
+	}
+	return len(e.LocalFiles) > 0
+}
+
+func (e *SimpleMediaEntry) FindListData() (*MediaEntryListData, bool) {
+	if e.MediaEntryListData == nil {
+		return nil, false
+	}
+	return e.MediaEntryListData, true
+}
+func (e *SimpleMediaEntry) IsInAniListCollection() bool {
+	_, ok := e.FindListData()
+	return ok
+}
