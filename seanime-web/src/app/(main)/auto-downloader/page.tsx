@@ -68,6 +68,7 @@ export default function Page() {
             >
                 <TabPanels.Nav>
                     <TabPanels.Tab>Rules</TabPanels.Tab>
+                    <TabPanels.Tab>Torrents</TabPanels.Tab>
                     <TabPanels.Tab>Settings</TabPanels.Tab>
                 </TabPanels.Nav>
                 <TabPanels.Container>
@@ -115,6 +116,14 @@ export default function Page() {
                         </div>
                     </TabPanels.Panel>
 
+
+                    <TabPanels.Panel>
+
+                        <div className="p-4">
+
+                        </div>
+
+                    </TabPanels.Panel>
 
                     <TabPanels.Panel>
                         <div className="p-4">

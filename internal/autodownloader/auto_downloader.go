@@ -11,6 +11,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"github.com/seanime-app/seanime/internal/util"
 	"strings"
 	"time"
@@ -79,13 +80,20 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
 // Start will start the auto downloader.
 // This should be run in a goroutine.
 func (ad *AutoDownloader) Start() {
-	ad.Logger.Info().Msg("autodownloader: Starting auto downloader module")
+	ad.Logger.Info().Msg("autodownloader: Starting module")
+
+	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
+	if !started {
+		ad.Logger.Error().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
+		return
+	}
 
 	// Start the auto downloader
 	ad.start()
 }
 
 func (ad *AutoDownloader) start() {
+	ad.Logger.Info().Msg("autodownloader: Started")
 
 	for {
 		interval := 10
@@ -102,6 +110,7 @@ func (ad *AutoDownloader) start() {
 		case <-ad.startCh:
 			ad.active = true
 			ad.Logger.Debug().Msg("autodownloader: Auto Downloader started")
+			ad.checkForNewEpisodes()
 		case <-ticker.C:
 			if ad.active {
 				ad.checkForNewEpisodes()
@@ -115,6 +124,7 @@ func (ad *AutoDownloader) start() {
 func (ad *AutoDownloader) checkForNewEpisodes() {
 	torrents := make([]*NormalizedTorrent, 0)
 
+	// Get local files from the database
 	lfs, _, err := ad.Database.GetLocalFiles()
 	if err != nil {
 		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch local files from the database")
@@ -132,14 +142,16 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 	// Going through each rule
 	for _, rule := range ad.Rules {
-
+		if !rule.Enabled {
+			continue // Skip rule
+		}
 		listEntry, found := ad.getRuleListEntry(rule)
 		// If the media is not found, skip the rule
 		if !found {
 			continue // Skip rule
 		}
 		// If the media is not releasing AND has more than one episode, skip the rule
-		// e.g. Movies might be set to "Finished" but we still want to download them
+		// This is to avoid skipping movies and single-episode OVAs
 		if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {
 			continue // Skip rule
 		}
@@ -152,8 +164,8 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		}
 
 		for _, t := range torrents {
-			if ad.torrentFollowsRule(t, rule, listEntry, localEntry) {
-				ad.downloadTorrent(t, rule)
+			if episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry); ok {
+				ad.downloadTorrent(t, rule, episode)
 			}
 		}
 	}
@@ -165,24 +177,76 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	rule *entities.AutoDownloaderRule,
 	listEntry *anilistListEntry,
 	localEntry *entities.LocalFileWrapperEntry,
-) bool {
+) (int, bool) {
 
 	if ok := ad.isReleaseGroupMatch(t.ParsedData.ReleaseGroup, rule); !ok {
-		return false
+		return -1, false
+	}
+
+	if ok := ad.isResolutionMatch(t.ParsedData.ReleaseGroup, rule); !ok {
+		return -1, false
 	}
 
 	if ok := ad.isTitleMatch(t.ParsedData.Title, rule, listEntry); !ok {
-		return false
+		return -1, false
 	}
 
-	if ok := ad.isEpisodeMatch(t.ParsedData.EpisodeNumber, rule, listEntry, localEntry); !ok {
-		return false
+	episode, ok := ad.isEpisodeMatch(t.ParsedData.EpisodeNumber, rule, listEntry, localEntry)
+	if !ok {
+		return -1, false
 	}
 
-	return false
+	return episode, true
 }
 
-func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.AutoDownloaderRule) {
+func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.AutoDownloaderRule, episode int) {
+
+	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
+	if !started {
+		ad.Logger.Error().Str("link", t.Link).Msg("autodownloader: Failed to download torrent. qBittorrent is not running.")
+		return
+	}
+
+	ad.Logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
+
+	magnet, found := t.GetMagnet()
+	if !found {
+		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
+		return
+	}
+
+	downloaded := false
+
+	// Pause the torrent when it's added
+	if ad.Settings.DownloadAutomatically {
+
+		// Add the torrent to qBittorrent
+		err := ad.QbittorrentClient.Torrent.AddURLs([]string{magnet}, &qbittorrent_model.AddTorrentsOptions{
+			Savepath: rule.Destination,
+		})
+		if err != nil {
+			ad.Logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to qBittorrent")
+			return
+		}
+
+		downloaded = true
+	}
+
+	ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Added torrent")
+	ad.WSEventManager.SendEvent(events.AutoDownloaderTorrentAdded, t.Name)
+
+	// Add the torrent to the database
+	item := &models.AutoDownloaderItem{
+		RuleID:      rule.DbID,
+		MediaID:     rule.MediaId,
+		Episode:     episode,
+		Link:        t.Link,
+		Hash:        t.Hash,
+		TorrentName: t.Name,
+		Magnet:      magnet,
+		Downloaded:  downloaded,
+	}
+	_ = ad.Database.InsertAutoDownloaderItem(item)
 
 }
 
@@ -194,6 +258,23 @@ func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *entitie
 	}
 	for _, rg := range rule.ReleaseGroups {
 		if strings.ToLower(rg) == strings.ToLower(releaseGroup) {
+			return true
+		}
+	}
+	return false
+}
+
+func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoDownloaderRule) bool {
+	if len(rule.Resolutions) == 0 {
+		return true
+	}
+	for _, q := range rule.Resolutions {
+		qualityWithoutP, _ := strings.CutSuffix(q, "p")
+		qWithoutP := strings.TrimSuffix(q, "p")
+		if quality == q || qualityWithoutP == qWithoutP {
+			return true
+		}
+		if strings.Contains(quality, qWithoutP) { // e.g. 1080 in 1920x1080
 			return true
 		}
 	}
@@ -249,15 +330,23 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	rule *entities.AutoDownloaderRule,
 	listEntry *anilistListEntry,
 	localEntry *entities.LocalFileWrapperEntry,
-) bool {
+) (int, bool) {
 	if listEntry == nil || localEntry == nil {
-		return false
+		return -1, false
+	}
+
+	// +---------------------+
+	// |    Existing Item    |
+	// +---------------------+
+	items, err := ad.Database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
+	if err != nil {
+		items = make([]*models.AutoDownloaderItem, 0)
 	}
 
 	// Skip if we parsed more than one episode number (e.g. "01-02")
 	// We can't handle this case since it might be a batch release
 	if len(episodes) > 0 {
-		return false
+		return -1, false
 	}
 
 	episode, ok := util.StringToInt(episodes[0])
@@ -270,11 +359,19 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	if !ok {
 		// Return true if the media (has only one episode or is a movie) AND (is not in the library)
 		if listEntry.GetMedia().GetCurrentEpisodeCount() == 1 || *listEntry.GetMedia().GetFormat() == anilist.MediaFormatMovie {
-			if _, found := localEntry.FindLocalFileWithEpisodeNumber(1); !found {
-				return true
+			// Make sure it wasn't already added
+			for _, item := range items {
+				if item.Episode == 1 {
+					return -1, false // Skip, file already downloaded
+				}
 			}
+			// Make sure it doesn't exist in the library
+			if _, found := localEntry.FindLocalFileWithEpisodeNumber(1); found {
+				return -1, false // Skip, file already exists
+			}
+			return 1, true // Good to go
 		}
-		return false
+		return -1, false
 	}
 
 	// +---------------------+
@@ -291,9 +388,16 @@ func (ad *AutoDownloader) isEpisodeMatch(
 		}
 	}
 
+	// Return false if the episode is already downloaded
+	for _, item := range items {
+		if item.Episode == episode {
+			return -1, false // Skip, file already downloaded
+		}
+	}
+
 	// Return false if the episode is already in the library
 	if _, found := localEntry.FindLocalFileWithEpisodeNumber(episode); found {
-		return false
+		return -1, false
 	}
 
 	switch rule.EpisodeType {
@@ -304,9 +408,9 @@ func (ad *AutoDownloader) isEpisodeMatch(
 		// +---------------------+
 		// Return false if the user has already watched the episode
 		if listEntry.Progress != nil && *listEntry.GetProgress() > episode {
-			return false
+			return -1, false
 		}
-		return true // Good to go
+		return episode, true // Good to go
 	case entities.AutoDownloaderRuleEpisodeSelected:
 		// +---------------------+
 		// | Episode "Selected"  |
@@ -314,12 +418,12 @@ func (ad *AutoDownloader) isEpisodeMatch(
 		// Return true if the episode is in the list of selected episodes
 		for _, ep := range rule.EpisodeNumbers {
 			if ep == episode {
-				return true // Good to go
+				return episode, true // Good to go
 			}
 		}
-		return false
+		return -1, false
 	}
-	return false
+	return -1, false
 }
 
 func (ad *AutoDownloader) getRuleListEntry(rule *entities.AutoDownloaderRule) (*anilistListEntry, bool) {

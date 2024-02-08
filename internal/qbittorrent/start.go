@@ -62,3 +62,28 @@ func (c *Client) Start() error {
 
 	return nil
 }
+
+func (c *Client) CheckStart() bool {
+
+	_, err := c.Application.GetAppVersion()
+	if err == nil {
+		return true
+	}
+
+	err = c.Start()
+	timeout := time.After(30 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	select {
+	case <-ticker.C:
+		_, err = c.Application.GetAppVersion()
+		if err == nil {
+			ticker.Stop()
+			return true
+		}
+	case <-timeout:
+		break
+	}
+
+	return false
+}

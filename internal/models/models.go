@@ -111,8 +111,11 @@ type AutoDownloaderRule struct {
 type AutoDownloaderItem struct {
 	BaseModel
 	RuleID      uint   `gorm:"column:rule_id" json:"ruleId"`
+	MediaID     int    `gorm:"column:media_id" json:"mediaId"`
+	Episode     int    `gorm:"column:episode" json:"episode"`
 	Link        string `gorm:"column:link" json:"link"`
 	Hash        string `gorm:"column:hash" json:"hash"`
+	Magnet      string `gorm:"column:magnet" json:"magnet"`
 	TorrentName string `gorm:"column:torrent_name" json:"torrentName"`
 	Downloaded  bool   `gorm:"column:downloaded" json:"downloaded"`
 }

@@ -49,7 +49,7 @@ export function useAtomicLibraryCollectionLoader() {
 
 /**
  * @description
- * - When the user is not on the main page, send a request to get missing episodes
+ * - When the user is not on the main page, send a request to get the Anilist collection
  */
 export function useListenToUserMedia() {
     const setter = useSetAtom(userMediaAtom)
@@ -59,7 +59,7 @@ export function useListenToUserMedia() {
         queryKey: ["get-anilist-collection"],
     })
 
-    // Store the received data in `libraryCollectionAtom`
+    // Store the received data in `userMediaAtom`
     useEffect(() => {
         if (!!data) {
             const allMedia = data.MediaListCollection?.lists?.flatMap(n => n?.entries)?.filter(Boolean)?.map(n => n.media)?.filter(Boolean) ?? []

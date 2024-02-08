@@ -24,6 +24,16 @@ func (db *Database) GetAutoDownloaderItem(id uint) (*models.AutoDownloaderItem, 
 	return &res, nil
 }
 
+func (db *Database) GetAutoDownloaderItemByMediaId(mId int) ([]*models.AutoDownloaderItem, error) {
+	var res []*models.AutoDownloaderItem
+	err := db.gormdb.Where("media_id = ?", mId).Find(&res).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (db *Database) InsertAutoDownloaderItem(item *models.AutoDownloaderItem) error {
 	err := db.gormdb.Create(item).Error
 	if err != nil {
