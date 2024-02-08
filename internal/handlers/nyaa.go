@@ -123,7 +123,8 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	if !ok {
 		_, err := anizip.FetchAniZipMediaC("anilist", b.Media.ID, c.App.AnizipCache)
 		if err != nil {
-			return c.RespondWithError(err)
+			// No AniZip media found
+			// We will just return the torrent previews without AniZip metadata
 		}
 	}
 
@@ -180,10 +181,7 @@ func createTorrentPreview(
 	absoluteOffset int,
 ) (*TorrentPreview, bool) {
 
-	anizipMedia, ok := anizipCache.Get(anizip.GetCacheKey("anilist", media.ID))
-	if !ok {
-		return nil, false
-	}
+	anizipMedia, _ := anizipCache.Get(anizip.GetCacheKey("anilist", media.ID)) // can be nil
 
 	elements := seanime_parser.Parse(torrent.Name)
 	if len(elements.Title) == 0 {

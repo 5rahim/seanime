@@ -35,7 +35,7 @@ type (
 
 	NewMediaEntryEpisodeOptions struct {
 		LocalFile            *LocalFile
-		AnizipMedia          *anizip.Media
+		AnizipMedia          *anizip.Media // optional
 		Media                *anilist.BaseMedia
 		OptionalAniDBEpisode string
 		// ProgressOffset will offset the ProgressNumber for a specific MAIN file
@@ -87,7 +87,12 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 			entryEp.MetadataIssue = "forced_remapping"
 		}
 
-		anizipEpisode, foundAnizipEpisode := opts.AnizipMedia.FindEpisode(aniDBEp)
+		// Get the AniZip episode
+		foundAnizipEpisode := false
+		var anizipEpisode *anizip.Episode
+		if opts.AnizipMedia != nil {
+			anizipEpisode, foundAnizipEpisode = opts.AnizipMedia.FindEpisode(aniDBEp)
+		}
 
 		entryEp.IsDownloaded = true
 		entryEp.FileMetadata = opts.LocalFile.GetMetadata()
@@ -122,9 +127,16 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 						entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
 						entryEp.EpisodeTitle = anizipEpisode.GetTitle()
 					}
-
-					hydrated = true // Hydrated
+				} else {
+					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
+						entryEp.EpisodeTitle = "Complete Movie"
+					} else {
+						entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
+						entryEp.EpisodeTitle = opts.LocalFile.ParsedData.EpisodeTitle
+					}
 				}
+				hydrated = true // Hydrated
 			case LocalFileTypeSpecial:
 				if foundAnizipEpisode {
 					episodeInt, found := anizip.ExtractEpisodeInteger(aniDBEp)
@@ -134,18 +146,19 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 						entryEp.DisplayTitle = "Special " + aniDBEp
 					}
 					entryEp.EpisodeTitle = anizipEpisode.GetTitle()
-					hydrated = true // Hydrated
+				} else {
+					entryEp.DisplayTitle = "Special " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
 				}
+				hydrated = true // Hydrated
 			case LocalFileTypeNC:
 				if foundAnizipEpisode {
 					entryEp.DisplayTitle = anizipEpisode.GetTitle()
 					entryEp.EpisodeTitle = ""
-					hydrated = true // Hydrated
 				} else {
 					entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
 					entryEp.EpisodeTitle = ""
-					hydrated = true // Hydrated
 				}
+				hydrated = true // Hydrated
 			}
 		} else {
 			hydrated = true // Hydrated
