@@ -247,6 +247,7 @@ func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaE
 	entryEp.BasicMedia = opts.Media.ToBasicMedia()
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
+	entryEp.EpisodeMetadata = new(MediaEntryEpisodeMetadata)
 
 	hydrated := false
 
@@ -276,8 +277,25 @@ func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaE
 
 		// Set titles
 		if len(entryEp.DisplayTitle) == 0 {
-			entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
-			entryEp.EpisodeTitle = opts.LocalFile.ParsedData.EpisodeTitle
+			switch opts.LocalFile.Metadata.Type {
+			case LocalFileTypeMain:
+				if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
+					entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
+					entryEp.EpisodeTitle = "Complete Movie"
+				} else {
+					entryEp.DisplayTitle = "Episode " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
+					entryEp.EpisodeTitle = opts.LocalFile.ParsedData.EpisodeTitle
+				}
+
+				hydrated = true // Hydrated
+			case LocalFileTypeSpecial:
+				entryEp.DisplayTitle = "Special " + strconv.Itoa(opts.LocalFile.GetEpisodeNumber())
+				hydrated = true // Hydrated
+			case LocalFileTypeNC:
+				entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
+				entryEp.EpisodeTitle = ""
+				hydrated = true // Hydrated
+			}
 		}
 
 		entryEp.EpisodeMetadata.Image = *opts.Media.GetCoverImage().GetLarge()

@@ -13,7 +13,7 @@ type (
 		Hash       string
 		Size       string
 		Seeders    int
-		ParsedInfo *seanime_parser.Metadata
+		ParsedData *seanime_parser.Metadata
 		Provider   string
 		magnet     string // Access using GetMagnet()
 	}
@@ -36,7 +36,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 
 	normalizedTs := make([]*NormalizedTorrent, 0)
 	for _, t := range torrents {
-		parsedInfo := seanime_parser.Parse(t.Name)
+		parsedData := seanime_parser.Parse(t.Name)
 		if err != nil {
 			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
 			continue
@@ -54,7 +54,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 			Size:       t.Size,
 			Seeders:    seedersInt,
 			magnet:     "", // Nyaa doesn't provide the magnet link in the RSS feed
-			ParsedInfo: parsedInfo,
+			ParsedData: parsedData,
 			Provider:   NyaaProvider,
 		})
 	}

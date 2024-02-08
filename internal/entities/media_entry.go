@@ -17,7 +17,7 @@ type (
 		Media                  *anilist.BaseMedia      `json:"media"`
 		MediaEntryListData     *MediaEntryListData     `json:"listData"`
 		MediaEntryLibraryData  *MediaEntryLibraryData  `json:"libraryData"`
-		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo"`
+		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo,omitempty"`
 		Episodes               []*MediaEntryEpisode    `json:"episodes"`
 		NextEpisode            *MediaEntryEpisode      `json:"nextEpisode"`
 		LocalFiles             []*LocalFile            `json:"localFiles"`
@@ -60,10 +60,10 @@ type (
 func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	if opts.AnilistCollection == nil ||
-		opts.AnizipCache == nil ||
 		opts.AnilistClientWrapper == nil {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
+
 	// Create new MediaEntry
 	entry := new(MediaEntry)
 	entry.MediaId = opts.MediaId
@@ -114,14 +114,37 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// Fetch AniDB data and cache it for 30 minutes
 	anizipData, err := anizip.FetchAniZipMediaC("anilist", opts.MediaId, opts.AnizipCache)
 	if err != nil {
-		if anilistEntry.Media != nil && anilistEntry.Media.IDMal != nil {
-			anizipData, err = anizip.FetchAniZipMediaC("mal", *anilistEntry.Media.IDMal, opts.AnizipCache)
-			if err != nil {
-				return nil, err
-			}
-		} else {
+
+		// +---------------- Start
+		// +---------------------+
+		// |   Without AniZip    |
+		// +---------------------+
+
+		// If AniZip data is not found, we will still create the MediaEntry without it
+		simpleMediaEntry, err := NewSimpleMediaEntry(&NewSimpleMediaEntryOptions{
+			MediaId:              opts.MediaId,
+			LocalFiles:           opts.LocalFiles,
+			AnilistCollection:    opts.AnilistCollection,
+			AnilistClientWrapper: opts.AnilistClientWrapper,
+		})
+		if err != nil {
 			return nil, err
 		}
+
+		return &MediaEntry{
+			MediaId:                simpleMediaEntry.MediaId,
+			Media:                  simpleMediaEntry.Media,
+			MediaEntryListData:     simpleMediaEntry.MediaEntryListData,
+			MediaEntryLibraryData:  simpleMediaEntry.MediaEntryLibraryData,
+			MediaEntryDownloadInfo: nil,
+			Episodes:               simpleMediaEntry.Episodes,
+			NextEpisode:            simpleMediaEntry.NextEpisode,
+			LocalFiles:             simpleMediaEntry.LocalFiles,
+			AniDBId:                0,
+			CurrentEpisodeCount:    simpleMediaEntry.CurrentEpisodeCount,
+		}, nil
+		// +--------------- End
+
 	}
 	entry.AniDBId = anizipData.GetMappings().AnidbID
 

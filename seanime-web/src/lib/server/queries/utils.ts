@@ -112,7 +112,11 @@ function _handleSeaError(err: string | null | undefined): string {
         return "AniList: Too many requests, please wait a moment and try again."
 
     try {
-        const graphqlErr = JSON.parse(err)
+        const graphqlErr = JSON.parse(err) as any
+        console.log("AniList error", graphqlErr)
+        if (graphqlErr.graphqlErrors && graphqlErr.graphqlErrors.length > 0 && !!graphqlErr.graphqlErrors[0]?.message) {
+            return "AniList error: " + graphqlErr.graphqlErrors[0]?.message
+        }
         return "AniList error"
     }
     catch (e) {

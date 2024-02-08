@@ -161,6 +161,12 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">Open on AniList</Link>
                     </div>
 
+                    {(!entry.aniDBId || entry.aniDBId === 0) && (
+                        <p className={"text-center text-red-300 opacity-50"}>
+                            No mapping found for AniDB. The episodes will have no metadata.
+                        </p>
+                    )}
+
                 </div>
 
             </div>

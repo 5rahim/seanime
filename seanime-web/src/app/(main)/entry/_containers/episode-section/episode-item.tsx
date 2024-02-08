@@ -81,14 +81,14 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                         >Unmatch</DropdownMenu.Item>
                     </DropdownMenu>
 
-                    {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) &&
+                    {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.aniDBId &&
                         <EpisodeItemInfoModalButton/>}
                 </>}
             />
             <MetadataModal
                 episode={episode}
             />
-            {episode.episodeMetadata?.airDate && <EpisodeItemInfoModal
+            {episode.episodeMetadata?.aniDBId && <EpisodeItemInfoModal
                 episode={episode}
             />}
         </EpisodeItemIsolation.Provider>
