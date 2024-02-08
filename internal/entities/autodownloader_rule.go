@@ -1,14 +1,15 @@
 package entities
 
+import "strings"
+
 const (
 	AutoDownloaderRuleTitleComparisonContains AutoDownloaderRuleTitleComparisonType = "contains"
 	AutoDownloaderRuleTitleComparisonLikely   AutoDownloaderRuleTitleComparisonType = "likely"
 )
 
 const (
-	AutoDownloaderRuleEpisodeUnwatched AutoDownloaderRuleEpisodeType = "unwatched"
-	AutoDownloaderRuleEpisodeAll       AutoDownloaderRuleEpisodeType = "all"
-	AutoDownloaderRuleEpisodeSelected  AutoDownloaderRuleEpisodeType = "selected"
+	AutoDownloaderRuleEpisodeRecent   AutoDownloaderRuleEpisodeType = "recent"
+	AutoDownloaderRuleEpisodeSelected AutoDownloaderRuleEpisodeType = "selected"
 )
 
 type (
@@ -28,3 +29,17 @@ type (
 		Destination         string                                `json:"destination"`
 	}
 )
+
+func (r *AutoDownloaderRule) IsQualityMatch(quality string) bool {
+	for _, q := range r.Resolutions {
+		qualityWithoutP, _ := strings.CutSuffix(q, "p")
+		qWithoutP := strings.TrimSuffix(q, "p")
+		if quality == q || qualityWithoutP == qWithoutP {
+			return true
+		}
+		if strings.Contains(quality, qWithoutP) { // e.g. 1080 in 1920x1080
+			return true
+		}
+	}
+	return false
+}

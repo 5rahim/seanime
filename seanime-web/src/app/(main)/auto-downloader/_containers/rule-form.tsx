@@ -1,4 +1,4 @@
-import { libraryCollectionAtom } from "@/atoms/collection"
+import { libraryCollectionAtom, userMediaAtom } from "@/atoms/collection"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
@@ -46,11 +46,17 @@ export function RuleForm(props: RuleFormProps) {
     } = props
 
     const qc = useQueryClient()
+    const userMedia = useAtomValue(userMediaAtom)
     const libraryCollection = useAtomValue(libraryCollectionAtom)
 
     const allMedia = React.useMemo(() => {
-        return libraryCollection?.lists?.flatMap(list => list.entries)?.flatMap(entry => entry.media)?.filter(Boolean) ?? []
-    }, [(libraryCollection?.lists?.length || 0)])
+        return userMedia ?? []
+    }, [userMedia])
+
+    // Upcoming & airing media
+    const notFinishedMedia = React.useMemo(() => {
+        return allMedia.filter(media => media.status !== "FINISHED")
+    }, [allMedia])
 
     // Create a new rule
     const { mutate: createRule, isPending: creatingRule } = useSeaMutation<null, InferType<typeof schema>>({
@@ -110,12 +116,12 @@ export function RuleForm(props: RuleFormProps) {
                 onSubmit={handleSave}
                 defaultValues={{
                     enabled: rule?.enabled ?? true,
-                    mediaId: rule?.mediaId ?? libraryCollection?.lists?.[0]?.entries?.[0]?.media?.id,
+                    mediaId: rule?.mediaId ?? notFinishedMedia[0]?.id,
                     releaseGroups: rule?.releaseGroups ?? [],
                     resolutions: rule?.resolutions ?? [],
                     comparisonTitle: rule?.comparisonTitle ?? "",
                     titleComparisonType: rule?.titleComparisonType ?? "likely",
-                    episodeType: rule?.episodeType ?? "unwatched",
+                    episodeType: rule?.episodeType ?? "recent",
                     episodeNumbers: rule?.episodeNumbers ?? [],
                     destination: rule?.destination ?? "",
                 }}
@@ -128,6 +134,7 @@ export function RuleForm(props: RuleFormProps) {
                     allMedia={allMedia}
                     type={type}
                     isPending={isPending}
+                    notFinishedMedia={notFinishedMedia}
                     libraryCollection={libraryCollection}
                     rule={rule}
                 />}
@@ -149,7 +156,8 @@ type RuleFormFormProps = {
     allMedia: BaseMediaFragment[]
     type: "create" | "edit"
     isPending: boolean
-    libraryCollection: LibraryCollection | undefined
+    notFinishedMedia: BaseMediaFragment[]
+    libraryCollection?: LibraryCollection | undefined
     rule?: AutoDownloaderRule
 }
 
@@ -160,6 +168,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
         allMedia,
         type,
         isPending,
+        notFinishedMedia,
         libraryCollection,
         rule,
         ...rest
@@ -184,6 +193,9 @@ export function RuleFormForm(props: RuleFormFormProps) {
     if (!selectedMedia) {
         return <div className="p-4 text-[--muted] text-center">Media is not in your library</div>
     }
+    // if (type === "create" && selectedMedia?.status != "RELEASING") {
+    //     return <div className="p-4 text-[--muted] text-center">You can only create rules for airing anime</div>
+    // }
 
     return (
         <>
@@ -212,13 +224,15 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     <Select
                         name="mediaId"
                         label="Library Entry"
-                        options={allMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))}
+                        options={notFinishedMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))}
                         value={String(form.watch("mediaId"))}
                         onChange={(e) => form.setValue("mediaId", parseInt(e.target.value))}
                         help="The anime must already be in your library"
                         isDisabled={type === "edit"}
                     />
                 </div>
+
+                {selectedMedia?.status === "FINISHED" && <div className="py-2 text-red-300 text-center">This anime is no longer airing</div>}
 
                 <Field.DirectorySelector
                     name="destination"
@@ -239,22 +253,31 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         label="Type of search"
                         name="titleComparisonType"
                         options={[
-                            { label: "Close match", value: "likely", help: "The torrent name must closely match the title. (More accurate)" },
-                            { label: "Contains", value: "contains", help: "The torrent name must contain the title. (Less accurate)" },
+                            { label: "Most likely", value: "likely", help: "A comparison algorithm will be used." },
+                            {
+                                label: "Exact match",
+                                value: "contains",
+                                help: "The torrent name must contain the title. Use this for more precise control.",
+                            },
                         ]}
+                        radioHelpClassName="text-sm text-gray-400"
                     />
                 </div>
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div
+                    className={cn(
+                        "border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3",
+                        (selectedMedia?.format === "MOVIE" || (!!selectedMedia.episodes && selectedMedia.episodes === 1)) && "opacity-50 pointer-events-none",
+                    )}
+                >
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Episodes</div>
                     <Field.RadioCards
                         name="episodeType"
                         label="Episodes to look for"
                         options={[
-                            { label: "Unwatched", value: "unwatched" },
-                            { label: "Any episode", value: "any" },
-                            { label: "Specific", value: "selected" },
+                            { label: "Recent releases", value: "recent", help: "Recent episodes you have not yet watched" },
+                            { label: "Specific", value: "selected", help: "Only the specified episodes that aren't in your library" },
                         ]}
-                        radioLabelClassName="font-normal text-sm flex-none flex"
+                        radioHelpClassName="text-sm text-gray-400"
                     />
 
                     {form.watch("episodeType") === "selected" && <TextArrayField

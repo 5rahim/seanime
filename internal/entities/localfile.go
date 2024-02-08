@@ -2,7 +2,7 @@ package entities
 
 import (
 	"github.com/seanime-app/seanime/internal/filesystem"
-	seanime_parser "github.com/seanime-app/seanime/seanime-parser"
+	"github.com/seanime-app/seanime/seanime-parser"
 )
 
 const (

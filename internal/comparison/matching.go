@@ -97,7 +97,8 @@ func FindBestMatchWithSorensenDice(v *string, vals []*string) (*SorensenDiceResu
 
 	return n, true
 }
-func EliminateLestSimilarValue(arr []string) []string {
+
+func EliminateLeastSimilarValue(arr []string) []string {
 	if len(arr) < 3 {
 		return arr
 	}

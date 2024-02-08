@@ -37,6 +37,11 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to App
 	a.anilistCollection = collection
 
+	// Save the collection to AutoDownloader
+	if a.AutoDownloader != nil {
+		a.AutoDownloader.AnilistCollection = collection
+	}
+
 	return collection, nil
 }
 

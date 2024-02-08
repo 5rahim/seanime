@@ -45,6 +45,8 @@ func (m *BaseMedia) GetAllTitles() []*string {
 	return titles
 }
 
+// GetCurrentEpisodeCount returns the current episode number for that media and -1 if it doesn't have one.
+// i.e. -1 is returned if the media has no episodes AND the next airing episode is not set.
 func (m *BaseMedia) GetCurrentEpisodeCount() int {
 	ceil := -1
 	if m.Episodes != nil {

@@ -18,7 +18,7 @@ func (e *MediaEntry) HasWatchedAll() bool {
 // FindNextEpisode returns the episode whose episode number is the same as the progress number + 1.
 // Returns false if there are no episodes or if there is no next episode.
 func (e *MediaEntry) FindNextEpisode() (*MediaEntryEpisode, bool) {
-	eps, ok := e.FindEpisodes()
+	eps, ok := e.FindMainEpisodes()
 	if !ok {
 		return nil, false
 	}
@@ -31,11 +31,11 @@ func (e *MediaEntry) FindNextEpisode() (*MediaEntryEpisode, bool) {
 	return ep, true
 }
 
-// FindLatestEpisode returns the episode with the highest episode number.
+// FindLatestEpisode returns the *main* episode with the highest episode number.
 // Returns false if there are no episodes.
 func (e *MediaEntry) FindLatestEpisode() (*MediaEntryEpisode, bool) {
 	// If there are no episodes, return nil
-	eps, ok := e.FindEpisodes()
+	eps, ok := e.FindMainEpisodes()
 	if !ok {
 		return nil, false
 	}
@@ -49,10 +49,10 @@ func (e *MediaEntry) FindLatestEpisode() (*MediaEntryEpisode, bool) {
 	return latest, true
 }
 
-// FindLatestLocalFile returns the local file with the highest episode number.
+// FindLatestLocalFile returns the *main* local file with the highest episode number.
 // Returns false if there are no local files.
 func (e *MediaEntry) FindLatestLocalFile() (*LocalFile, bool) {
-	lfs, ok := e.FindLocalFiles()
+	lfs, ok := e.FindMainLocalFiles()
 	// If there are no local files, return nil
 	if !ok {
 		return nil, false
@@ -82,8 +82,23 @@ func (e *MediaEntry) GetCurrentProgress() int {
 // FindEpisodes returns the episodes.
 // Returns false if there are no episodes.
 func (e *MediaEntry) FindEpisodes() ([]*MediaEntryEpisode, bool) {
-	if !e.HasEpisodes() {
+	if e.Episodes == nil {
 		return nil, false
+	}
+	return e.Episodes, true
+}
+
+// FindMainEpisodes returns the main episodes.
+// Returns false if there are no main episodes.
+func (e *MediaEntry) FindMainEpisodes() ([]*MediaEntryEpisode, bool) {
+	if e.Episodes == nil {
+		return nil, false
+	}
+	eps := make([]*MediaEntryEpisode, 0)
+	for _, ep := range e.Episodes {
+		if ep.IsMain() {
+			eps = append(eps, ep)
+		}
 	}
 	return e.Episodes, true
 }
@@ -97,6 +112,24 @@ func (e *MediaEntry) FindLocalFiles() ([]*LocalFile, bool) {
 	return e.LocalFiles, true
 }
 
+// FindMainLocalFiles returns *main* local files.
+// Returns false if there are no local files.
+func (e *MediaEntry) FindMainLocalFiles() ([]*LocalFile, bool) {
+	if !e.IsDownloaded() {
+		return nil, false
+	}
+	lfs := make([]*LocalFile, 0)
+	for _, lf := range e.LocalFiles {
+		if lf.IsMain() {
+			lfs = append(lfs, lf)
+		}
+	}
+	if len(lfs) == 0 {
+		return nil, false
+	}
+	return lfs, true
+}
+
 // IsDownloaded returns true if there are local files.
 func (e *MediaEntry) IsDownloaded() bool {
 	if e.LocalFiles == nil {
@@ -104,12 +137,7 @@ func (e *MediaEntry) IsDownloaded() bool {
 	}
 	return len(e.LocalFiles) > 0
 }
-func (e *MediaEntry) HasEpisodes() bool {
-	if e.Episodes == nil {
-		return false
-	}
-	return len(e.Episodes) > 0
-}
+
 func (e *MediaEntry) FindListData() (*MediaEntryListData, bool) {
 	if e.MediaEntryListData == nil {
 		return nil, false
@@ -131,22 +159,21 @@ func (e *SimpleMediaEntry) GetCurrentProgress() int {
 	return listData.Progress
 }
 
-func (e *SimpleMediaEntry) FindEpisodes() ([]*MediaEntryEpisode, bool) {
-	if !e.HasEpisodes() {
+func (e *SimpleMediaEntry) FindMainEpisodes() ([]*MediaEntryEpisode, bool) {
+	if e.Episodes == nil {
 		return nil, false
+	}
+	eps := make([]*MediaEntryEpisode, 0)
+	for _, ep := range e.Episodes {
+		if ep.IsMain() {
+			eps = append(eps, ep)
+		}
 	}
 	return e.Episodes, true
 }
 
-func (e *SimpleMediaEntry) HasEpisodes() bool {
-	if e.Episodes == nil {
-		return false
-	}
-	return len(e.Episodes) > 0
-}
-
 func (e *SimpleMediaEntry) FindNextEpisode() (*MediaEntryEpisode, bool) {
-	eps, ok := e.FindEpisodes()
+	eps, ok := e.FindMainEpisodes()
 	if !ok {
 		return nil, false
 	}
@@ -161,7 +188,7 @@ func (e *SimpleMediaEntry) FindNextEpisode() (*MediaEntryEpisode, bool) {
 
 func (e *SimpleMediaEntry) FindLatestEpisode() (*MediaEntryEpisode, bool) {
 	// If there are no episodes, return nil
-	eps, ok := e.FindEpisodes()
+	eps, ok := e.FindMainEpisodes()
 	if !ok {
 		return nil, false
 	}
@@ -176,7 +203,7 @@ func (e *SimpleMediaEntry) FindLatestEpisode() (*MediaEntryEpisode, bool) {
 }
 
 func (e *SimpleMediaEntry) FindLatestLocalFile() (*LocalFile, bool) {
-	lfs, ok := e.FindLocalFiles()
+	lfs, ok := e.FindMainLocalFiles()
 	// If there are no local files, return nil
 	if !ok {
 		return nil, false
@@ -190,19 +217,23 @@ func (e *SimpleMediaEntry) FindLatestLocalFile() (*LocalFile, bool) {
 	}
 	return latest, true
 }
-func (e *SimpleMediaEntry) FindLocalFiles() ([]*LocalFile, bool) {
-	if !e.IsDownloaded() {
+func (e *SimpleMediaEntry) FindMainLocalFiles() ([]*LocalFile, bool) {
+	if e.LocalFiles == nil {
 		return nil, false
 	}
-	return e.LocalFiles, true
-}
-
-// IsDownloaded returns true if there are local files.
-func (e *SimpleMediaEntry) IsDownloaded() bool {
-	if e.LocalFiles == nil {
-		return false
+	if len(e.LocalFiles) == 0 {
+		return nil, false
 	}
-	return len(e.LocalFiles) > 0
+	lfs := make([]*LocalFile, 0)
+	for _, lf := range e.LocalFiles {
+		if lf.IsMain() {
+			lfs = append(lfs, lf)
+		}
+	}
+	if len(lfs) == 0 {
+		return nil, false
+	}
+	return lfs, true
 }
 
 func (e *SimpleMediaEntry) FindListData() (*MediaEntryListData, bool) {

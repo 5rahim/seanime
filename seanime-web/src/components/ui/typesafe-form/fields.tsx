@@ -452,8 +452,8 @@ const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLInputEleme
             fieldClassName="w-full"
             fieldLabelClassName="text-md"
             radioContainerClassName={cn(
-                "block w-full p-4 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius]",
-                "data-[checked=true]:ring-1 ring-[--ring]",
+                "block w-full p-4 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius] opacity-60 hover:opacity-100",
+                "data-[checked=true]:opacity-100 data-[checked=true]:ring-.5 ring-opacity-20 ring-brand-200 dark:data-[checked=true]:bg-[--background-color]",
             )}
             radioControlClassName="absolute right-2 top-2 h-5 w-5 text-xs"
             radioHelpClassName="text-sm"

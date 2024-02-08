@@ -136,6 +136,11 @@ func (a *App) initAnilistData() {
 		return
 	}
 
+	// Save the collection to AutoDownloader
+	if a.AutoDownloader != nil {
+		a.AutoDownloader.AnilistCollection = a.anilistCollection
+	}
+
 	a.Logger.Info().Msg("app: Fetched Anilist collection")
 
 }

@@ -106,20 +106,25 @@ func NewApp(options *AppOptions, version string) *App {
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
 
+	// AniZip Cache
+	anizipCache := anizip.NewCache()
+
 	// Auto downloader
 	nAutoDownloader := autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
 		Logger:            logger,
 		QbittorrentClient: nil, // Will be set in app.InitOrRefreshModules
+		AnilistCollection: nil, // Will be set and refreshed in app.RefreshAnilistCollection
 		Database:          db,
 		WSEventManager:    wsEventManager,
 		Rules:             make([]*entities.AutoDownloaderRule, 0),
+		AniZipCache:       anizipCache,
 	})
 
 	app := &App{
 		Config:               cfg,
 		Database:             db,
 		AnilistClientWrapper: anilist.NewClientWrapper(anilistToken),
-		AnizipCache:          anizip.NewCache(),
+		AnizipCache:          anizipCache,
 		NyaaSearchCache:      nyaa.NewSearchCache(),
 		WSEventManager:       wsEventManager,
 		ListSyncCache:        listsync.NewCache(),

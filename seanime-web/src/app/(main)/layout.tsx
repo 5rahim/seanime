@@ -1,18 +1,19 @@
 "use client"
-import { MainLayout } from "@/components/application/main-layout"
-import React from "react"
-import { AppSidebarTrigger } from "@/components/ui/app-layout"
-import { TopNavbar } from "@/components/application/top-navbar"
-import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
-import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
-import { useAtomicLibraryCollectionLoader } from "@/atoms/collection"
-import { useAnilistCollectionListener } from "@/lib/server/hooks/media"
+import { useAtomicLibraryCollectionLoader, useListenToUserMedia } from "@/atoms/collection"
 import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
+import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
+import { MainLayout } from "@/components/application/main-layout"
+import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
+import { TopNavbar } from "@/components/application/top-navbar"
+import { AppSidebarTrigger } from "@/components/ui/app-layout"
+import { useAnilistCollectionListener } from "@/lib/server/hooks/media"
+import React from "react"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 
     useAtomicLibraryCollectionLoader()
     useListenToMissingEpisodes()
+    useListenToUserMedia()
     // Listen to refresh events
     useAnilistCollectionListener()
 

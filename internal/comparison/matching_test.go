@@ -29,7 +29,7 @@ func TestEliminateLestSimilarValue(t *testing.T) {
 
 	titles := []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"}
 
-	res := EliminateLestSimilarValue(titles)
+	res := EliminateLeastSimilarValue(titles)
 
 	for _, n := range res {
 		if n == "JJK" {
@@ -39,7 +39,7 @@ func TestEliminateLestSimilarValue(t *testing.T) {
 
 	titles = []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Gold"}
 
-	res = EliminateLestSimilarValue(titles)
+	res = EliminateLeastSimilarValue(titles)
 
 	for _, n := range res {
 		if n == "One Piece Gold" {
@@ -49,7 +49,7 @@ func TestEliminateLestSimilarValue(t *testing.T) {
 
 	titles = []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Z"}
 
-	res = EliminateLestSimilarValue(titles)
+	res = EliminateLeastSimilarValue(titles)
 
 	for _, n := range res {
 		if n == "One Piece Z" {
@@ -59,7 +59,7 @@ func TestEliminateLestSimilarValue(t *testing.T) {
 
 	titles = []string{"Mononogatari", "Mononogatari Cour 2", "Nekomonogatari"}
 
-	res = EliminateLestSimilarValue(titles)
+	res = EliminateLeastSimilarValue(titles)
 
 	for _, n := range res {
 		if n == "Nekomonogatari" {

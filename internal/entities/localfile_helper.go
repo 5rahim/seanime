@@ -33,6 +33,11 @@ func (f *LocalFile) GetType() LocalFileType {
 	return f.Metadata.Type
 }
 
+// IsMain returns true if the metadata type is LocalFileTypeMain
+func (f *LocalFile) IsMain() bool {
+	return f.Metadata.Type == LocalFileTypeMain
+}
+
 // GetMetadata returns the file metadata.
 // This requires the LocalFile to be hydrated.
 func (f *LocalFile) GetMetadata() *LocalFileMetadata {

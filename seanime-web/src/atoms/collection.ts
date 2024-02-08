@@ -1,4 +1,5 @@
 "use client"
+import { AnimeCollectionQuery, BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/queries/utils"
 import { LibraryCollection } from "@/lib/server/types"
@@ -10,6 +11,9 @@ import { useEffect } from "react"
 
 export const libraryCollectionAtom = atomWithStorage<LibraryCollection | undefined>("sea-library-collection", undefined,
     undefined, {getOnInit: true})
+
+export const userMediaAtom = atomWithStorage<BaseMediaFragment[] | undefined>("sea-user-media", undefined,
+    undefined, { getOnInit: true })
 
 export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom),
     (get, set, payload: number) => {
@@ -39,6 +43,29 @@ export function useAtomicLibraryCollectionLoader() {
             setter(data)
         }
     }, [data, status])
+
+    return null
+}
+
+/**
+ * @description
+ * - When the user is not on the main page, send a request to get missing episodes
+ */
+export function useListenToUserMedia() {
+    const setter = useSetAtom(userMediaAtom)
+
+    const { data, isLoading } = useSeaQuery<AnimeCollectionQuery>({
+        endpoint: SeaEndpoints.ANILIST_COLLECTION,
+        queryKey: ["get-anilist-collection"],
+    })
+
+    // Store the received data in `libraryCollectionAtom`
+    useEffect(() => {
+        if (!!data) {
+            const allMedia = data.MediaListCollection?.lists?.flatMap(n => n?.entries)?.filter(Boolean)?.map(n => n.media)?.filter(Boolean) ?? []
+            setter(allMedia)
+        }
+    }, [data])
 
     return null
 }

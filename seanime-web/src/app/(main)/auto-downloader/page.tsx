@@ -1,6 +1,6 @@
 "use client"
 import { RuleForm } from "@/app/(main)/auto-downloader/_containers/rule-form"
-import { libraryCollectionAtom } from "@/atoms/collection"
+import { userMediaAtom } from "@/atoms/collection"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
@@ -10,9 +10,10 @@ import { Modal } from "@/components/ui/modal"
 import { TabPanels } from "@/components/ui/tabs"
 import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { useBoolean } from "@/hooks/use-disclosure"
+import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
-import { AutoDownloaderRule, LibraryCollection } from "@/lib/server/types"
+import { AutoDownloaderRule } from "@/lib/server/types"
 import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
 import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { useQueryClient } from "@tanstack/react-query"
@@ -31,7 +32,7 @@ const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
 export default function Page() {
     const serverStatus = useAtomValue(serverStatusAtom)
     const qc = useQueryClient()
-    const libraryCollection = useAtomValue(libraryCollectionAtom)
+    const userMedia = useAtomValue(userMediaAtom)
 
     const createRuleModal = useBoolean(false)
 
@@ -105,7 +106,7 @@ export default function Page() {
                                             <Rule
                                                 key={rule.dbId}
                                                 rule={rule}
-                                                libraryCollection={libraryCollection}
+                                                userMedia={userMedia}
                                             />
                                         ))}
                                     </div>}
@@ -188,25 +189,22 @@ export default function Page() {
 
 type RuleProps = {
     rule: AutoDownloaderRule
-    libraryCollection: LibraryCollection | undefined
+    userMedia: BaseMediaFragment[] | undefined
 }
 
 function Rule(props: RuleProps) {
 
     const {
         rule,
-        libraryCollection,
+        userMedia,
         ...rest
     } = props
 
     const modal = useBoolean(false)
 
     const media = React.useMemo(() => {
-        return libraryCollection?.lists?.flatMap(list => list.entries)
-            ?.flatMap(entry => entry.media)
-            ?.filter(Boolean)
-            ?.find(media => media.id === rule.mediaId)
-    }, [(libraryCollection?.lists?.length || 0), rule])
+        return userMedia?.find(media => media.id === rule.mediaId)
+    }, [(userMedia?.length || 0), rule])
 
     return (
         <>
@@ -218,21 +216,24 @@ function Rule(props: RuleProps) {
                             className={cn(
                                 "font-medium text-base tracking-wide line-clamp-1",
                             )}
-                        >Rule for "{rule.comparisonTitle}"</p>
-                        <p className="text-sm text-gray-400 line-clamp-1 flex gap-2 items-center">
+                        ><span className="text-gray-400 italic font-normal pr-1">Rule for</span> "{rule.comparisonTitle}"</p>
+                        <p className="text-sm text-gray-400 line-clamp-1 flex space-x-2 items-center divide-x divide-[--border] [&>span]:pl-2">
                             <FaSquareRss
                                 className={cn(
                                     "text-xl",
                                     rule.enabled ? "text-green-500" : "text-gray-500",
-                                    media?.status === "FINISHED" && "text-red-300",
+                                    (media?.status === "FINISHED" || !media) && "text-red-300",
                                 )}
                             />
-                            {!!rule.releaseGroups.length && <span>"{rule.releaseGroups.join(", ")}"</span>}
-                            {!!rule.resolutions.length && <span>"{rule.resolutions.join(", ")}"</span>}
-                            {!!media && (
+                            {!!rule.releaseGroups.length && <span>{rule.releaseGroups.join(", ")}</span>}
+                            {!!rule.resolutions.length && <span>{rule.resolutions.join(", ")}</span>}
+                            {!!rule.episodeType && <span>{getEpisodeTypeName(rule.episodeType)}</span>}
+                            {!!media ? (
                                 <>
                                     {media.status === "FINISHED" && <span className="text-red-300">This anime is no longer airing</span>}
                                 </>
+                            ) : (
+                                <span className="text-red-300">This anime is not in your library</span>
                             )}
                         </p>
                     </div>
@@ -253,4 +254,13 @@ function Rule(props: RuleProps) {
             </Modal>
         </>
     )
+}
+
+function getEpisodeTypeName(episodeType: AutoDownloaderRule["episodeType"]) {
+    switch (episodeType) {
+        case "recent":
+            return "Recent releases"
+        case "selected":
+            return "Select episodes"
+    }
 }

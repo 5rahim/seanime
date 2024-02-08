@@ -1,9 +1,11 @@
+import { userMediaAtom } from "@/atoms/collection"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { AnimeCollectionQuery, BasicMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
 import { LocalFile, MediaEntry } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
+import { useSetAtom } from "jotai/react"
 import toast from "react-hot-toast"
 
 
@@ -93,10 +95,13 @@ export function useLatestAnilistCollection() {
  */
 export function useAnilistCollection() {
 
+    const setUserMedia = useSetAtom(userMediaAtom)
+
     const { data, isLoading } = useSeaQuery<AnimeCollectionQuery>({
         endpoint: SeaEndpoints.ANILIST_COLLECTION,
         queryKey: ["get-anilist-collection"],
     })
+
 
     return {
         anilistLists: data?.MediaListCollection?.lists ?? [],
