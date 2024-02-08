@@ -13,12 +13,16 @@ import (
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/sourcegraph/conc/pool"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
 const (
 	NyaaProvider        = "nyaa"
+	NyaaViewURL         = "https://nyaa.si/view/"
 	ComparisonThreshold = 0.8
 )
 
@@ -30,23 +34,28 @@ type (
 		Database          *db.Database
 		AnilistCollection *anilist.AnimeCollection
 		WSEventManager    events.IWSEventManager
-		Rules             []*entities.AutoDownloaderRule
 		Settings          *models.AutoDownloaderSettings
 		AniZipCache       *anizip.Cache
 		settingsUpdatedCh chan struct{}
 		stopCh            chan struct{}
 		startCh           chan struct{}
 		active            bool
+		debugTrace        bool
+		mu                sync.Mutex
 	}
 
 	NewAutoDownloaderOptions struct {
 		Logger            *zerolog.Logger
 		QbittorrentClient *qbittorrent.Client
 		WSEventManager    events.IWSEventManager
-		Rules             []*entities.AutoDownloaderRule
 		Database          *db.Database
 		AnilistCollection *anilist.AnimeCollection
 		AniZipCache       *anizip.Cache
+	}
+
+	tmpTorrentToDownload struct {
+		torrent *NormalizedTorrent
+		episode int
 	}
 )
 
@@ -56,13 +65,15 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		QbittorrentClient: opts.QbittorrentClient,
 		Database:          opts.Database,
 		WSEventManager:    opts.WSEventManager,
-		Rules:             opts.Rules,
 		AnilistCollection: opts.AnilistCollection,
+		AniZipCache:       opts.AniZipCache,
 		Settings:          &models.AutoDownloaderSettings{},
 		settingsUpdatedCh: make(chan struct{}, 1),
 		stopCh:            make(chan struct{}, 1),
 		startCh:           make(chan struct{}, 1),
 		active:            false,
+		debugTrace:        true,
+		mu:                sync.Mutex{},
 	}
 }
 
@@ -93,7 +104,7 @@ func (ad *AutoDownloader) Start() {
 }
 
 func (ad *AutoDownloader) start() {
-	ad.Logger.Info().Msg("autodownloader: Started")
+	ad.Logger.Info().Msg("autodownloader: Module started")
 
 	for {
 		interval := 10
@@ -124,6 +135,13 @@ func (ad *AutoDownloader) start() {
 func (ad *AutoDownloader) checkForNewEpisodes() {
 	torrents := make([]*NormalizedTorrent, 0)
 
+	// Get rules from the database
+	rules, err := ad.Database.GetAutoDownloaderRules()
+	if err != nil {
+		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch rules from the database")
+		return
+	}
+
 	// Get local files from the database
 	lfs, _, err := ad.Database.GetLocalFiles()
 	if err != nil {
@@ -141,34 +159,98 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 
 	// Going through each rule
-	for _, rule := range ad.Rules {
-		if !rule.Enabled {
-			continue // Skip rule
-		}
-		listEntry, found := ad.getRuleListEntry(rule)
-		// If the media is not found, skip the rule
-		if !found {
-			continue // Skip rule
-		}
-		// If the media is not releasing AND has more than one episode, skip the rule
-		// This is to avoid skipping movies and single-episode OVAs
-		if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {
-			continue // Skip rule
-		}
-
-		// Create a LocalFileWrapper
-		lfWrapper := entities.NewLocalFileWrapper(lfs)
-		localEntry, found := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
-		if !found {
-			continue // Skip rule
-		}
-
-		for _, t := range torrents {
-			if episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry); ok {
-				ad.downloadTorrent(t, rule, episode)
+	p := pool.New()
+	for _, rule := range rules {
+		rule := rule
+		p.Go(func() {
+			if !rule.Enabled {
+				return // Skip rule
 			}
-		}
+			listEntry, found := ad.getRuleListEntry(rule)
+			// If the media is not found, skip the rule
+			if !found {
+				return // Skip rule
+			}
+
+			// If the media is not releasing AND has more than one episode, skip the rule
+			// This is to avoid skipping movies and single-episode OVAs
+			if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {
+				return // Skip rule
+			}
+
+			// Create a LocalFileWrapper
+			lfWrapper := entities.NewLocalFileWrapper(lfs)
+			localEntry, _ := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
+
+			//p2 := pool.New()
+			//for _, t := range torrents {
+			//	t := t
+			//	p2.Go(func() {
+			//		episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry)
+			//		if ok {
+			//			ad.downloadTorrent(t, rule, episode)
+			//		}
+			//	})
+			//}
+			//p2.Wait()
+
+			// Get all torrents that follow the rule
+			torrentsToDownload := make([]*tmpTorrentToDownload, 0)
+			for _, t := range torrents {
+				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry)
+				if ok {
+					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
+						torrent: t,
+						episode: episode,
+					})
+				}
+			}
+
+			// Download the torrent if there's only one
+			if len(torrentsToDownload) == 1 {
+				t := torrentsToDownload[0]
+				ad.downloadTorrent(t.torrent, rule, t.episode)
+				return
+			}
+
+			// If there's more than one, we will group them by episode and sort them
+			// Make a map [episode]torrents
+			epMap := make(map[int][]*tmpTorrentToDownload)
+			for _, t := range torrentsToDownload {
+				if _, ok := epMap[t.episode]; !ok {
+					epMap[t.episode] = make([]*tmpTorrentToDownload, 0)
+					epMap[t.episode] = append(epMap[t.episode], t)
+				} else {
+					epMap[t.episode] = append(epMap[t.episode], t)
+				}
+			}
+
+			// Go through each episode group and download the best torrent (by resolution and seeders)
+			for ep, torrents := range epMap {
+
+				// If there's only one torrent for the episode, download it
+				if len(torrents) == 1 {
+					ad.downloadTorrent(torrents[0].torrent, rule, ep)
+					continue
+				}
+
+				// If there are more than one
+				// Sort by resolution
+				sort.Slice(torrents, func(i, j int) bool {
+					qI := comparison.ExtractResolutionInt(torrents[i].torrent.ParsedData.VideoResolution)
+					qJ := comparison.ExtractResolutionInt(torrents[j].torrent.ParsedData.VideoResolution)
+					return qI > qJ
+				})
+				// Sort by seeds
+				sort.Slice(torrents, func(i, j int) bool {
+					return torrents[i].torrent.Seeders > torrents[j].torrent.Seeders
+				})
+
+				ad.downloadTorrent(torrents[0].torrent, rule, ep)
+			}
+		})
 	}
+	p.Wait()
 
 }
 
@@ -183,7 +265,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 		return -1, false
 	}
 
-	if ok := ad.isResolutionMatch(t.ParsedData.ReleaseGroup, rule); !ok {
+	if ok := ad.isResolutionMatch(t.ParsedData.VideoResolution, rule); !ok {
 		return -1, false
 	}
 
@@ -200,6 +282,9 @@ func (ad *AutoDownloader) torrentFollowsRule(
 }
 
 func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.AutoDownloaderRule, episode int) {
+
+	ad.mu.Lock()
+	defer ad.mu.Unlock()
 
 	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
 	if !started {
@@ -268,8 +353,11 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoD
 	if len(rule.Resolutions) == 0 {
 		return true
 	}
+	if quality == "" {
+		return false
+	}
 	for _, q := range rule.Resolutions {
-		qualityWithoutP, _ := strings.CutSuffix(q, "p")
+		qualityWithoutP := strings.TrimSuffix(quality, "p")
 		qWithoutP := strings.TrimSuffix(q, "p")
 		if quality == q || qualityWithoutP == qWithoutP {
 			return true
@@ -297,7 +385,13 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 		// First, use comparison title
 		ok := strings.Contains(strings.ToLower(torrentTitle), strings.ToLower(rule.ComparisonTitle))
 		if ok {
-			return true
+			// Make sure the distance is not too far
+			lev := metrics.NewLevenshtein()
+			lev.CaseSensitive = false
+			res := lev.Distance(torrentTitle, rule.ComparisonTitle)
+			if res < 4 {
+				return true
+			}
 		}
 
 		titles := listEntry.GetMedia().GetAllTitles()
@@ -309,6 +403,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 			lev := metrics.NewSorensenDice()
 			lev.CaseSensitive = false
 			res := lev.Compare(torrentTitle, rule.ComparisonTitle)
+
 			if res > ComparisonThreshold {
 				return true
 			}
@@ -331,7 +426,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	listEntry *anilistListEntry,
 	localEntry *entities.LocalFileWrapperEntry,
 ) (int, bool) {
-	if listEntry == nil || localEntry == nil {
+	if listEntry == nil {
 		return -1, false
 	}
 
@@ -345,7 +440,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 
 	// Skip if we parsed more than one episode number (e.g. "01-02")
 	// We can't handle this case since it might be a batch release
-	if len(episodes) > 0 {
+	if len(episodes) > 1 {
 		return -1, false
 	}
 
@@ -366,8 +461,10 @@ func (ad *AutoDownloader) isEpisodeMatch(
 				}
 			}
 			// Make sure it doesn't exist in the library
-			if _, found := localEntry.FindLocalFileWithEpisodeNumber(1); found {
-				return -1, false // Skip, file already exists
+			if localEntry != nil {
+				if _, found := localEntry.FindLocalFileWithEpisodeNumber(1); found {
+					return -1, false // Skip, file already exists
+				}
 			}
 			return 1, true // Good to go
 		}
@@ -381,11 +478,13 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	// Handle ABSOLUTE episode numbers
 	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
 		// Fetch the AniZip media in order to normalize the episode number
+		ad.mu.Lock()
 		anizipMedia, err := anizip.FetchAniZipMediaC("anilist", listEntry.GetMedia().GetID(), ad.AniZipCache)
 		// If the media is found and the offset is greater than 0
 		if err == nil && anizipMedia.GetOffset() > 0 {
 			episode = episode - anizipMedia.GetOffset()
 		}
+		ad.mu.Unlock()
 	}
 
 	// Return false if the episode is already downloaded
@@ -396,8 +495,10 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	}
 
 	// Return false if the episode is already in the library
-	if _, found := localEntry.FindLocalFileWithEpisodeNumber(episode); found {
-		return -1, false
+	if localEntry != nil {
+		if _, found := localEntry.FindLocalFileWithEpisodeNumber(episode); found {
+			return -1, false
+		}
 	}
 
 	switch rule.EpisodeType {

@@ -2,7 +2,7 @@ package nyaa
 
 import (
 	"github.com/seanime-app/seanime/internal/comparison"
-	seanime_parser "github.com/seanime-app/seanime/seanime-parser"
+	"github.com/seanime-app/seanime/seanime-parser"
 )
 
 type (

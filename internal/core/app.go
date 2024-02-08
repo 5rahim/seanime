@@ -116,7 +116,6 @@ func NewApp(options *AppOptions, version string) *App {
 		AnilistCollection: nil, // Will be set and refreshed in app.RefreshAnilistCollection
 		Database:          db,
 		WSEventManager:    wsEventManager,
-		Rules:             make([]*entities.AutoDownloaderRule, 0),
 		AniZipCache:       anizipCache,
 	})
 

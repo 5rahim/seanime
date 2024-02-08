@@ -49,7 +49,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 
 		normalizedTs = append(normalizedTs, &NormalizedTorrent{
 			Name:       t.Name,
-			Link:       t.Link,
+			Link:       t.GUID,
 			Hash:       t.InfoHash,
 			Size:       t.Size,
 			Seeders:    seedersInt,
