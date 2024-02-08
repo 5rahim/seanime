@@ -44,6 +44,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Patch("/auto-downloader/rule", makeHandler(app, HandleUpdateAutoDownloaderRule))
 	v1.Delete("/auto-downloader/rule/:id", makeHandler(app, HandleDeleteAutoDownloaderRule))
 
+	v1.Get("/auto-downloader/items", makeHandler(app, HandleGetAutoDownloaderItems))
+	v1.Delete("/auto-downloader/item", makeHandler(app, HandleDeleteAutoDownloaderItem))
+
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleTestDump))
 

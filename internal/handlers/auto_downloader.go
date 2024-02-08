@@ -82,3 +82,36 @@ func HandleDeleteAutoDownloaderRule(c *RouteCtx) error {
 
 	return c.RespondWithData(true)
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//v1.Get("/auto-downloader/items", makeHandler(app, HandleGetAutoDownloaderItems))
+
+func HandleGetAutoDownloaderItems(c *RouteCtx) error {
+	rules, err := c.App.Database.GetAutoDownloaderItems()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(rules)
+}
+
+//v1.Delete("/auto-downloader/item", makeHandler(app, HandleDeleteAutoDownloaderItem))
+
+func HandleDeleteAutoDownloaderItem(c *RouteCtx) error {
+
+	type body struct {
+		ID uint `json:"id"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if err := c.App.Database.DeleteAutoDownloaderItem(b.ID); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}

@@ -419,19 +419,20 @@ export type AutoDownloaderSettings = {
     downloadAutomatically: boolean
 }
 
-export type AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
-
-export enum AutoDownloaderRuleTitleComparisonTypeEnum {
-    CONTAINS = "contains",
-    LIKELY = "likely"
+export type AutoDownloaderItem = {
+    id: number
+    createdAt: string
+    updatedAt: string
+    ruleId: number
+    mediaId: number
+    episode: number
+    link: string
+    hash: string
+    magnet: string
+    torrentName: string
+    downloaded: boolean
 }
-export type AutoDownloaderRuleEpisodeType = "unwatched" | "all" | "selected"
 
-export enum AutoDownloaderRuleEpisodeTypeEnum {
-    UNWATCHED = "unwatched",
-    ALL = "all",
-    SELECTED = "selected"
-}
 
 //---
 

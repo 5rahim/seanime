@@ -1,4 +1,5 @@
 "use client"
+import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_containers/items"
 import { RuleForm } from "@/app/(main)/auto-downloader/_containers/rule-form"
 import { userMediaAtom } from "@/atoms/collection"
 import { serverStatusAtom } from "@/atoms/server-status"
@@ -120,7 +121,7 @@ export default function Page() {
                     <TabPanels.Panel>
 
                         <div className="p-4">
-
+                            <AutoDownloaderItems />
                         </div>
 
                     </TabPanels.Panel>
