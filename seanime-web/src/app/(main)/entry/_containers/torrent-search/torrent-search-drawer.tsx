@@ -1,13 +1,13 @@
-import { MediaEntry, MediaEntryDownloadEpisode } from "@/lib/server/types"
+import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
+import { EpisodeListItem } from "@/components/shared/episode-list-item"
+import { Slider } from "@/components/shared/slider"
+import { Divider } from "@/components/ui/divider"
 import { Drawer } from "@/components/ui/modal"
+import { MediaEntry, MediaEntryDownloadEpisode } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import { Slider } from "@/components/shared/slider"
-import { EpisodeListItem } from "@/components/shared/episode-list-item"
-import { Divider } from "@/components/ui/divider"
-import { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
+import React, { useEffect } from "react"
 
 export const torrentSearchDrawerIsOpenAtom = atom(false)
 export const torrentSearchDrawerEpisodeAtom = atom<number | undefined>(undefined)
@@ -38,8 +38,17 @@ export function TorrentSearchDrawer(props: { entry: MediaEntry }) {
             size="xl"
             title="Search torrents"
         >
-            <EpisodeList episodes={entry.downloadInfo?.episodesToDownload}/>
-            <TorrentSearchContainer entry={entry}/>
+            <div
+                className="bg-[url(/pattern-2.svg)] z-[0] w-full h-[10rem] absolute opacity-50 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
+            >
+                <div
+                    className="w-full absolute bottom-0 h-[10rem] bg-gradient-to-t from-gray-900 to-transparent z-[-2]"
+                />
+            </div>
+            <div className="relative z-[1]">
+                <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />
+                <TorrentSearchContainer entry={entry} />
+            </div>
         </Drawer>
     )
 

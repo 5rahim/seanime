@@ -227,7 +227,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         options={notFinishedMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))}
                         value={String(form.watch("mediaId"))}
                         onChange={(e) => form.setValue("mediaId", parseInt(e.target.value))}
-                        help="The anime must already be in your library"
+                        help="The anime must be airing or upcoming"
                         isDisabled={type === "edit"}
                     />
                 </div>
@@ -237,7 +237,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 <Field.DirectorySelector
                     name="destination"
                     label="Destination"
-                    help="The directory to save the files to"
+                    help="Folder in your local library where the files will be saved"
                     leftIcon={<FcFolder />}
                     shouldExist={false}
                 />
@@ -247,17 +247,17 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     <Field.Text
                         name="comparisonTitle"
                         label="Comparison title"
-                        help="The title to compare the torrent name with. Use a title most likely to be found in a torrent name. (e.g. the Romaji title)"
+                        help="Used for comparison purposes. When using 'Exact match', use a title most likely to be used in a torrent name."
                     />
                     <Field.RadioCards
                         label="Type of search"
                         name="titleComparisonType"
                         options={[
-                            { label: "Most likely", value: "likely", help: "A comparison algorithm will be used." },
+                            { label: "Most likely", value: "likely", help: "A comparison algorithm will be used" },
                             {
                                 label: "Exact match",
                                 value: "contains",
-                                help: "The torrent name must contain the title. Use this for more precise control.",
+                                help: "The torrent name must contain the title (Use this for more precise control)",
                             },
                         ]}
                         radioHelpClassName="text-sm text-gray-400"
@@ -274,8 +274,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         name="episodeType"
                         label="Episodes to look for"
                         options={[
-                            { label: "Recent releases", value: "recent", help: "Recent episodes you have not yet watched" },
-                            { label: "Specific", value: "selected", help: "Only the specified episodes that aren't in your library" },
+                            { label: "Recent releases", value: "recent", help: "New episodes you have not yet watched" },
+                            { label: "Select", value: "selected", help: "Only the specified episodes that aren't in your library" },
                         ]}
                         radioHelpClassName="text-sm text-gray-400"
                     />

@@ -1,32 +1,37 @@
 "use client"
-import React, { useCallback } from "react"
-import { AppLayoutStack } from "@/components/ui/app-layout"
-import Link from "next/link"
-import { Button, IconButton } from "@/components/ui/button"
-import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
-import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { SeaTorrent, SeaTorrentActionProps } from "@/lib/server/types"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
-import { BiDownArrow } from "@react-icons/all-files/bi/BiDownArrow"
-import { BiUpArrow } from "@react-icons/all-files/bi/BiUpArrow"
-import { BiTime } from "@react-icons/all-files/bi/BiTime"
-import capitalize from "lodash/capitalize"
-import { BiFolder } from "@react-icons/all-files/bi/BiFolder"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
+import { SeaTorrent, SeaTorrentActionProps } from "@/lib/server/types"
+import { BiDownArrow } from "@react-icons/all-files/bi/BiDownArrow"
+import { BiFolder } from "@react-icons/all-files/bi/BiFolder"
+import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
 import { BiPause } from "@react-icons/all-files/bi/BiPause"
 import { BiPlay } from "@react-icons/all-files/bi/BiPlay"
 import { BiStop } from "@react-icons/all-files/bi/BiStop"
+import { BiTime } from "@react-icons/all-files/bi/BiTime"
+import { BiUpArrow } from "@react-icons/all-files/bi/BiUpArrow"
+import capitalize from "lodash/capitalize"
+import Link from "next/link"
+import React, { useCallback } from "react"
 import * as upath from "upath"
 
 export default function Page() {
 
     return (
-        <AppLayoutStack className={"p-4"}>
+        <AppLayoutStack className={"p-8"}>
             <div className={"flex items-center w-full justify-between"}>
-                <h2>Active torrents</h2>
+                <div>
+                    <h2>Active torrents</h2>
+                    <p className={"text-[--muted]"}>
+                        See torrents currently being downloaded
+                    </p>
+                </div>
                 <div className={""}>
                     <Link href={`/qbittorrent`}>
                         <Button intent={"white"} rightIcon={<BiLinkExternal/>}>Embedded client</Button>
@@ -72,7 +77,7 @@ function Content() {
                     onTorrentAction={handleTorrentAction}
                 />
             })}
-            {(!isLoading && !data?.length) && <LuffyError title={null}>No active torrents</LuffyError>}
+            {(!isLoading && !data?.length) && <LuffyError title={"Nothing to see"}>No active torrents</LuffyError>}
         </AppLayoutStack>
     )
 

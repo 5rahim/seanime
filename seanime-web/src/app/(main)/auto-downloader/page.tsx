@@ -112,7 +112,7 @@ export default function Page() {
                                             }}
                                             isLoading={isRunning}
                                         >
-                                            Run
+                                            Check RSS feed
                                         </Button>
                                         <Button
                                             className="rounded-full"
@@ -122,18 +122,14 @@ export default function Page() {
                                                 createRuleModal.on()
                                             }}
                                         >
-                                            Add Rule
+                                            New Rule
                                         </Button>
                                     </div>
 
-                                    <ul className="text-base text-[--muted] list-disc pl-4">
-                                        <li>The only provider currently supported is <em className="font-semibold">Nyaa.si</em></li>
-                                        <li>Auto Downloader uses the <em className="font-semibold">qBittorrent</em> integration to download new files
+                                    <ul className="text-base text-[--muted]">
+                                        <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
+                                                                                     parameters you set.
                                         </li>
-                                        <li><em className="font-semibold">Rules</em> are parameters that define which episodes and which files to
-                                                                                     download for a specific anime
-                                        </li>
-                                        <li>The anime must already be present in your library</li>
                                     </ul>
 
                                     {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}

@@ -41,7 +41,7 @@ export default function Page() {
 
 
     return (
-        <div className="p-12 space-y-4">
+        <div className="p-8 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>Scan summaries</h2>

@@ -55,9 +55,23 @@ export default function Page() {
         clearCache()
     }
 
+    if (!serverStatus?.mal) return (
+        <div className="p-8 space-y-4">
+            <div className="flex justify-between items-center w-full relative">
+                <div>
+                    <h2>List Sync <BetaBadge /></h2>
+                    <p className="text-[--muted]">Sync your anime lists between different providers.</p>
+                </div>
+            </div>
+            <LuffyError title="Nothing to see">
+                Link your MyAnimeList account to use this feature.
+            </LuffyError>
+        </div>
+    )
+
 
     return (
-        <div className="p-12 space-y-4">
+        <div className="p-8 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>List Sync <BetaBadge /></h2>

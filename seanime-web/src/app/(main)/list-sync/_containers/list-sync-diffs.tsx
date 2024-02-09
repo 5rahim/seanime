@@ -133,7 +133,7 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
 
             <ul className="text-sm text-[--muted] list-disc pl-4">
                 <li><em className="font-semibold">MALSync</em> is recommended for a more complete solution.</li>
-                <li>Refresh AniList (top right) to see changes reflected in Seanime.</li>
+                <li>Refresh AniList (top right) to see changes reflected</li>
                 <li>Some items may not be synced due to mapping limitations. You will notice this if they re-appear in the list below.</li>
             </ul>
 
@@ -212,14 +212,15 @@ function DiffItem(props: DiffItemProps) {
             />
 
             <div className="space-y-1">
-                <p className="text-sm">{entry.displayTitle}</p>
+                <p className="text-sm max-w-sm line-clamp-1">{entry.displayTitle}</p>
                 <div className="flex gap-2 items-center">
                     <div>
                         {item.kind === ListSyncAnimeDiffKind.MISSING_IN_TARGET && <FiPlusCircle className="text-green-200" />}
                         {item.kind === ListSyncAnimeDiffKind.MISSING_IN_ORIGIN && <FiMinusCircle className="text-red-300" />}
                         {item.kind === ListSyncAnimeDiffKind.METADATA && <LuUploadCloud className="text-blue-200" />}
                     </div>
-                    <p className="text-sm">{getDiffKindDescription(item.kind).replace("{{source}}", getSourceName(item.targetSource))}</p>
+                    <p className="text-sm text-gray-400">{getDiffKindDescription(item.kind)
+                        .replace("{{source}}", getSourceName(item.targetSource))}</p>
                 </div>
                 {item.kind === ListSyncAnimeDiffKind.METADATA &&
                     <ul className="space-y-1 text-sm ml-4 mt-1 [&>li]:flex [&>li]:gap-1 [&>li]:items-center">

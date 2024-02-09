@@ -1,19 +1,19 @@
 "use client"
 
-import React, { startTransition, useCallback, useMemo, useState, useTransition } from "react"
-import { TabPanels } from "@/components/ui/tabs"
-import { cn } from "@/components/ui/core"
-import { atom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { cn } from "@/components/ui/core"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { TabPanels } from "@/components/ui/tabs"
+import { TextInput } from "@/components/ui/text-input"
+import { useDebounce } from "@/hooks/use-debounce"
+import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { useAnilistCollection } from "@/lib/server/hooks/media"
 import { AnilistCollectionEntry, AnilistCollectionList } from "@/lib/server/types"
-import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
-import sortBy from "lodash/sortBy"
-import { TextInput } from "@/components/ui/text-input"
 import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
-import { useDebounce } from "@/hooks/use-debounce"
+import { atom } from "jotai"
+import { useAtom, useAtomValue } from "jotai/react"
+import sortBy from "lodash/sortBy"
+import React, { startTransition, useCallback, useMemo, useState, useTransition } from "react"
 
 const selectedIndexAtom = atom(0)
 const watchListSearchInputAtom = atom<string>("")
@@ -68,7 +68,7 @@ export default function Home() {
     const droppedList = useMemo(() => getList("DROPPED"), [search, getList, anilistLists])
 
     return (
-        <main className={"px-4 relative"}>
+        <main className={"p-8 pt-0 relative"}>
 
             <SearchInput/>
 
@@ -160,7 +160,7 @@ const SearchInput = () => {
     const [inputValue, setInputValue] = useState(input)
 
     return (
-        <div className={"px-4 mb-8"}>
+        <div className={"mb-8"}>
             <TextInput leftIcon={<FiSearch/>} value={inputValue} onChange={e => {
                 setInputValue(e.target.value)
                 startTransition(() => {

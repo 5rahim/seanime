@@ -37,7 +37,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
     ]),
     header: cva([
         "UI-Drawer__header",
-        "flex w-full justify-between items-center p-4 sm:p-6 pb-0 pt-6", //pt-12 sm:pt-12",
+        "flex w-full justify-between items-center z-[2] p-4 sm:p-6 pb-0 pt-6", //pt-12 sm:pt-12",
     ]),
     title: cva([
         "UI-Drawer__title",

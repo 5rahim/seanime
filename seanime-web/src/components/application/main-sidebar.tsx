@@ -64,6 +64,39 @@ export function MainSidebar() {
             href: "/anilist",
             isCurrent: pathname === "/anilist",
         },
+        {
+            icon: TbWorldDownload,
+            name: "Auto downloader",
+            href: "/auto-downloader",
+            isCurrent: pathname === "/auto-downloader",
+            addon: autoDownloaderQueueCount > 0 ? <Badge
+                className={"absolute right-0 top-0"} size={"sm"}
+                intent={"alert-solid"}
+            >{autoDownloaderQueueCount}</Badge> : undefined,
+        },
+        {
+            icon: BiDownload,
+            name: "Torrent list",
+            href: "/torrent-list",
+            isCurrent: pathname === "/torrent-list",
+        },
+        {
+            icon: PiClockCounterClockwiseFill,
+            name: "Scan summaries",
+            href: "/scan-summaries",
+            isCurrent: pathname === "/scan-summaries",
+        },
+        {
+            icon: MdSyncAlt,
+            name: "List sync",
+            href: "/list-sync",
+            isCurrent: pathname === "/list-sync",
+        },
+        {
+            icon: FiSearch,
+            name: "Search",
+            onClick: () => setGlobalSearchIsOpen(true),
+        },
     ] : [], [user, pathname])
 
     return (
@@ -93,39 +126,6 @@ export function MainSidebar() {
                                 >{missingEpisodeCount}</Badge> : undefined,
                             },
                             ...watchListItem,
-                            {
-                                icon: FiSearch,
-                                name: "Search",
-                                onClick: () => setGlobalSearchIsOpen(true),
-                            },
-                            {
-                                icon: MdSyncAlt,
-                                name: "List sync",
-                                href: "/list-sync",
-                                isCurrent: pathname === "/list-sync",
-                            },
-                            {
-                                icon: TbWorldDownload,
-                                name: "Auto downloader",
-                                href: "/auto-downloader",
-                                isCurrent: pathname === "/auto-downloader",
-                                addon: autoDownloaderQueueCount > 0 ? <Badge
-                                    className={"absolute right-0 top-0"} size={"sm"}
-                                    intent={"alert-solid"}
-                                >{autoDownloaderQueueCount}</Badge> : undefined,
-                            },
-                            {
-                                icon: BiDownload,
-                                name: "Torrent list",
-                                href: "/torrent-list",
-                                isCurrent: pathname === "/torrent-list",
-                            },
-                            {
-                                icon: PiClockCounterClockwiseFill,
-                                name: "Scan summaries",
-                                href: "/scan-summaries",
-                                isCurrent: pathname === "/scan-summaries",
-                            },
                         ]}
                     />
                 </div>

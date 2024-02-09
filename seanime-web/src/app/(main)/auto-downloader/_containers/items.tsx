@@ -42,17 +42,14 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
 
     return (
         <div className="space-y-4">
-            <ul className="text-base text-[--muted] list-disc pl-4">
+            <ul className="text-base text-[--muted]">
                 <li>
-                    This queue shows items waiting to be downloaded.
-                </li>
-                <li>
-                    This queue shows downloaded files that are not yet scanned into your library.
+                    The queue shows items waiting to be downloaded or scanned.
                 </li>
             </ul>
             {!data?.length && (
                 <p className="text-center text-[--muted]">
-                    Queue is empty.
+                    Queue is empty
                 </p>
             )}
             {data?.map((item) => (
@@ -67,7 +64,7 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                             </p>
                             {item.downloaded && (
                                 <p className="text-sm text-[--muted]">
-                                    Refresh entries to add the file to your library.
+                                    Not yet scanned
                                 </p>
                             )}
                         </div>

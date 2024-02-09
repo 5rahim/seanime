@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo } from "react"
+import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
+import { useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Slider } from "@/components/shared/slider"
-import { useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
-import { atom } from "jotai"
-import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
-import { useSetAtom } from "jotai/react"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
+import { atom } from "jotai"
+import { useSetAtom } from "jotai/react"
+import React, { useEffect, useMemo } from "react"
 
 export const __discover_randomTrendingAtom = atom<BaseMediaFragment | undefined>(undefined)
 
@@ -17,7 +17,7 @@ export function DiscoverTrending() {
     const randomNumber = useMemo(() => Math.floor(Math.random() * 6), [])
 
     useEffect(() => {
-        setRandomTrendingAtom(data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean)[randomNumber])
+        setRandomTrendingAtom(data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean)[0])
     }, [data])
 
     return (

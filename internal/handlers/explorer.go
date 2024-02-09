@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 func HandleOpenInExplorer(c *RouteCtx) error {
@@ -30,7 +31,7 @@ func openDirInExplorer(dir string) {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "explorer"
-		args = []string{dir}
+		args = []string{strings.Replace(dir, "/", "\\", -1)}
 	case "darwin":
 		cmd = "open"
 		args = []string{dir}

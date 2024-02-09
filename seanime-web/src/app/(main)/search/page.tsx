@@ -1,20 +1,16 @@
 "use client"
-import { AppLayoutGrid, AppLayoutStack } from "@/components/ui/app-layout"
-import React from "react"
-import { MediaFormat, MediaSeason, MediaSort, MediaStatus } from "@/lib/anilist/gql/graphql"
-import { useMount } from "react-use"
-import { useSetAtom } from "jotai/react"
-import { IconButton } from "@/components/ui/button"
-import { AiOutlineArrowLeft } from "@react-icons/all-files/ai/AiOutlineArrowLeft"
-import Link from "next/link"
-import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
-import {
-    AdvancedSearchPageTitle,
-} from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-page-title"
-import {
-    AdvancedSearchOptions,
-} from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-options"
 import { AdvancedSearchList } from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-list"
+import { AdvancedSearchOptions } from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-options"
+import { AdvancedSearchPageTitle } from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-page-title"
+import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
+import { AppLayoutGrid, AppLayoutStack } from "@/components/ui/app-layout"
+import { IconButton } from "@/components/ui/button"
+import { MediaFormat, MediaSeason, MediaSort, MediaStatus } from "@/lib/anilist/gql/graphql"
+import { AiOutlineArrowLeft } from "@react-icons/all-files/ai/AiOutlineArrowLeft"
+import { useSetAtom } from "jotai/react"
+import Link from "next/link"
+import React from "react"
+import { useMount } from "react-use"
 
 
 export default function Page({ params: urlParams }: {
@@ -45,7 +41,7 @@ export default function Page({ params: urlParams }: {
     })
 
     return (
-        <AppLayoutStack spacing={"xl"} className={"mt-8 px-4 pb-10"}>
+        <AppLayoutStack spacing={"xl"} className={"mt-8 p-8 pt-0 pb-10"}>
             <div className={"flex items-center gap-4"}>
                 <Link href={`/discover`}>
                     <IconButton icon={<AiOutlineArrowLeft/>} rounded intent={"white-outline"} size={"sm"}/>

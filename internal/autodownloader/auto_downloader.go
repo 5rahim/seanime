@@ -415,7 +415,16 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 		// |   Title "Contains"  |
 		// +---------------------+
 
-		return strings.Contains(strings.ToLower(torrentTitle), strings.ToLower(rule.ComparisonTitle))
+		if strings.Contains(strings.ToLower(torrentTitle), strings.ToLower(rule.ComparisonTitle)) {
+			// Make sure the distance is not too great
+			lev := metrics.NewLevenshtein()
+			lev.CaseSensitive = false
+			res := lev.Distance(torrentTitle, rule.ComparisonTitle)
+			if res < 4 {
+				return true
+			}
+			return false
+		}
 	case entities.AutoDownloaderRuleTitleComparisonLikely:
 		// +---------------------+
 		// |   Title "Likely"    |
@@ -424,7 +433,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 		// First, use comparison title
 		ok := strings.Contains(strings.ToLower(torrentTitle), strings.ToLower(rule.ComparisonTitle))
 		if ok {
-			// Make sure the distance is not too far
+			// Make sure the distance is not too great
 			lev := metrics.NewLevenshtein()
 			lev.CaseSensitive = false
 			res := lev.Distance(torrentTitle, rule.ComparisonTitle)
