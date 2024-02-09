@@ -48,8 +48,8 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                     Queue is empty.
                 </p>
             )}
-            {data?.map((item, index) => (
-                <div className="rounded-[--radius] p-3 bg-[--background-color]">
+            {data?.map((item) => (
+                <div className="rounded-[--radius] p-3 bg-[--background-color]" key={item.id}>
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-base font-medium tracking-wide">{item.torrentName}</h3>

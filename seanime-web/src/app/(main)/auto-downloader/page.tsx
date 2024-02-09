@@ -187,7 +187,7 @@ export default function Page() {
                                             <Field.Checkbox
                                                 label="Download episodes immediately"
                                                 name="downloadAutomatically"
-                                                help="If disabled, torrents will be added but not started"
+                                                help="If disabled, torrents will be added to the queue"
                                             />
                                             <Field.Number
                                                 label="Interval"
