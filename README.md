@@ -9,26 +9,34 @@ anime library.</h4>
 
 <img src="docs/images/main_6.png" alt="preview" width="100%"/>
 
-🚨 This project is a hobby, it's not meant to fix every shortcoming or include every requested feature. Some features
-might not work as intended on certain devices. Feel free to fork the project, contribute or open issues.
-
-Leave a ⭐ if you like this project!
+Feel free to fork the project, contribute or open issues. Leave a star if you like this project!
 
 # Features
 
-- User-friendly web interface.
-- Seamless integration with AniList.
-- Scanner that automatically match local files with corresponding anime.
-  - No mandatory folder structure / No need for renaming.
-- Support for torrents with absolute episode numbers.
-- Integrated torrent search engine with Nyaa and qBittorrent integration to download new episodes.
-- Automatically update your progress on AniList when you watch an episode using VLC or MPC-HC.
-- No data collection.
+- ✨ **User-friendly web interface**
+  - Set up Seanime with a few clicks
+  - Netflix-like experience for your local anime library
+- ✨ **Seamless integration with AniList**
+  - Manage your AniList collection
+- 🎉 **Automatically scan your anime library**
+  - Seanime does not require a mandatory folder structure or naming convention
+  - It also supports torrent names with absolute episode numbers
+  - *Enhanced scanning* is available for more accurate results
+- 🎉 **Download new episodes automatically**
+  - Seanime will check RSS feeds for new episodes and download them automatically via qBittorrent
+- 🎉 **Integrated torrent search engine**
+  - You can manually search and download new episodes with a few clicks
+- 🎉 **Automatically track your progress**
+  - Launch an episode from the web interface and Seanime will automatically update your progress on AniList
+- 🎉 **MyAnimeList integration**
+  - Sync your anime lists between AniList and MyAnimeList
+  - Automatically update your progress on MyAnimeList
+- No data collection
 
 ### What it is not
 
 Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
-support transcoding or streaming to other devices.
+support transcoding or streaming to other devices (yet).
 
 # Setup
 

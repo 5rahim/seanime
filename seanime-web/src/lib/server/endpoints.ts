@@ -76,4 +76,5 @@ export const enum WSEvents {
     MEDIA_PLAYER_PLAYBACK_STATUS = "media-player-playback-status",
     LIBRARY_WATCHER_FILE_ADDED = "library-watcher-file-added",
     LIBRARY_WATCHER_FILE_REMOVED = "library-watcher-file-removed",
+    AUTO_DOWNLOADER_ITEM_ADDED = "auto-downloader-item-added",
 }

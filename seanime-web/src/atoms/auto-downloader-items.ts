@@ -1,6 +1,8 @@
-import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useWebsocketMessageListener } from "@/atoms/websocket"
+import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/queries/utils"
 import { AutoDownloaderItem } from "@/lib/server/types"
+import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
@@ -21,11 +23,19 @@ export function useAutoDownloaderQueueCount() {
 export function useListenToAutoDownloaderItems() {
     const pathname = usePathname()
     const setter = useSetAtom(autoDownloaderItemsAtom)
+    const qc = useQueryClient()
 
-    const { data } = useSeaQuery<AutoDownloaderItem[]>({
+    const { data, refetch } = useSeaQuery<AutoDownloaderItem[]>({
         queryKey: ["auto-downloader-items"],
         endpoint: SeaEndpoints.AUTO_DOWNLOADER_ITEMS,
         enabled: pathname !== "/auto-downloader",
+    })
+
+    useWebsocketMessageListener<string>({
+        type: WSEvents.AUTO_DOWNLOADER_ITEM_ADDED,
+        onMessage: data => {
+            qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
+        },
     })
 
     useEffect(() => {

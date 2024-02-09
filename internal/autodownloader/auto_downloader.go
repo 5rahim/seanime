@@ -181,6 +181,15 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		}
 	}
 
+	// Get existing torrents
+	existingTorrents := make([]*qbittorrent_model.Torrent, 0)
+	if ad.QbittorrentClient != nil {
+		existingTorrents, err = ad.QbittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{})
+		if err != nil {
+			existingTorrents = make([]*qbittorrent_model.Torrent, 0)
+		}
+	}
+
 	// Going through each rule
 	p := pool.New()
 	for _, rule := range rules {
@@ -207,7 +216,15 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 			// Get all torrents that follow the rule
 			torrentsToDownload := make([]*tmpTorrentToDownload, 0)
+		outer:
 			for _, t := range torrents {
+				// If the torrent is already added, skip it
+				for _, et := range existingTorrents {
+					if et.Hash == t.Hash {
+						continue outer // Skip the torrent
+					}
+				}
+
 				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry)
 				if ok {
 					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
@@ -303,7 +320,14 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 
 	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
 	if !started {
-		ad.Logger.Error().Str("link", t.Link).Msg("autodownloader: Failed to download torrent. qBittorrent is not running.")
+		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. qBittorrent is not running.")
+		return
+	}
+
+	// Return if the torrent is already added
+	_, err := ad.QbittorrentClient.Torrent.GetProperties(t.Hash)
+	if err == nil {
+		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
 		return
 	}
 
@@ -333,7 +357,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 	}
 
 	ad.Logger.Info().Str("name", t.Name).Msg("autodownloader: Added torrent")
-	ad.WSEventManager.SendEvent(events.AutoDownloaderTorrentAdded, t.Name)
+	ad.WSEventManager.SendEvent(events.AutoDownloaderItemAdded, t.Name)
 
 	// Add the torrent to the database
 	item := &models.AutoDownloaderItem{

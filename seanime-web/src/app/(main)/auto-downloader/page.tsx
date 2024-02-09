@@ -69,8 +69,6 @@ export default function Page() {
     const { data: items, isLoading: itemsLoading } = useSeaQuery<AutoDownloaderItem[]>({
         queryKey: ["auto-downloader-items"],
         endpoint: SeaEndpoints.AUTO_DOWNLOADER_ITEMS,
-        refetchInterval: 10000,
-        refetchIntervalInBackground: true,
     })
 
     return (

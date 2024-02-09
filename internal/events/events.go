@@ -11,5 +11,5 @@ const (
 	MediaPlayerPlaybackStatus        = "media-player-playback-status"
 	LibraryWatcherFileAdded          = "library-watcher-file-added"
 	LibraryWatcherFileRemoved        = "library-watcher-file-removed"
-	AutoDownloaderTorrentAdded       = "auto-downloader-torrent-added"
+	AutoDownloaderItemAdded          = "auto-downloader-item-added"
 )

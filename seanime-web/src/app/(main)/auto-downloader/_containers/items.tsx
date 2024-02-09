@@ -67,7 +67,7 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                             </p>
                             {item.downloaded && (
                                 <p className="text-sm text-[--muted]">
-                                    Scan your library to add the file to your library.
+                                    Refresh entries to add the file to your library.
                                 </p>
                             )}
                         </div>
