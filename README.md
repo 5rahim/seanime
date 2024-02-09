@@ -69,6 +69,12 @@ support transcoding or streaming to other devices (yet).
 
 # Screenshots
 
+<h1 align="center">
+<a href="https://seanime.rahim.app/">
+<img src="docs/images/rec_pages.gif" alt="preview" width="100%"/>
+</a>
+</h1>
+
 ## Library
 
 <img src="docs/images/my-library_02.png" alt="preview" width="100%"/>
