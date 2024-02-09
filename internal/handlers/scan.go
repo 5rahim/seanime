@@ -83,6 +83,10 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	// Save the scan summary
 	err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
 
+	if c.App.AutoDownloader != nil {
+		go c.App.AutoDownloader.CleanUpDownloadedItems()
+	}
+
 	return c.RespondWithData(lfs)
 
 }

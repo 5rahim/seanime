@@ -62,6 +62,7 @@ export const enum SeaEndpoints {
     AUTO_DOWNLOADER_RULE_DETAILS = "/auto-downloader/rule/{id}", // (GET, DELETE)
     AUTO_DOWNLOADER_ITEMS = "/auto-downloader/items", // (GET)
     AUTO_DOWNLOADER_ITEM = "/auto-downloader/item", // (DELETE)
+    RUN_AUTO_DOWNLOADER = "/auto-downloader/run", // (POST)
 }
 
 export const enum WSEvents {

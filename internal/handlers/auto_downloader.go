@@ -6,6 +6,15 @@ import (
 	"strconv"
 )
 
+//v1.Post("/auto-downloader/run", makeHandler(app, HandleGetAutoDownloaderRule))
+
+func HandleRunAutoDownloaderRule(c *RouteCtx) error {
+
+	c.App.AutoDownloader.Run()
+
+	return c.RespondWithData(true)
+}
+
 //v1.Get("/auto-downloader/rule/:id", makeHandler(app, HandleGetAutoDownloaderRule))
 
 func HandleGetAutoDownloaderRule(c *RouteCtx) error {

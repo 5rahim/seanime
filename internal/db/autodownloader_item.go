@@ -46,6 +46,10 @@ func (db *Database) DeleteAutoDownloaderItem(id uint) error {
 	return db.gormdb.Delete(&models.AutoDownloaderItem{}, id).Error
 }
 
+func (db *Database) DeleteDownloadedAutoDownloaderItems() error {
+	return db.gormdb.Where("downloaded = ?", true).Delete(&models.AutoDownloaderItem{}).Error
+}
+
 func (db *Database) UpdateAutoDownloaderItem(id uint, item *models.AutoDownloaderItem) error {
 	// Save the data
 	return db.gormdb.Model(&models.AutoDownloaderItem{}).Where("id = ?", id).Updates(item).Error

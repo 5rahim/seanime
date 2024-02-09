@@ -103,6 +103,21 @@ func (ad *AutoDownloader) Start() {
 	ad.start()
 }
 
+func (ad *AutoDownloader) Run() {
+	ad.startCh <- struct{}{}
+}
+
+// CleanUpDownloadedItems will clean up downloaded items from the database.
+// This should be run after a scan is completed.
+func (ad *AutoDownloader) CleanUpDownloadedItems() {
+	ad.mu.Lock()
+	defer ad.mu.Unlock()
+	err := ad.Database.DeleteDownloadedAutoDownloaderItems()
+	if err != nil {
+		return
+	}
+}
+
 func (ad *AutoDownloader) start() {
 	ad.Logger.Info().Msg("autodownloader: Module started")
 
@@ -181,18 +196,6 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 			// Create a LocalFileWrapper
 			lfWrapper := entities.NewLocalFileWrapper(lfs)
 			localEntry, _ := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
-
-			//p2 := pool.New()
-			//for _, t := range torrents {
-			//	t := t
-			//	p2.Go(func() {
-			//		episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry)
-			//		if ok {
-			//			ad.downloadTorrent(t, rule, episode)
-			//		}
-			//	})
-			//}
-			//p2.Wait()
 
 			// Get all torrents that follow the rule
 			torrentsToDownload := make([]*tmpTorrentToDownload, 0)

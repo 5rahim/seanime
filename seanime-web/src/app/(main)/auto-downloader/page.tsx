@@ -3,6 +3,7 @@ import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_containers/it
 import { RuleForm } from "@/app/(main)/auto-downloader/_containers/rule-form"
 import { userMediaAtom } from "@/atoms/collection"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
@@ -14,7 +15,7 @@ import { useBoolean } from "@/hooks/use-disclosure"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
-import { AutoDownloaderRule } from "@/lib/server/types"
+import { AutoDownloaderItem, AutoDownloaderRule } from "@/lib/server/types"
 import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
 import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { useQueryClient } from "@tanstack/react-query"
@@ -37,6 +38,15 @@ export default function Page() {
 
     const createRuleModal = useBoolean(false)
 
+    const { mutate: runAutoDownloader, isPending: isRunning } = useSeaMutation<null, void>({
+        mutationKey: ["run-auto-downloader"],
+        endpoint: SeaEndpoints.RUN_AUTO_DOWNLOADER,
+        method: "post",
+        onSuccess: async () => {
+            toast.success("Auto downloader started")
+        },
+    })
+
     const { mutate: updateSettings, isPending } = useSeaMutation<null, InferType<typeof settingsSchema>>({
         mutationKey: ["auto-downloader-settings"],
         endpoint: SeaEndpoints.AUTO_DOWNLOADER_SETTINGS,
@@ -54,6 +64,8 @@ export default function Page() {
         endpoint: SeaEndpoints.AUTO_DOWNLOADER_RULES,
     })
 
+    const items = qc.getQueryData<AutoDownloaderItem[] | undefined>(["auto-downloader-items"])
+
 
     return (
         <div className="space-y-4">
@@ -69,7 +81,14 @@ export default function Page() {
             >
                 <TabPanels.Nav>
                     <TabPanels.Tab>Rules</TabPanels.Tab>
-                    <TabPanels.Tab>Torrents</TabPanels.Tab>
+                    <TabPanels.Tab>
+                        Queue
+                        {!!items?.length && (
+                            <Badge className="ml-2" intent="alert-solid">
+                                {items.length}
+                            </Badge>
+                        )}
+                    </TabPanels.Tab>
                     <TabPanels.Tab>Settings</TabPanels.Tab>
                 </TabPanels.Nav>
                 <TabPanels.Container>
@@ -79,7 +98,18 @@ export default function Page() {
                             {isLoading && <LoadingSpinner />}
                             {!isLoading && (
                                 <div className="space-y-4">
-                                    <div className="w-full flex justify-end">
+                                    <div className="w-full flex justify-between items-center gap-2">
+                                        <Button
+                                            className="rounded-full"
+                                            intent="primary-subtle"
+                                            leftIcon={<FaSquareRss />}
+                                            onClick={() => {
+                                                runAutoDownloader()
+                                            }}
+                                            isLoading={isRunning}
+                                        >
+                                            Run
+                                        </Button>
                                         <Button
                                             className="rounded-full"
                                             intent="success-subtle"
