@@ -1,25 +1,25 @@
 "use client"
-import React, { Fragment } from "react"
-import { useToggle } from "react-use"
+import { userAtom } from "@/atoms/user"
+import { Button, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
 import { createTypesafeFormSchema, Field, InferType, TypesafeForm } from "@/components/ui/typesafe-form"
 import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
-import { userAtom } from "@/atoms/user"
-import { useAtomValue } from "jotai/react"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/queries/utils"
 import { MediaEntryListData } from "@/lib/server/types"
-import { Button, IconButton } from "@/components/ui/button"
-import { AiFillEdit } from "@react-icons/all-files/ai/AiFillEdit"
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
-import { Modal } from "../ui/modal"
-import Image from "next/image"
-import { cn } from "@/components/ui/core"
-import { BiListPlus } from "@react-icons/all-files/bi/BiListPlus"
-import { BiStar } from "@react-icons/all-files/bi/BiStar"
 import { Disclosure } from "@headlessui/react"
+import { AiFillEdit } from "@react-icons/all-files/ai/AiFillEdit"
+import { BiListPlus } from "@react-icons/all-files/bi/BiListPlus"
+import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
+import { BiStar } from "@react-icons/all-files/bi/BiStar"
 import { BiTrash } from "@react-icons/all-files/bi/BiTrash"
 import { useQueryClient } from "@tanstack/react-query"
-import { useSeaMutation } from "@/lib/server/queries/utils"
-import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useAtomValue } from "jotai/react"
+import Image from "next/image"
+import React, { Fragment } from "react"
 import toast from "react-hot-toast"
+import { useToggle } from "react-use"
+import { Modal } from "../ui/modal"
 
 interface AnilistMediaEntryModalProps {
     children?: React.ReactNode
@@ -136,9 +136,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         console.log(data.startedAt)
                         mutate({
                             mediaId: media?.id || 0,
-                            status: data.status,
+                            status: data.status || "PLANNING",
                             score: data.score ? data.score * 10 : 0,
-                            progress: data.progress,
+                            progress: data.progress || 0,
                             startedAt: data.startedAt,
                             completedAt: data.completedAt,
                         })
