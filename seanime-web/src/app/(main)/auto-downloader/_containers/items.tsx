@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
+import { useSeaMutation } from "@/lib/server/queries/utils"
 import { AutoDownloaderItem } from "@/lib/server/types"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
@@ -13,21 +13,20 @@ import toast from "react-hot-toast"
 
 type AutoDownloaderItemsProps = {
     children?: React.ReactNode
+    items: AutoDownloaderItem[] | undefined
+    isLoading: boolean
 }
 
 export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
 
     const {
         children,
+        items: data,
+        isLoading,
         ...rest
     } = props
 
     const qc = useQueryClient()
-
-    const { data, isLoading } = useSeaQuery<AutoDownloaderItem[] | null>({
-        queryKey: ["auto-downloader-items"],
-        endpoint: SeaEndpoints.AUTO_DOWNLOADER_ITEMS,
-    })
 
     const { mutate: deleteItem, isPending } = useSeaMutation<void, { id: number }>({
         mutationKey: ["delete-auto-downloader-items"],

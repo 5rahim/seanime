@@ -44,6 +44,9 @@ export default function Page() {
         method: "post",
         onSuccess: async () => {
             toast.success("Auto downloader started")
+            setTimeout(() => {
+                qc.refetchQueries({ queryKey: ["auto-downloader-rules"] })
+            }, 1000)
         },
     })
 
@@ -58,14 +61,17 @@ export default function Page() {
         },
     })
 
-
     const { data, isLoading } = useSeaQuery<AutoDownloaderRule[] | null>({
         queryKey: ["auto-downloader-rules"],
         endpoint: SeaEndpoints.AUTO_DOWNLOADER_RULES,
     })
 
-    const items = qc.getQueryData<AutoDownloaderItem[] | undefined>(["auto-downloader-items"])
-
+    const { data: items, isLoading: itemsLoading } = useSeaQuery<AutoDownloaderItem[]>({
+        queryKey: ["auto-downloader-items"],
+        endpoint: SeaEndpoints.AUTO_DOWNLOADER_ITEMS,
+        refetchInterval: 10000,
+        refetchIntervalInBackground: true,
+    })
 
     return (
         <div className="space-y-4">
@@ -83,8 +89,8 @@ export default function Page() {
                     <TabPanels.Tab>Rules</TabPanels.Tab>
                     <TabPanels.Tab>
                         Queue
-                        {!!items?.length && (
-                            <Badge className="ml-2" intent="alert-solid">
+                        {!!items?.filter(n => !n.downloaded)?.length && (
+                            <Badge className="ml-1 font-bold" intent="alert">
                                 {items.length}
                             </Badge>
                         )}
@@ -151,7 +157,7 @@ export default function Page() {
                     <TabPanels.Panel>
 
                         <div className="p-4">
-                            <AutoDownloaderItems />
+                            <AutoDownloaderItems items={items} isLoading={itemsLoading} />
                         </div>
 
                     </TabPanels.Panel>

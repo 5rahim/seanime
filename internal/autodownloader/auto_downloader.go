@@ -295,8 +295,6 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 		return
 	}
 
-	ad.Logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
-
 	magnet, found := t.GetMagnet()
 	if !found {
 		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
@@ -307,6 +305,8 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 
 	// Pause the torrent when it's added
 	if ad.Settings.DownloadAutomatically {
+
+		ad.Logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
 
 		// Add the torrent to qBittorrent
 		err := ad.QbittorrentClient.Torrent.AddURLs([]string{magnet}, &qbittorrent_model.AddTorrentsOptions{
@@ -320,7 +320,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 		downloaded = true
 	}
 
-	ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Added torrent")
+	ad.Logger.Info().Str("name", t.Name).Msg("autodownloader: Added torrent")
 	ad.WSEventManager.SendEvent(events.AutoDownloaderTorrentAdded, t.Name)
 
 	// Add the torrent to the database
