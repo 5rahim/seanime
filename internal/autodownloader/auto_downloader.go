@@ -67,7 +67,12 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		WSEventManager:    opts.WSEventManager,
 		AnilistCollection: opts.AnilistCollection,
 		AniZipCache:       opts.AniZipCache,
-		Settings:          &models.AutoDownloaderSettings{},
+		Settings: &models.AutoDownloaderSettings{
+			Provider:              NyaaProvider,
+			Interval:              10,
+			Enabled:               false,
+			DownloadAutomatically: false,
+		},
 		settingsUpdatedCh: make(chan struct{}, 1),
 		stopCh:            make(chan struct{}, 1),
 		startCh:           make(chan struct{}, 1),
@@ -91,12 +96,13 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
 // Start will start the auto downloader.
 // This should be run in a goroutine.
 func (ad *AutoDownloader) Start() {
-	ad.Logger.Info().Msg("autodownloader: Starting module")
 
-	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
-	if !started {
-		ad.Logger.Error().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
-		return
+	if ad.Settings.Enabled {
+		started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
+		if !started {
+			ad.Logger.Error().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
+			return
+		}
 	}
 
 	// Start the auto downloader
@@ -119,7 +125,9 @@ func (ad *AutoDownloader) CleanUpDownloadedItems() {
 }
 
 func (ad *AutoDownloader) start() {
-	ad.Logger.Info().Msg("autodownloader: Module started")
+	if ad.Settings.Enabled {
+		ad.Logger.Info().Msg("autodownloader: Module started")
+	}
 
 	for {
 		interval := 10
@@ -285,9 +293,13 @@ func (ad *AutoDownloader) torrentFollowsRule(
 }
 
 func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.AutoDownloaderRule, episode int) {
-
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
+
+	if ad.QbittorrentClient == nil {
+		ad.Logger.Error().Msg("autodownloader: qBittorrent client not found")
+		return
+	}
 
 	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
 	if !started {

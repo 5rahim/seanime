@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	ErrSettingsNotSet            = "list sync settings not set"
-	ErrOriginNotSet              = "list sync origin not set"
+	ErrSettingsNotSet            = "settings not set"
+	ErrOriginNotSet              = "origin not set"
 	ErrNotAuthenticatedToAnilist = "not authenticated to AniList"
 	ErrMalAccountNotConnected    = "MAL account not connected"
 )

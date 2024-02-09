@@ -81,7 +81,12 @@ export default function Page() {
                     </TabPanels.Nav>
                     <TabPanels.Container>
                         <TabPanels.Panel>
-                            {!isLoading && <div className="p-4">
+                            {(!isLoading && !serverStatus?.settings?.listSync) && (
+                                <p className="text-[--muted] text-center p-4">
+                                    List sync is not enabled. Enable it in the settings tab.
+                                </p>
+                            )}
+                            {(!isLoading && !!serverStatus?.settings?.listSync) && <div className="p-4">
                                 {typeof animeDiffs !== "string" &&
                                     <ListSyncDiffs diffs={animeDiffs ?? []} onClearCache={handleClearCache} isDeletingCache={isDeletingCache} />}
                                 {typeof animeDiffs === "string" && <LuffyError>{animeDiffs}</LuffyError>}
@@ -118,7 +123,9 @@ export default function Page() {
                                     {/*    name="automatic"*/}
                                     {/*/>*/}
 
-                                    <Field.Submit role="save" isLoading={isPending} />
+                                    <Field.Submit role="save" isLoading={isPending}>
+                                        {!serverStatus?.settings?.listSync ? "Enable" : "Save"}
+                                    </Field.Submit>
                                 </TypesafeForm>
                             </div>
                         </TabPanels.Panel>

@@ -56,13 +56,13 @@ func (a *App) InitOrRefreshModules() {
 			Host:     settings.Torrent.QBittorrentHost,
 			Path:     settings.Torrent.QBittorrentPath,
 		})
+		a.AutoDownloader.QbittorrentClient = a.QBittorrent
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize qBittorrent module, no settings found")
 	}
 
 	// Update Auto Downloader
 	if settings.AutoDownloader != nil {
-		a.AutoDownloader.QbittorrentClient = a.QBittorrent
 		a.AutoDownloader.SetSettings(settings.AutoDownloader)
 	}
 

@@ -64,6 +64,9 @@ func (c *Client) Start() error {
 }
 
 func (c *Client) CheckStart() bool {
+	if c == nil {
+		return false
+	}
 
 	_, err := c.Application.GetAppVersion()
 	if err == nil {
