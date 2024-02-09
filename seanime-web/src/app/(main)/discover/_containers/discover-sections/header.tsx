@@ -78,7 +78,7 @@ export function DiscoverPageHeader() {
                                         <Button
                                             intent={"primary-outline"}
                                             size={"md"}
-                                            className={"text-md w-[16rem] border-opacity-50 text-sm"}
+                                            className={"text-md w-[14rem] border-opacity-50 text-sm"}
                                         >
                                             Watch now
                                         </Button>

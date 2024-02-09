@@ -1,4 +1,3 @@
-import { BetaBadge } from "@/components/application/beta-badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Divider } from "@/components/ui/divider"
@@ -57,7 +56,7 @@ export function ScannerModal() {
 
                     <div>
                         <Checkbox
-                            label={<span className={"flex items-center"}>Enable enhanced scanning <BetaBadge/>
+                            label={<span className={"flex items-center"}>Enable enhanced scanning
                                 <HiOutlineSparkles className={"ml-2 text-amber-500"}/></span>}
                             checked={enhanced.active}
                             onChange={enhanced.toggle}

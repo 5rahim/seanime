@@ -17,8 +17,9 @@ All notable changes to this project will be documented in this file.
   - ⚡️ Improved handling of AniList rate limits
 - Seanime will now pause and resume requests when rate limits are reached without throwing errors. This fixes the largest issue pertaining to scanning.
 - ⚡️ AniList media with incorrect mapping to AniDB will be accessible in a limited view (without metadata) instead of being hidden
-- ⚡️ UI improvements
-- 🦺 Fixed some crashes and bugs
+- ⚡️ Enhanced scanning mode is now stable and more accurate
+- 💄 UI improvements
+- 🦺 Fixed various UX issues
 - ⬆️ Updated dependencies
 
 ## 0.1.6

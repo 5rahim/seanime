@@ -7,7 +7,11 @@
 <h4 align="center">User-friendly, self-hosted server that brings you a Netflix-like experience for your local
 anime library.</h4>
 
-<img src="docs/images/main_6.png" alt="preview" width="100%"/>
+<h1 align="center">
+<a href="https://seanime.rahim.app/">
+<img src="docs/images/rec_main.gif" alt="preview" width="100%"/>
+</a>
+</h1>
 
 Feel free to fork the project, contribute or open issues. Leave a star if you like this project!
 
@@ -20,22 +24,23 @@ Feel free to fork the project, contribute or open issues. Leave a star if you li
   - Manage your AniList collection
 - 🎉 **Automatically scan your anime library**
   - Seanime does not require a mandatory folder structure or naming convention
-  - It also supports torrent names with absolute episode numbers
-  - *Enhanced scanning* is available for more accurate results
+  - Seanime supports torrent names with absolute episode numbers
 - 🎉 **Download new episodes automatically**
+  - Add rules (filters) that specify which torrent to download based on parameters such as release group, resolution, episode numbers
   - Seanime will check RSS feeds for new episodes and download them automatically via qBittorrent
 - 🎉 **Integrated torrent search engine**
   - You can manually search and download new episodes with a few clicks
+  - Seanime will notify you when new episodes are available
 - 🎉 **Automatically track your progress**
   - Launch an episode from the web interface and Seanime will automatically update your progress on AniList
 - 🎉 **MyAnimeList integration**
-  - Sync your anime lists between AniList and MyAnimeList
+  - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
-- No data collection
+- **No data collection**
 
 ### What it is not
 
-Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
+🚨Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
 support transcoding or streaming to other devices (yet).
 
 # Setup
@@ -54,6 +59,7 @@ support transcoding or streaming to other devices (yet).
 - [React Query](https://react-query.tanstack.com/) - Data fetching
 - [Chalk UI](https://chalk.rahim.app) - UI components
 - Seanime Parser - Pure Go parser for anime filenames
+- MAL API
 
 ## Acknowledgements
 
@@ -63,30 +69,22 @@ support transcoding or streaming to other devices (yet).
 
 # Screenshots
 
-<p align="center">
-<img src="docs/images/terminal.png" alt="preview" width="50%"/>
-</p>
-
 ## Library
 
-<img src="docs/images/img.png" alt="preview" width="100%"/>
+<img src="docs/images/my-library_02.png" alt="preview" width="100%"/>
 
 ## Media page
 
-<img src="docs/images/img_12.png" alt="preview" width="100%"/>
+<img src="docs/images/entry_2.png" alt="preview" width="100%"/>
 
 ## Torrent search & download
 
-<img src="docs/images/img_1.png" alt="preview" width="100%"/>
+<img src="docs/images/torrent-search.png" alt="preview" width="100%"/>
 
 ## Discover
 
-<img src="docs/images/img_11.png" alt="preview" width="100%"/>
+<img src="docs/images/discover.png" alt="preview" width="100%"/>
 
 ## Schedule
 
-<img src="docs/images/img_13.png" alt="preview" width="100%"/>
-
-## Progress tracking
-
-<img src="docs/images/img_16.png" alt="preview" width="100%"/>
+<img src="docs/images/schedule.png" alt="preview" width="100%"/>
