@@ -8,7 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/handlers"
 )
 
-var development = true
+var development = false
 var version = "0.2.0"
 
 func main() {
