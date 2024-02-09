@@ -1,27 +1,25 @@
+import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
+import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { serverStatusAtom } from "@/atoms/server-status"
+import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
-import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import {
-    __torrentSearch_selectedTorrentsAtom,
-} from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { atom } from "jotai"
 import { Modal } from "@/components/ui/modal"
-import { MediaEntry, SearchTorrent } from "@/lib/server/types"
 import { Tooltip } from "@/components/ui/tooltip"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { FcFilmReel } from "@react-icons/all-files/fc/FcFilmReel"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
-import { BiX } from "@react-icons/all-files/bi/BiX"
-import { DirectorySelector } from "@/components/shared/directory-selector"
-import React, { useMemo, useState } from "react"
-import * as upath from "upath"
-import { serverStatusAtom } from "@/atoms/server-status"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/queries/utils"
+import { MediaEntry, SearchTorrent } from "@/lib/server/types"
 import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
-import toast from "react-hot-toast"
-import { useSeaMutation } from "@/lib/server/queries/utils"
-import { SeaEndpoints } from "@/lib/server/endpoints"
+import { BiX } from "@react-icons/all-files/bi/BiX"
+import { FcFilmReel } from "@react-icons/all-files/fc/FcFilmReel"
+import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
+import { atom } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
-import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import React, { useMemo, useState } from "react"
+import toast from "react-hot-toast"
+import * as upath from "upath"
 
 const isOpenAtom = atom(false)
 
@@ -127,6 +125,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                     name="destination"
                     label="Destination"
                     leftIcon={<FcFolder/>}
+                    value={destination}
                     defaultValue={destination}
                     onSelect={setDestination}
                     shouldExist={false}
