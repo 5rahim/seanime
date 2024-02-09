@@ -15,7 +15,7 @@ import locales from "./locales.json"
 export const DangerZoneAnatomy = defineStyleAnatomy({
     container: cva([
         "UI-DangerZone__container",
-        "p-4 flex flex-col sm:flex-row gap-2 text-center sm:text-left rounded-md border border-red-300",
+        "p-4 flex flex-col sm:flex-row gap-2 text-center sm:text-left rounded-md border border-[--border]",
     ]),
     icon: cva([
         "UI-DangerZone__icon",

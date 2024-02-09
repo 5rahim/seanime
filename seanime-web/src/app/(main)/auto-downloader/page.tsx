@@ -254,8 +254,8 @@ function Rule(props: RuleProps) {
 
     return (
         <>
-            <div className="rounded-[--radius] p-3 bg-[--background-color] hover:bg-gray-800 transition-colors">
-                <div className="flex justify-between gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
+            <div className="rounded-[--radius] bg-[--background-color] hover:bg-gray-800 transition-colors">
+                <div className="flex justify-between p-3 gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
 
                     <div className="space-y-1 w-full">
                         <p
