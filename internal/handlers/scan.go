@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/seanime-app/seanime/internal/scanner"
 	"github.com/seanime-app/seanime/internal/summary"
 )
@@ -71,7 +72,11 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	// Scan the library
 	allLfs, err := sc.Scan()
 	if err != nil {
-		return c.RespondWithError(err)
+		if errors.Is(err, scanner.ErrNoLocalFiles) {
+			return c.RespondWithData([]interface{}{})
+		} else {
+			return c.RespondWithError(err)
+		}
 	}
 
 	// Insert the local files

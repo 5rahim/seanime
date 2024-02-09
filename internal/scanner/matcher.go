@@ -24,6 +24,10 @@ type Matcher struct {
 	ScanSummaryLogger *summary.ScanSummaryLogger // optional
 }
 
+var (
+	ErrNoLocalFiles = errors.New("[matcher] no local files")
+)
+
 // MatchLocalFilesWithMedia will match each LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
@@ -31,7 +35,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	if len(m.localFiles) == 0 {
 		m.ScanLogger.LogMatcher(zerolog.WarnLevel).Msg("No local files")
-		return errors.New("[matcher] no local files")
+		return ErrNoLocalFiles
 	}
 	if len(m.mediaContainer.allMedia) == 0 {
 		m.ScanLogger.LogMatcher(zerolog.WarnLevel).Msg("No media fed into the matcher")

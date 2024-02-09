@@ -1,4 +1,5 @@
 "use client"
+import { useAutoDownloaderQueueCount } from "@/atoms/auto-downloader-items"
 import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useCurrentUser } from "@/atoms/user"
@@ -38,6 +39,7 @@ export function MainSidebar() {
     const setServerStatus = useSetAtom(serverStatusAtom)
 
     const missingEpisodeCount = useMissingEpisodeCount()
+    const autoDownloaderQueueCount = useAutoDownloaderQueueCount()
 
     // Logout
     const { mutate: logout, data, isPending } = useSeaMutation<ServerStatus>({
@@ -69,7 +71,7 @@ export function MainSidebar() {
             <AppSidebar className={"p-4 h-full flex flex-col justify-between"} sidebarClassName="h-full">
                 <div>
                     <div className={"mb-4 flex justify-center w-full"}>
-                        <img src="/logo.png" alt="logo" className={"w-15 h-10"}/>
+                        <img src="/logo.png" alt="logo" className={"w-15 h-10"} />
                     </div>
                     <VerticalNav
                         itemClassName={"relative"}
@@ -85,8 +87,10 @@ export function MainSidebar() {
                                 name: "Schedule",
                                 href: "/schedule",
                                 isCurrent: pathname === "/schedule",
-                                addon: missingEpisodeCount > 0 ? <Badge className={"absolute right-0 top-0"} size={"sm"}
-                                                                        intent={"alert-solid"}>{missingEpisodeCount}</Badge> : undefined,
+                                addon: missingEpisodeCount > 0 ? <Badge
+                                    className={"absolute right-0 top-0"} size={"sm"}
+                                    intent={"alert-solid"}
+                                >{missingEpisodeCount}</Badge> : undefined,
                             },
                             ...watchListItem,
                             {
@@ -105,6 +109,10 @@ export function MainSidebar() {
                                 name: "Auto downloader",
                                 href: "/auto-downloader",
                                 isCurrent: pathname === "/auto-downloader",
+                                addon: autoDownloaderQueueCount > 0 ? <Badge
+                                    className={"absolute right-0 top-0"} size={"sm"}
+                                    intent={"alert-solid"}
+                                >{autoDownloaderQueueCount}</Badge> : undefined,
                             },
                             {
                                 icon: BiDownload,
@@ -118,34 +126,41 @@ export function MainSidebar() {
                                 href: "/scan-summaries",
                                 isCurrent: pathname === "/scan-summaries",
                             },
-                        ]}/>
+                        ]}
+                    />
                 </div>
                 <div className={"flex w-full gap-2 flex-col"}>
                     <div>
-                        <VerticalNav items={[
-                            {
-                                icon: FiSettings,
-                                name: "Settings",
-                                href: "/settings",
-                                isCurrent: pathname.includes("/settings"),
-                            },
-                        ]}/>
+                        <VerticalNav
+                            items={[
+                                {
+                                    icon: FiSettings,
+                                    name: "Settings",
+                                    href: "/settings",
+                                    isCurrent: pathname.includes("/settings"),
+                                },
+                            ]}
+                        />
                     </div>
                     {!user && (
                         <div>
-                            <VerticalNav items={[
-                                {
-                                    icon: FiLogIn,
-                                    name: "Login",
-                                    onClick: () => window.open(ANILIST_OAUTH_URL, "_self"),
-                                },
-                            ]}/>
+                            <VerticalNav
+                                items={[
+                                    {
+                                        icon: FiLogIn,
+                                        name: "Login",
+                                        onClick: () => window.open(ANILIST_OAUTH_URL, "_self"),
+                                    },
+                                ]}
+                            />
                         </div>
                     )}
                     {!!user && <div className={"flex w-full gap-2 flex-col"}>
-                        <DropdownMenu trigger={<div className={"pt-1 w-full flex justify-center"}>
-                            <Avatar size={"sm"} className={"cursor-pointer"} src={user?.avatar?.medium || ""}/>
-                        </div>}>
+                        <DropdownMenu
+                            trigger={<div className={"pt-1 w-full flex justify-center"}>
+                                <Avatar size={"sm"} className={"cursor-pointer"} src={user?.avatar?.medium || ""} />
+                            </div>}
+                        >
                             <DropdownMenuLink href="/mal">
                                 <SiMyanimelist className="text-lg text-indigo-200" /> MyAnimeList
                             </DropdownMenuLink>
@@ -159,9 +174,11 @@ export function MainSidebar() {
 
             <Modal title={"Login"} isOpen={loginModal.isOpen} onClose={loginModal.close} isClosable>
                 <div className={"mt-5 text-center space-y-4"}>
-                    <Button onClick={() => {
-                        window.open(ANILIST_OAUTH_URL)
-                    }} intent={"primary-outline"}>Login with AniList</Button>
+                    <Button
+                        onClick={() => {
+                            window.open(ANILIST_OAUTH_URL)
+                        }} intent={"primary-outline"}
+                    >Login with AniList</Button>
                 </div>
             </Modal>
         </>

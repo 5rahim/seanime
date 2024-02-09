@@ -89,7 +89,7 @@ export default function Page() {
                     <TabPanels.Tab>Rules</TabPanels.Tab>
                     <TabPanels.Tab>
                         Queue
-                        {!!items?.filter(n => !n.downloaded)?.length && (
+                        {!!items?.length && (
                             <Badge className="ml-1 font-bold" intent="alert">
                                 {items.length}
                             </Badge>

@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"errors"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -161,6 +162,11 @@ func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
 
 	err = matcher.MatchLocalFilesWithMedia()
 	if err != nil {
+		if errors.Is(err, ErrNoLocalFiles) {
+			scn.Logger.Debug().Msg("scanner: Scan completed")
+			scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
+			scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
+		}
 		return nil, err
 	}
 

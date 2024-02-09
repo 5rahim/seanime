@@ -1,5 +1,6 @@
 "use client"
 import { ScanProgressBar } from "@/app/(main)/(library)/_components/scan-progress-bar"
+import { useListenToAutoDownloaderItems } from "@/atoms/auto-downloader-items"
 import { useAtomicLibraryCollectionLoader, useListenToUserMedia } from "@/atoms/collection"
 import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
 import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
@@ -15,6 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     useAtomicLibraryCollectionLoader()
     useListenToMissingEpisodes()
+    useListenToAutoDownloaderItems()
     useListenToUserMedia()
     // Listen to refresh events
     useAnilistCollectionListener()

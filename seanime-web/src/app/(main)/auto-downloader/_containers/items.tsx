@@ -42,6 +42,14 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
 
     return (
         <div className="space-y-4">
+            <ul className="text-base text-[--muted] list-disc pl-4">
+                <li>
+                    This queue shows items waiting to be downloaded.
+                </li>
+                <li>
+                    This queue shows downloaded files that are not yet scanned into your library.
+                </li>
+            </ul>
             {!data?.length && (
                 <p className="text-center text-[--muted]">
                     Queue is empty.
@@ -57,6 +65,11 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                                 {!item.downloaded && <span className="text-brand-300 italic">Queued </span>}
                                 {formatDateAndTimeShort(item.createdAt)}
                             </p>
+                            {item.downloaded && (
+                                <p className="text-sm text-[--muted]">
+                                    Scan your library to add the file to your library.
+                                </p>
+                            )}
                         </div>
                         <div className="flex gap-2 items-center">
                             {!item.downloaded && (
