@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## 0.2.0
 
+- 🎉 New feature: Track progress on MyAnimeList
+  - You can now link your MyAnimeList account to Seanime and automatically update your progress
+- 🎉 New feature: Sync anime lists between AniList and MyAnimeList (Experimental)
+  - New interface to sync your anime lists when you link your MyAnimeList account
+- 🎉 New feature: Automatically download new episodes
+  - You can now create *AutoDownloader* rules that will check the Nyaa RSS feed for new episodes periodically and download them automatically via qBittorrent
+- ✨ Added scan summaries
+  - You can now see a summary of the scan results, allowing you to see how files were matched
+- ✨ Added ability to automatically update progress *without confirmation* when you finish an episode
+- ⚡️ Improved handling of AniList rate limits
+  - Seanime will now pause and resume requests when rate limits are reached without throwing errors. This fixes the largest issue pertaining to scanning.
+- ⚡️ AniList media with incorrect mapping to AniDB will be accessible in a *limited view* without metadata instead of being hidden
+- ⚡️ Minor UI improvements and fixes
+- ⬆️ Updated dependencies
+
 ## 0.1.6
 
 - 🦺 Fixed crash caused by custom lists on Anilist
