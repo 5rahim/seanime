@@ -45,7 +45,7 @@ support transcoding or streaming to other devices (yet).
 
 # Setup
 
-[How to use Seanime.](https://seanime.rahim.app/getting-started)
+[How to use Seanime.](https://seanime.rahim.app/docs)
 
 ## Resources
 
@@ -71,7 +71,7 @@ support transcoding or streaming to other devices (yet).
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">
-<img src="docs/images/rec_pages.gif" alt="preview" width="100%"/>
+<img src="docs/images/rec_fresh-scan.gif" alt="preview" width="100%"/>
 </a>
 </h1>
 
@@ -79,7 +79,7 @@ support transcoding or streaming to other devices (yet).
 
 <img src="docs/images/my-library_02.png" alt="preview" width="100%"/>
 
-## Media page
+## Anime Entry
 
 <img src="docs/images/entry_2.png" alt="preview" width="100%"/>
 
