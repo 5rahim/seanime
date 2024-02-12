@@ -88,6 +88,14 @@ func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
 
 	titleVariations := lf.GetTitleVariations()
 
+	if len(titleVariations) == 0 {
+		m.ScanLogger.LogMatcher(zerolog.WarnLevel).
+			Str("filename", lf.Name).
+			Msg("No titles found")
+		m.ScanSummaryLogger.LogFileNotMatched(lf, "No title variations found")
+		return
+	}
+
 	//m.ScanLogger.LogMatcher(zerolog.DebugLevel).
 	//	Str("filename", lf.Name).
 	//	Any("titleVariations", len(titleVariations)).
