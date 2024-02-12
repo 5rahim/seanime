@@ -1,26 +1,38 @@
-import { __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-sections/trending"
+import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
 import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { RiSignalTowerLine } from "@react-icons/all-files/ri/RiSignalTowerLine"
-import { useAtomValue } from "jotai"
+import { atom, useAtomValue } from "jotai"
+import { useSetAtom } from "jotai/react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import React from "react"
+import React, { useEffect } from "react"
+
+export const __discover_hoveringHeaderAtom = atom(false)
 
 export function DiscoverPageHeader() {
 
     const router = useRouter()
 
     const randomTrending = useAtomValue(__discover_randomTrendingAtom)
+    const isTransitioning = useAtomValue(__discover_headerIsTransitioningAtom)
 
+    const setHoveringHeader = useSetAtom(__discover_hoveringHeaderAtom)
+
+    useEffect(() => {
+        console.log(isTransitioning)
+    }, [isTransitioning])
 
     return (
         <div className={"__header h-[20rem]"}>
             <div
                 className="h-[30rem] w-full md:w-[calc(100%-5rem)] flex-none object-cover object-center absolute top-0 overflow-hidden"
+                onMouseEnter={() => setHoveringHeader(true)}
+                onMouseLeave={() => setHoveringHeader(false)}
             >
                 <div
                     className={"w-full absolute z-[2] top-0 h-[15rem] bg-gradient-to-b from-[--background-color] to-transparent via"}
@@ -32,19 +44,23 @@ export function DiscoverPageHeader() {
                     quality={100}
                     priority
                     sizes="100vw"
-                    className="object-cover object-center z-[1]"
+                    className={cn(
+                        "object-cover object-center z-[1] transition-opacity duration-1000",
+                        isTransitioning && "opacity-10",
+                        !isTransitioning && "opacity-100",
+                    )}
                 />}
                 {!randomTrending?.bannerImage && <Skeleton className={"z-0 h-full absolute w-full"} />}
-                {!!randomTrending && (
-                    <div className={"absolute w-full flex justify-center bottom-16 z-[3] text-4xl font-bold h-fit flex-none leading-auto"}>
-                        <p className="max-w-[30rem] line-clamp-2 text-center">
-                            {randomTrending.title?.userPreferred}
-                        </p>
-                    </div>
-                )}
+                {/*{!!randomTrending && (*/}
+                {/*    <div className={"absolute w-full flex justify-center bottom-16 z-[3] text-4xl font-bold h-fit flex-none leading-auto"}>*/}
+                {/*        <p className="max-w-[30rem] line-clamp-1 text-center">*/}
+                {/*            {randomTrending.title?.userPreferred}*/}
+                {/*        </p>*/}
+                {/*    </div>*/}
+                {/*)}*/}
                 {!!randomTrending && (
                     <div
-                        className={"absolute bottom-[6rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3]"}
+                        className={"absolute bottom-[8rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3] hidden lg:block"}
                     >
                         <div className={"flex flex-row-reverse relative items-start gap-6 p-6 w-fit overflow-hidden rounded-xl bg-[#121212] bg-opacity-80 shadow-2xl shadow-[#121212]"}>
                             <div className={"flex-none"}>
@@ -61,7 +77,7 @@ export function DiscoverPageHeader() {
                                 </div>}
                             </div>
                             <div className={"flex-auto space-y-1 z-[1]"}>
-                                <h1 className={"text-lg text-gray-300 line-clamp-2 font-medium max-w-[16rem] leading-6"}>{randomTrending.title?.userPreferred}</h1>
+                                <h1 className={"text-xl text-gray-300 line-clamp-2 font-semibold max-w-[16rem] leading-6"}>{randomTrending.title?.userPreferred}</h1>
                                 {!!randomTrending?.nextAiringEpisode?.airingAt &&
                                     <p className="text-lg text-brand-200 flex items-center gap-1.5"><RiSignalTowerLine /> Airing now</p>}
                                 {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
@@ -72,6 +88,9 @@ export function DiscoverPageHeader() {
                                     </p>
                                 )}
                                 <div className="pt-2">
+                                    <p className={"max-w-md max-h-[75px] overflow-y-auto mb-4"}>{(randomTrending as any)?.description?.replace(
+                                        /(<([^>]+)>)/ig,
+                                        "")}</p>
                                     <Link
                                         href={`/entry?id=${randomTrending.id}`}
                                     >
@@ -104,7 +123,7 @@ export function DiscoverPageHeader() {
                         value={"Search by genres, seasons…"}
                         isReadOnly
                         size={"lg"}
-                        className={"pointer-events-none w-96"}
+                        className={"pointer-events-none w-60 md:w-96"}
                         onChange={() => {
                         }}
                     />

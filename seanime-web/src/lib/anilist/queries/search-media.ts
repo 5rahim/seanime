@@ -79,6 +79,7 @@ export async function searchAnilistMediaList(options: SearchAnilistMediaListOpti
       synonyms
       isAdult
       countryOfOrigin
+      description
       title {
         userPreferred
         romaji
