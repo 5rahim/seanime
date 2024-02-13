@@ -63,7 +63,7 @@ func (a *App) InitOrRefreshModules() {
 
 	// Update Auto Downloader
 	if settings.AutoDownloader != nil {
-		a.AutoDownloader.SetSettings(settings.AutoDownloader)
+		go a.AutoDownloader.SetSettings(settings.AutoDownloader)
 	}
 
 	// Initialize library watcher
