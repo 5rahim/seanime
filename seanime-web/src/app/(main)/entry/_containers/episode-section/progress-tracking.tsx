@@ -47,8 +47,6 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         onMessage: data => {
             // Handle MPV playback detection
             if (data && !episode) {
-                console.log(entry.episodes?.map(ep => removeSpecificFileExtension(ep.localFile?.name)), removeSpecificFileExtension(data.filename))
-                console.log(entry.episodes?.find(ep => removeSpecificFileExtension(ep.localFile?.name) === removeSpecificFileExtension(data.filename)))
                 setEpisode(entry.episodes?.find(ep => removeSpecificFileExtension(ep.localFile?.name) === removeSpecificFileExtension(data.filename)))
             }
             isTracking.on()

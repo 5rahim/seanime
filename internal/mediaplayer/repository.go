@@ -3,7 +3,6 @@ package mediaplayer
 import (
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mpchc"
@@ -219,7 +218,6 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 	case "mpv":
 		// Process MPV status
 		st := status.(*mpv.Playback)
-		spew.Dump(st)
 		if st == nil || st.Duration == 0 || st.IsRunning == false {
 			return nil, false
 		}
