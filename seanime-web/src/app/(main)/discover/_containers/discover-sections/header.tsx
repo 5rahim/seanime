@@ -31,8 +31,6 @@ export function DiscoverPageHeader() {
         <div className={"__header h-[20rem]"}>
             <div
                 className="h-[30rem] w-full md:w-[calc(100%-5rem)] flex-none object-cover object-center absolute top-0 overflow-hidden"
-                onMouseEnter={() => setHoveringHeader(true)}
-                onMouseLeave={() => setHoveringHeader(false)}
             >
                 <div
                     className={"w-full absolute z-[2] top-0 h-[15rem] bg-gradient-to-b from-[--background-color] to-transparent via"}
@@ -62,7 +60,11 @@ export function DiscoverPageHeader() {
                     <div
                         className={"absolute bottom-[8rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3] hidden lg:block"}
                     >
-                        <div className={"flex flex-row-reverse relative items-start gap-6 p-6 w-fit overflow-hidden rounded-xl bg-[#121212] bg-opacity-80 shadow-2xl shadow-[#121212]"}>
+                        <div
+                            className={"flex flex-row-reverse relative items-start gap-6 p-6 w-fit overflow-hidden rounded-xl bg-[#121212] bg-opacity-80 shadow-2xl shadow-[#121212]"}
+                            onMouseEnter={() => setHoveringHeader(true)}
+                            onMouseLeave={() => setHoveringHeader(false)}
+                        >
                             <div className={"flex-none"}>
                                 {randomTrending.coverImage?.large && <div
                                     className="w-[140px] h-[180px] relative rounded-md overflow-hidden bg-[--background-color] shadow-md border border-[--border]"
