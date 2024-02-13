@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/mpv_player"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"time"
 )
@@ -15,6 +16,7 @@ type (
 		Default        string
 		VLC            *vlc.VLC
 		MpcHc          *mpchc.MpcHc
+		Mpv            *mpv_player.MpvPlayer
 		WSEventManager events.IWSEventManager
 	}
 
@@ -46,6 +48,14 @@ func (m *Repository) Play(path string) error {
 		_, err = m.MpcHc.OpenAndPlay(path)
 		if err != nil {
 			return errors.New("could not open and play video, try again")
+		}
+		return nil
+	case "mpv":
+		m.Mpv = mpv_player.New()
+		m.Mpv.Start()
+		err := m.Mpv.OpenAndPlay(path)
+		if err != nil {
+			return err
 		}
 		return nil
 	default:
@@ -81,6 +91,8 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 					status, err = m.VLC.GetStatus()
 				case "mpc-hc":
 					status, err = m.MpcHc.GetVariables()
+				case "mpv":
+					status, err = m.Mpv.GetPlaybackStatus()
 				}
 
 				if err != nil {
@@ -98,6 +110,8 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 							m.VLC.Stop()
 						case "mpc-hc":
 							m.MpcHc.Stop()
+						case "mpv":
+							//m.Mpv.Close()
 						}
 						close(done) // Signal to exit the goroutine
 						return
@@ -131,6 +145,8 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 							m.VLC.Stop()
 						case "mpc-hc":
 							m.MpcHc.Stop()
+						case "mpv":
+							//m.Mpv.Close()
 						}
 						close(done) // Signal to exit the goroutine
 						return
@@ -196,6 +212,20 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 			CompletionPercentage: st.Position / st.Duration,
 			Playing:              st.State == 2,
 			Filename:             st.File,
+			Duration:             int(st.Duration),
+		}
+
+		return ret, true
+	case "mpv":
+		// Process MPV status
+		st := status.(*mpv_player.Playback)
+		if st == nil {
+			return nil, false
+		}
+		ret := &playbackStatus{
+			CompletionPercentage: st.Position / st.Duration,
+			Playing:              st.Paused,
+			Filename:             st.Filename,
 			Duration:             int(st.Duration),
 		}
 

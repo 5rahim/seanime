@@ -27,6 +27,7 @@ func HandlePlayVideo(c *RouteCtx) error {
 		Default:        settings.MediaPlayer.Default,
 		VLC:            c.App.MediaPlayer.VLC,
 		MpcHc:          c.App.MediaPlayer.MpcHc,
+		Mpv:            c.App.MediaPlayer.Mpv,
 		WSEventManager: c.App.WSEventManager,
 	}
 
