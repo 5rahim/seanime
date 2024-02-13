@@ -1,17 +1,16 @@
 package mpv_player
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"testing"
 	"time"
 )
 
-var testFilePath = "E:\\ANIME\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv"
+var testFilePath = "E:\\ANIME\\Sousou no Frieren"
 
 func TestMpvPlayer_OpenAndPlay(t *testing.T) {
 
 	m := NewMpvPlayer()
-
-	quit := make(chan struct{})
 
 	go func() {
 		err := m.OpenAndPlay(testFilePath)
@@ -19,22 +18,19 @@ func TestMpvPlayer_OpenAndPlay(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		select {
-		case <-quit:
-			return
-		}
 	}()
 
-	go func() {
+loop:
+	for {
 		select {
-		case <-m.paused:
-			t.Log("paused")
-		case <-quit:
-			return
+		case <-m.exit:
+			t.Log("Exited")
+			break loop
+		case <-time.After(2 * time.Second):
+			spew.Dump(m.Playback)
 		}
-	}()
+	}
 
-	time.Sleep(5 * time.Second)
-	close(quit)
+	t.Log("TestMpvPlayer_OpenAndPlay: Done")
 
 }

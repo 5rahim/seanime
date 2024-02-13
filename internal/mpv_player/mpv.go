@@ -7,13 +7,21 @@ import (
 
 type (
 	MpvPlayer struct {
-		paused chan struct{}
+		Playback Playback
+		exit     chan struct{}
+	}
+
+	Playback struct {
+		Filename string
+		Paused   bool
+		Position float64
+		Duration int
 	}
 )
 
 func NewMpvPlayer() *MpvPlayer {
 	return &MpvPlayer{
-		paused: make(chan struct{}, 1),
+		exit: make(chan struct{}, 1),
 	}
 }
 
@@ -26,6 +34,8 @@ func (p *MpvPlayer) OpenAndPlay(filePath string) error {
 
 	_ = m.RequestLogMessages("info")
 	_ = m.ObserveProperty(0, "pause", mpv.FormatFlag)
+	_ = m.ObserveProperty(0, "time-pos", mpv.FormatDouble)
+	_ = m.ObserveProperty(0, "duration", mpv.FormatDouble)
 
 	_ = m.SetPropertyString("input-default-bindings", "yes")
 	_ = m.SetOptionString("input-vo-keyboard", "yes")
@@ -50,17 +60,28 @@ loop:
 		switch e.EventID {
 		case mpv.EventPropertyChange:
 			prop := e.Property()
-			value := prop.Data.(int)
-			fmt.Println("property:", prop.Name, value)
+			value := prop.Data
+			if value != nil {
+				switch prop.Name {
+				case "pause":
+					p.Playback.Paused = map[int]bool{1: true, 0: false}[value.(int)]
+				case "time-pos":
+					p.Playback.Position = value.(float64)
+				case "duration":
+					p.Playback.Duration = int(value.(float64) * 1000)
+				}
+			}
 		case mpv.EventFileLoaded:
-			p, err := m.GetProperty("media-title", mpv.FormatString)
+			pr, err := m.GetProperty("media-title", mpv.FormatString)
 			if err != nil {
 				fmt.Println("error:", err)
 			}
-			fmt.Println("title:", p.(string))
-		case mpv.EventLogMsg:
-			msg := e.LogMessage()
-			fmt.Println("message:", msg.Text)
+			p.Playback = Playback{
+				Filename: pr.(string),
+			}
+		//case mpv.EventLogMsg:
+		//	msg := e.LogMessage()
+		//	fmt.Println("message:", msg.Text)
 		case mpv.EventStart:
 			sf := e.StartFile()
 			fmt.Println("start:", sf.EntryID)
@@ -68,15 +89,17 @@ loop:
 			ef := e.EndFile()
 			fmt.Println("end:", ef.EntryID, ef.Reason)
 			if ef.Reason == mpv.EndFileEOF {
+				p.exit <- struct{}{}
 				break loop
 			} else if ef.Reason == mpv.EndFileError {
 				fmt.Println("error:", ef.Error)
 			}
 		case mpv.EventShutdown:
 			fmt.Println("shutdown:", e.EventID)
+			p.exit <- struct{}{}
 			break loop
 		default:
-			fmt.Println("event:", e.EventID)
+			//fmt.Println("event:", e.EventID)
 		}
 
 		if e.Error != nil {
