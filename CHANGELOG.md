@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## 0.2.1
 
-- 🏗️ Moved away from local storage on the client 
-  - Although this impacts responsiveness, it's necessary to ensure that the app can be used with larger libraries
+- ✨ Added MPV support (Experimental) #5
+- 🦺 Fixed issue with local storage key value limit
 - 🦺 Fixed crash caused by incorrect title parsing #7
 - 🦺 Fixed hanging requests caused by settings update #8
 
