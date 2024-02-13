@@ -162,7 +162,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	// Update Auto Downloader
-	c.App.AutoDownloader.SetSettings(autoDownloaderSettings)
+	go c.App.AutoDownloader.SetSettings(autoDownloaderSettings)
 
 	return c.RespondWithData(true)
 }

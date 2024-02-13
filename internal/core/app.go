@@ -15,6 +15,7 @@ import (
 	"github.com/seanime-app/seanime/internal/listsync"
 	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
@@ -43,6 +44,7 @@ type (
 		MediaPlayer          struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
+			Mpv   *mpv.Mpv
 		}
 		Version string
 	}

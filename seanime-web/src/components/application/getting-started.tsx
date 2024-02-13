@@ -73,6 +73,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         vlcPath: data.vlcPath || "",
                                         mpcPort: data.mpcPort,
                                         mpcPath: data.mpcPath || "",
+                                        mpvSocket: "",
                                     },
                                     torrent: {
                                         qbittorrentPath: data.qbittorrentPath,
@@ -109,6 +110,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 options={[
                                     { label: "VLC", value: "vlc" },
                                     { label: "MPC-HC (Windows only)", value: "mpc-hc" },
+                                    { label: "MPV", value: "mpv" },
                                 ]}
                                 help="Player that will be used to open files and track your progress automatically."
                             />
@@ -149,6 +151,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 name="mpcPath"
                                 label="Executable"
                             />
+
                             <h3 className="flex gap-2 items-center"><FcMindMap/> qBittorrent</h3>
                             <Field.Text
                                 name="qbittorrentHost"

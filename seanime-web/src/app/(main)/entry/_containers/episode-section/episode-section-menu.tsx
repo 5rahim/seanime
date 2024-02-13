@@ -1,20 +1,26 @@
 "use client"
 import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu } from "@/components/ui/dropdown-menu"
 import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
-import { useOpenDefaultMediaPlayer, useOpenMediaEntryInExplorer } from "@/lib/server/hooks/settings"
+import { useOpenDefaultMediaPlayer, useOpenMediaEntryInExplorer, useStartMpvPlaybackDetection } from "@/lib/server/hooks/settings"
 import { MediaEntry } from "@/lib/server/types"
 import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
 import { BiRightArrowAlt } from "@react-icons/all-files/bi/BiRightArrowAlt"
 import { useSetAtom } from "jotai"
+import { useAtomValue } from "jotai/react"
 import React from "react"
+import { BiPlayCircle } from "react-icons/bi"
 
 export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
 
+    const serverStatus = useAtomValue(serverStatusAtom)
+
     const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
     const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
+    const { startMpvPlaybackDetection } = useStartMpvPlaybackDetection()
 
     // const bulkOffsetEpisodeModal = useBoolean(false)
 
@@ -33,18 +39,26 @@ export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
 
     return (
         <>
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded/>} intent={"gray-basic"} size={"xl"}/>}>
+            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent={"gray-basic"} size={"xl"} />}>
+
+                {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenu.Item
+                    onClick={startMpvPlaybackDetection}
+                >
+                    <BiPlayCircle />
+                    Start episode detection
+                </DropdownMenu.Item>}
+
                 <DropdownMenu.Item
                     onClick={() => openEntryInExplorer(entry.mediaId)}
                 >
                     Open folder
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
+                {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenu.Item
                     onClick={startDefaultMediaPlayer}
                 >
                     Start video player
-                </DropdownMenu.Item>
-                <DropdownMenu.Divider/>
+                </DropdownMenu.Item>}
+                <DropdownMenu.Divider />
                 <DropdownMenu.Group title="Bulk actions">
                     {/*<DropdownMenu.Item*/}
                     {/*    onClick={bulkOffsetEpisodeModal.toggle}*/}

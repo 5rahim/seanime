@@ -5,15 +5,12 @@ import { useSeaQuery } from "@/lib/server/queries/utils"
 import { LibraryCollection } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useSetAtom } from "jotai/react"
-import { atomWithStorage } from "jotai/utils"
 import { useEffect } from "react"
 
 
-export const libraryCollectionAtom = atomWithStorage<LibraryCollection | undefined>("sea-library-collection", undefined,
-    undefined, {getOnInit: true})
+export const libraryCollectionAtom = atom<LibraryCollection | undefined>(undefined)
 
-export const userMediaAtom = atomWithStorage<BaseMediaFragment[] | undefined>("sea-user-media", undefined,
-    undefined, { getOnInit: true })
+export const userMediaAtom = atom<BaseMediaFragment[] | undefined>(undefined)
 
 export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom),
     (get, set, payload: number) => {

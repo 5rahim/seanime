@@ -61,6 +61,7 @@ export type MediaPlayerSettings = {
     vlcPath: string
     mpcPort: number
     mpcPath: string
+    mpvSocket: string
 }
 
 export type LibrarySettings = {

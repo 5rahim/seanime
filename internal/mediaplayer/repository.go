@@ -2,9 +2,11 @@ package mediaplayer
 
 import (
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"time"
 )
@@ -15,6 +17,7 @@ type (
 		Default        string
 		VLC            *vlc.VLC
 		MpcHc          *mpchc.MpcHc
+		Mpv            *mpv.Mpv
 		WSEventManager events.IWSEventManager
 	}
 
@@ -35,7 +38,7 @@ func (m *Repository) Play(path string) error {
 		}
 		err = m.VLC.AddAndPlay(path)
 		if err != nil {
-			return errors.New("could not open and play video, try again")
+			return errors.New("could not open and play video, verify your settings")
 		}
 		return nil
 	case "mpc-hc":
@@ -45,7 +48,13 @@ func (m *Repository) Play(path string) error {
 		}
 		_, err = m.MpcHc.OpenAndPlay(path)
 		if err != nil {
-			return errors.New("could not open and play video, try again")
+			return errors.New("could not open and play video, verify your settings")
+		}
+		return nil
+	case "mpv":
+		err := m.Mpv.OpenAndPlay(path)
+		if err != nil {
+			return fmt.Errorf("could not open and play video, %s", err.Error())
 		}
 		return nil
 	default:
@@ -81,6 +90,8 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 					status, err = m.VLC.GetStatus()
 				case "mpc-hc":
 					status, err = m.MpcHc.GetVariables()
+				case "mpv":
+					status, err = m.Mpv.GetPlaybackStatus()
 				}
 
 				if err != nil {
@@ -98,6 +109,8 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 							m.VLC.Stop()
 						case "mpc-hc":
 							m.MpcHc.Stop()
+						case "mpv":
+							m.Mpv.Close()
 						}
 						close(done) // Signal to exit the goroutine
 						return
@@ -131,6 +144,8 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 							m.VLC.Stop()
 						case "mpc-hc":
 							m.MpcHc.Stop()
+						case "mpv":
+							m.Mpv.Close()
 						}
 						close(done) // Signal to exit the goroutine
 						return
@@ -188,7 +203,7 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 	case "mpc-hc":
 		// Process MPC-HC status
 		st := status.(*mpchc.Variables)
-		if st == nil {
+		if st == nil || st.Duration == 0 {
 			return nil, false
 		}
 
@@ -196,6 +211,20 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 			CompletionPercentage: st.Position / st.Duration,
 			Playing:              st.State == 2,
 			Filename:             st.File,
+			Duration:             int(st.Duration),
+		}
+
+		return ret, true
+	case "mpv":
+		// Process MPV status
+		st := status.(*mpv.Playback)
+		if st == nil || st.Duration == 0 || st.IsRunning == false {
+			return nil, false
+		}
+		ret := &playbackStatus{
+			CompletionPercentage: st.Position / st.Duration,
+			Playing:              st.Paused,
+			Filename:             st.Filename,
 			Duration:             int(st.Duration),
 		}
 

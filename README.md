@@ -13,7 +13,7 @@ anime library.</h4>
 </a>
 </h1>
 
-Feel free to fork the project, contribute or open issues. Leave a star if you like this project!
+Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 

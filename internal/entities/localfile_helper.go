@@ -360,6 +360,16 @@ func (f *LocalFile) GetTitleVariations() []*string {
 
 	titleVariations = lo.Uniq(titleVariations)
 
+	// If there are no title variations, use the folder title or the parsed title
+	if len(titleVariations) == 0 {
+		if len(folderTitle) > 0 {
+			titleVariations = append(titleVariations, folderTitle)
+		}
+		if len(f.ParsedData.Title) > 0 {
+			titleVariations = append(titleVariations, f.ParsedData.Title)
+		}
+	}
+
 	return lo.ToSlicePtr(titleVariations)
 
 }

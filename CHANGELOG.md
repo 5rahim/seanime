@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.1
+
+- ✨ Added MPV support (Experimental) #5
+- 🦺 Fixed issue with local storage key value limit
+- 🦺 Fixed crash caused by incorrect title parsing #7
+- 🦺 Fixed hanging requests caused by settings update #8
+
 ## 0.2.0
 
 - 🎉 New feature: Track progress on MyAnimeList
