@@ -10,6 +10,7 @@ export const settingsSchema = z.object({
     vlcPath: z.string().optional().default(""),
     mpcPort: z.number(),
     mpcPath: z.string().optional().default(""),
+    mpvSocket: z.string().optional().default(""),
     qbittorrentPath: z.string().optional().default(""),
     qbittorrentHost: z.string(),
     qbittorrentPort: z.number(),
@@ -18,3 +19,4 @@ export const settingsSchema = z.object({
     hideAudienceScore: z.boolean().optional().default(false),
     autoUpdateProgress: z.boolean().optional().default(false),
 })
+

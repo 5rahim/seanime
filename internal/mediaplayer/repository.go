@@ -2,10 +2,12 @@ package mediaplayer
 
 import (
 	"errors"
+	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mpchc"
-	"github.com/seanime-app/seanime/internal/mpv_player"
+	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"time"
 )
@@ -16,7 +18,7 @@ type (
 		Default        string
 		VLC            *vlc.VLC
 		MpcHc          *mpchc.MpcHc
-		Mpv            *mpv_player.MpvPlayer
+		Mpv            *mpv.Mpv
 		WSEventManager events.IWSEventManager
 	}
 
@@ -37,7 +39,7 @@ func (m *Repository) Play(path string) error {
 		}
 		err = m.VLC.AddAndPlay(path)
 		if err != nil {
-			return errors.New("could not open and play video, try again")
+			return errors.New("could not open and play video, verify your settings")
 		}
 		return nil
 	case "mpc-hc":
@@ -47,15 +49,13 @@ func (m *Repository) Play(path string) error {
 		}
 		_, err = m.MpcHc.OpenAndPlay(path)
 		if err != nil {
-			return errors.New("could not open and play video, try again")
+			return errors.New("could not open and play video, verify your settings")
 		}
 		return nil
 	case "mpv":
-		m.Mpv = mpv_player.New()
-		m.Mpv.Start()
 		err := m.Mpv.OpenAndPlay(path)
 		if err != nil {
-			return err
+			return fmt.Errorf("could not open and play video, %s", err.Error())
 		}
 		return nil
 	default:
@@ -111,7 +111,7 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 						case "mpc-hc":
 							m.MpcHc.Stop()
 						case "mpv":
-							//m.Mpv.Close()
+							m.Mpv.Close()
 						}
 						close(done) // Signal to exit the goroutine
 						return
@@ -146,7 +146,7 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 						case "mpc-hc":
 							m.MpcHc.Stop()
 						case "mpv":
-							//m.Mpv.Close()
+							m.Mpv.Close()
 						}
 						close(done) // Signal to exit the goroutine
 						return
@@ -204,7 +204,7 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 	case "mpc-hc":
 		// Process MPC-HC status
 		st := status.(*mpchc.Variables)
-		if st == nil {
+		if st == nil || st.Duration == 0 {
 			return nil, false
 		}
 
@@ -218,8 +218,9 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 		return ret, true
 	case "mpv":
 		// Process MPV status
-		st := status.(*mpv_player.Playback)
-		if st == nil {
+		st := status.(*mpv.Playback)
+		spew.Dump(st)
+		if st == nil || st.Duration == 0 || st.IsRunning == false {
 			return nil, false
 		}
 		ret := &playbackStatus{

@@ -109,7 +109,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 options={[
                                     { label: "VLC", value: "vlc" },
                                     { label: "MPC-HC (Windows only)", value: "mpc-hc" },
-                                    // { label: "MPV", value: "mpv" },
+                                    { label: "MPV", value: "mpv" },
                                 ]}
                                 help="Player that will be used to open files and track your progress automatically."
                             />

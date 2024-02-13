@@ -6,6 +6,7 @@ export const enum SeaEndpoints {
     LIST_SYNC_SETTINGS = "/settings/list-sync", // (PATCH)
     AUTO_DOWNLOADER_SETTINGS = "/settings/auto-downloader", // (PATCH)
     START_MEDIA_PLAYER = "/media-player/start", // (POST)
+    START_MPV_PLAYBACK_DETECTION = "/media-player/mpv-detect-playback", // (POST)
     OPEN_IN_EXPLORER = "/open-in-explorer", // (POST)
     PLAY_VIDEO = "/media-player/play",
     /**

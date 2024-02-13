@@ -9,7 +9,6 @@ require (
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/gen2brain/go-mpv v0.2.2
 	github.com/glebarez/sqlite v1.9.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gocolly/colly v1.2.0
@@ -18,6 +17,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.3.1
+	github.com/jannson/mpvipc v0.0.0-20240209020512-d8e3b16fdac3
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.31.0
 	github.com/samber/lo v1.38.1
@@ -31,13 +31,13 @@ require (
 
 require (
 	github.com/99designs/gqlgen v0.17.39 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antchfx/htmlquery v1.3.0 // indirect
 	github.com/antchfx/xmlquery v1.3.18 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/ebitengine/purego v0.5.1 // indirect
 	github.com/fasthttp/websocket v1.5.4 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
@@ -78,7 +78,9 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/tools v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

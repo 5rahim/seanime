@@ -1,10 +1,12 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { BetaBadge } from "@/components/application/beta-badge"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
 import { TabPanels } from "@/components/ui/tabs"
 import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
+import { getDefaultMpcSocket } from "@/lib/server/hooks/settings"
 import { useSeaMutation } from "@/lib/server/queries/utils"
 import { settingsSchema } from "@/lib/server/schemas"
 import { ServerStatus, Settings } from "@/lib/server/types"
@@ -15,6 +17,7 @@ import { FcVlc } from "@react-icons/all-files/fc/FcVlc"
 import { useAtom } from "jotai/react"
 import React, { useEffect } from "react"
 import toast from "react-hot-toast"
+import { BsPlayCircleFill } from "react-icons/bs"
 
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
@@ -58,6 +61,7 @@ export default function Page() {
                             vlcPath: data.vlcPath || "",
                             mpcPort: data.mpcPort,
                             mpcPath: data.mpcPath || "",
+                            mpvSocket: data.mpvSocket || "",
                         },
                         torrent: {
                             qbittorrentPath: data.qbittorrentPath,
@@ -81,6 +85,7 @@ export default function Page() {
                     vlcPath: status?.settings?.mediaPlayer?.vlcPath,
                     mpcPort: status?.settings?.mediaPlayer?.mpcPort,
                     mpcPath: status?.settings?.mediaPlayer?.mpcPath,
+                    mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
                     qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                     qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                     qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
@@ -136,7 +141,7 @@ export default function Page() {
                                         options={[
                                             { label: "VLC", value: "vlc" },
                                             { label: "MPC-HC (Windows only)", value: "mpc-hc" },
-                                            // { label: "MPV", value: "mpv" },
+                                            { label: "MPV", value: "mpv" },
                                         ]}
                                         help="Player that will be used to open files and track your progress automatically."
                                     />
@@ -183,6 +188,17 @@ export default function Page() {
                                         name="mpcPath"
                                         label="Application path"
                                     />
+
+                                    <Divider />
+
+                                    <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV <BetaBadge /></h3>
+                                    <div className="flex gap-4">
+                                        <Field.Text
+                                            name="mpvSocket"
+                                            label="Socket"
+                                            placeholder={`Default: '${getDefaultMpcSocket(status?.os ?? "")}'`}
+                                        />
+                                    </div>
                                 </TabPanels.Panel>
 
                                 <TabPanels.Panel className="space-y-4">

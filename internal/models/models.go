@@ -58,6 +58,7 @@ type MediaPlayerSettings struct {
 	VlcPath     string `gorm:"column:vlc_path" json:"vlcPath"`
 	MpcPort     int    `gorm:"column:mpc_port" json:"mpcPort"`
 	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
+	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
 }
 
 type LibrarySettings struct {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
 	"github.com/seanime-app/seanime/internal/vlc"
@@ -41,6 +42,7 @@ func (a *App) InitOrRefreshModules() {
 			Path:   settings.MediaPlayer.MpcPath,
 			Logger: a.Logger,
 		}
+		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}

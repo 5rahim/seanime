@@ -7,11 +7,12 @@ import { Modal } from "@/components/ui/modal"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/queries/utils"
-import { MediaEntry, MediaPlayerPlaybackStatus } from "@/lib/server/types"
+import { MediaEntry, MediaEntryEpisode, MediaPlayerPlaybackStatus } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
+
 
 export function ProgressTracking({ entry }: { entry: MediaEntry }) {
 
@@ -24,12 +25,16 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
     const serverSideTracking = useBoolean(false)
     const [status, setStatus] = useState<MediaPlayerPlaybackStatus | null>(null)
 
+    // const { startMpvPlaybackDetection } = useStartMpvPlaybackDetection()
 
-    const episode = useMemo(() => {
+    const [episode, setEpisode] = useState<MediaEntryEpisode | undefined>(!!status
+        ? entry.episodes?.find(ep => ep.localFile?.name === status.filename)
+        : undefined)
+
+    useEffect(() => {
         if (status) {
-            return entry.episodes?.find(ep => ep.localFile?.name === status.filename)
+            setEpisode(entry.episodes?.find(ep => ep.localFile?.name === status.filename))
         }
-        return undefined
     }, [status, entry.episodes])
 
     const canTrackProgress = useMemo(() => {
@@ -40,6 +45,12 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
     useWebsocketMessageListener<MediaPlayerPlaybackStatus | null>({
         type: WSEvents.MEDIA_PLAYER_TRACKING_STARTED,
         onMessage: data => {
+            // Handle MPV playback detection
+            if (data && !episode) {
+                console.log(entry.episodes?.map(ep => removeSpecificFileExtension(ep.localFile?.name)), removeSpecificFileExtension(data.filename))
+                console.log(entry.episodes?.find(ep => removeSpecificFileExtension(ep.localFile?.name) === removeSpecificFileExtension(data.filename)))
+                setEpisode(entry.episodes?.find(ep => removeSpecificFileExtension(ep.localFile?.name) === removeSpecificFileExtension(data.filename)))
+            }
             isTracking.on()
             trackerModal.on()
             serverSideTracking.on()
@@ -119,11 +130,15 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
     })
 
     function handleUpdateProgress() {
-        updateAniListProgress({ mediaId: entry.mediaId, progress: episode!.progressNumber, episodes: entry.media?.episodes ?? 0 })
+        if (episode) {
+            updateAniListProgress({ mediaId: entry.mediaId, progress: episode!.progressNumber, episodes: entry.media?.episodes ?? 0 })
 
-        // If the media has a MAL ID, update the progress on MAL as well
-        if (serverStatus?.mal && entry.media?.idMal) {
-            updateMALProgress({ mediaId: entry.media?.idMal, progress: episode!.episodeNumber })
+            // If the media has a MAL ID, update the progress on MAL as well
+            if (serverStatus?.mal && entry.media?.idMal) {
+                updateMALProgress({ mediaId: entry.media?.idMal, progress: episode!.episodeNumber })
+            }
+        } else {
+            toast.error("Could not detect the episode number.")
         }
     }
 
@@ -136,6 +151,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             >
                 Update progress
             </Button>}
+
 
             <Modal
                 isOpen={trackerModal.active && canTrackProgress}
@@ -174,4 +190,25 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         </>
     )
 
+}
+
+function removeSpecificFileExtension(filename: string | undefined): string {
+    if (!filename) {
+        return ""
+    }
+    const validExtensions = [".mkv", ".mp4"]
+    const lastDotIndex = filename.lastIndexOf(".")
+
+    if (lastDotIndex === -1) {
+        // No extension found
+        return filename
+    }
+
+    const extension = filename.slice(lastDotIndex)
+
+    if (validExtensions.includes(extension)) {
+        return filename.slice(0, lastDotIndex)
+    }
+
+    return filename
 }
