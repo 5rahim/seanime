@@ -21,18 +21,19 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Set up Seanime with a few clicks
   - Netflix-like experience for your local anime library
 - ✨ **Seamless integration with AniList**
-  - Manage your AniList collection
-- 🎉 **Automatically scan your anime library**
+  - Manage your AniList collection (add, update, delete entries)
+- 🎉 **Scan your local library**
   - Seanime does not require a mandatory folder structure or naming convention
-  - Seanime supports torrent names with absolute episode numbers
+  - Seanime also supports torrents with absolute episode numbers
 - 🎉 **Download new episodes automatically**
   - Add rules (filters) that specify which torrent to download based on parameters such as release group, resolution, episode numbers
   - Seanime will check RSS feeds for new episodes and download them automatically via qBittorrent
 - 🎉 **Integrated torrent search engine**
-  - You can manually search and download new episodes with a few clicks
-  - Seanime will notify you when new episodes are available
+  - You can manually search and download new episodes with a few clicks without leaving the web interface
+  - Seanime will notify you when new episodes are available in the schedule page
 - 🎉 **Automatically track your progress**
   - Launch an episode from the web interface and Seanime will automatically update your progress on AniList
+  - VLC, MPC-HC, and MPV are supported
 - 🎉 **MyAnimeList integration**
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
@@ -50,16 +51,15 @@ support transcoding or streaming to other devices (yet).
 ## Resources
 
 - AniList API
-- [Conc](https://github.com/sourcegraph/conc)
-- [Fiber](https://gofiber.io/) - Web framework
-- [GORM](https://gorm.io/) - ORM
-- [gqlgenc](github.com/Yamashou/gqlgenc) - GraphQL codegen
-- [Next.js](https://nextjs.org/) - React framework
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
-- [React Query](https://react-query.tanstack.com/) - Data fetching
-- [Chalk UI](https://chalk.rahim.app) - UI components
-- Seanime Parser - Pure Go parser for anime filenames
 - MAL API
+- [Chalk UI](https://chalk.rahim.app)
+- [Fiber](https://gofiber.io/) 
+- [GORM](https://gorm.io/)
+- [gqlgenc](https://github.com/Yamashou/gqlgenc)
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React Query](https://react-query.tanstack.com/)
+- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser)
 
 ## Acknowledgements
 
