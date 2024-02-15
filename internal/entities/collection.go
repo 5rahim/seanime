@@ -122,9 +122,9 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 			// If the list has no status, return nil
 			// This occurs when there is a custom list
-			//if list.Status == nil {
-			//	return nil
-			//}
+			if list.Status == nil {
+				return nil
+			}
 
 			// For each list, get the entries
 			entries := list.GetEntries()
