@@ -53,7 +53,7 @@ support transcoding or streaming to other devices (yet).
 - AniList API
 - MAL API
 - [Chalk UI](https://chalk.rahim.app)
-- [Fiber](https://gofiber.io/) 
+- [Fiber](https://gofiber.io/)
 - [GORM](https://gorm.io/)
 - [gqlgenc](https://github.com/Yamashou/gqlgenc)
 - [Next.js](https://nextjs.org/)

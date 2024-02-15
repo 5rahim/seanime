@@ -35,7 +35,7 @@ func TestLocalFile_GetTitleVariations2(t *testing.T) {
 	if assert.NotNil(t, lf) {
 		tv := lo.Map(lf.GetTitleVariations(), func(item *string, _ int) string { return *item })
 
-		spew.Dump(tv)
+		assert.Contains(t, tv, "Shakugan No Shana")
 	}
 
 }

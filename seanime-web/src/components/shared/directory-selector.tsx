@@ -1,7 +1,6 @@
 import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { SEANIME_SERVER_URI } from "@/lib/server/constants"
 import { BiCheck } from "@react-icons/all-files/bi/BiCheck"
 import { BiFolderOpen } from "@react-icons/all-files/bi/BiFolderOpen"
 import { BiFolderPlus } from "@react-icons/all-files/bi/BiFolderPlus"
@@ -47,7 +46,9 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
     const { data, isLoading, error } = useQuery({
         queryKey: ["directory-settings", debouncedInput],
         queryFn: async () => {
-            const res = await axios.post<DirectorySelectorResponse>(SEANIME_SERVER_URI + "/directory-selector", {
+            const res = await axios.post<DirectorySelectorResponse>("http://" + (process.env.NODE_ENV === "development"
+                ? "127.0.0.1:43211"
+                : window.location.host) + "/api/v1/directory-selector", {
                 input: debouncedInput,
             })
             return res.data
@@ -96,13 +97,13 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
             <div className="space-y-1">
                 <div className="relative">
                     <TextInput
-                        leftIcon={<FaFolder/>}
+                        leftIcon={<FaFolder />}
                         {...rest}
                         value={input}
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
-                                <BiCheck className={"text-green-500"}/> : shouldExist ?
-                                    <BiX className={"text-red-500"}/> : <BiFolderPlus/>)}
+                                <BiCheck className={"text-green-500"} /> : shouldExist ?
+                                    <BiX className={"text-red-500"} /> : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
                             setInput(upath.normalize(e.target.value ?? ""))
@@ -117,7 +118,8 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                 </div>
                 {(!data?.exists && data?.suggestions && data.suggestions.length > 0) &&
                     <div
-                        className={"w-full flex flex-none flex-nowrap overflow-x-auto gap-2 items-center bg-gray-800 rounded-md p-1 px-4"}>
+                        className={"w-full flex flex-none flex-nowrap overflow-x-auto gap-2 items-center bg-gray-800 rounded-md p-1 px-4"}
+                    >
                         <div className={"flex-none"}>Sub-folders:</div>
                         {data.suggestions.map(folder => (
                             <div
@@ -138,11 +140,11 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                 bodyClassName="mt-4 space-y-4"
             >
                 <TextInput
-                    leftIcon={<FaFolder/>}
+                    leftIcon={<FaFolder />}
                     value={input}
                     rightIcon={isLoading ? null : (data?.exists ?
-                        <BiCheck className={"text-green-500"}/> : shouldExist ?
-                            <BiX className={"text-red-500"}/> : <BiFolderPlus/>)}
+                        <BiCheck className={"text-green-500"} /> : shouldExist ?
+                            <BiX className={"text-red-500"} /> : <BiFolderPlus />)}
                     onChange={e => {
                         setInput(upath.normalize(e.target.value ?? ""))
                     }}
@@ -153,7 +155,8 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                 />
                 {(data && (data?.content && data.content.length > 0)) &&
                     <div
-                        className={"w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"}>
+                        className={"w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"}
+                    >
                         <div className={"flex-none"}>Sub-folders:</div>
                         {data.content.map(folder => (
                             <div

@@ -1,4 +1,3 @@
-import { SEANIME_SERVER_URI } from "@/lib/server/constants"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useMutation, UseMutationOptions, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import axios, { AxiosError } from "axios"
@@ -31,7 +30,7 @@ export async function buildSeaQuery<T, D extends any = any>(
         params,
     }: SeaQuery<D>): Promise<T | undefined> {
     const res = await axios<T>({
-        url: SEANIME_SERVER_URI + endpoint,
+        url: "http://" + (process.env.NODE_ENV === "development" ? "127.0.0.1:43211" : window.location.host) + "/api/v1" + endpoint,
         method,
         data,
         params,

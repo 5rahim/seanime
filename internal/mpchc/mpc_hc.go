@@ -31,8 +31,6 @@ func (api *MpcHc) Execute(command int, data map[string]interface{}) (string, err
 		url += "&" + queryParams.Encode()
 	}
 
-	println(url)
-
 	response, err := http.Get(url)
 	if err != nil {
 		return "", err

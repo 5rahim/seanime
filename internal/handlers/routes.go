@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/core"
 	"sync"
 )
@@ -13,6 +15,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
+
+	// Set up a custom logger for fiber
+	fiberLogger := fiberzerolog.New(fiberzerolog.Config{
+		Logger: app.Logger,
+		SkipURIs: []string{
+			"/internal/metrics",
+			"/_next",
+			"/icons",
+		},
+		Levels: []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
+	})
+	fiberApp.Use(fiberLogger)
 
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")

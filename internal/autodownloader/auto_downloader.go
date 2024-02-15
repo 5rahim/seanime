@@ -100,7 +100,7 @@ func (ad *AutoDownloader) Start() {
 	if ad.Settings.Enabled {
 		started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
 		if !started {
-			ad.Logger.Error().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
+			ad.Logger.Warn().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
 			return
 		}
 	}
