@@ -5,6 +5,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
 	"slices"
@@ -62,12 +63,14 @@ type (
 
 // NewLibraryCollection creates a new LibraryCollection.
 // A LibraryCollection consists of a list of LibraryCollectionList (one for each status).
-func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection {
+func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
+
+	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
 
 	// Get lists from collection
 	aniLists := opts.AnilistCollection.GetMediaListCollection().GetLists()
 
-	lc := new(LibraryCollection)
+	lc = new(LibraryCollection)
 
 	// Create lists
 	lc.hydrateCollectionLists(
@@ -87,8 +90,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) *LibraryCollection 
 
 	lc.hydrateUnmatchedGroups()
 
-	return lc
-
+	return
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -120,9 +122,9 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 			// If the list has no status, return nil
 			// This occurs when there is a custom list
-			if list.Status == nil {
-				return nil
-			}
+			//if list.Status == nil {
+			//	return nil
+			//}
 
 			// For each list, get the entries
 			entries := list.GetEntries()
@@ -226,6 +228,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 		})
 	}
 
+	return
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -312,7 +315,6 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	lc.ContinueWatchingList = mEpisodes
 
 	return
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -338,6 +340,8 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 
 	// Assign the created groups
 	lc.UnmatchedGroups = groups
+
+	return
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -352,6 +356,7 @@ func (lc *LibraryCollection) hydrateRest(localFiles []*LocalFile) {
 		return lf.Ignored == true
 	})
 
+	return
 }
 
 //----------------------------------------------------------------------------------------------------------------------

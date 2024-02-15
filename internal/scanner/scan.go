@@ -12,6 +12,7 @@ import (
 	"github.com/seanime-app/seanime/internal/filesystem"
 	"github.com/seanime-app/seanime/internal/limiter"
 	"github.com/seanime-app/seanime/internal/summary"
+	"github.com/seanime-app/seanime/internal/util"
 )
 
 type Scanner struct {
@@ -28,7 +29,9 @@ type Scanner struct {
 }
 
 // Scan will scan the directory and return a list of entities.LocalFile.
-func (scn *Scanner) Scan() ([]*entities.LocalFile, error) {
+func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
+
+	defer util.HandlePanicWithError(&err)
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()

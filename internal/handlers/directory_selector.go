@@ -8,7 +8,7 @@ import (
 )
 
 type DirectoryInfo struct {
-	Fullpath   string `json:"fullPath"`
+	FullPath   string `json:"fullPath"`
 	FolderName string `json:"folderName"`
 }
 
@@ -91,7 +91,7 @@ func getAutocompletionSuggestions(input string) ([]DirectoryInfo, error) {
 	for _, entry := range entries {
 		if strings.HasPrefix(strings.ToLower(entry.Name()), strings.ToLower(prefix)) {
 			suggestions = append(suggestions, DirectoryInfo{
-				Fullpath:   filepath.Join(baseDir, entry.Name()),
+				FullPath:   filepath.Join(baseDir, entry.Name()),
 				FolderName: entry.Name(),
 			})
 		}
@@ -111,7 +111,7 @@ func getDirectoryContent(path string) ([]DirectoryInfo, error) {
 	for _, entry := range entries {
 		if entry.IsDir() {
 			content = append(content, DirectoryInfo{
-				Fullpath:   filepath.Join(path, entry.Name()),
+				FullPath:   filepath.Join(path, entry.Name()),
 				FolderName: entry.Name(),
 			})
 		}

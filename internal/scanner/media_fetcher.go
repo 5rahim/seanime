@@ -12,6 +12,7 @@ import (
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/limiter"
 	"github.com/seanime-app/seanime/internal/mal"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/parallel"
 	"time"
 )
@@ -42,7 +43,9 @@ type MediaFetcherOptions struct {
 // Calling this method will kickstart the fetch process
 // When enhancing is false, MediaFetcher.AllMedia will be all anilist.BaseMedia from the user's AniList collection.
 // When enhancing is true, MediaFetcher.AllMedia will be anilist.BaseMedia for each unique, parsed anime title and their relations.
-func NewMediaFetcher(opts *MediaFetcherOptions) (*MediaFetcher, error) {
+func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error) {
+
+	defer util.HandlePanicWithError(&retErr)
 
 	if opts.AnilistClientWrapper == nil ||
 		opts.Username == "" ||

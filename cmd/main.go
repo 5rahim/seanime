@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/common-nighthawk/go-figure"
+	"github.com/fatih/color"
 	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/cron"
@@ -11,12 +11,13 @@ import (
 
 func main() {
 
+	purple := color.New(color.FgHiMagenta)
+	green := color.New(color.FgGreen)
 	fmt.Println()
-	myFigure := figure.NewFigure("Seanime", "big", true)
-	myFigure.Print()
-	fmt.Printf("						v%s\n", constants.Version)
+	purple.Print("                    ⦿ SEANIME")
+	fmt.Printf("\n                      %s ", constants.Version)
+	green.Print(constants.VersionName)
 	fmt.Println()
-	fmt.Println("(alpha version, use at your own risk)")
 	fmt.Println()
 
 	app := core.NewApp(&core.DefaultAppOptions, constants.Version)
@@ -26,22 +27,6 @@ func main() {
 	handlers.InitRoutes(app, fiberApp)
 
 	core.RunServer(app, fiberApp)
-
-	//if constants.Development {
-	//	fiberApp := core.NewFiberApp(app)
-	//
-	//	handlers.InitRoutes(app, fiberApp)
-	//
-	//	core.RunServer(app, fiberApp)
-	//} else {
-	//	fiberApp := core.NewFiberApp(app)
-	//	fiberWebApp := core.NewFiberWebApp()
-	//
-	//	handlers.InitRoutes(app, fiberApp)
-	//
-	//	core.RunServer(app, fiberApp)
-	//	core.RunWebApp(app, fiberWebApp)
-	//}
 
 	cron.RunJobs(app)
 

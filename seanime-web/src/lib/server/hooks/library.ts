@@ -57,7 +57,7 @@ export function useLibraryCollection() {
     }, [data])
 
     const sortedCollection = useMemo(() => {
-        if (!data) return []
+        if (!data || !data.lists) return []
         return [
             data.lists.find(n => n.type === "current"),
             data.lists.find(n => n.type === "paused"),

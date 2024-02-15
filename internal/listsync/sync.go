@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/mal"
 	"github.com/seanime-app/seanime/internal/result"
+	"github.com/seanime-app/seanime/internal/util"
 )
 
 const (
@@ -29,7 +30,10 @@ func NewCache() *Cache {
 	return &Cache{result.NewCache[int, *ListSync]()}
 }
 
-func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
+func BuildListSync(db *db.Database, logger *zerolog.Logger) (ls *ListSync, err error) {
+
+	defer util.HandlePanicInModuleWithError("listsync/BuildListSync", &err)
+
 	settings, err := db.GetSettings()
 	if err != nil {
 		return nil, err
@@ -80,7 +84,7 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 		}
 	}
 
-	ls := &ListSync{}
+	ls = &ListSync{}
 
 	targets := make([]*Provider, 0)
 
@@ -96,21 +100,21 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (*ListSync, error) {
 			targets = append(targets, malProvider)
 		}
 		// ... Add more providers here
-		ls = NewListSync(anilistProvider, targets, providerRepo)
+		ls = newListSync(anilistProvider, targets, providerRepo)
 	case "mal":
 		if malProvider == nil {
 			return nil, errors.New(ErrMalAccountNotConnected)
 		}
 		targets = append(targets, anilistProvider)
 		// ... Add more providers here
-		ls = NewListSync(malProvider, targets, providerRepo)
+		ls = newListSync(malProvider, targets, providerRepo)
 	}
 
 	return ls, nil
 }
 
-// NewListSync creates a new list sync
-func NewListSync(origin *Provider, targets []*Provider, providerRepo *ProviderRepository) *ListSync {
+// newListSync creates a new list sync
+func newListSync(origin *Provider, targets []*Provider, providerRepo *ProviderRepository) *ListSync {
 	ls := &ListSync{
 		Origin:             origin,
 		Targets:            targets,

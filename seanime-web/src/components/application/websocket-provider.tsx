@@ -11,7 +11,9 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     useEffectOnce(() => {
 
         function connectWebSocket() {
-            const newSocket = new WebSocket(`ws://${process.env.NODE_ENV === "development" ? "127.0.0.1:43211" : window.location.host}/events`)
+            const newSocket = new WebSocket(`ws://${process.env.NODE_ENV === "development"
+                ? `${window.location.hostname}:43211`
+                : window.location.host}/events`)
 
             newSocket.addEventListener("open", () => {
                 console.log("WebSocket connection opened")

@@ -30,7 +30,7 @@ export async function buildSeaQuery<T, D extends any = any>(
         params,
     }: SeaQuery<D>): Promise<T | undefined> {
     const res = await axios<T>({
-        url: "http://" + (process.env.NODE_ENV === "development" ? "127.0.0.1:43211" : window.location.host) + "/api/v1" + endpoint,
+        url: "http://" + (process.env.NODE_ENV === "development" ? `${window.location.hostname}:43211` : window.location.host) + "/api/v1" + endpoint,
         method,
         data,
         params,
