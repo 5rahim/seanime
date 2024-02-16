@@ -34,6 +34,12 @@ type TorrentDownloadProps = {
     media?: BaseMediaFragment
 }
 
+type TorrentDownloadFileProps = {
+    download_urls: string[]
+    destination: string
+    media?: BaseMediaFragment
+}
+
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     onToggleTorrent: (t: SearchTorrent) => void,
     media: BaseMediaFragment,
@@ -56,7 +62,6 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const setTorrentDrawerIsOpen = useSetAtom(torrentSearchDrawerIsOpenAtom)
     const selectedTorrents = useAtomValue(__torrentSearch_selectedTorrentsAtom)
 
-
     const canSmartSelect = useMemo(() => {
         return selectedTorrents.length === 1
             && selectedTorrents[0].isBatch
@@ -68,8 +73,8 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     }, [selectedTorrents, media.format, media.status, media.episodes, entry.downloadInfo?.episodesToDownload, media.nextAiringEpisode?.episode])
 
 
-    // mutation
-    const { mutate, data, isPending } = useSeaMutation<boolean, TorrentDownloadProps>({
+    // download via qbittorrent
+    const { mutate, isPending } = useSeaMutation<boolean, TorrentDownloadProps>({
         endpoint: SeaEndpoints.DOWNLOAD,
         method: "post",
         mutationKey: ["download-torrent"],
@@ -80,6 +85,21 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             router.push("/torrent-list")
         },
     })
+
+    // download torrent file
+    const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useSeaMutation<boolean, TorrentDownloadProps>({
+        endpoint: SeaEndpoints.DOWNLOAD_TORRENT_FILE,
+        method: "post",
+        mutationKey: ["download-torrent-files"],
+        onSuccess: () => {
+            toast.success("Downloaded torrent files")
+            setIsOpen(false)
+            setTorrentDrawerIsOpen(false)
+            router.push("/torrent-list")
+        },
+    })
+
+    const isDisabled = isPending || isDownloadingFiles
 
     function handleLaunchDownload(smartSelect: boolean) {
         if (!libraryPath || !destination.toLowerCase().startsWith(libraryPath.slice(0, -1).toLowerCase())) {
@@ -124,7 +144,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 <DirectorySelector
                     name="destination"
                     label="Destination"
-                    leftIcon={<FcFolder/>}
+                    leftIcon={<FcFolder />}
                     value={destination}
                     defaultValue={destination}
                     onSelect={setDestination}
@@ -145,13 +165,13 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                 onClick={() => window.open(torrent.guid, "_blank")}
                             >
                                 <span className={"text-lg"}>
-                                    {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel/> :
-                                        <FcFolder className={"text-2xl"}/>} {/*<BsCollectionPlayFill/>*/}
+                                    {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
+                                        <FcFolder className={"text-2xl"} />} {/*<BsCollectionPlayFill/>*/}
                                 </span>
                                 <p className={"truncate text-ellipsis"}>{torrent.name}</p>
                             </div>
                             <IconButton
-                                icon={<BiX/>}
+                                icon={<BiX />}
                                 className={"absolute right-2 top-2 rounded-full"}
                                 size={"xs"}
                                 intent={"gray-outline"}
@@ -159,23 +179,38 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                     onToggleTorrent(torrent)
                                 }}
                             />
-                        </div>}>
+                        </div>}
+                    >
                         Open on NYAA
                     </Tooltip>
                 ))}
-                <div className={"mt-4 flex w-full justify-end gap-2"}>
-                    {(selectedTorrents.length > 0 && canSmartSelect) && <Button
-                        leftIcon={<BiCollection/>}
-                        intent={"white-outline"}
-                        onClick={() => handleLaunchDownload(true)}
-                        isLoading={isPending}
-                    >Download missing only</Button>}
-                    {selectedTorrents.length > 0 && <Button
-                        leftIcon={<BiDownload/>}
-                        intent={"white"}
-                        onClick={() => handleLaunchDownload(false)}
-                        isLoading={isPending}
-                    >{canSmartSelect ? "Download all" : "Download"}</Button>}
+                <div className={"mt-4 flex w-full justify-between gap-2 items-center"}>
+                    <div>
+                        <Button
+                            leftIcon={<BiDownload />}
+                            intent={"gray-outline"}
+                            onClick={() => {}}
+                            isDisabled={isDisabled}
+                            // isLoading={isPending}
+                        >Download files only</Button>
+                    </div>
+
+                    <div className={"mt-4 flex w-full justify-end gap-2"}>
+                        {(selectedTorrents.length > 0 && canSmartSelect) && <Button
+                            leftIcon={<BiCollection />}
+                            intent={"white-outline"}
+                            onClick={() => handleLaunchDownload(true)}
+                            isDisabled={isDisabled}
+                            isLoading={isPending}
+                        >Download missing only</Button>}
+                        {selectedTorrents.length > 0 && <Button
+                            leftIcon={<BiDownload />}
+                            intent={"white"}
+                            onClick={() => handleLaunchDownload(false)}
+                            isDisabled={isDisabled}
+                            isLoading={isPending}
+                        >{canSmartSelect ? "Download all" : "Download"}</Button>}
+                    </div>
                 </div>
             </div>
         </Modal>
