@@ -22,7 +22,6 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"log"
-	"os"
 	"strings"
 )
 
@@ -75,7 +74,6 @@ func NewApp(options *AppOptions, version string) *App {
 	cfg, err := NewConfig(opts.Config)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
-		os.Exit(1)
 	}
 
 	logger.Info().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
@@ -84,7 +82,6 @@ func NewApp(options *AppOptions, version string) *App {
 	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
-		os.Exit(1)
 	}
 
 	// Add default local file entries if there are none

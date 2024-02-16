@@ -42,7 +42,7 @@ func (a *App) InitOrRefreshModules() {
 			Path:   settings.MediaPlayer.MpcPath,
 			Logger: a.Logger,
 		}
-		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket)
+		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}

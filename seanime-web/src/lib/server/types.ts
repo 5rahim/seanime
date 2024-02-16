@@ -62,6 +62,7 @@ export type MediaPlayerSettings = {
     mpcPort: number
     mpcPath: string
     mpvSocket: string
+    mpvPath: string
 }
 
 export type LibrarySettings = {

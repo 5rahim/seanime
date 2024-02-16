@@ -1,6 +1,5 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { BetaBadge } from "@/components/application/beta-badge"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
 import { TabPanels } from "@/components/ui/tabs"
@@ -62,6 +61,7 @@ export default function Page() {
                             mpcPort: data.mpcPort,
                             mpcPath: data.mpcPath || "",
                             mpvSocket: data.mpvSocket || "",
+                            mpvPath: data.mpvPath || "",
                         },
                         torrent: {
                             qbittorrentPath: data.qbittorrentPath,
@@ -86,6 +86,7 @@ export default function Page() {
                     mpcPort: status?.settings?.mediaPlayer?.mpcPort,
                     mpcPath: status?.settings?.mediaPlayer?.mpcPath,
                     mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
+                    mpvPath: status?.settings?.mediaPlayer?.mpvPath,
                     qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                     qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                     qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
@@ -191,12 +192,18 @@ export default function Page() {
 
                                     <Divider />
 
-                                    <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV <BetaBadge /></h3>
+                                    <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV</h3>
                                     <div className="flex gap-4">
                                         <Field.Text
                                             name="mpvSocket"
                                             label="Socket"
                                             placeholder={`Default: '${getDefaultMpcSocket(status?.os ?? "")}'`}
+                                        />
+                                        <Field.Text
+                                            name="mpvPath"
+                                            label="Application path"
+                                            placeholder={"Defaults to 'mpv' command"}
+                                            help={"Leave empty to automatically use the 'mpv' command"}
                                         />
                                     </div>
                                 </TabPanels.Panel>

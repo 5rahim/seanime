@@ -74,6 +74,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         mpcPort: data.mpcPort,
                                         mpcPath: data.mpcPath || "",
                                         mpvSocket: "",
+                                        mpvPath: "",
                                     },
                                     torrent: {
                                         qbittorrentPath: data.qbittorrentPath,

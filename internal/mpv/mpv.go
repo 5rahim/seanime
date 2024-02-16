@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/jannson/mpvipc"
 	"github.com/rs/zerolog"
+	"os"
 	"os/exec"
 	"runtime"
 	"sync"
@@ -12,6 +13,13 @@ import (
 
 var (
 	ErrConnClosed = errors.New("connection closed")
+)
+
+const (
+	StartExecCommand = iota
+	StartDetectPlayback
+	StartExecPath
+	StartExec
 )
 
 type (
@@ -29,13 +37,16 @@ type (
 		CloseCh    chan struct{}
 		Playback   *Playback
 		SocketName string
+		AppPath    string
+		conn       *mpvipc.Connection
 		isRunning  bool
 		mu         sync.Mutex
 		playbackMu sync.RWMutex
+		process    *os.Process
 	}
 )
 
-func New(logger *zerolog.Logger, socketName string) *Mpv {
+func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 	if socketName == "" {
 		socketName = getSocketName()
 	}
@@ -47,6 +58,7 @@ func New(logger *zerolog.Logger, socketName string) *Mpv {
 		mu:         sync.Mutex{},
 		playbackMu: sync.RWMutex{},
 		SocketName: socketName,
+		AppPath:    appPath,
 	}
 }
 
@@ -63,7 +75,7 @@ func getSocketName() string {
 	}
 }
 
-func (m *Mpv) OpenAndPlay(filePath string) error {
+func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -71,69 +83,88 @@ func (m *Mpv) OpenAndPlay(filePath string) error {
 		return errors.New("an instance of mpv is already running")
 	}
 
+	m.CloseCh = make(chan struct{}, 1)
+	m.ExitCh = make(chan error, 1)
+	m.Playback = &Playback{}
+
 	sn := m.SocketName
 
-	// Launch player
-	cmd := exec.Command("mpv", "--input-ipc-server="+sn, filePath)
-	err := cmd.Start()
-	if err != nil {
-		return err
-	}
+	// If StartExecCommand is set, launch mpv by executing a command before establishing connection
+	if start == StartExecPath || (start == StartExec && m.AppPath != "") {
+		if m.AppPath == "" {
+			return errors.New("mpv path is not set")
+		}
 
+		cmd := exec.Command(m.AppPath, "--input-ipc-server="+sn, filePath)
+		err := cmd.Start()
+		if err != nil {
+			return err
+		}
+
+		m.process = cmd.Process
+	} else if start == StartExecCommand || m.AppPath == "" || start == StartExec {
+		// Launch player
+		cmd := exec.Command("mpv", "--input-ipc-server="+sn, filePath)
+		err := cmd.Start()
+		if err != nil {
+			return err
+		}
+
+		m.process = cmd.Process
+	} else if start == StartDetectPlayback {
+		// Do nothing
+	}
 	time.Sleep(1 * time.Second)
 
 	// Establish connection
-	conn := mpvipc.NewConnection(sn)
-	err = conn.Open()
+	m.conn = mpvipc.NewConnection(sn)
+	err := m.conn.Open()
 	if err != nil {
 		return err
 	}
 
 	m.isRunning = true
-	m.Logger.Debug().Msg("mpv: connection established")
+	m.Logger.Debug().Msg("mpv: Connection established")
 
 	// Listen for events in a goroutine
 	go func() {
 		// Close the connection when the goroutine ends
 		defer func() {
-			m.Logger.Debug().Msg("mpv: closing socket connection")
+			m.Logger.Debug().Msg("mpv: Closing socket connection")
 			m.ResetPlaybackStatus()
 			m.isRunning = false
-			conn.Close()
+			m.conn.Close()
+			if m.process != nil {
+				m.process.Kill()
+			}
 			m.ExitCh <- ErrConnClosed
-			m.Logger.Debug().Msg("mpv: connection closed")
+			m.Logger.Debug().Msg("mpv: Connection closed")
 		}()
 
-		events, stopListening := conn.NewEventListener()
+		events, stopListening := m.conn.NewEventListener()
 
-		_, err = conn.Get("path")
+		_, err = m.conn.Get("path")
 		if err != nil {
 			m.ExitCh <- err
 			return
 		}
 
-		//err = conn.Set("pause", true)
-		//if err != nil {
-		//	m.ExitCh <- err
-		//	return
-		//}
-
-		_, err = conn.Call("observe_property", 42, "time-pos")
+		_, err = m.conn.Call("observe_property", 42, "time-pos")
 		if err != nil {
 			m.ExitCh <- err
 			return
 		}
-		_, err = conn.Call("observe_property", 43, "pause")
+		_, err = m.conn.Call("observe_property", 43, "pause")
 		if err != nil {
 			m.ExitCh <- err
 			return
 		}
-		_, err = conn.Call("observe_property", 44, "duration")
+		_, err = m.conn.Call("observe_property", 44, "duration")
 		if err != nil {
 			m.ExitCh <- err
 			return
 		}
-		_, err = conn.Call("observe_property", 45, "filename")
+		_, err = m.conn.Call("observe_property", 45, "filename")
 		if err != nil {
 			m.ExitCh <- err
 			return
@@ -141,17 +172,8 @@ func (m *Mpv) OpenAndPlay(filePath string) error {
 
 		// Listen for close event
 		go func() {
-			conn.WaitUntilClosed()
+			m.conn.WaitUntilClosed()
 			stopListening <- struct{}{}
-		}()
-
-		// Close the connection when external signal is received
-		go func() {
-			select {
-			case <-m.CloseCh:
-				stopListening <- struct{}{}
-				break
-			}
 		}()
 
 		// Listen for events
@@ -159,109 +181,6 @@ func (m *Mpv) OpenAndPlay(filePath string) error {
 			m.Playback.IsRunning = true
 			if event.Data != nil {
 				//m.Logger.Trace().Msgf("received event: %s, %v, %+v", event.Name, event.ID, event.Data)
-				switch event.ID {
-				case 43:
-					m.Playback.Paused = event.Data.(bool)
-				case 42:
-					m.Playback.Position = event.Data.(float64)
-				case 44:
-					m.Playback.Duration = event.Data.(float64)
-				case 45:
-					m.Playback.Filename = event.Data.(string)
-				}
-			}
-		}
-	}()
-
-	return nil
-}
-
-func (m *Mpv) DetectPlayback() error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if m.isRunning {
-		return errors.New("playback detection already running")
-	}
-
-	sn := getSocketName()
-
-	// Establish connection
-	conn := mpvipc.NewConnection(sn)
-	err := conn.Open()
-	if err != nil {
-		return err
-	}
-
-	m.isRunning = true
-	m.Logger.Debug().Msg("mpv: connection established")
-
-	// Listen for events in a goroutine
-	go func() {
-		// Close the connection when the goroutine ends
-		defer func() {
-			m.Logger.Debug().Msg("mpv: closing socket connection")
-			m.ResetPlaybackStatus()
-			m.isRunning = false
-			conn.Close()
-			m.ExitCh <- ErrConnClosed
-			m.Logger.Debug().Msg("mpv: connection closed")
-		}()
-
-		events, stopListening := conn.NewEventListener()
-
-		_, err = conn.Get("path")
-		if err != nil {
-			m.ExitCh <- err
-			return
-		}
-
-		//err = conn.Set("pause", true)
-		//if err != nil {
-		//	m.ExitCh <- err
-		//	return
-		//}
-
-		_, err = conn.Call("observe_property", 42, "time-pos")
-		if err != nil {
-			m.ExitCh <- err
-			return
-		}
-		_, err = conn.Call("observe_property", 43, "pause")
-		if err != nil {
-			m.ExitCh <- err
-			return
-		}
-		_, err = conn.Call("observe_property", 44, "duration")
-		if err != nil {
-			m.ExitCh <- err
-			return
-		}
-		_, err = conn.Call("observe_property", 45, "filename")
-		if err != nil {
-			m.ExitCh <- err
-			return
-		}
-
-		// Listen for close event
-		go func() {
-			conn.WaitUntilClosed()
-			stopListening <- struct{}{}
-		}()
-
-		// Close the connection when external signal is received
-		go func() {
-			select {
-			case <-m.CloseCh:
-				stopListening <- struct{}{}
-				break
-			}
-		}()
-
-		// Listen for events
-		for event := range events {
-			m.Playback.IsRunning = true
-			if event.Data != nil {
 				switch event.ID {
 				case 43:
 					m.Playback.Paused = event.Data.(bool)
@@ -296,7 +215,7 @@ func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 
 func (m *Mpv) ResetPlaybackStatus() {
 	m.playbackMu.Lock()
-	m.Logger.Debug().Msg("mpv: resetting playback status")
+	//m.Logger.Debug().Msg("mpv: resetting playback status")
 	m.Playback.Filename = ""
 	m.Playback.Paused = false
 	m.Playback.Position = 0
@@ -306,7 +225,11 @@ func (m *Mpv) ResetPlaybackStatus() {
 }
 
 func (m *Mpv) Close() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.CloseCh <- struct{}{}
+	m.conn.Close()
+	m.ResetPlaybackStatus()
+	m.isRunning = false
+	if m.process != nil {
+		m.process.Kill()
+	}
+	m.ExitCh <- ErrConnClosed
 }

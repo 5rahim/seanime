@@ -11,6 +11,7 @@ export const settingsSchema = z.object({
     mpcPort: z.number(),
     mpcPath: z.string().optional().default(""),
     mpvSocket: z.string().optional().default(""),
+    mpvPath: z.string().optional().default(""),
     qbittorrentPath: z.string().optional().default(""),
     qbittorrentHost: z.string(),
     qbittorrentPort: z.number(),
