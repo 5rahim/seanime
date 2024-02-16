@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/downloader"
 	"github.com/seanime-app/seanime/internal/nyaa"
+	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"io"
@@ -81,6 +82,8 @@ func HandleDownloadNyaaTorrents(c *RouteCtx) error {
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func HandleDownloadTorrentFile(c *RouteCtx) error {
 
 	type body struct {
@@ -152,4 +155,39 @@ func downloadTorrentFile(url string, dest string) (err error) {
 	}
 
 	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func HandleDownloadRelease(c *RouteCtx) error {
+
+	type retData struct {
+		Destination string `json:"destination"`
+		Error       string `json:"error,omitempty"`
+	}
+
+	type body struct {
+		DownloadUrl string `json:"download_url"`
+		Destination string `json:"destination"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	path, err := c.App.Updater.DownloadLatestRelease(b.DownloadUrl, b.Destination)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if err != nil {
+		if errors.Is(err, updater.ErrExtractionFailed) {
+			return c.RespondWithData(retData{Destination: path, Error: err.Error()})
+		}
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(retData{Destination: path})
+
 }

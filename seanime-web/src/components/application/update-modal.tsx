@@ -29,6 +29,7 @@ export function UpdateModal(props: UpdateModalProps) {
 
     React.useEffect(() => {
         if (updateData && updateData.release) {
+            console.log(updateData.release)
             localStorage.setItem("latest-available-update", JSON.stringify(updateData.release.version))
             const latestVersionNotified = localStorage.getItem("notified-available-update")
             if (!latestVersionNotified || (latestVersionNotified !== JSON.stringify(updateData.release.version))) {
