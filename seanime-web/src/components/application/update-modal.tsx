@@ -1,25 +1,32 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
 import { Modal } from "@/components/ui/modal"
+import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalNav } from "@/components/ui/vertical-nav"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
-import { Update } from "@/lib/server/types"
+import { useOpenInExplorer } from "@/lib/server/hooks"
+import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
+import { Release, Update } from "@/lib/server/types"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
+import toast from "react-hot-toast"
 import { AiFillExclamationCircle } from "react-icons/ai"
 
 type UpdateModalProps = {}
 
 
 export const updateModalOpenAtom = atom<boolean>(false)
+const downloaderOpenAtom = atom<boolean>(false)
 
 export function UpdateModal(props: UpdateModalProps) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const [updateModalOpen, setUpdateModalOpen] = useAtom(updateModalOpenAtom)
+    const [downloaderOpen, setDownloaderOpen] = useAtom(downloaderOpenAtom)
 
     const { data: updateData, isLoading } = useSeaQuery<Update>({
         queryKey: ["get-last-update"],
@@ -74,6 +81,7 @@ export function UpdateModal(props: UpdateModalProps) {
                 size="xl"
                 isClosable
             >
+                <Downloader release={updateData.release} />
                 <div
                     className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[10rem] absolute opacity-60 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
                 >
@@ -112,7 +120,7 @@ export function UpdateModal(props: UpdateModalProps) {
                         })}
                     </div>
                     <div className="flex gap-2 justify-end mt-2">
-                        <Button intent="white" leftIcon={<BiDownload />} onClick={() => setUpdateModalOpen(false)}>Download now</Button>
+                        <Button intent="white" leftIcon={<BiDownload />} onClick={() => setDownloaderOpen(true)}>Download now</Button>
                         <Button intent="white-subtle" onClick={() => ignoreUpdate()}>Ignore</Button>
                     </div>
                 </div>
@@ -120,4 +128,91 @@ export function UpdateModal(props: UpdateModalProps) {
         </>
     )
 
+}
+
+type DownloaderProps = {
+    children?: React.ReactNode
+    release?: Release
+}
+
+export function Downloader(props: DownloaderProps) {
+
+    const [downloaderOpen, setDownloaderOpen] = useAtom(downloaderOpenAtom)
+    const [destination, setDestination] = React.useState<string>("")
+    const [asset, setAsset] = React.useState<string>("")
+
+    const {
+        children,
+        release,
+        ...rest
+    } = props
+
+    const { openInExplorer } = useOpenInExplorer()
+
+    const { mutate, isPending } = useSeaMutation<{ destination: string, error: string }, { destination: string, download_url: string }>({
+        endpoint: SeaEndpoints.DOWNLOAD_RELEASE,
+        mutationKey: ["download-release"],
+        onSuccess: data => {
+            toast.success("Update downloaded successfully!")
+            if (data?.error) {
+                toast.error(data.error)
+            }
+            if (data?.destination) {
+                setTimeout(() => {
+                    openInExplorer(data?.destination)
+                }, 1000)
+            }
+            setDownloaderOpen(false)
+        },
+    })
+
+    function handleDownloadRelease() {
+        if (!asset || !destination) {
+            return toast.error("Missing options")
+        }
+        mutate({ destination, download_url: asset })
+    }
+
+    if (!release) return null
+
+    return (
+        <Modal
+            isOpen={downloaderOpen}
+            onClose={() => setDownloaderOpen(false)}
+            size="xl"
+            isClosable
+            title="Download update"
+            bodyClassName="space-y-4"
+        >
+            <div>
+                <RadioGroup
+                    fieldClassName="w-full"
+                    fieldLabelClassName="text-md"
+                    radioContainerClassName={cn(
+                        "block w-full py-2 px-3 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius] opacity-60 hover:opacity-100",
+                        "data-[checked=true]:opacity-100 data-[checked=true]:ring-.5 ring-opacity-20 ring-brand-200 dark:data-[checked=true]:bg-[--brand]",
+                    )}
+                    radioControlClassName="hidden absolute right-2 top-2 h-5 w-5 text-xs"
+                    radioHelpClassName="text-sm"
+                    radioLabelClassName="font-medium flex-none flex"
+                    stackClassName="flex flex-col gap-2 space-y-0"
+                    value={asset}
+                    onChange={v => !!v ? setAsset(v) : {}}
+                    options={release.assets.filter(n => !n.name.endsWith(".txt")).map((asset) => ({
+                        label: asset.name,
+                        value: asset.browser_download_url,
+                    }))}
+                />
+            </div>
+            <DirectorySelector
+                label="Select destination"
+                onSelect={setDestination}
+                value={destination}
+                rightAddon={`/seanime-${release.version}`}
+            />
+            <div className="flex gap-2 justify-end mt-2">
+                <Button intent="white" leftIcon={<BiDownload />} onClick={handleDownloadRelease} isLoading={isPending}>Download</Button>
+            </div>
+        </Modal>
+    )
 }

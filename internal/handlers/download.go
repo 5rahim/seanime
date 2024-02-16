@@ -177,9 +177,6 @@ func HandleDownloadRelease(c *RouteCtx) error {
 	}
 
 	path, err := c.App.Updater.DownloadLatestRelease(b.DownloadUrl, b.Destination)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
 
 	if err != nil {
 		if errors.Is(err, updater.ErrExtractionFailed) {

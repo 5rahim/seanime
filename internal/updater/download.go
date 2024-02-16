@@ -21,13 +21,6 @@ func (u *Updater) DownloadLatestRelease(assetUrl, dest string) (string, error) {
 		return "", errors.New("no new release found")
 	}
 
-	//asset, ok := lo.Find(u.LatestRelease.Assets, func(asset ReleaseAsset) bool {
-	//	return asset.BrowserDownloadUrl == assetUrl
-	//})
-	//if !ok {
-	//	return "", errors.New("could not find release asset")
-	//}
-
 	fpath, err := u.downloadAsset(assetUrl, dest)
 	if err != nil {
 		return "", err
