@@ -1,6 +1,5 @@
 "use client"
 import { BulkActionModal } from "@/app/(main)/(library)/_components/bulk-action-modal"
-import { ScannerModal } from "@/app/(main)/(library)/_components/scanner-modal"
 import { UnknownMediaManager } from "@/app/(main)/(library)/_components/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_components/unmatched-file-manager"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
@@ -40,7 +39,6 @@ export default function Library() {
                 collectionList={libraryCollectionList}
                 isLoading={isLoading}
             />
-            <ScannerModal />
             <UnmatchedFileManager
                 unmatchedGroups={unmatchedGroups}
             />

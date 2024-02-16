@@ -27,6 +27,7 @@ export function useScanLibrary({ onSuccess }: { onSuccess: () => void }) {
             toast.success("Library scanned")
             await qc.refetchQueries({ queryKey: ["get-library-collection"] })
             await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
+            await qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
             onSuccess()
         },
     })

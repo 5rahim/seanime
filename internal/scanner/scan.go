@@ -103,6 +103,29 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		})
 	}
 
+	// +---------------------+
+	// |  No files to scan   |
+	// +---------------------+
+
+	// If there are no local files to scan (all files are skipped, or a file was deleted)
+	if len(localFiles) == 0 {
+		scn.WSEventManager.SendEvent(events.EventScanProgress, 90)
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Verifying file integrity...")
+		// Add skipped files
+		if len(skippedLfs) > 0 {
+			for _, sf := range skippedLfs {
+				if filesystem.FileExists(sf.Path) { // Verify that the file still exists
+					localFiles = append(localFiles, sf)
+				}
+			}
+		}
+		scn.Logger.Debug().Msg("scanner: Scan completed")
+		scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
+		scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
+
+		return localFiles, nil
+	}
+
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 20)
 	if scn.Enhanced {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Fetching media detected from file titles...")
@@ -165,6 +188,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 
 	err = matcher.MatchLocalFilesWithMedia()
 	if err != nil {
+		// If the matcher received no local files, return an error
 		if errors.Is(err, ErrNoLocalFiles) {
 			scn.Logger.Debug().Msg("scanner: Scan completed")
 			scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
