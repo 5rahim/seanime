@@ -87,7 +87,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     })
 
     // download torrent file
-    const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useSeaMutation<boolean, TorrentDownloadProps>({
+    const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useSeaMutation<boolean, TorrentDownloadFileProps>({
         endpoint: SeaEndpoints.DOWNLOAD_TORRENT_FILE,
         method: "post",
         mutationKey: ["download-torrent-files"],
@@ -95,7 +95,6 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             toast.success("Downloaded torrent files")
             setIsOpen(false)
             setTorrentDrawerIsOpen(false)
-            router.push("/torrent-list")
         },
     })
 
@@ -129,6 +128,14 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 media,
             })
         }
+    }
+
+    function handleDownloadFiles() {
+        downloadTorrentFiles({
+            download_urls: selectedTorrents.map(n => n.link),
+            destination,
+            media,
+        })
     }
 
     if (selectedTorrents.length === 0) return null
@@ -189,9 +196,9 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                         <Button
                             leftIcon={<BiDownload />}
                             intent={"gray-outline"}
-                            onClick={() => {}}
+                            onClick={() => handleDownloadFiles()}
                             isDisabled={isDisabled}
-                            // isLoading={isPending}
+                            isLoading={isDownloadingFiles}
                         >Download files only</Button>
                     </div>
 
