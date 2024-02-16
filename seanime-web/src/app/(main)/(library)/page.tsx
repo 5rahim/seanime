@@ -1,12 +1,12 @@
 "use client"
-import { BulkActionModal } from "@/app/(main)/(library)/_components/bulk-action-modal"
-import { UnknownMediaManager } from "@/app/(main)/(library)/_components/unknown-media-manager"
-import { UnmatchedFileManager } from "@/app/(main)/(library)/_components/unmatched-file-manager"
+import { BulkActionModal } from "@/app/(main)/(library)/_containers/bulk-actions/bulk-action-modal"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
-import { LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
+import { useLibraryCollection } from "@/app/(main)/(library)/_containers/library-collection/_lib/library-collection"
+import { LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection/library-collection"
 import { LibraryHeader } from "@/app/(main)/(library)/_containers/library-header"
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
-import { useLibraryCollection } from "@/lib/server/hooks/library"
+import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
+import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
 import React from "react"
 
 export default function Library() {

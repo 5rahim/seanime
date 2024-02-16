@@ -1,7 +1,7 @@
 "use client"
-import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_containers/items"
-import { RuleForm } from "@/app/(main)/auto-downloader/_containers/rule-form"
-import { userMediaAtom } from "@/atoms/collection"
+import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
+import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_components/items"
+import { RuleForm } from "@/app/(main)/auto-downloader/_components/rule-form"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/t
 import { useBoolean } from "@/hooks/use-disclosure"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation, useSeaQuery } from "@/lib/server/queries/utils"
+import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { AutoDownloaderItem, AutoDownloaderRule } from "@/lib/server/types"
 import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
 import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
@@ -34,7 +34,7 @@ const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
 export default function Page() {
     const serverStatus = useAtomValue(serverStatusAtom)
     const qc = useQueryClient()
-    const userMedia = useAtomValue(userMediaAtom)
+    const userMedia = useAtomValue(anilistUserMediaAtom)
 
     const createRuleModal = useBoolean(false)
 

@@ -1,4 +1,5 @@
-import { libraryCollectionAtom, userMediaAtom } from "@/atoms/collection"
+import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
+import { libraryCollectionAtom } from "@/app/(main)/_loaders/library-collection"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
@@ -7,7 +8,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { createTypesafeFormSchema, DangerZone, Field, InferType, TypesafeForm } from "@/components/ui/typesafe-form"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/queries/utils"
+import { useSeaMutation } from "@/lib/server/query"
 import { AutoDownloaderRule, LibraryCollection } from "@/lib/server/types"
 import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
@@ -46,7 +47,7 @@ export function RuleForm(props: RuleFormProps) {
     } = props
 
     const qc = useQueryClient()
-    const userMedia = useAtomValue(userMediaAtom)
+    const userMedia = useAtomValue(anilistUserMediaAtom)
     const libraryCollection = useAtomValue(libraryCollectionAtom)
 
     const allMedia = React.useMemo(() => {

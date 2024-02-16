@@ -1,11 +1,12 @@
 "use client"
+import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
+import { useOpenDefaultMediaPlayer, useStartMpvPlaybackDetection } from "@/app/(main)/entry/_lib/media-player"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu } from "@/components/ui/dropdown-menu"
-import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
-import { useOpenDefaultMediaPlayer, useOpenMediaEntryInExplorer, useStartMpvPlaybackDetection } from "@/lib/server/hooks/settings"
+import { useOpenMediaEntryInExplorer } from "@/lib/server/hooks"
 import { MediaEntry } from "@/lib/server/types"
 import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
 import { BiRightArrowAlt } from "@react-icons/all-files/bi/BiRightArrowAlt"
@@ -14,15 +15,13 @@ import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiPlayCircle } from "react-icons/bi"
 
-export function EpisodeSectionMenu({ entry }: { entry: MediaEntry }) {
+export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     const serverStatus = useAtomValue(serverStatusAtom)
 
     const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
     const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
     const { startMpvPlaybackDetection } = useStartMpvPlaybackDetection()
-
-    // const bulkOffsetEpisodeModal = useBoolean(false)
 
     const { unmatchAll, isPending } = useMediaEntryBulkAction(entry.mediaId)
 

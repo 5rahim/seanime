@@ -1,5 +1,5 @@
 "use client"
-import { _scannerIsScanningAtom } from "@/app/(main)/(library)/_components/scanner-modal"
+import { _scannerIsScanningAtom } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { Spinner } from "@/components/ui/loading-spinner"
 import { WSEvents } from "@/lib/server/endpoints"

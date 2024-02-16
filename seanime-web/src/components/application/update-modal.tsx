@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { VerticalNav } from "@/components/ui/vertical-nav"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/queries/utils"
+import { useSeaQuery } from "@/lib/server/query"
 import { Update } from "@/lib/server/types"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
 import { atom } from "jotai"
@@ -51,7 +51,7 @@ export function UpdateModal(props: UpdateModalProps) {
         if (body.includes("---")) {
             body = body.split("---")[0]
         }
-        return body.split(/\s+-\s+/).filter((line) => line.trim() !== "").map(n => n.startsWith("-") ? n : "- " + n)
+        return body.split(/\s+-\s+/).filter((line) => line.trim() !== "").map(n => (n.startsWith("-") || n.startsWith("##")) ? n : "- " + n)
     }, [updateData])
 
     if (isLoading || !updateData || !updateData.release) return null

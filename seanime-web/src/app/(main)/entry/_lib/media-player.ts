@@ -1,9 +1,9 @@
-import { useSeaMutation } from "@/lib/server/queries/utils"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useCallback, useEffect } from "react"
+import { useSeaMutation } from "@/lib/server/query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useEffect } from "react"
 
-export function useVideoPlayer() {
+export function useMediaPlayer() {
 
     const { mutate } = useSeaMutation<null, { path: string }>({
         endpoint: SeaEndpoints.PLAY_VIDEO,
@@ -16,7 +16,6 @@ export function useVideoPlayer() {
     }
 
 }
-
 
 export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }) {
 
@@ -39,5 +38,31 @@ export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }) {
     }, [pathname, id, playNext])
 
     return null
+
+}
+
+export function useOpenDefaultMediaPlayer() {
+
+    const { mutate } = useSeaMutation({
+        endpoint: SeaEndpoints.START_MEDIA_PLAYER,
+        mutationKey: ["open-default-media-player"],
+    })
+
+    return {
+        startDefaultMediaPlayer: () => mutate(),
+    }
+
+}
+
+export function useStartMpvPlaybackDetection() {
+
+    const { mutate } = useSeaMutation({
+        endpoint: SeaEndpoints.START_MPV_PLAYBACK_DETECTION,
+        mutationKey: ["start-mpv-playback-detection"],
+    })
+
+    return {
+        startMpvPlaybackDetection: () => mutate(),
+    }
 
 }

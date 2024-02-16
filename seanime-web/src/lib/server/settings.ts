@@ -1,5 +1,4 @@
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/queries/utils"
+import { z } from "zod"
 
 export function useDefaultSettingsPaths() {
 
@@ -45,58 +44,23 @@ export function getDefaultMpcSocket(os: string) {
     }
 }
 
-export function useOpenDefaultMediaPlayer() {
-
-    const { mutate } = useSeaMutation({
-        endpoint: SeaEndpoints.START_MEDIA_PLAYER,
-        mutationKey: ["open-default-media-player"],
-    })
-
-    return {
-        startDefaultMediaPlayer: () => mutate(),
-    }
-
-}
-
-export function useStartMpvPlaybackDetection() {
-
-    const { mutate } = useSeaMutation({
-        endpoint: SeaEndpoints.START_MPV_PLAYBACK_DETECTION,
-        mutationKey: ["start-mpv-playback-detection"],
-    })
-
-    return {
-        startMpvPlaybackDetection: () => mutate(),
-    }
-
-}
-
-export function useOpenMediaEntryInExplorer() {
-
-    const { mutate } = useSeaMutation<boolean, { mediaId: number }>({
-        endpoint: SeaEndpoints.OPEN_MEDIA_ENTRY_IN_EXPLORER,
-        mutationKey: ["open-media-entry-in-explorer"],
-    })
-
-    return {
-        openEntryInExplorer: (mediaId: number) => mutate({
-            mediaId: mediaId,
-        }),
-    }
-
-}
-
-export function useOpenInExplorer() {
-
-    const { mutate } = useSeaMutation<boolean, { path: string }>({
-        endpoint: SeaEndpoints.OPEN_IN_EXPLORER,
-        mutationKey: ["open-in-explorer"],
-    })
-
-    return {
-        openInExplorer: (path: string) => mutate({
-            path: path,
-        }),
-    }
-
-}
+export const settingsSchema = z.object({
+    libraryPath: z.string().min(1),
+    defaultPlayer: z.string(),
+    mediaPlayerHost: z.string(),
+    vlcUsername: z.string().optional().default(""),
+    vlcPassword: z.string().optional().default(""),
+    vlcPort: z.number(),
+    vlcPath: z.string().optional().default(""),
+    mpcPort: z.number(),
+    mpcPath: z.string().optional().default(""),
+    mpvSocket: z.string().optional().default(""),
+    mpvPath: z.string().optional().default(""),
+    qbittorrentPath: z.string().optional().default(""),
+    qbittorrentHost: z.string(),
+    qbittorrentPort: z.number(),
+    qbittorrentUsername: z.string().optional().default(""),
+    qbittorrentPassword: z.string().optional().default(""),
+    hideAudienceScore: z.boolean().optional().default(false),
+    autoUpdateProgress: z.boolean().optional().default(false),
+})

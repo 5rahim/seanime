@@ -1,10 +1,10 @@
+import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
+import { IconButton } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import { MediaEntry } from "@/lib/server/types"
-import { IconButton } from "@/components/ui/button"
-import React from "react"
 import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
 import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
-import { useMediaEntryBulkAction } from "@/lib/server/hooks/library"
+import React from "react"
 
 export function BulkToggleLockButton({ entry }: { entry: MediaEntry }) {
 

@@ -1,13 +1,13 @@
-import React, { memo, useMemo } from "react"
-import { LibraryCollectionEntry, LibraryCollectionList } from "@/lib/server/types"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { getLibraryCollectionTitle } from "@/lib/server/utils"
+import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { LibraryCollectionEntry, LibraryCollectionList } from "@/lib/server/types"
+import { getLibraryCollectionTitle } from "@/lib/server/utils"
+import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { useSetAtom } from "jotai"
-import { _scannerModalIsOpen } from "@/app/(main)/(library)/_components/scanner-modal"
+import React, { memo, useMemo } from "react"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
     collectionList: LibraryCollectionList[],

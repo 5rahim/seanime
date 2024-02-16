@@ -1,10 +1,10 @@
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { atom } from "jotai"
+import { useSeaQuery } from "@/lib/server/query"
 import { MediaEntryEpisode } from "@/lib/server/types"
+import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
-import { useSeaQuery } from "@/lib/server/queries/utils"
-import { useEffect } from "react"
 import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 export const missingEpisodesAtom = atom<MediaEntryEpisode[]>([])
 

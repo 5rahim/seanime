@@ -1,7 +1,7 @@
 "use client"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/queries/utils"
+import { useSeaQuery } from "@/lib/server/query"
 import { MalAuthResponse } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"

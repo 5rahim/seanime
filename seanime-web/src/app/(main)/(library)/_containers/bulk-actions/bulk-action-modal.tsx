@@ -1,8 +1,8 @@
+import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/local-file-bulk-actions"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
-import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/lib/server/hooks/library"
 import { BiLockAlt } from "@react-icons/all-files/bi/BiLockAlt"
 import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
 import { atom, useAtom } from "jotai"
@@ -14,7 +14,11 @@ export function BulkActionModal() {
 
     const [isOpen, setIsOpen] = useAtom(bulkActionModalAtomIsOpen)
 
-    const { lockFiles, unlockFiles, isPending } = useLocalFileBulkAction()
+    const { lockFiles, unlockFiles, isPending } = useLocalFileBulkAction({
+        onSuccess: () => {
+            setIsOpen(false)
+        },
+    })
 
     const { removeEmptyDirectories, isPending: isRemoving } = useRemoveEmptyDirectories({
         onSuccess: () => {
@@ -37,7 +41,7 @@ export function BulkActionModal() {
                 {/*<p>These actions do not affect ignored files.</p>*/}
                 <Button
                     leftIcon={<BiLockAlt/>}
-                    intent={"white-link"}
+                    intent={"gray-outline"}
                     className={"w-full"}
                     isDisabled={isPending || isRemoving}
                     onClick={lockFiles}
@@ -46,7 +50,7 @@ export function BulkActionModal() {
                 </Button>
                 <Button
                     leftIcon={<BiLockOpenAlt/>}
-                    intent={"white-link"}
+                    intent={"gray-outline"}
                     className={"w-full"}
                     isDisabled={isPending || isRemoving}
                     onClick={unlockFiles}
@@ -54,7 +58,7 @@ export function BulkActionModal() {
                     Unlock all files
                 </Button>
                 <Button
-                    intent={"white-link"}
+                    intent={"gray-outline"}
                     className={"w-full"}
                     isDisabled= {isPending}
                     isLoading={isRemoving}

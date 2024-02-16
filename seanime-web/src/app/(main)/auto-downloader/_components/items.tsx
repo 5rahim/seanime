@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/queries/utils"
+import { useSeaMutation } from "@/lib/server/query"
 import { AutoDownloaderItem } from "@/lib/server/types"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"

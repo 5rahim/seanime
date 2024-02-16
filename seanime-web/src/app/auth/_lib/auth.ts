@@ -1,5 +1,5 @@
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { buildSeaQuery } from "@/lib/server/queries/utils"
+import { buildSeaQuery } from "@/lib/server/query"
 import { ServerStatus } from "@/lib/server/types"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"

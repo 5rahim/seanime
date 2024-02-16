@@ -1,12 +1,12 @@
 "use client"
-import React, { useEffect } from "react"
+import { useAuth } from "@/app/auth/_lib/auth"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
+import React, { useEffect } from "react"
 import toast from "react-hot-toast"
 import { useUpdateEffect } from "react-use"
-import { useAuth } from "@/lib/server/hooks/auth"
-import { useSetAtom } from "jotai/react"
-import { serverStatusAtom } from "@/atoms/server-status"
 
 export default function Page() {
 

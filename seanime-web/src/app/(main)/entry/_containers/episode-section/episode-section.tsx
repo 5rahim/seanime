@@ -1,16 +1,16 @@
 "use client"
 import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
-import { EpisodeSectionMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-menu"
+import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-dropdown-menu"
 import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section/progress-tracking"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
+import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
 import { Slider } from "@/components/shared/slider"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Divider } from "@/components/ui/divider"
-import { usePlayNextVideoOnMount, useVideoPlayer } from "@/lib/server/hooks/player"
 import { MediaEntry, MediaEntryEpisode } from "@/lib/server/types"
 import { FiPlayCircle } from "@react-icons/all-files/fi/FiPlayCircle"
 import { formatDistanceToNow, isBefore, subYears } from "date-fns"
@@ -20,7 +20,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
     const { entry } = props
     const media = entry.media
 
-    const { playVideo } = useVideoPlayer()
+    const { playVideo } = useMediaPlayer()
 
     usePlayNextVideoOnMount({
         onPlay: () => {
@@ -95,7 +95,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     {!!entry.libraryData && <div className={"space-x-4 flex items-center"}>
                         <ProgressTracking entry={entry}/>
                         <BulkToggleLockButton entry={entry}/>
-                        <EpisodeSectionMenu entry={entry}/>
+                        <EpisodeSectionDropdownMenu entry={entry} />
                     </div>}
 
                 </div>
