@@ -3,19 +3,10 @@ package core
 import (
 	"context"
 	"errors"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/models"
 )
-
-// CheckUpdates checks for updates from the GitHub repository.
-// It returns the latest release and a boolean indicating if the latest release is newer than the current version.
-//func (a *App) CheckUpdates() (*anilist.AnimeCollection, bool) {
-//
-//	updater := updater.New(a.Version)
-//
-//	latestRelease, err := updater.GetLatestRelease()
-//
-//}
 
 // GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
 // When bypassCache is true, it will always query Anilist for the user's collection
@@ -43,6 +34,11 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Remove lists with no status
+	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.AnimeCollection_MediaListCollection_Lists, _ int) bool {
+		return list.Status != nil
+	})
 
 	// Save the collection to App
 	a.anilistCollection = collection

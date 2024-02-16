@@ -90,7 +90,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         <Badge
                             className={"ml-2"} size={"lg"}
                             intent={"gray"}
-                            badgeClassName={"rounded-md"}
+                            badgeClassName={"rounded-full border-transparent"}
                         >
                             {details?.studios?.nodes?.[0]?.name}
                         </Badge>
@@ -101,14 +101,14 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     <div className={"items-center flex flex-wrap gap-2"}>
                         {(!!details?.meanScore && !hideAudienceScore) && (
                             <Badge
-                                className={""}
+                                className={"mr-2"}
                                 size={"lg"}
                                 intent={details.meanScore >= 70 ? details.meanScore >= 85 ? "primary" : "success" : "warning"}
                                 leftIcon={<BiHeart/>}
                             >{details.meanScore / 10}</Badge>
                         )}
                         {details?.genres?.map(genre => {
-                            return <Badge key={genre!} className={"mr-2"} size={"lg"}>{genre}</Badge>
+                            return <Badge key={genre!} className={"mr-2 border-transparent"} size={"lg"}>{genre}</Badge>
                         })}
                     </div>
 
@@ -119,7 +119,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             intent={"gray"}
                             leftIcon={<AiFillStar/>}
                             iconClassName={"text-yellow-500"}
-                            badgeClassName={"rounded-md"}
+                            badgeClassName={"rounded-md border-transparent px-2"}
                         >
                             #{String(allTimeHighestRated.rank)} Highest
                             Rated {allTimeHighestRated.format !== "TV" ? `${allTimeHighestRated.format}` : ""} of All
@@ -130,7 +130,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             intent={"gray"}
                             leftIcon={<AiOutlineStar/>}
                             iconClassName={"text-yellow-500"}
-                            badgeClassName={"rounded-md"}
+                            badgeClassName={"rounded-md border-transparent px-2"}
                         >
                             #{String(seasonHighestRated.rank)} Highest
                             Rated {seasonHighestRated.format !== "TV" ? `${seasonHighestRated.format}` : ""} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
@@ -140,7 +140,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             intent={"gray"}
                             leftIcon={<AiOutlineHeart/>}
                             iconClassName={"text-pink-500"}
-                            badgeClassName={"rounded-md"}
+                            badgeClassName={"rounded-md border-transparent px-2"}
                         >
                             #{(String(seasonMostPopular.rank))} Most
                             Popular {seasonMostPopular.format !== "TV" ? `${seasonMostPopular.format}` : ""} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
@@ -175,7 +175,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                 containerClassName={"hidden md:block"}
                 triggerClassName={"bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"}>
                 {relations.length > 0 && (
-                    <Accordion.Item title={"Relations"} defaultOpen={true}>
+                    <Accordion.Item title={"Relations"} defaultOpen={false}>
                         <div className={"grid grid-cols-4 gap-4 p-4"}>
                             {relations.slice(0, 4).map(edge => {
                                 return <div key={edge.node?.id} className={"col-span-1"}>

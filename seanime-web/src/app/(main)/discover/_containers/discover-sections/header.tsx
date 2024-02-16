@@ -49,13 +49,6 @@ export function DiscoverPageHeader() {
                     )}
                 />}
                 {!randomTrending?.bannerImage && <Skeleton className={"z-0 h-full absolute w-full"} />}
-                {/*{!!randomTrending && (*/}
-                {/*    <div className={"absolute w-full flex justify-center bottom-16 z-[3] text-4xl font-bold h-fit flex-none leading-auto"}>*/}
-                {/*        <p className="max-w-[30rem] line-clamp-1 text-center">*/}
-                {/*            {randomTrending.title?.userPreferred}*/}
-                {/*        </p>*/}
-                {/*    </div>*/}
-                {/*)}*/}
                 {!!randomTrending && (
                     <div
                         className={"absolute bottom-[8rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3] hidden lg:block"}
@@ -79,7 +72,7 @@ export function DiscoverPageHeader() {
                                 </div>}
                             </div>
                             <div className={"flex-auto space-y-1 z-[1]"}>
-                                <h1 className={"text-xl text-gray-300 line-clamp-2 font-semibold max-w-[16rem] leading-6"}>{randomTrending.title?.userPreferred}</h1>
+                                <h1 className={"text-xl text-gray-300 line-clamp-2 font-bold max-w-[16rem] leading-6"}>{randomTrending.title?.userPreferred}</h1>
                                 {!!randomTrending?.nextAiringEpisode?.airingAt &&
                                     <p className="text-lg text-brand-200 flex items-center gap-1.5"><RiSignalTowerLine /> Airing now</p>}
                                 {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
@@ -108,7 +101,7 @@ export function DiscoverPageHeader() {
                                 {/*<p className={"text-[--muted]"}>{randomTrending.}</p>*/}
                             </div>
                             <div
-                                className="bg-[url(/pattern-1.svg)] z-[0] w-full h-full absolute opacity-50 top-0 left-0 bg-no-repeat bg-right bg-contain"
+                                className="bg-[url(/pattern-1.svg)] z-[-1] w-full h-full absolute opacity-100 top-0 left-0 bg-no-repeat bg-right bg-contain"
                             />
                         </div>
                     </div>
