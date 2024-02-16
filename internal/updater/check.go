@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -68,6 +69,8 @@ func (u *Updater) fetchLatestRelease() (*Release, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	res.Release.Version = strings.TrimPrefix(res.Release.TagName, "v")
 
 	return &res.Release, nil
 }

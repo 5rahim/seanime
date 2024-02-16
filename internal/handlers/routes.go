@@ -208,6 +208,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/torrent", makeHandler(app, HandleTorrentAction))
 
 	//
+	// Updates
+	//
+
+	v1.Get("/latest-update", makeHandler(app, HandleGetLatestUpdate))
+
+	//
 	// Websocket
 	//
 

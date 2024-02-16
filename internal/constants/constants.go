@@ -3,7 +3,7 @@ package constants
 import "time"
 
 const (
-	Version             = "0.3.0"
+	Version             = "0.2.0"
 	VersionName         = "Roronoa"
 	DevelopmentWebBuild = false
 	GcTime              = time.Minute * 30

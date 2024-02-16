@@ -8,6 +8,7 @@ import { LibraryWatcher } from "@/components/application/library-watcher"
 import { MainLayout } from "@/components/application/main-layout"
 import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
 import { TopNavbar } from "@/components/application/top-navbar"
+import { UpdateModal } from "@/components/application/update-modal"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import { useAnilistCollectionListener } from "@/lib/server/hooks/media"
 import React from "react"
@@ -25,6 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <MainLayout>
             <ScanProgressBar />
             <LibraryWatcher />
+            <UpdateModal />
             <div className="min-h-screen">
                 <div className={"w-full md:h-[8rem] relative overflow-hidden pt-[--titlebar-h]"}>
                     <div

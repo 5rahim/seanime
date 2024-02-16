@@ -64,6 +64,10 @@ export const enum SeaEndpoints {
     AUTO_DOWNLOADER_ITEMS = "/auto-downloader/items", // (GET)
     AUTO_DOWNLOADER_ITEM = "/auto-downloader/item", // (DELETE)
     RUN_AUTO_DOWNLOADER = "/auto-downloader/run", // (POST)
+    /**
+     * Updates
+     */
+    LATEST_UPDATE = "/latest-update", // (GET)
 }
 
 export const enum WSEvents {

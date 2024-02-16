@@ -19,6 +19,7 @@ import (
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"log"
@@ -46,6 +47,7 @@ type (
 			Mpv   *mpv.Mpv
 		}
 		Version string
+		Updater *updater.Updater
 	}
 
 	AppOptions struct {
@@ -129,6 +131,7 @@ func NewApp(options *AppOptions, version string) *App {
 		AutoDownloader:       nAutoDownloader,
 		Logger:               logger,
 		Version:              version,
+		Updater:              updater.New(version),
 	}
 
 	app.InitOrRefreshModules()

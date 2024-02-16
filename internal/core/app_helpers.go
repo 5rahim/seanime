@@ -7,6 +7,16 @@ import (
 	"github.com/seanime-app/seanime/internal/models"
 )
 
+// CheckUpdates checks for updates from the GitHub repository.
+// It returns the latest release and a boolean indicating if the latest release is newer than the current version.
+//func (a *App) CheckUpdates() (*anilist.AnimeCollection, bool) {
+//
+//	updater := updater.New(a.Version)
+//
+//	latestRelease, err := updater.GetLatestRelease()
+//
+//}
+
 // GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
 // When bypassCache is true, it will always query Anilist for the user's collection
 func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
