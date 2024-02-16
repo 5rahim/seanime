@@ -191,7 +191,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                         Open on NYAA
                     </Tooltip>
                 ))}
-                <div className={"mt-4 flex w-full justify-between gap-2 items-center"}>
+                <div className={"!mt-4 flex w-full justify-between gap-2 items-center"}>
                     <div>
                         <Button
                             leftIcon={<BiDownload />}
@@ -199,10 +199,10 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                             onClick={() => handleDownloadFiles()}
                             isDisabled={isDisabled}
                             isLoading={isDownloadingFiles}
-                        >Download files only</Button>
+                        >Download torrent files</Button>
                     </div>
 
-                    <div className={"mt-4 flex w-full justify-end gap-2"}>
+                    <div className={"flex w-full justify-end gap-2"}>
                         {(selectedTorrents.length > 0 && canSmartSelect) && <Button
                             leftIcon={<BiCollection />}
                             intent={"white-outline"}
