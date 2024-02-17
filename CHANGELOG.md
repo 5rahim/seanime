@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.3.0
+
+- 🏗️ **BREAKING:** Unified server and web interface
+  - The web interface is now served from the server process instead of a separate one
+  - The configuration file is now named `config.toml`
+  - This update will reset your config variables (not settings)
+- 🏗️ Handle runtime errors gracefully
+  - Seanime will now try to recover from runtime errors and display the stack trace
+- ⚡️ Support for different server host and port
+  - Changing the server host and port will not break the web interface anymore
+- ✨ Added update notifications
+  - Seanime will now check for updates on startup and notify you if a new version is available (can be disabled in settings)
+  - You can also download the update from the Web UI
+- ⚡️ Added ability to download ".torrent" files #11
+- ⚡️ Improved MPV support
+  - Refactored the implementation to be less error-prone
+  - You can now specify the MPV binary file path in the settings
+- 🦺 Fixed bug causing scanner to keep deleted files in the database
+- 🦺 Fixed UI issues related to Auto Downloader notification badge and scanner dialog
+- 🦺 Fixed duplicated UI items caused by AniList custom lists
+- 🏗️ Refactored web interface code structure
+- ⬆️ Updated dependencies
+
 ## 0.2.1
 
 - ✨ Added MPV support (Experimental) #5
