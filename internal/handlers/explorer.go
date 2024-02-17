@@ -31,7 +31,7 @@ func openDirInExplorer(dir string) {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "explorer"
-		args = []string{strings.Replace(dir, "/", "\\", -1)}
+		args = []string{strings.ReplaceAll(dir, "/", "\\")}
 	case "darwin":
 		cmd = "open"
 		args = []string{dir}

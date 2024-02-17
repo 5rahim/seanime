@@ -53,6 +53,7 @@ export const enum SeaEndpoints {
      * Download/Torrent
      */
     DOWNLOAD = "/download", // (POST)
+    DOWNLOAD_TORRENT_FILE = "/download-torrent-file", // (POST)
     TORRENTS = "/torrents", // (GET)
     TORRENT = "/torrent", // (POST)
     /**
@@ -64,6 +65,11 @@ export const enum SeaEndpoints {
     AUTO_DOWNLOADER_ITEMS = "/auto-downloader/items", // (GET)
     AUTO_DOWNLOADER_ITEM = "/auto-downloader/item", // (DELETE)
     RUN_AUTO_DOWNLOADER = "/auto-downloader/run", // (POST)
+    /**
+     * Updates
+     */
+    LATEST_UPDATE = "/latest-update", // (GET)
+    DOWNLOAD_RELEASE = "/download-release", // (POST)
 }
 
 export const enum WSEvents {

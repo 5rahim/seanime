@@ -4,7 +4,7 @@ import { BetaBadge } from "@/components/application/beta-badge"
 import { Button } from "@/components/ui/button"
 import { MAL_CLIENT_ID } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/queries/utils"
+import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import React from "react"
@@ -29,7 +29,7 @@ export default function Page() {
         },
     })
 
-    if (!status?.mal) return (
+    if (!status?.mal && window.location.host === "127.0.0.1:43211") return (
         <div className="p-12 text-center">
             <p className="flex justify-center w-full text-8xl"><SiMyanimelist /></p>
             <p className="-mt-2 pb-6 text-lg">Connect your MyAnimeList account to Seanime</p>
@@ -40,6 +40,16 @@ export default function Page() {
                 intent={"primary"}
                 size={"lg"}
             >Log in with MAL</Button>
+        </div>
+    )
+
+    if (!status?.mal && window.location.host !== "127.0.0.1:43211") return (
+        <div className="p-12 text-center">
+            <p className="flex justify-center w-full text-8xl"><SiMyanimelist /></p>
+            <p className="-mt-2 pb-6 text-lg">Connect your MyAnimeList account to Seanime</p>
+            <p className="text-[--muted]">
+                Due to authentication restrictions, you can only connect your MyAnimeList account from <em>127.0.0.1:43211</em>
+            </p>
         </div>
     )
 

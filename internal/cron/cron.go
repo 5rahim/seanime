@@ -15,13 +15,16 @@ func RunJobs(app *core.App) {
 		App: app,
 	}
 
-	ticker := time.NewTicker(10 * time.Minute)
+	refreshAnilistTicker := time.NewTicker(10 * time.Minute)
+	refetchReleaseTicker := time.NewTicker(1 * time.Hour)
 
 	go func() {
 		for {
 			select {
-			case <-ticker.C:
+			case <-refreshAnilistTicker.C:
 				RefreshAnilistCollectionJob(ctx)
+			case <-refetchReleaseTicker.C:
+				app.Updater.ShouldRefetchReleases()
 			}
 		}
 	}()

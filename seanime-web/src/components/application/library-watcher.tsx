@@ -1,4 +1,4 @@
-import { _scannerModalIsOpen } from "@/app/(main)/(library)/_components/scanner-modal"
+import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { Button, CloseButton } from "@/components/ui/button"
 import { useBoolean } from "@/hooks/use-disclosure"

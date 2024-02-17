@@ -18,12 +18,15 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	libraryCollection := entities.NewLibraryCollection(&entities.NewLibraryCollectionOptions{
+	libraryCollection, err := entities.NewLibraryCollection(&entities.NewLibraryCollectionOptions{
 		AnilistCollection:    anilistCollection,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		AnizipCache:          c.App.AnizipCache,
 		LocalFiles:           lfs,
 	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
 	return c.RespondWithData(libraryCollection)
 }

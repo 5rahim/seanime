@@ -8,18 +8,15 @@ import (
 )
 
 type Config struct {
-	Server struct {
-		Host string
-		Port int
-	}
-	Web struct {
+	Version string
+	Server  struct {
 		Host string
 		Port int
 	}
 	Database struct {
 		Name string
 	}
-	Data struct {
+	Data struct { // Hydrated after config is loaded
 		AppDataDir string
 	}
 }
@@ -44,21 +41,15 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 
 	// Set the config file name and type
 	viper.SetConfigName(constants.ConfigFileName)
-	viper.SetConfigType("json")
+	viper.SetConfigType("toml")
 	viper.SetConfigFile(configPath)
 
 	// Check if the config file exists, and generate a default one if not
 	_, err = os.Stat(configPath)
 	if os.IsNotExist(err) {
 		cfg := &Config{
+			Version: constants.Version,
 			Server: struct {
-				Host string
-				Port int
-			}{
-				Host: "127.0.0.1",
-				Port: 43210,
-			},
-			Web: struct {
 				Host string
 				Port int
 			}{
@@ -90,19 +81,33 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 		return nil, err
 	}
 
+	// Update the config if the version has changed
+	updateVersion(cfg)
+
 	cfg.Data.AppDataDir = appDataDir
 
 	return cfg, nil
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func updateVersion(cfg *Config) {
+	defer func() {
+		if r := recover(); r != nil {
+			// Do nothing
+		}
+	}()
+	if cfg.Version != constants.Version {
+		cfg.Version = constants.Version
+		_ = cfg.saveConfigToFile()
+	}
+}
 
 // saveConfigToFile saves the config to the config file.
 func (cfg *Config) saveConfigToFile() error {
+	viper.Set("version", constants.Version)
 	viper.Set("server.host", cfg.Server.Host)
 	viper.Set("server.port", cfg.Server.Port)
-	viper.Set("web.host", cfg.Web.Host)
-	viper.Set("web.port", cfg.Web.Port)
 	viper.Set("database.name", cfg.Database.Name)
 
 	if err := viper.WriteConfig(); err != nil {

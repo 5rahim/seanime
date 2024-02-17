@@ -1,7 +1,7 @@
+import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
 import { Slider } from "@/components/shared/slider"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { useAnilistCollection } from "@/lib/server/hooks/media"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import Image from "next/image"
 import Link from "next/link"

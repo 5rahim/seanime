@@ -5,9 +5,8 @@ import { Card } from "@/components/ui/card"
 import { Divider } from "@/components/ui/divider"
 import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useDefaultSettingsPaths } from "@/lib/server/hooks/settings"
-import { useSeaMutation } from "@/lib/server/queries/utils"
-import { settingsSchema } from "@/lib/server/schemas"
+import { useSeaMutation } from "@/lib/server/query"
+import { settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
 import { ServerStatus, Settings } from "@/lib/server/types"
 import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
 import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
@@ -63,6 +62,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     library: {
                                         libraryPath: data.libraryPath,
                                         autoUpdateProgress: false,
+                                        disableUpdateCheck: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -74,6 +74,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         mpcPort: data.mpcPort,
                                         mpcPath: data.mpcPath || "",
                                         mpvSocket: "",
+                                        mpvPath: "",
                                     },
                                     torrent: {
                                         qbittorrentPath: data.qbittorrentPath,

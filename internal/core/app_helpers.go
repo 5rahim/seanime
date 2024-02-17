@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"errors"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/models"
 )
@@ -33,6 +34,11 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Remove lists with no status
+	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.AnimeCollection_MediaListCollection_Lists, _ int) bool {
+		return list.Status != nil
+	})
 
 	// Save the collection to App
 	a.anilistCollection = collection

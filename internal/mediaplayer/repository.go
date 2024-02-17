@@ -52,7 +52,7 @@ func (m *Repository) Play(path string) error {
 		}
 		return nil
 	case "mpv":
-		err := m.Mpv.OpenAndPlay(path)
+		err := m.Mpv.OpenAndPlay(path, mpv.StartExec)
 		if err != nil {
 			return fmt.Errorf("could not open and play video, %s", err.Error())
 		}
@@ -78,7 +78,6 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 		for {
 			select {
 			case <-done:
-				m.Logger.Printf("Exiting media player status monitoring goroutine")
 				return
 			case <-time.After(3 * time.Second):
 				var status interface{}
@@ -102,7 +101,7 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 						} else {
 							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Closed")
 						}
-						m.Logger.Error().Msg("mediaplayer: Failed to get status")
+						m.Logger.Error().Msgf("mediaplayer: Failed to get status, %s", err.Error())
 						m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
 						switch m.Default {
 						case "vlc":

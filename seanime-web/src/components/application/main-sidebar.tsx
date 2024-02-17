@@ -4,6 +4,7 @@ import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useCurrentUser } from "@/atoms/user"
 import { __globalSearch_isOpenAtom } from "@/components/application/global-search"
+import { UpdateModal } from "@/components/application/update-modal"
 import { AppSidebar } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +15,7 @@ import { VerticalNav } from "@/components/ui/vertical-nav"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ANILIST_OAUTH_URL } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/queries/utils"
+import { useSeaMutation } from "@/lib/server/query"
 import { ServerStatus } from "@/lib/server/types"
 import { AiOutlineClockCircle } from "@react-icons/all-files/ai/AiOutlineClockCircle"
 import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
@@ -97,7 +98,7 @@ export function MainSidebar() {
             name: "Search",
             onClick: () => setGlobalSearchIsOpen(true),
         },
-    ] : [], [user, pathname])
+    ] : [], [user, pathname, autoDownloaderQueueCount])
 
     return (
         <>
@@ -130,6 +131,7 @@ export function MainSidebar() {
                     />
                 </div>
                 <div className={"flex w-full gap-2 flex-col"}>
+                    <UpdateModal />
                     <div>
                         <VerticalNav
                             items={[

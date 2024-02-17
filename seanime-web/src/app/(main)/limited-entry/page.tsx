@@ -4,8 +4,8 @@ import { EntryHeaderBackground } from "@/app/(main)/entry/_components/entry-head
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-section/episode-section"
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useMediaDetails, useSimpleMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useMediaDetails, useSimpleMediaEntry } from "@/lib/server/hooks/media"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 

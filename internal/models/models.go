@@ -59,11 +59,13 @@ type MediaPlayerSettings struct {
 	MpcPort     int    `gorm:"column:mpc_port" json:"mpcPort"`
 	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
 	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
+	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
 }
 
 type LibrarySettings struct {
 	LibraryPath        string `gorm:"column:library_path" json:"libraryPath"`
 	AutoUpdateProgress bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
+	DisableUpdateCheck bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
 }
 
 type TorrentSettings struct {

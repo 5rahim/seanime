@@ -1,14 +1,12 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { BetaBadge } from "@/components/application/beta-badge"
 import { cn } from "@/components/ui/core"
 import { Divider } from "@/components/ui/divider"
 import { TabPanels } from "@/components/ui/tabs"
 import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { getDefaultMpcSocket } from "@/lib/server/hooks/settings"
-import { useSeaMutation } from "@/lib/server/queries/utils"
-import { settingsSchema } from "@/lib/server/schemas"
+import { useSeaMutation } from "@/lib/server/query"
+import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import { ServerStatus, Settings } from "@/lib/server/types"
 import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
 import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
@@ -51,6 +49,7 @@ export default function Page() {
                         library: {
                             libraryPath: data.libraryPath,
                             autoUpdateProgress: data.autoUpdateProgress,
+                            disableUpdateCheck: data.disableUpdateCheck,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -62,6 +61,7 @@ export default function Page() {
                             mpcPort: data.mpcPort,
                             mpcPath: data.mpcPath || "",
                             mpvSocket: data.mpvSocket || "",
+                            mpvPath: data.mpvPath || "",
                         },
                         torrent: {
                             qbittorrentPath: data.qbittorrentPath,
@@ -86,6 +86,7 @@ export default function Page() {
                     mpcPort: status?.settings?.mediaPlayer?.mpcPort,
                     mpcPath: status?.settings?.mediaPlayer?.mpcPath,
                     mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
+                    mpvPath: status?.settings?.mediaPlayer?.mpvPath,
                     qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                     qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                     qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
@@ -93,6 +94,7 @@ export default function Page() {
                     qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
                     hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
                     autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
+                    disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
                 }}
                 stackClassName="space-y-4"
             >
@@ -129,6 +131,12 @@ export default function Page() {
                                         name="autoUpdateProgress"
                                         label="Automatically update progress"
                                         help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
+                                    />
+                                    <Divider />
+                                    <Field.Switch
+                                        name="disableUpdateCheck"
+                                        label="Disable update check"
+                                        help="If enabled, Seanime will not check for new releases."
                                     />
 
                                 </TabPanels.Panel>
@@ -191,12 +199,18 @@ export default function Page() {
 
                                     <Divider />
 
-                                    <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV <BetaBadge /></h3>
+                                    <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV</h3>
                                     <div className="flex gap-4">
                                         <Field.Text
                                             name="mpvSocket"
                                             label="Socket"
                                             placeholder={`Default: '${getDefaultMpcSocket(status?.os ?? "")}'`}
+                                        />
+                                        <Field.Text
+                                            name="mpvPath"
+                                            label="Application path"
+                                            placeholder={"Defaults to 'mpv' command"}
+                                            help={"Leave empty to automatically use the 'mpv' command"}
                                         />
                                     </div>
                                 </TabPanels.Panel>

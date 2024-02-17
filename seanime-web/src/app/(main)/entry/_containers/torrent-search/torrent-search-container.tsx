@@ -1,22 +1,22 @@
-import { MediaEntry, SearchTorrent, TorrentSearchData } from "@/lib/server/types"
-import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
-import { buildSeaQuery, useSeaQuery } from "@/lib/server/queries/utils"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { atom } from "jotai"
-import { useAtom } from "jotai/react"
-import { useDebounceWithSet } from "@/hooks/use-debounce"
-import { DataGridSearchInput } from "@/components/ui/datagrid"
-import { cn } from "@/components/ui/core"
-import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
-import { Switch } from "@/components/ui/switch"
-import { NumberInput } from "@/components/ui/number-input"
-import { Select } from "@/components/ui/select"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
 import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { cn } from "@/components/ui/core"
+import { DataGridSearchInput } from "@/components/ui/datagrid"
+import { NumberInput } from "@/components/ui/number-input"
+import { Select } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { useDebounceWithSet } from "@/hooks/use-debounce"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { buildSeaQuery, useSeaQuery } from "@/lib/server/query"
+import { MediaEntry, SearchTorrent, TorrentSearchData } from "@/lib/server/types"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
+import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<SearchTorrent[]>([])
 

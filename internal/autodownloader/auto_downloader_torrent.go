@@ -20,7 +20,7 @@ type (
 )
 
 func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, error) {
-	ad.Logger.Debug().Msg("autodownloader: Checking for new episodes from Nyaa")
+	ad.Logger.Trace().Msg("autodownloader: Checking for new episodes from Nyaa")
 
 	// Fetch the RSS feed
 	torrents, err := nyaa.GetTorrentList(nyaa.SearchOptions{

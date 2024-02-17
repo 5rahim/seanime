@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
@@ -26,6 +25,11 @@ func (a *App) InitOrRefreshModules() {
 		return
 	}
 
+	// Update updater
+	if settings.Library != nil && a.Updater != nil {
+		a.Updater.CheckForUpdate = !settings.Library.DisableUpdateCheck
+	}
+
 	// Update VLC/MPC-HC
 
 	if settings.MediaPlayer != nil {
@@ -42,7 +46,7 @@ func (a *App) InitOrRefreshModules() {
 			Path:   settings.MediaPlayer.MpcPath,
 			Logger: a.Logger,
 		}
-		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket)
+		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}
@@ -131,16 +135,10 @@ func (a *App) initAnilistData() {
 	// Set account
 	a.account = acc
 
-	// Set Anilist collection
-	a.anilistCollection, err = a.AnilistClientWrapper.Client.AnimeCollection(context.Background(), &acc.Username)
+	_, err = a.RefreshAnilistCollection()
 	if err != nil {
 		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
 		return
-	}
-
-	// Save the collection to AutoDownloader
-	if a.AutoDownloader != nil {
-		a.AutoDownloader.AnilistCollection = a.anilistCollection
 	}
 
 	a.Logger.Info().Msg("app: Fetched Anilist collection")

@@ -1,6 +1,6 @@
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/queries/utils"
+import { useSeaQuery } from "@/lib/server/query"
 import { AutoDownloaderItem } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"

@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/core"
 	"sync"
 )
@@ -13,6 +15,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
+
+	// Set up a custom logger for fiber
+	fiberLogger := fiberzerolog.New(fiberzerolog.Config{
+		Logger: app.Logger,
+		SkipURIs: []string{
+			"/internal/metrics",
+			"/_next",
+			"/icons",
+		},
+		Levels: []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
+	})
+	fiberApp.Use(fiberLogger)
 
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")
@@ -192,6 +206,19 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/download", makeHandler(app, HandleDownloadNyaaTorrents))
 	v1.Get("/torrents", makeHandler(app, HandleGetActiveTorrentList))
 	v1.Post("/torrent", makeHandler(app, HandleTorrentAction))
+
+	//
+	// Download
+	//
+
+	v1.Post("/download-torrent-file", makeHandler(app, HandleDownloadTorrentFile))
+
+	//
+	// Updates
+	//
+
+	v1.Get("/latest-update", makeHandler(app, HandleGetLatestUpdate))
+	v1.Post("/download-release", makeHandler(app, HandleDownloadRelease))
 
 	//
 	// Websocket

@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediaplayer"
+	"github.com/seanime-app/seanime/internal/mpv"
 )
 
 func HandlePlayVideo(c *RouteCtx) error {
@@ -69,7 +70,7 @@ func HandleMpvDetectPlayback(c *RouteCtx) error {
 	}
 
 	// Play the video
-	err = mediaPlayerRepo.Mpv.DetectPlayback()
+	err = mediaPlayerRepo.Mpv.OpenAndPlay("", mpv.StartDetectPlayback)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
