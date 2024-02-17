@@ -105,7 +105,7 @@ export function useSeaQuery<TData, TParams = any>(
 //----------------------------------------------------------------------------------------------------------------------
 
 function _handleSeaError(err: string | null | undefined): string {
-    if (!err) return ""
+    if (!err) return "Unknown error"
 
     if (err.includes("Too many requests"))
         return "AniList: Too many requests, please wait a moment and try again."
