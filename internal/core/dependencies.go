@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
@@ -136,16 +135,10 @@ func (a *App) initAnilistData() {
 	// Set account
 	a.account = acc
 
-	// Set Anilist collection
-	a.anilistCollection, err = a.AnilistClientWrapper.Client.AnimeCollection(context.Background(), &acc.Username)
+	_, err = a.RefreshAnilistCollection()
 	if err != nil {
 		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
 		return
-	}
-
-	// Save the collection to AutoDownloader
-	if a.AutoDownloader != nil {
-		a.AutoDownloader.AnilistCollection = a.anilistCollection
 	}
 
 	a.Logger.Info().Msg("app: Fetched Anilist collection")
