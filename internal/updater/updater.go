@@ -20,7 +20,7 @@ type (
 	}
 
 	Update struct {
-		Release *Release `json:"release"`
+		Release *Release `json:"release,omitempty"`
 		Type    string   `json:"type"`
 	}
 

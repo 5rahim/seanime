@@ -31,12 +31,11 @@ export function UpdateModal(props: UpdateModalProps) {
     const { data: updateData, isLoading } = useSeaQuery<Update>({
         queryKey: ["get-last-update"],
         endpoint: SeaEndpoints.LATEST_UPDATE,
-        enabled: !!serverStatus,
+        enabled: !!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck,
     })
 
     React.useEffect(() => {
         if (updateData && updateData.release) {
-            console.log(updateData.release)
             localStorage.setItem("latest-available-update", JSON.stringify(updateData.release.version))
             const latestVersionNotified = localStorage.getItem("notified-available-update")
             if (!latestVersionNotified || (latestVersionNotified !== JSON.stringify(updateData.release.version))) {
