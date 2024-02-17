@@ -26,6 +26,11 @@ func (a *App) InitOrRefreshModules() {
 		return
 	}
 
+	// Update updater
+	if settings.Library != nil && a.Updater != nil {
+		a.Updater.CheckForUpdate = !settings.Library.DisableUpdateCheck
+	}
+
 	// Update VLC/MPC-HC
 
 	if settings.MediaPlayer != nil {

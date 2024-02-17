@@ -62,6 +62,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     library: {
                                         libraryPath: data.libraryPath,
                                         autoUpdateProgress: false,
+                                        disableUpdateCheck: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

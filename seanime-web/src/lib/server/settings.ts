@@ -63,4 +63,5 @@ export const settingsSchema = z.object({
     qbittorrentPassword: z.string().optional().default(""),
     hideAudienceScore: z.boolean().optional().default(false),
     autoUpdateProgress: z.boolean().optional().default(false),
+    disableUpdateCheck: z.boolean().optional().default(false),
 })

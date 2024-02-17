@@ -49,6 +49,7 @@ export default function Page() {
                         library: {
                             libraryPath: data.libraryPath,
                             autoUpdateProgress: data.autoUpdateProgress,
+                            disableUpdateCheck: data.disableUpdateCheck,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -93,6 +94,7 @@ export default function Page() {
                     qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
                     hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
                     autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
+                    disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
                 }}
                 stackClassName="space-y-4"
             >
@@ -129,6 +131,12 @@ export default function Page() {
                                         name="autoUpdateProgress"
                                         label="Automatically update progress"
                                         help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
+                                    />
+                                    <Divider />
+                                    <Field.Switch
+                                        name="disableUpdateCheck"
+                                        label="Disable update check"
+                                        help="If enabled, Seanime will not check for new releases."
                                     />
 
                                 </TabPanels.Panel>

@@ -68,6 +68,7 @@ export type MediaPlayerSettings = {
 export type LibrarySettings = {
     libraryPath: string
     autoUpdateProgress: boolean
+    disableUpdateCheck: boolean
 }
 
 export type TorrentSettings = {

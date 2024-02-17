@@ -65,6 +65,7 @@ type MediaPlayerSettings struct {
 type LibrarySettings struct {
 	LibraryPath        string `gorm:"column:library_path" json:"libraryPath"`
 	AutoUpdateProgress bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
+	DisableUpdateCheck bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
 }
 
 type TorrentSettings struct {

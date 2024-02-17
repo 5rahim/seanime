@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	latestReleaseUrl = "https://seanime.rahim.app/api/release"
+	latestReleaseUrl = "https://seanime.rahim.app/api/release" // GitHub API host
 )
 
 func (u *Updater) getReleaseName(version string) string {

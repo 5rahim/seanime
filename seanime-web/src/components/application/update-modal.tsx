@@ -61,6 +61,8 @@ export function UpdateModal(props: UpdateModalProps) {
         return body.split(/\s+-\s+/).filter((line) => line.trim() !== "").map(n => (n.startsWith("-") || n.startsWith("##")) ? n : "- " + n)
     }, [updateData])
 
+    if (serverStatus?.settings?.library?.disableUpdateCheck) return null
+
     if (isLoading || !updateData || !updateData.release) return null
 
     return (
