@@ -3,6 +3,9 @@ logs/
 *.db
 .env
 
+Dockerfile
+.dockerignore
+
 logs
 web/
 

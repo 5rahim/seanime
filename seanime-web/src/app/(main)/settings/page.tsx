@@ -135,7 +135,7 @@ export default function Page() {
                                     <Divider />
                                     <Field.Switch
                                         name="disableUpdateCheck"
-                                        label="Disable update check"
+                                        label="Do not check for updates"
                                         help="If enabled, Seanime will not check for new releases."
                                     />
 
@@ -157,6 +157,7 @@ export default function Page() {
                                     <Field.Text
                                         name="mediaPlayerHost"
                                         label="Host"
+                                        help="VLC/MPC-HC"
                                     />
 
                                     <Divider />

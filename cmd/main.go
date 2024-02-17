@@ -12,11 +12,9 @@ import (
 func main() {
 
 	purple := color.New(color.FgHiMagenta)
-	green := color.New(color.FgGreen)
 	fmt.Println()
 	purple.Print("                    ⦿ SEANIME")
-	fmt.Printf("\n                      %s ", constants.Version)
-	green.Print(constants.VersionName)
+	fmt.Printf(" %s ", constants.Version)
 	fmt.Println()
 	fmt.Println()
 

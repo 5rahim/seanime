@@ -178,9 +178,9 @@ func NewFiberApp(app *App) *fiber.App {
 			}
 		}
 		if constants.DevelopmentWebBuild {
-			return c.SendFile("seanime-web/web" + path)
+			return c.SendFile("./seanime-web/web" + path)
 		} else {
-			return c.SendFile("web" + path)
+			return c.SendFile("./web" + path)
 		}
 	})
 
