@@ -19,6 +19,7 @@ export default function Page() {
         const challenge = generateRandomString(50)
         const state = generateRandomString(10)
         sessionStorage.setItem("mal-" + state, challenge)
+        // TODO add redirect_uri
         return `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${MAL_CLIENT_ID}&state=${state}&code_challenge=${challenge}&code_challenge_method=plain`
     }, [])
 

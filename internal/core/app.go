@@ -150,7 +150,11 @@ func NewFiberApp(app *App) *fiber.App {
 		DisableStartupMessage: true,
 	})
 
-	fiberApp.Static("/", "./web")
+	if constants.DevelopmentWebBuild {
+		fiberApp.Static("/", "./seanime-web/web")
+	} else {
+		fiberApp.Static("/", "./web")
+	}
 
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
 		path := c.OriginalURL()

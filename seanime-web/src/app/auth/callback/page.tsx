@@ -1,18 +1,38 @@
 "use client"
-import { useAuth } from "@/app/auth/_lib/auth"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
+import { ServerStatus } from "@/lib/server/types"
 import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useUpdateEffect } from "react-use"
 
 export default function Page() {
-
     const router = useRouter()
 
-    const { data, error, token } = useAuth()
+    const [token, setToken] = useState<string | null>(null)
+
+    const { mutate: login, data, error } = useSeaMutation<ServerStatus, { token: string }>({
+        mutationKey: ["login"],
+        endpoint: SeaEndpoints.LOGIN,
+    })
+
+    useEffect(() => {
+        if (window !== undefined) {
+            const token = window?.location?.hash?.replace("#access_token=", "")?.replace(/&.*/, "")
+            setToken(token)
+            if (!!token) {
+                login({ token })
+            } else {
+                toast.error("Invalid token")
+                router.push("/")
+            }
+        }
+    }, [])
+
     const setServerStatus = useSetAtom(serverStatusAtom)
 
     useUpdateEffect(() => {
