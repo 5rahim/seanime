@@ -21,9 +21,9 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 		for {
 			if _, msg, err = c.ReadMessage(); err != nil {
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-					app.Logger.Debug().Msg("ws: Client disconnected")
+					app.Logger.Trace().Msg("ws: Client disconnected")
 				} else {
-					app.Logger.Debug().Msg("ws: Client disconnection")
+					app.Logger.Trace().Msg("ws: Client disconnection")
 				}
 				break
 			}

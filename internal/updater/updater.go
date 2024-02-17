@@ -116,15 +116,27 @@ func (u *Updater) compareVersion(currVersion string, tagName string) (string, bo
 	latestMinor, _ := strconv.Atoi(latestVParts[1])
 	latestPatch, _ := strconv.Atoi(latestVParts[2])
 
-	if latestMajor > currMajor {
+	if currMajor > latestMajor {
+		return "", false
+	}
+
+	if currMajor < latestMajor {
 		return MajorRelease, true
 	}
 
-	if latestMinor > currMinor {
+	if currMinor > latestMinor {
+		return "", false
+	}
+
+	if currMinor < latestMinor {
 		return MinorRelease, true
 	}
 
-	if latestPatch > currPatch {
+	if currPatch > latestPatch {
+		return "", false
+	}
+
+	if currPatch < latestPatch {
 		return PatchRelease, true
 	}
 
