@@ -52,7 +52,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/list-sync/anime", makeHandler(app, HandleSyncAnime))
 
 	// Auto Downloader
-	v1.Post("/auto-downloader/run", makeHandler(app, HandleRunAutoDownloaderRule))
+	v1.Post("/auto-downloader/run", makeHandler(app, HandleRunAutoDownloader))
 	v1.Get("/auto-downloader/rule/:id", makeHandler(app, HandleGetAutoDownloaderRule))
 	v1.Get("/auto-downloader/rules", makeHandler(app, HandleGetAutoDownloaderRules))
 	v1.Post("/auto-downloader/rule", makeHandler(app, HandleCreateAutoDownloaderRule))

@@ -94,3 +94,18 @@ support transcoding or streaming to other devices (yet).
 ## Schedule
 
 <img src="docs/images/schedule.png" alt="preview" width="100%"/>
+
+# Disclaimer
+
+- Seanime relies exclusively on the content stored by individual users on their personal devices. 
+The acquisition and legitimacy of this content are external to our control.
+  Seanime is not responsible for the actions of its users and does not condone the illegal use of copyrighted material.
+- Seanime and its developer do not host, store, or distribute any content found within the application. All anime
+  information, as well as images, are sourced from publicly available APIs such as AniList and MyAnimeList.
+- Seanime may, at its discretion, provide links to external websites or applications related to torrents on the
+  Internet. These external torrent websites are independently maintained by third parties, and Seanime has no control
+  over the legitimacy of their content or operations. The inclusion of these links should not be interpreted as an endorsement of any
+  third party, their torrent websites, or any information, products, or services offered through them.
+- By choosing to use Seanime, you acknowledge that the developer of the app is not responsible for the content displayed
+  within it. You are solely responsible for any legal or ethical implications that may arise from the use of this application.
+- Seanime does not collect any kind of personal data or information from its users. You are responsible for maintaining the privacy and security of the third-party authentication tokens stored within your device.

@@ -6,9 +6,9 @@ import (
 	"strconv"
 )
 
-//v1.Post("/auto-downloader/run", makeHandler(app, HandleGetAutoDownloaderRule))
+//v1.Post("/auto-downloader/run", makeHandler(app, HandleGetAutoDownloader))
 
-func HandleRunAutoDownloaderRule(c *RouteCtx) error {
+func HandleRunAutoDownloader(c *RouteCtx) error {
 
 	c.App.AutoDownloader.Run()
 
