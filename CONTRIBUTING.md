@@ -5,20 +5,8 @@
 ### Server
 
 ```bash
-go mod tidy
+go run cmd/main.go
 ```
-
-```go
-// cmd/main.go
-
-package main
-//...
-var development = true
-//...
-```
-
-Setting `development` to `true` will not launch a Fiber web server since we will be using a Next.js dev server.
-Set it to `false` to launch before deploying.
 
 #### GraphQL Schemas
 
@@ -34,12 +22,46 @@ go mod tidy
 
 #### Tests
 
-- Some tests require some setup before running.
-- Some tests require a valid AniList JWT in `test/jwt.json`
-- Do not run tests all at once.
+You should run tests individually.
+
+
+Some tests require some setup before running.
+- Create a dummy AniList account and grab the JWT associated with your session.
+- Rename `test/jwt.json.example` to `test/jwt.json`
+- If you wish to use more than one account for tests, fill both pairs (`jwt` and `username`) in the file with different data. 
+Otherwise, if you want to use a single account, fill both pairs with the same data.
+- Create a dummy MyAnimeList account and grab the JWT associated with your session.
+
+```json
+{
+  "jwt": "your-jwt",
+  "username": "your-username",
+  "jwt2": "your-jwt",
+  "username2": "your-username",
+  "mal_jwt": "your-mal-jwt"
+}
+```
+
+In some tests, you will see the use of `anilist.MockAnilistClientWrappers()`.
+This is used to create an authenticated AniList client by using the data `test/jwt.json`.
+
+```go
+func Test(t *testing.T) {
+	anilistClientWrapper1, anilistClientWrapper2, data := anilist.MockAnilistClientWrappers()
+	// anilistClientWrapper1 -> Client from jwt, username
+	// anilistClientWrapper2 -> Client from jwt2, username2
+	// data -> test/jwt.json
+}
+```
+
+
+Some tests related to media players require you to have those installed on your system.
+They also require you to have a media file.
 
 
 ### Web
+
+#### Development
 
 ```bash
 cd seanime-web
@@ -53,9 +75,20 @@ npm install
 npm run dev
 ```
 
-```bash
-go run cmd/main.go
-```
+- Go to `http://127.0.0.1:43210` to see the web interface.
+- Notice that since the port is different from the server, you will not be able to authenticate with MyAnimeList.
+
+#### Built
+
+To run the web interface with the server like in a normal setup (i.e. accessible from `http://127.0.0.1:43211`), you should build the web interface.
+This will create a `web` folder under `/seanime-web`.
+
+You have two options:
+- In `constants.go`, change the `DevelopmentWebBuild` to `true`, so the server will serve the web interface from the `seanime-web/web` folder.
+- Or, move the `/seanime-web/web` folder to the root of the project and run the server.
+
+
+
 
 ## Contributing
 

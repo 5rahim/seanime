@@ -1,10 +1,5 @@
 package updater
 
-import (
-	"strconv"
-	"strings"
-)
-
 const (
 	PatchRelease = "patch"
 	MinorRelease = "minor"
@@ -100,51 +95,4 @@ func (u *Updater) getLatestRelease() (*Release, error) {
 	u.hasCheckedForUpdate = true
 	u.LatestRelease = release
 	return release, nil
-}
-
-// compareVersion compares current and latest version is returns true if the latest version is newer than the current version.
-// It also returns the update type (patch, minor, major) if the latest version is newer than the current version.
-func (u *Updater) compareVersion(currVersion string, tagName string) (string, bool) {
-	tagName = strings.TrimPrefix(tagName, "v")
-
-	currVParts := strings.Split(currVersion, ".")
-	latestVParts := strings.Split(tagName, ".")
-
-	if len(currVParts) != 3 || len(latestVParts) != 3 {
-		return "", false
-	}
-
-	currMajor, _ := strconv.Atoi(currVParts[0])
-	currMinor, _ := strconv.Atoi(currVParts[1])
-	currPatch, _ := strconv.Atoi(currVParts[2])
-
-	latestMajor, _ := strconv.Atoi(latestVParts[0])
-	latestMinor, _ := strconv.Atoi(latestVParts[1])
-	latestPatch, _ := strconv.Atoi(latestVParts[2])
-
-	if currMajor > latestMajor {
-		return "", false
-	}
-
-	if currMajor < latestMajor {
-		return MajorRelease, true
-	}
-
-	if currMinor > latestMinor {
-		return "", false
-	}
-
-	if currMinor < latestMinor {
-		return MinorRelease, true
-	}
-
-	if currPatch > latestPatch {
-		return "", false
-	}
-
-	if currPatch < latestPatch {
-		return PatchRelease, true
-	}
-
-	return "", false
 }

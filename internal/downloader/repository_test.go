@@ -16,10 +16,8 @@ func TestSmartSelect(t *testing.T) {
 
 	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 
-	var dir = "E:/Anime/Temp"
-
 	// get repo
-	repo := getRepo(t, dir)
+	repo := getRepo(t, destination)
 
 	tests := []struct {
 		name             string
