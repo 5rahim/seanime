@@ -20,9 +20,14 @@ type malAuthResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-// HandleMALAuth
-// POST /mal/auth
-// Fetches the access and refresh token
+// HandleMALAuth will fetch the access and refresh tokens for the given code.
+//
+// This is used to authenticate the user with MyAnimeList.
+// It will save the info in the database, effectively logging the user in.
+//
+// A new Status should be fetched after this.
+//
+//	POST /v1/mal/auth
 func HandleMALAuth(c *RouteCtx) error {
 
 	type body struct {
@@ -87,8 +92,9 @@ func HandleMALAuth(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleEditMALListEntryProgress
-// POST /v1/mal/list-entry/progress
+// HandleEditMALListEntryProgress will update the progress of a MAL list entry.
+//
+//	POST /v1/mal/list-entry/progress
 func HandleEditMALListEntryProgress(c *RouteCtx) error {
 
 	type body struct {
@@ -147,8 +153,10 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleMALLogout
-// POST /mal/logout
+// HandleMALLogout will delete the MAL info from the database, effectively logging the user out.
+// A new Status should be fetched after this.
+//
+//	POST /mal/logout
 func HandleMALLogout(c *RouteCtx) error {
 
 	err := c.App.Database.DeleteMalInfo()
@@ -161,8 +169,8 @@ func HandleMALLogout(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// VerifyMALAuth will check if the MAL token has expired and refresh it if necessary.
-// It will return the updated MAL info if a refresh was necessary.
+// verifyMALAuth will check if the MAL token has expired and refresh it if necessary.
+// It will return the updated MAL info if a refresh was necessary or the current MAL info if it wasn't.
 func verifyMALAuth(malInfo *models.Mal, c *RouteCtx) (*models.Mal, error) {
 
 	// Token has not expired

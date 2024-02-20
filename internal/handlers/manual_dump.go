@@ -6,11 +6,17 @@ import (
 	"github.com/seanime-app/seanime/internal/scanner"
 )
 
+// DUMMY HANDLER
+
 type RequestBody struct {
 	Dir      string `json:"dir"`
 	Username string `json:"userName"`
 }
 
+// HandleTestDump
+// Returns whatever.
+//
+//	POST /v1/test-dump
 func HandleTestDump(c *RouteCtx) error {
 
 	c.AcceptJSON()

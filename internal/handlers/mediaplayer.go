@@ -6,6 +6,12 @@ import (
 	"github.com/seanime-app/seanime/internal/mpv"
 )
 
+// HandlePlayVideo will play the video with the given path with the default media player.
+// It returns nil.
+//
+// It also starts tracking the progress of the video by launching a goroutine.
+//
+//	POST /v1/media-player/play
 func HandlePlayVideo(c *RouteCtx) error {
 
 	type body struct {
@@ -51,6 +57,7 @@ func HandlePlayVideo(c *RouteCtx) error {
 	return nil
 }
 
+// HandleMpvDetectPlayback will detect playback with MPV and start tracking the progress of the video.
 func HandleMpvDetectPlayback(c *RouteCtx) error {
 
 	// Retrieve settings
@@ -69,7 +76,7 @@ func HandleMpvDetectPlayback(c *RouteCtx) error {
 		WSEventManager: c.App.WSEventManager,
 	}
 
-	// Play the video
+	// Detect playback with MPV
 	err = mediaPlayerRepo.Mpv.OpenAndPlay("", mpv.StartDetectPlayback)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -90,6 +97,9 @@ func HandleMpvDetectPlayback(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleStartDefaultMediaPlayer will launch the default media player.
+//
+//	POST /v1/media-player/start
 func HandleStartDefaultMediaPlayer(c *RouteCtx) error {
 
 	// Retrieve settings
@@ -114,5 +124,3 @@ func HandleStartDefaultMediaPlayer(c *RouteCtx) error {
 	return c.RespondWithData(true)
 
 }
-
-//----------------------------------------------------------------------------------------------------------------------

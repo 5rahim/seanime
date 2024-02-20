@@ -16,7 +16,7 @@ import (
 )
 
 type (
-	// TorrentPreview is used to preview a torrent à la entities.MediaEntryEpisode
+	// TorrentPreview is used to preview a torrent à la entities.MediaEntryEpisode.
 	TorrentPreview struct {
 		Episode       *entities.MediaEntryEpisode `json:"episode"`                 // nil if batch
 		EpisodeNumber *int                        `json:"episodeNumber,omitempty"` // nil if batch
@@ -25,12 +25,17 @@ type (
 		ReleaseGroup  string                      `json:"releaseGroup"`
 		Torrent       nyaa.DetailedTorrent        `json:"torrent"`
 	}
+	// TorrentSearchData is the struct returned by HandleNyaaSearch.
 	TorrentSearchData struct {
-		Previews []*TorrentPreview       `json:"previews"`
-		Torrents []*nyaa.DetailedTorrent `json:"torrents"`
+		Torrents []*nyaa.DetailedTorrent `json:"torrents"` // Torrents found
+		Previews []*TorrentPreview       `json:"previews"` // TorrentPreview for each torrent
 	}
 )
 
+// HandleNyaaSearch will search Nyaa for torrents.
+// It will return a list of torrents and their previews (TorrentSearchData).
+//
+//	POST /v1/nyaa-search
 func HandleNyaaSearch(c *RouteCtx) error {
 
 	type body struct {
@@ -174,6 +179,8 @@ func HandleNyaaSearch(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// createTorrentPreview creates a TorrentPreview from a Nyaa torrent.
+// It also uses the AniZip cache and the media to create the preview.
 func createTorrentPreview(
 	media *anilist.BaseMedia,
 	anizipCache *anizip.Cache,

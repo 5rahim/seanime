@@ -1,5 +1,7 @@
 package handlers
 
+// SeaResponse is a generic response type for the API.
+// It is used to return data or errors.
 type SeaResponse[R any] struct {
 	Error string `json:"error,omitempty"`
 	Data  R      `json:"data,omitempty"`

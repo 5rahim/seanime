@@ -29,6 +29,12 @@ type (
 	TorrentStatus string
 )
 
+// HandleGetActiveTorrentList will return all active qBittorrent torrents. (i.e. downloading or seeding)
+// This handler is used by the client to display the active torrents.
+//
+// DEVNOTE: Could be modified to support other torrent clients.
+//
+//	GET /v1/torrents
 func HandleGetActiveTorrentList(c *RouteCtx) error {
 
 	res, err := c.App.QBittorrent.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
@@ -98,6 +104,10 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 
 }
 
+// HandleTorrentAction will perform an action on a torrent.
+// It returns true if the action was successful.
+//
+//	POST /v1/torrent
 func HandleTorrentAction(c *RouteCtx) error {
 
 	type body struct {
@@ -137,6 +147,7 @@ func HandleTorrentAction(c *RouteCtx) error {
 
 }
 
+// getTorrentStatus returns a normalized status for the torrent.
 func getTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 	if st == qbittorrent_model.StateQueuedUP ||
 		st == qbittorrent_model.StateStalledUP ||
