@@ -23,6 +23,9 @@ import (
 	"strings"
 )
 
+// HandleGetMediaEntry will return the media entry (entities.MediaEntry) with the given media id.
+//
+//	GET /v1/library/media-entry/:id
 func HandleGetMediaEntry(c *RouteCtx) error {
 
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
@@ -57,6 +60,11 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	return c.RespondWithData(entry)
 }
 
+// HandleGetSimpleMediaEntry will return the simple media entry (entities.SimpleMediaEntry) with the given media id.
+//
+//	GET /v1/simple-media-entry/:id
+//
+// DEPRECATED: Use HandleGetMediaEntry instead.
 func HandleGetSimpleMediaEntry(c *RouteCtx) error {
 
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
@@ -98,11 +106,15 @@ var (
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleMediaEntryBulkAction will perform the given action on all the local files for the given media id.
+// It will return the updated local files.
+//
+//	POST /v1/library/media-entry/bulk-action
 func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 	type body struct {
 		MediaId int    `json:"mediaId"`
-		Action  string `json:"action"`
+		Action  string `json:"action"` // "unmatch" or "toggle-lock"
 	}
 
 	p := new(body)
@@ -157,6 +169,10 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleOpenMediaEntryInExplorer will open the directory of the local files for the given media id in the file explorer.
+// It will return true if the operation was successful. (Note: the operation can still fail even if true is returned)
+//
+//	POST /v1/library/media-entry/open-in-explorer
 func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 
 	type body struct {
@@ -188,9 +204,8 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "explorer"
-		// Convert the directory path to lowercase for case-insensitivity
-		lowerCasePath := strings.ToLower(dir)
-		args = []string{lowerCasePath}
+		wPath := strings.ReplaceAll(strings.ToLower(dir), "/", "\\")
+		args = []string{wPath}
 	case "darwin":
 		cmd = "open"
 		args = []string{dir}
@@ -216,6 +231,13 @@ var (
 	anilistCache = result.NewCache[int, *anilist.BasicMedia]()
 )
 
+// HandleFindProspectiveMediaEntrySuggestions will return a list of media suggestions for files in the given directory.
+// This is used by the "Resolve unmatched media" feature to suggest media entries for the local files in the given directory.
+//
+// It uses the title of the first local file in the directory to fetch suggestions from MAL.
+// It will return a list of anilist.BasicMedia.
+//
+//	POST /v1/library/media-entry/suggestions
 func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 	type body struct {
@@ -293,6 +315,14 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 // HandleMediaEntryManualMatch will match the local files in the given directory to the given media.
+// It is used by the "Resolve unmatched media" feature to manually match local files to media entries.
+//
+//   - It will hydrate the local files with the appropriate metadata by using scanner.FileHydrator.
+//   - It will also add the media id to the selected local files and lock them.
+//
+// It will return the updated local files.
+//
+//	POST /v1/library/media-entry/manual-match
 func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	type body struct {
@@ -380,6 +410,10 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleGetMissingEpisodes will return a list of missing episodes from the user's library collection.
+// Missing episodes are detected using data coming from the user's AniList collection.
+//
+//	GET /v1/library/missing-episodes
 func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
@@ -408,6 +442,8 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 // HandleAddUnknownMedia will add the given media ids to the user's AniList planning collection.
+//
+//	POST /v1/library/unknown-media
 func HandleAddUnknownMedia(c *RouteCtx) error {
 
 	type body struct {

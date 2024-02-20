@@ -12,6 +12,10 @@ type DirectoryInfo struct {
 	FolderName string `json:"folderName"`
 }
 
+// HandleDirectorySelector is a route handler that returns directory suggestions and content based on the inputted path.
+// It is used by the directory selector component.
+//
+//	POST /v1/directory-selector
 func HandleDirectorySelector(c *RouteCtx) error {
 
 	var request struct {

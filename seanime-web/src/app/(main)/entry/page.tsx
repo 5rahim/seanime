@@ -20,7 +20,7 @@ export default function Page() {
         if (!mediaId) {
             router.push("/")
         } else if ((!mediaEntryLoading && !mediaEntry)) {
-            router.push("/limited-entry?id=" + mediaId)
+            router.push("/")
         }
     }, [mediaEntry, mediaEntryLoading])
 

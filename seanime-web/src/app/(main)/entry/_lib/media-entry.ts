@@ -25,27 +25,6 @@ export function useMediaEntry(_mId: string | number | null) {
 
 }
 
-/**
- * @description
- * Fetches the SimpleMediaEntry associated with the ID
- * @param _mId
- */
-export function useSimpleMediaEntry(_mId: string | number | null) {
-
-    const mId = typeof _mId === "string" ? Number(_mId) : _mId
-
-    const { data, isLoading } = useSeaQuery<MediaEntry, { mediaId: number }>({
-        endpoint: SeaEndpoints.SIMPLE_MEDIA_ENTRY.replace("{id}", String(mId)),
-        queryKey: ["get-simple-media-entry", mId],
-        enabled: !!mId,
-    })
-
-    return {
-        mediaEntry: data,
-        mediaEntryLoading: isLoading,
-    }
-
-}
 
 /**
  * @description

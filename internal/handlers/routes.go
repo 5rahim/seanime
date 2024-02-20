@@ -9,6 +9,9 @@ import (
 	"sync"
 )
 
+// InitRoutes initializes the routes for the backend server.
+// It takes the App instance and the Fiber app instance as arguments.
+// The App instance is passed to the route handlers, so they can access the app's state.
 func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	fiberApp.Use(cors.New(cors.Config{
@@ -16,7 +19,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
-	// Set up a custom logger for fiber
+	// Set up a custom logger for fiber.
+	// This is not instantiated in `core.NewFiberApp` because we do not want to log requests for the static file server.
 	fiberLogger := fiberzerolog.New(fiberzerolog.Config{
 		Logger: app.Logger,
 		SkipURIs: []string{
@@ -169,10 +173,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// GET /v1/library/media-entry
 	v1Library.Get("/media-entry/:id", makeHandler(app, HandleGetMediaEntry))
 
-	// Retrieve SimpleMediaEntry
-	// GET /v1/library/simple-media-entry
-	v1Library.Get("/simple-media-entry/:id", makeHandler(app, HandleGetSimpleMediaEntry))
-
 	// Get suggestions for a prospective Media Entry
 	// POST /v1/library/collection
 	v1Library.Post("/media-entry/suggestions", makeHandler(app, HandleFindProspectiveMediaEntrySuggestions))
@@ -234,6 +234,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// RouteCtx is a context object that is passed to route handlers.
+// It contains the App instance and the Fiber context.
 type RouteCtx struct {
 	App   *core.App
 	Fiber *fiber.Ctx
@@ -247,6 +249,10 @@ var syncPool = sync.Pool{
 	},
 }
 
+// makeHandler creates a new route handler function.
+// It takes the App instance and a custom handler function as arguments.
+// The custom handler function is similar to a fiber handler, but it takes a RouteCtx as an argument, allowing route handlers to access the app's state.
+// We use a sync.Pool to avoid allocating memory for each request.
 func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		ctx := syncPool.Get().(*RouteCtx)
@@ -261,10 +267,12 @@ func (c *RouteCtx) AcceptJSON() {
 	c.Fiber.Accepts(fiber.MIMEApplicationJSON)
 }
 
+// RespondWithData responds with a JSON response containing the given data.
 func (c *RouteCtx) RespondWithData(data any) error {
 	return c.Fiber.Status(200).JSON(NewDataResponse(data))
 }
 
+// RespondWithError responds with a JSON response containing the given error.
 func (c *RouteCtx) RespondWithError(err error) error {
 	return c.Fiber.Status(500).JSON(NewErrorResponse(err))
 }

@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+// HandleOpenInExplorer is a route handler that opens the given directory in the file explorer.
+// It returns true.
+//
+//	POST /v1/open-in-explorer
 func HandleOpenInExplorer(c *RouteCtx) error {
 
 	type body struct {
@@ -31,7 +35,7 @@ func openDirInExplorer(dir string) {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "explorer"
-		args = []string{strings.ReplaceAll(dir, "/", "\\")}
+		args = []string{strings.ReplaceAll(strings.ToLower(dir), "/", "\\")}
 	case "darwin":
 		cmd = "open"
 		args = []string{dir}

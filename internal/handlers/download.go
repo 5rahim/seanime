@@ -15,6 +15,10 @@ import (
 	"path/filepath"
 )
 
+// HandleDownloadNyaaTorrents will get magnets from Nyaa and add them to qBittorrent.
+// It also handles smart selection (downloader.SmartSelect).
+//
+//	POST /v1/download
 func HandleDownloadNyaaTorrents(c *RouteCtx) error {
 
 	type body struct {

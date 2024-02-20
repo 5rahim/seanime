@@ -142,6 +142,8 @@ func NewApp(options *AppOptions, version string) *App {
 	return app
 }
 
+// NewFiberApp creates a new fiber app instance
+// and sets up the static file server for the web interface.
 func NewFiberApp(app *App) *fiber.App {
 	// Create a new fiber app
 	fiberApp := fiber.New(fiber.Config{
@@ -187,6 +189,7 @@ func NewFiberApp(app *App) *fiber.App {
 	return fiberApp
 }
 
+// RunServer starts the server
 func RunServer(app *App, fiberApp *fiber.App) {
 	addr := fmt.Sprintf("%s:%d", app.Config.Server.Host, app.Config.Server.Port)
 

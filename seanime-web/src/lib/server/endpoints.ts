@@ -38,7 +38,6 @@ export const enum SeaEndpoints {
     SCAN_LIBRARY = "/library/scan", // (POST)
     LOCAL_FILE = "/library/local-file", // (PATCH)
     MEDIA_ENTRY = "/library/media-entry/{id}", // (GET)
-    SIMPLE_MEDIA_ENTRY = "/library/simple-media-entry/{id}", // (GET)
     MEDIA_ENTRY_SUGGESTIONS = "/library/media-entry/suggestions", // (POST)
     MEDIA_ENTRY_MANUAL_MATCH = "/library/media-entry/manual-match", // (POST)
     MEDIA_ENTRY_BULK_ACTION = "/library/media-entry/bulk-action", // (PATCH)

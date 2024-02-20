@@ -15,11 +15,9 @@ type settingsBody struct {
 	Anilist     models.AnilistSettings     `json:"anilist"`
 }
 
-type autoDownloaderSettingsBody struct {
-	Automatic bool   `json:"automatic"`
-	Origin    string `json:"origin"`
-}
-
+// HandleGetSettings returns the app settings.
+//
+//	GET /v1/settings
 func HandleGetSettings(c *RouteCtx) error {
 
 	settings, err := c.App.Database.GetSettings()
@@ -33,6 +31,10 @@ func HandleGetSettings(c *RouteCtx) error {
 	return c.RespondWithData(settings)
 }
 
+// HandleSaveSettings updates the app settings.
+// It returns a new Status containing the updated settings.
+//
+//	POST /v1/settings
 func HandleSaveSettings(c *RouteCtx) error {
 
 	body := new(settingsBody)
@@ -79,7 +81,10 @@ func HandleSaveSettings(c *RouteCtx) error {
 }
 
 // HandleSaveListSyncSettings
-// This will also delete the cached listsync.ListSync instance
+// This will also delete the cached listsync.ListSync instance.
+// It returns true if the settings were saved successfully.
+//
+//	PATCH /v1/settings/list-sync
 func HandleSaveListSyncSettings(c *RouteCtx) error {
 
 	body := new(models.ListSyncSettings)
@@ -120,6 +125,10 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
+// HandleSaveAutoDownloaderSettings
+// It returns true if the settings were saved successfully.
+//
+//	PATCH /v1/settings/auto-downloader
 func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 
 	body := new(models.AutoDownloaderSettings)

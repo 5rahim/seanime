@@ -9,6 +9,9 @@ import (
 	"os"
 )
 
+// HandleGetLocalFiles will return all local files.
+//
+//	GET /v1/local-files
 func HandleGetLocalFiles(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
@@ -22,6 +25,11 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleLocalFileBulkAction will perform an action on all local files.
+// It is used by the [Bulk Action Modal] feature.
+// It returns the updated local files.
+//
+//	POST /v1/library/local-files
 func HandleLocalFileBulkAction(c *RouteCtx) error {
 
 	type body struct {
@@ -62,8 +70,11 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleUpdateLocalFileData
-// POST
+// HandleUpdateLocalFileData will update the metadata of the local file with the given path.
+// It is used by the [Local File Metadata Editor] feature.
+// It returns the updated local files.
+//
+//	PATCH /v1/library/local-files
 func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 	type body struct {
@@ -108,8 +119,9 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleDeleteLocalFiles
-// DELETE
+// HandleDeleteLocalFiles will delete local files with the given paths.
+//
+//	DELETE /v1/library/local-files
 func HandleDeleteLocalFiles(c *RouteCtx) error {
 
 	type body struct {
@@ -161,6 +173,9 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleRemoveEmptyDirectories will remove empty directories from the library path.
+//
+//	DELETE /v1/library/empty-directories
 func HandleRemoveEmptyDirectories(c *RouteCtx) error {
 
 	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()

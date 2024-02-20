@@ -8,6 +8,7 @@ Dockerfile
 
 logs
 web/
+out/
 
 test/sample
 test/jwt.json

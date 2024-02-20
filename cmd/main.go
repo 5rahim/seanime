@@ -18,10 +18,13 @@ func main() {
 	fmt.Println()
 	fmt.Println()
 
+	// Create the app instance
 	app := core.NewApp(&core.DefaultAppOptions, constants.Version)
 
+	// Create the fiber app instance
 	fiberApp := core.NewFiberApp(app)
 
+	// Initialize the routes
 	handlers.InitRoutes(app, fiberApp)
 
 	core.RunServer(app, fiberApp)

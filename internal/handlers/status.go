@@ -7,7 +7,7 @@ import (
 )
 
 // Status is a struct containing the user data, settings, and OS.
-// It is used by the client to authenticate the user and get settings.
+// It is used by the client in various places to access necessary information.
 type Status struct {
 	OS       string           `json:"os"`
 	User     *entities.User   `json:"user"`
@@ -16,6 +16,8 @@ type Status struct {
 	Version  string           `json:"version"`
 }
 
+// NewStatus returns a new Status struct.
+// It uses the RouteCtx to get the App instance containing the Database instance.
 func NewStatus(c *RouteCtx) *Status {
 	dbAcc, err := c.App.Database.GetAccount()
 	if err != nil {
@@ -48,6 +50,12 @@ func NewStatus(c *RouteCtx) *Status {
 	}
 }
 
+// HandleStatus is a route handler that returns the app status.
+//
+//	GET /v1/status
+//
+// It is called on every page load to get the most up-to-date data.
+// It is also called right after updating the settings.
 func HandleStatus(c *RouteCtx) error {
 
 	status := NewStatus(c)
