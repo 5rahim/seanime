@@ -15,11 +15,14 @@ import (
 )
 
 type (
+	// ClientWrapper is a wrapper around the AniList API client.
 	ClientWrapper struct {
 		Client *Client
 	}
 )
 
+// NewClientWrapper creates a new ClientWrapper with the given token.
+// The token is used for authorization when making requests to the AniList API.
 func NewClientWrapper(token string) *ClientWrapper {
 	cw := &ClientWrapper{
 		Client: &Client{
@@ -40,6 +43,7 @@ func NewClientWrapper(token string) *ClientWrapper {
 	return cw
 }
 
+// customDoFunc is a custom request interceptor function that handles rate limiting and retries.
 func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) error {
 
 	client := http.DefaultClient

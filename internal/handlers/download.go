@@ -88,6 +88,9 @@ func HandleDownloadNyaaTorrents(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// HandleDownloadTorrentFile will download a torrent file from a given URL and save it to the destination folder.
+//
+//	POST /v1/download-torrent-file
 func HandleDownloadTorrentFile(c *RouteCtx) error {
 
 	type body struct {
@@ -163,6 +166,9 @@ func downloadTorrentFile(url string, dest string) (err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// HandleDownloadRelease will download a release from a given URL and extract it to the destination folder.
+//
+//	POST /v1/download-release
 func HandleDownloadRelease(c *RouteCtx) error {
 
 	type retData struct {

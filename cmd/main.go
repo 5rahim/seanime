@@ -27,8 +27,10 @@ func main() {
 	// Initialize the routes
 	handlers.InitRoutes(app, fiberApp)
 
+	// Run the server
 	core.RunServer(app, fiberApp)
 
+	// Run the jobs in the background
 	cron.RunJobs(app)
 
 	select {}

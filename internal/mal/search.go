@@ -93,7 +93,7 @@ func SearchWithMAL(title string, slice int) ([]*SearchResultAnime, error) {
 	return items, nil
 }
 
-// AdvancedSearchWithMAL is like SearchWithMAL, but it uses an additional algorithm to find the best match.
+// AdvancedSearchWithMAL is like SearchWithMAL, but it uses additional algorithms to find the best match.
 func AdvancedSearchWithMAL(title string) (*SearchResultAnime, error) {
 
 	if len(title) == 0 {

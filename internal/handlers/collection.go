@@ -4,9 +4,9 @@ import "github.com/seanime-app/seanime/internal/entities"
 
 // HandleGetLibraryCollection generates and returns the library collection.
 //
-//	GET /library/collection -> Uses cached Anilist collection
+//	GET /v1/library/collection -> Uses cached Anilist collection
 //
-//	POST /library/collection -> Bypasses cache and fetches Anilist collection
+//	POST /v1/library/collection -> Bypasses cache and fetches Anilist collection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"

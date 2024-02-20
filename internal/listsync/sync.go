@@ -30,6 +30,7 @@ func NewCache() *Cache {
 	return &Cache{result.NewCache[int, *ListSync]()}
 }
 
+// BuildListSync builds a new list sync instance.
 func BuildListSync(db *db.Database, logger *zerolog.Logger) (ls *ListSync, err error) {
 
 	defer util.HandlePanicInModuleWithError("listsync/BuildListSync", &err)
@@ -47,6 +48,10 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (ls *ListSync, err e
 	if origin == "" {
 		return nil, errors.New(ErrOriginNotSet)
 	}
+
+	//
+	// AniList
+	//
 
 	// Anilist provider
 	anilistProvider := &Provider{}
@@ -68,6 +73,10 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (ls *ListSync, err e
 	// Create Anilist provider
 	anilistProvider = NewAnilistProvider(collection)
 
+	//
+	// MAL
+	//
+
 	// MAL provider
 	malProvider := &Provider{}
 	malProvider = nil
@@ -83,6 +92,10 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (ls *ListSync, err e
 			malProvider = NewMALProvider(collection)
 		}
 	}
+
+	//
+	// Provider
+	//
 
 	ls = &ListSync{}
 

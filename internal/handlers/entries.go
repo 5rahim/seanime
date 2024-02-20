@@ -109,7 +109,7 @@ var (
 // HandleMediaEntryBulkAction will perform the given action on all the local files for the given media id.
 // It will return the updated local files.
 //
-//	POST /v1/library/media-entry/bulk-action
+//	PATCH /v1/library/media-entry/bulk-action
 func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 	type body struct {
