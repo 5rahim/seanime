@@ -84,6 +84,7 @@ func (f *LocalFile) IsIncluded(lfs []*LocalFile) bool {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// buildTitle concatenates the given strings into a single string.
 func buildTitle(vals ...string) string {
 	buf := bytes.NewBuffer([]byte{})
 	for i, v := range vals {
@@ -95,7 +96,7 @@ func buildTitle(vals ...string) string {
 	return buf.String()
 }
 
-// GetUniqueAnimeTitlesFromLocalFiles returns all parsed anime titles without duplicates
+// GetUniqueAnimeTitlesFromLocalFiles returns all parsed anime titles without duplicates, from a slice of LocalFile's.
 func GetUniqueAnimeTitlesFromLocalFiles(lfs []*LocalFile) []string {
 	// Concurrently get title from each local file
 	titles := lop.Map(lfs, func(file *LocalFile, index int) string {
@@ -115,6 +116,7 @@ func GetUniqueAnimeTitlesFromLocalFiles(lfs []*LocalFile) []string {
 	return titles
 }
 
+// GetMediaIdsFromLocalFiles returns all media ids from a slice of LocalFile's.
 func GetMediaIdsFromLocalFiles(lfs []*LocalFile) []int {
 
 	// Group local files by media id
@@ -132,6 +134,7 @@ func GetMediaIdsFromLocalFiles(lfs []*LocalFile) []int {
 
 }
 
+// GetLocalFilesFromMediaId returns all local files with the given media id.
 func GetLocalFilesFromMediaId(lfs []*LocalFile, mId int) []*LocalFile {
 
 	return lo.Filter(lfs, func(item *LocalFile, _ int) bool {
@@ -140,7 +143,7 @@ func GetLocalFilesFromMediaId(lfs []*LocalFile, mId int) []*LocalFile {
 
 }
 
-// GroupLocalFilesByMediaID groups local files by media id
+// GroupLocalFilesByMediaID returns a map of media id to local files.
 func GroupLocalFilesByMediaID(lfs []*LocalFile) (groupedLfs map[int][]*LocalFile) {
 	groupedLfs = lop.GroupBy(lfs, func(item *LocalFile) int {
 		return item.MediaId

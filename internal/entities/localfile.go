@@ -6,30 +6,35 @@ import (
 )
 
 const (
-	LocalFileTypeMain    LocalFileType = "main"
-	LocalFileTypeSpecial LocalFileType = "special"
-	LocalFileTypeNC      LocalFileType = "nc"
+	LocalFileTypeMain    LocalFileType = "main"    // Main episodes that are trackable
+	LocalFileTypeSpecial LocalFileType = "special" // OVA, ONA, etc.
+	LocalFileTypeNC      LocalFileType = "nc"      // Opening, ending, etc.
 )
 
 type (
 	LocalFileType string
-	LocalFile     struct {
+	// LocalFile represents a media file on the local filesystem.
+	// It is used to store information about and state of the file, such as its path, name, and parsed data.
+	LocalFile struct {
 		Path             string                 `json:"path"`
 		Name             string                 `json:"name"`
 		ParsedData       *LocalFileParsedData   `json:"parsedInfo"`
 		ParsedFolderData []*LocalFileParsedData `json:"parsedFolderInfo"`
 		Metadata         *LocalFileMetadata     `json:"metadata"`
 		Locked           bool                   `json:"locked"`
-		Ignored          bool                   `json:"ignored"`
+		Ignored          bool                   `json:"ignored"` // Unused for now
 		MediaId          int                    `json:"mediaId"`
 	}
 
+	// LocalFileMetadata holds metadata related to a media episode.
 	LocalFileMetadata struct {
 		Episode      int           `json:"episode"`
 		AniDBEpisode string        `json:"aniDBEpisode"`
 		Type         LocalFileType `json:"type"`
 	}
 
+	// LocalFileParsedData holds parsed data from a media file's name.
+	// This data is used to identify the media file during the scanning process.
 	LocalFileParsedData struct {
 		Original     string   `json:"original"`
 		Title        string   `json:"title,omitempty"`
@@ -45,7 +50,10 @@ type (
 	}
 )
 
-// NewLocalFile creates and returns a reference to a new LocalFile struct from a path
+// NewLocalFile creates and returns a reference to a new LocalFile struct.
+// It will parse the file's name and its directory names to extract necessary information.
+//   - opath: The full path to the file.
+//   - dirPath: The full path to the directory containing the file. (The library root path)
 func NewLocalFile(opath, dirPath string) *LocalFile {
 
 	info := filesystem.SeparateFilePath(opath, dirPath)
@@ -54,7 +62,7 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 	fElements := seanime_parser.Parse(info.Filename)
 	parsedInfo := newLocalFileParsedData(info.Filename, fElements)
 
-	// Parse dirnames
+	// Parse dir names
 	parsedFolderInfo := make([]*LocalFileParsedData, 0)
 	for _, dirname := range info.Dirnames {
 		if len(dirname) > 0 {
@@ -83,9 +91,7 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 
 }
 
-// newLocalFileParsedData Converts tanuki.Elements into LocalFileParsedData.
-//
-// This is used by NewLocalFile
+// newLocalFileParsedData Converts seanime_parser.Metadata into LocalFileParsedData, which is more suitable.
 func newLocalFileParsedData(original string, elements *seanime_parser.Metadata) *LocalFileParsedData {
 	i := new(LocalFileParsedData)
 	i.Original = original

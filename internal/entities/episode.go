@@ -8,22 +8,25 @@ import (
 )
 
 type (
+	// MediaEntryEpisode represents a single episode of a media entry.
 	MediaEntryEpisode struct {
 		Type                  LocalFileType              `json:"type"`
 		DisplayTitle          string                     `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
 		EpisodeTitle          string                     `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
 		EpisodeNumber         int                        `json:"episodeNumber"`
 		AbsoluteEpisodeNumber int                        `json:"absoluteEpisodeNumber"`
-		ProgressNumber        int                        `json:"progressNumber"` // Usually the same as EpisodeNumber, unless episode 0 is included by AniList.
+		ProgressNumber        int                        `json:"progressNumber"` // Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
 		LocalFile             *LocalFile                 `json:"localFile"`
 		IsDownloaded          bool                       `json:"isDownloaded"`            // Is in the local files
 		EpisodeMetadata       *MediaEntryEpisodeMetadata `json:"episodeMetadata"`         // (image, airDate, length, summary, overview)
 		FileMetadata          *LocalFileMetadata         `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
-		IsInvalid             bool                       `json:"isInvalid"`               // No AniZip data
+		IsInvalid             bool                       `json:"isInvalid"`               // No AniDB data
 		MetadataIssue         string                     `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
 		BasicMedia            *anilist.BasicMedia        `json:"basicMedia,omitempty"`
 	}
 
+	// MediaEntryEpisodeMetadata represents the metadata of a MediaEntryEpisode.
+	// Metadata is fetched from AniZip (AniDB) and, optionally, AniList (if AniZip is not available).
 	MediaEntryEpisodeMetadata struct {
 		AniDBId  int    `json:"aniDBId,omitempty"`
 		Image    string `json:"image,omitempty"`
@@ -33,6 +36,7 @@ type (
 		Overview string `json:"overview,omitempty"`
 	}
 
+	// NewMediaEntryEpisodeOptions hold data used to create a new MediaEntryEpisode.
 	NewMediaEntryEpisodeOptions struct {
 		LocalFile            *LocalFile
 		AnizipMedia          *anizip.Media // optional
@@ -45,6 +49,8 @@ type (
 		IsDownloaded   bool
 	}
 
+	// NewSimpleMediaEntryEpisodeOptions hold data used to create a new MediaEntryEpisode.
+	// Unlike NewMediaEntryEpisodeOptions, this struct does not require AniZip data. It is used to list episodes without AniDB metadata.
 	NewSimpleMediaEntryEpisodeOptions struct {
 		LocalFile    *LocalFile
 		Media        *anilist.BaseMedia
@@ -57,7 +63,7 @@ type (
 // It is used to list existing local files as episodes
 // OR list non-downloaded episodes by passing the `OptionalAniDBEpisode` parameter.
 //
-// `AnizipMedia` should be defined.
+// `AnizipMedia` should be defined, but this is not always the case.
 // `LocalFile` is optional.
 func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
@@ -163,12 +169,12 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		} else {
 			hydrated = true // Hydrated
 		}
+
+		// Set episode metadata
 		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
 
-	}
-
-	// LocalFile does not exist
-	if !hydrated && len(opts.OptionalAniDBEpisode) > 0 {
+	} else if len(opts.OptionalAniDBEpisode) > 0 {
+		// No LocalFile, but AniDB episode is provided
 
 		// Get the AniZip episode
 		if anizipEpisode, foundAnizipEpisode := opts.AnizipMedia.FindEpisode(opts.OptionalAniDBEpisode); foundAnizipEpisode {
@@ -207,11 +213,17 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				hydrated = true
 			}
 
+			// Set episode metadata
 			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
+		} else {
+			// No Local file, no AniZip data
+			// DEVNOTE: Non-downloaded, without any AniDB data. Don't handle this case.
+			// Non-downloaded episodes are determined from AniDB data either way.
 		}
 
 	}
 
+	// If for some reason the episode is not hydrated, set it as invalid
 	if !hydrated {
 		if opts.LocalFile != nil {
 			entryEp.DisplayTitle = opts.LocalFile.GetParsedTitle()
@@ -224,6 +236,8 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 	return entryEp
 }
 
+// NewEpisodeMetadata creates a new MediaEntryEpisodeMetadata from an AniZip episode and AniList media.
+// If the AniZip episode is nil, it will just set the image from the media.
 func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *MediaEntryEpisodeMetadata {
 	md := new(MediaEntryEpisodeMetadata)
 
@@ -255,6 +269,7 @@ func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *Medi
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// NewSimpleMediaEntryEpisode creates a MediaEntryEpisode without AniDB metadata.
 func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
 	entryEp.BasicMedia = opts.Media.ToBasicMedia()
@@ -321,10 +336,10 @@ func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaE
 		}
 		entryEp.EpisodeTitle = ""
 		entryEp.IsInvalid = true
-		entryEp.MetadataIssue = "no_anizip_data"
+		entryEp.MetadataIssue = "no_anidb_data"
 		return entryEp
 	}
 
-	entryEp.MetadataIssue = "no_anizip_data"
+	entryEp.MetadataIssue = "no_anidb_data"
 	return entryEp
 }

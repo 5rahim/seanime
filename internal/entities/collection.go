@@ -21,12 +21,20 @@ const (
 )
 
 type (
+	// LibraryCollection holds the main data for the library collection.
+	// It consists of:
+	//  - ContinueWatchingList: a list of MediaEntryEpisode for the "continue watching" feature.
+	//  - Lists: a list of LibraryCollectionList (one for each status).
+	//  - UnmatchedLocalFiles: a list of unmatched local files (Media id == 0). "Resolve unmatched" feature.
+	//  - UnmatchedGroups: a list of UnmatchedGroup instances. Like UnmatchedLocalFiles, but grouped by directory. "Resolve unmatched" feature.
+	//  - IgnoredLocalFiles: a list of ignored local files. (DEVNOTE: Unused for now)
+	//  - UnknownGroups: a list of UnknownGroup instances. Group of files whose media is not in the user's AniList "Resolve unknown media" feature.
 	LibraryCollection struct {
 		ContinueWatchingList []*MediaEntryEpisode     `json:"continueWatchingList"`
 		Lists                []*LibraryCollectionList `json:"lists"`
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
-		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
+		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 		UnknownGroups        []*UnknownGroup          `json:"unknownGroups"`
 	}
 	LibraryCollectionListType string
@@ -37,6 +45,8 @@ type (
 		Entries []*LibraryCollectionEntry `json:"entries"`
 	}
 
+	// LibraryCollectionEntry holds the data for a single entry in a LibraryCollectionList.
+	// It is a slimmed down version of MediaEntry. It holds the media, media id, library data, and list data.
 	LibraryCollectionEntry struct {
 		Media                 *anilist.BaseMedia     `json:"media"`
 		MediaId               int                    `json:"mediaId"`
@@ -44,15 +54,19 @@ type (
 		MediaEntryListData    *MediaEntryListData    `json:"listData"`    // AniList list data
 	}
 
+	// UnmatchedGroup holds the data for a group of unmatched local files.
 	UnmatchedGroup struct {
 		Dir         string                `json:"dir"`
 		LocalFiles  []*LocalFile          `json:"localFiles"`
 		Suggestions []*anilist.BasicMedia `json:"suggestions"`
 	}
+	// UnknownGroup holds the data for a group of local files whose media is not in the user's AniList.
+	// The client will use this data to suggest media to the user, so they can add it to their AniList.
 	UnknownGroup struct {
 		MediaId    int          `json:"mediaId"`
 		LocalFiles []*LocalFile `json:"localFiles"`
 	}
+	// NewLibraryCollectionOptions is a struct that holds the data needed for creating a new LibraryCollection.
 	NewLibraryCollectionOptions struct {
 		AnilistCollection    *anilist.AnimeCollection
 		LocalFiles           []*LocalFile
@@ -62,7 +76,6 @@ type (
 )
 
 // NewLibraryCollection creates a new LibraryCollection.
-// A LibraryCollection consists of a list of LibraryCollectionList (one for each status).
 func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
 
 	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
@@ -86,7 +99,13 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 		opts.AnilistClientWrapper,
 	)
 
-	lc.hydrateRest(opts.LocalFiles)
+	lc.UnmatchedLocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, index int) bool {
+		return lf.MediaId == 0
+	})
+
+	lc.IgnoredLocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, index int) bool {
+		return lf.Ignored == true
+	})
 
 	lc.hydrateUnmatchedGroups()
 
@@ -121,7 +140,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 		p.Go(func() *LibraryCollectionList {
 
 			// If the list has no status, return nil
-			// This occurs when there is a custom list
+			// This occurs when there are custom lists (DEVNOTE: This shouldn't occur because we remove custom lists when the collection is fetched)
 			if list.Status == nil {
 				return nil
 			}
@@ -129,9 +148,9 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 			// For each list, get the entries
 			entries := list.GetEntries()
 
-			p2 := pool.NewWithResults[*LibraryCollectionEntry]()
 			// For each entry, check if the media id is in the local files
-			// If it is, create a new LibraryCollectionEntry
+			// If it is, create a new LibraryCollectionEntry with the associated local files
+			p2 := pool.NewWithResults[*LibraryCollectionEntry]()
 			for _, entry := range entries {
 				entry := entry
 				p2.Go(func() *LibraryCollectionEntry {
@@ -166,6 +185,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 			r = lo.Filter(r, func(item *LibraryCollectionEntry, index int) bool {
 				return item != nil
 			})
+			// Sort by title
 			sort.Slice(r, func(i, j int) bool {
 				return r[i].Media.GetTitleSafe() < r[j].Media.GetTitleSafe()
 			})
@@ -180,12 +200,14 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 		})
 	}
 
+	// Get the lists from the pool
 	lists := p.Wait()
+	// Filter out nil entries
 	lists = lo.Filter(lists, func(item *LibraryCollectionList, index int) bool {
 		return item != nil
 	})
 
-	// Merge repeating to current
+	// Merge repeating to current (no need to show repeating as a separate list)
 	repeat, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
 		return item.Status == anilist.MediaListStatusRepeating
 	})
@@ -242,14 +264,14 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	anilistClientWrapper *anilist.ClientWrapper,
 ) {
 
-	// Get currently watching
+	// Get currently watching list
 	current, found := lo.Find(lc.Lists, func(item *LibraryCollectionList) bool {
 		return item.Status == anilist.MediaListStatusCurrent
 	})
 
 	// If no currently watching list is found, return an empty slice
 	if !found {
-		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Return empty slice
+		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Set empty slice
 		return
 	}
 	// Get media ids from current list
@@ -289,7 +311,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 		return mEntries[i].MediaEntryListData.Progress > mEntries[j].MediaEntryListData.Progress
 	})
 
-	// Remove entries whose user's progress is equal to the latest episode's progress number, meaning the user has watched the latest episode
+	// Remove entries the user has watched all episodes of
 	mEntries = lop.Map(mEntries, func(mEntry *MediaEntry, index int) *MediaEntry {
 		if !mEntry.HasWatchedAll() {
 			return mEntry
@@ -340,21 +362,6 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 
 	// Assign the created groups
 	lc.UnmatchedGroups = groups
-
-	return
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (lc *LibraryCollection) hydrateRest(localFiles []*LocalFile) {
-
-	lc.UnmatchedLocalFiles = lo.Filter(localFiles, func(lf *LocalFile, index int) bool {
-		return lf.MediaId == 0
-	})
-
-	lc.IgnoredLocalFiles = lo.Filter(localFiles, func(lf *LocalFile, index int) bool {
-		return lf.Ignored == true
-	})
 
 	return
 }

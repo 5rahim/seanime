@@ -1,6 +1,7 @@
 package entities
 
-import "strings"
+// DEVNOTE: The structs are defined in this file because they are imported by both the autodownloader package and the db package.
+// Defining them in the autodownloader package would create a circular dependency because the db package imports these structs.
 
 const (
 	AutoDownloaderRuleTitleComparisonContains AutoDownloaderRuleTitleComparisonType = "contains"
@@ -16,6 +17,8 @@ type (
 	AutoDownloaderRuleTitleComparisonType string
 	AutoDownloaderRuleEpisodeType         string
 
+	// AutoDownloaderRule is a rule that is used to automatically download media.
+	// The structs are sent to the client, thus adding `dbId` to facilitate mutations.
 	AutoDownloaderRule struct {
 		DbID                uint                                  `json:"dbId"` // Will be set when fetched from the database
 		Enabled             bool                                  `json:"enabled"`
@@ -29,17 +32,3 @@ type (
 		Destination         string                                `json:"destination"`
 	}
 )
-
-func (r *AutoDownloaderRule) IsQualityMatch(quality string) bool {
-	for _, q := range r.Resolutions {
-		qualityWithoutP, _ := strings.CutSuffix(q, "p")
-		qWithoutP := strings.TrimSuffix(q, "p")
-		if quality == q || qualityWithoutP == qWithoutP {
-			return true
-		}
-		if strings.Contains(quality, qWithoutP) { // e.g. 1080 in 1920x1080
-			return true
-		}
-	}
-	return false
-}

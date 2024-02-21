@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+// AniZip is the API used for fetching anime metadata and mappings.
+
 type (
 	Episode struct {
 		TvdbEid               int               `json:"tvdbEid,omitempty"`
@@ -99,6 +101,8 @@ func FetchAniZipMedia(from string, id int) (*Media, error) {
 }
 
 // FetchAniZipMediaC is the same as FetchAniZipMedia but uses a cache.
+// If the media is found in the cache, it will be returned.
+// If the media is not found in the cache, it will be fetched and then added to the cache.
 func FetchAniZipMediaC(from string, id int, cache *Cache) (*Media, error) {
 
 	cacheV, ok := cache.Get(GetCacheKey(from, id))
