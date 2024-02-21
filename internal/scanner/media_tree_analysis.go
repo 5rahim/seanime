@@ -56,11 +56,11 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 			// Get the first episode
 			firstEp, ok := azm.Episodes["1"]
 			if !ok {
-				return &MediaTreeAnalysisBranch{}, errors.New("no first episode")
+				return nil, errors.New("no first episode")
 			}
 
 			// discrepancy: "seasonNumber":1,"episodeNumber":12,"absoluteEpisodeNumber":13,
-			// this happens when the media has a seperate entry but is technically the same season
+			// this happens when the media has a separate entry but is technically the same season
 			// when we detect this, we should use the "episodeNumber" as the absoluteEpisodeNumber
 			// this is a hacky fix, but it works for the cases I've seen so far
 			shouldUseEpisodeNumber := firstEp.EpisodeNumber > 1 && firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber == 1
@@ -84,12 +84,15 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 				}, nil
 			}
 
-			return &MediaTreeAnalysisBranch{}, errors.New("could not analyze media tree branch")
+			return nil, errors.New("could not analyze media tree branch")
 
 		})
 	}
 	branches, _ := p.Wait()
-	// we ignore the errors
+
+	if branches == nil || len(branches) == 0 {
+		return nil, errors.New("no branches found")
+	}
 
 	return &MediaTreeAnalysis{branches: branches}, nil
 
@@ -114,12 +117,14 @@ func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, m
 	return
 }
 
-func (o *MediaTreeAnalysis) printBranches() string {
-	str := "["
+func (o *MediaTreeAnalysis) printBranches() (str string) {
+	str = "["
 	for _, branch := range o.branches {
 		str += fmt.Sprintf("media: '%s', minAbsoluteEpisode: %d, maxAbsoluteEpisode: %d, totalEpisodeCount: %d; ", branch.media.GetTitleSafe(), branch.minAbsoluteEpisode, branch.maxAbsoluteEpisode, branch.totalEpisodeCount)
 	}
-	str = str[:len(str)-2]
+	if len(o.branches) > 0 {
+		str = str[:len(str)-2]
+	}
 	str += "]"
 	return str
 

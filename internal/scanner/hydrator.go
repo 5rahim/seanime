@@ -212,17 +212,20 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						rateLimiter: rateLimiter,
 					})
 					// Hoist the media tree analysis, so it will be used by other files
+					// We don't care if it's nil because [normalizeEpisodeNumberAndHydrate] will handle it
 					mediaTreeAnalysis = mta
 					treeFetched = true
 
 					/*Log */
-					fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
-						Int("mediaId", mId).
-						Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
-						Int("requests", len(mediaTreeAnalysis.branches)).
-						Any("branches", mediaTreeAnalysis.printBranches()).
-						Msg("Media tree fetched")
-					fh.ScanSummaryLogger.LogMetadataMediaTreeFetched(lf, time.Since(mediaTreeFetchStart).Milliseconds(), len(mediaTreeAnalysis.branches))
+					if mta != nil && mta.branches != nil {
+						fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
+							Int("mediaId", mId).
+							Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+							Int("requests", len(mediaTreeAnalysis.branches)).
+							Any("branches", mediaTreeAnalysis.printBranches()).
+							Msg("Media tree fetched")
+						fh.ScanSummaryLogger.LogMetadataMediaTreeFetched(lf, time.Since(mediaTreeFetchStart).Milliseconds(), len(mediaTreeAnalysis.branches))
+					}
 				} else {
 					fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
 						Int("mediaId", mId).
@@ -234,7 +237,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			}
 
 			// Normalize episode number
-			if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode); err != nil {
+			if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode, media.GetCurrentEpisodeCount()); err != nil {
 
 				/*Log */
 				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
@@ -281,21 +284,27 @@ func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *entities.Local
 func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	mta *MediaTreeAnalysis,
 	lf *entities.LocalFile,
-	ep int,
+	ep int, // The absolute episode number of the media
+	maxEp int, // The maximum episode number of the media
 ) error {
+	// No media tree analysis
 	if mta == nil {
-		lf.Metadata.Episode = ep
-		lf.Metadata.AniDBEpisode = "S1"
+		lf.Metadata.Episode = ep // e.g. 14
+		// Let's consider this a special episode (it might not exist on AniDB, but it's better than setting everything to "S1")
+		diff := ep - maxEp                                  // e.g. 14 - 12 = 2
+		lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(diff) // e.g. S2
 		lf.Metadata.Type = entities.LocalFileTypeSpecial
-		return errors.New("[hydrator] could not find media tree analysis")
+		return errors.New("[hydrator] could not find media tree")
 	}
 
 	relativeEp, mediaId, ok := mta.getRelativeEpisodeNumber(ep)
 	if !ok {
 		lf.Metadata.Episode = ep
-		lf.Metadata.AniDBEpisode = "S1"
+		// Do the same as above
+		diff := ep - maxEp                                  // e.g. 14 - 12 = 2
+		lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(diff) // e.g. S2
 		lf.Metadata.Type = entities.LocalFileTypeSpecial
-		return errors.New("[hydrator] could not find relative episode number from branches")
+		return errors.New("[hydrator] could not find relative episode number from media tree")
 	}
 
 	lf.Metadata.Episode = relativeEp
