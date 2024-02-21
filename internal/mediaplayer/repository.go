@@ -222,7 +222,7 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 		}
 		ret := &playbackStatus{
 			CompletionPercentage: st.Position / st.Duration,
-			Playing:              st.Paused,
+			Playing:              !st.Paused,
 			Filename:             st.Filename,
 			Duration:             int(st.Duration),
 		}
