@@ -43,7 +43,7 @@ type (
 		TorrentDownloadCount int         `json:"torrent_download_count"`
 		TrackerUpdated       interface{} `json:"tracker_updated,omitempty"`
 		NzbUrl               string      `json:"nzb_url,omitempty"`
-		TotalSize            int         `json:"total_size"`
+		TotalSize            int64       `json:"total_size"`
 		NumFiles             int         `json:"num_files"`
 		AniDbAid             int         `json:"anidb_aid"`
 		AniDbEid             int         `json:"anidb_eid"`
@@ -54,11 +54,25 @@ type (
 	}
 )
 
+func GetLatest() (torrents []*Torrent, err error) {
+	query := "?only_tor=1&q=&filter[0][t]=nyaa_class&order="
+	return fetchTorrents(query)
+}
+
 func Search(show string) (torrents []*Torrent, err error) {
 
 	//format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&filter[0][v]=trusted"
-	format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&order="
-	furl := fmt.Sprintf(format, JsonFeedUrl, url.QueryEscape(show))
+	format := "?only_tor=1&q=%s&filter[0][t]=nyaa_class&order="
+	query := fmt.Sprintf(format, url.QueryEscape(show))
+
+	return fetchTorrents(query)
+}
+
+func fetchTorrents(query string) (torrents []*Torrent, err error) {
+
+	//format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&filter[0][v]=trusted"
+	//format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&order="
+	furl := JsonFeedUrl + query
 	resp, err := http.Get(furl)
 	if err != nil {
 		return nil, err
@@ -79,6 +93,15 @@ func Search(show string) (torrents []*Torrent, err error) {
 	var ret []*Torrent
 	if err := json.Unmarshal(b, &ret); err != nil {
 		return nil, err
+	}
+
+	for _, t := range ret {
+		if t.Seeders > 30000 {
+			t.Seeders = 0
+		}
+		if t.Leechers > 30000 {
+			t.Leechers = 0
+		}
 	}
 
 	return ret, nil

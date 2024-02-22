@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	"github.com/seanime-app/seanime/internal/animetosho"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/seanime-parser"
 	"strconv"
@@ -11,7 +12,7 @@ type (
 		Name       string
 		Link       string
 		Hash       string
-		Size       string
+		Size       int64
 		Seeders    int
 		ParsedData *seanime_parser.Metadata
 		Provider   string
@@ -51,7 +52,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 			Name:       t.Name,
 			Link:       t.GUID,
 			Hash:       t.InfoHash,
-			Size:       t.Size,
+			Size:       t.GetSizeInBytes(),
 			Seeders:    seedersInt,
 			magnet:     "", // Nyaa doesn't provide the magnet link in the RSS feed
 			ParsedData: parsedData,
@@ -66,41 +67,30 @@ func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorre
 	ad.Logger.Trace().Msg("autodownloader: Checking for new episodes from AnimeTosho")
 	normalizedTs := make([]*NormalizedTorrent, 0)
 
-	//// Fetch the RSS feed
-	//torrents, err := nyaa.GetTorrentList(nyaa.SearchOptions{
-	//	Provider: "nyaa",
-	//	Query:    "",
-	//	Category: "anime-eng",
-	//	SortBy:   "seeders",
-	//	Filter:   "",
-	//})
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//for _, t := range torrents {
-	//	parsedData := seanime_parser.Parse(t.Name)
-	//	if err != nil {
-	//		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
-	//		continue
-	//	}
-	//
-	//	seedersInt := 0
-	//	if t.Seeders != "" {
-	//		seedersInt, _ = strconv.Atoi(t.Seeders)
-	//	}
-	//
-	//	normalizedTs = append(normalizedTs, &NormalizedTorrent{
-	//		Name:       t.Name,
-	//		Link:       t.GUID,
-	//		Hash:       t.InfoHash,
-	//		Size:       t.Size,
-	//		Seeders:    seedersInt,
-	//		magnet:     "", // Nyaa doesn't provide the magnet link in the RSS feed
-	//		ParsedData: parsedData,
-	//		Provider:   NyaaProvider,
-	//	})
-	//}
+	// Fetch the latest torrents
+	torrents, err := animetosho.GetLatest()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range torrents {
+		parsedData := seanime_parser.Parse(t.Title)
+		if err != nil {
+			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
+			continue
+		}
+
+		normalizedTs = append(normalizedTs, &NormalizedTorrent{
+			Name:       t.Title,
+			Link:       t.Link,
+			Hash:       t.InfoHash,
+			Size:       t.TotalSize,
+			Seeders:    t.Seeders,
+			magnet:     t.MagnetUrl,
+			ParsedData: parsedData,
+			Provider:   AnimeToshoProvider,
+		})
+	}
 
 	return normalizedTs, nil
 }

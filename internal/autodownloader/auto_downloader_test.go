@@ -6,7 +6,7 @@ import (
 )
 
 var mockSettings = &models.AutoDownloaderSettings{
-	Provider:              "nyaa",
+	Provider:              "animetosho",
 	Interval:              10,
 	Enabled:               true,
 	DownloadAutomatically: true,
