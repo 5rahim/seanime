@@ -116,7 +116,6 @@ export default function Page() {
                             <TabPanels.Tab>Seanime</TabPanels.Tab>
                             <TabPanels.Tab>Media Players</TabPanels.Tab>
                             <TabPanels.Tab>qBittorrent</TabPanels.Tab>
-                            <TabPanels.Tab>AniList</TabPanels.Tab>
                         </TabPanels.Nav>
                         <div className="p-4">
                             <TabPanels.Container>
@@ -139,6 +138,22 @@ export default function Page() {
                                         name="disableUpdateCheck"
                                         label="Do not check for updates"
                                         help="If enabled, Seanime will not check for new releases."
+                                    />
+                                    <Divider />
+                                    <Field.Switch
+                                        name="hideAudienceScore"
+                                        label="Hide audience score"
+                                        help="If enabled, the audience score will be hidden on the media entry page."
+                                    />
+                                    <Divider />
+                                    <Field.RadioGroup
+                                        options={[
+                                            { label: "Nyaa", value: "nyaa" },
+                                            { label: "AnimeTosho", value: "animetosho" },
+                                        ]}
+                                        name="torrentProvider"
+                                        label="Torrent provider"
+                                        help="Provider to use for searching and downloading torrents."
                                     />
 
                                 </TabPanels.Panel>
@@ -241,13 +256,6 @@ export default function Page() {
                                     <Field.Text
                                         name="qbittorrentPath"
                                         label="Application path"
-                                    />
-                                </TabPanels.Panel>
-
-                                <TabPanels.Panel>
-                                    <Field.Switch
-                                        name="hideAudienceScore"
-                                        label="Hide audience score"
                                     />
                                 </TabPanels.Panel>
                                 <div className="mt-4">
