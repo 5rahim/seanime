@@ -39,7 +39,7 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			scanLogger, err := NewScanLogger()
+			scanLogger, err := NewConsoleScanLogger()
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}
@@ -59,7 +59,7 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 			// +---------------------+
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				allMedia:   allMedia,
+				AllMedia:   allMedia,
 				ScanLogger: scanLogger,
 			})
 
@@ -68,10 +68,10 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 			// +---------------------+
 
 			matcher := &Matcher{
-				localFiles:     lfs,
-				mediaContainer: mc,
-				baseMediaCache: nil,
-				logger:         util.NewLogger(),
+				LocalFiles:     lfs,
+				MediaContainer: mc,
+				BaseMediaCache: nil,
+				Logger:         util.NewLogger(),
 				ScanLogger:     scanLogger,
 			}
 

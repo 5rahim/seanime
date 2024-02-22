@@ -162,7 +162,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 
 	// Create a new container for media
 	mc := NewMediaContainer(&MediaContainerOptions{
-		allMedia:   mf.AllMedia,
+		AllMedia:   mf.AllMedia,
 		ScanLogger: scanLogger,
 	})
 
@@ -176,10 +176,10 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 
 	// Create a new matcher
 	matcher := &Matcher{
-		localFiles:        localFiles,
-		mediaContainer:    mc,
-		baseMediaCache:    baseMediaCache,
-		logger:            scn.Logger,
+		LocalFiles:        localFiles,
+		MediaContainer:    mc,
+		BaseMediaCache:    baseMediaCache,
+		Logger:            scn.Logger,
 		ScanLogger:        scanLogger,
 		ScanSummaryLogger: scn.ScanSummaryLogger,
 	}

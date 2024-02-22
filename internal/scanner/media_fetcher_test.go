@@ -63,7 +63,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			scanLogger, err := NewScanLogger()
+			scanLogger, err := NewConsoleScanLogger()
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}
@@ -99,7 +99,7 @@ func TestNewMediaFetcher(t *testing.T) {
 			}
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				allMedia:   mf.AllMedia,
+				AllMedia:   mf.AllMedia,
 				ScanLogger: scanLogger,
 			})
 
@@ -178,7 +178,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			}
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				allMedia:   mf.AllMedia,
+				AllMedia:   mf.AllMedia,
 				ScanLogger: scanLogger,
 			})
 

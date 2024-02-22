@@ -40,6 +40,21 @@ func NewScanLogger() (*ScanLogger, error) {
 	return &ScanLogger{&logger, logFile}, nil
 }
 
+// NewConsoleScanLogger creates a new mock ScanLogger
+func NewConsoleScanLogger() (*ScanLogger, error) {
+
+	output := zerolog.ConsoleWriter{
+		Out:        os.Stdout,
+		TimeFormat: time.DateTime,
+	}
+
+	// Create an array writer to wrap the JSON encoder
+
+	logger := zerolog.New(output).With().Logger()
+
+	return &ScanLogger{logger: &logger, logFile: nil}, nil
+}
+
 func (sl *ScanLogger) LogMediaContainer(level zerolog.Level) *zerolog.Event {
 	return sl.logger.WithLevel(level).Str("context", "MediaContainer")
 }
@@ -57,6 +72,9 @@ func (sl *ScanLogger) LogMediaFetcher(level zerolog.Level) *zerolog.Event {
 }
 
 func (sl *ScanLogger) Close() {
+	if sl.logFile == nil {
+		return
+	}
 	err := sl.logFile.Sync()
 	if err != nil {
 		return

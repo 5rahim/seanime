@@ -60,7 +60,7 @@ func TestScanLogger(t *testing.T) {
 			// +---------------------+
 
 			mc := NewMediaContainer(&MediaContainerOptions{
-				allMedia:   allMedia,
+				AllMedia:   allMedia,
 				ScanLogger: scanLogger,
 			})
 
@@ -73,10 +73,10 @@ func TestScanLogger(t *testing.T) {
 			// +---------------------+
 
 			matcher := &Matcher{
-				localFiles:     lfs,
-				mediaContainer: mc,
-				baseMediaCache: nil,
-				logger:         util.NewLogger(),
+				LocalFiles:     lfs,
+				MediaContainer: mc,
+				BaseMediaCache: nil,
+				Logger:         util.NewLogger(),
 				ScanLogger:     scanLogger,
 			}
 

@@ -12,7 +12,7 @@ import (
 
 type (
 	MediaContainerOptions struct {
-		allMedia   []*anilist.BaseMedia
+		AllMedia   []*anilist.BaseMedia
 		ScanLogger *ScanLogger
 	}
 
@@ -39,7 +39,7 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 
 	normalizedMediaMap := make(map[int]*entities.NormalizedMedia)
 
-	for _, m := range opts.allMedia {
+	for _, m := range opts.AllMedia {
 		normalizedMediaMap[m.ID] = entities.NewNormalizedMedia(m.ToBasicMedia())
 		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
 			for _, edgeM := range m.Relations.Edges {
@@ -60,7 +60,7 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 					continue
 				}
 				// DEVNOTE: Edges fetched from the AniList AnimeCollection query do not contain NextAiringEpisode
-				// Make sure we don't overwrite the NextAiringEpisode from the original media
+				// Make sure we don't overwrite the original media in the map that contains NextAiringEpisode
 				if _, found := normalizedMediaMap[edgeM.Node.ID]; !found {
 					normalizedMediaMap[edgeM.Node.ID] = entities.NewNormalizedMedia(edgeM.Node)
 				}
@@ -97,10 +97,10 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc.engTitles = engTitles
 	mc.romTitles = romTitles
 	mc.synonyms = synonyms
-	mc.allMedia = opts.allMedia
+	mc.allMedia = opts.AllMedia
 
 	mc.ScanLogger.LogMediaContainer(zerolog.InfoLevel).
-		Any("inputCount", len(opts.allMedia)).
+		Any("inputCount", len(opts.AllMedia)).
 		Any("mediaCount", len(mc.NormalizedMedia)).
 		Any("titles", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
 		Msg("Created media container")

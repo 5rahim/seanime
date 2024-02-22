@@ -54,8 +54,6 @@ func (fh *FileHydrator) HydrateMetadata() {
 	// Process each group in parallel
 	p := pool.New()
 	for mId, files := range groups {
-		mId := mId
-		files := files
 		p.Go(func() {
 			if len(files) > 0 {
 				fh.hydrateGroupMetadata(mId, files, rateLimiter)
