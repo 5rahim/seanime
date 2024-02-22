@@ -153,9 +153,13 @@ func NewFiberApp(app *App) *fiber.App {
 	})
 
 	if constants.DevelopmentWebBuild {
-		fiberApp.Static("/", "./seanime-web/web")
+		fiberApp.Static("/", "./seanime-web/out", fiber.Static{
+			Index: "index.html",
+		})
 	} else {
-		fiberApp.Static("/", "./web")
+		fiberApp.Static("/", "./web", fiber.Static{
+			Index: "index.html",
+		})
 	}
 
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
@@ -179,8 +183,11 @@ func NewFiberApp(app *App) *fiber.App {
 				path += ".html"
 			}
 		}
+		if path == "/.html" {
+			path = "/index.html"
+		}
 		if constants.DevelopmentWebBuild {
-			return c.SendFile("./seanime-web/web" + path)
+			return c.SendFile("./seanime-web/out" + path)
 		} else {
 			return c.SendFile("./web" + path)
 		}
