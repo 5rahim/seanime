@@ -1,5 +1,5 @@
 "use client"
-import { useAutoDownloaderQueueCount } from "@/atoms/auto-downloader-items"
+import { useAutoDownloaderQueueCount } from "@/app/(main)/auto-downloader/_lib/auto-downloader-items"
 import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useCurrentUser } from "@/atoms/user"

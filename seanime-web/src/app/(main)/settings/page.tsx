@@ -7,7 +7,7 @@ import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
-import { ServerStatus, Settings } from "@/lib/server/types"
+import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
 import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
 import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
 import { FcVideoCall } from "@react-icons/all-files/fc/FcVideoCall"
@@ -50,6 +50,7 @@ export default function Page() {
                             libraryPath: data.libraryPath,
                             autoUpdateProgress: data.autoUpdateProgress,
                             disableUpdateCheck: data.disableUpdateCheck,
+                            torrentProvider: data.torrentProvider,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -78,6 +79,7 @@ export default function Page() {
                 defaultValues={{
                     libraryPath: status?.settings?.library?.libraryPath,
                     mediaPlayerHost: status?.settings?.mediaPlayer?.host,
+                    torrentProvider: status?.settings?.library?.torrentProvider || DEFAULT_TORRENT_PROVIDER, // (Backwards compatibility)
                     defaultPlayer: status?.settings?.mediaPlayer?.defaultPlayer,
                     vlcPort: status?.settings?.mediaPlayer?.vlcPort,
                     vlcUsername: status?.settings?.mediaPlayer?.vlcUsername,

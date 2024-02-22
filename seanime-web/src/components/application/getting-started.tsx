@@ -7,7 +7,7 @@ import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
-import { ServerStatus, Settings } from "@/lib/server/types"
+import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
 import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
 import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
 import { FcMindMap } from "@react-icons/all-files/fc/FcMindMap"
@@ -63,6 +63,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         libraryPath: data.libraryPath,
                                         autoUpdateProgress: false,
                                         disableUpdateCheck: false,
+                                        torrentProvider: DEFAULT_TORRENT_PROVIDER,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -140,7 +141,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 name="vlcPath"
                                 label="Executable"
                             />
-                            <h3 className="flex gap-2 items-center"><FcClapperboard/> MPC-HC</h3>
+                            <h3 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC (Windows)</h3>
                             <div className="flex gap-4">
                                 <Field.Number
                                     name="mpcPort"

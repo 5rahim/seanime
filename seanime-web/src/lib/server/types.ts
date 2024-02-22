@@ -69,7 +69,10 @@ export type LibrarySettings = {
     libraryPath: string
     autoUpdateProgress: boolean
     disableUpdateCheck: boolean
+    torrentProvider: string
 }
+
+export const DEFAULT_TORRENT_PROVIDER = "nyaa"
 
 export type TorrentSettings = {
     qbittorrentPath: string

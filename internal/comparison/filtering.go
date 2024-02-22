@@ -42,7 +42,7 @@ func ExtractSeasonNumber(val string) int {
 	}
 
 	// Check for a number followed by "st", "nd", "rd", or "th", followed by "s" or "S"
-	re = regexp.MustCompile(`(\d+)(st|nd|rd|th) [sS]eason`)
+	re = regexp.MustCompile(`(\d+)(st|nd|rd|th) [sS]`)
 	matches = re.FindStringSubmatch(val)
 	if len(matches) > 1 {
 		season, err := strconv.Atoi(matches[1])

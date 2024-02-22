@@ -289,9 +289,9 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 ) error {
 	// No media tree analysis
 	if mta == nil {
-		lf.Metadata.Episode = ep // e.g. 14
+		diff := ep - maxEp // e.g. 14 - 12 = 2
 		// Let's consider this a special episode (it might not exist on AniDB, but it's better than setting everything to "S1")
-		diff := ep - maxEp                                  // e.g. 14 - 12 = 2
+		lf.Metadata.Episode = diff                          // e.g. 2
 		lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(diff) // e.g. S2
 		lf.Metadata.Type = entities.LocalFileTypeSpecial
 		return errors.New("[hydrator] could not find media tree")
@@ -299,9 +299,9 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 
 	relativeEp, mediaId, ok := mta.getRelativeEpisodeNumber(ep)
 	if !ok {
-		lf.Metadata.Episode = ep
+		diff := ep - maxEp // e.g. 14 - 12 = 2
 		// Do the same as above
-		diff := ep - maxEp                                  // e.g. 14 - 12 = 2
+		lf.Metadata.Episode = diff
 		lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(diff) // e.g. S2
 		lf.Metadata.Type = entities.LocalFileTypeSpecial
 		return errors.New("[hydrator] could not find relative episode number from media tree")

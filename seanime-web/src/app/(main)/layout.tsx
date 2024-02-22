@@ -4,7 +4,7 @@ import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner
 import { useAnilistCollectionListener } from "@/app/(main)/_loaders/anilist-collection"
 import { useAnilistUserMediaLoader } from "@/app/(main)/_loaders/anilist-user-media"
 import { useLibraryCollectionLoader } from "@/app/(main)/_loaders/library-collection"
-import { useListenToAutoDownloaderItems } from "@/atoms/auto-downloader-items"
+import { useListenToAutoDownloaderItems } from "@/app/(main)/auto-downloader/_lib/auto-downloader-items"
 import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
 import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
 import { LibraryWatcher } from "@/components/application/library-watcher"

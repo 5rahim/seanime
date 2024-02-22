@@ -52,6 +52,8 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         <h1 className={"[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)]"}>{entry.media.title?.userPreferred}</h1>
                         {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase() &&
                             <h4 className={"text-gray-400"}>{entry.media.title?.english}</h4>}
+                        {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.romaji?.toLowerCase() &&
+                            <h4 className={"text-gray-400"}>{entry.media.title?.romaji}</h4>}
                     </div>
 
                     {/*SEASON*/}
