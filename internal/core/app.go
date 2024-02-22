@@ -46,8 +46,9 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		Version string
-		Updater *updater.Updater
+		Version  string
+		Updater  *updater.Updater
+		Settings *models.Settings
 	}
 
 	AppOptions struct {

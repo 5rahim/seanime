@@ -48,7 +48,7 @@ export default function Page() {
 
 function Content() {
     const { data, isLoading, refetch } = useSeaQuery<SeaTorrent[]>({
-        endpoint: SeaEndpoints.TORRENTS,
+        endpoint: SeaEndpoints.TORRENT_CLIENT_LIST,
         queryKey: ["torrents"],
         refetchInterval: 2500,
         gcTime: 0,
@@ -57,7 +57,7 @@ function Content() {
     })
 
     const { mutate, isPending } = useSeaMutation<boolean, SeaTorrentActionProps>({
-        endpoint: SeaEndpoints.TORRENT,
+        endpoint: SeaEndpoints.TORRENT_CLIENT_ACTION,
         mutationKey: ["torrent-action"],
     })
 

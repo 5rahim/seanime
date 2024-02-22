@@ -200,12 +200,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/nyaa/search", makeHandler(app, HandleNyaaSearch))
 
 	//
-	// qBittorrent
+	// Torrent / Torrent Client
 	//
 
-	v1.Post("/download", makeHandler(app, HandleDownloadNyaaTorrents))
-	v1.Get("/torrents", makeHandler(app, HandleGetActiveTorrentList))
-	v1.Post("/torrent", makeHandler(app, HandleTorrentAction))
+	v1.Post("/torrent-search", makeHandler(app, HandleTorrentSearch))
+	v1.Post("/torrent-client/download", makeHandler(app, HandleDownloadTorrentInClient))
+	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
+	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))
 
 	//
 	// Download

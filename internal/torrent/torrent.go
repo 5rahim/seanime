@@ -28,7 +28,7 @@ type (
 	}
 )
 
-func NewAnimeTorrentFromNyaa(torrent *nyaa.Torrent) *AnimeTorrent {
+func NewAnimeTorrentFromNyaa(torrent *nyaa.DetailedTorrent) *AnimeTorrent {
 	metadata := seanime_parser.Parse(torrent.Name)
 
 	seeders, _ := strconv.Atoi(torrent.Seeders)

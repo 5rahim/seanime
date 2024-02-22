@@ -51,14 +51,11 @@ export const enum SeaEndpoints {
     /**
      * Download/Torrent
      */
-    DOWNLOAD = "/download", // (POST)
     DOWNLOAD_TORRENT_FILE = "/download-torrent-file", // (POST)
-    TORRENTS = "/torrents", // (GET)
-    TORRENT = "/torrent", // (POST)
-    /**
-     * Torrent
-     */
-    TORRENT_SEARCH = "/torrent/search", // (POST)
+    TORRENT_CLIENT_DOWNLOAD = "/torrent-client/download", // (POST)
+    TORRENT_CLIENT_LIST = "/torrent-client/list", // (GET)
+    TORRENT_CLIENT_ACTION = "/torrent-client/action", // (POST)
+    TORRENT_SEARCH = "/torrent-search", // (POST)
     /**
      * Auto downloader
      */

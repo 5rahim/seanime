@@ -73,9 +73,9 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     }, [selectedTorrents, media.format, media.status, media.episodes, entry.downloadInfo?.episodesToDownload, media.nextAiringEpisode?.episode])
 
 
-    // download via qbittorrent
+    // download via torrent client
     const { mutate, isPending } = useSeaMutation<boolean, TorrentDownloadProps>({
-        endpoint: SeaEndpoints.DOWNLOAD,
+        endpoint: SeaEndpoints.TORRENT_CLIENT_DOWNLOAD,
         method: "post",
         mutationKey: ["download-torrent"],
         onSuccess: () => {

@@ -25,6 +25,8 @@ func (a *App) InitOrRefreshModules() {
 		return
 	}
 
+	a.Settings = settings // Store settings instance in app
+
 	// Update updater
 	if settings.Library != nil && a.Updater != nil {
 		a.Updater.CheckForUpdate = !settings.Library.DisableUpdateCheck

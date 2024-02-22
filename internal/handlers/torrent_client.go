@@ -2,8 +2,12 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/downloader"
+	"github.com/seanime-app/seanime/internal/nyaa"
+	qbittorrent_model "github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/sourcegraph/conc/pool"
 	"time"
 )
 
@@ -34,7 +38,7 @@ type (
 //
 // DEVNOTE: Could be modified to support other torrent clients.
 //
-//	GET /v1/torrents
+//	GET /v1/torrent-client/list
 func HandleGetActiveTorrentList(c *RouteCtx) error {
 
 	res, err := c.App.QBittorrent.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
@@ -104,11 +108,11 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 
 }
 
-// HandleTorrentAction will perform an action on a torrent.
+// HandleTorrentClientAction will perform an action on a torrent.
 // It returns true if the action was successful.
 //
-//	POST /v1/torrent
-func HandleTorrentAction(c *RouteCtx) error {
+//	POST /v1/torrent-client/action
+func HandleTorrentClientAction(c *RouteCtx) error {
 
 	type body struct {
 		Hash   string `json:"hash"`
@@ -160,4 +164,74 @@ func getTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 	} else {
 		return TorrentStatusDownloading
 	}
+}
+
+// HandleDownloadTorrentInClient will get magnets from Nyaa and add them to qBittorrent.
+// It also handles smart selection (downloader.SmartSelect).
+//
+//	POST /v1/torrent-client/download
+func HandleDownloadTorrentInClient(c *RouteCtx) error {
+
+	type body struct {
+		Urls        []string `json:"urls"`
+		Destination string   `json:"destination"`
+		SmartSelect struct {
+			Enabled               bool  `json:"enabled"`
+			MissingEpisodeNumbers []int `json:"missingEpisodeNumbers"`
+			AbsoluteOffset        int   `json:"absoluteOffset"`
+		} `json:"smartSelect"`
+		Media *anilist.BaseMedia `json:"media"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// try to start qbittorrent if it's not running
+	err := c.App.QBittorrent.Start()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// get magnets
+	p := pool.NewWithResults[string]().WithErrors()
+	for _, url := range b.Urls {
+		p.Go(func() (string, error) {
+			return nyaa.TorrentMagnet(url)
+		})
+	}
+	// if we couldn't get a magnet, return error
+	magnets, err := p.Wait()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// create repository
+	repo := &downloader.QbittorrentRepository{
+		Logger:         c.App.Logger,
+		Client:         c.App.QBittorrent,
+		WSEventManager: c.App.WSEventManager,
+		Destination:    b.Destination,
+	}
+
+	// try to add torrents to qbittorrent, on error return error
+	err = repo.AddMagnets(magnets)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err = repo.SmartSelect(&downloader.SmartSelect{
+		Magnets:               magnets,
+		Enabled:               b.SmartSelect.Enabled,
+		MissingEpisodeNumbers: b.SmartSelect.MissingEpisodeNumbers,
+		AbsoluteOffset:        b.SmartSelect.AbsoluteOffset,
+		Media:                 b.Media,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+
 }

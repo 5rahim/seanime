@@ -336,6 +336,23 @@ export type SearchTorrent = {
     isBatch: boolean
 }
 
+export type AnimeTorrent = {
+    name: string
+    date: string
+    size: number
+    formattedSize: string
+    seeders: number
+    leechers: number
+    downloadCount: number
+    link: string
+    downloadUrl: string
+    infoHash: string
+    resolution?: string
+    isBatch?: boolean
+    episodeNumber?: number
+    releaseGroup?: string
+}
+
 export type SearchTorrentComment = {
     user: string
     date: string
