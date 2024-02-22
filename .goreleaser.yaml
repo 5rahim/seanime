@@ -19,7 +19,7 @@ builds:
       - 7
     ignore:
       - goos: windows
-        goarch: arm
+        goarch: arm64
 #      - goos: darwin
 #        goarch: 386
 #      - goos: linux

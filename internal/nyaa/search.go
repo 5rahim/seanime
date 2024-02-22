@@ -96,7 +96,6 @@ func SearchMultiple(opts SearchMultipleOptions) ([]*DetailedTorrent, error) {
 
 	p := pool.NewWithResults[[]*DetailedTorrent]()
 	for _, query := range opts.Query {
-		query := query
 		p.Go(func() []*DetailedTorrent {
 
 			//check cache

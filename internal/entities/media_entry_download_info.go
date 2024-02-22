@@ -181,7 +181,6 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 
 	p := pool.NewWithResults[*MediaEntryDownloadEpisode]()
 	for _, ep := range toDownloadSlice {
-		ep := ep
 		p.Go(func() *MediaEntryDownloadEpisode {
 			str := new(MediaEntryDownloadEpisode)
 			str.EpisodeNumber = ep

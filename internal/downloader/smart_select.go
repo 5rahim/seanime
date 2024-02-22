@@ -192,7 +192,6 @@ func (r *QbittorrentRepository) getBestTempLocalFiles(contents []*qbittorrent_mo
 	// compare each local file title variations with the media titles and synonyms
 	p := pool.NewWithResults[*comparisonRes]()
 	for _, tmpLf := range tmpLfs {
-		tmpLf := tmpLf
 		p.Go(func() *comparisonRes {
 			comparisons := lop.Map(titles, func(title *string, _ int) *comparison.SorensenDiceResult {
 

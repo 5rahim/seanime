@@ -213,7 +213,6 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 
 	p := pool.NewWithResults[*MediaEntryEpisode]()
 	for _, lf := range e.LocalFiles {
-		lf := lf
 		p.Go(func() *MediaEntryEpisode {
 			return NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
 				LocalFile:            lf,

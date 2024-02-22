@@ -46,7 +46,6 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 	// Create new MediaTreeAnalysisBranch for each Anizip media
 	p := pool.NewWithResults[*MediaTreeAnalysisBranch]().WithErrors()
 	for _, rel := range relations {
-		rel := rel
 		p.Go(func() (*MediaTreeAnalysisBranch, error) {
 			opts.rateLimiter.Wait()
 			azm, err := anizip.FetchAniZipMedia("anilist", rel.ID)

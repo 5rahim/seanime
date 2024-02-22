@@ -24,7 +24,7 @@ type (
 )
 
 func Search2(show string) error {
-	format := "%s?only_tor=1&q=%s&filter%%5B0%%5D%%5Bt%%5D=nyaa_class&filter%%5B0%%5D%%5Bv%"
+	format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&filter[0][v]=trusted"
 	url := fmt.Sprintf(format, FeedUrl, url.QueryEscape(show))
 	//feed, err := fp.ParseURL(url)
 	//if err != nil {

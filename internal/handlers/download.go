@@ -46,7 +46,6 @@ func HandleDownloadNyaaTorrents(c *RouteCtx) error {
 	// get magnets
 	p := pool.NewWithResults[string]().WithErrors()
 	for _, url := range b.Urls {
-		url := url
 		p.Go(func() (string, error) {
 			return nyaa.TorrentMagnet(url)
 		})

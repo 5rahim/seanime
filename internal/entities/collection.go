@@ -136,9 +136,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	// This is done in parallel
 	p := pool.NewWithResults[*LibraryCollectionList]()
 	for _, list := range aniLists {
-		list := list
 		p.Go(func() *LibraryCollectionList {
-
 			// If the list has no status, return nil
 			// This occurs when there are custom lists (DEVNOTE: This shouldn't occur because we remove custom lists when the collection is fetched)
 			if list.Status == nil {
@@ -152,7 +150,6 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 			// If it is, create a new LibraryCollectionEntry with the associated local files
 			p2 := pool.NewWithResults[*LibraryCollectionEntry]()
 			for _, entry := range entries {
-				entry := entry
 				p2.Go(func() *LibraryCollectionEntry {
 					if slices.Contains(mIds, entry.Media.ID) {
 
@@ -283,7 +280,6 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	// Create a new MediaEntry for each media id
 	mEntryPool := pool.NewWithResults[*MediaEntry]()
 	for _, mId := range mIds {
-		mId := mId
 		mEntryPool.Go(func() *MediaEntry {
 			me, _ := NewMediaEntry(&NewMediaEntryOptions{
 				MediaId:              mId,

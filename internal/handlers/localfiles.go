@@ -142,7 +142,6 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 	// Delete the files
 	p := pool.NewWithResults[string]()
 	for _, path := range b.Paths {
-		path := path
 		p.Go(func() string {
 			err = os.Remove(path)
 			if err != nil {
