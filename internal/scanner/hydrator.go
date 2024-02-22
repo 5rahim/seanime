@@ -154,7 +154,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		// No absolute episode count
 		// "media.GetTotalEpisodeCount() == -1" is a fix for media with unknown episode count, we will just assume that the episode number is correct
 		// FIXME: We might want to fetch the media when the episode count is unknown in order to get the correct episode count
-		if episode <= media.GetCurrentEpisodeCount() || media.GetTotalEpisodeCount() == -1 {
+		if episode > -1 && (episode <= media.GetCurrentEpisodeCount() || media.GetTotalEpisodeCount() == -1) {
 			// Episode 0 - Might be a special
 			// By default, we will assume that AniDB doesn't include Episode 0 as part of the main episodes (which is often the case)
 			// If this proves to be wrong, media_entry.go will offset the AniDBEpisode by 1 and treat "S1" as "1" when it is a main episode
@@ -192,6 +192,33 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				Str("warning", "File's episode number is higher than the media's episode count, but the media only has 1 episode").
 				Msg("File has been marked as main")
 			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
+			return
+		}
+
+		// No episode number, but the media only has 1 episode
+		if episode == -1 && media.GetCurrentEpisodeCount() == 1 {
+			lf.Metadata.Episode = 1 // Coerce episode number to 1 because it is used for tracking
+			lf.Metadata.AniDBEpisode = "1"
+
+			/*Log */
+			fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+				Str("warning", "No episode number found, but the media only has 1 episode").
+				Msg("File has been marked as main")
+			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
+			return
+		}
+
+		// Still no episode number and the media has more than 1 episode and is not a movie
+		// We will mark it as a special episode
+		if episode == -1 {
+			lf.Metadata.Type = entities.LocalFileTypeSpecial
+			lf.Metadata.Episode = 1
+			lf.Metadata.AniDBEpisode = "S1"
+
+			/*Log */
+			fh.logFileHydration(zerolog.ErrorLevel, lf, mId, episode).
+				Msg("No episode number found, file has been marked as special")
+			fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, errors.New("no episode number found"), lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
 
