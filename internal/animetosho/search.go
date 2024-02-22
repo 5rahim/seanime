@@ -3,15 +3,17 @@ package animetosho
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/goccy/go-json"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
 const (
-	SearchUrl = "https://animetosho.org/search"
-	FeedUrl   = "https://feed.animetosho.org/rss2"
+	SearchUrl   = "https://animetosho.org/search"
+	FeedUrl     = "https://feed.animetosho.org/rss2"
+	JsonFeedUrl = "https://feed.animetosho.org/json"
 )
 
 type (
@@ -21,21 +23,68 @@ type (
 		MagnetURL  string
 		TorrentURL string
 	}
+
+	Torrent struct {
+		Id                   int         `json:"id"`
+		Title                string      `json:"title"`
+		Link                 string      `json:"link"`
+		Timestamp            int         `json:"timestamp"`
+		Status               string      `json:"status"`
+		ToshoId              int         `json:"tosho_id,omitempty"`
+		NyaaId               int         `json:"nyaa_id,omitempty"`
+		NyaaSubdom           interface{} `json:"nyaa_subdom,omitempty"`
+		AniDexId             int         `json:"anidex_id,omitempty"`
+		TorrentUrl           string      `json:"torrent_url"`
+		InfoHash             string      `json:"info_hash"`
+		InfoHashV2           string      `json:"info_hash_v2,omitempty"`
+		MagnetUrl            string      `json:"magnet_url"`
+		Seeders              int         `json:"seeders"`
+		Leechers             int         `json:"leechers"`
+		TorrentDownloadCount int         `json:"torrent_download_count"`
+		TrackerUpdated       interface{} `json:"tracker_updated,omitempty"`
+		NzbUrl               string      `json:"nzb_url,omitempty"`
+		TotalSize            int         `json:"total_size"`
+		NumFiles             int         `json:"num_files"`
+		AniDbAid             int         `json:"anidb_aid"`
+		AniDbEid             int         `json:"anidb_eid"`
+		AniDbFid             int         `json:"anidb_fid"`
+		ArticleUrl           string      `json:"article_url"`
+		ArticleTitle         string      `json:"article_title"`
+		WebsiteUrl           string      `json:"website_url"`
+	}
 )
 
-func Search2(show string) error {
-	format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&filter[0][v]=trusted"
-	url := fmt.Sprintf(format, FeedUrl, url.QueryEscape(show))
-	//feed, err := fp.ParseURL(url)
-	//if err != nil {
-	//	return err
-	//}
-	spew.Dump(url)
-	return nil
+func Search(show string) (torrents []*Torrent, err error) {
+
+	//format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&filter[0][v]=trusted"
+	format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&order="
+	furl := fmt.Sprintf(format, JsonFeedUrl, url.QueryEscape(show))
+	resp, err := http.Get(furl)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Check if the request was successful (status code 200)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch torrents, %s", resp.Status)
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse the feed
+	var ret []*Torrent
+	if err := json.Unmarshal(b, &ret); err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
-// Search performs a search and returns the first page of results.
-func Search(terms string) ([]SearchResult, error) {
+func SearchRSS(terms string) ([]SearchResult, error) {
 	var (
 		err error
 

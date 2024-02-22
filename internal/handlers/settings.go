@@ -171,7 +171,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	// Update Auto Downloader
-	go c.App.AutoDownloader.SetSettings(autoDownloaderSettings)
+	go c.App.AutoDownloader.SetSettings(autoDownloaderSettings, prevSettings.Library.TorrentProvider)
 
 	return c.RespondWithData(true)
 }

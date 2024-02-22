@@ -22,6 +22,7 @@ import (
 
 const (
 	NyaaProvider        = "nyaa"
+	AnimeToshoProvider  = "animetosho"
 	NyaaViewURL         = "https://nyaa.si/view/"
 	ComparisonThreshold = 0.8
 )
@@ -68,7 +69,7 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		AnilistCollection: opts.AnilistCollection,
 		AniZipCache:       opts.AniZipCache,
 		Settings: &models.AutoDownloaderSettings{
-			Provider:              NyaaProvider,
+			Provider:              NyaaProvider, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
 			Enabled:               false,
 			DownloadAutomatically: false,
@@ -83,8 +84,12 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 }
 
 // SetSettings should be called after the settings are fetched and updated from the database.
-func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings) {
+func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, provider string) {
 	ad.Settings = settings
+	// Update the provider if it's provided
+	if provider != "" {
+		ad.Settings.Provider = provider
+	}
 	ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
 	if ad.Settings.Enabled && !ad.active {
 		ad.startCh <- struct{}{} // Start the auto downloader
@@ -178,6 +183,13 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from Nyaa")
 		} else {
 			torrents = nyaaTorrents
+		}
+	} else if ad.Settings.Provider == AnimeToshoProvider {
+		toshoTorrents, err := ad.getCurrentTorrentsFromAnimeTosho()
+		if err != nil {
+			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from AnimeTosho")
+		} else {
+			torrents = toshoTorrents
 		}
 	}
 

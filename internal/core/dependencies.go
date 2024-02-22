@@ -69,7 +69,7 @@ func (a *App) InitOrRefreshModules() {
 
 	// Update Auto Downloader
 	if settings.AutoDownloader != nil {
-		go a.AutoDownloader.SetSettings(settings.AutoDownloader)
+		go a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
 	}
 
 	// Initialize library watcher

@@ -62,6 +62,49 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 	return normalizedTs, nil
 }
 
+func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorrent, error) {
+	ad.Logger.Trace().Msg("autodownloader: Checking for new episodes from AnimeTosho")
+	normalizedTs := make([]*NormalizedTorrent, 0)
+
+	//// Fetch the RSS feed
+	//torrents, err := nyaa.GetTorrentList(nyaa.SearchOptions{
+	//	Provider: "nyaa",
+	//	Query:    "",
+	//	Category: "anime-eng",
+	//	SortBy:   "seeders",
+	//	Filter:   "",
+	//})
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//for _, t := range torrents {
+	//	parsedData := seanime_parser.Parse(t.Name)
+	//	if err != nil {
+	//		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
+	//		continue
+	//	}
+	//
+	//	seedersInt := 0
+	//	if t.Seeders != "" {
+	//		seedersInt, _ = strconv.Atoi(t.Seeders)
+	//	}
+	//
+	//	normalizedTs = append(normalizedTs, &NormalizedTorrent{
+	//		Name:       t.Name,
+	//		Link:       t.GUID,
+	//		Hash:       t.InfoHash,
+	//		Size:       t.Size,
+	//		Seeders:    seedersInt,
+	//		magnet:     "", // Nyaa doesn't provide the magnet link in the RSS feed
+	//		ParsedData: parsedData,
+	//		Provider:   NyaaProvider,
+	//	})
+	//}
+
+	return normalizedTs, nil
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (t *NormalizedTorrent) GetMagnet() (string, bool) {
@@ -76,6 +119,8 @@ func (t *NormalizedTorrent) GetMagnet() (string, bool) {
 			return "", false
 		}
 		return magnet, true
+	} else if t.Provider == AnimeToshoProvider {
+		return t.magnet, true // AnimeTosho provides the magnet link in the feed
 	}
 
 	return "", false

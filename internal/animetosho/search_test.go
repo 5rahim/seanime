@@ -6,7 +6,7 @@ import (
 )
 
 func TestSearch(t *testing.T) {
-	results, err := Search("Akuyaku Reijou Level 99: Watashi wa Ura Boss desu ga Maou de wa Arimasen\n")
+	results, err := SearchRSS("Akuyaku Reijou Level 99: Watashi wa Ura Boss desu ga Maou de wa Arimasen\n")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,8 +34,10 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearch2(t *testing.T) {
-	err := Search2("metallic rouge")
+	torrents, err := Search("metallic rouge 05")
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	spew.Dump(torrents)
 }
