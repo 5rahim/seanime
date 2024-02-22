@@ -28,7 +28,7 @@ var (
 	ErrNoLocalFiles = errors.New("[matcher] no local files")
 )
 
-// MatchLocalFilesWithMedia will match each LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
+// MatchLocalFilesWithMedia will match each entities.LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	start := time.Now()
@@ -46,7 +46,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	// Parallelize the matching process
 	lop.ForEach(m.LocalFiles, func(localFile *entities.LocalFile, _ int) {
-		m.MatchLocalFileWithMedia(localFile)
+		m.matchLocalFileWithMedia(localFile)
 	})
 
 	m.validateMatches()
@@ -62,10 +62,10 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	return nil
 }
 
-// MatchLocalFileWithMedia finds the best match for the local file
+// matchLocalFileWithMedia finds the best match for the local file
 // If the best match is above a certain threshold, set the local file's mediaId to the best match's id
 // If the best match is below a certain threshold, leave the local file's mediaId to 0
-func (m *Matcher) MatchLocalFileWithMedia(lf *entities.LocalFile) {
+func (m *Matcher) matchLocalFileWithMedia(lf *entities.LocalFile) {
 	// Check if the local file has already been matched
 	if lf.MediaId != 0 {
 		m.ScanLogger.LogMatcher(zerolog.DebugLevel).

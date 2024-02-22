@@ -10,7 +10,7 @@ import { useSetAtom } from "jotai/react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import React, { useEffect } from "react"
+import React from "react"
 
 export const __discover_hoveringHeaderAtom = atom(false)
 
@@ -22,10 +22,6 @@ export function DiscoverPageHeader() {
     const isTransitioning = useAtomValue(__discover_headerIsTransitioningAtom)
 
     const setHoveringHeader = useSetAtom(__discover_hoveringHeaderAtom)
-
-    useEffect(() => {
-        console.log(isTransitioning)
-    }, [isTransitioning])
 
     return (
         <div className={"__header h-[20rem]"}>

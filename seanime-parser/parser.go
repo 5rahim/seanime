@@ -308,6 +308,13 @@ parenLoop:
 		return
 	}
 	animeTypeTkns = lo.Filter(animeTypeTkns, func(tkn *token, _ int) bool {
+		// Check if the preceding token is a "+"
+		// If it is, don't add it to the formatted title
+		if precedingTkn, foundTknBefore, _ := p.tokenManager.tokens.getTokenBeforeSD(tkn); foundTknBefore {
+			if precedingTkn.isSeparator() && precedingTkn.Value == "+" {
+				return false
+			}
+		}
 		return tkn.isStandaloneKeyword() || strings.Contains(tkn.getNormalizedValue(), "MOVIE")
 	})
 	// Get other episode numbers

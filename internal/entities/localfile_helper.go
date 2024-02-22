@@ -209,27 +209,33 @@ func (f *LocalFile) GetParsedTitle() string {
 }
 
 func (f *LocalFile) GetFolderTitle() string {
-	folderTitle := ""
+	folderTitles := make([]string, 0)
 	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
-		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
+		// Go through each folder data and keep the ones with a title
+		data := lo.Filter(f.ParsedFolderData, func(fpd *LocalFileParsedData, _ int) bool {
 			return len(fpd.Title) > 0
 		})
-		if found {
-			folderTitle = v.Title
+		if len(data) == 0 {
+			return ""
 		}
+		// Get the titles
+		for _, v := range data {
+			folderTitles = append(folderTitles, v.Title)
+		}
+		// If there are multiple titles, return the one closest to the end
+		return folderTitles[len(folderTitles)-1]
 	}
-	return folderTitle
+
+	return ""
 }
 
 // GetTitleVariations is used for matching.
 func (f *LocalFile) GetTitleVariations() []*string {
-	//folderDepth := 0
+
+	folderSeason := 0
 
 	// Get the season from the folder data
-	folderSeason := 0
 	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
-		//folderDepth = len(f.ParsedFolderData)
-
 		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
 			return len(fpd.Season) > 0
 		})
@@ -248,8 +254,21 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		}
 	}
 
-	// Get the part from the filename
 	part := 0
+
+	// Get the part from the folder data
+	if f.ParsedFolderData != nil && len(f.ParsedFolderData) > 0 {
+		v, found := lo.Find(f.ParsedFolderData, func(fpd *LocalFileParsedData) bool {
+			return len(fpd.Part) > 0
+		})
+		if found {
+			if res, ok := util.StringToInt(v.Season); ok {
+				part = res
+			}
+		}
+	}
+
+	// Get the part from the filename
 	if len(f.ParsedData.Part) > 0 {
 		if res, ok := util.StringToInt(f.ParsedData.Part); ok {
 			part = res
@@ -268,12 +287,13 @@ func (f *LocalFile) GetTitleVariations() []*string {
 
 	titleVariations := make([]string, 0)
 
-	bothTitles := len(f.ParsedData.Title) > 0 && len(folderTitle) > 0
-	noSeasonsOrParts := folderSeason == 0 && season == 0 && part == 0
-	bothTitlesSimilar := bothTitles && strings.Contains(folderTitle, f.ParsedData.Title)
-	eitherSeason := folderSeason > 0 || season > 0
-	eitherSeasonFirst := folderSeason == 1 || season == 1
+	bothTitles := len(f.ParsedData.Title) > 0 && len(folderTitle) > 0                    // Both titles are present (filename and folder)
+	noSeasonsOrParts := folderSeason == 0 && season == 0 && part == 0                    // No seasons or parts are present
+	bothTitlesSimilar := bothTitles && strings.Contains(folderTitle, f.ParsedData.Title) // The folder title contains the filename title
+	eitherSeason := folderSeason > 0 || season > 0                                       // Either season is present
+	eitherSeasonFirst := folderSeason == 1 || season == 1                                // Either season is 1
 
+	// Part
 	if part > 0 {
 		if len(folderTitle) > 0 {
 			titleVariations = append(titleVariations,
@@ -293,18 +313,20 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		}
 	}
 
+	// Title, no seasons, no parts, or season 1
+	// e.g. "Bungou Stray Dogs"
+	// e.g. "Bungou Stray Dogs Season 1"
 	if noSeasonsOrParts || eitherSeasonFirst {
-		if len(folderTitle) > 0 && bothTitlesSimilar {
-			titleVariations = append(titleVariations, folderTitle)
-		}
-		if len(f.ParsedData.Title) > 0 {
+		if len(f.ParsedData.Title) > 0 { // Add filename title
 			titleVariations = append(titleVariations, f.ParsedData.Title)
 		}
-		if bothTitles && !bothTitlesSimilar {
-			titleVariations = append(titleVariations, fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title))
+		if len(folderTitle) > 0 { // Both titles are present and similar, add folder title
+			titleVariations = append(titleVariations, folderTitle)
 		}
 	}
 
+	// Part & Season
+	// e.g. "Spy x Family Season 1 Part 2"
 	if part > 0 && eitherSeason {
 		if len(folderTitle) > 0 {
 			if season > 0 {
@@ -330,26 +352,31 @@ func (f *LocalFile) GetTitleVariations() []*string {
 		}
 	}
 
+	// Season is present
 	if eitherSeason {
 		arr := make([]string, 0)
 
-		seas := folderSeason
-		if season > 0 {
+		seas := folderSeason // Default to folder parsed season
+		if season > 0 {      // Use filename parsed season if present
 			seas = season
 		}
 
 		// Both titles are present
 		if bothTitles {
-			// Add filename parsed title
+			// Add both titles
 			arr = append(arr, f.ParsedData.Title)
 			arr = append(arr, folderTitle)
-			if !bothTitlesSimilar {
+			if !bothTitlesSimilar { // Combine both titles if they are not similar
 				arr = append(arr, fmt.Sprintf("%s %s", folderTitle, f.ParsedData.Title))
 			}
-		} else if len(folderTitle) > 0 {
+		} else if len(folderTitle) > 0 { // Only folder title is present
+
 			arr = append(arr, folderTitle)
-		} else if len(f.ParsedData.Title) > 0 {
+
+		} else if len(f.ParsedData.Title) > 0 { // Only filename title is present
+
 			arr = append(arr, f.ParsedData.Title)
+
 		}
 
 		for _, t := range arr {
