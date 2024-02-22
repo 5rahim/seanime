@@ -56,6 +56,10 @@ export const enum SeaEndpoints {
     TORRENTS = "/torrents", // (GET)
     TORRENT = "/torrent", // (POST)
     /**
+     * Torrent
+     */
+    TORRENT_SEARCH = "/torrent/search", // (POST)
+    /**
      * Auto downloader
      */
     AUTO_DOWNLOADER_RULES = "/auto-downloader/rules", // (GET)

@@ -2,6 +2,7 @@ package nyaa
 
 import (
 	"github.com/seanime-app/seanime/internal/comparison"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/seanime-parser"
 )
 
@@ -51,4 +52,9 @@ func (t *Torrent) toDetailedTorrent() *DetailedTorrent {
 		Resolution: elements.VideoResolution,
 		IsBatch:    isBatch,
 	}
+}
+
+func (t *Torrent) GetSizeInBytes() int64 {
+	bytes, _ := util.StringSizeToBytes(t.Size)
+	return bytes
 }
