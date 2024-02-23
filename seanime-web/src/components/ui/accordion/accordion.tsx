@@ -1,9 +1,9 @@
 "use client"
 
-import React from "react"
 import { Disclosure, Transition } from "@headlessui/react"
-import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy } from "../core"
 import { cva } from "class-variance-authority"
+import React from "react"
+import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy } from "../core"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -66,9 +66,9 @@ const _Accordion = (props: AccordionProps) => {
  * Accordion.Item
  * -----------------------------------------------------------------------------------------------*/
 
-interface AccordionItemProps extends React.ComponentPropsWithoutRef<"div">,
+interface AccordionItemProps extends Omit<React.ComponentPropsWithoutRef<"div">, "title">,
     Omit<ComponentWithAnatomy<typeof AccordionAnatomy>, "containerClassName"> {
-    title: string,
+    title: React.ReactNode,
     defaultOpen?: boolean
 }
 

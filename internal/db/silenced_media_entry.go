@@ -30,15 +30,15 @@ func (db *Database) GetSilencedMediaEntryIds() ([]int, error) {
 
 	mIds := make([]int, len(res))
 	for i, v := range res {
-		mIds[i] = v.MediaId
+		mIds[i] = int(v.ID)
 	}
 
 	return mIds, nil
 }
 
-func (db *Database) GetSilencedMediaEntry(id uint) (*models.SilencedMediaEntry, error) {
+func (db *Database) GetSilencedMediaEntry(mId uint) (*models.SilencedMediaEntry, error) {
 	var res models.SilencedMediaEntry
-	err := db.gormdb.First(&res, id).Error
+	err := db.gormdb.First(&res, mId).Error
 	if err != nil {
 		return nil, err
 	}
@@ -46,21 +46,15 @@ func (db *Database) GetSilencedMediaEntry(id uint) (*models.SilencedMediaEntry, 
 	return &res, nil
 }
 
-func (db *Database) GetSilencedMediaEntryByMediaId(mId uint) (*models.SilencedMediaEntry, error) {
-	var res models.SilencedMediaEntry
-	err := db.gormdb.Where("media_id = ?", mId).First(&res).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-func (db *Database) InsertSilencedMediaEntry(entry *models.SilencedMediaEntry) error {
+func (db *Database) InsertSilencedMediaEntry(mId uint) error {
 	err := db.gormdb.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "media_id"}},
+		Columns:   []clause.Column{{Name: "id"}},
 		UpdateAll: true,
-	}).Create(entry).Error
+	}).Create(&models.SilencedMediaEntry{
+		BaseModel: models.BaseModel{
+			ID: mId,
+		},
+	}).Error
 	if err != nil {
 		return err
 	}
@@ -69,14 +63,6 @@ func (db *Database) InsertSilencedMediaEntry(entry *models.SilencedMediaEntry) e
 
 func (db *Database) DeleteSilencedMediaEntry(id uint) error {
 	err := db.gormdb.Delete(&models.SilencedMediaEntry{}, id).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (db *Database) DeleteSilencedMediaEntryByMediaId(mId uint) error {
-	err := db.gormdb.Where("media_id = ?", mId).Delete(&models.SilencedMediaEntry{}).Error
 	if err != nil {
 		return err
 	}

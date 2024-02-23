@@ -8,13 +8,13 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 export default function Page() {
 
-    const { missingEpisodes, isLoading } = useMissingEpisodes()
+    const { missingEpisodes, silencedEpisodes, isLoading } = useMissingEpisodes()
 
     if (isLoading) return <LoadingSpinner />
 
     return (
         <div className={"p-8 space-y-10 pb-10"}>
-            <MissingEpisodes missingEpisodes={missingEpisodes} isLoading={isLoading} />
+            <MissingEpisodes missingEpisodes={missingEpisodes} silencedEpisodes={silencedEpisodes} isLoading={isLoading} />
             <ComingUpNext/>
             <RecentReleases/>
         </div>

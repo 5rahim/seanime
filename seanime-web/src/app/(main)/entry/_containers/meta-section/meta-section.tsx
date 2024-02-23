@@ -1,4 +1,5 @@
 "use client"
+import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/score-progress-badges"
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
@@ -60,10 +61,11 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     {!!entry.media.season ? (
                             <div>
                                 <p className={"text-lg text-gray-200 flex w-full gap-1 items-center"}>
-                                    <BiCalendarAlt/> {new Intl.DateTimeFormat("en-US", {
+                                    <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                     year: "numeric",
                                     month: "short",
-                                }).format(new Date(entry.media.startDate?.year || 0, entry.media.startDate?.month || 0))} - {capitalize(entry.media.season ?? "")}
+                                }).format(new Date(entry.media.startDate?.year || 0,
+                                    entry.media.startDate?.month || 0))} - {capitalize(entry.media.season ?? "")}
                                 </p>
                             </div>
                         ) :
@@ -80,7 +82,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             progress={entry.listData?.progress}
                             episodes={entry.media.episodes}
                         />
-                        <AnilistMediaEntryModal listData={entry.listData} media={entry.media}/>
+                        <AnilistMediaEntryModal listData={entry.listData} media={entry.media} />
                         <p className="text-lg">{capitalize(entry.listData?.status === "CURRENT" ? "Watching" : entry.listData?.status)}</p>
                     </div>
 
@@ -106,7 +108,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                 className={"mr-2"}
                                 size={"lg"}
                                 intent={details.meanScore >= 70 ? details.meanScore >= 85 ? "primary" : "success" : "warning"}
-                                leftIcon={<BiHeart/>}
+                                leftIcon={<BiHeart />}
                             >{details.meanScore / 10}</Badge>
                         )}
                         {details?.genres?.map(genre => {
@@ -119,7 +121,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         {allTimeHighestRated && <Badge
                             className={""} size={"lg"}
                             intent={"gray"}
-                            leftIcon={<AiFillStar/>}
+                            leftIcon={<AiFillStar />}
                             iconClassName={"text-yellow-500"}
                             badgeClassName={"rounded-md border-transparent px-2"}
                         >
@@ -130,22 +132,26 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         {seasonHighestRated && <Badge
                             className={""} size={"lg"}
                             intent={"gray"}
-                            leftIcon={<AiOutlineStar/>}
+                            leftIcon={<AiOutlineStar />}
                             iconClassName={"text-yellow-500"}
                             badgeClassName={"rounded-md border-transparent px-2"}
                         >
                             #{String(seasonHighestRated.rank)} Highest
-                            Rated {seasonHighestRated.format !== "TV" ? `${seasonHighestRated.format}` : ""} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
+                            Rated {seasonHighestRated.format !== "TV"
+                            ? `${seasonHighestRated.format}`
+                            : ""} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
                         </Badge>}
                         {seasonMostPopular && <Badge
                             className={""} size={"lg"}
                             intent={"gray"}
-                            leftIcon={<AiOutlineHeart/>}
+                            leftIcon={<AiOutlineHeart />}
                             iconClassName={"text-pink-500"}
                             badgeClassName={"rounded-md border-transparent px-2"}
                         >
                             #{(String(seasonMostPopular.rank))} Most
-                            Popular {seasonMostPopular.format !== "TV" ? `${seasonMostPopular.format}` : ""} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
+                            Popular {seasonMostPopular.format !== "TV"
+                            ? `${seasonMostPopular.format}`
+                            : ""} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
                         </Badge>}
                     </div>}
 
@@ -155,11 +161,12 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         />
                     )}
 
-                    <Divider className="dark:border-gray-800"/>
+                    <Divider className="dark:border-gray-800" />
 
-                    <NextAiringEpisode media={entry.media}/>
+                    <NextAiringEpisode media={entry.media} />
 
-                    <div className="w-full flex justify-end">
+                    <div className="w-full flex justify-between items-center">
+                        {!!entry.libraryData ? <MediaEntrySilenceToggle mediaId={entry.mediaId} /> : <div></div>}
                         <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">Open on AniList</Link>
                     </div>
 
@@ -175,7 +182,8 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
 
             <Accordion
                 containerClassName={"hidden md:block"}
-                triggerClassName={"bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"}>
+                triggerClassName={"bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"}
+            >
                 {relations.length > 0 && (
                     <Accordion.Item title={"Relations"} defaultOpen={false}>
                         <div className={"grid grid-cols-4 gap-4 p-4"}>
@@ -183,7 +191,8 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                 return <div key={edge.node?.id} className={"col-span-1"}>
                                     <Link href={`/entry?id=${edge.node?.id}`}>
                                         {edge.node?.coverImage?.large && <div
-                                            className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item">
+                                            className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item"
+                                        >
                                             <Image
                                                 src={edge.node?.coverImage.large}
                                                 alt={""}
@@ -198,7 +207,10 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                             />
                                             <Badge
                                                 className={"absolute left-2 top-2 font-semibold rounded-md text-[.95rem]"}
-                                                intent={"white-solid"}>{edge.node?.format === "MOVIE" ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)" : capitalize(edge.relationType || "").replace("_", " ")}</Badge>
+                                                intent={"white-solid"}
+                                            >{edge.node?.format === "MOVIE"
+                                                ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
+                                                : capitalize(edge.relationType || "").replace("_", " ")}</Badge>
                                             <div className={"p-2 z-[5] absolute bottom-0 w-full "}>
                                                 <p className={"font-semibold line-clamp-2 overflow-hidden"}>{edge.node?.title?.userPreferred}</p>
                                             </div>
@@ -215,7 +227,8 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             return <div key={media.id} className={"col-span-1"}>
                                 <Link href={`/entry?id=${media.id}`}>
                                     {media.coverImage?.large && <div
-                                        className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item">
+                                        className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item"
+                                    >
                                         <Image
                                             src={media.coverImage.large}
                                             alt={""}
@@ -260,7 +273,7 @@ export function TorrentSearchButton({ entry }: { entry: MediaEntry }) {
                 className={"w-full"}
                 intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "white-subtle") : "warning-subtle"}
                 size={"lg"}
-                leftIcon={(!!count) ? <BiDownload/> : <FiSearch/>}
+                leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClassName={"text-2xl"}
                 onClick={() => setter(true)}
             >
@@ -281,11 +294,13 @@ export function NextAiringEpisode(props: { media: BaseMediaFragment }) {
         {!!props.media.nextAiringEpisode && (
             <div className={"flex gap-2 items-center justify-center"}>
                 <p className={"text-xl min-[2000px]:text-xl"}>Next
-                    episode {formatDistanceToNow(addSeconds(new Date(), props.media.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}:</p>
+                                                              episode {formatDistanceToNow(addSeconds(new Date(),
+                        props.media.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}:</p>
 
                 <p className={"text-justify font-normal text-xl min-[2000px]:text-xl"}>
                     <Badge
-                        size={"lg"}>{props.media.nextAiringEpisode?.episode}</Badge>
+                        size={"lg"}
+                    >{props.media.nextAiringEpisode?.episode}</Badge>
                 </p>
 
             </div>

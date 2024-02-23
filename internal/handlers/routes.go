@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/core"
+	"github.com/seanime-app/seanime/internal/util"
 	"sync"
 )
 
@@ -193,6 +194,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// POST /v1/library/unknown-media
 	v1Library.Post("/media-entry/unknown-media", makeHandler(app, HandleAddUnknownMedia))
 
+	v1Library.Get("/media-entry/silence/:id", makeHandler(app, HandleGetMediaEntrySilenceStatus))
+	v1Library.Post("/media-entry/silence", makeHandler(app, HandleToggleMediaEntrySilenceStatus))
+
 	//
 	// Nyaa
 	//
@@ -256,7 +260,11 @@ var syncPool = sync.Pool{
 // The custom handler function is similar to a fiber handler, but it takes a RouteCtx as an argument, allowing route handlers to access the app's state.
 // We use a sync.Pool to avoid allocating memory for each request.
 func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) (err error) {
+		defer util.HandlePanicInModuleThen("handlers/routes", func() {
+			err = c.Status(500).SendString("Internal Server Error")
+		})
+
 		ctx := syncPool.Get().(*RouteCtx)
 		defer syncPool.Put(ctx)
 		ctx.App = app

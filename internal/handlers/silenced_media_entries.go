@@ -2,24 +2,23 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/models"
 	"gorm.io/gorm"
 	"strconv"
 )
 
 // HandleGetMediaEntrySilenceStatus will return the silence status of a media entry.
 //
-//	GET /v1/media-entry/silence/:id
+//	GET /v1/library/media-entry/silence/:id
 func HandleGetMediaEntrySilenceStatus(c *RouteCtx) error {
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
 	if err != nil {
 		return c.RespondWithError(errors.New("invalid id"))
 	}
 
-	mediaEntry, err := c.App.Database.GetSilencedMediaEntryByMediaId(uint(mId))
+	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.RespondWithData(nil)
+			return c.RespondWithData(false)
 		} else {
 			return c.RespondWithError(err)
 		}
@@ -32,7 +31,7 @@ func HandleGetMediaEntrySilenceStatus(c *RouteCtx) error {
 //
 // The status should be re-fetched after this.
 //
-//	POST /v1/media-entry/silence
+//	POST /v1/library/media-entry/silence
 func HandleToggleMediaEntrySilenceStatus(c *RouteCtx) error {
 
 	type body struct {
@@ -44,16 +43,14 @@ func HandleToggleMediaEntrySilenceStatus(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaEntry, err := c.App.Database.GetSilencedMediaEntryByMediaId(uint(b.MediaId))
+	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			mediaEntry = &models.SilencedMediaEntry{
-				MediaId: b.MediaId,
-			}
-			err = c.App.Database.InsertSilencedMediaEntry(mediaEntry)
+			err = c.App.Database.InsertSilencedMediaEntry(uint(b.MediaId))
 			if err != nil {
 				return c.RespondWithError(err)
 			}
+			return c.RespondWithData(true)
 		} else {
 			return c.RespondWithError(err)
 		}

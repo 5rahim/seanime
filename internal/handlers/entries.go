@@ -438,7 +438,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		SilencedMediaIds:  silencedMediaIds,
 	})
 
-	return c.RespondWithData(missingEps.Episodes)
+	return c.RespondWithData(missingEps)
 
 }
 

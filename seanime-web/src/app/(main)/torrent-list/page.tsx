@@ -116,11 +116,11 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
                 <div className={"text-[--muted]"}>
                     <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
                     {` `}
-                    <BiDownArrow className={"inline-block mx-2 mb-1"}/>
-                    {torrent.upSpeed}
-                    {` `}
-                    <BiUpArrow className={"inline-block mx-2"}/>
+                    <BiDownArrow className={"inline-block mx-2"} />
                     {torrent.downSpeed}
+                    {` `}
+                    <BiUpArrow className={"inline-block mx-2 mb-1"} />
+                    {torrent.upSpeed}
                     {` `}
                     <BiTime className={"inline-block mx-2 mb-0.5"}/>
                     {torrent.eta}

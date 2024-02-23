@@ -6,7 +6,13 @@ import { useAtomValue, useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
+export type MediaEntryMissingEpisodes = {
+    episodes: MediaEntryEpisode[]
+    silencedEpisodes: MediaEntryEpisode[]
+}
+
 export const missingEpisodesAtom = atom<MediaEntryEpisode[]>([])
+export const missingSilencedEpisodesAtom = atom<MediaEntryEpisode[]>([])
 
 const missingEpisodeCount = atom(get => get(missingEpisodesAtom).length)
 
@@ -21,15 +27,17 @@ export function useMissingEpisodeCount() {
 export function useListenToMissingEpisodes() {
     const pathname = usePathname()
     const setter = useSetAtom(missingEpisodesAtom)
+    const silencedSetter = useSetAtom(missingSilencedEpisodesAtom)
 
-    const { data } = useSeaQuery<MediaEntryEpisode[]>({
+    const { data } = useSeaQuery<MediaEntryMissingEpisodes>({
         endpoint: SeaEndpoints.MISSING_EPISODES,
         queryKey: ["get-missing-episodes"],
         enabled: pathname !== "/schedule",
     })
 
     useEffect(() => {
-        setter(data ?? [])
+        setter(data?.episodes ?? [])
+        silencedSetter(data?.silencedEpisodes ?? [])
     }, [data])
 
     return null

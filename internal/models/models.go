@@ -137,5 +137,4 @@ type AutoDownloaderSettings struct {
 
 type SilencedMediaEntry struct {
 	BaseModel
-	MediaId int `gorm:"column:media_id" json:"mediaId"`
 }
