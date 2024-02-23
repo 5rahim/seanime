@@ -45,7 +45,8 @@ export const TorrentPreviewList = memo((
                             intent={"primary-basic"}
                             size={"sm"}
                             onClick={() => window.open(item.torrent.link, "_blank")}
-                        />}>View on NYAA</Tooltip>}
+                        />}
+                        >View on {item.torrent.provider === "nyaa" ? "Nyaa" : "AnimeTosho"}</Tooltip>}
                     >
                         <TorrentResolutionBadge resolution={item.torrent.resolution} />
                         <TorrentSeedersBadge seeders={item.torrent.seeders}/>
