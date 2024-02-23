@@ -121,7 +121,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                 <div className="pb-4 flex w-full justify-between">
                     <Switch
                         label="Smart search"
-                        help="Automatically fetch torrents based on parameters"
+                        help="Builds a search query automatically, based on parameters"
                         checked={quickSearch}
                         onChange={setQuickSearch}
                     />

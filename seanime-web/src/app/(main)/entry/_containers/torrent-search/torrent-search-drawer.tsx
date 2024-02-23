@@ -62,7 +62,7 @@ function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | und
         <div>
             <div className="space-y-2">
                 <h4>Missing episodes:</h4>
-                <p>Episode numbers: {episodes.map(n => n.episodeNumber).join(", ")}</p>
+                <p>Episode numbers: {episodes.slice(0, 5).map(n => n.episodeNumber).join(", ")}{episodes.length > 5 ? ", ..." : ""}</p>
                 <Slider>
                     {episodes.filter(Boolean).map(item => {
                         return (
