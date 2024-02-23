@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/downloader"
-	"github.com/seanime-app/seanime/internal/nyaa"
 	qbittorrent_model "github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"time"
@@ -200,11 +200,13 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	// get magnets
 	p := pool.NewWithResults[string]().WithErrors()
+
 	for _, url := range b.Urls {
 		p.Go(func() (string, error) {
-			return nyaa.TorrentMagnet(url)
+			return torrent.GetTorrentMagnetFromUrl(url)
 		})
 	}
+
 	// if we couldn't get a magnet, return error
 	magnets, err := p.Wait()
 	if err != nil {
@@ -212,11 +214,11 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	}
 
 	// create repository
-	repo := &downloader.QbittorrentRepository{
-		Logger:         c.App.Logger,
-		Client:         c.App.QBittorrent,
-		WSEventManager: c.App.WSEventManager,
-		Destination:    b.Destination,
+	repo := &downloader.TorrentClientRepository{
+		Logger:            c.App.Logger,
+		QbittorrentClient: c.App.QBittorrent,
+		WSEventManager:    c.App.WSEventManager,
+		Destination:       b.Destination,
 	}
 
 	// try to add torrents to qbittorrent, on error return error
@@ -275,11 +277,11 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	}
 
 	// create repository
-	repo := &downloader.QbittorrentRepository{
-		Logger:         c.App.Logger,
-		Client:         c.App.QBittorrent,
-		WSEventManager: c.App.WSEventManager,
-		Destination:    rule.Destination,
+	repo := &downloader.TorrentClientRepository{
+		Logger:            c.App.Logger,
+		QbittorrentClient: c.App.QBittorrent,
+		WSEventManager:    c.App.WSEventManager,
+		Destination:       rule.Destination,
 	}
 
 	// try to add torrents to client, on error return error

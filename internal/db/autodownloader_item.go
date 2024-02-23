@@ -46,6 +46,7 @@ func (db *Database) DeleteAutoDownloaderItem(id uint) error {
 	return db.gormdb.Delete(&models.AutoDownloaderItem{}, id).Error
 }
 
+// DeleteDownloadedAutoDownloaderItems will delete all the downloaded queued items from the database.
 func (db *Database) DeleteDownloadedAutoDownloaderItems() error {
 	return db.gormdb.Where("downloaded = ?", true).Delete(&models.AutoDownloaderItem{}).Error
 }

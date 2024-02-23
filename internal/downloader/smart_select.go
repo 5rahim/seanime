@@ -20,7 +20,9 @@ import (
 // It will return an error if SmartSelect.Magnets has more than one magnet link.
 // The torrent will be deleted when an error occurs.
 // SmartSelect will block until it is done.
-func (r *QbittorrentRepository) SmartSelect(opts *SmartSelect) error {
+//
+// TODO: Generalize this
+func (r *TorrentClientRepository) SmartSelect(opts *SmartSelect) error {
 	if !opts.Enabled {
 		return nil
 	}
@@ -61,7 +63,7 @@ func (r *QbittorrentRepository) SmartSelect(opts *SmartSelect) error {
 		for {
 			select {
 			case <-ticker.C:
-				ret, _ := r.Client.Torrent.GetContents(hash)
+				ret, _ := r.QbittorrentClient.Torrent.GetContents(hash)
 				if ret != nil && len(ret) > 0 {
 					contentsChan <- ret
 					return
@@ -154,7 +156,7 @@ workDone:
 	})
 
 	// set priority to 0 for files that are not in the missing episode numbers list
-	err = r.Client.Torrent.SetFilePriorities(hash, toRemoveIndices, 0)
+	err = r.QbittorrentClient.Torrent.SetFilePriorities(hash, toRemoveIndices, 0)
 	if err != nil {
 		_ = r.RemoveTorrents([]string{hash})
 		return err
@@ -171,7 +173,7 @@ workDone:
 }
 
 // getBestTempLocalFiles returns the best local files that match the media
-func (r *QbittorrentRepository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*TmpLocalFile {
+func (r *TorrentClientRepository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*TmpLocalFile {
 
 	// get local files from contents
 	tmpLfs := lop.Map(contents, func(content *qbittorrent_model.TorrentContent, idx int) *TmpLocalFile {

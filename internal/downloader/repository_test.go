@@ -46,7 +46,7 @@ func TestSmartSelect(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			err := repo.Client.Start()
+			err := repo.QbittorrentClient.Start()
 			assert.NoError(t, err)
 
 			// get magnet
@@ -111,7 +111,7 @@ func TestRemoveTorrents(t *testing.T) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func getRepo(t *testing.T, destination string) *QbittorrentRepository {
+func getRepo(t *testing.T, destination string) *TorrentClientRepository {
 
 	logger := util.NewLogger()
 	WSEventManager := events.NewMockWSEventManager(logger)
@@ -129,11 +129,11 @@ func getRepo(t *testing.T, destination string) *QbittorrentRepository {
 	assert.NoError(t, err)
 
 	// create repository
-	repo := &QbittorrentRepository{
-		Logger:         logger,
-		Client:         qBittorrentClient,
-		WSEventManager: WSEventManager,
-		Destination:    destination,
+	repo := &TorrentClientRepository{
+		Logger:            logger,
+		QbittorrentClient: qBittorrentClient,
+		WSEventManager:    WSEventManager,
+		Destination:       destination,
 	}
 
 	return repo

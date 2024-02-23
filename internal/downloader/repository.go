@@ -9,12 +9,18 @@ import (
 	"github.com/seanime-app/seanime/internal/qbittorrent/model"
 )
 
+const (
+	QbittorrentProvider  = "qbittorrent"
+	TransmissionProvider = "transmission"
+)
+
 type (
-	QbittorrentRepository struct {
-		Logger         *zerolog.Logger
-		Client         *qbittorrent.Client
-		WSEventManager events.IWSEventManager
-		Destination    string
+	TorrentClientRepository struct {
+		Logger            *zerolog.Logger
+		QbittorrentClient *qbittorrent.Client
+		WSEventManager    events.IWSEventManager
+		Destination       string
+		Provider          string
 	}
 
 	SmartSelect struct {
@@ -32,13 +38,25 @@ type (
 	}
 )
 
-func (r *QbittorrentRepository) AddMagnets(magnets []string) error {
+func (r *TorrentClientRepository) getProvider() string {
+	if r.Provider == "" {
+		return QbittorrentProvider
+	}
+	return r.Provider
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (r *TorrentClientRepository) AddMagnets(magnets []string) error {
 
 	r.Logger.Debug().Msg("downloader: Adding magnets")
+	var err error
 
-	err := r.Client.Torrent.AddURLs(magnets, &qbittorrent_model.AddTorrentsOptions{
-		Savepath: r.Destination,
-	})
+	if r.getProvider() == QbittorrentProvider {
+		err = r.QbittorrentClient.Torrent.AddURLs(magnets, &qbittorrent_model.AddTorrentsOptions{
+			Savepath: r.Destination,
+		})
+	}
 
 	if err != nil {
 		r.Logger.Err(err).Msg("downloader: Error while adding magnets")
@@ -48,9 +66,13 @@ func (r *QbittorrentRepository) AddMagnets(magnets []string) error {
 
 }
 
-func (r *QbittorrentRepository) RemoveTorrents(hashes []string) error {
+func (r *TorrentClientRepository) RemoveTorrents(hashes []string) error {
 
-	err := r.Client.Torrent.DeleteTorrents(hashes, true)
+	var err error
+
+	if r.getProvider() == QbittorrentProvider {
+		err = r.QbittorrentClient.Torrent.DeleteTorrents(hashes, true)
+	}
 
 	if err != nil {
 		r.Logger.Err(err).Msg("downloader: Error while removing torrents")
@@ -60,9 +82,13 @@ func (r *QbittorrentRepository) RemoveTorrents(hashes []string) error {
 
 }
 
-func (r *QbittorrentRepository) PauseTorrents(hashes []string) error {
+func (r *TorrentClientRepository) PauseTorrents(hashes []string) error {
 
-	err := r.Client.Torrent.StopTorrents(hashes)
+	var err error
+
+	if r.getProvider() == QbittorrentProvider {
+		err = r.QbittorrentClient.Torrent.StopTorrents(hashes)
+	}
 
 	if err != nil {
 		r.Logger.Err(err).Msg("downloader: Error while pausing torrents")
@@ -72,9 +98,13 @@ func (r *QbittorrentRepository) PauseTorrents(hashes []string) error {
 
 }
 
-func (r *QbittorrentRepository) ResumeTorrents(hashes []string) error {
+func (r *TorrentClientRepository) ResumeTorrents(hashes []string) error {
 
-	err := r.Client.Torrent.StopTorrents(hashes)
+	var err error
+
+	if r.getProvider() == QbittorrentProvider {
+		err = r.QbittorrentClient.Torrent.StopTorrents(hashes)
+	}
 
 	if err != nil {
 		r.Logger.Err(err).Msg("downloader: Error while resuming torrents")
