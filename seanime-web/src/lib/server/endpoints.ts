@@ -45,10 +45,6 @@ export const enum SeaEndpoints {
     MEDIA_ENTRY_UNKNOWN_MEDIA = "/library/media-entry/unknown-media", // (POST)
     SCAN_SUMMARIES = "/library/scan-summaries", // (GET)
     /**
-     * Nyaa
-     */
-    NYAA_SEARCH = "/nyaa/search",
-    /**
      * Download/Torrent
      */
     DOWNLOAD_TORRENT_FILE = "/download-torrent-file", // (POST)

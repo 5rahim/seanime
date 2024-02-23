@@ -8,7 +8,7 @@ import (
 func ExtractSeasonNumber(title string) (int, string) {
 	title = strings.ToLower(title)
 
-	rgx := regexp.MustCompile(`((?P<a>\d+)(st|nd|rd|th)?\s*(season|cour))|((season|cour)\s*(?P<b>\d+))`)
+	rgx := regexp.MustCompile(`((?P<a>\d+)(st|nd|rd|th)?\s*(season))|((season)\s*(?P<b>\d+))`)
 
 	matches := rgx.FindStringSubmatch(title)
 	if len(matches) < 1 {
@@ -34,7 +34,7 @@ func ExtractSeasonNumber(title string) (int, string) {
 func ExtractPartNumber(title string) (int, string) {
 	title = strings.ToLower(title)
 
-	rgx := regexp.MustCompile(`((?P<a>\d+)(st|nd|rd|th)?\s*part)|(part\s*(?P<b>\d+))`)
+	rgx := regexp.MustCompile(`((?P<a>\d+)(st|nd|rd|th)?\s*(cour|part))|((cour|part)\s*(?P<b>\d+))`)
 
 	matches := rgx.FindStringSubmatch(title)
 	if len(matches) < 1 {

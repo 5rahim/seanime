@@ -50,7 +50,7 @@ export const TorrentPreviewList = memo((
                         <TorrentResolutionBadge resolution={item.torrent.resolution} />
                         <TorrentSeedersBadge seeders={item.torrent.seeders}/>
                         <p className="text-gray-300 text-sm flex items-center gap-1">
-                            <BiFile/> {item.torrent.size}</p>
+                            <BiFile /> {item.torrent.formattedSize}</p>
                         <p className="text-[--muted] text-sm flex items-center gap-1">
                             - <BiCalendarAlt/> {formatDistanceToNow(new Date(item.torrent.date), { addSuffix: true })}
                         </p>

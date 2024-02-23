@@ -48,8 +48,9 @@ func HandleTorrentSearch(c *RouteCtx) error {
 			Resolution:     b.Resolution,
 			Provider:       c.App.Settings.Library.TorrentProvider,
 		},
-		NyaaSearchCache: c.App.NyaaSearchCache,
-		AnizipCache:     c.App.AnizipCache,
+		NyaaSearchCache:       c.App.NyaaSearchCache,
+		AnimeToshoSearchCache: c.App.AnimeToshoSearchCache,
+		AnizipCache:           c.App.AnizipCache,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

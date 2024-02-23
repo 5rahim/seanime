@@ -3,6 +3,7 @@ package animetosho
 import (
 	"fmt"
 	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime/internal/result"
 	"io"
 	"net/http"
 	"net/url"
@@ -13,6 +14,16 @@ const (
 	FeedUrl     = "https://feed.animetosho.org/rss2"
 	JsonFeedUrl = "https://feed.animetosho.org/json"
 )
+
+type (
+	SearchCache struct {
+		*result.Cache[string, []*Torrent]
+	}
+)
+
+func NewSearchCache() *SearchCache {
+	return &SearchCache{result.NewCache[string, []*Torrent]()}
+}
 
 func GetLatest() (torrents []*Torrent, err error) {
 	query := "?only_tor=1&q=&filter[0][t]=nyaa_class&order="

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/animetosho"
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/comparison"
 	"github.com/seanime-app/seanime/internal/entities"
@@ -29,8 +30,9 @@ type (
 	SmartSearchOptions struct {
 		SmartSearchQueryOptions
 		//
-		NyaaSearchCache *nyaa.SearchCache
-		AnizipCache     *anizip.Cache
+		NyaaSearchCache       *nyaa.SearchCache
+		AnimeToshoSearchCache *animetosho.SearchCache
+		AnizipCache           *anizip.Cache
 	}
 	// Preview is used to preview a torrent à la entities.MediaEntryEpisode.
 	Preview struct {
@@ -124,6 +126,40 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 				retTorrents = append(retTorrents, NewAnimeTorrentFromNyaa(torrent))
 			}
 		}
+	} else if opts.Provider == "animetosho" {
+
+		// +---------------------+
+		// |     AnimeTosho      |
+		// +---------------------+
+
+		if *opts.QuickSearch || len(*opts.Query) == 0 {
+
+			res, err := animetosho.SearchQuery(&animetosho.BuildSearchQueryOptions{
+				Media:          opts.Media,
+				Batch:          opts.Batch,
+				EpisodeNumber:  opts.EpisodeNumber,
+				Resolution:     opts.Resolution,
+				AbsoluteOffset: opts.AbsoluteOffset,
+				Title:          opts.Query,
+				Cache:          opts.AnimeToshoSearchCache,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			for _, torrent := range res {
+				retTorrents = append(retTorrents, NewAnimeTorrentFromAnimeTosho(torrent))
+			}
+		} else {
+			res, err := animetosho.Search(*opts.Query)
+			if err != nil {
+				return nil, err
+			}
+			for _, torrent := range res {
+				retTorrents = append(retTorrents, NewAnimeTorrentFromAnimeTosho(torrent))
+			}
+		}
+
 	}
 
 	// +---------------------+

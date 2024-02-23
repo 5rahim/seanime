@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/animetosho"
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/autodownloader"
 	"github.com/seanime-app/seanime/internal/constants"
@@ -28,20 +29,21 @@ import (
 
 type (
 	App struct {
-		Config               *Config
-		Database             *_db.Database
-		Logger               *zerolog.Logger
-		QBittorrent          *qbittorrent.Client
-		Watcher              *scanner.Watcher
-		AnizipCache          *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClientWrapper *anilist.ClientWrapper
-		NyaaSearchCache      *nyaa.SearchCache
-		anilistCollection    *anilist.AnimeCollection
-		account              *models.Account
-		WSEventManager       *events.WSEventManager
-		ListSyncCache        *listsync.Cache // DEVNOTE: Shelved
-		AutoDownloader       *autodownloader.AutoDownloader
-		MediaPlayer          struct {
+		Config                *Config
+		Database              *_db.Database
+		Logger                *zerolog.Logger
+		QBittorrent           *qbittorrent.Client
+		Watcher               *scanner.Watcher
+		AnizipCache           *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+		AnilistClientWrapper  *anilist.ClientWrapper
+		NyaaSearchCache       *nyaa.SearchCache
+		AnimeToshoSearchCache *animetosho.SearchCache
+		anilistCollection     *anilist.AnimeCollection
+		account               *models.Account
+		WSEventManager        *events.WSEventManager
+		ListSyncCache         *listsync.Cache // DEVNOTE: Shelved
+		AutoDownloader        *autodownloader.AutoDownloader
+		MediaPlayer           struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
@@ -122,17 +124,18 @@ func NewApp(options *AppOptions, version string) *App {
 	})
 
 	app := &App{
-		Config:               cfg,
-		Database:             db,
-		AnilistClientWrapper: anilist.NewClientWrapper(anilistToken),
-		AnizipCache:          anizipCache,
-		NyaaSearchCache:      nyaa.NewSearchCache(),
-		WSEventManager:       wsEventManager,
-		ListSyncCache:        listsync.NewCache(),
-		AutoDownloader:       nAutoDownloader,
-		Logger:               logger,
-		Version:              version,
-		Updater:              updater.New(version),
+		Config:                cfg,
+		Database:              db,
+		AnilistClientWrapper:  anilist.NewClientWrapper(anilistToken),
+		AnizipCache:           anizipCache,
+		NyaaSearchCache:       nyaa.NewSearchCache(),
+		AnimeToshoSearchCache: animetosho.NewSearchCache(),
+		WSEventManager:        wsEventManager,
+		ListSyncCache:         listsync.NewCache(),
+		AutoDownloader:        nAutoDownloader,
+		Logger:                logger,
+		Version:               version,
+		Updater:               updater.New(version),
 	}
 
 	app.InitOrRefreshModules()
