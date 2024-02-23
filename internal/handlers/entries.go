@@ -428,10 +428,14 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Get the silenced media ids
+	silencedMediaIds, _ := c.App.Database.GetSilencedMediaEntryIds()
+
 	missingEps := entities.NewMissingEpisodes(&entities.NewMissingEpisodesOptions{
 		AnilistCollection: anilistCollection,
 		LocalFiles:        lfs,
 		AnizipCache:       c.App.AnizipCache,
+		SilencedMediaIds:  silencedMediaIds,
 	})
 
 	return c.RespondWithData(missingEps.Episodes)

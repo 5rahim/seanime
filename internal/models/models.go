@@ -130,3 +130,12 @@ type AutoDownloaderSettings struct {
 	Enabled               bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
 	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
 }
+
+// +---------------------+
+// |     Media Entry     |
+// +---------------------+
+
+type SilencedMediaEntry struct {
+	BaseModel
+	MediaId int `gorm:"column:media_id" json:"mediaId"`
+}

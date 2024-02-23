@@ -13,13 +13,15 @@ import (
 
 type (
 	MissingEpisodes struct {
-		Episodes []*MediaEntryEpisode `json:"episodes"`
+		Episodes         []*MediaEntryEpisode `json:"episodes"`
+		SilencedEpisodes []*MediaEntryEpisode `json:"silencedEpisodes"`
 	}
 
 	NewMissingEpisodesOptions struct {
 		AnilistCollection *anilist.AnimeCollection
 		LocalFiles        []*LocalFile
 		AnizipCache       *anizip.Cache
+		SilencedMediaIds  []int
 	}
 )
 
@@ -32,8 +34,6 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 	p := pool.NewWithResults[[]*MediaEntryDownloadEpisode]()
 	for mId, lfs := range groupedLfs {
-		mId := mId
-		lfs := lfs
 		p.Go(func() []*MediaEntryDownloadEpisode {
 			entry, found := opts.AnilistCollection.GetListEntryFromMediaId(mId)
 			if !found {
@@ -93,7 +93,13 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		return eps[i].BasicMedia.ID < eps[j].BasicMedia.ID
 	})
 
-	missing.Episodes = eps
+	missing.Episodes = lo.Filter(eps, func(item *MediaEntryEpisode, _ int) bool {
+		return !lo.Contains(opts.SilencedMediaIds, item.BasicMedia.ID)
+	})
+
+	missing.SilencedEpisodes = lo.Filter(eps, func(item *MediaEntryEpisode, _ int) bool {
+		return lo.Contains(opts.SilencedMediaIds, item.BasicMedia.ID)
+	})
 
 	return missing
 
