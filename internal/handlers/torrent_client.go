@@ -168,13 +168,13 @@ func getTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 	}
 }
 
-// HandleDownloadTorrentInClient will get magnets from Nyaa and add them to qBittorrent.
+// HandleTorrentClientDownload will get magnets from Nyaa and add them to qBittorrent.
 // It also handles smart selection (downloader.SmartSelect).
 //
 //	POST /v1/torrent-client/download
 //
 // FIXME Animetosho
-func HandleDownloadTorrentInClient(c *RouteCtx) error {
+func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	type body struct {
 		Urls        []string `json:"urls"`
@@ -234,6 +234,63 @@ func HandleDownloadTorrentInClient(c *RouteCtx) error {
 	})
 	if err != nil {
 		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+
+}
+
+// HandleTorrentClientAddMagnetFromRule will add the magnets to the torrent client based on the queued rule item.
+//
+// CLIENT: The AutoDownloader items should be re-fetched after this.
+//
+//	POST /v1/torrent-client/rule-magnet
+func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
+
+	type body struct {
+		MagnetUrl    string `json:"magnetUrl"`
+		RuleId       uint   `json:"ruleId"`
+		QueuedItemId uint   `json:"queuedItemId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if b.MagnetUrl == "" || b.RuleId == 0 {
+		return c.RespondWithError(errors.New("missing parameters"))
+	}
+
+	// Get rule from database
+	rule, err := c.App.Database.GetAutoDownloaderRule(b.RuleId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// try to start qbittorrent if it's not running
+	err = c.App.QBittorrent.Start()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// create repository
+	repo := &downloader.QbittorrentRepository{
+		Logger:         c.App.Logger,
+		Client:         c.App.QBittorrent,
+		WSEventManager: c.App.WSEventManager,
+		Destination:    rule.Destination,
+	}
+
+	// try to add torrents to client, on error return error
+	err = repo.AddMagnets([]string{b.MagnetUrl})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if b.QueuedItemId > 0 {
+		// the magnet was added successfully, remove the item from the queue
+		err = c.App.Database.DeleteAutoDownloaderItem(b.QueuedItemId)
 	}
 
 	return c.RespondWithData(true)

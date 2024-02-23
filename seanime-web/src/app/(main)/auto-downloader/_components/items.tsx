@@ -7,7 +7,6 @@ import { formatDateAndTimeShort } from "@/lib/server/utils"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
 import { BiTrash } from "@react-icons/all-files/bi/BiTrash"
 import { useQueryClient } from "@tanstack/react-query"
-import Link from "next/link"
 import React from "react"
 import toast from "react-hot-toast"
 
@@ -35,6 +34,16 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
         onSuccess: async () => {
             await qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
             toast.success("Item deleted")
+        },
+    })
+
+    const { mutate: addMagnet, isPending: isAdding } = useSeaMutation<void, { magnetUrl: string, ruleId: number, queuedItemId: number }>({
+        mutationKey: ["torrent-client-add-rule-magnet"],
+        method: "post",
+        endpoint: SeaEndpoints.TORRENT_CLIENT_RULE_MAGNET,
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
+            toast.success("Magnet added")
         },
     })
 
@@ -70,15 +79,22 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                         </div>
                         <div className="flex gap-2 items-center">
                             {!item.downloaded && (
-                                <Link href={item.magnet} target="_blank">
-                                    <Button
-                                        leftIcon={<BiDownload />}
-                                        size="sm"
-                                        intent="primary-subtle"
-                                    >
-                                        Download
-                                    </Button>
-                                </Link>
+                                <Button
+                                    leftIcon={<BiDownload />}
+                                    size="sm"
+                                    intent="primary-subtle"
+                                    onClick={() => {
+                                        addMagnet({
+                                            magnetUrl: item.magnet,
+                                            ruleId: item.ruleId,
+                                            queuedItemId: item.id,
+                                        })
+                                    }}
+                                    isLoading={isAdding}
+                                    isDisabled={isPending}
+                                >
+                                    Download
+                                </Button>
                             )}
                             <Button
                                 leftIcon={<BiTrash />}
@@ -87,7 +103,8 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                                 onClick={() => {
                                     deleteItem({ id: item.id })
                                 }}
-                                isDisabled={isPending}
+                                isDisabled={isPending || isAdding}
+                                isLoading={isPending}
                             >
                                 Delete
                             </Button>

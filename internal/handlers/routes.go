@@ -204,9 +204,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1.Post("/torrent-search", makeHandler(app, HandleTorrentSearch))
-	v1.Post("/torrent-client/download", makeHandler(app, HandleDownloadTorrentInClient))
+	v1.Post("/torrent-client/download", makeHandler(app, HandleTorrentClientDownload))
 	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
 	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))
+	v1.Post("/torrent-client/rule-magnet", makeHandler(app, HandleTorrentClientAddMagnetFromRule))
 
 	//
 	// Download

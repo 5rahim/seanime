@@ -51,6 +51,7 @@ export const enum SeaEndpoints {
     TORRENT_CLIENT_DOWNLOAD = "/torrent-client/download", // (POST)
     TORRENT_CLIENT_LIST = "/torrent-client/list", // (GET)
     TORRENT_CLIENT_ACTION = "/torrent-client/action", // (POST)
+    TORRENT_CLIENT_RULE_MAGNET = "/torrent-client/rule-magnet", // (POST)
     TORRENT_SEARCH = "/torrent-search", // (POST)
     /**
      * Auto downloader

@@ -8,6 +8,8 @@ import (
 )
 
 type (
+	// NormalizedTorrent is a struct built from torrent from a provider.
+	// It is used to normalize the data from different providers so that it can be used by the AutoDownloader.
 	NormalizedTorrent struct {
 		Name       string
 		Link       string
