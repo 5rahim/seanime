@@ -86,7 +86,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorre
 			Hash:       t.InfoHash,
 			Size:       t.TotalSize,
 			Seeders:    t.Seeders,
-			magnet:     t.MagnetUrl,
+			magnet:     t.MagnetUrl, // AnimeTosho doesn't seem to provide the magnet link for newer torrents
 			ParsedData: parsedData,
 			Provider:   AnimeToshoProvider,
 		})
@@ -102,15 +102,19 @@ func (t *NormalizedTorrent) GetMagnet() (string, bool) {
 		return t.magnet, true
 	}
 
+	// Scrape the page to get the magnet link
 	if t.Provider == NyaaProvider {
-		// Fetch the view page to get the magnet link
 		magnet, err := nyaa.TorrentMagnet(t.Link)
 		if err != nil {
 			return "", false
 		}
 		return magnet, true
 	} else if t.Provider == AnimeToshoProvider {
-		return t.magnet, true // AnimeTosho provides the magnet link in the feed
+		magnet, err := animetosho.TorrentMagnet(t.Link)
+		if err != nil {
+			return "", false
+		}
+		return magnet, true
 	}
 
 	return "", false
