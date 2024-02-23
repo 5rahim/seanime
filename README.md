@@ -48,6 +48,23 @@ support transcoding or streaming to other devices (yet).
 
 [How to use Seanime.](https://seanime.rahim.app/docs)
 
+# Future plans
+
+- [ ] Streaming library content to other devices
+- [ ] Offline viewing / streaming of library content
+- [ ] Support for Transmission
+- [ ] Desktop app
+- [ ] Streaming web content
+- [ ] Docker container
+ 
+## Not planned
+
+The following features are not planned, but you can help implement them:
+
+- Support for other providers such as Kitsu, SIMKL, etc. (use MALSync)
+- Torrent streaming (use Miru)
+- Mobile app
+
 ## Resources
 
 - AniList API
