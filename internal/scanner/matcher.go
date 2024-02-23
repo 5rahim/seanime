@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/comparison"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/summary"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"math"
 	"time"
@@ -66,6 +67,16 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 // If the best match is above a certain threshold, set the local file's mediaId to the best match's id
 // If the best match is below a certain threshold, leave the local file's mediaId to 0
 func (m *Matcher) matchLocalFileWithMedia(lf *entities.LocalFile) {
+
+	defer util.HandlePanicInModuleThenS("scanner/matcher/matchLocalFileWithMedia", func(stackTrace string) {
+		lf.MediaId = 0
+		/*Log*/
+		m.ScanLogger.LogMatcher(zerolog.ErrorLevel).
+			Str("filename", lf.Name).
+			Msg("Panic occurred, file un-matched")
+		m.ScanSummaryLogger.LogPanic(lf, stackTrace)
+	})
+
 	// Check if the local file has already been matched
 	if lf.MediaId != 0 {
 		m.ScanLogger.LogMatcher(zerolog.DebugLevel).

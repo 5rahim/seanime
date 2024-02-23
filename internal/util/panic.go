@@ -7,7 +7,8 @@ import (
 	"runtime/debug"
 )
 
-func printRuntimeError(r any, module string) {
+func printRuntimeError(r any, module string) string {
+	debugStr := string(debug.Stack())
 	logger := NewLogger()
 	red := color.New(color.FgRed, color.Bold)
 	fmt.Println()
@@ -17,8 +18,9 @@ func printRuntimeError(r any, module string) {
 	}
 	fmt.Printf(" Please report this issue on the GitHub repository\n")
 	fmt.Println("========================================= Stack Trace =========================================")
-	logger.Error().Msgf("%+v\n\n%+v", r, string(debug.Stack()))
+	logger.Error().Msgf("%+v\n\n%+v", r, debugStr)
 	fmt.Println("===================================== End of Stack Trace ======================================")
+	return debugStr
 }
 
 func HandlePanicWithError(err *error) {
@@ -46,6 +48,13 @@ func HandlePanicInModuleThen(module string, f func()) {
 	if r := recover(); r != nil {
 		f()
 		printRuntimeError(r, module)
+	}
+}
+
+func HandlePanicInModuleThenS(module string, f func(stackTrace string)) {
+	if r := recover(); r != nil {
+		str := printRuntimeError(r, module)
+		f(str)
 	}
 }
 

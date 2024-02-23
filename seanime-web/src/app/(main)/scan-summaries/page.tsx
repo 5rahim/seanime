@@ -225,22 +225,39 @@ function ScanSummaryLog(props: { log: ScanSummaryLog }) {
 
     return (
         <div className="">
-            <div className="flex justify-between gap-2 items-center">
-                <div className="flex gap-1 items-center">
+            <div className="flex justify-between gap-2 items-center w-full">
+                <div className="flex gap-1 items-center w-full">
                     <div>
                         {log.level === "info" && <BiInfoCircle className="text-blue-300" />}
                         {log.level === "error" && <BiXCircle className="text-red-300" />}
                         {log.level === "warning" && <BiInfoCircle className="text-orange-300" />}
                     </div>
-                    <p
-                        className={cn(
-                            "text-[--muted] hover:text-white text-sm tracking-wide line-clamp-1",
-                            log.level === "error" && "text-red-300",
-                            log.level === "warning" && "text-orange-300",
-                        )}
-                    >{log.message}</p>
+                    <ScanSummaryLogMessage message={log.message} level={log.level} />
                 </div>
             </div>
+        </div>
+    )
+}
+
+function ScanSummaryLogMessage(props: { message: string, level: string }) {
+    const { message, level } = props
+
+    if (!message.startsWith("PANIC")) {
+        return <div
+            className={cn(
+                "text-[--muted] hover:text-white text-sm tracking-wide line-clamp-1",
+                level === "error" && "text-red-300",
+                level === "warning" && "text-orange-300",
+            )}
+        >{message}</div>
+    }
+
+    return (
+        <div className="w-full text-sm whitespace-nowrap overflow-x-auto">
+            <p className="text-red-300 text-sm font-bold">Please report this issue on the GitHub repository</p>
+            <pre className="w-0 min-w-full overflow-x-auto p-4">
+                {message}
+            </pre>
         </div>
     )
 }

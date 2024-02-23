@@ -23,6 +23,7 @@ const (
 	LogMetadataSpecial
 	LogMetadataMain
 	LogMetadataHydrated
+	LogPanic
 )
 
 type (
@@ -168,6 +169,14 @@ func (l *ScanSummaryLogger) LogSuccessfullyMatched(lf *entities.LocalFile, media
 	l.logType(LogSuccessfullyMatched, lf, msg)
 }
 
+func (l *ScanSummaryLogger) LogPanic(lf *entities.LocalFile, stackTrace string) {
+	if l == nil {
+		return
+	}
+	//msg := fmt.Sprintf("Panic occurred, please report this issue on the GitHub repository with the stack trace printed in the terminal")
+	l.logType(LogPanic, lf, "PANIC! "+stackTrace)
+}
+
 func (l *ScanSummaryLogger) LogFailedMatch(lf *entities.LocalFile, reason string) {
 	if l == nil {
 		return
@@ -307,6 +316,8 @@ func (l *ScanSummaryLogger) logType(logType LogType, lf *entities.LocalFile, mes
 		l.log(lf, "warning", message)
 	case LogFileNotMatched:
 		l.log(lf, "warning", message)
+	case LogPanic:
+		l.log(lf, "error", message)
 	}
 }
 

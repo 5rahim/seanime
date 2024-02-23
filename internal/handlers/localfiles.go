@@ -50,7 +50,11 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 	switch b.Action {
 	case "lock":
 		for _, lf := range lfs {
-			lf.Locked = true
+			// Note: Don't lock local files that are not associated with a media.
+			// Else refreshing the library will ignore them.
+			if lf.MediaId != 0 {
+				lf.Locked = true
+			}
 		}
 	case "unlock":
 		for _, lf := range lfs {

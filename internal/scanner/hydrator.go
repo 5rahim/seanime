@@ -93,6 +93,15 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	// Process each local file in the group sequentially
 	lo.ForEach(lfs, func(lf *entities.LocalFile, index int) {
 
+		defer util.HandlePanicInModuleThenS("scanner/hydrator/hydrateGroupMetadata", func(stackTrace string) {
+			lf.MediaId = 0
+			/*Log*/
+			fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
+				Str("filename", lf.Name).
+				Msg("Panic occurred, file un-matched")
+			fh.ScanSummaryLogger.LogPanic(lf, stackTrace)
+		})
+
 		lf.Metadata.Type = entities.LocalFileTypeMain
 
 		// Get episode number
