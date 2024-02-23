@@ -1,3 +1,4 @@
+import { DEFAULT_TORRENT_PROVIDER } from "@/lib/server/types"
 import { z } from "zod"
 
 export function useDefaultSettingsPaths() {
@@ -47,7 +48,7 @@ export function getDefaultMpcSocket(os: string) {
 export const settingsSchema = z.object({
     libraryPath: z.string().min(1),
     defaultPlayer: z.string(),
-    torrentProvider: z.string(),
+    torrentProvider: z.string().default(DEFAULT_TORRENT_PROVIDER),
     mediaPlayerHost: z.string(),
     vlcUsername: z.string().optional().default(""),
     vlcPassword: z.string().optional().default(""),

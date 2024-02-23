@@ -158,11 +158,13 @@ func NewFiberApp(app *App) *fiber.App {
 
 	if constants.DevelopmentWebBuild {
 		fiberApp.Static("/", "./seanime-web/out", fiber.Static{
-			Index: "index.html",
+			Index:    "index.html",
+			Compress: true,
 		})
 	} else {
 		fiberApp.Static("/", "./web", fiber.Static{
-			Index: "index.html",
+			Index:    "index.html",
+			Compress: true,
 		})
 	}
 

@@ -95,6 +95,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 qbittorrentHost: "127.0.0.1",
                                 qbittorrentPort: 8081,
                                 mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
+                                torrentProvider: DEFAULT_TORRENT_PROVIDER,
                             }}
                             stackClassName="space-y-4"
                         >
@@ -178,7 +179,12 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 name="qbittorrentPath"
                                 label="Executable"
                             />
-                            <Field.Submit role="submit" showLoadingOverlayOnSuccess={true} isLoading={isPending}/>
+                            <Field.Submit
+                                className="w-full"
+                                role="submit"
+                                showLoadingOverlayOnSuccess={true}
+                                isLoading={isPending}
+                            >Continue</Field.Submit>
                         </TypesafeForm>
                     </div>
                 </AppLayoutStack>
