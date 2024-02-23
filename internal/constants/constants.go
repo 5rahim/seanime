@@ -3,8 +3,8 @@ package constants
 import "time"
 
 const (
-	Version             = "0.3.1"
-	VersionName         = "Roronoa"
+	Version             = "0.4.0"
+	VersionName         = "Laboon"
 	DevelopmentWebBuild = false
 	GcTime              = time.Minute * 30
 	ConfigFileName      = "config.toml"
