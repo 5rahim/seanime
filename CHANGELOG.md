@@ -7,13 +7,13 @@ All notable changes to this project will be documented in this file.
 - 🎉 Added support for **AnimeTosho**
   - Smart search now returns more results with AnimeTosho as a provider
   - You can change the torrent provider for search and auto-download in the in-app settings
-  - Fixes ISP blockage of Nyaa #16
+  - Not blocked as often by ISPs #16
 - ✨ Added ability to silence missing episode notifications for specific media
 - ⚡️ Improved scanning accuracy
   - Fixed various issues related to title parsing, matching and metadata hydration 
 - ⚡️ Improved runtime error recovery during scanning
-  - Scanning will now try to skip the problematic file instead of stopping the entire process
-  - The stack trace is now logged in the Scan Summary when a runtime error occurs at a file level, making debugging easier
+  - Scanner will now try to skip problematic files instead of stopping the entire process
+  - Stack traces are now logged in scan summaries when runtime errors occur at a file level, making debugging easier
 - ⚡️ Auto Downloader will now add queued episode magnets from the server
 - 💄 Minor redesign of the empty library page
 - 🦺 Fixed issue with static file serving #18
