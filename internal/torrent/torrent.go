@@ -22,9 +22,10 @@ type (
 		DownloadUrl   string `json:"downloadUrl"`
 		InfoHash      string `json:"infoHash"`
 		Resolution    string `json:"resolution,omitempty"`
-		IsBatch       bool   `json:"isBatch,omitempty"`
+		IsBatch       bool   `json:"isBatch"`
 		EpisodeNumber int    `json:"episodeNumber,omitempty"`
 		ReleaseGroup  string `json:"releaseGroup,omitempty"`
+		Provider      string `json:"provider,omitempty"`
 	}
 )
 
@@ -46,6 +47,7 @@ func NewAnimeTorrentFromNyaa(torrent *nyaa.DetailedTorrent) *AnimeTorrent {
 		Link:          torrent.GUID,
 		DownloadUrl:   torrent.Link,
 		InfoHash:      torrent.InfoHash,
+		Provider:      "nyaa",
 	}
 
 	hydrateMetadata(t, metadata)
@@ -67,6 +69,7 @@ func NewAnimeTorrentFromAnimeTosho(torrent *animetosho.Torrent) *AnimeTorrent {
 		Link:          torrent.Link,
 		DownloadUrl:   torrent.TorrentUrl,
 		InfoHash:      torrent.InfoHash,
+		Provider:      "animetosho",
 	}
 
 	hydrateMetadata(t, metadata)

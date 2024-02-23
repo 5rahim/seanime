@@ -23,11 +23,11 @@ export function TorrentResolutionBadge({ resolution }: { resolution?: string }) 
     )
 }
 
-export function TorrentSeedersBadge({ seeders }: { seeders: string }) {
+export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
 
     return (
         <Badge
-            intent={parseInt(seeders) > 20 ? parseInt(seeders) > 200 ? "primary" : "success" : "gray"}
+            intent={(seeders) > 20 ? (seeders) > 200 ? "primary" : "success" : "gray"}
             // leftIcon={<FcLineChart/>}
         >
             <span className="text-sm">{seeders}</span> seeders

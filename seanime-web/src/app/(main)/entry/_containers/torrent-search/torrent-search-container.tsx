@@ -13,12 +13,12 @@ import { Switch } from "@/components/ui/switch"
 import { useDebounceWithSet } from "@/hooks/use-debounce"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { buildSeaQuery, useSeaQuery } from "@/lib/server/query"
-import { MediaEntry, SearchTorrent, TorrentSearchData } from "@/lib/server/types"
+import { AnimeTorrent, MediaEntry, TorrentSearchData } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
 
-export const __torrentSearch_selectedTorrentsAtom = atom<SearchTorrent[]>([])
+export const __torrentSearch_selectedTorrentsAtom = atom<AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
@@ -59,11 +59,11 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     }, [quickSearch])
 
     const { data, isLoading, isFetching } = useSeaQuery<TorrentSearchData | undefined>({
-        endpoint: SeaEndpoints.NYAA_SEARCH,
+        endpoint: SeaEndpoints.TORRENT_SEARCH,
         queryKey: ["nyaa-search", entry.mediaId, dQuickSearchEpisode, globalFilter, quickSearchBatch, quickSearchResolution, quickSearch, downloadInfo?.absoluteOffset],
         queryFn: async () => {
             return buildSeaQuery({
-                endpoint: SeaEndpoints.NYAA_SEARCH,
+                endpoint: SeaEndpoints.TORRENT_SEARCH,
                 method: "post",
                 data: {
                     query: globalFilter,
@@ -105,11 +105,11 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
         />
     }, [quickSearch, quickSearchBatch, downloadInfo, soughtEpisode])
 
-    const handleToggleTorrent = useCallback((t: SearchTorrent) => {
+    const handleToggleTorrent = useCallback((t: AnimeTorrent) => {
         setSelectedTorrents(prev => {
-            const idx = prev.findIndex(n => n.guid === t.guid)
+            const idx = prev.findIndex(n => n.link === t.link)
             if (idx !== -1) {
-                return prev.filter(n => n.guid !== t.guid)
+                return prev.filter(n => n.link !== t.link)
             }
             return [...prev, t]
         })

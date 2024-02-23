@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"regexp"
 	"strconv"
 	"strings"
@@ -83,8 +82,6 @@ func StringSizeToBytes(str string) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse size: %s", err)
 	}
-
-	spew.Dump(match)
 
 	// Extract the unit and convert to lowercase
 	unit := strings.ToLower(match[3])

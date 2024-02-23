@@ -1,25 +1,22 @@
-import React, { memo, useMemo } from "react"
-import { SearchTorrent } from "@/lib/server/types"
+import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core"
 import { createDataGridColumns, DataGrid } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
-import { IconButton } from "@/components/ui/button"
+import { AnimeTorrent } from "@/lib/server/types"
 import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
-import { cn } from "@/components/ui/core"
-import {
-    TorrentResolutionBadge,
-    TorrentSeedersBadge,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import React, { memo, useMemo } from "react"
 
 type TorrentTable = {
-    torrents: SearchTorrent[]
-    selectedTorrents: SearchTorrent[]
+    torrents: AnimeTorrent[]
+    selectedTorrents: AnimeTorrent[]
     globalFilter: string,
     setGlobalFilter: React.Dispatch<React.SetStateAction<string>>
     quickSearch: boolean
     isLoading: boolean
     isFetching: boolean
-    onToggleTorrent: (t: SearchTorrent) => void
+    onToggleTorrent: (t: AnimeTorrent) => void
 }
 
 export const TorrentTable = memo((
@@ -34,24 +31,26 @@ export const TorrentTable = memo((
         onToggleTorrent,
     }: TorrentTable) => {
 
-    const columns = useMemo(() => createDataGridColumns<SearchTorrent>(() => [
+    const columns = useMemo(() => createDataGridColumns<AnimeTorrent>(() => [
         {
             accessorKey: "name",
             header: "Name",
             cell: info => <div className={"flex items-center gap-2"}>
-                <Tooltip trigger={<IconButton
-                    icon={<BiLinkExternal/>}
-                    intent={"primary-basic"}
-                    size={"sm"}
-                    onClick={() => window.open(info.row.original.guid, "_blank")}
-                />}>View on NYAA</Tooltip>
+                <Tooltip
+                    trigger={<IconButton
+                        icon={<BiLinkExternal />}
+                        intent={"primary-basic"}
+                        size={"sm"}
+                        onClick={() => window.open(info.row.original.link, "_blank")}
+                    />}
+                >View on NYAA</Tooltip>
                 <Tooltip
                     trigger={
                         <div
                             className={cn(
                                 "text-[.95rem] truncate text-ellipsis cursor-pointer max-w-[90%] overflow-hidden",
                                 {
-                                    "text-brand-300 font-semibold": selectedTorrents.some(torrent => torrent.guid === info.row.original.guid),
+                                    "text-brand-300 font-semibold": selectedTorrents.some(torrent => torrent.link === info.row.original.link),
                                 },
                             )}
                             onClick={() => onToggleTorrent(info.row.original)}
@@ -67,13 +66,13 @@ export const TorrentTable = memo((
         {
             accessorKey: "resolution",
             header: "Resolution",
-            cell: info => <TorrentResolutionBadge resolution={info.getValue<string>()}/>,
+            cell: info => <TorrentResolutionBadge resolution={info.getValue<string>()} />,
             size: 2,
         },
         {
             accessorKey: "seeders",
             header: "Seeders",
-            cell: info => <TorrentSeedersBadge seeders={info.getValue<string>()}/>,
+            cell: info => <TorrentSeedersBadge seeders={info.getValue<number>()} />,
             size: 20,
         },
         {
@@ -85,7 +84,7 @@ export const TorrentTable = memo((
     ]), [torrents, selectedTorrents])
 
     return (
-        <DataGrid<SearchTorrent>
+        <DataGrid<AnimeTorrent>
             columns={columns}
             data={torrents?.slice(0, 20)}
             rowCount={torrents?.length ?? 0}

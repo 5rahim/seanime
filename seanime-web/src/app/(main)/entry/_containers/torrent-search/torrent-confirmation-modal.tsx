@@ -8,7 +8,7 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
-import { MediaEntry, SearchTorrent } from "@/lib/server/types"
+import { AnimeTorrent, MediaEntry } from "@/lib/server/types"
 import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
 import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
 import { BiX } from "@react-icons/all-files/bi/BiX"
@@ -41,7 +41,7 @@ type TorrentDownloadFileProps = {
 }
 
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
-    onToggleTorrent: (t: SearchTorrent) => void,
+    onToggleTorrent: (t: AnimeTorrent) => void,
     media: BaseMediaFragment,
     entry: MediaEntry
 }) {
@@ -107,7 +107,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         }
         if (smartSelect) {
             mutate({
-                urls: selectedTorrents.map(n => n.guid),
+                urls: selectedTorrents.map(n => n.link),
                 destination,
                 smartSelect: {
                     enabled: true,
@@ -118,7 +118,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             })
         } else {
             mutate({
-                urls: selectedTorrents.map(n => n.guid),
+                urls: selectedTorrents.map(n => n.link),
                 destination,
                 smartSelect: {
                     enabled: false,
@@ -162,14 +162,14 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             <div className={"space-y-2"}>
                 {selectedTorrents.map(torrent => (
                     <Tooltip
-                        key={`${torrent.guid}`}
+                        key={`${torrent.link}`}
                         trigger={<div
                             className={"ml-12 gap-2 p-2 border border-[--border] rounded-md hover:bg-gray-800 relative"}
                             key={torrent.name}
                         >
                             <div
                                 className={"flex flex-none items-center gap-2 w-[90%] cursor-pointer"}
-                                onClick={() => window.open(torrent.guid, "_blank")}
+                                onClick={() => window.open(torrent.link, "_blank")}
                             >
                                 <span className={"text-lg"}>
                                     {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :

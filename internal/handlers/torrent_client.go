@@ -112,6 +112,8 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 // It returns true if the action was successful.
 //
 //	POST /v1/torrent-client/action
+//
+// FIXME Animetosho
 func HandleTorrentClientAction(c *RouteCtx) error {
 
 	type body struct {
@@ -170,6 +172,8 @@ func getTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 // It also handles smart selection (downloader.SmartSelect).
 //
 //	POST /v1/torrent-client/download
+//
+// FIXME Animetosho
 func HandleDownloadTorrentInClient(c *RouteCtx) error {
 
 	type body struct {

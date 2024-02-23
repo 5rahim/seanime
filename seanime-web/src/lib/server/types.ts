@@ -311,29 +311,7 @@ export type MediaPlayerPlaybackStatus = {
 
 export type TorrentSearchData = {
     previews: TorrentPreview[]
-    torrents: SearchTorrent[]
-}
-
-
-export type SearchTorrent = {
-    category: string
-    name: string
-    description: string
-    date: string
-    size: string
-    seeders: string
-    leechers: string
-    downloads: string
-    isTrusted: string
-    isRemake: string
-    comments: string
-    link: string
-    guid: string
-    categoryId: string
-    infoHash: string
-    resolution: string
-    // /!\ will be true if the torrent is a movie
-    isBatch: boolean
+    torrents: AnimeTorrent[]
 }
 
 export type AnimeTorrent = {
@@ -348,24 +326,15 @@ export type AnimeTorrent = {
     downloadUrl: string
     infoHash: string
     resolution?: string
-    isBatch?: boolean
+    isBatch: boolean
     episodeNumber?: number
     releaseGroup?: string
-}
-
-export type SearchTorrentComment = {
-    user: string
-    date: string
-    text: string
+    provider: string
 }
 
 export type TorrentPreview = {
-    torrent: SearchTorrent
+    torrent: AnimeTorrent
     episode: MediaEntryEpisode | null
-    isBatch: boolean
-    resolution: string
-    releaseGroup: string
-    episodeNumber?: number
 }
 
 //---

@@ -1,23 +1,20 @@
-import { SearchTorrent, TorrentPreview } from "@/lib/server/types"
+import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
-import {
-    TorrentResolutionBadge,
-    TorrentSeedersBadge,
-} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
-import React, { memo } from "react"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { IconButton } from "@/components/ui/button"
-import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import { AnimeTorrent, TorrentPreview } from "@/lib/server/types"
 import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
 import { BiFile } from "@react-icons/all-files/bi/BiFile"
+import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
+import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import React, { memo } from "react"
 
 type TorrentPreviewList = {
     previews: TorrentPreview[],
     isLoading: boolean
-    selectedTorrents: SearchTorrent[]
-    onToggleTorrent: (t: SearchTorrent) => void
+    selectedTorrents: AnimeTorrent[]
+    onToggleTorrent: (t: AnimeTorrent) => void
 }
 
 export const TorrentPreviewList = memo((
@@ -35,22 +32,22 @@ export const TorrentPreviewList = memo((
             {previews.filter(Boolean).map(item => {
                 return (
                     <TorrentPreviewItem
-                        key={item.torrent.guid}
+                        key={item.torrent.link}
                         title={item.episode?.displayTitle || ""}
-                        releaseGroup={item.releaseGroup}
+                        releaseGroup={item.torrent.releaseGroup || ""}
                         filename={item.torrent.name}
-                        isBatch={item.isBatch}
+                        isBatch={item.torrent.isBatch}
                         image={item.episode?.episodeMetadata?.image}
-                        isSelected={selectedTorrents.findIndex(n => n.guid === item.torrent.guid) !== -1}
+                        isSelected={selectedTorrents.findIndex(n => n.link === item.torrent.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent)}
                         action={<Tooltip trigger={<IconButton
                             icon={<BiLinkExternal/>}
                             intent={"primary-basic"}
                             size={"sm"}
-                            onClick={() => window.open(item.torrent.guid, "_blank")}
+                            onClick={() => window.open(item.torrent.link, "_blank")}
                         />}>View on NYAA</Tooltip>}
                     >
-                        <TorrentResolutionBadge resolution={item.resolution}/>
+                        <TorrentResolutionBadge resolution={item.torrent.resolution} />
                         <TorrentSeedersBadge seeders={item.torrent.seeders}/>
                         <p className="text-gray-300 text-sm flex items-center gap-1">
                             <BiFile/> {item.torrent.size}</p>
