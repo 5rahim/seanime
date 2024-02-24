@@ -50,19 +50,34 @@ support transcoding or streaming to other devices (yet).
 
 # Future plans
 
-- [ ] Streaming library content to other devices
-- [ ] Offline viewing / streaming of library content
-- [ ] Support for Transmission
-- [ ] Desktop app
-- [ ] Streaming web content
+Here are some features that are planned, from most to least probable:
+
+- [ ] Transmission support
+- [ ] Manga support
 - [ ] Docker container
+- [ ] Desktop client
+- [ ] Kitsu integration
+
+## Research phase
+
+The following features are in the research phase and may or may not be implemented:
+
+- [ ] Offline support
+- [ ] Consumet integration for online streaming
+- [ ] Support for transcoding & streaming library content within network
+
+Feel free to contribute if you want to see these features implemented sooner.
  
 ## Not planned
 
-The following features are not planned, but you can help implement them:
+The following features are not planned:
 
-- Support for other providers such as Kitsu, SIMKL, etc. (use MALSync)
-- Torrent streaming (use Miru)
+- Support for other providers such as Trakt, SIMKL, etc.
+  - Requires a lot of work to maintain mappings
+- Torrent streaming
+  - Use Miru instead 
+- Support for other languages
+  - The current architecture is not designed to support multiple languages
 - Mobile app
 
 ## Resources
