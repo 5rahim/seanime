@@ -1,20 +1,20 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
+import { cn } from "@/components/ui/core/styling"
+import { Separator } from "@/components/ui/separator"
 import { TabPanels } from "@/components/ui/tabs"
-import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { Field, Form } from "@/components/ui/form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
-import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
-import { FcVideoCall } from "@react-icons/all-files/fc/FcVideoCall"
-import { FcVlc } from "@react-icons/all-files/fc/FcVlc"
+import { FcClapperboard } from "react-icons/fc"
+import { FcFolder } from "react-icons/fc"
+import { FcVideoCall } from "react-icons/fc"
+import { FcVlc } from "react-icons/fc"
 import { useAtom } from "jotai/react"
 import React, { useEffect } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import { BsPlayCircleFill } from "react-icons/bs"
 
 export default function Page() {
@@ -41,8 +41,8 @@ export default function Page() {
                 <h2>Settings</h2>
                 <p className="text-[--muted]">App version: {status?.version}</p>
             </div>
-            {/*<Divider/>*/}
-            <TypesafeForm
+            {/*<Separator/>*/}
+            <Form
                 schema={settingsSchema}
                 onSubmit={data => {
                     mutate({
@@ -98,12 +98,12 @@ export default function Page() {
                     autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                     disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
                 }}
-                stackClassName="space-y-4"
+                stackClass="space-y-4"
             >
 
                 <TabPanels
-                    navClassName="border-[--border]"
-                    tabClassName={cn(
+                    navClass="border-[--border]"
+                    tabClass={cn(
                         "rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                         "hover:bg-transparent dark:hover:bg-transparent hover:text-white text-sm",
                         "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
@@ -127,25 +127,25 @@ export default function Page() {
                                         help="Folder where your anime library is located. (Keep the casing consistent)"
                                         shouldExist
                                     />
-                                    <Divider />
+                                    <Separator />
                                     <Field.Switch
                                         name="autoUpdateProgress"
                                         label="Automatically update progress"
                                         help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
                                     />
-                                    <Divider />
+                                    <Separator />
                                     <Field.Switch
                                         name="disableUpdateCheck"
                                         label="Do not check for updates"
                                         help="If enabled, Seanime will not check for new releases."
                                     />
-                                    <Divider />
+                                    <Separator />
                                     <Field.Switch
                                         name="hideAudienceScore"
                                         label="Hide audience score"
                                         help="If enabled, the audience score will be hidden on the media entry page."
                                     />
-                                    <Divider />
+                                    <Separator />
                                     <Field.RadioGroup
                                         options={[
                                             { label: "Nyaa", value: "nyaa" },
@@ -177,7 +177,7 @@ export default function Page() {
                                         help="VLC/MPC-HC"
                                     />
 
-                                    <Divider />
+                                    <Separator />
 
                                     <h3 className="flex gap-2 items-center"><FcVlc /> VLC</h3>
                                     <div className="flex gap-4">
@@ -200,7 +200,7 @@ export default function Page() {
                                         label="Application path"
                                     />
 
-                                    <Divider />
+                                    <Separator />
 
                                     <h3 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h3>
                                     <div className="flex gap-4">
@@ -215,7 +215,7 @@ export default function Page() {
                                         label="Application path"
                                     />
 
-                                    <Divider />
+                                    <Separator />
 
                                     <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV</h3>
                                     <div className="flex gap-4">
@@ -259,14 +259,14 @@ export default function Page() {
                                     />
                                 </TabPanels.Panel>
                                 <div className="mt-4">
-                                    <Field.Submit role="save" isLoading={isPending} />
+                                    <Field.Submit role="save" loading={isPending} />
                                 </div>
                             </TabPanels.Container>
                         </div>
                     </div>
                 </TabPanels>
 
-            </TypesafeForm>
+            </Form>
         </div>
     )
 

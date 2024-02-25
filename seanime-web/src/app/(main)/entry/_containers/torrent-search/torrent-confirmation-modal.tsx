@@ -9,16 +9,16 @@ import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { AnimeTorrent, MediaEntry } from "@/lib/server/types"
-import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
-import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
-import { BiX } from "@react-icons/all-files/bi/BiX"
-import { FcFilmReel } from "@react-icons/all-files/fc/FcFilmReel"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
+import { BiCollection } from "react-icons/bi"
+import { BiDownload } from "react-icons/bi"
+import { BiX } from "react-icons/bi"
+import { FcFilmReel } from "react-icons/fc"
+import { FcFolder } from "react-icons/fc"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useMemo, useState } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import * as upath from "upath"
 
 const isOpenAtom = atom(false)
@@ -142,10 +142,10 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     return (
         <Modal
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-            size={"2xl"} isClosable
-            title={"Choose the destination"}
+            open={isOpen}
+            onOpenChange={() => setIsOpen(false)}
+            size="2xl"
+            title="Choose the destination"
         >
             <div className="pb-4">
                 <DirectorySelector
@@ -159,29 +159,29 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 />
             </div>
 
-            <div className={"space-y-2"}>
+            <div className="space-y-2">
                 {selectedTorrents.map(torrent => (
                     <Tooltip
                         key={`${torrent.link}`}
                         trigger={<div
-                            className={"ml-12 gap-2 p-2 border border-[--border] rounded-md hover:bg-gray-800 relative"}
+                            className="ml-12 gap-2 p-2 border border-[--border] rounded-md hover:bg-gray-800 relative"
                             key={torrent.name}
                         >
                             <div
                                 className={"flex flex-none items-center gap-2 w-[90%] cursor-pointer"}
                                 onClick={() => window.open(torrent.link, "_blank")}
                             >
-                                <span className={"text-lg"}>
+                                <span className="text-lg">
                                     {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
-                                        <FcFolder className={"text-2xl"} />} {/*<BsCollectionPlayFill/>*/}
+                                        <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
                                 </span>
-                                <p className={"truncate text-ellipsis"}>{torrent.name}</p>
+                                <p className="truncate text-ellipsis">{torrent.name}</p>
                             </div>
                             <IconButton
                                 icon={<BiX />}
-                                className={"absolute right-2 top-2 rounded-full"}
-                                size={"xs"}
-                                intent={"gray-outline"}
+                                className="absolute right-2 top-2 rounded-full"
+                                size="xs"
+                                intent="gray-outline"
                                 onClick={() => {
                                     onToggleTorrent(torrent)
                                 }}
@@ -195,27 +195,27 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                     <div>
                         <Button
                             leftIcon={<BiDownload />}
-                            intent={"gray-outline"}
+                            intent="gray-outline"
                             onClick={() => handleDownloadFiles()}
-                            isDisabled={isDisabled}
-                            isLoading={isDownloadingFiles}
+                            disabled={isDisabled}
+                            loading={isDownloadingFiles}
                         >Download torrent files</Button>
                     </div>
 
-                    <div className={"flex w-full justify-end gap-2"}>
+                    <div className="flex w-full justify-end gap-2">
                         {(selectedTorrents.length > 0 && canSmartSelect) && <Button
                             leftIcon={<BiCollection />}
-                            intent={"white-outline"}
+                            intent="white-outline"
                             onClick={() => handleLaunchDownload(true)}
-                            isDisabled={isDisabled}
-                            isLoading={isPending}
+                            disabled={isDisabled}
+                            loading={isPending}
                         >Download missing only</Button>}
                         {selectedTorrents.length > 0 && <Button
                             leftIcon={<BiDownload />}
-                            intent={"white"}
+                            intent="white"
                             onClick={() => handleLaunchDownload(false)}
-                            isDisabled={isDisabled}
-                            isLoading={isPending}
+                            disabled={isDisabled}
+                            loading={isPending}
                         >{canSmartSelect ? "Download all" : "Download"}</Button>}
                     </div>
                 </div>

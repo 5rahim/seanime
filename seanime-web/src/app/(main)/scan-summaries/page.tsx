@@ -1,7 +1,7 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -95,7 +95,7 @@ export default function Page() {
                                                 >
                                                     <Image
                                                         src={group.mediaImage}
-                                                        alt={"banner"}
+                                                        alt="banner"
                                                         fill
                                                         quality={80}
                                                         priority
@@ -157,7 +157,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
     const hasWarnings = file.logs.some(log => log.level === "warning")
 
     return (
-        <div className="rounded-[--radius] p-3 bg-[--background-color]">
+        <div className="rounded-[--radius] p-3 bg-[--background]">
             <div className="flex justify-between gap-2 items-center cursor-pointer" onClick={() => setOpen(p => !p)}>
 
                 <div className="space-y-1">

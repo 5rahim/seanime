@@ -2,20 +2,20 @@
 
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
-import { TabPanels } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { AnilistCollectionEntry, AnilistCollectionList } from "@/lib/server/types"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import sortBy from "lodash/sortBy"
 import React, { startTransition, useCallback, useMemo, useState, useTransition } from "react"
+import { FiSearch } from "react-icons/fi"
 
-const selectedIndexAtom = atom(0)
+const selectedIndexAtom = atom("current")
 const watchListSearchInputAtom = atom<string>("")
 
 function anilist_filterEntriesByTitle(arr: AnilistCollectionEntry[], input: string) {
@@ -68,65 +68,61 @@ export default function Home() {
     const droppedList = useMemo(() => getList("DROPPED"), [search, getList, anilistLists])
 
     return (
-        <main className={"p-8 pt-0 relative"}>
+        <main className="p-8 pt-0 relative">
 
-            <SearchInput/>
+            <SearchInput />
 
-            <TabPanels
-                navClassName={"border-none"}
-                tabClassName={cn(
-                    "text-lg rounded-none border-b border-b-2 border-b-transparent data-[selected=true]:text-white data-[selected=true]:border-brand-400",
-                    "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
-                    "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
-                    "hover:bg-[--highlight]",
-                )}
-                selectedIndex={selectedIndex}
-                onIndexChange={value => {
+            <Tabs
+                // tabClass={cn(
+                //     "text-lg rounded-none border-b border-b-2 border-b-transparent data-[selected=true]:text-white
+                // data-[selected=true]:border-brand-400", "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
+                // "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400
+                // dark:data-[selected=true]:text-white", "hover:bg-[--highlight]", )}
+                value={selectedIndex}
+                onValueChange={value => {
                     startTransition(() => {
                         setSelectedIndex(value)
                     })
                 }}
             >
-                <TabPanels.Nav>
-                    <TabPanels.Tab>
+                <TabsList className="w-full flex border-b">
+                    <TabsTrigger value="current">
                         Currently Watching
-                    </TabPanels.Tab>
-                    <TabPanels.Tab>
+                    </TabsTrigger>
+                    <TabsTrigger value="planning">
                         Planning
-                    </TabPanels.Tab>
-                    <TabPanels.Tab>
+                    </TabsTrigger>
+                    <TabsTrigger value="paused">
                         Paused
-                    </TabPanels.Tab>
-                    <TabPanels.Tab>
+                    </TabsTrigger>
+                    <TabsTrigger value="completed">
                         Completed
-                    </TabPanels.Tab>
-                    <TabPanels.Tab>
+                    </TabsTrigger>
+                    <TabsTrigger value="dropped">
                         Dropped
-                    </TabPanels.Tab>
-                </TabPanels.Nav>
-                <TabPanels.Container className="pt-8 relative">
+                    </TabsTrigger>
+                </TabsList>
 
-                    {/*<SearchInput/>*/}
+                {/*<SearchInput/>*/}
 
-                    <LoadingOverlay className={cn("z-50 backdrop-blur-none", { "hidden": !pending })}/>
+                <LoadingOverlay className={cn("z-50 backdrop-blur-none", { "hidden": !pending })} />
 
-                    <TabPanels.Panel>
-                        <WatchList list={currentList}/>
-                    </TabPanels.Panel>
-                    <TabPanels.Panel>
-                        <WatchList list={planningList}/>
-                    </TabPanels.Panel>
-                    <TabPanels.Panel>
-                        <WatchList list={pausedList}/>
-                    </TabPanels.Panel>
-                    <TabPanels.Panel>
-                        <WatchList list={completedList}/>
-                    </TabPanels.Panel>
-                    <TabPanels.Panel>
-                        <WatchList list={droppedList}/>
-                    </TabPanels.Panel>
-                </TabPanels.Container>
-            </TabPanels>
+                <TabsContent value="current">
+                    <WatchList list={currentList} />
+                </TabsContent>
+                <TabsContent value="planning">
+                    <WatchList list={planningList} />
+                </TabsContent>
+                <TabsContent value="paused">
+                    <WatchList list={pausedList} />
+                </TabsContent>
+                <TabsContent value="completed">
+                    <WatchList list={completedList} />
+                </TabsContent>
+                <TabsContent value="dropped">
+                    <WatchList list={droppedList} />
+                </TabsContent>
+            </Tabs>
 
         </main>
     )
@@ -136,7 +132,8 @@ const WatchList = React.memo(({ list }: { list: AnilistCollectionList | null | u
 
     return (
         <div
-            className={"px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"}>
+            className="px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
+        >
             {list?.entries?.filter(Boolean)?.map((entry) => (
                 <AnimeListItem
                     key={`${entry.media?.id}`}
@@ -160,13 +157,15 @@ const SearchInput = () => {
     const [inputValue, setInputValue] = useState(input)
 
     return (
-        <div className={"mb-8"}>
-            <TextInput leftIcon={<FiSearch/>} value={inputValue} onChange={e => {
+        <div className="mb-8">
+            <TextInput
+                leftIcon={<FiSearch />} value={inputValue} onChange={e => {
                 setInputValue(e.target.value)
                 startTransition(() => {
                     setter(e.target.value)
                 })
-            }}/>
+            }}
+            />
         </div>
     )
 }

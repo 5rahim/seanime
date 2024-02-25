@@ -1,5 +1,5 @@
 "use client"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { Transition } from "@headlessui/react"
 import { atom, useAtomValue } from "jotai"
 import Image from "next/image"
@@ -52,7 +52,7 @@ export function LibraryHeader() {
             <div
                 className="h-[25rem] z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden">
                 <div
-                    className={"w-full absolute z-[2] top-0 h-[15rem] opacity-50 bg-gradient-to-b from-[--background-color] to-transparent via"}
+                    className="w-full absolute z-[2] top-0 h-[15rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
                 <Transition
                     show={!!actualImage}
@@ -65,7 +65,7 @@ export function LibraryHeader() {
                 >
                     {(actualImage || prevImage) && <Image
                         src={actualImage || prevImage!}
-                        alt={"banner image"}
+                        alt="banner image"
                         fill
                         quality={100}
                         priority
@@ -79,7 +79,7 @@ export function LibraryHeader() {
                 </Transition>
                 {prevImage && <Image
                     src={prevImage}
-                    alt={"banner image"}
+                    alt="banner image"
                     fill
                     quality={100}
                     priority
@@ -90,10 +90,10 @@ export function LibraryHeader() {
                     )}
                 />}
                 <div
-                    className={"w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background-color] via-opacity-50 via-10% to-transparent"}
+                    className={"w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"}
                 />
                 <div
-                    className={"w-[4rem] z-[2] absolute top-0 right-0 h-[40rem] bg-gradient-to-l from-[--background-color] via-opacity-50 via-10% to-transparent"}
+                    className={"w-[4rem] z-[2] absolute top-0 right-0 h-[40rem] bg-gradient-to-l from-[--background] via-opacity-50 via-10% to-transparent"}
                 />
             </div>
         </div>

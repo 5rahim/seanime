@@ -1,8 +1,8 @@
 import { Column, ColumnFiltersState, Table } from "@tanstack/react-table"
-import React, { useMemo } from "react"
+import * as React from "react"
 import { getColumnHelperMeta } from "./helpers"
-import addDays from "date-fns/addDays"
-import isSameDay from "date-fns/isSameDay"
+import { addDays } from "date-fns/addDays"
+import { isSameDay } from "date-fns/isSameDay"
 
 interface DataGridFilteringHookProps<T> {
     table: Table<T>,
@@ -19,7 +19,7 @@ export function useDataGridFiltering<T>(props: DataGridFilteringHookProps<T>) {
     /**
      * Item filtering
      */
-    const [filterableColumns, filteredColumns] = useMemo(() => {
+    const [filterableColumns, filteredColumns] = React.useMemo(() => {
         return [
             table.getAllLeafColumns().filter(col => col.getCanFilter() && !!getColumnHelperMeta(col, "filteringMeta")),
             table.getAllLeafColumns().filter(col => columnFilters.map(filter => filter.id).includes(col.id)),
@@ -39,7 +39,7 @@ export function useDataGridFiltering<T>(props: DataGridFilteringHookProps<T>) {
             } else if (options.type === "checkbox") {
                 return options.options?.map(n => n.value) ?? []
             } else if (options.type === "date-range") {
-                return { start: new Date(), end: addDays(new Date(), 7) }
+                return { from: new Date(), to: addDays(new Date(), 7) }
             }
         }
         return null
@@ -55,6 +55,7 @@ export function useDataGridFiltering<T>(props: DataGridFilteringHookProps<T>) {
 }
 
 export const dateRangeFilter = (row: any, columnId: string, filterValue: any) => {
+    if (!filterValue || !filterValue.start || !filterValue.end) return true
     const value: Date = row.getValue(columnId)
     return (value >= filterValue.start && value <= filterValue.end) || isSameDay(value, filterValue.start) || isSameDay(value, filterValue.end)
 }

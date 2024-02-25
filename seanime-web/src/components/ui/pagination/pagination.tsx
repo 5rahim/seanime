@@ -1,7 +1,7 @@
 "use client"
 
-import React from "react"
-import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy, getChildDisplayName } from "../core"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import * as React from "react"
 import { cva } from "class-variance-authority"
 
 /* -------------------------------------------------------------------------------------------------
@@ -11,19 +11,19 @@ import { cva } from "class-variance-authority"
 export const PaginationAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Pagination__root",
-        "flex gap-1 text-xs font-medium"
+        "flex gap-1 text-xs font-medium",
     ]),
     item: cva([
         "UI-Pagination__item",
-        "bg-transparent dark:bg-transparent text-base inline-flex h-8 w-8 items-center justify-center rounded border border-[--border] cursor-pointer",
-        "hover:bg-[--highlight] dark:hover:bg-[--highlight] hover:border-[--highlight] select-none",
-        "data-[selected=true]:bg-brand-500 data-[selected=true]:border-transparent data-[selected=true]:text-white data-[selected=true]:hover:bg-brand-500 data-[selected=true]:pointer-events-none", // Selected
+        "bg-transparent dark:bg-transparent text-sm text-[--muted] inline-flex h-8 w-8 items-center justify-center rounded border cursor-pointer",
+        "hover:bg-[--subtle] dark:hover:bg-[--subtle] hover:border-[--subtle] select-none",
+        "data-[selected=true]:bg-brand-500 data-[selected=true]:border-transparent data-[selected=true]:text-white data-[selected=true]:hover:bg-brand data-[selected=true]:pointer-events-none", // Selected
         "data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed", // Disabled
-        "outline-none ring-[--ring] focus-visible:ring-2"
+        "outline-none ring-[--ring] focus-visible:ring-2",
     ]),
     ellipsis: cva([
         "UI-Pagination__ellipsis",
-        "flex p-2 items-center text-[1.05rem]"
+        "flex p-2 items-center text-[1.05rem]",
     ]),
 })
 
@@ -31,66 +31,65 @@ export const PaginationAnatomy = defineStyleAnatomy({
  * Pagination
  * -----------------------------------------------------------------------------------------------*/
 
-export interface PaginationProps extends React.ComponentPropsWithRef<"ul">,
-    Omit<ComponentWithAnatomy<typeof PaginationAnatomy>, "ellipsisClassName"> {
-    children?: React.ReactNode
-}
+const __PaginationAnatomyContext = React.createContext<ComponentAnatomy<typeof PaginationAnatomy>>({})
 
-const _Pagination = (props: PaginationProps) => {
+export type PaginationProps = React.ComponentPropsWithRef<"ul"> & ComponentAnatomy<typeof PaginationAnatomy>
+
+export const Pagination = React.forwardRef<HTMLUListElement, PaginationProps>((props, ref) => {
 
     const {
         children,
-        rootClassName,
-        itemClassName,
+        itemClass,
         className,
-        ref,
+        ellipsisClass,
         ...rest
     } = props
 
-    const itemsWithProps = React.useMemo(() => React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && (getChildDisplayName(child) === "PaginationItem")) {
-            return React.cloneElement(child, { itemClassName } as any)
-        }
-        return child
-    }), [children])
-
     return (
-        <ul
-            className={cn(PaginationAnatomy.root(), rootClassName, className)}
-            role="list"
-            {...rest}
-            ref={ref}
+        <__PaginationAnatomyContext.Provider
+            value={{
+                itemClass,
+                ellipsisClass,
+            }}
         >
-            {itemsWithProps}
-        </ul>
+            <ul
+                ref={ref}
+                className={cn(PaginationAnatomy.root(), className)}
+                role="navigation"
+                {...rest}
+            >
+                {children}
+            </ul>
+        </__PaginationAnatomyContext.Provider>
     )
 
-}
+})
 
-_Pagination.displayName = "Pagination"
+Pagination.displayName = "Pagination"
+
 
 /* -------------------------------------------------------------------------------------------------
- * Pagination.Item
+ * PaginationItem
  * -----------------------------------------------------------------------------------------------*/
 
-export interface PaginationItemProps extends Omit<React.ComponentPropsWithRef<"button">, "children">, ComponentWithAnatomy<typeof PaginationAnatomy> {
+export type PaginationItemProps = Omit<React.ComponentPropsWithRef<"button">, "children"> & {
     value: string | number
 }
 
-const PaginationItem: React.FC<PaginationItemProps> = React.forwardRef<HTMLButtonElement, PaginationItemProps>((props, ref) => {
+export const PaginationItem = React.forwardRef<HTMLButtonElement, PaginationItemProps>((props, ref) => {
 
     const {
         value,
         className,
-        itemClassName,
-        ellipsisClassName, // Ignore
         ...rest
     } = props
+
+    const { itemClass } = React.useContext(__PaginationAnatomyContext)
 
     return (
         <li>
             <button
-                className={cn(PaginationAnatomy.item(), itemClassName, className)}
+                className={cn(PaginationAnatomy.item(), itemClass, className)}
                 {...rest}
                 ref={ref}
             >
@@ -104,56 +103,58 @@ const PaginationItem: React.FC<PaginationItemProps> = React.forwardRef<HTMLButto
 PaginationItem.displayName = "PaginationItem"
 
 /* -------------------------------------------------------------------------------------------------
- * Pagination.Trigger
+ * PaginationTrigger
  * -----------------------------------------------------------------------------------------------*/
 
-export interface PaginationTriggerProps extends Omit<React.ComponentPropsWithRef<"button">, "children">,
-    ComponentWithAnatomy<typeof PaginationAnatomy> {
-    direction: "left" | "right"
+export type PaginationTriggerProps = Omit<React.ComponentPropsWithRef<"button">, "children"> & {
+    direction: "previous" | "next"
     isChevrons?: boolean
     isDisabled?: boolean
 }
 
-const PaginationTrigger: React.FC<PaginationTriggerProps> = React.forwardRef<HTMLButtonElement, PaginationTriggerProps>((props, ref) => {
+export const PaginationTrigger = React.forwardRef<HTMLButtonElement, PaginationTriggerProps>((props, ref) => {
 
     const {
         isChevrons = false,
         isDisabled = false,
         direction,
         className,
-        itemClassName,
-        ellipsisClassName, // Ignore
         ...rest
     } = props
+
+    const { itemClass } = React.useContext(__PaginationAnatomyContext)
 
     return (
         <li>
             <button
-                className={cn(PaginationAnatomy.item(), itemClassName, className)}
-                data-disabled={`${isDisabled}`}
+                className={cn(PaginationAnatomy.item(), itemClass, className)}
+                data-disabled={isDisabled}
+                tabIndex={isDisabled ? -1 : undefined}
                 {...rest}
                 ref={ref}
             >
-                {direction === "left" ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor"
-                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                         className="h-4 w-4"
+                {direction === "previous" ? (
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        className="h-4 w-4"
                     >
                         {!isChevrons ? <polyline points="15 18 9 12 15 6"></polyline> : <>
-                            <polyline points="11 17 6 12 11 7"/>
-                            <polyline points="18 17 13 12 18 7"/>
+                            <polyline points="11 17 6 12 11 7" />
+                            <polyline points="18 17 13 12 18 7" />
                         </>}
                     </svg>
                 ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor"
-                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                         className="h-4 w-4"
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        className="h-4 w-4"
                     >
                         {!isChevrons ? <polyline points="9 18 15 12 9 6"></polyline> : <>
-                            <polyline points="13 17 18 12 13 7"/>
-                            <polyline points="6 17 11 12 6 7"/>
+                            <polyline points="13 17 18 12 13 7" />
+                            <polyline points="6 17 11 12 6 7" />
                         </>}
                     </svg>
 
@@ -167,24 +168,22 @@ const PaginationTrigger: React.FC<PaginationTriggerProps> = React.forwardRef<HTM
 PaginationTrigger.displayName = "PaginationTrigger"
 
 /* -------------------------------------------------------------------------------------------------
- * Pagination.Ellipsis
+ * PaginationEllipsis
  * -----------------------------------------------------------------------------------------------*/
 
-export interface PaginationEllipsisProps extends Omit<React.ComponentPropsWithRef<"span">, "children">,
-    ComponentWithAnatomy<typeof PaginationAnatomy> {
-}
+export type PaginationEllipsisProps = Omit<React.ComponentPropsWithRef<"span">, "children">
 
-const PaginationEllipsis: React.FC<PaginationEllipsisProps> = React.forwardRef<HTMLSpanElement, PaginationEllipsisProps>((props, ref) => {
+export const PaginationEllipsis = React.forwardRef<HTMLSpanElement, PaginationEllipsisProps>((props, ref) => {
 
     const {
         className,
-        ellipsisClassName,
-        itemClassName, // Ignore
         ...rest
     } = props
 
+    const { ellipsisClass } = React.useContext(__PaginationAnatomyContext)
+
     return (
-        <li className={cn(PaginationAnatomy.ellipsis(), ellipsisClassName, className)}>
+        <li className={cn(PaginationAnatomy.ellipsis(), ellipsisClass, className)}>
             <span
                 {...rest}
                 ref={ref}
@@ -198,18 +197,3 @@ const PaginationEllipsis: React.FC<PaginationEllipsisProps> = React.forwardRef<H
 
 PaginationEllipsis.displayName = "PaginationEllipsis"
 
-/* -------------------------------------------------------------------------------------------------
- * Component
- * -----------------------------------------------------------------------------------------------*/
-
-_Pagination.Item = PaginationItem
-_Pagination.Ellipsis = PaginationEllipsis
-_Pagination.Trigger = PaginationTrigger
-
-export const Pagination = createPolymorphicComponent<"div", PaginationProps, {
-    Item: typeof PaginationItem
-    Ellipsis: typeof PaginationEllipsis
-    Trigger: typeof PaginationTrigger
-}>(_Pagination)
-
-Pagination.displayName = "Pagination"

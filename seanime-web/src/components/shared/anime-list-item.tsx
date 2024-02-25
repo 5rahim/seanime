@@ -4,17 +4,10 @@ import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { MediaEntryLibraryData, MediaEntryListData } from "@/lib/server/types"
-import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
-import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { BiPlay } from "@react-icons/all-files/bi/BiPlay"
-import { BiStar } from "@react-icons/all-files/bi/BiStar"
-import { IoLibrarySharp } from "@react-icons/all-files/io5/IoLibrarySharp"
-import { RiSignalTowerLine } from "@react-icons/all-files/ri/RiSignalTowerLine"
-import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { useAtom } from "jotai"
 import capitalize from "lodash/capitalize"
@@ -23,6 +16,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React, { memo, useEffect, useLayoutEffect, useState } from "react"
+import { BiCalendarAlt, BiLockOpenAlt, BiPlay, BiStar } from "react-icons/bi"
+import { IoLibrarySharp } from "react-icons/io5"
+import { RiSignalTowerLine } from "react-icons/ri"
+import { VscVerified } from "react-icons/vsc"
 
 type AnimeListItemProps = {
     media: BaseMediaFragment,
@@ -101,11 +98,11 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
                 "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0 ",
             )} tabIndex={0}>
-                <div className={"p-2 h-full w-full flex flex-col justify-between"}>
+                <div className="p-2 h-full w-full flex flex-col justify-between">
                     {/*METADATA SECTION*/}
-                    <div className={"space-y-1"}>
-                        <div className={"aspect-[4/2] relative rounded-md overflow-hidden mb-2"}>
-                            {showProgressBar && <div className={"absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0"}>
+                    <div className="space-y-1">
+                        <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2">
+                            {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                                 <div
                                     className={cn(
                                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -127,19 +124,20 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                                 sizes="20rem"
                                 className="object-cover object-center transition"
                             /> : <div
-                                className={"h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"}></div>}
+                                className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
+                            ></div>}
                         </div>
                         <div>
                             {/*<Tooltip trigger={*/}
-                            {/*    <p className={"text-center font-medium text-sm min-[2000px]:text-lg px-4 truncate text-ellipsis"}>{media.title?.userPreferred}</p>*/}
+                            {/*    <p className="text-center font-medium text-sm min-[2000px]:text-lg px-4 truncate text-ellipsis">{media.title?.userPreferred}</p>*/}
                             {/*}>{media.title?.userPreferred}</Tooltip>*/}
                             <Link
                                 href={`/entry?id=${media.id}`}
-                                className={"text-center font-medium text-sm lg:text-lg min-[2000px]:text-lg px-4 line-clamp-2"}
+                                className="text-center font-medium text-sm lg:text-lg min-[2000px]:text-lg px-4 line-clamp-2"
                             >{media.title?.userPreferred}</Link>
                         </div>
                         {!!media.startDate?.year && <div>
-                            <p className={"justify-center text-sm text-[--muted] flex w-full gap-1 items-center"}>
+                            <p className="justify-center text-sm text-[--muted] flex w-full gap-1 items-center">
                                 {startCase(media.format || "")} - <BiCalendarAlt/> {new Intl.DateTimeFormat("en-US", {
                                 year: "numeric",
                                 month: "short",
@@ -148,14 +146,15 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         </div>}
 
                         {!!media.nextAiringEpisode && (
-                            <div className={"flex gap-1 items-center justify-center"}>
-                                <p className={"text-xs min-[2000px]:text-md"}>Next episode:</p>
+                            <div className="flex gap-1 items-center justify-center">
+                                <p className="text-xs min-[2000px]:text-md">Next episode:</p>
                                 <Tooltip
-                                    tooltipClassName={"bg-gray-200 text-gray-800 font-semibold mb-1"}
+                                    className="bg-gray-200 text-gray-800 font-semibold mb-1"
                                     trigger={
-                                        <p className={"text-justify font-normal text-xs min-[2000px]:text-md"}>
+                                        <p className="text-justify font-normal text-xs min-[2000px]:text-md">
                                             <Badge
-                                                size={"sm"}>{media.nextAiringEpisode?.episode}</Badge>
+                                                size="sm"
+                                            >{media.nextAiringEpisode?.episode}</Badge>
                                         </p>
                                     }>{formatDistanceToNow(addSeconds(new Date(), media.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}</Tooltip>
                             </div>
@@ -164,10 +163,10 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         <MainActionButton media={media} listData={listData}/>
 
                         {(listData?.status && props.showLibraryBadge === undefined) &&
-                            <p className={"text-center"}>{listData?.status === "CURRENT" ? "Watching" : capitalize(listData?.status ?? "")}</p>}
+                            <p className="text-center">{listData?.status === "CURRENT" ? "Watching" : capitalize(listData?.status ?? "")}</p>}
 
                     </div>
-                    <div className={"flex gap-2"}>
+                    <div className="flex gap-2">
                         {!!libraryData &&
                             <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked}/>}
                         <AnilistMediaEntryModal listData={listData} media={media}/>
@@ -184,7 +183,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     className={"z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-black to-transparent"}
                 />
 
-                {showProgressBar && <div className={"absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0"}>
+                {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                     <div className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
                         {
@@ -196,23 +195,27 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 </div>}
 
                 {(showLibraryBadge) &&
-                    <div className={"absolute z-[1] left-0 top-0"}>
-                        <Badge size={"xl"} intent={"warning-solid"}
-                               className={"rounded-md rounded-bl-none rounded-tr-none text-orange-900"}><IoLibrarySharp/></Badge>
+                    <div className="absolute z-[1] left-0 top-0">
+                        <Badge
+                            size="xl" intent="warning-solid"
+                            className="rounded-md rounded-bl-none rounded-tr-none text-orange-900"
+                        ><IoLibrarySharp /></Badge>
                     </div>}
 
                 {/*RELEASING BADGE*/}
-                {media.status === "RELEASING" && <div className={"absolute z-10 right-1 top-2"}>
+                {media.status === "RELEASING" && <div className="absolute z-10 right-1 top-2">
                     <Tooltip
-                        trigger={<Badge intent={"primary-solid"} size={"lg"}><RiSignalTowerLine/></Badge>}>
+                        trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
+                    >
                         Airing
                     </Tooltip>
                 </div>}
 
                 {/*NOT YET RELEASED BADGE*/}
-                {media.status === "NOT_YET_RELEASED" && <div className={"absolute z-10 right-1 top-1"}>
+                {media.status === "NOT_YET_RELEASED" && <div className="absolute z-10 right-1 top-1">
                     <Tooltip
-                        trigger={<Badge intent={"gray-solid"} size={"lg"}><RiSignalTowerLine/></Badge>}>
+                        trigger={<Badge intent="gray-solid" size="lg"><RiSignalTowerLine /></Badge>}
+                    >
                         {!!media.startDate?.year ?
                             new Intl.DateTimeFormat("en-US", {
                                 year: "numeric",
@@ -239,13 +242,13 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     className="object-cover object-center group-hover/anime-list-item:scale-125 transition"
                 />
             </div>
-            <div className={"pt-2 space-y-2 flex flex-col justify-between h-full"}>
+            <div className="pt-2 space-y-2 flex flex-col justify-between h-full">
                 <div>
-                    <p className={"text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3"}>{media.title?.userPreferred}</p>
+                    <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3">{media.title?.userPreferred}</p>
                 </div>
                 <div>
                     <div>
-                        <p className={"text-sm text-[--muted] inline-flex gap-1 items-center"}>
+                        <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
                             <BiCalendarAlt/>{capitalize(media.season ?? "")} {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
                             year: "numeric",
                         }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}
@@ -264,14 +267,14 @@ const MainActionButton = (props: { media: BaseMediaFragment, listData?: MediaEnt
     return (
         <>
             <div>
-                <div className={"py-1"}>
+                <div className="py-1">
                     <Link
                         href={`/entry?id=${props.media.id}${(!!progress && (status !== "COMPLETED")) ? "&playNext=true" : ""}`}>
                         <Button
                             leftIcon={<BiPlay/>}
-                            intent={"white"}
-                            size={"md"}
-                            className={"w-full text-md"}
+                            intent="white"
+                            size="md"
+                            className="w-full text-md"
                         >
                             {!!progress && (status === "CURRENT" || status === "PAUSED") ? "Continue watching" : "Watch"}
                         </Button>
@@ -291,9 +294,9 @@ const LockFilesButton = memo(({ mediaId, allFilesLocked }: { mediaId: number, al
             <IconButton
                 icon={allFilesLocked ? <VscVerified/> : <BiLockOpenAlt/>}
                 intent={allFilesLocked ? "success" : "warning-subtle"}
-                size={"sm"}
-                className={"hover:opacity-60"}
-                isLoading={isPending}
+                size="sm"
+                className="hover:opacity-60"
+                loading={isPending}
                 onClick={() => toggleLock(mediaId)}
             />
         }>
@@ -316,7 +319,7 @@ const ScoreBadge = (props: { listData?: MediaEntryListData }) => {
     ) : ""
 
     return (
-        <div className={"absolute z-10 right-1 bottom-1"}>
+        <div className="absolute z-10 right-1 bottom-1">
             <div className={cn(
                 "backdrop-blur-lg inline-flex items-center justify-center gap-1 w-12 h-7 rounded-full font-bold bg-opacity-70 drop-shadow-sm shadow-lg",
                 scoreColor,
@@ -335,8 +338,8 @@ const ProgressBadge = (props: { media: BaseMediaFragment, listData?: MediaEntryL
     if (!props.listData || !progress) return null
 
     return (
-        <div className={"absolute z-10 left-1 bottom-1"}>
-            <Badge size={"lg"}>
+        <div className="absolute z-10 left-1 bottom-1">
+            <Badge size="lg">
                 {progress}/{episodes ?? "-"}
             </Badge>
         </div>

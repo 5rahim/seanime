@@ -8,12 +8,10 @@ import { IconButton } from "@/components/ui/button"
 import { DropdownMenu } from "@/components/ui/dropdown-menu"
 import { useOpenMediaEntryInExplorer } from "@/lib/server/hooks"
 import { MediaEntry } from "@/lib/server/types"
-import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
-import { BiRightArrowAlt } from "@react-icons/all-files/bi/BiRightArrowAlt"
 import { useSetAtom } from "jotai"
 import { useAtomValue } from "jotai/react"
 import React from "react"
-import { BiPlayCircle } from "react-icons/bi"
+import { BiDotsVerticalRounded, BiPlayCircle, BiRightArrowAlt } from "react-icons/bi"
 
 export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
@@ -38,7 +36,7 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     return (
         <>
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent={"gray-basic"} size={"xl"} />}>
+            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="xl" />}>
 
                 {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenu.Item
                     onClick={startMpvPlaybackDetection}
@@ -57,7 +55,7 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
                 >
                     Start video player
                 </DropdownMenu.Item>}
-                <DropdownMenu.Divider />
+                <DropdownMenu.Separator />
                 <DropdownMenu.Group title="Bulk actions">
                     {/*<DropdownMenu.Item*/}
                     {/*    onClick={bulkOffsetEpisodeModal.toggle}*/}
@@ -81,7 +79,7 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
                 </DropdownMenu.Group>
             </DropdownMenu>
 
-            {/*<BulkOffsetEpisodesModal entry={entry} isOpen={bulkOffsetEpisodeModal.active} onClose={bulkOffsetEpisodeModal.off} />*/}
+            {/*<BulkOffsetEpisodesModal entry={entry} open={bulkOffsetEpisodeModal.active} onOpenChange={bulkOffsetEpisodeModal.off} />*/}
             <ConfirmationDialog {...confirmDeleteFiles} />
             <BulkDeleteFilesModal entry={entry} />
         </>

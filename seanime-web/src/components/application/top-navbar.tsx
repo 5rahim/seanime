@@ -1,6 +1,6 @@
 "use client"
+import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
 import React, { useMemo } from "react"
-import { NavigationTabs, NavigationTabsProps } from "@/components/ui/tabs"
 import { usePathname } from "next/navigation"
 import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +17,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
 
     const missingEpisodeCount = useMissingEpisodeCount()
 
-    const navigationItems = useMemo<NavigationTabsProps["items"]>(() => {
+    const navigationItems = useMemo<NavigationMenuProps["items"]>(() => {
 
         return [
             {
@@ -31,8 +31,10 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
                 icon: null,
                 isCurrent: pathname.startsWith("/schedule"),
                 name: "Schedule",
-                addon: missingEpisodeCount > 0 ? <Badge className={"absolute top-4 right-2 h-2 w-2 p-0"} size={"sm"}
-                                                        intent={"alert-solid"}/> : undefined,
+                addon: missingEpisodeCount > 0 ? <Badge
+                    className="absolute top-4 right-2 h-2 w-2 p-0" size="sm"
+                    intent="alert-solid"
+                /> : undefined,
             },
             {
                 href: "/anilist",
@@ -50,10 +52,9 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
     }, [pathname, missingEpisodeCount])
 
     return (
-        <NavigationTabs
+        <NavigationMenu
             className="p-0"
-            iconClassName=""
-            tabClassName="text-xl"
+            itemClass="text-xl"
             items={navigationItems}
         />
     )

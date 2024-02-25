@@ -1,24 +1,21 @@
 "use client"
 import { userAtom } from "@/atoms/user"
 import { Button, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { createTypesafeFormSchema, Field, InferType, TypesafeForm } from "@/components/ui/typesafe-form"
+import { cn } from "@/components/ui/core/styling"
+import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
+import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { MediaEntryListData } from "@/lib/server/types"
-import { Disclosure } from "@headlessui/react"
-import { AiFillEdit } from "@react-icons/all-files/ai/AiFillEdit"
-import { BiListPlus } from "@react-icons/all-files/bi/BiListPlus"
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
-import { BiStar } from "@react-icons/all-files/bi/BiStar"
-import { BiTrash } from "@react-icons/all-files/bi/BiTrash"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import Image from "next/image"
 import React, { Fragment } from "react"
-import toast from "react-hot-toast"
+import { AiFillEdit } from "react-icons/ai"
+import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
 import { useToggle } from "react-use"
+import { toast } from "sonner"
 import { Modal } from "../ui/modal"
 
 interface AnilistMediaEntryModalProps {
@@ -27,7 +24,7 @@ interface AnilistMediaEntryModalProps {
     media?: BaseMediaFragment
 }
 
-const entrySchema = createTypesafeFormSchema(({ z, presets }) => z.object({
+const entrySchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
@@ -83,18 +80,18 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
     return (
         <>
             {!!listData && <IconButton
-                intent={"gray-subtle"}
-                icon={<AiFillEdit/>}
+                intent="gray-subtle"
+                icon={<AiFillEdit />}
                 rounded
-                size={"sm"}
+                size="sm"
                 onClick={toggle}
             />}
 
             {(!listData) && <IconButton
-                intent={"primary-subtle"}
-                icon={<BiPlus/>}
+                intent="primary-subtle"
+                icon={<BiPlus />}
                 rounded
-                size={"sm"}
+                size="sm"
                 onClick={() => mutate({
                     mediaId: media?.id || 0,
                     status: "PLANNING",
@@ -106,19 +103,18 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
             />}
 
             <Modal
-                isOpen={open}
-                onClose={toggle}
+                open={open}
+                onOpenChange={o => toggle(o)}
                 title={media?.title?.userPreferred ?? undefined}
-                isClosable
-                size={"xl"}
-                titleClassName={"text-xl"}
+                titleClass="text-xl"
             >
 
                 {media?.bannerImage && <div
-                    className="h-24 w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]">
+                    className="h-24 w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+                >
                     <Image
                         src={media?.bannerImage!}
-                        alt={"banner"}
+                        alt="banner"
                         fill
                         quality={80}
                         priority
@@ -130,7 +126,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     />
                 </div>}
 
-                {(!!listData) && <TypesafeForm
+                {(!!listData) && <Form
                     schema={entrySchema}
                     onSubmit={data => {
                         console.log(data.startedAt)
@@ -159,10 +155,10 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         completedAt: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
                     }}
                 >
-                    <div className={"flex flex-col sm:flex-row gap-4"}>
+                    <div className="flex flex-col sm:flex-row gap-4">
                         <Field.Select
-                            label={"Status"}
-                            name={"status"}
+                            label="Status"
+                            name="status"
                             options={[
                                 media?.status !== "NOT_YET_RELEASED" ? {
                                     value: "CURRENT",
@@ -185,71 +181,74 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         />
                         {media?.status !== "NOT_YET_RELEASED" && <>
                             <Field.Number
-                                label={"Score"}
-                                name={"score"}
-                                discrete
+                                label="Score"
+                                name="score"
                                 min={0}
                                 max={10}
-                                maxFractionDigits={0}
-                                minFractionDigits={0}
-                                precision={1}
-                                rightIcon={<BiStar/>}
+                                formatOptions={{
+                                    maximumFractionDigits: 0,
+                                    minimumFractionDigits: 0,
+                                }}
+                                rightIcon={<BiStar />}
                             />
                             <Field.Number
-                                label={"Progress"}
-                                name={"progress"}
-                                discrete
+                                label="Progress"
+                                name="progress"
                                 min={0}
                                 // max={anilist_getCurrentEpisodeCeilingFromMedia(media)}
-                                maxFractionDigits={0}
-                                minFractionDigits={0}
-                                precision={1}
-                                rightIcon={<BiListPlus/>}
+                                formatOptions={{
+                                    maximumFractionDigits: 0,
+                                    minimumFractionDigits: 0,
+                                }}
+                                rightIcon={<BiListPlus />}
                             />
                         </>}
                     </div>
-                    {media?.status !== "NOT_YET_RELEASED" && <div className={"flex flex-col sm:flex-row gap-4"}>
+                    {media?.status !== "NOT_YET_RELEASED" && <div className="flex flex-col sm:flex-row gap-4">
                         <Field.DatePicker
-                            label={"Start date"}
-                            name={"startedAt"}
-                            // defaultValue={(state.startedAt && state.startedAt.year) ? parseAbsoluteToLocal(new Date(state.startedAt.year, (state.startedAt.month || 1)-1, state.startedAt.day || 1).toISOString()) : undefined}
+                            label="Start date"
+                            name="startedAt"
+                            // defaultValue={(state.startedAt && state.startedAt.year) ? parseAbsoluteToLocal(new Date(state.startedAt.year,
+                            // (state.startedAt.month || 1)-1, state.startedAt.day || 1).toISOString()) : undefined}
                         />
                         <Field.DatePicker
-                            label={"Completion date"}
-                            name={"completedAt"}
-                            // defaultValue={(state.completedAt && state.completedAt.year) ? parseAbsoluteToLocal(new Date(state.completedAt.year, (state.completedAt.month || 1)-1, state.completedAt.day || 1).toISOString()) : undefined}
+                            label="Completion date"
+                            name="completedAt"
+                            // defaultValue={(state.completedAt && state.completedAt.year) ? parseAbsoluteToLocal(new Date(state.completedAt.year,
+                            // (state.completedAt.month || 1)-1, state.completedAt.day || 1).toISOString()) : undefined}
                         />
                     </div>}
 
-                    <div className={"flex w-full items-center justify-between mt-4"}>
-                        <div className={"flex items-center gap-1"}>
-                            <Disclosure>
-                                <Disclosure.Button as={Fragment}>
-                                    <IconButton
-                                        intent={"alert-subtle"}
-                                        icon={<BiTrash/>}
-                                        rounded
-                                        size={"md"}
-                                    />
-                                </Disclosure.Button>
-                                <Disclosure.Panel>
-                                    <Button
-                                        intent={"alert-basic"}
-                                        rounded
-                                        size={"md"}
-                                        isLoading={isDeleting}
-                                        onClick={() => deleteEntry({
-                                            mediaId: media?.id!,
-                                        })}
-                                    >Confirm</Button>
-                                </Disclosure.Panel>
+                    <div className="flex w-full items-center justify-between mt-4">
+                        <div>
+                            <Disclosure type="multiple" defaultValue={["item-2"]}>
+                                <DisclosureItem value="item-1" className="flex items-center gap-1">
+                                    <DisclosureTrigger>
+                                        <IconButton
+                                            intent="alert-subtle"
+                                            icon={<BiTrash />}
+                                            rounded
+                                            size="md"
+                                        />
+                                    </DisclosureTrigger>
+                                    <DisclosureContent>
+                                        <Button
+                                            intent="alert-basic"
+                                            rounded
+                                            size="md"
+                                            loading={isDeleting}
+                                            onClick={() => deleteEntry({
+                                                mediaId: media?.id!,
+                                            })}
+                                        >Confirm</Button>
+                                    </DisclosureContent>
+                                </DisclosureItem>
                             </Disclosure>
                         </div>
 
-                        <Field.Submit role={"save"} disableIfInvalid={true} isLoading={isPending}
-                                      isDisabled={isDeleting}/>
+                        <Field.Submit role="save" disableIfInvalid={true} loading={isPending} disabled={isDeleting} />
                     </div>
-                </TypesafeForm>}
+                </Form>}
 
             </Modal>
         </>

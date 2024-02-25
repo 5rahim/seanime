@@ -1,16 +1,16 @@
-import { LocalFile, MediaEntry } from "@/lib/server/types"
-import { useAtom } from "jotai/react"
-import React, { useCallback, useEffect, useState } from "react"
-import { atomWithImmer } from "jotai-immer"
-import toast from "react-hot-toast"
-import { getAniDBEpisodeInteger } from "@/lib/server/utils"
-import { Nullish } from "@/types/common"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { LocalFile, MediaEntry } from "@/lib/server/types"
+import { getAniDBEpisodeInteger } from "@/lib/server/utils"
+import { Nullish } from "@/types/common"
+import { atomWithImmer } from "jotai-immer"
+import { useAtom } from "jotai/react"
+import React, { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
 import * as upath from "upath"
-import { Button } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
 
 export type BulkOffsetEpisodesModalProps = {
     entry: MediaEntry
@@ -26,12 +26,12 @@ export function BulkOffsetEpisodesModal({ entry, isOpen, onClose }: BulkOffsetEp
 
     return (
         <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            size={"xl"}
+            open={isOpen}
+            onOpenChange={onClose}
+            size="xl"
             title={<span>Offset episode numbers</span>}
-            titleClassName={"text-center"}
-            isClosable
+            titleClass="text-center"
+
         >
             <Content entry={entry}/>
         </Modal>
@@ -92,7 +92,7 @@ function Content({ entry }: { entry: MediaEntry }) {
     // This is a workaround to make sure that the `files` referenced by the input is always up-to-date
     const OffsetInput = useCallback(() => {
         return !!media && <NumberInput
-            label={"Offset"}
+            label="Offset"
             value={offset}
             onChange={value => {
                 const episodesArr = files.filter(n => n.selected).map(({ file }) => Math.max(0, getEpisode(file)! + value))
@@ -119,10 +119,10 @@ function Content({ entry }: { entry: MediaEntry }) {
     if (!media) return null
 
     return (
-        <div className={"space-y-2 mt-2"}>
-            <div className={"max-h-96 overflow-y-auto px-2 space-y-2"}>
+        <div className="space-y-2 mt-2">
+            <div className="max-h-96 overflow-y-auto px-2 space-y-2">
                 <Select
-                    label={"Target"}
+                    label="Target"
                     value={area}
                     options={[
                         { label: "Episode number", value: "episode" },
@@ -136,9 +136,9 @@ function Content({ entry }: { entry: MediaEntry }) {
                 {files.map(({ file, selected }, index) => (
                     <div
                         key={`${file.path}-${index}`}
-                        className={"p-2 border-b border-[--border]"}
+                        className="p-2 border-b border-[--border]"
                     >
-                        <div className={"flex items-center"}>
+                        <div className="flex items-center">
                             <Checkbox
                                 label={`${area === "episode" ? "Episode" : "AniDB Episode"} ${getEpisode(file)}`}
                                 checked={selected}
@@ -150,32 +150,33 @@ function Content({ entry }: { entry: MediaEntry }) {
                                         })
                                     }
                                 }}
-                                fieldClassName={"w-[fit-content]"}
+                                fieldClass="w-[fit-content]"
                             />
                             {selected && <p
-                                className={"text-[--muted] line-clamp-1 ml-2 flex-none -mt-1"}
+                                className="text-[--muted] line-clamp-1 ml-2 flex-none -mt-1"
                             >
                                 {`->`} <span
-                                className={"font-medium text-brand-300"}>{calculateOffset(getEpisode(file))}</span>
+                                className="font-medium text-brand-300"
+                            >{calculateOffset(getEpisode(file))}</span>
                             </p>}
                         </div>
                         <div>
-                            <p className={"text-[--muted] text-sm line-clamp-1"}>
+                            <p className="text-[--muted] text-sm line-clamp-1">
                                 {upath.basename(file.path)}
                             </p>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className={"flex justify-end gap-2 mt-2"}>
+            <div className="flex justify-end gap-2 mt-2">
                 <Button
-                    intent={"primary"}
+                    intent="primary"
                     onClick={() => applyOffset()}
                 >
                     Apply
                 </Button>
                 <Button
-                    intent={"white"}
+                    intent="white"
                     onClick={() => setState(false)}
                 >
                     Cancel

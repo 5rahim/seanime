@@ -1,204 +1,350 @@
 "use client"
 
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
+import type { IntlTranslations } from "@zag-js/number-input"
 import * as numberInput from "@zag-js/number-input"
 import { normalizeProps, useMachine } from "@zag-js/react"
-import { cva } from "class-variance-authority"
-import React, { useEffect, useId } from "react"
-import { BasicField, extractBasicFieldProps } from "../basic-field"
-import { InputAddon, InputAnatomy, inputContainerStyle, InputIcon, InputStyling } from "../input"
-import type { TextInputProps } from "../text-input"
+import { cva, VariantProps } from "class-variance-authority"
+import * as React from "react"
+import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
+import { IconButton } from "../button"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { extractInputPartProps, InputAddon, InputAnatomy, InputContainer, InputIcon, InputStyling } from "../input"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const NumberInputAnatomy = defineStyleAnatomy({
-    input: cva("UI-NumberInput__input", {
+    root: cva([
+        "UI-NumberInput__root",
+        "z-[2]",
+    ], {
         variants: {
-            discrete: {
+            hideControls: {
                 true: false,
-                false: "text-center rounded-none border-l-transparent border-r-transparent hover:border-l-transparent hover:border-r-transparent",
+                false: "border-r border-r-transparent hover:border-r-[--border]",
+            },
+            size: {
+                sm: null,
+                md: null,
+                lg: null,
+            },
+            intent: {
+                basic: null,
+                filled: null,
+                unstyled: "border-r-0 hover:border-r-transparent",
             },
         },
         defaultVariants: {
-            discrete: false,
+            hideControls: false,
         },
     }),
     control: cva([
-            "UI-NumberInput__control",
-            "flex flex-none items-center justify-center w-10 border shadow-sm text-lg font-medium",
-            "disabled:shadow-none disabled:pointer-events-none",
-            "transition",
-            "bg-[--paper] hover:bg-gray-50 dark:hover:bg-gray-800 border-[--border] disabled:!bg-gray-50 disabled:!bg-gray-50 disabled:text-gray-300 disabled:border-gray-200",
-            "dark:disabled:!bg-gray-800 dark:disabled:border-gray-800 dark:disabled:text-gray-700",
-        ], {
-            variants: {
-                size: { sm: "", md: "", lg: "" },
-                position: { left: null, right: null },
-                hasLeftAddon: {
-                    true: "border-l-0",
-                    false: null,
-                },
-                hasRightAddon: {
-                    true: "border-r-0",
-                    false: null,
-                },
+        "UI-NumberInput__control",
+        "rounded-none h-[50%] ring-inset",
+    ]),
+    controlsContainer: cva([
+        "UI-NumberInput__controlsContainer",
+        "form-input w-auto p-0 flex flex-col items-stretch justify-center overflow-hidden max-h-full",
+        "border-l-0 relative z-[1]",
+        "shadow-xs",
+    ], {
+        variants: {
+            size: {
+                sm: "h-8",
+                md: "h-10",
+                lg: "h-12",
             },
-            compoundVariants: [
-                { hasRightAddon: false, hasLeftAddon: false, position: "left", className: "rounded-bl-md rounded-tl-md" },
-                { hasRightAddon: false, hasLeftAddon: false, position: "right", className: "rounded-br-md rounded-tr-md" },
-            ],
-            defaultVariants: {
-                size: "md",
-                hasLeftAddon: false,
-                hasRightAddon: false,
+            intent: {
+                basic: null,
+                filled: "hover:bg-gray-100",
+                unstyled: null,
+            },
+            hasRightAddon: {
+                true: "border-r-0",
+                false: null,
             },
         },
-    ),
+    }),
+    chevronIcon: cva([
+        "UI-Combobox__chevronIcon",
+        "h-4 w-4 shrink-0",
+    ]),
 })
 
 /* -------------------------------------------------------------------------------------------------
  * NumberInput
  * -----------------------------------------------------------------------------------------------*/
 
-export interface NumberInputProps extends Omit<TextInputProps, "defaultValue" | "onChange" | "value">, InputStyling,
-    ComponentWithAnatomy<typeof NumberInputAnatomy> {
-    defaultValue?: number
-    value?: number
-    onChange?: (value: number) => void
+export type NumberInputProps = Omit<React.ComponentPropsWithoutRef<"input">, "value" | "size" | "defaultValue"> &
+    ComponentAnatomy<typeof NumberInputAnatomy> &
+    Omit<VariantProps<typeof NumberInputAnatomy.root>, "size" | "intent"> &
+    BasicFieldOptions &
+    InputStyling & {
+    /**
+     * The value of the input
+     */
+    value?: number | string
+    /**
+     * The callback to handle value changes
+     */
+    onValueChange?: (value: number, valueAsString: string) => void
+    /**
+     * Default value when uncontrolled
+     */
+    defaultValue?: number | string
+    /**
+     * The minimum value of the input
+     */
     min?: number
+    /**
+     * The maximum value of the input
+     */
     max?: number
-    minFractionDigits?: number
-    maxFractionDigits?: number
-    precision?: number
+    /**
+     * The amount to increment or decrement the value by
+     */
     step?: number
+    /**
+     * Whether to allow mouse wheel to change the value
+     */
     allowMouseWheel?: boolean
-    fullWidth?: boolean
-    discrete?: boolean
+    /**
+     * Whether to allow the value overflow the min/max range
+     */
+    allowOverflow?: boolean
+    /**
+     * Whether to hide the controls
+     */
+    hideControls?: boolean
+    /**
+     * The format options for the value
+     */
+    formatOptions?: Intl.NumberFormatOptions
+    /**
+     * Whether to clamp the value when the input loses focus (blur)
+     */
+    clampValueOnBlur?: boolean
+    /**
+     * Accessibility
+     *
+     * Specifies the localized strings that identifies the accessibility elements and their states
+     */
+    translations?: IntlTranslations,
+    /**
+     * The current locale. Based on the BCP 47 definition.
+     */
+    locale?: string
+    /**
+     * The document's text/writing direction.
+     */
+    dir?: "ltr" | "rtl"
 }
 
 export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>((props, ref) => {
 
+    const [props1, basicFieldProps] = extractBasicFieldProps<NumberInputProps>(props, React.useId())
+
     const [{
-        children,
+        controlClass,
+        controlsContainerClass,
+        chevronIconClass,
         className,
+        children,
+        /**/
         size,
         intent,
         leftAddon,
         leftIcon,
         rightAddon,
         rightIcon,
-        defaultValue = 0,
         placeholder,
-        onChange,
-        fullWidth,
-        discrete,
-        value,
-        controlClassName,
-        inputClassName,
-        min = 0, max, minFractionDigits, maxFractionDigits = 2, precision, step, allowMouseWheel = true,
+        onValueChange,
+        hideControls,
+        value: controlledValue,
+        min = 0,
+        max,
+        step,
+        allowMouseWheel = true,
+        formatOptions = { maximumFractionDigits: 2 },
+        clampValueOnBlur = true,
+        translations,
+        locale,
+        dir,
+        defaultValue,
         ...rest
-    }, basicFieldProps] = extractBasicFieldProps<NumberInputProps>(props, useId())
+    }, {
+        inputContainerProps,
+        leftAddonProps,
+        leftIconProps,
+        rightAddonProps,
+        rightIconProps,
+    }] = extractInputPartProps<NumberInputProps>({
+        ...props1,
+        size: props1.size ?? "md",
+        intent: props1.intent ?? "basic",
+        leftAddon: props1.leftAddon,
+        leftIcon: props1.leftIcon,
+        rightAddon: props1.rightAddon,
+        rightIcon: props1.rightIcon,
+    })
 
     const [state, send] = useMachine(numberInput.machine({
         id: basicFieldProps.id,
         name: basicFieldProps.name,
-        disabled: basicFieldProps.isDisabled,
-        readOnly: basicFieldProps.isReadOnly,
-        value: value ? String(value) : undefined,
+        disabled: basicFieldProps.disabled,
+        readOnly: basicFieldProps.readonly,
+        value: controlledValue ? String(controlledValue) : (defaultValue ? String(defaultValue) : undefined),
         min,
         max,
-        minFractionDigits,
-        maxFractionDigits,
         step,
         allowMouseWheel,
-        clampValueOnBlur: true,
-        onChange: (v) => {
-            onChange && onChange(v.valueAsNumber)
+        formatOptions,
+        clampValueOnBlur,
+        translations,
+        locale,
+        dir,
+        onValueChange: (details) => {
+            onValueChange?.(details.valueAsNumber, details.value)
         },
     }))
 
+    const isFirst = React.useRef(true)
+
+    React.useEffect(() => {
+        if (!isFirst.current) {
+            if (typeof controlledValue === "string" && !isNaN(Number(controlledValue))) {
+                api.setValue(Number(controlledValue))
+            } else if (typeof controlledValue === "number") {
+                api.setValue(controlledValue)
+            } else if (controlledValue === undefined) {
+                api.setValue(min)
+            }
+        }
+        isFirst.current = false
+    }, [controlledValue])
+
     const api = numberInput.connect(state, send, normalizeProps)
 
-    useEffect(() => {
-        if (!value) {
-            api.setValue(defaultValue)
-        }
-    }, [])
-
-    useEffect(() => {
-        value && api.setValue(value)
-    }, [value])
-
     return (
-        <>
-            <BasicField
-                {...api.rootProps}
-                {...basicFieldProps}
-            >
-                <div className={cn(inputContainerStyle())}>
+        <BasicField
+            {...basicFieldProps}
+            id={api.inputProps.id}
+        >
+            <InputContainer {...inputContainerProps}>
+                <InputAddon {...leftAddonProps} />
+                <InputIcon {...leftIconProps} />
 
-                    <InputAddon addon={leftAddon} rightIcon={rightIcon} leftIcon={leftIcon} size={size} side={"left"}/>
-                    <InputIcon icon={leftIcon} size={size} side={"left"}/>
-
-                    {!discrete && (
-                        <button
-                            className={cn(NumberInputAnatomy.control({
-                                size,
-                                position: "left",
-                                hasLeftAddon: !!leftAddon || !!leftIcon,
-                            }), controlClassName)}
-                            {...api.decrementTriggerProps}>
-                            -
-                        </button>
+                <input
+                    ref={ref}
+                    type="number"
+                    name={basicFieldProps.name}
+                    className={cn(
+                        "form-input",
+                        InputAnatomy.root({
+                            size,
+                            intent,
+                            hasError: !!basicFieldProps.error,
+                            isDisabled: !!basicFieldProps.disabled,
+                            hasRightAddon: !!rightAddon || !hideControls,
+                            hasRightIcon: !!rightIcon,
+                            hasLeftAddon: !!leftAddon,
+                            hasLeftIcon: !!leftIcon,
+                        }),
+                        NumberInputAnatomy.root({ hideControls, intent, size }),
+                        className,
                     )}
+                    disabled={basicFieldProps.disabled || basicFieldProps.readonly}
+                    data-disabled={basicFieldProps.disabled}
+                    data-readonly={basicFieldProps.readonly}
+                    aria-readonly={basicFieldProps.readonly}
+                    required={basicFieldProps.required}
+                    {...api.inputProps}
+                    {...rest}
+                />
 
-                    <input
-                        type="number"
-                        name={basicFieldProps.name}
+                {!hideControls && (<div
+                    className={cn(
+                        InputAnatomy.root({
+                            size,
+                            intent,
+                            hasError: !!basicFieldProps.error,
+                            isDisabled: !!basicFieldProps.disabled,
+                            hasRightAddon: !!rightAddon,
+                            hasRightIcon: !!rightIcon,
+                            hasLeftAddon: true,
+                        }),
+                        NumberInputAnatomy.controlsContainer({
+                            size,
+                            intent,
+                            hasRightAddon: !!rightAddon,
+                        }),
+                        controlsContainerClass,
+                    )}
+                >
+                    <IconButton
+                        intent="gray-basic"
+                        size="sm"
                         className={cn(
-                            "form-input",
-                            InputAnatomy.input({
-                                size,
-                                intent,
-                                hasError: !!basicFieldProps.error,
-                                untouchable: !!basicFieldProps.isDisabled,
-                                hasRightAddon: !!rightAddon || !discrete,
-                                hasRightIcon: !!rightIcon,
-                                hasLeftAddon: !!leftAddon || !discrete,
-                                hasLeftIcon: !!leftIcon,
-                            }),
-                            NumberInputAnatomy.input({ discrete }),
-                            inputClassName,
-                            className,
+                            NumberInputAnatomy.control(),
+                            controlClass,
                         )}
-                        disabled={basicFieldProps.isDisabled}
-                        {...api.inputProps}
-                        {...rest}
-                        ref={ref}
-                    />
-
-                    {!discrete && (
-                        <button
-                            className={cn(NumberInputAnatomy.control({
-                                size,
-                                position: "right",
-                                hasRightAddon: !!rightAddon || !!rightIcon,
-                            }), controlClassName)}
-                            {...api.incrementTriggerProps}
+                        {...api.incrementTriggerProps}
+                        data-readonly={basicFieldProps.readonly}
+                        data-disabled={basicFieldProps.disabled || api.incrementTriggerProps.disabled}
+                        disabled={basicFieldProps.disabled || basicFieldProps.readonly || api.incrementTriggerProps.disabled}
+                        tabIndex={0}
+                        icon={<svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={cn(NumberInputAnatomy.chevronIcon(), "rotate-180", chevronIconClass)}
                         >
-                            +
-                        </button>
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>}
+                    />
+                    <IconButton
+                        intent="gray-basic"
+                        size="sm"
+                        className={cn(
+                            NumberInputAnatomy.control(),
+                            controlClass,
+                        )}
+                        {...api.decrementTriggerProps}
+                        data-readonly={basicFieldProps.readonly}
+                        data-disabled={basicFieldProps.disabled || api.decrementTriggerProps.disabled}
+                        disabled={basicFieldProps.disabled || basicFieldProps.readonly || api.decrementTriggerProps.disabled}
+                        tabIndex={0}
+                        icon={<svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={cn(NumberInputAnatomy.chevronIcon(), chevronIconClass)}
+                        >
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>}
+                    />
+                </div>)}
+
+                <InputAddon {...rightAddonProps} />
+                <InputIcon
+                    {...rightIconProps}
+                    className={cn(
+                        "z-[3]",
+                        rightIconProps.className,
+                        !rightAddon ? "mr-6" : null,
                     )}
-
-                    <InputAddon addon={rightAddon} rightIcon={rightIcon} leftIcon={leftAddon} size={size}
-                                side={"right"}/>
-                    <InputIcon icon={rightIcon} size={size} side={"right"}/>
-
-                </div>
-            </BasicField>
-        </>
+                />
+            </InputContainer>
+        </BasicField>
     )
 
 })

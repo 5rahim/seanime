@@ -4,11 +4,10 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { AutoDownloaderItem } from "@/lib/server/types"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
-import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
-import { BiTrash } from "@react-icons/all-files/bi/BiTrash"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
-import toast from "react-hot-toast"
+import { BiDownload, BiTrash } from "react-icons/bi"
+import { toast } from "sonner"
 
 type AutoDownloaderItemsProps = {
     children?: React.ReactNode
@@ -62,7 +61,7 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                 </p>
             )}
             {data?.map((item) => (
-                <div className="rounded-[--radius] p-3 bg-[--background-color]" key={item.id}>
+                <div className="rounded-[--radius] p-3 bg-[--background]" key={item.id}>
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-base font-medium tracking-wide">{item.torrentName}</h3>
@@ -90,8 +89,8 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                                             queuedItemId: item.id,
                                         })
                                     }}
-                                    isLoading={isAdding}
-                                    isDisabled={isPending}
+                                    loading={isAdding}
+                                    disabled={isPending}
                                 >
                                     Download
                                 </Button>
@@ -103,8 +102,8 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                                 onClick={() => {
                                     deleteItem({ id: item.id })
                                 }}
-                                isDisabled={isPending || isAdding}
-                                isLoading={isPending}
+                                disabled={isPending || isAdding}
+                                loading={isPending}
                             >
                                 Delete
                             </Button>

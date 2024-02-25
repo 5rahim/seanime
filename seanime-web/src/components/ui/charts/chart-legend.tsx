@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { UIColor } from "../core/color-theme"
+import * as React from "react"
+import { ChartColor } from "./color-theme"
 import { Legend } from "./legend"
 
 /* -------------------------------------------------------------------------------------------------
@@ -10,14 +10,15 @@ import { Legend } from "./legend"
 
 export const ChartLegend = (
     { payload }: any,
-    categoryColors: Map<string, UIColor>,
+    categoryColors: Map<string, ChartColor>,
     setLegendHeight: React.Dispatch<React.SetStateAction<number>>,
 ) => {
-    const legendRef = useRef<HTMLDivElement>(null)
+    const legendRef = React.useRef<HTMLDivElement>(null)
 
-    const [windowSize, setWindowSize] = useState<undefined | number>(undefined)
+    const [windowSize, setWindowSize] = React.useState<undefined | number>(undefined)
+    const deferredWindowSize = React.useDeferredValue(windowSize)
 
-    useEffect(() => {
+    React.useEffect(() => {
         const handleResize = () => {
             setWindowSize(window.innerWidth)
             const calculateHeight = (height: number | undefined) =>
@@ -30,7 +31,7 @@ export const ChartLegend = (
         window.addEventListener("resize", handleResize)
 
         return () => window.removeEventListener("resize", handleResize)
-    }, [windowSize])
+    }, [deferredWindowSize])
 
     return (
         <div ref={legendRef} className="flex w-full items-center justify-center mt-4">

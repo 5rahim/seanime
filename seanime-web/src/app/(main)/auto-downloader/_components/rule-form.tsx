@@ -1,24 +1,24 @@
 import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
 import { libraryCollectionAtom } from "@/app/(main)/_loaders/library-collection"
 import { CloseButton, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
+import { cn } from "@/components/ui/core/styling"
+import { Separator } from "@/components/ui/separator"
 import { Select } from "@/components/ui/select"
 import { TextInput } from "@/components/ui/text-input"
-import { createTypesafeFormSchema, DangerZone, Field, InferType, TypesafeForm } from "@/components/ui/typesafe-form"
+import { defineSchema, DangerZone, Field, InferType, Form } from "@/components/ui/form"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { AutoDownloaderRule, LibraryCollection } from "@/lib/server/types"
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
+import { BiPlus } from "react-icons/bi"
+import { FcFolder } from "react-icons/fc"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 type RuleFormProps = {
     type: "create" | "edit"
@@ -26,7 +26,7 @@ type RuleFormProps = {
     onRuleCreatedOrDeleted?: () => void
 }
 
-const schema = createTypesafeFormSchema(({ z }) => z.object({
+const schema = defineSchema(({ z }) => z.object({
     enabled: z.boolean(),
     mediaId: z.number().min(1),
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
@@ -112,7 +112,7 @@ export function RuleForm(props: RuleFormProps) {
 
     return (
         <div className="space-y-4 mt-8">
-            <TypesafeForm
+            <Form
                 schema={schema}
                 onSubmit={handleSave}
                 defaultValues={{
@@ -139,7 +139,7 @@ export function RuleForm(props: RuleFormProps) {
                     libraryCollection={libraryCollection}
                     rule={rule}
                 />}
-            </TypesafeForm>
+            </Form>
             {type === "edit" && <DangerZone
                 actionText="Delete this rule"
                 onDelete={() => {
@@ -201,20 +201,20 @@ export function RuleFormForm(props: RuleFormFormProps) {
     return (
         <>
             <Field.Switch name="enabled" label="Enabled" />
-            <Divider />
+            <Separator />
             <div
                 className={cn(
                     "space-y-3",
                     !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
-                <div className={"flex gap-4 items-end"}>
+                <div className="flex gap-4 items-end">
                     <div
                         className="w-[6rem] h-[6rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
                     >
                         {!!selectedMedia?.coverImage?.large && <Image
                             src={selectedMedia.coverImage.large}
-                            alt={"banner"}
+                            alt="banner"
                             fill
                             quality={80}
                             priority
@@ -229,7 +229,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         value={String(form.watch("mediaId"))}
                         onChange={(e) => form.setValue("mediaId", parseInt(e.target.value))}
                         help="The anime must be airing or upcoming"
-                        isDisabled={type === "edit"}
+                        disabled={type === "edit"}
                     />
                 </div>
 
@@ -261,7 +261,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                                 help: "The torrent name must contain the title (Use this for more precise control)",
                             },
                         ]}
-                        radioHelpClassName="text-sm text-gray-400"
+                        radioHelpClass="text-sm text-gray-400"
                     />
                 </div>
                 <div
@@ -278,7 +278,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                             { label: "Recent releases", value: "recent", help: "New episodes you have not yet watched" },
                             { label: "Select", value: "selected", help: "Only the specified episodes that aren't in your library" },
                         ]}
-                        radioHelpClassName="text-sm text-gray-400"
+                        radioHelpClass="text-sm text-gray-400"
                     />
 
                     {form.watch("episodeType") === "selected" && <TextArrayField
@@ -318,8 +318,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 </div>
 
             </div>
-            {type === "create" && <Field.Submit role="create" isLoading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess />}
-            {type === "edit" && <Field.Submit role="update" isLoading={isPending} />}
+            {type === "create" && <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess />}
+            {type === "edit" && <Field.Submit role="update" loading={isPending} />}
         </>
     )
 }

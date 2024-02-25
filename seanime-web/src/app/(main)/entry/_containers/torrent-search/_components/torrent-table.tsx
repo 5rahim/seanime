@@ -1,10 +1,10 @@
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { createDataGridColumns, DataGrid } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
 import { AnimeTorrent } from "@/lib/server/types"
-import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
+import { BiLinkExternal } from "react-icons/bi"
 import formatDistanceToNow from "date-fns/formatDistanceToNow"
 import React, { memo, useMemo } from "react"
 
@@ -35,12 +35,12 @@ export const TorrentTable = memo((
         {
             accessorKey: "name",
             header: "Name",
-            cell: info => <div className={"flex items-center gap-2"}>
+            cell: info => <div className="flex items-center gap-2">
                 <Tooltip
                     trigger={<IconButton
                         icon={<BiLinkExternal />}
-                        intent={"primary-basic"}
-                        size={"sm"}
+                        intent="primary-basic"
+                        size="sm"
                         onClick={() => window.open(info.row.original.link, "_blank")}
                     />}
                 >View on NYAA</Tooltip>
@@ -94,9 +94,9 @@ export const TorrentTable = memo((
                     pageIndex: 0,
                 },
             }}
-            tdClassName={"py-4 data-[row-selected=true]:bg-gray-900"}
-            tableBodyClassName={"bg-transparent"}
-            footerClassName={"hidden"}
+            tdClass="py-4 data-[row-selected=true]:bg-gray-900"
+            tableBodyClass="bg-transparent"
+            footerClass="hidden"
             state={{
                 globalFilter,
             }}

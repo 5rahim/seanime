@@ -5,27 +5,26 @@ import { RuleForm } from "@/app/(main)/auto-downloader/_components/rule-form"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
+import { cn } from "@/components/ui/core/styling"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Separator } from "@/components/ui/separator"
 import { TabPanels } from "@/components/ui/tabs"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { AutoDownloaderItem, AutoDownloaderRule } from "@/lib/server/types"
-import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { InferType } from "prop-types"
 import React from "react"
-import toast from "react-hot-toast"
+import { BiChevronRight, BiPlus } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
+import { toast } from "sonner"
 
-const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
+const settingsSchema = defineSchema(({ z }) => z.object({
     interval: z.number().min(2),
     enabled: z.boolean(),
     downloadAutomatically: z.boolean(),
@@ -75,8 +74,8 @@ export default function Page() {
         <div className="space-y-4">
 
             <TabPanels
-                navClassName="border-[--border]"
-                tabClassName={cn(
+                navClass="border-[--border]"
+                tabClass={cn(
                     "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                     "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
                     "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
@@ -110,7 +109,7 @@ export default function Page() {
                                             onClick={() => {
                                                 runAutoDownloader()
                                             }}
-                                            isLoading={isRunning}
+                                            loading={isRunning}
                                         >
                                             Check RSS feed
                                         </Button>
@@ -158,7 +157,7 @@ export default function Page() {
 
                     <TabPanels.Panel>
                         <div className="p-4">
-                            <TypesafeForm
+                            <Form
                                 schema={settingsSchema}
                                 onSubmit={data => {
                                     updateSettings(data)
@@ -176,7 +175,7 @@ export default function Page() {
                                             name="enabled"
                                         />
 
-                                        <Divider />
+                                        <Separator />
 
                                         <div
                                             className={cn(
@@ -202,10 +201,10 @@ export default function Page() {
                                             />
                                         </div>
 
-                                        <Field.Submit role="save" isLoading={isPending} />
+                                        <Field.Submit role="save" loading={isPending} />
                                     </>
                                 )}
-                            </TypesafeForm>
+                            </Form>
                         </div>
                     </TabPanels.Panel>
 
@@ -214,11 +213,11 @@ export default function Page() {
 
 
             <Modal
-                isOpen={createRuleModal.active}
-                onClose={createRuleModal.off}
+                open={createRuleModal.active}
+                onOpenChange={createRuleModal.off}
                 title="Create a new rule"
                 size="2xl"
-                isClosable
+
             >
                 <RuleForm type="create" onRuleCreatedOrDeleted={() => createRuleModal.off()} />
             </Modal>
@@ -248,7 +247,7 @@ function Rule(props: RuleProps) {
 
     return (
         <>
-            <div className="rounded-[--radius] bg-[--background-color] hover:bg-gray-800 transition-colors">
+            <div className="rounded-[--radius] bg-[--background] hover:bg-gray-800 transition-colors">
                 <div className="flex justify-between p-3 gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
 
                     <div className="space-y-1 w-full">
@@ -284,11 +283,11 @@ function Rule(props: RuleProps) {
                 </div>
             </div>
             <Modal
-                isOpen={modal.active}
-                onClose={modal.off}
+                open={modal.active}
+                onOpenChange={modal.off}
                 title="Edit rule"
                 size="2xl"
-                isClosable
+
             >
                 <RuleForm type="edit" rule={rule} />
             </Modal>

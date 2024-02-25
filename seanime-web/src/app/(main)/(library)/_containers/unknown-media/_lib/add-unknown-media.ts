@@ -2,7 +2,7 @@ import { AnimeCollectionQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 export function useAddUnknownMedia() {
 

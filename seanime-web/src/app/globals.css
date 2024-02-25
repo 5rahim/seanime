@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.375rem;
+
+        --foreground: theme('colors.gray.800');
+        --background: white;
+
+        --brand: theme('colors.brand.500');
+        --slate: theme('colors.slate.500');
+        --gray: theme('colors.gray.500');
+        --zinc: theme('colors.zinc.500');
+        --neutral: theme('colors.neutral.500');
+        --stone: theme('colors.stone.500');
+        --red: theme('colors.red.500');
+        --orange: theme('colors.orange.500');
+        --amber: theme('colors.amber.500');
+        --yellow: theme('colors.yellow.500');
+        --lime: theme('colors.lime.500');
+        --green: theme('colors.green.500');
+        --emerald: theme('colors.emerald.500');
+        --teal: theme('colors.teal.500');
+        --cyan: theme('colors.cyan.500');
+        --sky: theme('colors.sky.500');
+        --blue: theme('colors.blue.500');
+        --indigo: theme('colors.indigo.500');
+        --violet: theme('colors.violet.500');
+        --purple: theme('colors.purple.500');
+        --fuchsia: theme('colors.fuchsia.500');
+        --pink: theme('colors.pink.500');
+        --rose: theme('colors.rose.500');
+
+        --border: theme('colors.gray.200');
+        --ring: theme('colors.brand.500');
+
+        --muted: theme('colors.gray.500');
+        --muted-highlight: theme('colors.gray.700');
+
+        --paper: theme('colors.white');
+        --subtle: rgba(0, 0, 0, 0.04);
+        --subtle-highlight: rgba(0, 0, 0, 0.06);
+
+    }
+
+    .dark, [data-mode="dark"] {
+        --foreground: theme('colors.gray.200');
+        --background: #0c0c0c;
+
+        --brand: theme('colors.brand.400');
+        --slate: theme('colors.slate.400');
+        --gray: theme('colors.gray.400');
+        --zinc: theme('colors.zinc.400');
+        --neutral: theme('colors.neutral.400');
+        --stone: theme('colors.stone.400');
+        --red: theme('colors.red.400');
+        --orange: theme('colors.orange.400');
+        --amber: theme('colors.amber.400');
+        --yellow: theme('colors.yellow.400');
+        --lime: theme('colors.lime.400');
+        --green: theme('colors.green.400');
+        --emerald: theme('colors.emerald.400');
+        --teal: theme('colors.teal.400');
+        --cyan: theme('colors.cyan.400');
+        --sky: theme('colors.sky.400');
+        --blue: theme('colors.blue.400');
+        --indigo: theme('colors.indigo.400');
+        --violet: theme('colors.violet.400');
+        --purple: theme('colors.purple.400');
+        --fuchsia: theme('colors.fuchsia.400');
+        --pink: theme('colors.pink.400');
+        --rose: theme('colors.rose.400');
+
+        --border: #313131;
+        --ring: theme('colors.brand.200');
+
+        --muted: theme('colors.gray.400');
+        --muted-highlight: theme('colors.gray.300');
+
+        --paper: theme('colors.gray.900');
+        --subtle: rgba(255, 255, 255, 0.06);
+        --subtle-highlight: rgba(255, 255, 255, 0.08);
+
+    }
+}
+
+html {
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+html * {
+    border-color: var(--border);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @apply text-gray-800 dark:text-gray-100
+}
+
+h1 {
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl
+}
+
+h2 {
+    @apply scroll-m-20 text-3xl font-bold tracking-tight first:mt-0
+}
+
+h3 {
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight
+}
+
+h4 {
+    @apply scroll-m-20 text-xl font-semibold tracking-tight
+}
+
+h5 {
+    @apply scroll-m-20 text-lg font-semibold tracking-tight
+}
+
+h6 {
+    @apply scroll-m-20 text-base font-semibold tracking-tight
+}

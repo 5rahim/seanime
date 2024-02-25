@@ -1,14 +1,14 @@
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 import { cva, VariantProps } from "class-variance-authority"
-import React from "react"
+import * as React from "react"
 import { Button, ButtonProps } from "."
+import { cn, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const IconButtonAnatomy = defineStyleAnatomy({
-    iconButton: cva("UI-IconButton__iconButton p-0", {
+    root: cva("UI-IconButton_root p-0 flex-none", {
         variants: {
             size: {
                 xs: "text-xl h-6 w-6",
@@ -28,36 +28,35 @@ export const IconButtonAnatomy = defineStyleAnatomy({
  * IconButton
  * -----------------------------------------------------------------------------------------------*/
 
-export interface IconButtonProps extends Omit<ButtonProps, "leftIcon" | "rightIcon" | "iconSpacing" | "isUppercase">,
-    VariantProps<typeof IconButtonAnatomy.iconButton>, ComponentWithAnatomy<typeof IconButtonAnatomy> {
-    icon?: React.ReactElement<any, string | React.JSXElementConstructor<any>>
+
+export type IconButtonProps = Omit<ButtonProps, "leftIcon" | "rightIcon" | "iconSpacing" | "iconClass" | "children"> &
+    VariantProps<typeof IconButtonAnatomy.root> & {
+    icon?: React.ReactNode
 }
 
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((props, ref) => {
 
     const {
-        children,
         className,
         icon,
         size,
-        iconButtonClassName,
+        loading,
         ...rest
     } = props
 
     return (
-        <>
-            <Button
-                className={cn(
-                    IconButtonAnatomy.iconButton({ size }),
-                    iconButtonClassName,
-                    className,
-                )}
-                {...rest}
-                ref={ref}
-            >
-                {icon}
-            </Button>
-        </>
+        <Button
+            className={cn(
+                IconButtonAnatomy.root({ size }),
+                className,
+            )}
+            loading={loading}
+            iconSpacing="0"
+            {...rest}
+            ref={ref}
+        >
+            {!loading && icon}
+        </Button>
     )
 
 })

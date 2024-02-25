@@ -1,5 +1,5 @@
 import { useDataGridSize } from "./use-datagrid-size"
-import React from "react"
+import * as React from "react"
 import { Table } from "@tanstack/react-table"
 
 interface DataGridResponsivenessHookProps<T extends Record<string, any>> {
@@ -15,6 +15,7 @@ export function useDataGridResponsiveness<T extends Record<string, any>>(props: 
     } = props
 
     const [tableRef, { width: tableWidth }] = useDataGridSize<HTMLDivElement>()
+    const deferredTableWidth = React.useDeferredValue(tableWidth)
 
     React.useLayoutEffect(() => {
         hideColumns.map(({ below, hide }) => {
@@ -28,7 +29,7 @@ export function useDataGridResponsiveness<T extends Record<string, any>>(props: 
                 }
             })
         })
-    }, [hideColumns, tableWidth])
+    }, [hideColumns, deferredTableWidth])
 
     return {
         tableRef,

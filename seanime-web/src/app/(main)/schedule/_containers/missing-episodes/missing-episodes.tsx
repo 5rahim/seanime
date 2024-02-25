@@ -5,10 +5,10 @@ import { Accordion } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MediaEntryEpisode } from "@/lib/server/types"
-import { AiOutlineDownload } from "@react-icons/all-files/ai/AiOutlineDownload"
-import { IoLibrary } from "@react-icons/all-files/io5/IoLibrary"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { AiOutlineDownload } from "react-icons/ai"
+import { IoLibrary } from "react-icons/io5"
 import { LuBellOff } from "react-icons/lu"
 
 export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }: {
@@ -20,11 +20,11 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
 
     return (
         <>
-            <AppLayoutStack spacing={"lg"}>
+            <AppLayoutStack spacing="lg">
 
                 {!!missingEpisodes?.length && (
                     <>
-                        <h2 className={"flex gap-3 items-center"}><IoLibrary /> Missing from your library</h2>
+                        <h2 className="flex gap-3 items-center"><IoLibrary /> Missing from your library</h2>
 
                         <Slider>
                             {!isLoading && missingEpisodes?.map(episode => {
@@ -43,18 +43,18 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                             })}
                             {isLoading && <>
                                 <Skeleton
-                                    className={"rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"}
+                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"
                                 />
                                 <Skeleton
-                                    className={"rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"}
+                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"
                                 />
                                 <Skeleton
-                                    className={"rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"}
+                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"
                                 />
                             </>}
                             {!isLoading && !missingEpisodes?.length && (
                                 <div
-                                    className={"rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-center justify-center flex-none bg-gray-900 text-[--muted]"}
+                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-center justify-center flex-none bg-gray-900 text-[--muted]"
                                 >
                                     No missing episodes
                                 </div>
@@ -67,11 +67,11 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                     <>
 
                         <Accordion
-                            containerClassName={""}
-                            triggerClassName={"py-2 dark:bg-[--background] px-0 dark:hover:bg-transparent text-lg dark:text-[--muted] dark:hover:text-white"}
+                            containerClass={""}
+                            triggerClass="py-2 dark:bg-[--background] px-0 dark:hover:bg-transparent text-lg dark:text-[--muted] dark:hover:text-white"
                         >
                             <Accordion.Item
-                                title={<p className={"flex gap-3 items-center text-lg text-inherit"}><LuBellOff /> Silenced episodes</p>}
+                                title={<p className="flex gap-3 items-center text-lg text-inherit"><LuBellOff /> Silenced episodes</p>}
                                 defaultOpen={false}
                             >
                                 <Slider>

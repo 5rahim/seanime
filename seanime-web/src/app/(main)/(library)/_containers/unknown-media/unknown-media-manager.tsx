@@ -1,7 +1,7 @@
 import { useAddUnknownMedia } from "@/app/(main)/(library)/_containers/unknown-media/_lib/add-unknown-media"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
-import { Drawer } from "@/components/ui/modal"
+import { Drawer } from "@/components/ui/drawer"
 import { UnknownGroup } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -35,15 +35,15 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
     return (
         <Drawer
-            isOpen={isOpen}
-            onClose={() => {
+            open={isOpen}
+            onOpenChange={o => {
                 if (!isPending) {
-                    setIsOpen(false)
+                    setIsOpen(o)
                 }
             }}
             size="xl"
             title="Resolve hidden media"
-            isClosable
+
         >
             <AppLayoutStack>
 
@@ -52,7 +52,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                     Add them to be able to see them in your library.
                 </p>
 
-                <Button onClick={handleAddUnknownMedia} isLoading={isPending}>Add all</Button>
+                <Button onClick={handleAddUnknownMedia} loading={isPending}>Add all</Button>
 
                 <div className="divide divide-y divide-[--border] space-y-4">
 

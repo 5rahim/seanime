@@ -1,76 +1,104 @@
 "use client"
 
 import { LoaderOptions } from "@googlemaps/js-api-loader"
-import _isEmpty from "lodash/isEmpty"
-import React, { useId } from "react"
-import { extractBasicFieldProps } from "../basic-field"
-import { Combobox, ComboboxProps } from "../combobox"
-import { useUILocaleConfig } from "../core"
-import locales from "./locales.json"
+import * as React from "react"
+import { Autocomplete, AutocompleteOption, AutocompleteProps } from "../autocomplete"
 import { GoogleMapsAutocompletionRequest, useGoogleMapsAutocomplete } from "./use-address-autocomplete"
 
 /* -------------------------------------------------------------------------------------------------
  * AddressInput
  * -----------------------------------------------------------------------------------------------*/
 
-export interface AddressInputProps extends Omit<ComboboxProps, "options" | "onInputChange" | "onChange"> {
+export type AddressInputProps = Omit<AutocompleteProps, "options" | "onInputChange" | "onChange" | "defaultValue"> & {
+    /**
+     * Custom autocompletion request
+     */
     autocompletionRequest?: GoogleMapsAutocompletionRequest
-    apiOptions?: Partial<LoaderOptions>
-    allowedCountries?: string | string[] | null
-    onChange?: (value: string | undefined) => void
-    noOptionsMessage?: string
+    /**
+     * Additional options to pass to the Google Maps API Loader
+     */
+    loaderOptions?: Partial<LoaderOptions>
+    /**
+     * List of allowed countries
+     *
+     * e.g. `["us", "ci"]`
+     */
+    allowedCountries?: string | string[]
+    /**
+     * Callback triggered when the value changes
+     */
+    onValueChange?: (value: AutocompleteOption | undefined) => void
+    /**
+     * Message to display when there are no results
+     */
+    emptyMessage?: string
+    /**
+     * Field placeholder
+     */
     placeholder?: string
-    apiKey: string // Optionally, you could remove this parameter and get the key from environment variables
+    /**
+     * Google Maps API key
+     *
+     * Optionally, you could remove this parameter and get the key from an environment variable
+     * @see https://developers.google.com/maps/documentation/javascript/get-api-key
+     */
+    apiKey: string
+    /**
+     * Default value when uncontrolled
+     *
+     * e.g: `{ value: null, label: "Abidjan, Côte d'Ivoire" }`
+     */
+    defaultValue?: AutocompleteOption
 }
 
 export const AddressInput = React.forwardRef<HTMLInputElement, AddressInputProps>((props, ref) => {
 
-    const { locale: lng } = useUILocaleConfig()
-
-    const [{
+    const {
         children,
         className,
         autocompletionRequest,
-        apiOptions,
+        loaderOptions,
         defaultValue,
-        allowedCountries = null,
-        onChange,
+        allowedCountries = [],
+        onValueChange,
         apiKey,
-        placeholder = locales["placeholder"][lng],
-        noOptionsMessage = locales["no-address-found"][lng],
+        placeholder = "Enter an address",
+        emptyMessage = "No results",
+        onTextChange,
+        type = "options",
         ...rest
-    }, basicFieldProps] = extractBasicFieldProps<AddressInputProps>(props, useId())
+    } = props
 
-    const { suggestions, fetchSuggestions } = useGoogleMapsAutocomplete({
+    const { suggestions, fetchSuggestions, isFetching } = useGoogleMapsAutocomplete({
         apiKey: apiKey,
         minLengthAutocomplete: 0,
         withSessionToken: false,
         debounce: 300,
-        autocompletionRequest: {
+        autocompletionRequest: autocompletionRequest || {
             componentRestrictions: { country: allowedCountries },
         },
+        loaderApiOptions: loaderOptions,
     })
 
     return (
-        <>
-            <Combobox
-                returnValueOrLabel="label" // We only return the address' text format
-                allowCustomValue={false}
-                withFiltering={false} // We deactivate filtering because the options are automatically filtered by the API
-                options={_isEmpty(suggestions) && defaultValue ? [{
-                    value: defaultValue,
-                    label: defaultValue
-                }] : suggestions}
-                onInputChange={fetchSuggestions}
-                defaultValue={defaultValue}
-                onChange={onChange}
-                placeholder={placeholder}
-                noOptionsMessage={noOptionsMessage}
-                {...basicFieldProps}
-                {...rest}
-                ref={ref}
-            />
-        </>
+        <Autocomplete
+            ref={ref}
+            options={suggestions}
+            defaultValue={defaultValue}
+            onTextChange={v => {
+                onTextChange?.(v)
+                fetchSuggestions(v)
+            }}
+            onValueChange={onValueChange}
+            placeholder={placeholder}
+            emptyMessage={emptyMessage}
+            autoFilter={false}
+            isFetching={isFetching}
+            type={type}
+            {...rest}
+        />
     )
 
 })
+
+AddressInput.displayName = "AddressInput"

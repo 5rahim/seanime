@@ -37,8 +37,8 @@ export default function Page() {
                 onClick={() => {
                     window.open(OAUTH_URL, "_self")
                 }}
-                intent={"primary"}
-                size={"lg"}
+                intent="primary"
+                size="lg"
             >Log in with MAL</Button>
         </div>
     )
@@ -58,9 +58,9 @@ export default function Page() {
             <p className="flex justify-between items-center w-full text-8xl relative">
                 <SiMyanimelist />
                 <Button
-                    intent={"alert-subtle"}
-                    size={"sm"}
-                    isLoading={isPending || isSuccess}
+                    intent="alert-subtle"
+                    size="sm"
+                    loading={isPending || isSuccess}
                     onClick={() => {
                         logout()
                     }}

@@ -1,41 +1,46 @@
-"use client"
-
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
-import * as radio from "@zag-js/radio-group"
-import { normalizeProps, useMachine } from "@zag-js/react"
+import { mergeRefs } from "../core/utils"
+import { hiddenInputStyles } from "../input"
+import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { cva, VariantProps } from "class-variance-authority"
-import React, { useEffect, useId } from "react"
-import { BasicField, BasicFieldAnatomy, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
+import * as React from "react"
+import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const RadioGroupAnatomy = defineStyleAnatomy({
-    stack: cva("UI-RadioGroup__stack w-full space-y-1"),
-    radioControl: cva([
-        "UI-RadioGroup__radioControl",
-        "inline-flex flex-none justify-center items-center border border-gray-300 rounded-full text-white bg-white cursor-pointer transition duration-10 relative",
-        "data-[focus]:outline-none data-[focus]:ring-2 ring-offset-1 ring-[--ring]",
-        "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed",
-        "bg-white border-gray-300 hover:bg-gray-100 hover:text-brand-100",
-        "data-[checked=true]:bg-brand-500 data-[checked=true]:dark:bg-brand-500 data-[checked=true]:border-brand-500",
-        "dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-700",
-        "data-[error=true]:border-red-500",
-        "peer-[.is-focused]:ring-2",
+    root: cva([
+        "UI-RadioGroup__root",
+    ]),
+    item: cva([
+        "UI-RadioGroup__item",
+        "block aspect-square rounded-full border text-brand ring-offset-1 ring-offset-[--background]",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] focus-visible:ring-offset-2",
+        "disabled:cursor-not-allowed data-[disabled=true]:opacity-50 data-[readonly=true]:cursor-not-allowed",
+        "data-[state=unchecked]:bg-white dark:data-[state=unchecked]:bg-gray-700", // Unchecked
+        "data-[state=unchecked]:hover:bg-gray-100 dark:data-[state=unchecked]:hover:bg-gray-600", // Unchecked hover
+        "data-[state=checked]:bg-brand data-[state=checked]:border-transparent", // Checked
+        "data-[error=true]:border-red-500 data-[error=true]:dark:border-red-500 data-[error=true]:data-[state=checked]:border-red-500 data-[error=true]:dark:data-[state=checked]:border-red-500", // Error
     ], {
         variants: {
             size: {
-                md: "h-5 w-5 text-xs",
-                lg: "h-6 w-6 text-sm",
+                md: "h-5 w-5",
+                lg: "h-6 w-6",
             },
         },
         defaultVariants: {
             size: "md",
         },
     }),
-    radioLabel: cva([
-        "UI-RadioGroup__radioLabel font-normal flex-none",
+    itemIndicator: cva([
+        "UI-RadioGroup__itemIndicator",
+        "flex items-center justify-center",
+    ]),
+    itemLabel: cva([
+        "UI-Checkbox_itemLabel",
+        "font-normal block",
         "data-[disabled=true]:opacity-50",
     ], {
         variants: {
@@ -48,154 +53,199 @@ export const RadioGroupAnatomy = defineStyleAnatomy({
             size: "md",
         },
     }),
-    radioHelp: cva([
-        "UI-RadioGroup__radioHelp",
+    itemContainer: cva([
+        "UI-RadioGroup__itemContainer",
+        "flex gap-2 items-center relative",
     ]),
-    radioContainer: cva([
-        "UI-RadioGroup__radioContainer",
-        "inline-flex w-full gap-2 items-center relative",
-    ]),
-    radioIcon: cva([
-        "UI-RadioGroup__radioIcon",
-        "data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed",
-        "data-[checked=true]:text-white data-[checked=false]:text-transparent",
-    ]),
+    itemCheckIcon: cva([
+        "UI-RadioGroup__itemCheckIcon",
+        "text-white",
+    ], {
+        variants: {
+            size: {
+                md: "h-4 w-4",
+                lg: "h-5 w-5",
+            },
+        },
+        defaultVariants: {
+            size: "md",
+        },
+    }),
 })
 
 /* -------------------------------------------------------------------------------------------------
  * RadioGroup
  * -----------------------------------------------------------------------------------------------*/
 
-export interface RadioGroupProps extends BasicFieldOptions, ComponentWithAnatomy<typeof RadioGroupAnatomy>,
-    VariantProps<typeof RadioGroupAnatomy.radioLabel> {
-    value?: string
-    defaultValue?: string
-    options: { value: string, label?: React.ReactNode, help?: React.ReactNode }[]
-    onChange?: (value: string | null) => void
-    checkedIcon?: React.ReactNode
+export type RadioGroupOption = { value: string, label?: React.ReactNode, disabled?: boolean, readonly?: boolean }
+
+export type RadioGroupProps = BasicFieldOptions &
+    ComponentAnatomy<typeof RadioGroupAnatomy> &
+    VariantProps<typeof RadioGroupAnatomy.item> & {
+    /**
+     * Selected value
+     */
+    value?: string | undefined
+    /**
+     * Default value when uncontrolled
+     */
+    defaultValue?: string | undefined
+    /**
+     * Callback fired when the selected value changes
+     */
+    onValueChange?: (value: string) => void
+    /**
+     * Radio options
+     */
+    options: RadioGroupOption[]
+    /**
+     * Replaces the default check icon
+     */
+    itemCheckIcon?: React.ReactNode
+    /**
+     * Ref to the input element
+     */
+    inputRef?: React.Ref<HTMLInputElement>
+    /**
+     * Stack div class
+     */
+    stackClass?: string
+    /**
+     * Item div class
+     */
+    className?: string
 }
 
-export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((props, ref) => {
+export const RadioGroup = React.forwardRef<HTMLButtonElement, RadioGroupProps>((props, ref) => {
 
     const [{
-        size = "md",
-        value,
-        defaultValue,
-        onChange,
+        size,
+        className,
+        stackClass,
+        value: controlledValue,
+        onValueChange,
         options,
-        stackClassName,
-        radioLabelClassName,
-        radioControlClassName,
-        radioContainerClassName,
-        radioHelpClassName,
-        radioIconClassName,
-        checkedIcon,
-    }, basicFieldProps] = extractBasicFieldProps<RadioGroupProps>(props, useId())
+        inputRef,
+        defaultValue,
+        /**/
+        itemClass,
+        itemIndicatorClass,
+        itemLabelClass,
+        itemContainerClass,
+        itemCheckIcon,
+        itemCheckIconClass,
+    }, basicFieldProps] = extractBasicFieldProps<RadioGroupProps>(props, React.useId())
 
-    const [state, send] = useMachine(radio.machine({
-        id: basicFieldProps.id,
-        value: value,
-        name: basicFieldProps.name,
-        disabled: basicFieldProps.isDisabled,
-        readOnly: basicFieldProps.isReadOnly,
-        onChange(details) {
-            onChange && onChange(details.value)
-        },
-    }))
+    const isFirst = React.useRef(true)
 
-    const api = radio.connect(state, send, normalizeProps)
+    const buttonRef = React.useRef<HTMLButtonElement>(null)
 
-    // Set default value
-    useEffect(() => {
-        if (!value && defaultValue) {
-            api.setValue(defaultValue)
-        }
+    const [_value, _setValue] = React.useState<string | undefined>(controlledValue ?? defaultValue)
+
+    const handleOnValueChange = React.useCallback((value: string) => {
+        _setValue(value)
+        onValueChange?.(value)
     }, [])
 
-    // Control the state
-    useEffect(() => {
-        (value && value.length > 0) && api.setValue(value)
-    }, [value || "", options])
+    React.useEffect(() => {
+        if (!defaultValue || !isFirst.current) {
+            _setValue(controlledValue)
+        }
+        isFirst.current = false
+    }, [controlledValue])
 
     return (
-        <>
-            <BasicField
-                {...basicFieldProps}
+        <BasicField{...basicFieldProps}>
+            <RadioGroupPrimitive.Root
+                value={_value}
+                onValueChange={handleOnValueChange}
+                defaultValue={defaultValue}
+                className={cn(RadioGroupAnatomy.root(), className)}
+                disabled={basicFieldProps.disabled || basicFieldProps.readonly}
+                data-error={!!basicFieldProps.error}
+                data-disabled={basicFieldProps.disabled}
+                data-readonly={basicFieldProps.readonly}
+                aria-readonly={basicFieldProps.readonly}
+                loop
             >
-                <div className={cn(RadioGroupAnatomy.stack(), stackClassName)} {...api.rootProps} ref={ref}>
+                <div className={cn("UI-RadioGroup__stack space-y-1", stackClass)}>
 
-                    {options.map((opt) => (
-                        <label
-                            key={opt.value}
-                            {...api.getRadioProps({ value: opt.value })}
-                            className={cn(
-                                RadioGroupAnatomy.radioContainer(),
-                                radioContainerClassName,
-                            )}
-                            data-checked={api.value === opt.value}
-                            tabIndex={-1}
-                        >
-
-                            <input {...api.getRadioInputProps({ value: opt.value })} />
-
-                            <div
-                                className={cn(RadioGroupAnatomy.radioControl({ size }), radioControlClassName)}
-                                {...api.getRadioControlProps({ value: opt.value })}
+                    {options.map(option => {
+                        return (
+                            <label
+                                key={option.value}
+                                className={cn(RadioGroupAnatomy.itemContainer(), itemContainerClass)}
+                                htmlFor={option.value}
                                 data-error={!!basicFieldProps.error}
-                                data-disabled={!!basicFieldProps.isDisabled}
-                                data-checked={api.value === opt.value}
+                                data-disabled={basicFieldProps.disabled || option.disabled}
+                                data-readonly={basicFieldProps.readonly || option.readonly}
+                                data-state={_value === option.value ? "checked" : "unchecked"}
                             >
-                                {checkedIcon ? checkedIcon :
-                                    <span
-                                        className={cn(RadioGroupAnatomy.radioIcon(), radioIconClassName)}
-                                        data-disabled={!!basicFieldProps.isDisabled}
-                                        data-checked={api.value === opt.value}
+                                <RadioGroupPrimitive.Item
+                                    ref={mergeRefs([buttonRef, ref])}
+                                    id={option.value}
+                                    key={option.value}
+                                    value={option.value}
+                                    disabled={basicFieldProps.disabled || basicFieldProps.readonly || option.disabled || option.readonly}
+                                    data-error={!!basicFieldProps.error}
+                                    data-disabled={basicFieldProps.disabled || option.disabled}
+                                    data-readonly={basicFieldProps.readonly || option.readonly}
+                                    className={cn(RadioGroupAnatomy.item({ size }), itemClass)}
+                                >
+                                    <RadioGroupPrimitive.Indicator
+                                        className={cn(
+                                            RadioGroupAnatomy.itemIndicator(),
+                                            itemIndicatorClass,
+                                        )}
+                                        data-error={!!basicFieldProps.error}
+                                        data-disabled={basicFieldProps.disabled || option.disabled}
+                                        data-readonly={basicFieldProps.readonly || option.readonly}
                                     >
-                                        <svg
+                                        {itemCheckIcon ? itemCheckIcon : <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 16 16"
                                             width="16"
                                             height="16"
                                             stroke="currentColor"
                                             fill="currentColor"
+                                            className={cn(RadioGroupAnatomy.itemCheckIcon({ size }), itemCheckIconClass)}
                                         >
                                             <path d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"></path>
-                                        </svg>
-                                    </span>}
-                            </div>
-
-                            <div
-                                className={cn(
-                                    RadioGroupAnatomy.radioLabel({ size }),
-                                    radioLabelClassName,
-                                )}
-                                {...api.getRadioLabelProps({ value: opt.value })}
-                                data-disabled={!!basicFieldProps.isDisabled}
-                                data-checked={api.value === opt.value}
-                            >
-                                {opt.label ?? opt.value}
-                            </div>
-
-                            {!!opt.help && <div
-                                className={cn(
-                                    BasicFieldAnatomy.fieldHelpText(),
-                                    radioHelpClassName,
-                                )}
-                                {...api.getRadioLabelProps({ value: opt.value })}
-                                data-checked={api.value === opt.value}
-                            >
-                                {opt.help}
-                            </div>}
-
-
-                        </label>
-                    ))}
-
+                                        </svg>}
+                                    </RadioGroupPrimitive.Indicator>
+                                </RadioGroupPrimitive.Item>
+                                <label
+                                    className={cn(RadioGroupAnatomy.itemLabel(), itemLabelClass)}
+                                    htmlFor={option.value}
+                                    aria-disabled={option.disabled}
+                                    data-error={!!basicFieldProps.error}
+                                    data-disabled={basicFieldProps.disabled || option.disabled || option.disabled}
+                                    data-readonly={basicFieldProps.readonly || option.readonly}
+                                    data-state={_value === option.value ? "checked" : "unchecked"}
+                                >
+                                    {option.label ?? option.value}
+                                </label>
+                            </label>
+                        )
+                    })}
                 </div>
-            </BasicField>
-        </>
-    )
+            </RadioGroupPrimitive.Root>
 
+            <input
+                ref={inputRef}
+                type="radio"
+                name={basicFieldProps.name}
+                className={hiddenInputStyles}
+                value={_value ?? ""}
+                checked={!!_value}
+                aria-hidden="true"
+                required={basicFieldProps.required}
+                tabIndex={-1}
+                onChange={() => {}}
+                onFocusCapture={() => buttonRef.current?.focus()}
+            />
+        </BasicField>
+    )
 })
 
 RadioGroup.displayName = "RadioGroup"

@@ -1,8 +1,8 @@
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Divider } from "@/components/ui/divider"
 import { Modal } from "@/components/ui/modal"
+import { Separator } from "@/components/ui/separator"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { LocalFile, MediaEntry } from "@/lib/server/types"
@@ -11,7 +11,7 @@ import { atom } from "jotai"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import React, { useEffect } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import * as upath from "upath"
 
 export type BulkDeleteFilesModalProps = {
@@ -28,12 +28,12 @@ export function BulkDeleteFilesModal({ entry }: BulkDeleteFilesModalProps) {
 
     return (
         <Modal
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            size={"xl"}
+            open={open}
+            onOpenChange={() => setOpen(false)}
+            size="xl"
             title={<span>Select files to delete</span>}
-            titleClassName={"text-center"}
-            isClosable
+            titleClass="text-center"
+
         >
             <Content entry={entry}/>
         </Modal>
@@ -82,8 +82,8 @@ function Content({ entry }: { entry: MediaEntry }) {
     if (!media) return null
 
     return (
-        <div className={"space-y-2 mt-2"}>
-            <div className={"max-h-96 overflow-y-auto px-2 space-y-2"}>
+        <div className="space-y-2 mt-2">
+            <div className="max-h-96 overflow-y-auto px-2 space-y-2">
 
                 <div className="p-2">
                     <Checkbox
@@ -94,18 +94,18 @@ function Content({ entry }: { entry: MediaEntry }) {
                                 setFiles(prev => !prev.every(({ selected }) => selected) ? prev.map(({ file }) => ({ file, selected: true })) : prev.map(({ file }) => ({ file, selected: false })))
                             }
                         }}
-                        fieldClassName={"w-[fit-content]"}
+                        fieldClass="w-[fit-content]"
                     />
                 </div>
 
-                <Divider />
+                <Separator />
 
                 {files.map(({ file, selected }, index) => (
                     <div
                         key={`${file.path}-${index}`}
-                        className={"p-2 border-b border-[--border]"}
+                        className="p-2 border-b border-[--border]"
                     >
-                        <div className={"flex items-center"}>
+                        <div className="flex items-center">
                             <Checkbox
                                 label={`${upath.basename(file.path)}`}
                                 checked={selected}
@@ -117,24 +117,24 @@ function Content({ entry }: { entry: MediaEntry }) {
                                         })
                                     }
                                 }}
-                                fieldClassName={"w-[fit-content]"}
+                                fieldClass="w-[fit-content]"
                             />
                         </div>
                     </div>
                 ))}
             </div>
-            <div className={"flex justify-end gap-2 mt-2"}>
+            <div className="flex justify-end gap-2 mt-2">
                 <Button
-                    intent={"alert"}
+                    intent="alert"
                     onClick={() => confirmUnmatch.open()}
-                    isLoading={isDeleting}
+                    loading={isDeleting}
                 >
                     Delete
                 </Button>
                 <Button
-                    intent={"white"}
+                    intent="white"
                     onClick={() => setState(false)}
-                    isDisabled={isDeleting}
+                    disabled={isDeleting}
                 >
                     Cancel
                 </Button>

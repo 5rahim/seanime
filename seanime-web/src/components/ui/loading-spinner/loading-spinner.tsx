@@ -1,6 +1,6 @@
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 import { cva } from "class-variance-authority"
 import React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -9,12 +9,12 @@ import React from "react"
 export const LoadingSpinnerAnatomy = defineStyleAnatomy({
     container: cva([
         "UI-LoadingSpinner__container",
-        "flex w-full items-center h-24 justify-center"
+        "flex w-full items-center h-24 justify-center",
     ]),
     icon: cva([
         "UI-LoadingSpinner__icon",
         "inline w-10 h-10 mr-2 animate-spin",
-        "text-gray-200 dark:text-gray-600 fill-brand-500"
+        "text-gray-200 dark:text-gray-600 fill-brand-500",
     ]),
 })
 
@@ -22,32 +22,29 @@ export const LoadingSpinnerAnatomy = defineStyleAnatomy({
  * LoadingSpinner
  * -----------------------------------------------------------------------------------------------*/
 
-export interface LoadingSpinnerProps extends React.ComponentPropsWithRef<"div">, ComponentWithAnatomy<typeof LoadingSpinnerAnatomy> {
-}
+export type LoadingSpinnerProps = React.ComponentPropsWithRef<"div"> & ComponentAnatomy<typeof LoadingSpinnerAnatomy>
 
 export const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>((props, ref) => {
 
     const {
         children,
         className,
-        containerClassName,
-        iconClassName,
+        containerClass,
+        iconClass,
         ...rest
     } = props
 
     return (
-        <>
-            <div
-                className={cn(
-                    LoadingSpinnerAnatomy.container(),
-                    containerClassName,
-                )}
-                {...rest}
-                ref={ref}
-            >
-                <Spinner className={iconClassName}/>
-            </div>
-        </>
+        <div
+            className={cn(
+                LoadingSpinnerAnatomy.container(),
+                containerClass,
+            )}
+            {...rest}
+            ref={ref}
+        >
+            <Spinner className={iconClass} />
+        </div>
     )
 
 })
@@ -67,7 +64,7 @@ export const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>((props, ref
 
     const { children, className, ...rest } = props
 
-    return <>
+    return (
         <svg
             aria-hidden="true"
             className={cn(
@@ -89,6 +86,6 @@ export const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>((props, ref
                 fill="currentFill"
             />
         </svg>
-    </>
+    )
 
 })

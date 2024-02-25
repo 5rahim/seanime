@@ -28,7 +28,7 @@ export function MediaEntrySilenceToggle(props: MediaEntrySilenceToggleProps) {
                 trigger={<IconButton
                     icon={isSilenced ? <LuBellOff /> : <LuBellRing />}
                     onClick={toggleSilenceStatus}
-                    isLoading={silenceStatusIsLoading || silenceStatusIsUpdating}
+                    loading={silenceStatusIsLoading || silenceStatusIsUpdating}
                     intent={isSilenced ? "warning-subtle" : "primary-subtle"}
                     {...rest}
                 />}

@@ -1,7 +1,7 @@
 import { Nullish } from "@/types/common"
 import { Badge } from "@/components/ui/badge"
 import React from "react"
-import { BiStar } from "@react-icons/all-files/bi/BiStar"
+import { BiStar } from "react-icons/bi"
 
 export function ScoreProgressBadges({ score, progress, episodes }: {
     score: Nullish<number>,
@@ -18,11 +18,11 @@ export function ScoreProgressBadges({ score, progress, episodes }: {
 
     return (
         <>
-            {!!score && <Badge leftIcon={<BiStar/>} size={"xl"} intent={"primary-solid"} className={scoreColor}>
+            {!!score && <Badge leftIcon={<BiStar />} size="xl" intent="primary-solid" className={scoreColor}>
                 {score}
             </Badge>}
             <Badge
-                size={"xl"}
+                size="xl"
                 className={"!text-lg font-bold !text-yellow-50"}
             >
                 {`${progress ?? 0}/${episodes || "-"}`}

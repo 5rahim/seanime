@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { LibraryCollectionEntry, LibraryCollectionList } from "@/lib/server/types"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { useSetAtom } from "jotai"
 import React, { memo, useMemo } from "react"
+import { FiSearch } from "react-icons/fi"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
     collectionList: LibraryCollectionList[],
@@ -30,9 +30,9 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
                     <div className="border-2 border-[--border] border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">
                         <h2>Empty library</h2>
                         <Button
-                            intent={"warning-subtle"}
+                            intent="warning-subtle"
                             leftIcon={<FiSearch />}
-                            size={"xl"}
+                            size="xl"
                             rounded
                             onClick={() => setScannerModalOpen(true)}
                         >

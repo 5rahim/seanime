@@ -1,13 +1,13 @@
 "use client"
 
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
-import { cva, VariantProps } from "class-variance-authority"
-import React, { useId } from "react"
-import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
-import type { CheckboxProps as CheckboxPrimitiveProps } from "@radix-ui/react-checkbox"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { useCheckboxGroupContext } from "../checkbox"
-
+import { cva, VariantProps } from "class-variance-authority"
+import * as React from "react"
+import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
+import { __CheckboxGroupContext } from "../checkbox"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { mergeRefs } from "../core/utils"
+import { hiddenInputStyles } from "../input"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -15,16 +15,16 @@ import { useCheckboxGroupContext } from "../checkbox"
 
 export const CheckboxAnatomy = defineStyleAnatomy({
     container: cva("UI-Checkbox__container inline-flex gap-2 items-center"),
-    control: cva([
+    root: cva([
         "UI-Checkbox__root",
-        "appearance-none peer block relative overflow-hidden transition h-5 w-5 shrink-0 text-white rounded-md ring-offset-1 border ring-offset-background",
+        "appearance-none peer block relative overflow-hidden transition h-5 w-5 shrink-0 text-white rounded-md ring-offset-1 border ring-offset-[--background]",
         "border-gray-300 dark:border-gray-700",
-        "outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] disabled:cursor-not-allowed disabled:opacity-50",
+        "outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] disabled:cursor-not-allowed data-[disabled=true]:opacity-50",
         "data-[state=unchecked]:bg-white dark:data-[state=unchecked]:bg-gray-700", // Unchecked
         "data-[state=unchecked]:hover:bg-gray-100 dark:data-[state=unchecked]:hover:bg-gray-600", // Unchecked hover
         "data-[state=checked]:bg-brand dark:data-[state=checked]:bg-brand data-[state=checked]:border-brand", // Checked
-        "data-[state=indeterminate]:bg-[--muted] dark:data-[state=indeterminate]:text-gray-800 data-[state=indeterminate]:border-transparent", // Checked
-        "data-[error=true]:border-red-500 data-[error=true]:dark:border-red-500 data-[error=true]:data-[state=checked]:border-red-500 data-[error=true]:dark:data-[state=checked]:border-red-500" // Error
+        "data-[state=indeterminate]:bg-[--muted] dark:data-[state=indeterminate]:bg-gray-700 data-[state=indeterminate]:text-white data-[state=indeterminate]:border-transparent", // Checked
+        "data-[error=true]:border-red-500 data-[error=true]:dark:border-red-500 data-[error=true]:data-[state=checked]:border-red-500 data-[error=true]:dark:data-[state=checked]:border-red-500", // Error
     ], {
         variants: {
             size: {
@@ -53,9 +53,9 @@ export const CheckboxAnatomy = defineStyleAnatomy({
     }),
     indicator: cva([
         "UI-Checkbox__indicator",
-        "flex h-full w-full items-center justify-center relative"
+        "flex h-full w-full items-center justify-center relative",
     ]),
-    icon: cva("UI-Checkbox__icon absolute", {
+    checkIcon: cva("UI-Checkbox__checkIcon absolute", {
         variants: {
             size: {
                 md: "h-4 w-4",
@@ -72,98 +72,147 @@ export const CheckboxAnatomy = defineStyleAnatomy({
  * Checkbox
  * -----------------------------------------------------------------------------------------------*/
 
-export interface CheckboxProps extends Omit<CheckboxPrimitiveProps, "disabled" | "required" | "onCheckedChange" | "onChange">,
-    ComponentWithAnatomy<typeof CheckboxAnatomy>,
-    VariantProps<typeof CheckboxAnatomy.label>,
-    BasicFieldOptions {
-    noErrorMessage?: boolean
-    onChange?: (value: boolean | "indeterminate") => void
+export type CheckboxProps =
+    BasicFieldOptions &
+    VariantProps<typeof CheckboxAnatomy.label> &
+    ComponentAnatomy<typeof CheckboxAnatomy> &
+    Omit<React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
+        "value" | "checked" | "disabled" | "required" | "onCheckedChange" | "defaultValue"> & {
+    /**
+     * If true, no error message will be shown when the field is invalid.
+     */
+    hideError?: boolean
+    /**
+     * The size of the checkbox.
+     */
+    value?: boolean | "indeterminate"
+    /**
+     * Default value when uncontrolled
+     */
+    defaultValue?: boolean | "indeterminate"
+    /**
+     * Callback fired when the value changes
+     */
+    onValueChange?: (value: boolean | "indeterminate") => void
+    /**
+     * Ref to the input element
+     */
+    inputRef?: React.Ref<HTMLInputElement>,
 }
 
 export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>((props, ref) => {
 
     const [{
         className,
-        noErrorMessage,
-        containerClassName,
-        controlClassName,
-        iconClassName,
-        labelClassName,
-        indicatorClassName,
-        onChange,
-        value,
-        size = "md",
+        hideError,
+        containerClass,
+        checkIconClass,
+        labelClass,
+        indicatorClass,
+        onValueChange,
+        defaultValue,
+        value: controlledValue,
+        size,
+        inputRef,
         ...rest
-    }, { label, ...basicFieldProps }] = extractBasicFieldProps<CheckboxProps>(props, useId())
+    }, { label, ...basicFieldProps }] = extractBasicFieldProps<CheckboxProps>(props, React.useId())
 
-    const groupContext = useCheckboxGroupContext()
+    const groupContext = React.useContext(__CheckboxGroupContext)
 
     const _size = groupContext?.group_size ?? size
 
+    const isFirst = React.useRef(true)
+
+    const buttonRef = React.useRef<HTMLButtonElement>(null)
+
+    const [_value, _setValue] = React.useState<boolean | "indeterminate">(controlledValue ?? defaultValue ?? false)
+
+    const handleOnValueChange = React.useCallback((value: boolean) => {
+        _setValue(value)
+        onValueChange?.(value)
+    }, [])
+
+    React.useEffect(() => {
+        if (!defaultValue || !isFirst.current) {
+            _setValue(controlledValue ?? false)
+        }
+        isFirst.current = false
+    }, [controlledValue])
+
     return (
         <BasicField
-            fieldClassName={"space-y-.5"}
+            fieldClass="flex gap-2"
             {...basicFieldProps}
-            error={noErrorMessage ? undefined : basicFieldProps.error} // The error message hidden when `noErrorMessage` is defined
+            error={hideError ? undefined : basicFieldProps.error} // The error message hidden when `hideError` is true
         >
             <label
                 className={cn(
                     CheckboxAnatomy.container(),
-                    containerClassName
+                    containerClass,
                 )}
                 htmlFor={basicFieldProps.id}
             >
                 <CheckboxPrimitive.Root
+                    ref={mergeRefs([buttonRef, ref])}
                     id={basicFieldProps.id}
-                    ref={ref}
-                    className={cn(
-                        CheckboxAnatomy.control({
-                            size: _size,
-                        }),
-                        controlClassName,
-                        className
-                    )}
-                    disabled={basicFieldProps.isDisabled}
-                    required={basicFieldProps.isRequired}
+                    className={cn(CheckboxAnatomy.root({ size: _size }), className)}
+                    disabled={basicFieldProps.disabled || basicFieldProps.readonly}
                     data-error={!!basicFieldProps.error}
-                    onCheckedChange={(value) => {
-                        onChange && onChange(value)
-                    }}
+                    data-disabled={basicFieldProps.disabled}
+                    aria-readonly={basicFieldProps.readonly}
+                    data-readonly={basicFieldProps.readonly}
+                    checked={_value}
+                    onCheckedChange={handleOnValueChange}
                     {...rest}
                 >
-                    <CheckboxPrimitive.CheckboxIndicator
-                        className={cn(CheckboxAnatomy.indicator(), indicatorClassName)}>
-                        {(rest.checked !== "indeterminate") && <svg
-                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" stroke="currentColor"
+                    <CheckboxPrimitive.CheckboxIndicator className={cn(CheckboxAnatomy.indicator(), indicatorClass)}>
+                        {(_value !== "indeterminate") && <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 16 16"
+                            stroke="currentColor"
                             fill="currentColor"
-                            className={cn(CheckboxAnatomy.icon({ size: _size }), iconClassName)}
+                            className={cn(CheckboxAnatomy.checkIcon({ size: _size }), checkIconClass)}
                         >
                             <path
-                                fill="#fff"
                                 d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"
-                            ></path>
+                            />
                         </svg>}
 
-                        {rest.checked === "indeterminate" &&
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor"
-                                 strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                                <line x1="5" x2="19" y1="12" y2="12"/>
-                            </svg>}
+                        {_value === "indeterminate" && <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            className={cn(CheckboxAnatomy.checkIcon({ size: _size }), checkIconClass)}
+                        >
+                            <line x1="5" x2="19" y1="12" y2="12" />
+                        </svg>}
                     </CheckboxPrimitive.CheckboxIndicator>
                 </CheckboxPrimitive.Root>
-                {(!!label || !!value) &&
+                {!!label &&
                     <label
-                        className={cn(
-                            CheckboxAnatomy.label({ size: _size }),
-                            labelClassName,
-                        )}
+                        className={cn(CheckboxAnatomy.label({ size: _size }), labelClass)}
                         htmlFor={basicFieldProps.id}
-                        data-disabled={basicFieldProps.isDisabled}
+                        data-disabled={basicFieldProps.disabled}
                     >
-                        {label ?? value}
+                        {label}
                     </label>
                 }
+
+                <input
+                    ref={inputRef}
+                    type="checkbox"
+                    name={basicFieldProps.name}
+                    className={hiddenInputStyles}
+                    value={_value === "indeterminate" ? "indeterminate" : _value ? "on" : "off"}
+                    checked={basicFieldProps.required ? _value === true : true}
+                    aria-hidden="true"
+                    required={basicFieldProps.required}
+                    tabIndex={-1}
+                    onChange={() => {}}
+                    onFocusCapture={() => buttonRef.current?.focus()}
+                />
             </label>
         </BasicField>
     )

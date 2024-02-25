@@ -3,10 +3,10 @@ import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { Button, CloseButton } from "@/components/ui/button"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { WSEvents } from "@/lib/server/endpoints"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { useSetAtom } from "jotai/react"
 import React, { useState } from "react"
 import { BiSolidBinoculars } from "react-icons/bi"
+import { FiSearch } from "react-icons/fi"
 
 type LibraryWatcherProps = {
     children?: React.ReactNode
@@ -74,7 +74,7 @@ export function LibraryWatcher(props: LibraryWatcherProps) {
                     </p>
                     <div>
                         <Button
-                            intent={"primary-outline"}
+                            intent="primary-outline"
                             leftIcon={<FiSearch />}
                             size="sm"
                             onClick={() => setScannerModalOpen(true)}

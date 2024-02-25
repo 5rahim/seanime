@@ -4,9 +4,9 @@ import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
 import { AnimeTorrent, TorrentPreview } from "@/lib/server/types"
-import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
-import { BiFile } from "@react-icons/all-files/bi/BiFile"
-import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
+import { BiCalendarAlt } from "react-icons/bi"
+import { BiFile } from "react-icons/bi"
+import { BiLinkExternal } from "react-icons/bi"
 import formatDistanceToNow from "date-fns/formatDistanceToNow"
 import React, { memo } from "react"
 
@@ -42,8 +42,8 @@ export const TorrentPreviewList = memo((
                         onClick={() => onToggleTorrent(item.torrent)}
                         action={<Tooltip trigger={<IconButton
                             icon={<BiLinkExternal/>}
-                            intent={"primary-basic"}
-                            size={"sm"}
+                            intent="primary-basic"
+                            size="sm"
                             onClick={() => window.open(item.torrent.link, "_blank")}
                         />}
                         >View on {item.torrent.provider === "nyaa" ? "Nyaa" : "AnimeTosho"}</Tooltip>}

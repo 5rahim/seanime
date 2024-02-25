@@ -2,23 +2,23 @@ import { useManuallyMatchLocalFiles } from "@/app/(main)/(library)/_containers/u
 import { useFetchMediaEntrySuggestions } from "@/app/(main)/entry/_lib/media-entry"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
+import { cn } from "@/components/ui/core/styling"
+import { Separator } from "@/components/ui/separator"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Drawer } from "@/components/ui/modal"
+import { Drawer } from "@/components/ui/drawer"
 import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { useOpenInExplorer } from "@/lib/server/hooks"
 import { UnmatchedGroup } from "@/lib/server/types"
-import { BiLeftArrow } from "@react-icons/all-files/bi/BiLeftArrow"
-import { BiRightArrow } from "@react-icons/all-files/bi/BiRightArrow"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import { BiLeftArrow } from "react-icons/bi"
+import { BiRightArrow } from "react-icons/bi"
+import { FcFolder } from "react-icons/fc"
+import { FiSearch } from "react-icons/fi"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
 import React, { useCallback, useEffect, useState } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 export const _unmatchedFileManagerIsOpen = atom(false)
 
@@ -72,9 +72,8 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
     const AnilistIdInput = useCallback(() => {
         return <NumberInput
-            discrete
             value={anilistId}
-            onChange={v => setAnilistId(v)}
+            onValueChange={v => setAnilistId(v)}
         />
     }, [currentGroup?.dir, _r])
 
@@ -107,11 +106,11 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
     return (
         <Drawer
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
+            open={isOpen}
+            onOpenChange={() => setIsOpen(false)}
             size="xl"
             title="Resolve unmatched"
-            isClosable
+
         >
             <AppLayoutStack>
 
@@ -119,7 +118,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     <Button
                         intent="gray-subtle"
                         leftIcon={<BiLeftArrow/>}
-                        isDisabled={page === 0}
+                        disabled={page === 0}
                         onClick={() => {
                             setPage(p => p - 1)
                         }}
@@ -128,7 +127,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     <Button
                         intent="gray-subtle"
                         rightIcon={<BiRightArrow/>}
-                        isDisabled={page >= maxPage}
+                        disabled={page >= maxPage}
                         onClick={() => {
                             setPage(p => p + 1)
                         }}
@@ -144,7 +143,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     {currentGroup.dir}
                 </div>
 
-                <ul className="list-disc pl-8 bg-[--background-color] p-2 px-4 rounded-md space-y-1 max-h-60 overflow-y-auto">
+                <ul className="list-disc pl-8 bg-[--background] p-2 px-4 rounded-md space-y-1 max-h-60 overflow-y-auto">
                     {currentGroup.localFiles.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0)))).map(lf => {
                         return <li key={lf.path} className="text-sm">
                             {lf.path}
@@ -152,7 +151,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     })}
                 </ul>
 
-                {/*<Divider />*/}
+                {/*<Separator />*/}
 
                 <div className="flex gap-2 items-center">
                     <p className="flex-none text-lg mr-2 font-semibold">Anilist ID</p>
@@ -160,11 +159,11 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     <Button
                         intent="primary-outline"
                         onClick={handleManuallyMatchEntry}
-                        isLoading={matchingLoading}
+                        loading={matchingLoading}
                     >Match</Button>
                 </div>
 
-                <Divider/>
+                <Separator />
 
                 <Button
                     leftIcon={<FiSearch/>}
@@ -178,16 +177,16 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                 {(!suggestionsLoading && suggestions.length > 0) && <RadioGroup
                     defaultValue="1"
-                    fieldClassName="w-full"
-                    fieldLabelClassName="text-md"
+                    fieldClass="w-full"
+                    fieldLabelClass="text-md"
                     label="Select Anime"
                     value={String(anilistId)}
-                    onChange={handleSelectAnime}
+                    onValueChange={handleSelectAnime}
                     options={suggestions.map((media) => (
                         {
                             label: media.title?.userPreferred || media.title?.english || media.title?.romaji || "",
                             value: String(media.id) || "",
-                            help: <div className={"mt-2 flex w-full gap-4"}>
+                            help: <div className="mt-2 flex w-full gap-4">
                                 {media.coverImage?.medium && <div
                                     className="h-28 w-28 flex-none rounded-md object-cover object-center relative overflow-hidden">
                                     <Image
@@ -200,30 +199,30 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                         className="object-cover object-center"
                                     />
                                 </div>}
-                                <div className={"text-[--muted]"}>
-                                    {/*<p className={"line-clamp-1"}>{media.title?.userPreferred || media.title?.english || media.title?.romaji}</p>*/}
+                                <div className="text-[--muted]">
+                                    {/*<p className="line-clamp-1">{media.title?.userPreferred || media.title?.english || media.title?.romaji}</p>*/}
                                     <p>Type: <span
-                                        className={"text-gray-200 font-semibold"}>{media.format}</span>
+                                        className="text-gray-200 font-semibold"
+                                    >{media.format}</span>
                                     </p>
                                     <p>Aired: {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
                                         year: "numeric",
                                     }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}</p>
                                     <p>Status: {media.status}</p>
                                     <Button
-                                        intent={"primary-link"}
-                                        size={"sm"}
-                                        className={"px-0"}
+                                        intent="primary-link"
+                                        size="sm"
+                                        className="px-0"
                                         onClick={() => window.open(`https://anilist.co/anime/${media.id}`, "_target")}
                                     >Open on AniList</Button>
                                 </div>
                             </div>,
                         }
                     ))}
-                    radioContainerClassName="block w-full p-4 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius] data-[checked=true]:ring-2 ring-[--ring]"
-                    radioControlClassName="absolute right-2 top-2 h-5 w-5 text-xs"
-                    radioHelpClassName="text-sm"
-                    radioLabelClassName="font-semibold flex-none w-[90%] line-clamp-1"
-                    stackClassName="grid grid-cols-2 gap-2 space-y-0"
+                    // TODO
+                    // radioContainerClass="block w-full p-4 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius]
+                    // data-[checked=true]:ring-2 ring-[--ring]" radioControlClass="absolute right-2 top-2 h-5 w-5 text-xs" radioHelpClass="text-sm"
+                    // radioLabelClass="font-semibold flex-none w-[90%] line-clamp-1" stackClass="grid grid-cols-2 gap-2 space-y-0"
                 />}
 
             </AppLayoutStack>

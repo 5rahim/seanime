@@ -1,20 +1,20 @@
 "use client"
-import React, { Fragment, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { useDebounce } from "@/hooks/use-debounce"
+import { searchAnilistMediaList } from "@/lib/anilist/queries/search-media"
 import { Combobox, Dialog, Transition } from "@headlessui/react"
-import { cn } from "@/components/ui/core"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
+import { useQuery } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
-import { useDebounce } from "@/hooks/use-debounce"
-import { useQuery } from "@tanstack/react-query"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { useRouter } from "next/navigation"
 import capitalize from "lodash/capitalize"
-import { searchAnilistMediaList } from "@/lib/anilist/queries/search-media"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import React, { Fragment, useState } from "react"
+import { BiChevronRight } from "react-icons/bi"
+import { FiSearch } from "react-icons/fi"
 
 export const __globalSearch_isOpenAtom = atom(false)
 
@@ -92,9 +92,11 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                     placeholder="Search..."
                                                     onChange={(event) => setInputValue(event.target.value)}
                                                 />
-                                                <Link href={"/search"} onClick={() => setOpen(false)}>
-                                                    <Button className={"absolute top-3 right-2 z-1"}
-                                                            intent={"white-basic"}>
+                                                <Link href="/search" onClick={() => setOpen(false)}>
+                                                    <Button
+                                                        className="absolute top-3 right-2 z-1"
+                                                        intent="white-basic"
+                                                    >
                                                         Advanced search
                                                     </Button>
                                                 </Link>
@@ -111,7 +113,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                             { "sm:h-96": activeOption },
                                                         )}
                                                     >
-                                                        <div className="-mx-2 text-sm text-[--text-color]">
+                                                        <div className="-mx-2 text-sm text-[--foreground]">
                                                             {(media).map((item: any) => (
                                                                 <Combobox.Option
                                                                     as="div"
@@ -173,7 +175,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                                         className="object-cover object-center"
                                                                     />}
                                                                 </div>
-                                                                <h4 className="mt-3 font-semibold text-[--text-color] line-clamp-3">{activeOption.title?.userPreferred}</h4>
+                                                                <h4 className="mt-3 font-semibold text-[--foreground] line-clamp-3">{activeOption.title?.userPreferred}</h4>
                                                                 <p className="text-sm leading-6 text-[--muted]">
                                                                     {activeOption.format}{activeOption.season ? ` - ${capitalize(activeOption.season)} ` : " - "}{activeOption.startDate?.year
                                                                     ? new Intl.DateTimeFormat("en-US", { year: "numeric" })
@@ -185,8 +187,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                                   onClick={() => setOpen(false)}>
                                                                 <Button
                                                                     type="button"
-                                                                    className={"w-full"}
-                                                                    intent={"white-subtle"}
+                                                                    className="w-full"
+                                                                    intent="white-subtle"
                                                                 >
                                                                     Open
                                                                 </Button>
@@ -205,7 +207,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                     {<div
                                                         className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden">
                                                         <Image
-                                                            src={"/luffy-01.png"}
+                                                            src="/luffy-01.png"
                                                             alt={""}
                                                             fill
                                                             quality={100}
@@ -214,7 +216,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                             className="object-contain object-top"
                                                         />
                                                     </div>}
-                                                    <h5 className="mt-4 font-semibold text-[--text-color]">Nothing
+                                                    <h5 className="mt-4 font-semibold text-[--foreground]">Nothing
                                                         found</h5>
                                                     <p className="mt-2 text-[--muted]">
                                                         We couldn't find anything with that name. Please try again.

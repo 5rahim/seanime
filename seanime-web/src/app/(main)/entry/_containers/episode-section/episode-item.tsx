@@ -1,22 +1,21 @@
 import { useUpdateLocalFile } from "@/app/(main)/entry/_lib/update-local-file"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { IconButton } from "@/components/ui/button"
-import { Divider } from "@/components/ui/divider"
 import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { Separator } from "@/components/ui/separator"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { LocalFileType, MediaEntryEpisode } from "@/lib/server/types"
-import { AiFillWarning } from "@react-icons/all-files/ai/AiFillWarning"
-import { BiDotsHorizontal } from "@react-icons/all-files/bi/BiDotsHorizontal"
-import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { MdInfo } from "@react-icons/all-files/md/MdInfo"
-import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
 import Image from "next/image"
 import React, { memo } from "react"
-import toast from "react-hot-toast"
+import { AiFillWarning } from "react-icons/ai"
+import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
+import { MdInfo } from "react-icons/md"
+import { VscVerified } from "react-icons/vsc"
+import { toast } from "sonner"
 
 export const EpisodeItemIsolation = createIsolation()
 
@@ -48,9 +47,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                     <IconButton
                         icon={episode.localFile?.locked ? <VscVerified/> : <BiLockOpenAlt/>}
                         intent={episode.localFile?.locked ? "success-basic" : "warning-basic"}
-                        size={"md"}
-                        className={"hover:opacity-60"}
-                        isLoading={isPending}
+                        size="md"
+                        className="hover:opacity-60"
+                        loading={isPending}
                         onClick={() => {
                             if (episode.localFile) {
                                 updateLocalFile(episode.localFile, {
@@ -63,12 +62,12 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                     <DropdownMenu trigger={
                         <IconButton
                             icon={<BiDotsHorizontal/>}
-                            intent={"gray-basic"}
-                            size={"xs"}
+                            intent="gray-basic"
+                            size="xs"
                         />
                     }>
                         <MetadataModalButton/>
-                        <DropdownMenu.Divider/>
+                        <DropdownMenu.Separator />
                         <DropdownMenu.Item
                             className="!text-red-300 !dark:text-red-200"
                             onClick={() => {
@@ -97,7 +96,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
 })
 
 
-const metadataSchema = createTypesafeFormSchema(({ z }) => z.object({
+const metadataSchema = defineSchema(({ z }) => z.object({
     episode: z.number().min(0),
     aniDBEpisode: z.string().transform(value => value.toUpperCase()),
     type: z.string().min(0),
@@ -111,15 +110,15 @@ export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
 
     return (
         <Modal
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-            isClosable
+            open={isOpen}
+            onOpenChange={() => setIsOpen(false)}
+
             title={episode.displayTitle}
-            titleClassName={"text-center"}
-            size={"lg"}
+            titleClass="text-center"
+            size="lg"
         >
             <p className="w-full line-clamp-2 text-sm text-[--muted] px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
-            <TypesafeForm
+            <Form
                 schema={metadataSchema}
                 onSubmit={(data) => {
                     if (episode.localFile) {
@@ -140,26 +139,28 @@ export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
                 //@ts-ignore
                 defaultValues={{ ...episode.fileMetadata }}
             >
-                <Field.Number label={"Episode number"} name={"episode"}
-                              help={"Relative episode number. If movie, episode number = 1"} discrete isRequired/>
+                <Field.Number
+                    label="Episode number" name="episode"
+                    help="Relative episode number. If movie, episode number = 1" discrete isRequired
+                />
                 <Field.Text
-                    label={"AniDB episode"}
-                    name={"aniDBEpisode"}
-                    help={"Specials typically contain the letter S"}
+                    label="AniDB episode"
+                    name="aniDBEpisode"
+                    help="Specials typically contain the letter S"
                 />
                 <Field.Select
-                    label={"Type"}
-                    name={"type"}
+                    label="Type"
+                    name="type"
                     options={[
                         { label: "Main", value: "main" },
                         { label: "Special", value: "special" },
                         { label: "NC/Other", value: "nc" },
                     ]}
                 />
-                <div className={"w-full flex justify-end"}>
-                    <Field.Submit role={"save"} intent={"success"} isLoading={isPending}/>
+                <div className="w-full flex justify-end">
+                    <Field.Submit role="save" intent="success" loading={isPending} />
                 </div>
-            </TypesafeForm>
+            </Form>
         </Modal>
     )
 }
@@ -174,8 +175,8 @@ function EpisodeItemInfoModalButton() {
     return <IconButton
         icon={<MdInfo />}
         className="opacity-30 hover:opacity-100 transform-opacity"
-        intent={"gray-basic"}
-        size={"xs"}
+        intent="gray-basic"
+        size="xs"
         onClick={() => setIsOpen(true)}
     />
 }
@@ -191,19 +192,19 @@ export function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
     return (
         <>
             <Modal
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
+                open={isOpen}
+                onOpenChange={() => setIsOpen(false)}
                 title={episode.displayTitle}
-                isClosable
-                size={"xl"}
-                titleClassName={"text-xl"}
+
+                size="xl"
+                titleClass="text-xl"
             >
 
                 {episode.episodeMetadata?.image && <div
                     className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]">
                     <Image
                         src={episode.episodeMetadata?.image}
-                        alt={"banner"}
+                        alt="banner"
                         fill
                         quality={80}
                         priority
@@ -228,12 +229,14 @@ export function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
                     </p>
                     {
                         (!!episode.episodeMetadata?.aniDBId) && <>
-                            <Divider/>
+                            <Separator />
                             <div className="w-full flex justify-between">
                                 <p>AniDB Episode: {episode.fileMetadata?.aniDBEpisode}</p>
                                 <a href={"https://anidb.net/episode/" + episode.episodeMetadata?.aniDBId + "#layout-footer"}
-                                   target={"_blank"}
-                                   className={"text-brand-200"}>Open on AniDB</a>
+                                   target="_blank"
+                                   className="text-brand-200"
+                                >Open on AniDB
+                                </a>
                             </div>
                         </>
                     }

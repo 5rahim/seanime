@@ -5,7 +5,7 @@ import {
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
 import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
@@ -87,7 +87,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
     const EpisodeNumberInput = useCallback(() => {
         return <NumberInput
-            label={"Episode number"}
+            label="Episode number"
             value={quickSearchEpisode}
             onChange={(value) => {
                 startTransition(() => {
@@ -96,12 +96,12 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
             }}
             discrete
             size="sm"
-            fieldClassName={cn(
+            fieldClass={cn(
                 "flex items-center justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (quickSearchBatch || !quickSearch) },
             )}
-            fieldLabelClassName={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
-            inputClassName="max-w-[6rem]"
+            fieldLabelClass={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
+            inputClass="max-w-[6rem]"
         />
     }, [quickSearch, quickSearchBatch, downloadInfo, soughtEpisode])
 
@@ -137,7 +137,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                                 help={!downloadInfo?.canBatch ? "Cannot look for batches for this media" : undefined}
                                 checked={quickSearchBatch}
                                 onChange={setQuickSearchBatch}
-                                fieldClassName={cn(
+                                fieldClass={cn(
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                 )}
                             />
@@ -145,7 +145,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             <EpisodeNumberInput/>
 
                             <Select
-                                label={"Resolution"}
+                                label="Resolution"
                                 value={quickSearchResolution}
                                 onChange={e => setQuickSearchResolution(e.target.value ?? "")}
                                 options={[
@@ -155,11 +155,11 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                                     { value: "480", label: "480p" },
                                 ]}
                                 size="sm"
-                                fieldClassName={cn(
+                                fieldClass={cn(
                                     "flex items-center justify-end gap-3 space-y-0",
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch },
                                 )}
-                                fieldLabelClassName={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
+                                fieldLabelClass={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
                                 className="w-[6rem]"
                             />
                         </div>
@@ -168,7 +168,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             value={globalFilter ?? ""}
                             onChange={v => setGlobalFilter(v)}
                             placeholder={quickSearch ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
-                            fieldClassName="md:max-w-full w-full"
+                            fieldClass="md:max-w-full w-full"
                         />
 
                         <div className="pb-1"/>

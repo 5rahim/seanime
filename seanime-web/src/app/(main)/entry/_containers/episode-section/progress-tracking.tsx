@@ -2,7 +2,7 @@ import { serverStatusAtom } from "@/atoms/server-status"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
@@ -11,7 +11,7 @@ import { MediaEntry, MediaEntryEpisode, MediaPlayerPlaybackStatus } from "@/lib/
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { useEffect, useMemo, useState } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 
 export function ProgressTracking({ entry }: { entry: MediaEntry }) {
@@ -143,7 +143,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
     return (
         <>
             {isTracking.active && canTrackProgress && <Button
-                intent={"success"}
+                intent="success"
                 className={cn({ "animate-pulse": isCompleted.active })}
                 onClick={trackerModal.on}
             >
@@ -152,16 +152,16 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
 
 
             <Modal
-                isOpen={trackerModal.active && canTrackProgress}
-                onClose={trackerModal.off}
-                // isClosable
+                open={trackerModal.active && canTrackProgress}
+                onOpenChange={trackerModal.off}
+                //
                 // title="Progress"
-                // titleClassName={"text-center"}
+                // titleClass="text-center"
             >
-                <div className="bg-[--background-color] border border-[--border] rounded-md p-4 mb-4 text-center">
+                <div className="bg-[--background] border border-[--border] rounded-md p-4 mb-4 text-center">
                     {(!!status && isCompleted.active && !!episode) ? (
-                        <p className={"text-xl"}>Current progress: <Badge size={"lg"}>{episode.progressNumber} <span
-                            className={"opacity-60"}
+                        <p className="text-xl">Current progress: <Badge size="lg">{episode.progressNumber} <span
+                            className="opacity-60"
                         >/ {entry.currentEpisodeCount}</span></Badge>
                         </p>
                     ) : (
@@ -169,16 +169,16 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
                     )}
                 </div>
                 {serverStatus?.settings?.library?.autoUpdateProgress && (
-                    <p className={"text-[--muted] py-2 text-center"}>
+                    <p className="text-[--muted] py-2 text-center">
                         Your progress will be automatically updated
                     </p>
                 )}
-                <div className={"flex gap-2 justify-center items-center"}>
+                <div className="flex gap-2 justify-center items-center">
                     {(!!status && isCompleted.active && canTrackProgress) && <Button
-                        intent={"primary"}
-                        isDisabled={false}
+                        intent="primary"
+                        disabled={false}
                         onClick={handleUpdateProgress}
-                        isLoading={isPending}
+                        loading={isPending}
                         className="w-full"
                     >
                         Confirm

@@ -1,111 +1,148 @@
 "use client"
 
-import { cn } from "../core"
-import React, { createContext, useContext, useId, useLayoutEffect, useState } from "react"
-import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
+import * as React from "react"
 import { Checkbox, CheckboxProps } from "."
-
-
-/* -------------------------------------------------------------------------------------------------
- * Provider
- * -----------------------------------------------------------------------------------------------*/
-
-interface CheckboxGroupContextValue {
-    group_size: CheckboxProps["size"]
-}
-
-const _CheckboxGroupContext = createContext<CheckboxGroupContextValue | null>(null)
-export const CheckboxGroupProvider = _CheckboxGroupContext.Provider
-export const useCheckboxGroupContext = () => useContext(_CheckboxGroupContext)
+import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
+import { cn } from "../core/styling"
+import { hiddenInputStyles } from "../input"
 
 /* -------------------------------------------------------------------------------------------------
  * CheckboxGroup
  * -----------------------------------------------------------------------------------------------*/
 
-export interface CheckboxGroupProps extends BasicFieldOptions {
-    value?: string[]
-    defaultValue?: string[]
-    onChange?: (value: string[]) => void
-    size?: CheckboxProps["size"]
-    stackClassName?: string
-    checkboxContainerClassName?: string
-    checkboxLabelClassName?: string
-    checkboxControlClassName?: string
-    checkboxIconClassName?: string
-    options: { value: string, label?: React.ReactNode }[]
+type CheckboxGroupContextValue = {
+    group_size: CheckboxProps["size"]
 }
 
-export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>((props, ref) => {
+export const __CheckboxGroupContext = React.createContext<CheckboxGroupContextValue | null>(null)
+
+export type CheckboxGroupOption = { value: string, label?: React.ReactNode, disabled?: boolean, readonly?: boolean }
+
+export type CheckboxGroupProps = BasicFieldOptions & {
+    /**
+     * The value of the checkbox group.
+     */
+    value?: string[]
+    /**
+     * The default value of the checkbox group when uncontrolled.
+     */
+    defaultValue?: string[]
+    /**
+     * Callback invoked when the value of the checkbox group changes.
+     */
+    onValueChange?: (value: string[]) => void
+    /**
+     * The size of the checkboxes.
+     */
+    size?: CheckboxProps["size"]
+    /**
+     * The options of the checkbox group.
+     */
+    options: CheckboxGroupOption[]
+    /**
+     * Class names applied to the container.
+     */
+    stackClass?: string
+    /**
+     * Class names applied to each checkbox container.
+     */
+    itemContainerClass?: string
+    /**
+     * Class names applied to each checkbox label.
+     */
+    itemLabelClass?: string
+    /**
+     * Class names applied to each checkbox button.
+     */
+    itemClass?: string
+    /**
+     * Class names applied to each checkbox check icon.
+     */
+    itemCheckIconClass?: string
+}
+
+export const CheckboxGroup = React.forwardRef<HTMLInputElement, CheckboxGroupProps>((props, ref) => {
 
     const [{
-        value,
+        value: controlledValue,
         defaultValue = [],
-        onChange,
-        stackClassName,
-        checkboxLabelClassName,
-        checkboxControlClassName,
-        checkboxContainerClassName,
-        checkboxIconClassName,
+        onValueChange,
+        stackClass,
+        itemLabelClass,
+        itemClass,
+        itemContainerClass,
+        itemCheckIconClass,
         options,
         size = undefined,
-    }, basicFieldProps] = extractBasicFieldProps<CheckboxGroupProps>(props, useId())
+    }, basicFieldProps] = extractBasicFieldProps<CheckboxGroupProps>(props, React.useId())
 
-    // Keep track of selected values
-    const [selectedValues, setSelectedValues] = useState<string[]>(value ?? defaultValue)
+    const [value, setValue] = React.useState<string[]>(controlledValue ?? defaultValue)
 
-    // Control the state
-    useLayoutEffect(() => {
-        if (value) {
-            setSelectedValues(value)
+    const handleUpdateValue = React.useCallback((v: string) => {
+        return (checked: boolean | "indeterminate") => {
+            setValue(p => {
+                const newArr = checked === true
+                    ? [...p, ...(p.includes(v) ? [] : [v])]
+                    : checked === false
+                        ? p.filter(v1 => v1 !== v)
+                        : [...p]
+                onValueChange?.(newArr)
+                return newArr
+            })
         }
-    }, [value])
+    }, [])
+
+    React.useEffect(() => {
+        if (controlledValue !== undefined) {
+            setValue(controlledValue)
+        }
+    }, [controlledValue])
 
 
     return (
-        <>
-            <CheckboxGroupProvider value={{
-                group_size: size
-            }}>
-                <BasicField
-                    {...basicFieldProps}
+        <__CheckboxGroupContext.Provider
+            value={{
+                group_size: size,
+            }}
+        >
+            <BasicField {...basicFieldProps}>
+                <div className={cn("UI-CheckboxGroup__stack space-y-1", stackClass)}>
+                    {options.map((opt) => (
+                        <Checkbox
+                            key={opt.value}
+                            label={opt.label}
+                            value={value.includes(opt.value)}
+                            onValueChange={handleUpdateValue(opt.value)}
+                            hideError
+                            error={basicFieldProps.error}
+                            className={itemClass}
+                            labelClass={itemLabelClass}
+                            containerClass={itemContainerClass}
+                            checkIconClass={itemCheckIconClass}
+                            disabled={basicFieldProps.disabled || opt.disabled}
+                            readonly={basicFieldProps.readonly || opt.readonly}
+                            tabIndex={0}
+                        />
+                    ))}
+                </div>
+
+                <input
                     ref={ref}
-                >
-                    <div className={cn("space-y-1", stackClassName)}>
-                        {options.map((opt) => (
-                            <Checkbox
-                                key={opt.value}
-                                label={opt.label}
-                                value={opt.value}
-                                checked={selectedValues.includes(opt.value)}
-                                onChange={checked => {
-                                    setSelectedValues(p => {
-                                        let newArr = [...p]
-                                        if (checked === true) {
-                                            if (p.indexOf(opt.value) === -1) newArr.push(opt.value)
-                                        } else if (checked === false) {
-                                            newArr = newArr.filter(v => v !== opt.value)
-                                        }
-                                        if (onChange) {
-                                            onChange(newArr)
-                                        }
-                                        return newArr
-                                    })
-                                }}
-                                error={basicFieldProps.error}
-                                noErrorMessage
-                                labelClassName={checkboxLabelClassName}
-                                controlClassName={checkboxControlClassName}
-                                containerClassName={checkboxContainerClassName}
-                                iconClassName={checkboxIconClassName}
-                                isDisabled={basicFieldProps.isDisabled}
-                                isReadOnly={basicFieldProps.isReadOnly}
-                                tabIndex={0}
-                            />
-                        ))}
-                    </div>
-                </BasicField>
-            </CheckboxGroupProvider>
-        </>
+                    type="text"
+                    id={basicFieldProps.name}
+                    name={basicFieldProps.name}
+                    className={hiddenInputStyles}
+                    value={basicFieldProps.required
+                        ? (!!value.length ? JSON.stringify(value) : "")
+                        : JSON.stringify(value)}
+                    aria-hidden="true"
+                    required={basicFieldProps.required}
+                    tabIndex={-1}
+                    onChange={() => {}}
+                />
+
+            </BasicField>
+        </__CheckboxGroupContext.Provider>
     )
 
 })

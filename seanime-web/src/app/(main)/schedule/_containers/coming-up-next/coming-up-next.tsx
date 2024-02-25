@@ -22,16 +22,17 @@ export function ComingUpNext() {
     return (
         <AppLayoutStack>
             <h2>Coming up next</h2>
-            <p className={"text-[--muted]"}>Based on your anime list</p>
+            <p className="text-[--muted]">Based on your anime list</p>
             <Slider>
                 {media.map(item => {
                     return (
                         <div
                             key={item.id}
-                            className={"rounded-md border border-gray-800 overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none group/missed-episode-item"}
+                            className="rounded-md border border-gray-800 overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none group/missed-episode-item"
                         >
                             <div
-                                className={"absolute w-full h-full rounded-md rounded-b-none overflow-hidden z-[1]"}>
+                                className="absolute w-full h-full rounded-md rounded-b-none overflow-hidden z-[1]"
+                            >
                                 {(!!item.bannerImage || !!item.coverImage?.large) ? <Image
                                     src={item.bannerImage || item.coverImage?.large || ""}
                                     alt={""}
@@ -40,22 +41,24 @@ export function ComingUpNext() {
                                     sizes="20rem"
                                     className="object-cover object-top transition opacity-20"
                                 /> : <div
-                                    className={"h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"}></div>}
+                                    className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
+                                ></div>}
                                 <div
-                                    className={"z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background-color] to-transparent"}
+                                    className={"z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"}
                                 />
                             </div>
-                            <div className={"relative z-[3] w-full p-4 space-y-1"}>
+                            <div className="relative z-[3] w-full p-4 space-y-1">
                                 <Link
                                     href={`/entry?id=${item.id}`}
                                     className={"w-[80%] line-clamp-1 text-[--muted] font-semibold cursor-pointer"}
                                 >
                                     {item.title?.userPreferred}
                                 </Link>
-                                <div className={"w-full justify-between flex items-center"}>
-                                    <p className={"text-xl font-semibold"}>Episode {item.nextAiringEpisode?.episode}</p>
+                                <div className="w-full justify-between flex items-center">
+                                    <p className="text-xl font-semibold">Episode {item.nextAiringEpisode?.episode}</p>
                                     {item.nextAiringEpisode?.timeUntilAiring &&
-                                        <p className={"text-[--muted]"}>{formatDistanceToNow(addSeconds(new Date(), item.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}</p>}
+                                        <p className="text-[--muted]">{formatDistanceToNow(addSeconds(new Date(),
+                                            item.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}</p>}
                                 </div>
                             </div>
                         </div>

@@ -1,7 +1,7 @@
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { Slider } from "@/components/shared/slider"
-import { Divider } from "@/components/ui/divider"
+import { Separator } from "@/components/ui/separator"
 import { Drawer } from "@/components/ui/modal"
 import { MediaEntry, MediaEntryDownloadEpisode } from "@/lib/server/types"
 import { atom } from "jotai"
@@ -32,9 +32,9 @@ export function TorrentSearchDrawer(props: { entry: MediaEntry }) {
 
     return (
         <Drawer
-            isOpen={isOpen}
-            onClose={() => setter(false)}
-            isClosable
+            open={isOpen}
+            onOpenChange={() => setter(false)}
+
             size="xl"
             title="Search torrents"
         >
@@ -73,14 +73,14 @@ function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | und
                                 image={item.episode?.episodeMetadata?.image}
                                 episodeTitle={item?.episode?.episodeTitle}
                                 description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber ? `(Episode ${item?.episode?.absoluteEpisodeNumber})` : undefined}
-                                imageContainerClassName="w-20 h-20"
+                                imageContainerClass="w-20 h-20"
                                 className="flex-none w-80"
                             />
                         )
                     })}
                 </Slider>
             </div>
-            <Divider className="py-2 mt-4"/>
+            <Separator className="py-2 mt-4" />
         </div>
     )
 

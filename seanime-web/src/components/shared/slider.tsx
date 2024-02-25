@@ -1,8 +1,8 @@
 "use client"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { useDraggableScroll } from "@/hooks/use-draggable-scroll"
-import { MdChevronLeft } from "@react-icons/all-files/md/MdChevronLeft"
-import { MdChevronRight } from "@react-icons/all-files/md/MdChevronRight"
+import { MdChevronLeft } from "react-icons/md"
+import { MdChevronRight } from "react-icons/md"
 import React, { useRef, useState } from "react"
 import { useIsomorphicLayoutEffect, useUpdateEffect } from "react-use"
 
@@ -91,7 +91,7 @@ export const Slider: React.FC<SliderProps> = (props) => {
         )}>
             <div
                 onClick={slideLeft}
-                className={`flex items-center cursor-pointer hover:text-action absolute left-0 bg-gradient-to-r from-[--background-color] z-40 h-full w-16 hover:opacity-100 ${
+                className={`flex items-center cursor-pointer hover:text-action absolute left-0 bg-gradient-to-r from-[--background] z-40 h-full w-16 hover:opacity-100 ${
                     !isScrolledToLeft ? "lg:visible" : "invisible"
                 }`}
             >
@@ -107,7 +107,8 @@ export const Slider: React.FC<SliderProps> = (props) => {
             </div>
             <div
                 onClick={slideRight}
-                className={cn("flex items-center invisible cursor-pointer hover:text-action absolute right-0 bg-gradient-to-l from-[--background-color] z-40 h-full w-16 hover:opacity-100",
+                className={cn(
+                    "flex items-center invisible cursor-pointer hover:text-action absolute right-0 bg-gradient-to-l from-[--background] z-40 h-full w-16 hover:opacity-100",
                     {
                         "lg:visible": !isScrolledToRight && showChevronRight,
                     })}

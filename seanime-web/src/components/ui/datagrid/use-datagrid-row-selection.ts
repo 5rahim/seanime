@@ -1,33 +1,45 @@
-import { startTransition, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Row, Table } from "@tanstack/react-table"
-import deepEquals from "fast-deep-equal"
+import * as React from "react"
 
-/**
- * DataGrid Prop
- */
 export type DataGridOnRowSelect<T> = (event: DataGridRowSelectedEvent<T>) => void
 
-/**
- * Hook props
- */
-type Props<T> = {
+type DataGridRowSelectionProps<T> = {
+    /**
+     * Whether the row selection is persistent.
+     * If true, the selected rows will be cached and restored when the table is paginated, filtered, sorted or when the data changes.
+     */
     persistent: boolean
+    /**
+     * Callback fired when a row is selected.
+     */
     onRowSelect?: DataGridOnRowSelect<T>
+    /**
+     * The table instance.
+     */
     table: Table<T>,
+    /**
+     * The data passed to the table.
+     */
     data: T[] | null
+    /**
+     * The rows currently displayed in the table.
+     */
     displayedRows: Row<T>[]
+    /**
+     * The primary key of the data. This is used to identify the rows.
+     */
     rowSelectionPrimaryKey: string | undefined
+    /**
+     * Whether row selection is enabled.
+     */
     enabled: boolean
 }
 
-/**
- * Event
- */
 export type DataGridRowSelectedEvent<T> = {
     data: T[]
 }
 
-export function useDataGridRowSelection<T extends Record<string, any>>(props: Props<T>) {
+export function useDataGridRowSelection<T extends Record<string, any>>(props: DataGridRowSelectionProps<T>) {
 
     const {
         table,
@@ -39,34 +51,27 @@ export function useDataGridRowSelection<T extends Record<string, any>>(props: Pr
         enabled,
     } = props
 
-    const canSelect = useRef<boolean>(enabled)
 
-    // Server mode
-    const pageIndex = useMemo(() => table.getState().pagination.pageIndex, [table.getState().pagination.pageIndex])
-    const pageSize = useMemo(() => table.getState().pagination.pageSize, [table.getState().pagination.pageSize])
-    const globalFilter = useMemo(() => table.getState().globalFilter, [table.getState().globalFilter])
-    const columnFilters = useMemo(() => table.getState().globalFilter, [table.getState().columnFilters])
-    const sorting = useMemo(() => table.getState().sorting, [table.getState().sorting])
-    // Server mode
-    const displayedRowsRef = useRef<Row<T>[]>(displayedRows)
-    // Server mode
-    const previousSelectionEvent = useRef<DataGridRowSelectedEvent<T>>({ data: [] })
-    // Server mode
-    const [nonexistentSelectedRows, setNonexistentSelectedRows] = useState<{ id: string, row: Row<T> }[]>([])
+    const rowSelection = React.useMemo(() => table.getState().rowSelection, [table.getState().rowSelection])
+    const selectedRowsRef = React.useRef<Map<string | number, T>>(new Map())
 
-    const rowSelection = useMemo(() => table.getState().rowSelection, [table.getState().rowSelection])
-    const rows = useMemo(() => table.getRowModel().rows, [table.getRowModel().rows])
+    //----------------------------------
 
-    // Warnings
-    useEffect(() => {
+    const canSelect = React.useRef<boolean>(enabled)
+
+    React.useEffect(() => {
+        selectedRowsRef.current.clear()
+
         if (enabled && !key) {
-            console.error("[DataGrid] You've enable row selection without providing a primary key. Make sure to define the `rowSelectionPrimaryKey` prop.")
+            console.error(
+                "[DataGrid] You've enable row selection without providing a primary key. Make sure to define the `rowSelectionPrimaryKey` prop.")
             canSelect.current = false
         }
     }, [])
 
-    const firstCheckRef = useRef<boolean>(false)
-    useEffect(() => {
+    const firstCheckRef = React.useRef<boolean>(false)
+
+    React.useEffect(() => {
         if (enabled && key && !firstCheckRef.current && displayedRows.length > 0 && !displayedRows.some(row => !!row.original[key])) {
             console.error("[DataGrid] The key provided by `rowSelectionPrimaryKey` does not match any property in the data.")
             firstCheckRef.current = true
@@ -74,91 +79,42 @@ export function useDataGridRowSelection<T extends Record<string, any>>(props: Pr
         }
     }, [displayedRows])
 
-    /** Server-side row selection **/
-    useLayoutEffect(() => {
-        // When the table is paginated
-        if (displayedRows.length > 0 && persistent && !!key && canSelect.current) {
-            startTransition(() => {
-                table.resetRowSelection()
-                // Refresh nonexistent rows
-                setNonexistentSelectedRows(prev => {
-                    // Find the rows that were selected on the previous page
-                    const rowIsSelected = (row: Row<T>) => Object.keys(rowSelection).map(v => parseInt(v)).includes(row.index)
-                    const rowDoesntAlreadyExist = (row: Row<T>) => !prev.find(sr => sr.id === row.original[key])
-
-                    const selectedRows = displayedRowsRef.current.filter(rowIsSelected).filter(rowDoesntAlreadyExist)
-
-                    if (selectedRows.length > 0) {
-                        return [...prev, ...selectedRows.map(row => ({ id: row.original[key], row: row }))]
-                    }
-
-                    return prev
-                })
-                displayedRowsRef.current = displayedRows // Refresh displayed row
-            })
-
-            startTransition(() => {
-                displayedRows.map(displayedRow => {
-                    if (nonexistentSelectedRows.some(row => row.id === displayedRow.original[key])) {
-                        // If the currently displayed row is in the nonexistent array but isn't selected, select it
-                        if (displayedRow.getCanSelect() && !displayedRow.getIsSelected()) {
-                            displayedRow.toggleSelected(true)
-                            // Then remove it from nonexistent array
-                            setNonexistentSelectedRows(prev => {
-                                return [...prev.filter(row => row.id !== displayedRow.original[key])]
-                            })
-                        }
-                    }
-                })
-            })
-        }
-
-    }, [pageIndex, pageSize, displayedRows, globalFilter, columnFilters, sorting])
-
     /** Client-side row selection **/
-    useEffect(() => {
-        if (!persistent && data && data?.length > 0 && canSelect.current) {
-            const selectedIndices = Object.keys(rowSelection).map(v => parseInt(v))
+    React.useEffect(() => {
+        if (data && data?.length > 0 && canSelect.current && !!key) {
+            const selectedKeys = new Set<string | number>(Object.keys(rowSelection))
 
-            if (selectedIndices.length > 0) {
+            if (persistent) {
+                // Remove the keys that are no longer selected
+                selectedRowsRef.current.forEach((_, k) => {
+                    if (!selectedKeys.has(k.toString())) {
+                        selectedRowsRef.current.delete(k)
+                    }
+                })
+
+                // Add the selected rows to the selectedRowsRef
+                selectedKeys.forEach(n => {
+                    const row = data.find((v: any) => v[key] === n)
+                    if (row) {
+                        selectedRowsRef.current.set(n, row)
+                    }
+                })
 
                 onRowSelect && onRowSelect({
-                    data: data.filter((v: any, i: number) => selectedIndices.includes(i)) ?? [],
+                    data: Array.from(selectedRowsRef.current.values()).filter((v: any) => selectedKeys.has(v[key])) ?? [],
                 })
-
+            } else {
+                onRowSelect && onRowSelect({
+                    data: data.filter((v: any) => selectedKeys.has(v[key])) ?? [],
+                })
             }
-        }
-    }, [rowSelection, rows])
 
-    useEffect(() => {
-        /** Server-side row selection **/
-        if (persistent && data && data?.length > 0 && canSelect.current && key) {
-            const selectedIndices = new Set<number>(Object.keys(rowSelection).map(v => parseInt(v)))
-            startTransition(() => {
-                const result = {
-                    data: [
-                        ...data.filter((v: any, i: number) => selectedIndices.has(i)),
-                        ...nonexistentSelectedRows.map(nr => nr.row.original),
-                    ],
-                }
-                // Compare current selection with previous
-                if (!isArrayEqual(result.data, previousSelectionEvent.current.data)) {
-                    onRowSelect && onRowSelect(result)
-                    previousSelectionEvent.current = result
-                }
-            })
         }
-    }, [rowSelection, previousSelectionEvent.current])
+    }, [rowSelection])
 
 
     return {
-        // On client-side row selection, the count is simply what is visibly selected. On server-side row selection, the count is what is visible+nonexistent rows
-        selectedRowCount: persistent ? +(Object.keys(rowSelection).length) + (nonexistentSelectedRows.length) : Object.keys(rowSelection).length,
+        selectedRowCount: Object.keys(rowSelection).length,
     }
 
-}
-
-
-const isArrayEqual = function (x: Array<Record<string, any>>, y: Array<Record<string, any>>) {
-    return deepEquals(x, y)
 }

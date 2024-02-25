@@ -1,7 +1,7 @@
 "use client"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_containers/library-header"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
-import { Slider } from "@/components/shared/slider"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { MediaEntryEpisode } from "@/lib/server/types"
 import { formatDistanceToNow, isBefore, subYears } from "date-fns"
 import { useSetAtom } from "jotai/react"
@@ -16,13 +16,13 @@ export function ContinueWatching({ list, isLoading }: {
     if (list.length > 0) return (
         <div className="space-y-8 p-4">
             <h2>Continue watching</h2>
-            {<Slider>
+            {<HorizontalDraggableScroll>
                 {list.map((item, idx) => {
                     return (
                         <EpisodeItem key={item.basicMedia?.id || idx} {...item} />
                     )
                 })}
-            </Slider>}
+            </HorizontalDraggableScroll>}
         </div>
     )
 }
@@ -51,7 +51,7 @@ const EpisodeItem = memo((props: MediaEntryEpisode) => {
         <LargeEpisodeListItem
             image={props.episodeMetadata?.image}
             title={<span>{props.displayTitle} {!!props.basicMedia?.episodes &&
-                <span className={"opacity-40"}>/{` `}{props.basicMedia.episodes - offset}</span>}</span>}
+                <span className="opacity-40">/{` `}{props.basicMedia.episodes - offset}</span>}</span>}
             topTitle={props.basicMedia?.title?.userPreferred}
             actionIcon={undefined}
             meta={(date) ? (!mediaIsOlder ? `${formatDistanceToNow(date, { addSuffix: true })}` : new Intl.DateTimeFormat(

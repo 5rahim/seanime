@@ -3,10 +3,10 @@ import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diff
 import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { TabPanels } from "@/components/ui/tabs"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { ListSyncAnimeDiff, ListSyncOrigin } from "@/lib/server/types"
@@ -14,9 +14,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { InferType } from "prop-types"
 import React from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
-const settingsSchema = createTypesafeFormSchema(({ z, presets }) => z.object({
+const settingsSchema = defineSchema(({ z, presets }) => z.object({
     automatic: presets.checkbox,
     origin: z.string().min(1),
 }))
@@ -81,8 +81,8 @@ export default function Page() {
 
             <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
                 <TabPanels
-                    navClassName="border-[--border]"
-                    tabClassName={cn(
+                    navClass="border-[--border]"
+                    tabClass={cn(
                         "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                         "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
                         "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
@@ -109,7 +109,7 @@ export default function Page() {
                         </TabPanels.Panel>
                         <TabPanels.Panel>
                             <div className="p-4">
-                                <TypesafeForm
+                                <Form
                                     schema={settingsSchema}
                                     onSubmit={data => {
                                         updateSettings(data)
@@ -127,8 +127,8 @@ export default function Page() {
                                             ...(!!serverStatus?.mal ? [{ value: ListSyncOrigin.MAL, label: "MyAnimeList" }] : []),
                                         ]}
                                         name="origin"
-                                        // fieldClassName="w-fit"
-                                        // radioLabelClassName="font-semibold flex-none flex pr-8"
+                                        // fieldClass="w-fit"
+                                        // radioLabelClass="font-semibold flex-none flex pr-8"
                                     />
 
                                     {/*<Field.Checkbox*/}
@@ -137,10 +137,10 @@ export default function Page() {
                                     {/*    name="automatic"*/}
                                     {/*/>*/}
 
-                                    <Field.Submit role="save" isLoading={isPending}>
+                                    <Field.Submit role="save" loading={isPending}>
                                         {!serverStatus?.settings?.listSync ? "Enable" : "Save"}
                                     </Field.Submit>
-                                </TypesafeForm>
+                                </Form>
                             </div>
                         </TabPanels.Panel>
                     </TabPanels.Container>

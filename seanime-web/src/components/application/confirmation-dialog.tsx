@@ -1,8 +1,8 @@
 "use client"
-import React from "react"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { useDisclosure, UseDisclosureReturn } from "@/hooks/use-disclosure"
+import React from "react"
 
 type ConfirmationDialogHookProps = {
     title: string,
@@ -36,14 +36,13 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogHookProps & UseDiscl
         <>
             <Modal
                 title={title}
-                titleClassName={"text-center"}
-                isOpen={isOpen}
-                onClose={close}
-                isClosable
+                titleClass="text-center"
+                open={isOpen}
+                onOpenChange={close}
             >
-                <div className={"space-y-4"}>
-                    <p className={"text-center"}>{description}</p>
-                    <div className={"flex gap-2 justify-center items-center"}>
+                <div className="space-y-4">
+                    <p className="text-center">{description}</p>
+                    <div className="flex gap-2 justify-center items-center">
                         <Button
                             intent={actionIntent}
                             onClick={() => {
@@ -53,7 +52,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogHookProps & UseDiscl
                         >
                             {actionText}
                         </Button>
-                        <Button intent={"white"} onClick={close}>Cancel</Button>
+                        <Button intent="white" onClick={close}>Cancel</Button>
                     </div>
                 </div>
             </Modal>

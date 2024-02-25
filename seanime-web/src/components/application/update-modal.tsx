@@ -2,19 +2,19 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { VerticalNav } from "@/components/ui/vertical-nav"
+import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useOpenInExplorer } from "@/lib/server/hooks"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { Release, Update } from "@/lib/server/types"
-import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
+import { BiDownload } from "react-icons/bi"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import { AiFillExclamationCircle } from "react-icons/ai"
 
 type UpdateModalProps = {}
@@ -66,21 +66,20 @@ export function UpdateModal(props: UpdateModalProps) {
 
     return (
         <>
-            <VerticalNav
+            <VerticalMenu
                 items={[
                     {
-                        icon: AiFillExclamationCircle,
+                        iconType: AiFillExclamationCircle,
                         name: "Update available",
                         onClick: () => setUpdateModalOpen(true),
                     },
                 ]}
-                iconClassName="text-brand-300"
+                itemContentClass="text-brand-300"
             />
             <Modal
-                isOpen={updateModalOpen}
-                onClose={() => ignoreUpdate()}
-                size="xl"
-                isClosable
+                open={updateModalOpen}
+                onOpenChange={() => ignoreUpdate()}
+                contentClass="max-w-xl"
             >
                 <Downloader release={updateData.release} />
                 <div
@@ -95,7 +94,7 @@ export function UpdateModal(props: UpdateModalProps) {
                     <p className="text-[--muted]">A new version of Seanime is available on the GitHub repository.</p>
                     {body.some(n => n.includes("🚑️")) &&
                         <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
-                    <div className="bg-[--background-color] rounded-[--radius] p-2 px-4 space-y-1.5">
+                    <div className="bg-[--background] rounded-[--radius] p-2 px-4 space-y-1.5">
                         {body.map((line, index) => {
                             if (line.startsWith("##")) return <h5 key={index}>What's new?</h5>
                             if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
@@ -178,27 +177,23 @@ export function Downloader(props: DownloaderProps) {
 
     return (
         <Modal
-            isOpen={downloaderOpen}
-            onClose={() => setDownloaderOpen(false)}
-            size="xl"
-            isClosable
+            open={downloaderOpen}
+            onOpenChange={() => setDownloaderOpen(false)}
             title="Download update"
-            bodyClassName="space-y-4"
+            contentClass="space-y-4"
         >
             <div>
                 <RadioGroup
-                    fieldClassName="w-full"
-                    fieldLabelClassName="text-md"
-                    radioContainerClassName={cn(
-                        "block w-full py-2 px-3 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius] opacity-60 hover:opacity-100",
-                        "data-[checked=true]:opacity-100 data-[checked=true]:ring-.5 ring-opacity-20 ring-brand-200 dark:data-[checked=true]:bg-[--brand]",
-                    )}
-                    radioControlClassName="hidden absolute right-2 top-2 h-5 w-5 text-xs"
-                    radioHelpClassName="text-sm"
-                    radioLabelClassName="font-medium flex-none flex"
-                    stackClassName="flex flex-col gap-2 space-y-0"
+                    // TODO
+                    // fieldClass="w-full"
+                    // fieldLabelClass="text-md"
+                    // radioContainerClass={cn(
+                    //     "block w-full py-2 px-3 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius] opacity-60
+                    // hover:opacity-100", "data-[checked=true]:opacity-100 data-[checked=true]:ring-.5 ring-opacity-20 ring-brand-200
+                    // dark:data-[checked=true]:bg-[--brand]", )} radioControlClass="hidden absolute right-2 top-2 h-5 w-5 text-xs"
+                    // radioHelpClass="text-sm" radioLabelClass="font-medium flex-none flex" stackClass="flex flex-col gap-2 space-y-0"
                     value={asset}
-                    onChange={v => !!v ? setAsset(v) : {}}
+                    onValueChange={v => !!v ? setAsset(v) : {}}
                     options={release.assets.filter(n => !n.name.endsWith(".txt")).map((asset) => ({
                         label: asset.name,
                         value: asset.browser_download_url,
@@ -212,7 +207,7 @@ export function Downloader(props: DownloaderProps) {
                 rightAddon={`/seanime-${release.version}`}
             />
             <div className="flex gap-2 justify-end mt-2">
-                <Button intent="white" leftIcon={<BiDownload />} onClick={handleDownloadRelease} isLoading={isPending}>Download</Button>
+                <Button intent="white" leftIcon={<BiDownload />} onClick={handleDownloadRelease} loading={isPending}>Download</Button>
             </div>
         </Modal>
     )

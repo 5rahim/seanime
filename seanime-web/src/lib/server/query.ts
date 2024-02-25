@@ -2,7 +2,7 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useMutation, UseMutationOptions, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import axios, { AxiosError } from "axios"
 import { useEffect } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 type SeaError = AxiosError<{ error: string }>
 

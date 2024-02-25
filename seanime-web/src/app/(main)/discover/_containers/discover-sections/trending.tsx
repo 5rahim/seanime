@@ -50,7 +50,7 @@ export function DiscoverTrending() {
                         key={media.id}
                         media={media}
                         showLibraryBadge
-                        containerClassName={"min-w-[250px] max-w-[250px] mt-8"}
+                        containerClass="min-w-[250px] max-w-[250px] mt-8"
                     />
                 )
             }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}

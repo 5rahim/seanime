@@ -13,12 +13,12 @@ import {
     useReactTable,
     VisibilityState,
 } from "@tanstack/react-table"
-import { dateRangeFilter } from "./use-datagrid-filtering"
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
+import * as React from "react"
+import { AnyZodObject } from "zod"
 import { Checkbox } from "../checkbox"
 import { DataGridOnRowEdit, DataGridOnRowValidationError } from "./use-datagrid-editing"
+import { dateRangeFilter } from "./use-datagrid-filtering"
 import { DataGridOnRowSelect } from "./use-datagrid-row-selection"
-import { AnyZodObject } from "zod"
 
 export type DataGridInstanceProps<T extends Record<string, any>> = {
     data: T[] | null | undefined
@@ -26,6 +26,9 @@ export type DataGridInstanceProps<T extends Record<string, any>> = {
     columns: ColumnDef<T>[]
     isLoading?: boolean
 
+    /**
+     * Hide columns below a certain breakpoint.
+     */
     hideColumns?: { below: number, hide: string[] }[]
     columnOrder?: ColumnOrderState | undefined
 
@@ -33,9 +36,23 @@ export type DataGridInstanceProps<T extends Record<string, any>> = {
      * Row selection
      * -----------------------------------------------------------------------------------------------*/
 
+    /**
+     * If true, rows will be selectable.
+     * A checkbox will be shown in the first column of each row.
+     * - Requires `rowSelectionPrimaryKey` for more accurate selection (default is row index)
+     */
     enableRowSelection?: boolean
+    /**
+     * Callback invoked when a row is selected.
+     */
     onRowSelect?: DataGridOnRowSelect<T>
+    /**
+     * The column used to uniquely identify the row.
+     */
     rowSelectionPrimaryKey?: string
+    /**
+     * Requires `rowSelectionPrimaryKey`
+     */
     enablePersistentRowSelection?: boolean
 
     /* -------------------------------------------------------------------------------------------------
@@ -64,11 +81,30 @@ export type DataGridInstanceProps<T extends Record<string, any>> = {
      * Editing
      * -----------------------------------------------------------------------------------------------*/
 
+    /**
+     * Requires `enableOptimisticUpdates`
+     * NOTE: This will not work if your `validationSchema` contains server-side validation.
+     */
     enableOptimisticUpdates?: boolean
+    /**
+     * The column used to uniquely identify the row.
+     */
     optimisticUpdatePrimaryKey?: string
+    /**
+     * If true, a loading indicator will be shown while the row is being updated.
+     */
     isDataMutating?: boolean
+    /**
+     * Zod validation schema for the columns.
+     */
     validationSchema?: AnyZodObject
+    /**
+     * Callback invoked when a cell is successfully edited.
+     */
     onRowEdit?: DataGridOnRowEdit<T>
+    /**
+     * Callback invoked when a cell fails validation.
+     */
     onRowValidationError?: DataGridOnRowValidationError<T>
 
     initialState?: {
@@ -146,28 +182,28 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
         ...rest
     } = props
 
-    const [data, setData] = useState<T[]>(_actualData ?? [])
+    const [data, setData] = React.useState<T[]>(_actualData ?? [])
 
-    const [rowCount, setRowCount] = useState(_initialRowCount)
+    const [rowCount, setRowCount] = React.useState(_initialRowCount)
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (_actualData) setData(_actualData)
     }, [_actualData])
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (_initialRowCount) setRowCount(_initialRowCount)
     }, [_initialRowCount])
 
-    const [globalFilter, setGlobalFilter] = useState<string>(initialState?.globalFilter ?? defaultValues.globalFilter)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>(initialState?.rowSelection ?? defaultValues.rowSelection)
-    const [sorting, setSorting] = useState<SortingState>(initialState?.sorting ?? defaultValues.sorting)
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialState?.columnFilters ?? defaultValues.columnFilters)
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialState?.columnVisibility ?? defaultValues.columnVisibility)
-    const [pagination, setPagination] = useState<PaginationState>(initialState?.pagination ?? defaultValues.pagination)
+    const [globalFilter, setGlobalFilter] = React.useState<string>(initialState?.globalFilter ?? defaultValues.globalFilter)
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(initialState?.rowSelection ?? defaultValues.rowSelection)
+    const [sorting, setSorting] = React.useState<SortingState>(initialState?.sorting ?? defaultValues.sorting)
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(initialState?.columnFilters ?? defaultValues.columnFilters)
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialState?.columnVisibility ?? defaultValues.columnVisibility)
+    const [pagination, setPagination] = React.useState<PaginationState>(initialState?.pagination ?? defaultValues.pagination)
 
-    const pageCount = useMemo(() => Math.ceil(rowCount / pagination.pageSize) ?? -1, [rowCount, pagination.pageSize])
+    const pageCount = React.useMemo(() => Math.ceil(rowCount / pagination.pageSize) ?? -1, [rowCount, pagination.pageSize])
 
-    const columnsWithSelection = useMemo<ColumnDef<T>[]>(() => [{
+    const columnsWithSelection = React.useMemo<ColumnDef<T>[]>(() => [{
         id: "_select",
         size: 0,
         maxSize: 0,
@@ -177,8 +213,8 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
         header: ({ table }) => {
             return (
                 <Checkbox
-                    checked={table.getIsSomeRowsSelected() ? "indeterminate" : table.getIsAllRowsSelected()}
-                    onChange={() => table.toggleAllRowsSelected()}
+                    value={table.getIsSomeRowsSelected() ? "indeterminate" : table.getIsAllRowsSelected()}
+                    onValueChange={() => table.toggleAllRowsSelected()}
                 />
             )
         },
@@ -187,23 +223,23 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
                 <div className="px-1">
                     <Checkbox
                         key={row.id}
-                        checked={row.getIsSomeSelected() ? "indeterminate" : row.getIsSelected()}
-                        isDisabled={!row.getCanSelect()}
-                        onChange={row.getToggleSelectedHandler()}
+                        value={row.getIsSomeSelected() ? "indeterminate" : row.getIsSelected()}
+                        disabled={!row.getCanSelect()}
+                        onValueChange={row.getToggleSelectedHandler()}
                     />
                 </div>
             )
         },
     }, ...columns], [columns])
 
-    const sortingState = useMemo(() => state?.sorting ?? sorting, [state?.sorting, sorting])
-    const paginationState = useMemo(() => state?.pagination ?? pagination, [state?.pagination, pagination])
-    const rowSelectionState = useMemo(() => state?.rowSelection ?? rowSelection, [state?.rowSelection, rowSelection])
-    const globalFilterState = useMemo(() => state?.globalFilter ?? globalFilter, [state?.globalFilter, globalFilter])
-    const columnFiltersState = useMemo(() => state?.columnFilters ?? columnFilters, [state?.columnFilters, columnFilters])
-    const columnVisibilityState = useMemo(() => state?.columnVisibility ?? columnVisibility, [state?.columnVisibility, columnVisibility])
+    const sortingState = React.useMemo(() => state?.sorting ?? sorting, [state?.sorting, sorting])
+    const paginationState = React.useMemo(() => state?.pagination ?? pagination, [state?.pagination, pagination])
+    const rowSelectionState = React.useMemo(() => state?.rowSelection ?? rowSelection, [state?.rowSelection, rowSelection])
+    const globalFilterState = React.useMemo(() => state?.globalFilter ?? globalFilter, [state?.globalFilter, globalFilter])
+    const columnFiltersState = React.useMemo(() => state?.columnFilters ?? columnFilters, [state?.columnFilters, columnFilters])
+    const columnVisibilityState = React.useMemo(() => state?.columnVisibility ?? columnVisibility, [state?.columnVisibility, columnVisibility])
 
-    const changeHandler = useCallback((func: any, func2: any) => {
+    const changeHandler = React.useCallback((func: any, func2: any) => {
         return ((updaterOrValue) => {
             if (func) func(updaterOrValue)
             if (func2) func2(updaterOrValue)
@@ -251,9 +287,10 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
         enableColumnFilters: enableColumnFilters,
         enableFilters: enableFilters,
         enableGlobalFilter: enableGlobalFilter,
+        getRowId: !!props.rowSelectionPrimaryKey ? (row) => row[props.rowSelectionPrimaryKey!] : undefined,
     })
 
-    const displayedRows = useMemo(() => {
+    const displayedRows = React.useMemo(() => {
         const pn = table.getState().pagination
         if (enableManualPagination) {
             return table.getRowModel().rows
@@ -261,15 +298,15 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
         return table.getRowModel().rows.slice(pn.pageIndex * pn.pageSize, (pn.pageIndex + 1) * pn.pageSize)
     }, [table.getRowModel().rows, table.getState().pagination])
 
-    useLayoutEffect(() => {
+    React.useEffect(() => {
         table.setPageIndex(0)
-    }, [table.getState().globalFilter])
+    }, [table.getState().globalFilter, table.getState().columnFilters])
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (!enableManualPagination) {
             setRowCount(table.getRowModel().rows.length)
         }
-    }, [table.getRowModel().rows])
+    }, [table.getRowModel().rows.length])
 
     return {
         ...rest,

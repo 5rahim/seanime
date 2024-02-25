@@ -2,7 +2,7 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { LocalFile } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 export type MediaEntryBulkAction = "unmatch" | "toggle-lock"
 
