@@ -20,7 +20,6 @@ export default function RootLayout({ children }: {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={inter.className} suppressHydrationWarning>
-            {/*{<script src="http://127.0.0.1:8097"></script>}*/}
                 <ClientProviders>
                     {children}
                 </ClientProviders>

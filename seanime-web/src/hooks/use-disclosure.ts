@@ -54,5 +54,5 @@ export function useBoolean(
         opened ? close() : open()
     }
 
-    return { active: opened, on: open, off: close, toggle } as const
+    return { active: opened, on: open, off: close, toggle, set: setOpened } as const
 }

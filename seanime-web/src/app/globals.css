@@ -6,6 +6,8 @@
     :root {
         --radius: 0.375rem;
 
+        --titlebar-h: theme("height.10");
+
         --foreground: theme('colors.gray.800');
         --background: white;
 
@@ -121,4 +123,28 @@ h5 {
 
 h6 {
     @apply scroll-m-20 text-base font-semibold tracking-tight
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded-none
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600
+}
+
+code {
+    @apply bg-gray-800 rounded-md px-2 py-1 text-sm font-mono border border-[--border]
 }

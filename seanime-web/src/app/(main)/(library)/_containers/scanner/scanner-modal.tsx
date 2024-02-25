@@ -78,7 +78,7 @@ export function ScannerModal() {
                             label={<span className="flex items-center">Enable enhanced scanning
                                 <HiOutlineSparkles className="ml-2 text-amber-500" /></span>}
                             value={enhanced.active}
-                            onValueChange={enhanced.toggle}
+                            onValueChange={v => enhanced.set(v as boolean)}
                             className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
                             size="lg"
                         />
@@ -95,7 +95,7 @@ export function ScannerModal() {
                         <Checkbox
                             label="Skip locked files"
                             value={skipLockedFiles.active}
-                            onValueChange={skipLockedFiles.toggle}
+                            onValueChange={v => skipLockedFiles.set(v as boolean)}
                             // size="lg"
                         />
                         {/*<Checkbox*/}

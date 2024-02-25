@@ -1,9 +1,9 @@
 "use client"
-import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
-import React, { useMemo } from "react"
-import { usePathname } from "next/navigation"
 import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
 import { Badge } from "@/components/ui/badge"
+import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
+import { usePathname } from "next/navigation"
+import React, { useMemo } from "react"
 
 interface TopNavbarProps {
     children?: React.ReactNode
@@ -53,7 +53,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
 
     return (
         <NavigationMenu
-            className="p-0"
+            className="p-0 hidden lg:inline-block"
             itemClass="text-xl"
             items={navigationItems}
         />
