@@ -16,15 +16,16 @@ export const ModalAnatomy = defineStyleAnatomy({
         "fixed inset-0 z-50 bg-black/80",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "overflow-y-auto p-0 md:p-4 grid place-items-center",
     ]),
     content: cva([
         "UI-Modal__content",
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-[--background] p-6 shadow-lg duration-200",
+        "z-50 grid relative w-full w-full max-w-lg gap-4 border bg-[--background] p-6 shadow-lg duration-200",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-        "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+        // "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
+        // "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         "sm:rounded-[--radius]",
     ]),
     close: cva([
@@ -121,40 +122,42 @@ export function Modal(props: ModalProps) {
 
         {trigger && <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>}
 
-        <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)} />
-
         <DialogPrimitive.Portal>
+            <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)}>
 
-            <DialogPrimitive.Content
-                className={cn(ModalAnatomy.content(), contentClass)}
-                onOpenAutoFocus={onOpenAutoFocus}
-                onCloseAutoFocus={onCloseAutoFocus}
-                onEscapeKeyDown={onEscapeKeyDown}
-                onPointerDownCapture={onPointerDownCapture}
-                onInteractOutside={onInteractOutside}
-            >
 
-                {(title || description) && <div className={cn(ModalAnatomy.header(), headerClass)}>
-                    {title && <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
-                        {title}
-                    </DialogPrimitive.Title>}
-                    {description && <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
-                        {description}
-                    </DialogPrimitive.Description>}
-                </div>}
+                <DialogPrimitive.Content
+                    className={cn(ModalAnatomy.content(), contentClass)}
+                    onOpenAutoFocus={onOpenAutoFocus}
+                    onCloseAutoFocus={onCloseAutoFocus}
+                    onEscapeKeyDown={onEscapeKeyDown}
+                    onPointerDownCapture={onPointerDownCapture}
+                    onInteractOutside={onInteractOutside}
+                >
 
-                {children}
+                    {(title || description) && <div className={cn(ModalAnatomy.header(), headerClass)}>
+                        {title && <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
+                            {title}
+                        </DialogPrimitive.Title>}
+                        {description && <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
+                            {description}
+                        </DialogPrimitive.Description>}
+                    </div>}
 
-                {footer && <div className={cn(ModalAnatomy.footer(), footerClass)}>
-                    {footer}
-                </div>}
+                    {children}
 
-                {!hideCloseButton && <DialogPrimitive.Close className={cn(ModalAnatomy.close(), closeClass)} asChild>
-                    {closeButton ? closeButton : <CloseButton />}
-                </DialogPrimitive.Close>}
+                    {footer && <div className={cn(ModalAnatomy.footer(), footerClass)}>
+                        {footer}
+                    </div>}
 
-            </DialogPrimitive.Content>
+                    {!hideCloseButton && <DialogPrimitive.Close className={cn(ModalAnatomy.close(), closeClass)} asChild>
+                        {closeButton ? closeButton : <CloseButton />}
+                    </DialogPrimitive.Close>}
 
+                </DialogPrimitive.Content>
+
+
+            </DialogPrimitive.Overlay>
         </DialogPrimitive.Portal>
 
     </DialogPrimitive.Root>

@@ -72,11 +72,11 @@ export type SwitchProps = BasicFieldOptions &
     /**
      * Whether the switch is checked
      */
-    value: boolean
+    value?: boolean
     /**
      * Callback fired when the value changes
      */
-    onValueChange: (value: boolean) => void
+    onValueChange?: (value: boolean) => void
     /**
      * Default value when uncontrolled
      */

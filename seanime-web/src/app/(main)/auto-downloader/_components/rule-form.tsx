@@ -227,7 +227,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         label="Library Entry"
                         options={notFinishedMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))}
                         value={String(form.watch("mediaId"))}
-                        onChange={(e) => form.setValue("mediaId", parseInt(e.target.value))}
+                        onValueChange={(v) => form.setValue("mediaId", parseInt(v))}
                         help="The anime must be airing or upcoming"
                         disabled={type === "edit"}
                     />
@@ -244,7 +244,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 />
 
                 <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Title</div>
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Title</div>
                     <Field.Text
                         name="comparisonTitle"
                         label="Comparison title"
@@ -254,14 +254,17 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         label="Type of search"
                         name="titleComparisonType"
                         options={[
-                            { label: "Most likely", value: "likely", help: "A comparison algorithm will be used" },
+                            {
+                                label: "Most likely",
+                                value: "likely",
+                                // help: "A comparison algorithm will be used"
+                            },
                             {
                                 label: "Exact match",
                                 value: "contains",
-                                help: "The torrent name must contain the title (Use this for more precise control)",
+                                // help: "The torrent name must contain the title (Use this for more precise control)",
                             },
                         ]}
-                        radioHelpClass="text-sm text-gray-400"
                     />
                 </div>
                 <div
@@ -270,15 +273,22 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         (selectedMedia?.format === "MOVIE" || (!!selectedMedia.episodes && selectedMedia.episodes === 1)) && "opacity-50 pointer-events-none",
                     )}
                 >
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Episodes</div>
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Episodes</div>
                     <Field.RadioCards
                         name="episodeType"
                         label="Episodes to look for"
                         options={[
-                            { label: "Recent releases", value: "recent", help: "New episodes you have not yet watched" },
-                            { label: "Select", value: "selected", help: "Only the specified episodes that aren't in your library" },
+                            {
+                                label: "Recent releases",
+                                value: "recent",
+                                // help: "New episodes you have not yet watched"
+                            },
+                            {
+                                label: "Select",
+                                value: "selected",
+                                // help: "Only the specified episodes that aren't in your library"
+                            },
                         ]}
-                        radioHelpClass="text-sm text-gray-400"
                     />
 
                     {form.watch("episodeType") === "selected" && <TextArrayField
@@ -290,7 +300,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 </div>
 
                 <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Release Groups</div>
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
                     <p className="text-sm">
                         List of release groups to look for. If empty, any release group will be accepted.
                     </p>
@@ -304,7 +314,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 </div>
 
                 <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Resolutions</div>
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
                     <p className="text-sm">
                         List of resolutions to look for. If empty, the highest resolution will be accepted.
                     </p>
@@ -318,8 +328,9 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 </div>
 
             </div>
-            {type === "create" && <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess />}
-            {type === "edit" && <Field.Submit role="update" loading={isPending} />}
+            {type === "create" &&
+                <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess>Create</Field.Submit>}
+            {type === "edit" && <Field.Submit role="update" loading={isPending}>Update</Field.Submit>}
         </>
     )
 }

@@ -112,7 +112,9 @@ export function DiscoverPageHeader() {
                     <TextInput
                         leftIcon={<FiSearch />}
                         value={"Search by genres, seasons…"}
-                        isReadOnly
+                        isReadonly
+                        readonly
+                        readOnly
                         size="lg"
                         className="pointer-events-none w-60 md:w-96"
                         onChange={() => {
