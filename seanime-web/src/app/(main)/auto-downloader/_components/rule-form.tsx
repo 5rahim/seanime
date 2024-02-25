@@ -255,14 +255,19 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         name="titleComparisonType"
                         options={[
                             {
-                                label: "Most likely",
+                                label: <div className="w-full">
+                                    <p>Most likely</p>
+                                    <p className="font-normal text-sm text-[--muted]">A comparison algorithm will be used</p>
+                                </div>,
                                 value: "likely",
-                                // help: "A comparison algorithm will be used"
                             },
                             {
-                                label: "Exact match",
+                                label: <div className="w-full">
+                                    <p>Exact match</p>
+                                    <p className="font-normal text-sm text-[--muted]">The torrent name must contain the title (Use this for more
+                                                                                      precise control)</p>
+                                </div>,
                                 value: "contains",
-                                // help: "The torrent name must contain the title (Use this for more precise control)",
                             },
                         ]}
                     />
@@ -279,14 +284,18 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         label="Episodes to look for"
                         options={[
                             {
-                                label: "Recent releases",
+                                label: <div className="w-full">
+                                    <p>Recent releases</p>
+                                    <p className="font-normal text-sm text-[--muted]">New episodes you have not yet watched</p>
+                                </div>,
                                 value: "recent",
-                                // help: "New episodes you have not yet watched"
                             },
                             {
-                                label: "Select",
+                                label: <div className="w-full">
+                                    <p>Select</p>
+                                    <p className="font-normal text-sm text-[--muted]">Only the specified episodes that aren't in your library</p>
+                                </div>,
                                 value: "selected",
-                                // help: "Only the specified episodes that aren't in your library"
                             },
                         ]}
                     />

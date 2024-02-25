@@ -257,17 +257,18 @@ const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLButtonElem
             onValueChange={onChange}
             stackClass="flex flex-row gap-2 space-y-0"
             itemContainerClass={cn(
-                "cursor-pointer aspect-square transition border-transparent rounded-[--radius] p-4 w-32 justify-center",
+                "cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
                 "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
                 "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                 "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                "data-[state=checked]:border data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
             )}
             itemClass={cn(
                 "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
                 "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
                 "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
             )}
+            itemIndicatorClass="hidden"
             itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
             ref={ref}
         />
