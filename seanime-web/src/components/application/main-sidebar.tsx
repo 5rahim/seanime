@@ -9,6 +9,7 @@ import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
@@ -33,7 +34,10 @@ import { TbWorldDownload } from "react-icons/tb"
 export function MainSidebar() {
 
     const ctx = useAppSidebarContext()
-    const isCollapsed = ctx.size === "slim" && !ctx.isBelowBreakpoint
+
+    const [expandedSidebar, setExpandSidebar] = React.useState(false)
+    const [dropdownOpen, setDropdownOpen] = React.useState(false)
+    const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
 
     const { user } = useCurrentUser()
     const pathname = usePathname()
@@ -58,19 +62,37 @@ export function MainSidebar() {
 
     const loginModal = useDisclosure(false)
 
+    const handleExpandSidebar = () => {
+        if (!ctx.isBelowBreakpoint) {
+            setExpandSidebar(true)
+        }
+    }
+    const handleUnexpandedSidebar = () => {
+        if (expandedSidebar) {
+            setExpandSidebar(false)
+        }
+    }
+
     return (
         <>
             <AppSidebar
-                className="p-4 h-full flex flex-col justify-between"
+                className={cn(
+                    "h-full flex flex-col justify-between transition-gpu w-full transition-[width]",
+                    { "w-[400px]": !ctx.isBelowBreakpoint && expandedSidebar },
+                )}
+
                 // sidebarClass="h-full"
             >
                 <div>
-                    <div className="mb-4 flex justify-center w-full">
+                    <div className="mb-4 p-4 pb-0 flex justify-center w-full">
                         <img src="/logo.png" alt="logo" className="w-15 h-10" />
                     </div>
                     <VerticalMenu
+                        className="px-4"
                         collapsed={isCollapsed}
                         itemClass="relative"
+                        onMouseEnter={handleExpandSidebar}
+                        onMouseLeave={handleUnexpandedSidebar}
                         items={[
                             {
                                 iconType: IoLibrary,
@@ -131,12 +153,14 @@ export function MainSidebar() {
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
                 </div>
-                <div className="flex w-full gap-2 flex-col">
+                <div className="flex w-full gap-2 flex-col px-4">
                     <UpdateModal />
                     <div>
                         <VerticalMenu
                             collapsed={isCollapsed}
                             itemClass="relative"
+                            onMouseEnter={handleExpandSidebar}
+                            onMouseLeave={handleUnexpandedSidebar}
                             items={[
                                 {
                                     iconType: FiSettings,
@@ -144,6 +168,18 @@ export function MainSidebar() {
                                     href: "/settings",
                                     isCurrent: pathname.includes("/settings"),
                                 },
+                                ...(ctx.isBelowBreakpoint ? [
+                                    {
+                                        iconType: SiMyanimelist,
+                                        name: "MyAnimeList",
+                                        href: "/mal",
+                                    },
+                                    {
+                                        iconType: BiLogOut,
+                                        name: "Sign out",
+                                        onClick: () => logout(),
+                                    },
+                                ] : []),
                             ]}
                         />
                     </div>
@@ -152,6 +188,8 @@ export function MainSidebar() {
                             <VerticalMenu
                                 collapsed={isCollapsed}
                                 itemClass="relative"
+                                onMouseEnter={handleExpandSidebar}
+                                onMouseLeave={handleUnexpandedSidebar}
                                 items={[
                                     {
                                         iconType: FiLogIn,
@@ -164,9 +202,17 @@ export function MainSidebar() {
                     )}
                     {!!user && <div className="flex w-full gap-2 flex-col">
                         <DropdownMenu
-                            trigger={<div className="pt-1 w-full flex justify-center">
+                            trigger={<div
+                                className={cn(
+                                    "w-full flex p-2.5 pt-1 items-center space-x-2",
+                                    { "hidden": ctx.isBelowBreakpoint },
+                                )}
+                            >
                                 <Avatar size="sm" className="cursor-pointer" src={user?.avatar?.medium || ""} />
+                                {expandedSidebar && <p className="truncate">{user?.name}</p>}
                             </div>}
+                            open={dropdownOpen}
+                            onOpenChange={setDropdownOpen}
                         >
                             <Link href="/mal">
                                 <DropdownMenuItem>

@@ -82,7 +82,7 @@ export const VerticalMenuAnatomy = defineStyleAnatomy({
     itemIcon: cva([
         "UI-VerticalMenu__itemIcon",
         "flex-shrink-0 mr-3",
-        "text-[--muted]",
+        "text-[--muted] text-xl",
         "group-hover/verticalMenu_item:text-[--foreground]", // Item Hover
         "group-data-[current=true]/verticalMenu_item:text-[--foreground]", // Item Current
     ], {

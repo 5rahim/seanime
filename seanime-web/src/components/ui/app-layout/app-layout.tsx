@@ -49,7 +49,7 @@ export const AppLayoutHeaderAnatomy = defineStyleAnatomy({
 
 export const AppLayoutSidebarAnatomy = defineStyleAnatomy({
     root: cva([
-        "UI-AppLayoutSidebar__root",
+        "UI-AppLayoutSidebar__root z-50",
         "hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col grow-0 shrink-0 basis-0",
         "group-[.sidebar-slim]/appLayout:w-20",
         "group-[.sidebar-sm]/appLayout:w-48",
