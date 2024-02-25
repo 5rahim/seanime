@@ -52,7 +52,7 @@ export function ScanProgressBar() {
                 />
             </div>
             <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
-                <div className="bg-gray-900 rounded-full border border-[--border] py-3 px-6 flex gap-2 items-center">
+                <div className="bg-gray-900 rounded-full border  py-3 px-6 flex gap-2 items-center">
                     <Spinner className="w-4 h-4" />
                     <p>{progress}% - {status}</p>
                 </div>

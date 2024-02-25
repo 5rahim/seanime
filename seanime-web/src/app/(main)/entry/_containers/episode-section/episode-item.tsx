@@ -1,7 +1,7 @@
 import { useUpdateLocalFile } from "@/app/(main)/entry/_lib/update-local-file"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { IconButton } from "@/components/ui/button"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
@@ -67,8 +67,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                         />
                     }>
                         <MetadataModalButton/>
-                        <DropdownMenu.Separator />
-                        <DropdownMenu.Item
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                             className="!text-red-300 !dark:text-red-200"
                             onClick={() => {
                                 if (episode.localFile) {
@@ -77,7 +77,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                                     })
                                 }
                             }}
-                        >Unmatch</DropdownMenu.Item>
+                        >Unmatch</DropdownMenuItem>
                     </DropdownMenu>
 
                     {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.aniDBId &&
@@ -115,7 +115,7 @@ export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
 
             title={episode.displayTitle}
             titleClass="text-center"
-            size="lg"
+            contentClass="max-w-xl"
         >
             <p className="w-full line-clamp-2 text-sm text-[--muted] px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
             <Form
@@ -141,7 +141,8 @@ export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
             >
                 <Field.Number
                     label="Episode number" name="episode"
-                    help="Relative episode number. If movie, episode number = 1" discrete isRequired
+                    help="Relative episode number. If movie, episode number = 1"
+                    required
                 />
                 <Field.Text
                     label="AniDB episode"
@@ -167,7 +168,7 @@ export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
 
 function MetadataModalButton() {
     const [, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
-    return <DropdownMenu.Item onClick={() => setIsOpen(true)}>Update metadata</DropdownMenu.Item>
+    return <DropdownMenuItem onClick={() => setIsOpen(true)}>Update metadata</DropdownMenuItem>
 }
 
 function EpisodeItemInfoModalButton() {
@@ -195,8 +196,7 @@ export function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
                 open={isOpen}
                 onOpenChange={() => setIsOpen(false)}
                 title={episode.displayTitle}
-
-                size="xl"
+                contentClass="max-w-2xl"
                 titleClass="text-xl"
             >
 
@@ -212,7 +212,7 @@ export function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
                         className="object-cover object-center opacity-30"
                     />
                     <div
-                        className={"z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-gray-900 to-transparent"}
+                        className={"z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent"}
                     />
                 </div>}
 

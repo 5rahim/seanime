@@ -28,7 +28,7 @@ export function BulkOffsetEpisodesModal({ entry, isOpen, onClose }: BulkOffsetEp
         <Modal
             open={isOpen}
             onOpenChange={onClose}
-            size="xl"
+            contentClass="max-w-2xl"
             title={<span>Offset episode numbers</span>}
             titleClass="text-center"
 
@@ -94,7 +94,7 @@ function Content({ entry }: { entry: MediaEntry }) {
         return !!media && <NumberInput
             label="Offset"
             value={offset}
-            onChange={value => {
+            onValueChange={value => {
                 const episodesArr = files.filter(n => n.selected).map(({ file }) => Math.max(0, getEpisode(file)! + value))
                 // Make sure than we can't go any further below if one episode calculated offset is 0
                 if (value <= 0) {
@@ -108,11 +108,13 @@ function Content({ entry }: { entry: MediaEntry }) {
                 }
                 setOffset(value)
             }}
-            discrete
             min={-Infinity}
             step={1}
-            minFractionDigits={0}
-            maxFractionDigits={0}
+            formatOptions={{
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+
+            }}
         />
     }, [files, media, area])
 
@@ -128,21 +130,21 @@ function Content({ entry }: { entry: MediaEntry }) {
                         { label: "Episode number", value: "episode" },
                         { label: "AniDB episode", value: "aniDBEpisode" },
                     ]}
-                    onChange={e => {
-                        setArea(e.target.value as any)
+                    onValueChange={v => {
+                        setArea(v as any)
                     }}
                 />
                 {<OffsetInput/>}
                 {files.map(({ file, selected }, index) => (
                     <div
                         key={`${file.path}-${index}`}
-                        className="p-2 border-b border-[--border]"
+                        className="p-2 border-b "
                     >
                         <div className="flex items-center">
                             <Checkbox
                                 label={`${area === "episode" ? "Episode" : "AniDB Episode"} ${getEpisode(file)}`}
-                                checked={selected}
-                                onChange={checked => {
+                                value={selected}
+                                onValueChange={checked => {
                                     if (typeof checked === "boolean") {
                                         setFiles(draft => {
                                             draft[index].selected = checked

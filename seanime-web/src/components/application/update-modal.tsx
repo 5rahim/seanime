@@ -2,7 +2,6 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
@@ -10,12 +9,12 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useOpenInExplorer } from "@/lib/server/hooks"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { Release, Update } from "@/lib/server/types"
-import { BiDownload } from "react-icons/bi"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
-import { toast } from "sonner"
 import { AiFillExclamationCircle } from "react-icons/ai"
+import { BiDownload } from "react-icons/bi"
+import { toast } from "sonner"
 
 type UpdateModalProps = {}
 
@@ -86,7 +85,7 @@ export function UpdateModal(props: UpdateModalProps) {
                     className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[10rem] absolute opacity-60 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
                 >
                     <div
-                        className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-gray-900 to-transparent z-[-2]"
+                        className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-[#0c0c0c] to-transparent z-[-2]"
                     />
                 </div>
                 <div className="space-y-2">
@@ -188,7 +187,7 @@ export function Downloader(props: DownloaderProps) {
                     // fieldClass="w-full"
                     // fieldLabelClass="text-md"
                     // radioContainerClass={cn(
-                    //     "block w-full py-2 px-3 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius] opacity-60
+                    //     "block w-full py-2 px-3 cursor-pointer dark:bg-gray-900 transition border  rounded-[--radius] opacity-60
                     // hover:opacity-100", "data-[checked=true]:opacity-100 data-[checked=true]:ring-.5 ring-opacity-20 ring-brand-200
                     // dark:data-[checked=true]:bg-[--brand]", )} radioControlClass="hidden absolute right-2 top-2 h-5 w-5 text-xs"
                     // radioHelpClass="text-sm" radioLabelClass="font-medium flex-none flex" stackClass="flex flex-col gap-2 space-y-0"

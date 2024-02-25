@@ -3,21 +3,20 @@ import { useFetchMediaEntrySuggestions } from "@/app/(main)/entry/_lib/media-ent
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Separator } from "@/components/ui/separator"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Drawer } from "@/components/ui/drawer"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { Separator } from "@/components/ui/separator"
 import { useOpenInExplorer } from "@/lib/server/hooks"
 import { UnmatchedGroup } from "@/lib/server/types"
-import { BiLeftArrow } from "react-icons/bi"
-import { BiRightArrow } from "react-icons/bi"
-import { FcFolder } from "react-icons/fc"
-import { FiSearch } from "react-icons/fi"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
 import React, { useCallback, useEffect, useState } from "react"
+import { BiLeftArrow, BiRightArrow } from "react-icons/bi"
+import { FcFolder } from "react-icons/fc"
+import { FiSearch } from "react-icons/fi"
 import { toast } from "sonner"
 
 export const _unmatchedFileManagerIsOpen = atom(false)
@@ -136,7 +135,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 </div>
 
                 <div
-                    className="bg-gray-800 border border-[--border] p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
+                    className="bg-gray-800 border  p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer(currentGroup.dir)}
                 >
                     <FcFolder className="text-2xl"/>
@@ -220,7 +219,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         }
                     ))}
                     // TODO
-                    // radioContainerClass="block w-full p-4 cursor-pointer dark:bg-gray-900 transition border border-[--border] rounded-[--radius]
+                    // radioContainerClass="block w-full p-4 cursor-pointer dark:bg-gray-900 transition border  rounded-[--radius]
                     // data-[checked=true]:ring-2 ring-[--ring]" radioControlClass="absolute right-2 top-2 h-5 w-5 text-xs" radioHelpClass="text-sm"
                     // radioLabelClass="font-semibold flex-none w-[90%] line-clamp-1" stackClass="grid grid-cols-2 gap-2 space-y-0"
                 />}

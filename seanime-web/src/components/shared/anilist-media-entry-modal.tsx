@@ -122,7 +122,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         className="object-cover object-center opacity-30"
                     />
                     <div
-                        className={"z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-gray-900 to-transparent"}
+                        className={"z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent"}
                     />
                 </div>}
 

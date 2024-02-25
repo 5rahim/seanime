@@ -91,7 +91,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
             {/*ACTION POPUP*/}
             <div className={cn(
-                "absolute z-20 bg-gray-900 opacity-0 scale-70 border border-[--border]",
+                "absolute z-20 bg-gray-950 opacity-0 scale-70 border ",
                 "group-hover/anime-list-item:opacity-100 group-hover/anime-list-item:scale-100",
                 "group-focus-visible/anime-list-item:opacity-100 group-focus-visible/anime-list-item:scale-100",
                 "focus-visible:opacity-100 focus-visible:scale-100",
@@ -129,7 +129,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         </div>
                         <div>
                             {/*<Tooltip trigger={*/}
-                            {/*    <p className="text-center font-medium text-sm min-[2000px]:text-lg px-4 truncate text-ellipsis">{media.title?.userPreferred}</p>*/}
+                            {/*    <p className="text-center font-medium text-sm min-[2000px]:text-lg px-4 line-clamp-1">{media.title?.userPreferred}</p>*/}
                             {/*}>{media.title?.userPreferred}</Tooltip>*/}
                             <Link
                                 href={`/entry?id=${media.id}`}
@@ -175,7 +175,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
             </div>
 
             <div
-                className="aspect-[6/7] flex-none rounded-md border border-[--border] object-cover object-center relative overflow-hidden"
+                className="aspect-[6/7] flex-none rounded-md border  object-cover object-center relative overflow-hidden"
             >
 
                 {/*BOTTOM GRADIENT*/}

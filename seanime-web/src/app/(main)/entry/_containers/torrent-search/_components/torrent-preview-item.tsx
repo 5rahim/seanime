@@ -1,6 +1,6 @@
 import { cn } from "@/components/ui/core/styling"
-import { AiFillWarning } from "react-icons/ai"
 import React, { memo } from "react"
+import { AiFillWarning } from "react-icons/ai"
 import { FcFolder } from "react-icons/fc"
 
 type TorrentPreviewItemProps = {
@@ -36,7 +36,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
     return (
         <div
             className={cn(
-                "border border-[--border] p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
+                "border  p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
                 {
                     "border-brand-200 bg-gray-800 hover:bg-gray-800": isSelected,
                     "hover:border-gray-500": !isSelected,

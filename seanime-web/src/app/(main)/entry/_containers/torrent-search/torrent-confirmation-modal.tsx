@@ -9,15 +9,12 @@ import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { AnimeTorrent, MediaEntry } from "@/lib/server/types"
-import { BiCollection } from "react-icons/bi"
-import { BiDownload } from "react-icons/bi"
-import { BiX } from "react-icons/bi"
-import { FcFilmReel } from "react-icons/fc"
-import { FcFolder } from "react-icons/fc"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useMemo, useState } from "react"
+import { BiCollection, BiDownload, BiX } from "react-icons/bi"
+import { FcFilmReel, FcFolder } from "react-icons/fc"
 import { toast } from "sonner"
 import * as upath from "upath"
 
@@ -144,10 +141,10 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         <Modal
             open={isOpen}
             onOpenChange={() => setIsOpen(false)}
-            size="2xl"
+            contentClass="max-w-2xl"
             title="Choose the destination"
         >
-            <div className="pb-4">
+            <div className="pb-0">
                 <DirectorySelector
                     name="destination"
                     label="Destination"
@@ -164,7 +161,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                     <Tooltip
                         key={`${torrent.link}`}
                         trigger={<div
-                            className="ml-12 gap-2 p-2 border border-[--border] rounded-md hover:bg-gray-800 relative"
+                            className="ml-12 gap-2 p-2 border rounded-md hover:bg-gray-800 relative"
                             key={torrent.name}
                         >
                             <div
@@ -175,7 +172,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                     {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
                                         <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
                                 </span>
-                                <p className="truncate text-ellipsis">{torrent.name}</p>
+                                <p className="line-clamp-1">{torrent.name}</p>
                             </div>
                             <IconButton
                                 icon={<BiX />}

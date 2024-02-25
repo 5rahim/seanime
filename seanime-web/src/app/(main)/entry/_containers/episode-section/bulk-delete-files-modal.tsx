@@ -30,12 +30,12 @@ export function BulkDeleteFilesModal({ entry }: BulkDeleteFilesModalProps) {
         <Modal
             open={open}
             onOpenChange={() => setOpen(false)}
-            size="xl"
+            contentClass="max-w-2xl"
             title={<span>Select files to delete</span>}
             titleClass="text-center"
 
         >
-            <Content entry={entry}/>
+            <Content entry={entry} />
         </Modal>
     )
 
@@ -88,10 +88,12 @@ function Content({ entry }: { entry: MediaEntry }) {
                 <div className="p-2">
                     <Checkbox
                         label={`Select all files`}
-                        checked={allFilesChecked ? true : noneFilesChecked ? false : "indeterminate"}
-                        onChange={checked => {
+                        value={allFilesChecked ? true : noneFilesChecked ? false : "indeterminate"}
+                        onValueChange={checked => {
                             if (typeof checked === "boolean") {
-                                setFiles(prev => !prev.every(({ selected }) => selected) ? prev.map(({ file }) => ({ file, selected: true })) : prev.map(({ file }) => ({ file, selected: false })))
+                                setFiles(prev => !prev.every(({ selected }) => selected)
+                                    ? prev.map(({ file }) => ({ file, selected: true }))
+                                    : prev.map(({ file }) => ({ file, selected: false })))
                             }
                         }}
                         fieldClass="w-[fit-content]"
@@ -103,13 +105,13 @@ function Content({ entry }: { entry: MediaEntry }) {
                 {files.map(({ file, selected }, index) => (
                     <div
                         key={`${file.path}-${index}`}
-                        className="p-2 border-b border-[--border]"
+                        className="p-2 border-b "
                     >
                         <div className="flex items-center">
                             <Checkbox
                                 label={`${upath.basename(file.path)}`}
-                                checked={selected}
-                                onChange={checked => {
+                                value={selected}
+                                onValueChange={checked => {
                                     if (typeof checked === "boolean") {
                                         setFiles(draft => {
                                             draft[index].selected = checked

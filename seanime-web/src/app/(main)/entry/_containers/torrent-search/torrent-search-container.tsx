@@ -89,19 +89,19 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
         return <NumberInput
             label="Episode number"
             value={quickSearchEpisode}
-            onChange={(value) => {
+            onValueChange={(value) => {
                 startTransition(() => {
                     setQuickSearchEpisode(value)
                 })
             }}
-            discrete
+            hideControls
             size="sm"
             fieldClass={cn(
                 "flex items-center justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (quickSearchBatch || !quickSearch) },
             )}
             fieldLabelClass={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
-            inputClass="max-w-[6rem]"
+            className="max-w-[6rem]"
         />
     }, [quickSearch, quickSearchBatch, downloadInfo, soughtEpisode])
 
@@ -118,12 +118,12 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     return (
         <>
             <div>
-                <div className="pb-4 flex w-full justify-between">
+                <div className="py-4 flex w-full justify-between">
                     <Switch
                         label="Smart search"
                         help="Builds a search query automatically, based on parameters"
-                        checked={quickSearch}
-                        onChange={setQuickSearch}
+                        value={quickSearch}
+                        onValueChange={setQuickSearch}
                     />
 
                     <TorrentConfirmationContinueButton/>
@@ -135,8 +135,8 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             <Switch
                                 label="Batches"
                                 help={!downloadInfo?.canBatch ? "Cannot look for batches for this media" : undefined}
-                                checked={quickSearchBatch}
-                                onChange={setQuickSearchBatch}
+                                value={quickSearchBatch}
+                                onValueChange={setQuickSearchBatch}
                                 fieldClass={cn(
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                 )}
@@ -147,9 +147,9 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             <Select
                                 label="Resolution"
                                 value={quickSearchResolution}
-                                onChange={e => setQuickSearchResolution(e.target.value ?? "")}
+                                onValueChange={v => setQuickSearchResolution(v != "-" ? v : "")}
                                 options={[
-                                    { value: "", label: "Any" },
+                                    { value: "-", label: "Any" },
                                     { value: "1080", label: "1080p" },
                                     { value: "720", label: "720p" },
                                     { value: "480", label: "480p" },

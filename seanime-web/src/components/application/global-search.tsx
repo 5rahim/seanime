@@ -95,7 +95,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                 <Link href="/search" onClick={() => setOpen(false)}>
                                                     <Button
                                                         className="absolute top-3 right-2 z-1"
-                                                        intent="white-basic"
+                                                        intent="gray-basic"
                                                     >
                                                         Advanced search
                                                     </Button>
@@ -105,7 +105,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                             {(!!media && media.length > 0) && (
                                                 <Combobox.Options
                                                     as="div" static hold
-                                                    className="flex divide-[--border] bg-gray-900 shadow-2xl ring-1 ring-black ring-opacity-5 rounded-lg border border-[--border]"
+                                                    className="flex divide-[--border] bg-gray-900 shadow-2xl ring-1 ring-black ring-opacity-5 rounded-lg border "
                                                 >
                                                     <div
                                                         className={cn(
@@ -188,7 +188,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                                 <Button
                                                                     type="button"
                                                                     className="w-full"
-                                                                    intent="white-subtle"
+                                                                    intent="gray-subtle"
                                                                 >
                                                                     Open
                                                                 </Button>

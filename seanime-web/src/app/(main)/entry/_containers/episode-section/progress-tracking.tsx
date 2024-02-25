@@ -158,7 +158,7 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
                 // title="Progress"
                 // titleClass="text-center"
             >
-                <div className="bg-[--background] border border-[--border] rounded-md p-4 mb-4 text-center">
+                <div className="bg-[--background] border  rounded-md p-4 mb-4 text-center">
                     {(!!status && isCompleted.active && !!episode) ? (
                         <p className="text-xl">Current progress: <Badge size="lg">{episode.progressNumber} <span
                             className="opacity-60"

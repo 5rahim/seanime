@@ -8,17 +8,10 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { SeaTorrent, SeaTorrentActionProps } from "@/lib/server/types"
-import { BiDownArrow } from "react-icons/bi"
-import { BiFolder } from "react-icons/bi"
-import { BiLinkExternal } from "react-icons/bi"
-import { BiPause } from "react-icons/bi"
-import { BiPlay } from "react-icons/bi"
-import { BiStop } from "react-icons/bi"
-import { BiTime } from "react-icons/bi"
-import { BiUpArrow } from "react-icons/bi"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
 import React, { useCallback } from "react"
+import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiUpArrow } from "react-icons/bi"
 import * as upath from "upath"
 
 export default function Page() {
@@ -95,7 +88,7 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
     const progress = `${(torrent.progress * 100).toFixed(1)}%`
 
     return (
-        <div className="p-4 border rounded-md border-[--border] overflow-hidden relative flex gap-2">
+        <div className="p-4 border rounded-md  overflow-hidden relative flex gap-2">
             <div className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
                 <div className={cn(
                     "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",

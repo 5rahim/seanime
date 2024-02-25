@@ -33,10 +33,11 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
     return <>
         <div
             className={cn(
-                "rounded-md border border-[--border] overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none group/missed-episode-item cursor-pointer",
+                "rounded-md border  overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none group/missed-episode-item cursor-pointer",
+                "w-72 lg:w-96",
                 "user-select-none",
                 {
-                    "w-[30rem]": larger,
+                    "w-[24rem] lg:w-[30rem]": larger,
                 },
             )}
             onClick={onClick}

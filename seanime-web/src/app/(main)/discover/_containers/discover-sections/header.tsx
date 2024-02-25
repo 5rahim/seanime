@@ -56,7 +56,7 @@ export function DiscoverPageHeader() {
                         >
                             <div className="flex-none">
                                 {randomTrending.coverImage?.large && <div
-                                    className="w-[140px] h-[180px] relative rounded-md overflow-hidden bg-[--background] shadow-md border border-[--border]"
+                                    className="w-[140px] h-[180px] relative rounded-md overflow-hidden bg-[--background] shadow-md border "
                                 >
                                     <Image
                                         src={randomTrending.coverImage.large}

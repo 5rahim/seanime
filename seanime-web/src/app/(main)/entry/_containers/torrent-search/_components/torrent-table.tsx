@@ -1,12 +1,12 @@
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { createDataGridColumns, DataGrid } from "@/components/ui/datagrid"
+import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
 import { AnimeTorrent } from "@/lib/server/types"
-import { BiLinkExternal } from "react-icons/bi"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 import React, { memo, useMemo } from "react"
+import { BiLinkExternal } from "react-icons/bi"
 
 type TorrentTable = {
     torrents: AnimeTorrent[]
@@ -31,7 +31,7 @@ export const TorrentTable = memo((
         onToggleTorrent,
     }: TorrentTable) => {
 
-    const columns = useMemo(() => createDataGridColumns<AnimeTorrent>(() => [
+    const columns = useMemo(() => defineDataGridColumns<AnimeTorrent>(() => [
         {
             accessorKey: "name",
             header: "Name",
@@ -48,7 +48,7 @@ export const TorrentTable = memo((
                     trigger={
                         <div
                             className={cn(
-                                "text-[.95rem] truncate text-ellipsis cursor-pointer max-w-[90%] overflow-hidden",
+                                "text-[.95rem] line-clamp-1 cursor-pointer max-w-[90%] overflow-hidden",
                                 {
                                     "text-brand-300 font-semibold": selectedTorrents.some(torrent => torrent.link === info.row.original.link),
                                 },

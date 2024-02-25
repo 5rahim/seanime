@@ -4,9 +4,9 @@ import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core/styling"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { TabPanels } from "@/components/ui/tabs"
-import { defineSchema, Field, Form } from "@/components/ui/form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { ListSyncAnimeDiff, ListSyncOrigin } from "@/lib/server/types"
@@ -79,9 +79,9 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
+            <div className="border  rounded-[--radius] bg-[--paper] text-lg space-y-2">
                 <TabPanels
-                    navClass="border-[--border]"
+                    navClass=""
                     tabClass={cn(
                         "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                         "hover:bg-transparent dark:hover:bg-transparent hover:text-white",

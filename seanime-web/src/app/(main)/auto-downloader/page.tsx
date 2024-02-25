@@ -74,7 +74,7 @@ export default function Page() {
         <div className="space-y-4">
 
             <TabPanels
-                navClass="border-[--border]"
+                navClass=""
                 tabClass={cn(
                     "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                     "hover:bg-transparent dark:hover:bg-transparent hover:text-white",

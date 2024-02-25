@@ -81,7 +81,7 @@
         --muted: theme('colors.gray.400');
         --muted-highlight: theme('colors.gray.300');
 
-        --paper: theme('colors.gray.900');
+        --paper: theme('colors.gray.950');
         --subtle: rgba(255, 255, 255, 0.06);
         --subtle-highlight: rgba(255, 255, 255, 0.08);
 
@@ -146,5 +146,5 @@ h6 {
 }
 
 code {
-    @apply bg-gray-800 rounded-md px-2 py-1 text-sm font-mono border border-[--border]
+    @apply bg-gray-800 rounded-md px-2 py-1 text-sm font-mono border
 }

@@ -49,7 +49,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
     return <>
         <div
             className={cn(
-                "border border-[--border] p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
+                "border  p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
                 {
                     "border-brand-200 bg-gray-800 hover:bg-gray-800": isSelected,
                     "border-red-700": isInvalid,
@@ -101,7 +101,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
 
                     {!!episodeTitle && <p className={cn("text-sm text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
 
-                    {!!fileName && <p className="text-sm text-gray-600 truncate text-ellipsis">{fileName}</p>}
+                    {!!fileName && <p className="text-sm text-gray-600 line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-gray-500 line-clamp-2">{description}</p>}
                     {children && children}
                 </div>

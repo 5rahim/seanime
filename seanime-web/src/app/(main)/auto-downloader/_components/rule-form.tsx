@@ -2,22 +2,22 @@ import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
 import { libraryCollectionAtom } from "@/app/(main)/_loaders/library-collection"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Separator } from "@/components/ui/separator"
+import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { defineSchema, DangerZone, Field, InferType, Form } from "@/components/ui/form"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { AutoDownloaderRule, LibraryCollection } from "@/lib/server/types"
-import { BiPlus } from "react-icons/bi"
-import { FcFolder } from "react-icons/fc"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
+import { BiPlus } from "react-icons/bi"
+import { FcFolder } from "react-icons/fc"
 import { toast } from "sonner"
 
 type RuleFormProps = {
@@ -243,7 +243,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     shouldExist={false}
                 />
 
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Title</div>
                     <Field.Text
                         name="comparisonTitle"
@@ -266,7 +266,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 </div>
                 <div
                     className={cn(
-                        "border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3",
+                        "border  rounded-[--radius] p-4 relative !mt-8 space-y-3",
                         (selectedMedia?.format === "MOVIE" || (!!selectedMedia.episodes && selectedMedia.episodes === 1)) && "opacity-50 pointer-events-none",
                     )}
                 >
@@ -289,7 +289,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     />}
                 </div>
 
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Release Groups</div>
                     <p className="text-sm">
                         List of release groups to look for. If empty, any release group will be accepted.
@@ -303,7 +303,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     />
                 </div>
 
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Resolutions</div>
                     <p className="text-sm">
                         List of resolutions to look for. If empty, the highest resolution will be accepted.

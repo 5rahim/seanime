@@ -68,7 +68,7 @@ export default function Page() {
                 >Log out</Button>
             </p>
 
-            <div className="border border-[--border] rounded-[--radius] p-4 bg-[--paper] text-lg space-y-2">
+            <div className="border  rounded-[--radius] p-4 bg-[--paper] text-lg space-y-2">
                 <p>
                     Your MyAnimeList account is connected to Seanime.
                 </p>

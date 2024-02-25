@@ -27,7 +27,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
             <div className="p-8 pt-0">
 
                 <div className="text-center space-y-4">
-                    <div className="border-2 border-[--border] border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">
+                    <div className="border-2  border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">
                         <h2>Empty library</h2>
                         <Button
                             intent="warning-subtle"

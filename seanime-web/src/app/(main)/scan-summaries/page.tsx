@@ -51,7 +51,7 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2 p-4">
+            <div className="border  rounded-[--radius] bg-[--paper] text-lg space-y-2 p-4">
                 {isLoading && <LoadingSpinner />}
                 {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
                 {!!data?.length && (
@@ -87,7 +87,7 @@ export default function Page() {
 
                                 <div className="space-y-4">
                                     {selectSummary.groups.map(group => (
-                                        <div className="border border-[--border] rounded-[--radius] p-4 bg-gray-900 space-y-4" key={group.id}>
+                                        <div className="border  rounded-[--radius] p-4 bg-gray-900 space-y-4" key={group.id}>
                                             <div className="flex gap-2">
 
                                                 <div
@@ -181,7 +181,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                 </div>
             </div>
             {open && (
-                <div className="space-y-2 mt-2 border border-[--border] rounded-[--radius] p-3">
+                <div className="space-y-2 mt-2 border  rounded-[--radius] p-3">
                     <ScanSummaryFileParsedData localFile={file.localFile} />
                     {file.logs.map(log => (
                         <ScanSummaryLog key={log.id} log={log} />

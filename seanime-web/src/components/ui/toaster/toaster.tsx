@@ -14,7 +14,7 @@ export const ToasterAnatomy = defineStyleAnatomy({
     toast: cva([
         "group/toast",
         "group-[.toaster]:py-3 group-[.toaster]:gap-3",
-        "group-[.toaster]:text-base group-[.toaster]:bg-[--paper] group-[.toaster]:text-[--foreground] group-[.toaster]:border-[--border] group-[.toaster]:shadow-lg",
+        "group-[.toaster]:text-base group-[.toaster]:bg-[--paper] group-[.toaster]:text-[--foreground] group-[.toaster]: group-[.toaster]:shadow-lg",
         // Success
         "group-[.toaster]:data-[type=success]:bg-green-500 group-[.toaster]:data-[type=success]:text-white group-[.toaster]:data-[type=success]:border-[--green]",
         // Warning

@@ -6,10 +6,10 @@ import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
-import { Slider } from "@/components/shared/slider"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Separator } from "@/components/ui/separator"
 import { MediaEntry, MediaEntryEpisode } from "@/lib/server/types"
 import { formatDistanceToNow, isBefore, subYears } from "date-fns"
@@ -75,9 +75,9 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
         <>
             <AppLayoutStack spacing="lg">
 
-                <div className="mb-8 flex flex-col md:flex-row items-center justify-between">
+                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between">
 
-                    <div className="flex items-center gap-8">
+                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
                         <h2>{media.format === "MOVIE" ? "Movie" : "Episodes"}</h2>
                         {!!entry.nextEpisode && <>
                             <Button
@@ -92,7 +92,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                         </>}
                     </div>
 
-                    {!!entry.libraryData && <div className="space-x-4 flex items-center">
+                    {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
                         <ProgressTracking entry={entry}/>
                         <BulkToggleLockButton entry={entry}/>
                         <EpisodeSectionDropdownMenu entry={entry} />
@@ -110,7 +110,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
 
                 {episodesToWatch.length > 0 && (
                     <>
-                        <Slider>
+                        <HorizontalDraggableScroll>
                             {episodesToWatch.map(episode => (
                                 <SliderEpisodeItem
                                     key={episode.localFile?.path || ""}
@@ -118,7 +118,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                                     onPlay={playVideo}
                                 />
                             ))}
-                        </Slider>
+                        </HorizontalDraggableScroll>
                         <Separator />
                     </>
                 )}

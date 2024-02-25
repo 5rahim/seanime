@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </div>
 
-            <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
+            <div className="border  rounded-[--radius] bg-[--paper] text-lg space-y-2">
                 {children}
             </div>
         </div>

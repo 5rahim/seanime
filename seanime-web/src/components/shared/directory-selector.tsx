@@ -121,7 +121,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                         {data.suggestions.map(folder => (
                             <div
                                 key={folder.fullPath}
-                                className="py-1 text-sm px-3 rounded-md border border-[--border] flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"
+                                className="py-1 text-sm px-3 rounded-md border  flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"
                                 onClick={() => setInput(upath.normalize(folder.fullPath))}
                             >
                                 {folder.folderName}
@@ -157,7 +157,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                         {data.content.map(folder => (
                             <div
                                 key={folder.fullPath}
-                                className="w-full py-2 text-sm px-3 rounded-md border border-[--border] flex-none cursor-pointer bg-gray-900 hover:bg-gray-800 truncate"
+                                className="w-full py-2 text-sm px-3 rounded-md border  flex-none cursor-pointer bg-gray-900 hover:bg-gray-800 truncate"
                                 onClick={() => setInput(upath.normalize(folder.fullPath))}
                             >
                                 {folder.folderName}

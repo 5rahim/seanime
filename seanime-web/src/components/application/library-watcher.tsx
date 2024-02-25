@@ -62,7 +62,7 @@ export function LibraryWatcher(props: LibraryWatcherProps) {
 
     return (
         <div className="z-50 fixed bottom-4 right-4">
-            <div className="bg-gray-900 border border-[--border] rounded-xl p-4 w-[400px] min-h-[150px] relative">
+            <div className="bg-gray-900 border  rounded-xl p-4 w-[400px] min-h-[150px] relative">
                 <CloseButton className="absolute top-2 right-2" onClick={handleCancel} />
                 <div className="pr-8 space-y-3">
                     <h4 className="flex items-center gap-2">

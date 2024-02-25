@@ -5,7 +5,7 @@ import { useOpenDefaultMediaPlayer, useStartMpvPlaybackDetection } from "@/app/(
 import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useOpenMediaEntryInExplorer } from "@/lib/server/hooks"
 import { MediaEntry } from "@/lib/server/types"
 import { useSetAtom } from "jotai"
@@ -38,48 +38,40 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
         <>
             <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="xl" />}>
 
-                {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenu.Item
+                {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenuItem
                     onClick={startMpvPlaybackDetection}
                 >
                     <BiPlayCircle />
                     Start episode detection
-                </DropdownMenu.Item>}
+                </DropdownMenuItem>}
 
-                <DropdownMenu.Item
+                <DropdownMenuItem
                     onClick={() => openEntryInExplorer(entry.mediaId)}
                 >
                     Open folder
-                </DropdownMenu.Item>
-                {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenu.Item
+                </DropdownMenuItem>
+                {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
                     onClick={startDefaultMediaPlayer}
                 >
                     Start video player
-                </DropdownMenu.Item>}
-                <DropdownMenu.Separator />
-                <DropdownMenu.Group title="Bulk actions">
-                    {/*<DropdownMenu.Item*/}
-                    {/*    onClick={bulkOffsetEpisodeModal.toggle}*/}
-                    {/*>*/}
-                    {/*    Offset episode numbers*/}
-                    {/*</DropdownMenu.Item>*/}
-                    <DropdownMenu.Item
-                        className="text-red-500 dark:text-red-200 flex justify-between"
-                        onClick={confirmDeleteFiles.open}
-                        disabled={isPending}
-                    >
-                        <span>Unmatch all files</span> <BiRightArrowAlt />
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                        className="text-red-500 dark:text-red-200 flex justify-between"
-                        onClick={() => setBulkDeleteFilesModalOpen(true)}
-                        disabled={isPending}
-                    >
-                        <span>Delete some files</span> <BiRightArrowAlt />
-                    </DropdownMenu.Item>
-                </DropdownMenu.Group>
+                </DropdownMenuItem>}
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                    className="text-red-500 dark:text-red-200 flex justify-between"
+                    onClick={confirmDeleteFiles.open}
+                    disabled={isPending}
+                >
+                    <span>Unmatch all files</span> <BiRightArrowAlt />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    className="text-red-500 dark:text-red-200 flex justify-between"
+                    onClick={() => setBulkDeleteFilesModalOpen(true)}
+                    disabled={isPending}
+                >
+                    <span>Delete some files</span> <BiRightArrowAlt />
+                </DropdownMenuItem>
             </DropdownMenu>
-
-            {/*<BulkOffsetEpisodesModal entry={entry} open={bulkOffsetEpisodeModal.active} onOpenChange={bulkOffsetEpisodeModal.off} />*/}
             <ConfirmationDialog {...confirmDeleteFiles} />
             <BulkDeleteFilesModal entry={entry} />
         </>

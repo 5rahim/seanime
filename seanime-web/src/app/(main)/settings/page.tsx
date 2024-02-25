@@ -1,21 +1,18 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { cn } from "@/components/ui/core/styling"
+import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { TabPanels } from "@/components/ui/tabs"
-import { Field, Form } from "@/components/ui/form"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
-import { FcClapperboard } from "react-icons/fc"
-import { FcFolder } from "react-icons/fc"
-import { FcVideoCall } from "react-icons/fc"
-import { FcVlc } from "react-icons/fc"
 import { useAtom } from "jotai/react"
 import React, { useEffect } from "react"
-import { toast } from "sonner"
 import { BsPlayCircleFill } from "react-icons/bs"
+import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
+import { toast } from "sonner"
 
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
@@ -102,7 +99,7 @@ export default function Page() {
             >
 
                 <TabPanels
-                    navClass="border-[--border]"
+                    navClass=""
                     tabClass={cn(
                         "rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
                         "hover:bg-transparent dark:hover:bg-transparent hover:text-white text-sm",
@@ -111,7 +108,7 @@ export default function Page() {
                         "dark:data-[selected=true]:bg-[--highlight]",
                     )}
                 >
-                    <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
+                    <div className="border  rounded-[--radius] bg-[--paper] text-lg space-y-2">
                         <TabPanels.Nav>
                             <TabPanels.Tab>Seanime</TabPanels.Tab>
                             <TabPanels.Tab>Media Players</TabPanels.Tab>

@@ -4,11 +4,9 @@ import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
 import { AnimeTorrent, TorrentPreview } from "@/lib/server/types"
-import { BiCalendarAlt } from "react-icons/bi"
-import { BiFile } from "react-icons/bi"
-import { BiLinkExternal } from "react-icons/bi"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
-import React, { memo } from "react"
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
+import React from "react"
+import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
 type TorrentPreviewList = {
     previews: TorrentPreview[],
@@ -17,7 +15,7 @@ type TorrentPreviewList = {
     onToggleTorrent: (t: AnimeTorrent) => void
 }
 
-export const TorrentPreviewList = memo((
+export const TorrentPreviewList = React.memo((
     {
         previews,
         isLoading,

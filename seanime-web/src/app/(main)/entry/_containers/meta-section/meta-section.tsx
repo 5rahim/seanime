@@ -4,14 +4,13 @@ import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
-import { Accordion } from "@/components/ui/accordion"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { BaseMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
-import addSeconds from "date-fns/addSeconds"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import { addSeconds, formatDistanceToNow } from "date-fns"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
@@ -41,7 +40,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
 
     return (
         <div className="space-y-8 pb-10">
-            <div className="space-y-8 p-8 rounded-xl bg-gray-900 bg-opacity-80 drop-shadow-md relative">
+            <div className="space-y-8 p-4 sm:p-8 rounded-xl bg-gray-950 bg-opacity-80 drop-shadow-md relative">
                 <div className="space-y-4">
 
                     {/*TITLE*/}
@@ -88,9 +87,9 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     {!!details?.studios?.nodes && <div>
                         <span className="font-bold">Studio</span>
                         <Badge
-                            className="ml-2" size="lg"
+                            size="lg"
                             intent="gray"
-                            badgeClass="rounded-full border-transparent"
+                            className="ml-2 rounded-full border-transparent"
                         >
                             {details?.studios?.nodes?.[0]?.name}
                         </Badge>
@@ -115,22 +114,22 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     {/*AWARDS*/}
                     {(!!allTimeHighestRated || !!seasonMostPopular) && <div className="flex flex-wrap gap-2">
                         {allTimeHighestRated && <Badge
-                            className={""} size="lg"
+                            size="lg"
                             intent="gray"
                             leftIcon={<AiFillStar />}
                             iconClass="text-yellow-500"
-                            badgeClass="rounded-md border-transparent px-2"
+                            className="rounded-md border-transparent px-2"
                         >
                             #{String(allTimeHighestRated.rank)} Highest
                             Rated {allTimeHighestRated.format !== "TV" ? `${allTimeHighestRated.format}` : ""} of All
                             Time
                         </Badge>}
                         {seasonHighestRated && <Badge
-                            className={""} size="lg"
+                            size="lg"
                             intent="gray"
                             leftIcon={<AiOutlineStar />}
                             iconClass="text-yellow-500"
-                            badgeClass="rounded-md border-transparent px-2"
+                            className="rounded-md border-transparent px-2"
                         >
                             #{String(seasonHighestRated.rank)} Highest
                             Rated {seasonHighestRated.format !== "TV"
@@ -138,11 +137,11 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             : ""} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
                         </Badge>}
                         {seasonMostPopular && <Badge
-                            className={""} size="lg"
+                            size="lg"
                             intent="gray"
                             leftIcon={<AiOutlineHeart />}
                             iconClass="text-pink-500"
-                            badgeClass="rounded-md border-transparent px-2"
+                            className="rounded-md border-transparent px-2"
                         >
                             #{(String(seasonMostPopular.rank))} Most
                             Popular {seasonMostPopular.format !== "TV"
@@ -177,20 +176,67 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
             </div>
 
             <Accordion
-                containerClass="hidden md:block"
-                triggerClass="bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"
+                type="multiple"
+                className="space-y-2 lg:space-y-4"
+                itemClass="border-none"
+                triggerClass="rounded-[--radius] bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"
             >
                 {relations.length > 0 && (
-                    <Accordion.Item title="Relations" defaultOpen={false}>
-                        <div className="grid grid-cols-4 gap-4 p-4">
-                            {relations.slice(0, 4).map(edge => {
-                                return <div key={edge.node?.id} className="col-span-1">
-                                    <Link href={`/entry?id=${edge.node?.id}`}>
-                                        {edge.node?.coverImage?.large && <div
+                    <AccordionItem value="relations">
+                        <AccordionTrigger>
+                            Relations
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+                                {relations.slice(0, 4).map(edge => {
+                                    return <div key={edge.node?.id} className="col-span-1">
+                                        <Link href={`/entry?id=${edge.node?.id}`}>
+                                            {edge.node?.coverImage?.large && <div
+                                                className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item"
+                                            >
+                                                <Image
+                                                    src={edge.node?.coverImage.large}
+                                                    alt={""}
+                                                    fill
+                                                    quality={80}
+                                                    priority
+                                                    sizes="10rem"
+                                                    className="object-cover object-center group-hover/anime-list-item:scale-110 transition"
+                                                />
+                                                <div
+                                                    className={"z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"}
+                                                />
+                                                <Badge
+                                                    className="absolute left-2 top-2 font-semibold rounded-md text-[.95rem]"
+                                                    intent="white-solid"
+                                                >{edge.node?.format === "MOVIE"
+                                                    ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
+                                                    : capitalize(edge.relationType || "").replace("_", " ")}</Badge>
+                                                <div className="p-2 z-[5] absolute bottom-0 w-full ">
+                                                    <p className="font-semibold line-clamp-2 overflow-hidden">{edge.node?.title?.userPreferred}</p>
+                                                </div>
+                                            </div>}
+                                        </Link>
+                                    </div>
+                                })}
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                )}
+                <AccordionItem value="recommendations">
+                    <AccordionTrigger>
+                        Recommendations
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+                            {details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation).filter(Boolean).map(media => {
+                                return <div key={media.id} className="col-span-1">
+                                    <Link href={`/entry?id=${media.id}`}>
+                                        {media.coverImage?.large && <div
                                             className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item"
                                         >
                                             <Image
-                                                src={edge.node?.coverImage.large}
+                                                src={media.coverImage.large}
                                                 alt={""}
                                                 fill
                                                 quality={80}
@@ -201,51 +247,16 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                             <div
                                                 className={"z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"}
                                             />
-                                            <Badge
-                                                className="absolute left-2 top-2 font-semibold rounded-md text-[.95rem]"
-                                                intent="white-solid"
-                                            >{edge.node?.format === "MOVIE"
-                                                ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
-                                                : capitalize(edge.relationType || "").replace("_", " ")}</Badge>
                                             <div className="p-2 z-[5] absolute bottom-0 w-full ">
-                                                <p className="font-semibold line-clamp-2 overflow-hidden">{edge.node?.title?.userPreferred}</p>
+                                                <p className="font-semibold line-clamp-2 overflow-hidden">{media.title?.userPreferred}</p>
                                             </div>
                                         </div>}
                                     </Link>
                                 </div>
                             })}
                         </div>
-                    </Accordion.Item>
-                )}
-                <Accordion.Item title="Recommendations">
-                    <div className="grid grid-cols-4 gap-4 p-4">
-                        {details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation).filter(Boolean).map(media => {
-                            return <div key={media.id} className="col-span-1">
-                                <Link href={`/entry?id=${media.id}`}>
-                                    {media.coverImage?.large && <div
-                                        className="h-64 w-full flex-none rounded-md object-cover object-center relative overflow-hidden group/anime-list-item"
-                                    >
-                                        <Image
-                                            src={media.coverImage.large}
-                                            alt={""}
-                                            fill
-                                            quality={80}
-                                            priority
-                                            sizes="10rem"
-                                            className="object-cover object-center group-hover/anime-list-item:scale-110 transition"
-                                        />
-                                        <div
-                                            className={"z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"}
-                                        />
-                                        <div className="p-2 z-[5] absolute bottom-0 w-full ">
-                                            <p className="font-semibold line-clamp-2 overflow-hidden">{media.title?.userPreferred}</p>
-                                        </div>
-                                    </div>}
-                                </Link>
-                            </div>
-                        })}
-                    </div>
-                </Accordion.Item>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
 
         </div>
@@ -267,7 +278,7 @@ export function TorrentSearchButton({ entry }: { entry: MediaEntry }) {
             </p>}
             <Button
                 className="w-full"
-                intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "white-subtle") : "warning-subtle"}
+                intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "gray-subtle") : "warning-subtle"}
                 size="lg"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClass="text-2xl"
@@ -286,12 +297,11 @@ export function TorrentSearchButton({ entry }: { entry: MediaEntry }) {
 
 
 export function NextAiringEpisode(props: { media: BaseMediaFragment }) {
+    const distance = formatDistanceToNow(addSeconds(new Date(), props.media.nextAiringEpisode?.timeUntilAiring || 0), { addSuffix: true })
     return <>
         {!!props.media.nextAiringEpisode && (
             <div className="flex gap-2 items-center justify-center">
-                <p className="text-xl min-[2000px]:text-xl">Next
-                                                              episode {formatDistanceToNow(addSeconds(new Date(),
-                        props.media.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}:</p>
+                <p className="text-xl min-[2000px]:text-xl">Next episode {distance}:</p>
 
                 <p className="text-justify font-normal text-xl min-[2000px]:text-xl">
                     <Badge
