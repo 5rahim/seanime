@@ -48,11 +48,11 @@ export function LibraryHeader() {
     if (!image) return null
 
     return (
-        <div className={"__header h-[18rem] z-[-1] top-0 w-full md:w-[calc(100%-5rem)] fixed group/library-header"}>
+        <div className="__header h-[18rem] z-[-1] top-0 w-full lg:w-[calc(100%-5rem)] fixed group/library-header hidden md:block">
             <div
                 className="h-[25rem] z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden">
                 <div
-                    className="w-full absolute z-[2] top-0 h-[15rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
+                    className="w-full absolute z-[2] top-0 h-[10rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
                 />
                 <Transition
                     show={!!actualImage}
@@ -90,10 +90,10 @@ export function LibraryHeader() {
                     )}
                 />}
                 <div
-                    className={"w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"}
+                    className="w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
                 />
                 <div
-                    className={"w-[4rem] z-[2] absolute top-0 right-0 h-[40rem] bg-gradient-to-l from-[--background] via-opacity-50 via-10% to-transparent"}
+                    className="w-[4rem] z-[2] absolute top-0 right-0 h-[40rem] bg-gradient-to-l from-[--background] via-opacity-50 via-10% to-transparent"
                 />
             </div>
         </div>

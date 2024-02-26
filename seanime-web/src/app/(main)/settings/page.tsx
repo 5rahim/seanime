@@ -241,8 +241,8 @@ export default function Page() {
                                                 <Field.Text
                                                     name="mpvPath"
                                                     label="Application path"
-                                                    placeholder={"Defaults to 'mpv' command"}
-                                                    help={"Leave empty to automatically use the 'mpv' command"}
+                                                    placeholder="Defaults to 'mpv' command"
+                                                    help="Leave empty to automatically use the 'mpv' command"
                                                 />
                                             </div>
                                         </AccordionContent>

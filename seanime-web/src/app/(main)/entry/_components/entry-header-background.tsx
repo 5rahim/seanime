@@ -23,7 +23,7 @@ export function EntryHeaderBackground({ entry }: { entry: MediaEntry }) {
                 />}
                 {entry.media?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 <div
-                    className={"w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"}
+                    className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                 />
 
             </div>

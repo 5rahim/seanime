@@ -50,7 +50,7 @@ export function DiscoverPageHeader() {
                         className="absolute bottom-[8rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3] hidden lg:block"
                     >
                         <div
-                            className={"flex flex-row-reverse relative items-start gap-6 p-6 w-fit overflow-hidden rounded-xl bg-[#121212] bg-opacity-80 shadow-2xl shadow-[#121212]"}
+                            className="flex flex-row-reverse relative items-start gap-6 p-6 w-fit overflow-hidden rounded-xl bg-[#121212] bg-opacity-80 shadow-2xl shadow-[#121212]"
                             onMouseEnter={() => setHoveringHeader(true)}
                             onMouseLeave={() => setHoveringHeader(false)}
                         >
@@ -103,7 +103,7 @@ export function DiscoverPageHeader() {
                     </div>
                 )}
                 <div
-                    className={"w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"}
+                    className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                 />
                 <div
                     className="absolute bottom-16 left-8 z-[3] cursor-pointer opacity-80 transition-opacity hover:opacity-100"
@@ -112,9 +112,7 @@ export function DiscoverPageHeader() {
                     <TextInput
                         leftIcon={<FiSearch />}
                         value={"Search by genres, seasons…"}
-                        isReadonly
                         readonly
-                        readOnly
                         size="lg"
                         className="pointer-events-none w-60 md:w-96"
                         onChange={() => {

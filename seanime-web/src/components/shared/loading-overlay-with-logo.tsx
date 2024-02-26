@@ -10,7 +10,8 @@ export function LoadingOverlayWithLogo() {
             priority
             width={80}
             height={80}
-            className="animate-bounce"
+            className="animate-pulse"
         />
+        <p className="text-lg mt-2 text-[--muted] animate-pulse">Loading...</p>
     </LoadingOverlay>
 }

@@ -184,7 +184,7 @@ export function Calendar(props: CalendarProps) {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="size-4"
+                    className="w-4 h-4"
                 >
                     <path d="m15 18-6-6 6-6" />
                 </svg>,
@@ -196,7 +196,7 @@ export function Calendar(props: CalendarProps) {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="rotate-180 size-4"
+                    className="rotate-180 w-4 h-4"
                 >
                     <path d="m15 18-6-6 6-6" />
                 </svg>,

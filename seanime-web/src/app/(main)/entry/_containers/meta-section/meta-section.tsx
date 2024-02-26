@@ -44,7 +44,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                 <div className="space-y-4">
                     {/*TITLE*/}
                     <div className="space-y-2">
-                        <h1 className={"[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)]"}>{entry.media.title?.userPreferred}</h1>
+                        <h1 className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)]">{entry.media.title?.userPreferred}</h1>
                         {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase() &&
                             <h4 className="text-gray-400">{entry.media.title?.english}</h4>}
                         {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.romaji?.toLowerCase() &&
@@ -203,7 +203,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                                     className="object-cover object-center group-hover/anime-list-item:scale-110 transition"
                                                 />
                                                 <div
-                                                    className={"z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"}
+                                                    className="z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"
                                                 />
                                                 <Badge
                                                     className="absolute left-2 top-2 font-semibold rounded-md text-[.95rem]"
@@ -244,7 +244,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                                 className="object-cover object-center group-hover/anime-list-item:scale-110 transition"
                                             />
                                             <div
-                                                className={"z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"}
+                                                className="z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-black to-transparent"
                                             />
                                             <div className="p-2 z-[5] absolute bottom-0 w-full ">
                                                 <p className="font-semibold line-clamp-2 overflow-hidden">{media.title?.userPreferred}</p>

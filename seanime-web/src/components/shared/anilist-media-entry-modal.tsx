@@ -29,14 +29,14 @@ const entrySchema = defineSchema(({ z, presets }) => z.object({
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
     startedAt: presets.datePicker.nullish().transform(value => value ? ({
-        day: value.getUTCDate(),
-        month: value.getUTCMonth() + 1,
-        year: value.getUTCFullYear(),
+        day: value.getDate(),
+        month: value.getMonth() + 1,
+        year: value.getFullYear(),
     }) : null),
     completedAt: presets.datePicker.nullish().transform(value => value ? ({
-        day: value.getUTCDate(),
-        month: value.getUTCMonth() + 1,
-        year: value.getUTCFullYear(),
+        day: value.getDate(),
+        month: value.getMonth() + 1,
+        year: value.getFullYear(),
     }) : null),
 }))
 
@@ -74,7 +74,6 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         },
     })
 
-
     if (!user) return null
 
     return (
@@ -107,6 +106,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 onOpenChange={o => toggle(o)}
                 title={media?.title?.userPreferred ?? undefined}
                 titleClass="text-xl"
+                contentClass="max-w-2xl"
             >
 
                 {media?.bannerImage && <div
@@ -122,7 +122,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         className="object-cover object-center opacity-30"
                     />
                     <div
-                        className={"z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[#0c0c0c] to-transparent"}
+                        className="z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-[#0c0c0c] to-transparent"
                     />
                 </div>}
 
@@ -141,7 +141,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     }}
                     className={cn(
                         {
-                            "mt-16": !!media?.bannerImage,
+                            "mt-8": !!media?.bannerImage,
                         },
                     )}
                     onError={console.log}
@@ -150,9 +150,11 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         score: listData?.score,
                         progress: listData?.progress,
                         //@ts-expect-error
-                        startedAt: listData?.startedAt ? new Date(listData?.startedAt) : undefined,
+                        startedAt: listData?.startedAt ? new Date(new Date(listData?.startedAt).getFullYear(),
+                            new Date(listData?.startedAt).getMonth(),
+                            new Date(listData?.startedAt).getDate()) : undefined,
                         //@ts-expect-error
-                        completedAt: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
+                        completedAt: listData?.completedAt ? new Date(listData?.completedAt.split(" ")[0]) : undefined,
                     }}
                 >
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -195,7 +197,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                 label="Progress"
                                 name="progress"
                                 min={0}
-                                // max={anilist_getCurrentEpisodeCeilingFromMedia(media)}
+                                max={!!media?.nextAiringEpisode?.episode ? media?.nextAiringEpisode?.episode - 1 : (media?.episodes
+                                    ? media.episodes
+                                    : undefined)}
                                 formatOptions={{
                                     maximumFractionDigits: 0,
                                     minimumFractionDigits: 0,
@@ -246,7 +250,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                             </Disclosure>
                         </div>
 
-                        <Field.Submit role="save" disableIfInvalid={true} loading={isPending} disabled={isDeleting} />
+                        <Field.Submit role="save" disableIfInvalid={true} loading={isPending} disabled={isDeleting}>
+                            Save
+                        </Field.Submit>
                     </div>
                 </Form>}
 

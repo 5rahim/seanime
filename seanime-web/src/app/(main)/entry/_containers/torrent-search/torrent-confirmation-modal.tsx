@@ -165,7 +165,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                             key={torrent.name}
                         >
                             <div
-                                className={"flex flex-none items-center gap-2 w-[90%] cursor-pointer"}
+                                className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
                                 onClick={() => window.open(torrent.link, "_blank")}
                             >
                                 <span className="text-lg">
@@ -188,7 +188,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                         Open on {torrent.provider === "nyaa" ? "Nyaa" : "AnimeTosho"}
                     </Tooltip>
                 ))}
-                <div className={"!mt-4 flex w-full justify-between gap-2 items-center"}>
+                <div className="!mt-4 flex w-full justify-between gap-2 items-center">
                     <div>
                         <Button
                             leftIcon={<BiDownload />}

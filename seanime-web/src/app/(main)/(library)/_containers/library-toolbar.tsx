@@ -43,7 +43,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         <div className="flex w-full justify-between p-4">
             <div className="flex gap-2">
                 {!!status?.settings?.library?.libraryPath && hasScanned && <Button
-                    intent={hasScanned ? "primary-subtle" : "primary"}
+                    intent={hasScanned ? "primary-outline" : "primary"}
                     leftIcon={<FiSearch />}
                     onClick={() => setScannerModalOpen(true)}
                 >

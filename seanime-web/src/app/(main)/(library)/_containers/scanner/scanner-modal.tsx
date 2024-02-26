@@ -9,7 +9,7 @@ import { LocalFile } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import { FiSearch } from "react-icons/fi"
 import { HiOutlineSparkles } from "react-icons/hi"
 import { toast } from "sonner"
@@ -66,10 +66,18 @@ export function ScannerModal() {
                         setOpen(o)
                     }
                 }}
-                title={<h3>Scan library</h3>}
+                title={<h3>Scanner</h3>}
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl"
+                contentClass="space-y-4 max-w-2xl overflow-hidden"
             >
+
+                <div
+                    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[10rem] absolute opacity-70 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
+                >
+                    <div
+                        className="w-full absolute bottom-0 h-[10rem] bg-gradient-to-t from-[#0c0c0c] to-transparent z-[-2]"
+                    />
+                </div>
 
                 <div className="space-y-4 mt-6">
 

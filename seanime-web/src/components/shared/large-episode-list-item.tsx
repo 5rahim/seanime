@@ -19,7 +19,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
 
     const {
         children,
-        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle/> : undefined,
+        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-40" /> : undefined,
         image,
         onClick,
         topTitle,
@@ -56,7 +56,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
                     className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                 ></div>}
                 <div
-                    className={"z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"}
+                    className="z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
                 />
             </div>
             <div className={cn(
@@ -66,7 +66,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
                 {actionIcon && actionIcon}
             </div>
             <div className="relative z-[3] w-full p-4 space-y-1">
-                {topTitle && <p className={"w-[80%] line-clamp-1 text-[--muted] font-semibold"}>{topTitle}</p>}
+                {topTitle && <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{topTitle}</p>}
                 <div className="w-full justify-between flex items-center">
                     <p className="text-xl font-semibold line-clamp-2">{title}</p>
                     {(meta) &&

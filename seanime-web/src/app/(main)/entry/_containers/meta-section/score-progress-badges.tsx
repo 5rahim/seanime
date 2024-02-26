@@ -1,5 +1,5 @@
-import { Nullish } from "@/types/common"
 import { Badge } from "@/components/ui/badge"
+import { Nullish } from "@/types/common"
 import React from "react"
 import { BiStar } from "react-icons/bi"
 
@@ -23,7 +23,7 @@ export function ScoreProgressBadges({ score, progress, episodes }: {
             </Badge>}
             <Badge
                 size="xl"
-                className={"!text-lg font-bold !text-yellow-50"}
+                className="!text-lg font-bold !text-yellow-50"
             >
                 {`${progress ?? 0}/${episodes || "-"}`}
             </Badge>

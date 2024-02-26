@@ -100,7 +100,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                 "flex items-center justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (quickSearchBatch || !quickSearch) },
             )}
-            fieldLabelClass={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
+            fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
             className="max-w-[6rem]"
         />
     }, [quickSearch, quickSearchBatch, downloadInfo, soughtEpisode])
@@ -159,7 +159,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                                     "flex items-center justify-end gap-3 space-y-0",
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch },
                                 )}
-                                fieldLabelClass={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
+                                fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                 className="w-[6rem]"
                             />
                         </div>

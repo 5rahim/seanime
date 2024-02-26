@@ -45,13 +45,13 @@ export function ComingUpNext() {
                                     className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                                 ></div>}
                                 <div
-                                    className={"z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"}
+                                    className="z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
                                 />
                             </div>
                             <div className="relative z-[3] w-full p-4 space-y-1">
                                 <Link
                                     href={`/entry?id=${item.id}`}
-                                    className={"w-[80%] line-clamp-1 text-[--muted] font-semibold cursor-pointer"}
+                                    className="w-[80%] line-clamp-1 text-[--muted] font-semibold cursor-pointer"
                                 >
                                     {item.title?.userPreferred}
                                 </Link>

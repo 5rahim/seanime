@@ -18,6 +18,8 @@ import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
 import { FcFolder } from "react-icons/fc"
+import { LuTextCursorInput } from "react-icons/lu"
+import { MdVerified } from "react-icons/md"
 import { toast } from "sonner"
 
 type RuleFormProps = {
@@ -256,16 +258,17 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         options={[
                             {
                                 label: <div className="w-full">
-                                    <p>Most likely</p>
-                                    <p className="font-normal text-sm text-[--muted]">A comparison algorithm will be used</p>
+                                    <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
+                                    <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
+                                                                                      algorithm</p>
                                 </div>,
                                 value: "likely",
                             },
                             {
                                 label: <div className="w-full">
-                                    <p>Exact match</p>
-                                    <p className="font-normal text-sm text-[--muted]">The torrent name must contain the title (Use this for more
-                                                                                      precise control)</p>
+                                    <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
+                                    <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
+                                                                                      insensitive)</p>
                                 </div>,
                                 value: "contains",
                             },
@@ -353,10 +356,6 @@ type TextArrayFieldProps<T extends string | number> = {
 }
 
 export function TextArrayField<T extends string | number>(props: TextArrayFieldProps<T>) {
-
-    React.useEffect(() => {
-        console.log(props.value)
-    }, [props.value])
 
     return (
         <div className="space-y-2">

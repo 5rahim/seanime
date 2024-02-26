@@ -180,7 +180,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
                 {/*BOTTOM GRADIENT*/}
                 <div
-                    className={"z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-black to-transparent"}
+                    className="z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-black to-transparent"
                 />
 
                 {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
