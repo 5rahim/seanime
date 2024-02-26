@@ -79,7 +79,7 @@ export default function Page() {
                 </div>
             </div>
 
-            <Card className="p-0">
+            <Card className="p-0 overflow-hidden">
                 <Tabs
                     defaultValue="list"
                     triggerClass="w-full data-[state=active]:bg-[--subtle]"

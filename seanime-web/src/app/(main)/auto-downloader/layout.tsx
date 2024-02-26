@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </div>
 
-            <Card className="p-0">
+            <Card className="p-0 overflow-hidden">
                 {children}
             </Card>
         </div>

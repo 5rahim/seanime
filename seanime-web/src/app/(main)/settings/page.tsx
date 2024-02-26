@@ -100,7 +100,7 @@ export default function Page() {
                 stackClass="space-y-4"
             >
 
-                <Card className="p-0">
+                <Card className="p-0 overflow-hidden">
                     <Tabs
                         defaultValue="seanime"
                         triggerClass="w-full data-[state=active]:bg-[--subtle]"

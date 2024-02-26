@@ -37,7 +37,8 @@ export function MainSidebar() {
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
-    const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
+    // const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
+    const isCollapsed = true
 
     const { user } = useCurrentUser()
     const pathname = usePathname()
@@ -63,14 +64,14 @@ export function MainSidebar() {
     const loginModal = useDisclosure(false)
 
     const handleExpandSidebar = () => {
-        if (!ctx.isBelowBreakpoint) {
-            setExpandSidebar(true)
-        }
+        // if (!ctx.isBelowBreakpoint) {
+        //     setExpandSidebar(true)
+        // }
     }
     const handleUnexpandedSidebar = () => {
-        if (expandedSidebar) {
-            setExpandSidebar(false)
-        }
+        // if (expandedSidebar) {
+        //     setExpandSidebar(false)
+        // }
     }
 
     return (
@@ -80,7 +81,6 @@ export function MainSidebar() {
                     "h-full flex flex-col justify-between transition-gpu w-full transition-[width]",
                     { "w-[400px]": !ctx.isBelowBreakpoint && expandedSidebar },
                 )}
-
                 // sidebarClass="h-full"
             >
                 <div>

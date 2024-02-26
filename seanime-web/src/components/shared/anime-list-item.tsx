@@ -90,55 +90,68 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
         >
 
             {/*ACTION POPUP*/}
-            <div className={cn(
-                "absolute z-20 bg-gray-950 opacity-0 scale-70 border ",
-                "group-hover/anime-list-item:opacity-100 group-hover/anime-list-item:scale-100",
-                "group-focus-visible/anime-list-item:opacity-100 group-focus-visible/anime-list-item:scale-100",
-                "focus-visible:opacity-100 focus-visible:scale-100",
-                "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
-                "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0 ",
-            )} tabIndex={0}>
+            <div
+                className={cn(
+                    "absolute z-20 bg-gray-950 opacity-0 scale-70 border ",
+                    "group-hover/anime-list-item:opacity-100 group-hover/anime-list-item:scale-100",
+                    "group-focus-visible/anime-list-item:opacity-100 group-focus-visible/anime-list-item:scale-100",
+                    "focus-visible:opacity-100 focus-visible:scale-100",
+                    "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
+                    "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0 ",
+                )} tabIndex={0}
+            >
                 <div className="p-2 h-full w-full flex flex-col justify-between">
                     {/*METADATA SECTION*/}
                     <div className="space-y-1">
-                        <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2">
-                            {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
-                                <div
-                                    className={cn(
-                                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                                        {
-                                            "bg-brand-400": listData?.status === "CURRENT",
-                                            "bg-gray-400": listData?.status !== "CURRENT",
-                                        },
-                                    )}
-                                    style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
-                                ></div>
-                            </div>}
+                        <Link
+                            href={`/entry?id=${media.id}`}
+                            className="w-full relative"
+                        >
+                            <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2">
+                                {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                                    <div
+                                        className={cn(
+                                            "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                                            {
+                                                "bg-brand-400": listData?.status === "CURRENT",
+                                                "bg-gray-400": listData?.status !== "CURRENT",
+                                            },
+                                        )}
+                                        style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
+                                    ></div>
+                                </div>}
 
-                            {(!!media.bannerImage || !!media.coverImage?.large) ? <Image
-                                src={media.bannerImage || media.coverImage?.large || ""}
-                                alt={""}
-                                fill
-                                placeholder={imageShimmer(700, 475)}
-                                quality={100}
-                                sizes="20rem"
-                                className="object-cover object-center transition"
-                            /> : <div
-                                className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
-                            ></div>}
-                        </div>
+                                {(!!media.bannerImage || !!media.coverImage?.large) ? <Image
+                                    src={media.bannerImage || media.coverImage?.large || ""}
+                                    alt={""}
+                                    fill
+                                    placeholder={imageShimmer(700, 475)}
+                                    quality={100}
+                                    sizes="20rem"
+                                    className="object-cover object-center transition"
+                                /> : <div
+                                    className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
+                                ></div>}
+
+                            </div>
+                            <div
+                                className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-gray-950 to-transparent z-[2]"
+                            />
+                        </Link>
                         <div>
                             {/*<Tooltip trigger={*/}
                             {/*    <p className="text-center font-medium text-sm min-[2000px]:text-lg px-4 line-clamp-1">{media.title?.userPreferred}</p>*/}
                             {/*}>{media.title?.userPreferred}</Tooltip>*/}
                             <Link
                                 href={`/entry?id=${media.id}`}
-                                className="text-center font-medium text-sm lg:text-lg min-[2000px]:text-lg px-4 line-clamp-2"
-                            >{media.title?.userPreferred}</Link>
+                                className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
+                            >
+                                {media.title?.userPreferred}
+                            </Link>
                         </div>
                         {!!media.startDate?.year && <div>
                             <p className="justify-center text-sm text-[--muted] flex w-full gap-1 items-center">
-                                {startCase(media.format || "")} - <BiCalendarAlt/> {new Intl.DateTimeFormat("en-US", {
+                                {startCase(media.format || "")} - <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                 year: "numeric",
                                 month: "short",
                             }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0))} - {capitalize(media.season ?? "")}
@@ -156,11 +169,13 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                                                 size="sm"
                                             >{media.nextAiringEpisode?.episode}</Badge>
                                         </p>
-                                    }>{formatDistanceToNow(addSeconds(new Date(), media.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}</Tooltip>
+                                    }
+                                >{formatDistanceToNow(addSeconds(new Date(), media.nextAiringEpisode?.timeUntilAiring),
+                                    { addSuffix: true })}</Tooltip>
                             </div>
                         )}
 
-                        <MainActionButton media={media} listData={listData}/>
+                        <MainActionButton media={media} listData={listData} />
 
                         {(listData?.status && props.showLibraryBadge === undefined) &&
                             <p className="text-center">{listData?.status === "CURRENT" ? "Watching" : capitalize(listData?.status ?? "")}</p>}
@@ -168,8 +183,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     </div>
                     <div className="flex gap-2">
                         {!!libraryData &&
-                            <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked}/>}
-                        <AnilistMediaEntryModal listData={listData} media={media}/>
+                            <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
+                        <AnilistMediaEntryModal listData={listData} media={media} />
                     </div>
                 </div>
             </div>
@@ -184,14 +199,16 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 />
 
                 {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
-                    <div className={cn(
-                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                        {
-                            "bg-brand-400": listData?.status === "CURRENT",
-                            "bg-gray-400": listData?.status !== "CURRENT",
-                        },
-                    )}
-                         style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}></div>
+                    <div
+                        className={cn(
+                            "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                            {
+                                "bg-brand-400": listData?.status === "CURRENT",
+                                "bg-gray-400": listData?.status !== "CURRENT",
+                            },
+                        )}
+                        style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
+                    ></div>
                 </div>}
 
                 {(showLibraryBadge) &&
@@ -228,8 +245,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 </div>}
 
 
-                <ProgressBadge media={media} listData={listData}/>
-                <ScoreBadge listData={listData}/>
+                <ProgressBadge media={media} listData={listData} />
+                <ScoreBadge listData={listData} />
 
                 <Image
                     src={media.coverImage?.extraLarge || ""}
@@ -249,7 +266,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 <div>
                     <div>
                         <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
-                            <BiCalendarAlt/>{capitalize(media.season ?? "")} {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
+                            <BiCalendarAlt />{capitalize(media.season ?? "")} {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
                             year: "numeric",
                         }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}
                         </p>
@@ -269,9 +286,10 @@ const MainActionButton = (props: { media: BaseMediaFragment, listData?: MediaEnt
             <div>
                 <div className="py-1">
                     <Link
-                        href={`/entry?id=${props.media.id}${(!!progress && (status !== "COMPLETED")) ? "&playNext=true" : ""}`}>
+                        href={`/entry?id=${props.media.id}${(!!progress && (status !== "COMPLETED")) ? "&playNext=true" : ""}`}
+                    >
                         <Button
-                            leftIcon={<BiPlay/>}
+                            leftIcon={<BiPlay />}
                             intent="white"
                             size="md"
                             className="w-full text-md"
@@ -290,16 +308,18 @@ const LockFilesButton = memo(({ mediaId, allFilesLocked }: { mediaId: number, al
     const { toggleLock, isPending } = useMediaEntryBulkAction()
 
     return (
-        <Tooltip trigger={
-            <IconButton
-                icon={allFilesLocked ? <VscVerified/> : <BiLockOpenAlt/>}
-                intent={allFilesLocked ? "success" : "warning-subtle"}
-                size="sm"
-                className="hover:opacity-60"
-                loading={isPending}
-                onClick={() => toggleLock(mediaId)}
-            />
-        }>
+        <Tooltip
+            trigger={
+                <IconButton
+                    icon={allFilesLocked ? <VscVerified /> : <BiLockOpenAlt />}
+                    intent={allFilesLocked ? "success" : "warning-subtle"}
+                    size="sm"
+                    className="hover:opacity-60"
+                    loading={isPending}
+                    onClick={() => toggleLock(mediaId)}
+                />
+            }
+        >
             {allFilesLocked ? "Unlock all files" : "Lock all files"}
         </Tooltip>
     )
@@ -320,11 +340,13 @@ const ScoreBadge = (props: { listData?: MediaEntryListData }) => {
 
     return (
         <div className="absolute z-10 right-1 bottom-1">
-            <div className={cn(
-                "backdrop-blur-lg inline-flex items-center justify-center gap-1 w-12 h-7 rounded-full font-bold bg-opacity-70 drop-shadow-sm shadow-lg",
-                scoreColor,
-            )}>
-                <BiStar/> {(score === 0) ? "-" : score}
+            <div
+                className={cn(
+                    "backdrop-blur-lg inline-flex items-center justify-center gap-1 w-12 h-7 rounded-full font-bold bg-opacity-70 drop-shadow-sm shadow-lg",
+                    scoreColor,
+                )}
+            >
+                <BiStar /> {(score === 0) ? "-" : score}
             </div>
         </div>
     )
