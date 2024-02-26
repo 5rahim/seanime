@@ -150,11 +150,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         score: listData?.score,
                         progress: listData?.progress,
                         //@ts-expect-error
-                        startedAt: listData?.startedAt ? new Date(new Date(listData?.startedAt).getFullYear(),
-                            new Date(listData?.startedAt).getMonth(),
-                            new Date(listData?.startedAt).getDate()) : undefined,
+                        startedAt: listData?.startedAt ? new Date(listData?.startedAt) : undefined,
                         //@ts-expect-error
-                        completedAt: listData?.completedAt ? new Date(listData?.completedAt.split(" ")[0]) : undefined,
+                        completedAt: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
                     }}
                 >
                     <div className="flex flex-col sm:flex-row gap-4">

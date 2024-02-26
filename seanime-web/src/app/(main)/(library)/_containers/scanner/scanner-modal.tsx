@@ -66,7 +66,7 @@ export function ScannerModal() {
                         setOpen(o)
                     }
                 }}
-                title={<h3>Scanner</h3>}
+                title="Scanner"
                 titleClass="text-center"
                 contentClass="space-y-4 max-w-2xl overflow-hidden"
             >

@@ -361,8 +361,8 @@ export type SeaTorrentActionProps = { hash: string, action: "pause" | "resume" |
 export type ScanSummary = {
     createdAt: string
     id: string
-    groups: ScanSummaryGroup[]
-    unmatchedFiles: ScanSummaryFile[]
+    groups: ScanSummaryGroup[] | undefined
+    unmatchedFiles: ScanSummaryFile[] | undefined
 }
 
 export type ScanSummaryFile = {

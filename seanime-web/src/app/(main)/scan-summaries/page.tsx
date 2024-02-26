@@ -15,7 +15,6 @@ import Link from "next/link"
 import React from "react"
 import { BiCheckCircle, BiInfoCircle, BiXCircle } from "react-icons/bi"
 import { LuFileSearch } from "react-icons/lu"
-import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { TbListSearch } from "react-icons/tb"
 
 
@@ -38,6 +37,7 @@ export default function Page() {
 
     const selectSummary = React.useMemo(() => data?.find(summary => summary.id === selectedSummaryId), [selectedSummaryId, data])
 
+    console.log(data)
 
     return (
         <div className="p-4 sm:p-8 space-y-4">
@@ -57,27 +57,27 @@ export default function Page() {
                     <div>
                         <Select
                             label="Summary"
-                            leftIcon={<PiClockCounterClockwiseFill className="text-white" />}
-                            value={selectedSummaryId || ""}
-                            options={data.map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id })).toReversed()}
+                            value={selectedSummaryId || "-"}
+                            options={data.map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id || "-" }))
+                                .toReversed()}
                             onValueChange={v => setSelectedSummaryId(v)}
                         />
                         {!!selectSummary && (
                             <div className="mt-4 space-y-4 rounded-[--radius] ">
                                 <div>
-                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups.length} media</p>
-                                    {selectSummary.unmatchedFiles.length > 0 && (
-                                        <p className="text-orange-300">{selectSummary.unmatchedFiles.length} file{selectSummary.unmatchedFiles.length > 1
+                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups?.length} media</p>
+                                    {!!selectSummary?.unmatchedFiles?.length && (
+                                        <p className="text-orange-300">{selectSummary?.unmatchedFiles?.length} file{selectSummary?.unmatchedFiles?.length > 1
                                             ? "s were "
                                             : " was "}not matched</p>
                                     )}
                                 </div>
 
-                                {selectSummary.unmatchedFiles.length > 0 && <div className="space-y-2">
+                                {!!selectSummary?.unmatchedFiles?.length && <div className="space-y-2">
                                     <h5>Unmatched files</h5>
                                     <Accordion type="single">
                                         <div className="grid grid-cols-1 gap-4">
-                                            {selectSummary.unmatchedFiles.map(file => (
+                                            {selectSummary?.unmatchedFiles?.map(file => (
                                                 <ScanSummaryGroupItem file={file} key={file.id} />
                                             ))}
                                         </div>
@@ -87,7 +87,7 @@ export default function Page() {
                                 <h5>Media that were scanned</h5>
 
                                 <div className="space-y-4 divide-y">
-                                    {selectSummary.groups.map(group => (
+                                    {selectSummary?.groups?.map(group => (
                                         <div className="space-y-4 pt-4" key={group.id}>
                                             <div className="flex gap-2">
 
