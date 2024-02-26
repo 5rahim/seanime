@@ -40,6 +40,7 @@ export const RefreshAnilistButton: React.FC<RefreshAnilistButtonProps> = (props)
             <Button
                 onClick={() => mutate()}
                 intent="warning-subtle"
+                size="sm"
                 rightIcon={<IoReload />}
                 loading={isPending}
                 leftIcon={<svg

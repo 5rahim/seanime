@@ -78,7 +78,8 @@ export const TorrentTable = memo((
         {
             accessorKey: "date",
             header: "Date",
-            cell: info => formatDistanceToNow(new Date(info.getValue<string>()), { addSuffix: true }),
+            cell: info => formatDistanceToNow(info.getValue<string>().split(" ")[0] + "T" + info.getValue<string>().split(" ")?.[1],
+                { addSuffix: true }),
             size: 10,
         },
     ]), [torrents, selectedTorrents])

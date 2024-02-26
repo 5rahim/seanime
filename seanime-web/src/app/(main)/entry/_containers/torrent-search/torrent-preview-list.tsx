@@ -46,13 +46,16 @@ export const TorrentPreviewList = React.memo((
                         />}
                         >Open in browser</Tooltip>}
                     >
-                        <TorrentResolutionBadge resolution={item.torrent.resolution} />
-                        <TorrentSeedersBadge seeders={item.torrent.seeders}/>
-                        <p className="text-gray-300 text-sm flex items-center gap-1">
-                            <BiFile /> {item.torrent.formattedSize}</p>
-                        <p className="text-[--muted] text-sm flex items-center gap-1">
-                            - <BiCalendarAlt/> {formatDistanceToNow(new Date(item.torrent.date), { addSuffix: true })}
-                        </p>
+                        <div className="flex flex-wrap gap-2 items-center">
+                            <TorrentResolutionBadge resolution={item.torrent.resolution} />
+                            <TorrentSeedersBadge seeders={item.torrent.seeders} />
+                            <p className="text-gray-300 text-sm flex items-center gap-1">
+                                <BiFile /> {item.torrent.formattedSize}</p>
+                            <p className="text-[--muted] text-sm flex items-center gap-1">
+                                <BiCalendarAlt /> {formatDistanceToNow(item.torrent.date.split(" ")[0] + "T" + item.torrent.date.split(" ")?.[1],
+                                { addSuffix: true })}
+                            </p>
+                        </div>
                     </TorrentPreviewItem>
                 )
             })}

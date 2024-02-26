@@ -97,7 +97,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     "group-focus-visible/anime-list-item:opacity-100 group-focus-visible/anime-list-item:scale-100",
                     "focus-visible:opacity-100 focus-visible:scale-100",
                     "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
-                    "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0 ",
+                    "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
+                    "hidden lg:block", // Hide on small screens
                 )} tabIndex={0}
             >
                 <div className="p-2 h-full w-full flex flex-col justify-between">
@@ -189,76 +190,79 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 </div>
             </div>
 
-            <div
-                className="aspect-[6/7] flex-none rounded-md border  object-cover object-center relative overflow-hidden"
+            <Link
+                href={`/entry?id=${media.id}`}
+                className="w-full relative"
             >
+                <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden">
 
-                {/*BOTTOM GRADIENT*/}
-                <div
-                    className="z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-black to-transparent"
-                />
-
-                {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                    {/*BOTTOM GRADIENT*/}
                     <div
-                        className={cn(
-                            "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                            {
-                                "bg-brand-400": listData?.status === "CURRENT",
-                                "bg-gray-400": listData?.status !== "CURRENT",
-                            },
-                        )}
-                        style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
-                    ></div>
-                </div>}
+                        className="z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-black to-transparent"
+                    />
 
-                {(showLibraryBadge) &&
-                    <div className="absolute z-[1] left-0 top-0">
-                        <Badge
-                            size="xl" intent="warning-solid"
-                            className="rounded-md rounded-bl-none rounded-tr-none text-orange-900"
-                        ><IoLibrarySharp /></Badge>
+                    {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                        <div
+                            className={cn(
+                                "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                                {
+                                    "bg-brand-400": listData?.status === "CURRENT",
+                                    "bg-gray-400": listData?.status !== "CURRENT",
+                                },
+                            )}
+                            style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
+                        ></div>
                     </div>}
 
-                {/*RELEASING BADGE*/}
-                {media.status === "RELEASING" && <div className="absolute z-10 right-1 top-2">
-                    <Tooltip
-                        trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
-                    >
-                        Airing
-                    </Tooltip>
-                </div>}
+                    {(showLibraryBadge) &&
+                        <div className="absolute z-[1] left-0 top-0">
+                            <Badge
+                                size="xl" intent="warning-solid"
+                                className="rounded-md rounded-bl-none rounded-tr-none text-orange-900"
+                            ><IoLibrarySharp /></Badge>
+                        </div>}
 
-                {/*NOT YET RELEASED BADGE*/}
-                {media.status === "NOT_YET_RELEASED" && <div className="absolute z-10 right-1 top-1">
-                    <Tooltip
-                        trigger={<Badge intent="gray-solid" size="lg"><RiSignalTowerLine /></Badge>}
-                    >
-                        {!!media.startDate?.year ?
-                            new Intl.DateTimeFormat("en-US", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                            }).format(new Date(media.startDate.year, media.startDate?.month || 0, media.startDate?.day || 0))
-                            : "-"
-                        }
-                    </Tooltip>
-                </div>}
+                    {/*RELEASING BADGE*/}
+                    {media.status === "RELEASING" && <div className="absolute z-10 right-1 top-2">
+                        <Tooltip
+                            trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
+                        >
+                            Airing
+                        </Tooltip>
+                    </div>}
+
+                    {/*NOT YET RELEASED BADGE*/}
+                    {media.status === "NOT_YET_RELEASED" && <div className="absolute z-10 right-1 top-1">
+                        <Tooltip
+                            trigger={<Badge intent="gray-solid" size="lg"><RiSignalTowerLine /></Badge>}
+                        >
+                            {!!media.startDate?.year ?
+                                new Intl.DateTimeFormat("en-US", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                }).format(new Date(media.startDate.year, media.startDate?.month || 0, media.startDate?.day || 0))
+                                : "-"
+                            }
+                        </Tooltip>
+                    </div>}
 
 
-                <ProgressBadge media={media} listData={listData} />
-                <ScoreBadge listData={listData} />
+                    <ProgressBadge media={media} listData={listData} />
+                    <ScoreBadge listData={listData} />
 
-                <Image
-                    src={media.coverImage?.extraLarge || ""}
-                    alt={""}
-                    fill
-                    placeholder={imageShimmer(700, 475)}
-                    quality={100}
-                    priority
-                    sizes="20rem"
-                    className="object-cover object-center group-hover/anime-list-item:scale-125 transition"
-                />
-            </div>
+                    <Image
+                        src={media.coverImage?.extraLarge || ""}
+                        alt={""}
+                        fill
+                        placeholder={imageShimmer(700, 475)}
+                        quality={100}
+                        priority
+                        sizes="20rem"
+                        className="object-cover object-center group-hover/anime-list-item:scale-125 transition"
+                    />
+                </div>
+            </Link>
             <div className="pt-2 space-y-2 flex flex-col justify-between h-full">
                 <div>
                     <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3">{media.title?.userPreferred}</p>

@@ -97,7 +97,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
             hideControls
             size="sm"
             fieldClass={cn(
-                "flex items-center justify-end gap-3 space-y-0",
+                "flex items-center md:justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (quickSearchBatch || !quickSearch) },
             )}
             fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
@@ -131,7 +131,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
                 {quickSearch && <div>
                     <div className="space-y-2">
-                        <div className="flex gap-4 justify-between w-full">
+                        <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
                             <Switch
                                 label="Batches"
                                 help={!downloadInfo?.canBatch ? "Cannot look for batches for this media" : undefined}
@@ -156,7 +156,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                                 ]}
                                 size="sm"
                                 fieldClass={cn(
-                                    "flex items-center justify-end gap-3 space-y-0",
+                                    "flex items-center md:justify-end gap-3 space-y-0",
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch },
                                 )}
                                 fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
