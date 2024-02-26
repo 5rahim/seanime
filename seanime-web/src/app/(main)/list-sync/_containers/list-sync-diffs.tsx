@@ -203,7 +203,7 @@ function DiffItem(props: DiffItemProps) {
 
     return (
         <div
-            className={cn("border  rounded-[--radius] p-2 flex w-full relative")}
+            className={cn("border rounded-[--radius] p-2 flex w-full relative")}
         >
             <div
                 className="bg-cover bg-center w-16 h-16 rounded-[--radius] mr-4"

@@ -2,8 +2,6 @@
 
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { cn } from "@/components/ui/core/styling"
-import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -73,7 +71,7 @@ export default function Home() {
             <SearchInput />
 
             <Tabs
-                triggerClass="w-full data-[state=active]:bg-[--subtle]"
+                triggerClass="w-full rounded-full border-none data-[state=active]:border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--brand]"
                 value={selectedIndex}
                 onValueChange={value => {
                     startTransition(() => {
@@ -81,7 +79,7 @@ export default function Home() {
                     })
                 }}
             >
-                <TabsList className="w-full flex border-b">
+                <TabsList className="w-full flex">
                     <TabsTrigger value="current">
                         Currently Watching
                     </TabsTrigger>
@@ -101,23 +99,25 @@ export default function Home() {
 
                 {/*<SearchInput/>*/}
 
-                <LoadingOverlay className={cn("z-50 backdrop-blur-none", { "hidden": !pending })} />
+                <div className="py-6">
+                    {/*<LoadingOverlay className={cn("z-50 backdrop-blur-none", { "hidden": !pending })} />*/}
 
-                <TabsContent value="current">
-                    <WatchList list={currentList} />
-                </TabsContent>
-                <TabsContent value="planning">
-                    <WatchList list={planningList} />
-                </TabsContent>
-                <TabsContent value="paused">
-                    <WatchList list={pausedList} />
-                </TabsContent>
-                <TabsContent value="completed">
-                    <WatchList list={completedList} />
-                </TabsContent>
-                <TabsContent value="dropped">
-                    <WatchList list={droppedList} />
-                </TabsContent>
+                    <TabsContent value="current">
+                        <WatchList list={currentList} />
+                    </TabsContent>
+                    <TabsContent value="planning">
+                        <WatchList list={planningList} />
+                    </TabsContent>
+                    <TabsContent value="paused">
+                        <WatchList list={pausedList} />
+                    </TabsContent>
+                    <TabsContent value="completed">
+                        <WatchList list={completedList} />
+                    </TabsContent>
+                    <TabsContent value="dropped">
+                        <WatchList list={droppedList} />
+                    </TabsContent>
+                </div>
             </Tabs>
 
         </main>
@@ -128,7 +128,7 @@ const WatchList = React.memo(({ list }: { list: AnilistCollectionList | null | u
 
     return (
         <div
-            className="px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
         >
             {list?.entries?.filter(Boolean)?.map((entry) => (
                 <AnimeListItem
@@ -153,14 +153,16 @@ const SearchInput = () => {
     const [inputValue, setInputValue] = useState(input)
 
     return (
-        <div className="mb-8">
+        <div className="mb-4">
             <TextInput
-                leftIcon={<FiSearch />} value={inputValue} onChange={e => {
-                setInputValue(e.target.value)
-                startTransition(() => {
-                    setter(e.target.value)
-                })
-            }}
+                leftIcon={<FiSearch />}
+                value={inputValue}
+                onValueChange={v => {
+                    setInputValue(v)
+                    startTransition(() => {
+                        setter(v)
+                    })
+                }}
             />
         </div>
     )

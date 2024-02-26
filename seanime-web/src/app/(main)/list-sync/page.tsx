@@ -95,7 +95,7 @@ export default function Page() {
                                 List sync is not enabled. Enable it in the settings tab.
                             </p>
                         )}
-                        {(!isLoading && !!serverStatus?.settings?.listSync) && <div className="p-4">
+                        {(!isLoading && !!serverStatus?.settings?.listSync) && <div className="">
                             {typeof animeDiffs !== "string" &&
                                 <ListSyncDiffs diffs={animeDiffs ?? []} onClearCache={handleClearCache} isDeletingCache={isDeletingCache} />}
                             {typeof animeDiffs === "string" && <LuffyError>{animeDiffs}</LuffyError>}

@@ -186,7 +186,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             Relations
                         </AccordionTrigger>
                         <AccordionContent>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {relations.slice(0, 4).map(edge => {
                                     return <div key={edge.node?.id} className="col-span-1">
                                         <Link href={`/entry?id=${edge.node?.id}`}>
@@ -227,7 +227,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         Recommendations
                     </AccordionTrigger>
                     <AccordionContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation).filter(Boolean).map(media => {
                                 return <div key={media.id} className="col-span-1">
                                     <Link href={`/entry?id=${media.id}`}>

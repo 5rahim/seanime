@@ -58,7 +58,7 @@ function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | und
     if (!episodes || !episodes.length) return null
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-2 mt-4">
             <h4>Missing episodes:</h4>
             <p>Episode numbers: {episodes.slice(0, 5).map(n => n.episodeNumber).join(", ")}{episodes.length > 5 ? ", ..." : ""}</p>
             <HorizontalDraggableScroll>
@@ -79,7 +79,7 @@ function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | und
                     )
                 })}
             </HorizontalDraggableScroll>
-            <Separator className="!mb-4" />
+            <Separator className="!mt-4 mb-4" />
         </div>
     )
 
