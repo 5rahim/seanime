@@ -27,7 +27,7 @@ export const AccordionAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-Accordion__item",
-        "border-b",
+        "",
     ]),
     contentContainer: cva([
         "UI-Accordion__contentContainer",

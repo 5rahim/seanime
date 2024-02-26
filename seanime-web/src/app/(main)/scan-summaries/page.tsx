@@ -61,7 +61,7 @@ export default function Page() {
                             leftIcon={<PiClockCounterClockwiseFill />}
                             value={selectedSummaryId || ""}
                             options={data.map((summary, i) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id })).toReversed()}
-                            onChange={e => setSelectedSummaryId(e.target.value)}
+                            onValueChange={v => setSelectedSummaryId(v)}
                         />
                         {!!selectSummary && (
                             <div className="mt-4 space-y-4 rounded-[--radius] ">

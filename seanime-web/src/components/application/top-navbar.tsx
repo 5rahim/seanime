@@ -32,7 +32,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
                 isCurrent: pathname.startsWith("/schedule"),
                 name: "Schedule",
                 addon: missingEpisodeCount > 0 ? <Badge
-                    className="absolute top-4 right-2 h-2 w-2 p-0" size="sm"
+                    className="absolute top-1 right-2 h-2 w-2 p-0" size="sm"
                     intent="alert-solid"
                 /> : undefined,
             },

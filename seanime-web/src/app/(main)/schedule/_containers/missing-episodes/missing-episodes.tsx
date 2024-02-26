@@ -1,8 +1,8 @@
 "use client"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
-import { Slider } from "@/components/shared/slider"
-import { Accordion } from "@/components/ui/accordion"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MediaEntryEpisode } from "@/lib/server/types"
 import { useRouter } from "next/navigation"
@@ -18,6 +18,8 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
 }) {
     const router = useRouter()
 
+    if (!missingEpisodes?.length && !silencedEpisodes?.length) return null
+
     return (
         <>
             <AppLayoutStack spacing="lg">
@@ -26,7 +28,7 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                     <>
                         <h2 className="flex gap-3 items-center"><IoLibrary /> Missing from your library</h2>
 
-                        <Slider>
+                        <HorizontalDraggableScroll>
                             {!isLoading && missingEpisodes?.map(episode => {
                                 return <LargeEpisodeListItem
                                     key={episode.displayTitle + episode.basicMedia?.id}
@@ -59,7 +61,7 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                                     No missing episodes
                                 </div>
                             )}
-                        </Slider>
+                        </HorizontalDraggableScroll>
                     </>
                 )}
 
@@ -67,30 +69,33 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                     <>
 
                         <Accordion
-                            containerClass={""}
+                            type="multiple"
+                            defaultValue={[]}
                             triggerClass="py-2 dark:bg-[--background] px-0 dark:hover:bg-transparent text-lg dark:text-[--muted] dark:hover:text-white"
                         >
-                            <Accordion.Item
-                                title={<p className="flex gap-3 items-center text-lg text-inherit"><LuBellOff /> Silenced episodes</p>}
-                                defaultOpen={false}
-                            >
-                                <Slider>
-                                    {!isLoading && silencedEpisodes?.map(episode => {
-                                        return <LargeEpisodeListItem
-                                            key={episode.displayTitle + episode.basicMedia?.id}
-                                            image={episode.episodeMetadata?.image}
-                                            topTitle={episode.basicMedia?.title?.userPreferred}
-                                            title={episode.displayTitle}
-                                            meta={episode.episodeMetadata?.airDate ?? undefined}
-                                            actionIcon={<AiOutlineDownload />}
-                                            isInvalid={episode.isInvalid}
-                                            onClick={() => {
-                                                router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
-                                            }}
-                                        />
-                                    })}
-                                </Slider>
-                            </Accordion.Item>
+                            <AccordionItem value="item-1">
+                                <AccordionTrigger>
+                                    <p className="flex gap-3 items-center text-lg text-inherit"><LuBellOff /> Silenced episodes</p>
+                                </AccordionTrigger>
+                                <AccordionContent className="bg-gray-950 rounded-[--radius]">
+                                    <HorizontalDraggableScroll>
+                                        {!isLoading && silencedEpisodes?.map(episode => {
+                                            return <LargeEpisodeListItem
+                                                key={episode.displayTitle + episode.basicMedia?.id}
+                                                image={episode.episodeMetadata?.image}
+                                                topTitle={episode.basicMedia?.title?.userPreferred}
+                                                title={episode.displayTitle}
+                                                meta={episode.episodeMetadata?.airDate ?? undefined}
+                                                actionIcon={<AiOutlineDownload />}
+                                                isInvalid={episode.isInvalid}
+                                                onClick={() => {
+                                                    router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                }}
+                                            />
+                                        })}
+                                    </HorizontalDraggableScroll>
+                                </AccordionContent>
+                            </AccordionItem>
                         </Accordion>
                     </>
                 )}

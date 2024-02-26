@@ -1,4 +1,5 @@
 "use client"
+import { Card } from "@/components/ui/card"
 import React from "react"
 
 
@@ -15,9 +16,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </div>
 
-            <div className="border  rounded-[--radius] bg-[--paper] text-lg space-y-2">
+            <Card className="p-0">
                 {children}
-            </div>
+            </Card>
         </div>
     )
 

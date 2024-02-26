@@ -1,6 +1,6 @@
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
-import { Slider } from "@/components/shared/slider"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import Image from "next/image"
@@ -15,7 +15,8 @@ export function ComingUpNext() {
         return collectionEntries.filter(Boolean).map(entry => entry.media) as BaseMediaFragment[]
     }, [anilistLists])
 
-    const media = _media.filter(item => !!item.nextAiringEpisode?.episode).sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
+    const media = _media.filter(item => !!item.nextAiringEpisode?.episode)
+        .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
 
     if (media.length === 0) return null
 
@@ -23,7 +24,7 @@ export function ComingUpNext() {
         <AppLayoutStack>
             <h2>Coming up next</h2>
             <p className="text-[--muted]">Based on your anime list</p>
-            <Slider>
+            <HorizontalDraggableScroll>
                 {media.map(item => {
                     return (
                         <div
@@ -64,7 +65,7 @@ export function ComingUpNext() {
                         </div>
                     )
                 })}
-            </Slider>
+            </HorizontalDraggableScroll>
         </AppLayoutStack>
     )
 }

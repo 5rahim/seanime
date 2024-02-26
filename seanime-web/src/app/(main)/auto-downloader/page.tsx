@@ -193,7 +193,7 @@ export default function Page() {
                                         />
                                     </div>
 
-                                    <Field.Submit role="save" loading={isPending} />
+                                    <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
                                 </>
                             )}
                         </Form>

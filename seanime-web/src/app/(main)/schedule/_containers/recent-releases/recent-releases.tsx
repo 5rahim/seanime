@@ -1,11 +1,11 @@
+import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
+import { getRecentMediaAirings } from "@/lib/anilist/queries/recent-airings"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { addSeconds, formatDistanceToNow, subDays } from "date-fns"
-import React from "react"
-import { Slider } from "@/components/shared/slider"
-import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
 import { useRouter } from "next/navigation"
-import { AppLayoutStack } from "@/components/ui/app-layout"
-import { getRecentMediaAirings } from "@/lib/anilist/queries/recent-airings"
+import React from "react"
 
 export function RecentReleases() {
 
@@ -28,7 +28,7 @@ export function RecentReleases() {
     return (
         <AppLayoutStack>
             <h2>Recent releases</h2>
-            <Slider>
+            <HorizontalDraggableScroll>
                 {data?.Page?.airingSchedules?.filter(item => item?.media?.isAdult === false
                     && item?.media?.type === "ANIME"
                     && item?.media?.countryOfOrigin === "JP"
@@ -46,7 +46,7 @@ export function RecentReleases() {
                         />
                     )
                 })}
-            </Slider>
+            </HorizontalDraggableScroll>
         </AppLayoutStack>
     )
 }
