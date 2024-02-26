@@ -43,7 +43,7 @@ export const TorrentTable = memo((
                         size="sm"
                         onClick={() => window.open(info.row.original.link, "_blank")}
                     />}
-                >View on NYAA</Tooltip>
+                >Open in browser</Tooltip>
                 <Tooltip
                     trigger={
                         <div

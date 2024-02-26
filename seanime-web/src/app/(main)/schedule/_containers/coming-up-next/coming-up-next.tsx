@@ -29,7 +29,7 @@ export function ComingUpNext() {
                     return (
                         <div
                             key={item.id}
-                            className="rounded-md border border-gray-800 overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none group/missed-episode-item"
+                            className="rounded-md border border-gray-800 overflow-hidden aspect-[4/2] w-72 lg:w-96 relative flex items-end flex-none group/missed-episode-item"
                         >
                             <div
                                 className="absolute w-full h-full rounded-md rounded-b-none overflow-hidden z-[1]"

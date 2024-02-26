@@ -38,7 +38,7 @@ export function MainSidebar() {
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
     // const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
-    const isCollapsed = true
+    const isCollapsed = !ctx.isBelowBreakpoint
 
     const { user } = useCurrentUser()
     const pathname = usePathname()

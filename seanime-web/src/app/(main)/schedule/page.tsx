@@ -13,7 +13,7 @@ export default function Page() {
     if (isLoading) return <LoadingSpinner />
 
     return (
-        <div className="p-8 space-y-10 pb-10">
+        <div className="p-4 sm:p-8 space-y-10 pb-10">
             <MissingEpisodes missingEpisodes={missingEpisodes} silencedEpisodes={silencedEpisodes} isLoading={isLoading} />
             <ComingUpNext/>
             <RecentReleases/>

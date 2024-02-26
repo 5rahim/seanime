@@ -66,12 +66,12 @@ export default function Home() {
     const droppedList = useMemo(() => getList("DROPPED"), [search, getList, anilistLists])
 
     return (
-        <main className="p-8 pt-0 relative">
+        <main className="p-4 sm:p-8 pt-4 relative">
 
             <SearchInput />
 
             <Tabs
-                triggerClass="w-full rounded-full border-none data-[state=active]:border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--brand]"
+                triggerClass="w-fit md:w-full rounded-full border-none data-[state=active]:border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--brand]"
                 value={selectedIndex}
                 onValueChange={value => {
                     startTransition(() => {
@@ -79,7 +79,7 @@ export default function Home() {
                     })
                 }}
             >
-                <TabsList className="w-full flex">
+                <TabsList className="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12">
                     <TabsTrigger value="current">
                         Currently Watching
                     </TabsTrigger>

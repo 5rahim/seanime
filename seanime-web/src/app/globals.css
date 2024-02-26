@@ -97,9 +97,9 @@ html * {
     border-color: var(--border);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    @apply text-gray-800 dark:text-gray-100
-}
+/*h1, h2, h3, h4, h5, h6 {*/
+/*    @apply text-gray-800 dark:text-gray-100*/
+/*}*/
 
 h1 {
     @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl

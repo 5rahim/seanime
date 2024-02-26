@@ -6,7 +6,7 @@ import React from "react"
 export default function Layout({ children }: { children: React.ReactNode }) {
 
     return (
-        <div className="p-8 space-y-4">
+        <div className="p-4 sm:p-8 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>Auto Downloader</h2>

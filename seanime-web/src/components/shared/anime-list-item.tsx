@@ -342,7 +342,7 @@ const ScoreBadge = (props: { listData?: MediaEntryListData }) => {
         <div className="absolute z-10 right-1 bottom-1">
             <div
                 className={cn(
-                    "backdrop-blur-lg inline-flex items-center justify-center gap-1 w-12 h-7 rounded-full font-bold bg-opacity-70 drop-shadow-sm shadow-lg",
+                    "backdrop-blur-lg inline-flex items-center justify-center gap-1 w-14 h-7 rounded-full font-bold bg-opacity-70 drop-shadow-sm shadow-lg",
                     scoreColor,
                 )}
             >
@@ -361,7 +361,7 @@ const ProgressBadge = (props: { media: BaseMediaFragment, listData?: MediaEntryL
 
     return (
         <div className="absolute z-10 left-1 bottom-1">
-            <Badge size="lg">
+            <Badge size="lg" className="rounded-md">
                 {progress}/{episodes ?? "-"}
             </Badge>
         </div>

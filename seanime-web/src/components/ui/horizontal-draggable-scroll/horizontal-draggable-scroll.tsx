@@ -25,6 +25,7 @@ const HorizontalDraggableScrollAnatomy = defineStyleAnatomy({
         "data-[state=visible]:animate-in data-[state=hidden]:animate-out",
         "data-[state=visible]:fade-in-0 data-[state=hidden]:fade-out-0",
         "data-[state=visible]:duration-600 data-[state=hidden]:duration-600",
+        "hidden md:flex",
     ], {
         variants: {
             side: {

@@ -49,7 +49,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
     if (!hasScanned && !isLoading) return (
         <>
             <DiscoverPageHeader />
-            <div className="p-8 pt-0">
+            <div className="p-4 sm:p-8 pt-0">
 
                 <div className="text-center space-y-4">
                     <div className="border-2  border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">

@@ -17,7 +17,7 @@ import * as upath from "upath"
 export default function Page() {
 
     return (
-        <AppLayoutStack className="p-8">
+        <AppLayoutStack className="p-4 sm:p-8">
             <div className="flex items-center w-full justify-between">
                 <div>
                     <h2>Active torrents</h2>

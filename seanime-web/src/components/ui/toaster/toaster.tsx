@@ -59,9 +59,7 @@ export const Toaster = ({ position = "top-center", ...props }: ToasterProps) => 
 
     return (
         <>
-            <Sonner theme="light"{...allProps} />
             <Sonner theme="dark" {...allProps} />
-            <Sonner theme="system" {...allProps} />
         </>
     )
 }

@@ -12,7 +12,7 @@ export default function Page() {
     return (
         <>
             <DiscoverPageHeader/>
-            <div className="p-8 space-y-10 pb-10">
+            <div className="p-4 sm:p-8 space-y-10 pb-10">
                 <div className="space-y-2">
                     <h2>Popular this season</h2>
                     <DiscoverTrending/>

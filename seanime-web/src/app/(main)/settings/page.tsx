@@ -35,7 +35,7 @@ export default function Page() {
     }, [data, isPending])
 
     return (
-        <div className="p-8 space-y-4">
+        <div className="p-4 sm:p-8 space-y-4">
             <div className="space-y-1">
                 <h2>Settings</h2>
                 <p className="text-[--muted]">App version: {status?.version}</p>

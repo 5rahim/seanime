@@ -56,7 +56,7 @@ export default function Page() {
     }
 
     if (!serverStatus?.mal) return (
-        <div className="p-8 space-y-4">
+        <div className="p-4 sm:p-8 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>List Sync <BetaBadge /></h2>
@@ -71,7 +71,7 @@ export default function Page() {
 
 
     return (
-        <div className="p-8 space-y-4">
+        <div className="p-4 sm:p-8 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>List Sync <BetaBadge /></h2>

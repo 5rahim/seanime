@@ -44,7 +44,7 @@ export const TorrentPreviewList = React.memo((
                             size="sm"
                             onClick={() => window.open(item.torrent.link, "_blank")}
                         />}
-                        >View on {item.torrent.provider === "nyaa" ? "Nyaa" : "AnimeTosho"}</Tooltip>}
+                        >Open in browser</Tooltip>}
                     >
                         <TorrentResolutionBadge resolution={item.torrent.resolution} />
                         <TorrentSeedersBadge seeders={item.torrent.seeders}/>
