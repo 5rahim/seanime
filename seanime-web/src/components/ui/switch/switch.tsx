@@ -6,7 +6,6 @@ import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 import { mergeRefs } from "../core/utils"
-import { hiddenInputStyles } from "../input"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -147,19 +146,19 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                     {label}
                 </label>}
 
-                <input
-                    ref={inputRef}
-                    type="checkbox"
-                    name={basicFieldProps.name}
-                    className={hiddenInputStyles}
-                    value={_value ? "on" : "off"}
-                    checked={basicFieldProps.required ? _value : true}
-                    aria-hidden="true"
-                    required={basicFieldProps.required}
-                    tabIndex={-1}
-                    onChange={() => {}}
-                    onFocusCapture={() => buttonRef.current?.focus()}
-                />
+                {/*<input*/}
+                {/*    ref={inputRef}*/}
+                {/*    type="checkbox"*/}
+                {/*    name={basicFieldProps.name}*/}
+                {/*    className={hiddenInputStyles}*/}
+                {/*    value={_value ? "on" : "off"}*/}
+                {/*    checked={basicFieldProps.required ? _value : true}*/}
+                {/*    aria-hidden="true"*/}
+                {/*    required={basicFieldProps.required}*/}
+                {/*    tabIndex={-1}*/}
+                {/*    onChange={() => {}}*/}
+                {/*    onFocusCapture={() => buttonRef.current?.focus()}*/}
+                {/*/>*/}
             </div>
         </BasicField>
     )
