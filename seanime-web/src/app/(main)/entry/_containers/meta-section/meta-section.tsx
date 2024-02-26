@@ -42,7 +42,6 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
         <div className="space-y-8 pb-10">
             <div className="space-y-8 p-4 sm:p-8 rounded-xl bg-gray-950 bg-opacity-80 drop-shadow-md relative">
                 <div className="space-y-4">
-
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <h1 className={"[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)]"}>{entry.media.title?.userPreferred}</h1>
