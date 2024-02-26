@@ -159,7 +159,7 @@ export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
                     ]}
                 />
                 <div className="w-full flex justify-end">
-                    <Field.Submit role="save" intent="success" loading={isPending} />
+                    <Field.Submit role="save" intent="success" loading={isPending}>Save</Field.Submit>
                 </div>
             </Form>
         </Modal>

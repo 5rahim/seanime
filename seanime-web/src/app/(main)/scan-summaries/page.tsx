@@ -57,7 +57,7 @@ export default function Page() {
                     <div>
                         <Select
                             label="Summary"
-                            leftIcon={<PiClockCounterClockwiseFill />}
+                            leftIcon={<PiClockCounterClockwiseFill className="text-white" />}
                             value={selectedSummaryId || ""}
                             options={data.map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id })).toReversed()}
                             onValueChange={v => setSelectedSummaryId(v)}

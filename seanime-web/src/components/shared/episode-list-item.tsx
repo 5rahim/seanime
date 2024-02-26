@@ -49,7 +49,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
     return <>
         <div
             className={cn(
-                "border  p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
+                "border p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
                 {
                     "border-brand-200 bg-gray-800 hover:bg-gray-800": isSelected,
                     "border-red-700": isInvalid,
@@ -99,7 +99,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
 
                     <h4 className={cn("font-medium transition line-clamp-2", { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched })}>{title}</h4>
 
-                    {!!episodeTitle && <p className={cn("text-sm text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
+                    {!!episodeTitle && <p className={cn("text-md text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
 
                     {!!fileName && <p className="text-sm text-gray-600 line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-gray-500 line-clamp-2">{description}</p>}

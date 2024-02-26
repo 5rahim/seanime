@@ -154,11 +154,11 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
             <Modal
                 open={trackerModal.active && canTrackProgress}
                 onOpenChange={trackerModal.off}
-                //
-                // title="Progress"
-                // titleClass="text-center"
+                title="Progress"
+                titleClass="text-center"
+                contentClass="space-y-2"
             >
-                <div className="bg-[--background] border  rounded-md p-4 mb-4 text-center">
+                <div className="bg-gray-900 border rounded-md p-4 text-center">
                     {(!!status && isCompleted.active && !!episode) ? (
                         <p className="text-xl">Current progress: <Badge size="lg">{episode.progressNumber} <span
                             className="opacity-60"
@@ -173,17 +173,19 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
                         Your progress will be automatically updated
                     </p>
                 )}
-                <div className="flex gap-2 justify-center items-center">
-                    {(!!status && isCompleted.active && canTrackProgress) && <Button
-                        intent="primary"
-                        disabled={false}
-                        onClick={handleUpdateProgress}
-                        loading={isPending}
-                        className="w-full"
-                    >
-                        Confirm
-                    </Button>}
-                </div>
+                {(!!status && isCompleted.active && canTrackProgress) &&
+                    <div className="flex gap-2 justify-center items-center">
+                        <Button
+                            intent="primary"
+                            disabled={false}
+                            onClick={handleUpdateProgress}
+                            loading={isPending}
+                            className="w-full"
+                        >
+                            Confirm
+                        </Button>
+                    </div>
+                }
             </Modal>
         </>
     )
