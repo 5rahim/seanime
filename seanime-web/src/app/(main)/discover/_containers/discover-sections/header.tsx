@@ -57,7 +57,7 @@ export function DiscoverPageHeader() {
 
                 <Image
                     src={"/mask.png"}
-                    alt="banner image"
+                    alt="mask"
                     fill
                     quality={100}
                     priority
@@ -83,7 +83,7 @@ export function DiscoverPageHeader() {
                         className="absolute bottom-[8rem] right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block"
                     >
                         <div
-                            className="flex flex-row relative items-start gap-6 p-6 pr-3 w-fit overflow-hidden"
+                            className="flex flex-row-reverse relative items-start gap-6 p-6 pr-3 w-fit overflow-hidden"
                             onMouseEnter={() => setHoveringHeader(true)}
                             onMouseLeave={() => setHoveringHeader(false)}
                         >
@@ -96,21 +96,27 @@ export function DiscoverPageHeader() {
                                         alt="cover image"
                                         fill
                                         priority
-                                        className="object-cover object-center"
+                                        className={cn(
+                                            "object-cover object-center transition-opacity duration-1000",
+                                            isTransitioning && "opacity-30",
+                                            !isTransitioning && "opacity-100",
+                                        )}
                                     />
                                 </div>}
                             </div>
-                            <div className="flex-auto space-y-1 z-[1]">
-                                <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-[24rem] leading-6">{randomTrending.title?.userPreferred}</h1>
-                                {!!randomTrending?.nextAiringEpisode?.airingAt &&
-                                    <p className="text-lg text-brand-200 flex items-center gap-1.5"><RiSignalTowerLine /> Airing now</p>}
-                                {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
-                                    <p className="text-lg font-semibold">
-                                        {!!randomTrending.nextAiringEpisode?.episode ?
-                                            <span>{randomTrending.nextAiringEpisode.episode} episodes</span> :
-                                            <span>{randomTrending.episodes} episodes</span>}
-                                    </p>
-                                )}
+                            <div className="flex-auto space-y-1 z-[1] text-center">
+                                <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
+                                <div className="flex items-center justify-center max-w-md gap-4">
+                                    {!!randomTrending?.nextAiringEpisode?.airingAt &&
+                                        <p className="text-lg text-brand-200 inline-flex items-center gap-1.5"><RiSignalTowerLine /> Airing now</p>}
+                                    {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
+                                        <p className="text-lg font-semibold">
+                                            {!!randomTrending.nextAiringEpisode?.episode ?
+                                                <span>{randomTrending.nextAiringEpisode.episode} episodes</span> :
+                                                <span>{randomTrending.episodes} episodes</span>}
+                                        </p>
+                                    )}
+                                </div>
                                 <div className="pt-2">
                                     <ScrollArea className="max-w-md h-[75px] mb-4">{(randomTrending as any)?.description?.replace(
                                         /(<([^>]+)>)/ig,

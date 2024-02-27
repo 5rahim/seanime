@@ -1,4 +1,5 @@
 "use client"
+import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-dropdown-menu"
@@ -125,7 +126,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
 
 
                 <div className="space-y-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <EpisodeListGrid>
                         {mainEpisodes.map(episode => (
                             <EpisodeItem
                                 key={episode.localFile?.path || ""}
@@ -135,7 +136,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                                 onPlay={playVideo}
                             />
                         ))}
-                    </div>
+                    </EpisodeListGrid>
 
                     <UndownloadedEpisodeList
                         downloadInfo={entry.downloadInfo}
@@ -145,7 +146,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     {specialEpisodes.length > 0 && <>
                         <Separator />
                         <h3>Specials</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <EpisodeListGrid>
                             {specialEpisodes.map(episode => (
                                 <EpisodeItem
                                     key={episode.localFile?.path || ""}
@@ -154,13 +155,13 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                                     onPlay={playVideo}
                                 />
                             ))}
-                        </div>
+                        </EpisodeListGrid>
                     </>}
 
                     {ncEpisodes.length > 0 && <>
                         <Separator />
                         <h3>Others</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <EpisodeListGrid>
                             {ncEpisodes.map(episode => (
                                 <EpisodeItem
                                     key={episode.localFile?.path || ""}
@@ -169,7 +170,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                                     onPlay={playVideo}
                                 />
                             ))}
-                        </div>
+                        </EpisodeListGrid>
                     </>}
 
                 </div>

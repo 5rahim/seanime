@@ -28,7 +28,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LibraryWatcher />
             <ScannerModal />
             <div className="min-h-screen">
-                <div className="w-full md:h-[5rem] relative overflow-hidden pt-[--titlebar-h]">
+                <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
                     <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
                         <div className="flex items-center w-full gap-2">
                             <AppSidebarTrigger/>

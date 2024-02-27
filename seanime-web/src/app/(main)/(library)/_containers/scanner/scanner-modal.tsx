@@ -75,7 +75,7 @@ export function ScannerModal() {
                     className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[10rem] absolute opacity-70 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
                 >
                     <div
-                        className="w-full absolute bottom-0 h-[10rem] bg-gradient-to-t from-[#0c0c0c] to-transparent z-[-2]"
+                        className="w-full absolute bottom-0 h-[10rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"
                     />
                 </div>
 

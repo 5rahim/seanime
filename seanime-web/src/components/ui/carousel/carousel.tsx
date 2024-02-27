@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority"
 import { EmblaCarouselType, EmblaOptionsType, EmblaPluginType } from "embla-carousel"
 import useEmblaCarousel from "embla-carousel-react"
 import * as React from "react"
-import { IconButton } from "../button"
+import { Button, ButtonProps, IconButton } from "../button"
 import { cn, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
@@ -323,3 +323,89 @@ export const CarouselNext = React.forwardRef<HTMLButtonElement, CarouselButtonPr
     )
 })
 CarouselNext.displayName = "CarouselNext"
+
+/* -------------------------------------------------------------------------------------------------
+ *
+ * -----------------------------------------------------------------------------------------------*/
+
+type UseDotButtonType = {
+    selectedIndex: number
+    scrollSnaps: number[]
+    onDotButtonClick: (index: number) => void
+}
+
+export const useDotButton = (
+    emblaApi: EmblaCarouselType | undefined,
+): UseDotButtonType => {
+    const [selectedIndex, setSelectedIndex] = React.useState(0)
+    const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([])
+
+    const onDotButtonClick = React.useCallback(
+        (index: number) => {
+            if (!emblaApi) return
+            emblaApi.scrollTo(index)
+        },
+        [emblaApi],
+    )
+
+    const onInit = React.useCallback((emblaApi: EmblaCarouselType) => {
+        setScrollSnaps(emblaApi.scrollSnapList())
+    }, [])
+
+    const onSelect = React.useCallback((emblaApi: EmblaCarouselType) => {
+        setSelectedIndex(emblaApi.selectedScrollSnap())
+    }, [])
+
+    React.useEffect(() => {
+        if (!emblaApi) return
+
+        onInit(emblaApi)
+        onSelect(emblaApi)
+        emblaApi.on("reInit", onInit)
+        emblaApi.on("reInit", onSelect)
+        emblaApi.on("select", onSelect)
+    }, [emblaApi, onInit, onSelect])
+
+    return {
+        selectedIndex,
+        scrollSnaps,
+        onDotButtonClick,
+    }
+}
+
+const DotButton = (props: ButtonProps) => {
+    const { children, className, ...rest } = props
+
+    return (
+        <Button
+            size="xs"
+            className={cn("rounded-full size-5 p-0", className)}
+            intent="gray-outline"
+        >
+            {children}
+        </Button>
+    )
+}
+
+
+export const CarouselDotButtons = () => {
+
+    const { api } = useCarousel()
+
+    const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(api)
+
+
+    return (
+        <div className="absolute -top-8 right-0 flex gap-2">
+            {scrollSnaps.map((_, index) => (
+                <DotButton
+                    key={index}
+                    onClick={() => onDotButtonClick(index)}
+                    className={cn(
+                        { "": index === selectedIndex },
+                    )}
+                />
+            ))}
+        </div>
+    )
+}

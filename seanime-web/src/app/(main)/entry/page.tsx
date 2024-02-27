@@ -1,8 +1,11 @@
 "use client"
 
 import { EntryHeaderBackground } from "@/app/(main)/entry/_components/entry-header-background"
+import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-section/episode-section"
+import { NewEpisodeSection } from "@/app/(main)/entry/_containers/episode-section/new-episode-section"
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
+import { NewMetaSection } from "@/app/(main)/entry/_containers/meta-section/new-meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -18,6 +21,8 @@ export default function Page() {
     const { mediaEntry, mediaEntryLoading } = useMediaEntry(mediaId)
     const { mediaDetails, mediaDetailsLoading } = useMediaDetails(mediaId)
 
+    const newDesign = true
+
     useEffect(() => {
         if (!mediaId) {
             router.push("/")
@@ -29,6 +34,23 @@ export default function Page() {
 
     if (mediaEntryLoading || mediaDetailsLoading) return <LoadingDisplay />
     if (!mediaEntry) return null
+
+    if (newDesign) {
+        return <div>
+
+            <NewMetaSection entry={mediaEntry} details={mediaDetails} />
+
+            <div className="px-4 md:px-8 relative z-[8]">
+                <PageWrapper className="relative 2xl:order-first pb-10">
+                    <EpisodeListGridProvider container="expanded">
+                        <NewEpisodeSection entry={mediaEntry} />
+                    </EpisodeListGridProvider>
+                </PageWrapper>
+            </div>
+
+            <TorrentSearchDrawer entry={mediaEntry} />
+        </div>
+    }
 
     return (
         <div>

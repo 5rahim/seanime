@@ -1,4 +1,7 @@
 import type { Config } from "tailwindcss"
+// @ts-ignore
+import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette"
+
 
 const config: Config = {
     darkMode: "class",
@@ -114,7 +117,25 @@ const config: Config = {
             },
         },
     },
-    plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms"), require("@headlessui/tailwindcss"),
-        require("tailwind-scrollbar-hide"), require("tailwindcss-animate")],
+    plugins: [
+        require("@tailwindcss/typography"),
+        require("@tailwindcss/forms"),
+        require("@headlessui/tailwindcss"),
+        require("tailwind-scrollbar-hide"),
+        require("tailwindcss-animate"),
+        addVariablesForColors,
+    ],
 }
 export default config
+
+
+function addVariablesForColors({ addBase, theme }: any) {
+    let allColors = flattenColorPalette(theme("colors"))
+    let newVars = Object.fromEntries(
+        Object.entries(allColors).map(([key, val]) => [`--${key}`, val]),
+    )
+
+    addBase({
+        ":root": newVars,
+    })
+}

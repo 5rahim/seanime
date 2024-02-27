@@ -1,14 +1,11 @@
-import { MediaEntryDownloadInfo } from "@/lib/server/types"
+import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
+import { torrentSearchDrawerEpisodeAtom, torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
-import React, { startTransition } from "react"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { BiDownload } from "react-icons/bi"
-import { BiCalendarAlt } from "react-icons/bi"
-import {
-    torrentSearchDrawerEpisodeAtom,
-    torrentSearchDrawerIsOpenAtom,
-} from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { MediaEntryDownloadInfo } from "@/lib/server/types"
 import { useSetAtom } from "jotai"
+import React, { startTransition } from "react"
+import { BiCalendarAlt, BiDownload } from "react-icons/bi"
 
 export function UndownloadedEpisodeList({ downloadInfo, media }: {
     downloadInfo: MediaEntryDownloadInfo | undefined,
@@ -27,7 +24,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
             <p className={""}>
                 {downloadInfo?.rewatch ? "You have not downloaded the following:" : "You have not watched nor downloaded the following:"}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <EpisodeListGrid>
                 {episodes?.sort((a, b) => a.episodeNumber - b.episodeNumber).map((ep, idx) => {
                     if (!ep.episode) return null
                     const episode = ep.episode
@@ -61,7 +58,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                         </EpisodeListItem>
                     )
                 })}
-            </div>
+            </EpisodeListGrid>
         </div>
     )
 
