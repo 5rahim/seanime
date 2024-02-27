@@ -16,7 +16,7 @@ export default function Page() {
             <PageWrapper
                 className="p-4 sm:p-8 space-y-10 pb-10"
             >
-                <div className="space-y-2">
+                <div className="space-y-2 z-[5] relative">
                     <h2>Popular this season</h2>
                     <DiscoverTrending />
                 </div>

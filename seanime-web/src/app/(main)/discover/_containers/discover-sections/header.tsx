@@ -1,7 +1,7 @@
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-sections/trending"
-import { PAGE_TRANSITION } from "@/components/shared/page-transition"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
 import { motion } from "framer-motion"
@@ -33,10 +33,10 @@ export function DiscoverPageHeader() {
                 exit: { opacity: 0 },
                 transition: { delay: 0.2, duration: 0.2 },
             }}
-            className="__header h-[24rem]"
+            className="__header lg:h-[26rem]"
         >
             <div
-                className="h-[30rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
+                className="lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
             >
                 <div
                     className="w-full absolute z-[2] top-0 h-[15rem] bg-gradient-to-b from-[--background] to-transparent via"
@@ -54,6 +54,18 @@ export function DiscoverPageHeader() {
                         !isTransitioning && "opacity-100",
                     )}
                 />}
+
+                <Image
+                    src={"/mask.png"}
+                    alt="banner image"
+                    fill
+                    quality={100}
+                    priority
+                    sizes="100vw"
+                    className={cn(
+                        "object-cover object-right z-[2] transition-opacity duration-1000 opacity-90 hidden lg:block",
+                    )}
+                />
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 {!!randomTrending && (
                     <motion.div
@@ -68,16 +80,16 @@ export function DiscoverPageHeader() {
                                 stiffness: 100,
                             },
                         }}
-                        className="absolute bottom-[8rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3] hidden lg:block"
+                        className="absolute bottom-[8rem] right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block"
                     >
                         <div
-                            className="flex flex-row-reverse relative items-start gap-6 p-6 w-fit overflow-hidden rounded-xl bg-[#121212] bg-opacity-80 shadow-2xl shadow-[#121212]"
+                            className="flex flex-row relative items-start gap-6 p-6 pr-3 w-fit overflow-hidden"
                             onMouseEnter={() => setHoveringHeader(true)}
                             onMouseLeave={() => setHoveringHeader(false)}
                         >
                             <div className="flex-none">
                                 {randomTrending.coverImage?.large && <div
-                                    className="w-[180px] h-[220px] relative rounded-md overflow-hidden bg-[--background] shadow-md border "
+                                    className="w-[180px] h-[240px] relative rounded-md overflow-hidden bg-[--background] shadow-md border"
                                 >
                                     <Image
                                         src={randomTrending.coverImage.large}
@@ -89,7 +101,7 @@ export function DiscoverPageHeader() {
                                 </div>}
                             </div>
                             <div className="flex-auto space-y-1 z-[1]">
-                                <h1 className="text-xl text-gray-300 line-clamp-2 font-bold max-w-[16rem] leading-6">{randomTrending.title?.userPreferred}</h1>
+                                <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-[24rem] leading-6">{randomTrending.title?.userPreferred}</h1>
                                 {!!randomTrending?.nextAiringEpisode?.airingAt &&
                                     <p className="text-lg text-brand-200 flex items-center gap-1.5"><RiSignalTowerLine /> Airing now</p>}
                                 {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
@@ -100,9 +112,9 @@ export function DiscoverPageHeader() {
                                     </p>
                                 )}
                                 <div className="pt-2">
-                                    <p className="max-w-md max-h-[75px] overflow-y-auto mb-4">{(randomTrending as any)?.description?.replace(
+                                    <ScrollArea className="max-w-md h-[75px] mb-4">{(randomTrending as any)?.description?.replace(
                                         /(<([^>]+)>)/ig,
-                                        "")}</p>
+                                        "")}</ScrollArea>
                                     <Link
                                         href={`/entry?id=${randomTrending.id}`}
                                     >
@@ -115,7 +127,6 @@ export function DiscoverPageHeader() {
                                         </Button>
                                     </Link>
                                 </div>
-                                {/*<p className="text-[--muted]">{randomTrending.}</p>*/}
                             </div>
                         </div>
                     </motion.div>

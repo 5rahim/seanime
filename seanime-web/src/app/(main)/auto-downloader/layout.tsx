@@ -7,7 +7,7 @@ import React from "react"
 export default function Layout({ children }: { children: React.ReactNode }) {
 
     return (
-        <div className="p-4 sm:p-8 space-y-4">
+        <PageWrapper className="p-4 sm:p-8 space-y-4">
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>Auto Downloader</h2>
@@ -17,12 +17,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </div>
 
-            <PageWrapper>
-                <Card className="p-0 overflow-hidden">
-                    {children}
-                </Card>
-            </PageWrapper>
-        </div>
+            <Card className="p-0 overflow-hidden">
+                {children}
+            </Card>
+        </PageWrapper>
     )
 
 }
