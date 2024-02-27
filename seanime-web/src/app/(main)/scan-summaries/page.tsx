@@ -1,10 +1,10 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { PageWrapper } from "@/components/shared/page-wrapper"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
-import { Tooltip } from "@/components/ui/tooltip"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
 import { LocalFile, ScanSummary, ScanSummaryFile, ScanSummaryLog } from "@/lib/server/types"
@@ -14,9 +14,8 @@ import { useAtomValue } from "jotai/react"
 import Image from "next/image"
 import Link from "next/link"
 import React from "react"
-import { BiCheckCircle, BiChevronDown, BiChevronUp, BiInfoCircle, BiXCircle } from "react-icons/bi"
+import { BiCheckCircle, BiInfoCircle, BiXCircle } from "react-icons/bi"
 import { LuFileSearch } from "react-icons/lu"
-import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { TbListSearch } from "react-icons/tb"
 
 
@@ -39,9 +38,12 @@ export default function Page() {
 
     const selectSummary = React.useMemo(() => data?.find(summary => summary.id === selectedSummaryId), [selectedSummaryId, data])
 
+    console.log(data)
 
     return (
-        <div className="p-8 space-y-4">
+        <PageWrapper
+            className="p-4 sm:p-8 space-y-4"
+        >
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>Scan summaries</h2>
@@ -51,43 +53,45 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2 p-4">
+            <div className="border rounded-[--radius] bg-[--paper] text-lg space-y-2 p-4">
                 {isLoading && <LoadingSpinner />}
                 {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
                 {!!data?.length && (
                     <div>
                         <Select
                             label="Summary"
-                            leftIcon={<PiClockCounterClockwiseFill />}
-                            value={selectedSummaryId || ""}
-                            options={data.map((summary, i) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id })).toReversed()}
-                            onChange={e => setSelectedSummaryId(e.target.value)}
+                            value={selectedSummaryId || "-"}
+                            options={data.map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id || "-" }))
+                                .toReversed()}
+                            onValueChange={v => setSelectedSummaryId(v)}
                         />
                         {!!selectSummary && (
                             <div className="mt-4 space-y-4 rounded-[--radius] ">
                                 <div>
-                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups.length} media</p>
-                                    {selectSummary.unmatchedFiles.length > 0 && (
-                                        <p className="text-orange-300">{selectSummary.unmatchedFiles.length} file{selectSummary.unmatchedFiles.length > 1
+                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups?.length} media</p>
+                                    {!!selectSummary?.unmatchedFiles?.length && (
+                                        <p className="text-orange-300">{selectSummary?.unmatchedFiles?.length} file{selectSummary?.unmatchedFiles?.length > 1
                                             ? "s were "
                                             : " was "}not matched</p>
                                     )}
                                 </div>
 
-                                {selectSummary.unmatchedFiles.length > 0 && <div className="space-y-2">
+                                {!!selectSummary?.unmatchedFiles?.length && <div className="space-y-2">
                                     <h5>Unmatched files</h5>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        {selectSummary.unmatchedFiles.map(file => (
-                                            <ScanSummaryGroupItem file={file} key={file.id} />
-                                        ))}
-                                    </div>
+                                    <Accordion type="single">
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {selectSummary?.unmatchedFiles?.map(file => (
+                                                <ScanSummaryGroupItem file={file} key={file.id} />
+                                            ))}
+                                        </div>
+                                    </Accordion>
                                 </div>}
 
                                 <h5>Media that were scanned</h5>
 
-                                <div className="space-y-4">
-                                    {selectSummary.groups.map(group => (
-                                        <div className="border border-[--border] rounded-[--radius] p-4 bg-gray-900 space-y-4" key={group.id}>
+                                <div className="space-y-4 divide-y">
+                                    {selectSummary?.groups?.map(group => (
+                                        <div className="space-y-4 pt-4" key={group.id}>
                                             <div className="flex gap-2">
 
                                                 <div
@@ -95,7 +99,7 @@ export default function Page() {
                                                 >
                                                     <Image
                                                         src={group.mediaImage}
-                                                        alt={"banner"}
+                                                        alt="banner"
                                                         fill
                                                         quality={80}
                                                         priority
@@ -123,23 +127,23 @@ export default function Page() {
                                             </div>
 
                                             <div>
-                                                <div className="grid grid-cols-1 gap-4">
-                                                    {group.files.map(file => (
-                                                        <ScanSummaryGroupItem file={file} key={file.id} />
-                                                    ))}
-                                                </div>
+                                                <Accordion type="single">
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {group.files.map(file => (
+                                                            <ScanSummaryGroupItem file={file} key={file.id} />
+                                                        ))}
+                                                    </div>
+                                                </Accordion>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-
-
                             </div>
                         )}
                     </div>
                 )}
             </div>
-        </div>
+        </PageWrapper>
     )
 
 }
@@ -151,44 +155,32 @@ type ScanSummaryFileItem = {
 function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
     const { file } = props
 
-    const [open, setOpen] = React.useState(false)
-
     const hasErrors = file.logs.some(log => log.level === "error")
     const hasWarnings = file.logs.some(log => log.level === "warning")
 
     return (
-        <div className="rounded-[--radius] p-3 bg-[--background-color]">
-            <div className="flex justify-between gap-2 items-center cursor-pointer" onClick={() => setOpen(p => !p)}>
-
-                <div className="space-y-1">
+        <AccordionItem value={file.localFile.path} className="rounded-[--radius] bg-[--background] overflow-x-auto">
+            <AccordionTrigger
+                className="w-full max-w-full"
+            >
+                <div className="space-y-1 line-clamp-1 max-w-full w-full">
                     <p
                         className={cn(
-                            "font-medium text-base tracking-wide line-clamp-1",
+                            "text-left font-medium text-base tracking-wide line-clamp-1",
                             hasErrors && "text-red-300",
                             hasWarnings && "text-orange-300",
                         )}
                     >{file.localFile.name}</p>
-                    <Tooltip
-                        trigger={
-                            <p className="text-sm text-gray-500 italic line-clamp-1">{file.localFile.path}</p>}
-                    >
-                        {file.localFile.path}
-                    </Tooltip>
+                    <p className="text-sm text-left text-gray-500 italic line-clamp-1 max-w-full">{file.localFile.path}</p>
                 </div>
-
-                <div>
-                    <IconButton intent="white-basic" icon={!open ? <BiChevronDown /> : <BiChevronUp />} size="sm" />
-                </div>
-            </div>
-            {open && (
-                <div className="space-y-2 mt-2 border border-[--border] rounded-[--radius] p-3">
-                    <ScanSummaryFileParsedData localFile={file.localFile} />
-                    {file.logs.map(log => (
-                        <ScanSummaryLog key={log.id} log={log} />
-                    ))}
-                </div>
-            )}
-        </div>
+            </AccordionTrigger>
+            <AccordionContent className="space-y-2 overflow-x-auto">
+                <ScanSummaryFileParsedData localFile={file.localFile} />
+                {file.logs.map(log => (
+                    <ScanSummaryLog key={log.id} log={log} />
+                ))}
+            </AccordionContent>
+        </AccordionItem>
     )
 
 }
@@ -201,10 +193,10 @@ function ScanSummaryFileParsedData(props: { localFile: LocalFile }) {
     const folderParts = localFile.parsedFolderInfo?.map(i => i.part).filter(Boolean).map(n => `"${n}"`).join(", ")
 
     return (
-        <div className="">
+        <div className="flex-none">
             <div className="flex justify-between gap-2 items-center">
                 <div className="flex gap-1 items-center">
-                    <ul className="text-sm space-y-1 [&>li]:gap-1 [&>li]:line-clamp-1 [&>li]:flex [&>li]:items-center [&>li>span]:text-[--muted] [&>li>span]:uppercase">
+                    <ul className="text-sm space-y-1 [&>li]:flex-none [&>li]:gap-1 [&>li]:line-clamp-1 [&>li]:flex [&>li]:items-center [&>li>span]:text-[--muted] [&>li>span]:uppercase">
                         <li><TbListSearch className="text-indigo-200" />
                             <span>Title</span> "{localFile.parsedInfo?.title}"{!!folderTitles?.length && `, ${folderTitles}`}</li>
                         <li><TbListSearch className="text-indigo-200" /> <span>Episode</span> "{localFile.parsedInfo?.episode || ""}"</li>
@@ -245,7 +237,7 @@ function ScanSummaryLogMessage(props: { message: string, level: string }) {
     if (!message.startsWith("PANIC")) {
         return <div
             className={cn(
-                "text-[--muted] hover:text-white text-sm tracking-wide line-clamp-1",
+                "text-[--muted] hover:text-white text-sm tracking-wide flex-none",
                 level === "error" && "text-red-300",
                 level === "warning" && "text-orange-300",
             )}
@@ -253,9 +245,9 @@ function ScanSummaryLogMessage(props: { message: string, level: string }) {
     }
 
     return (
-        <div className="w-full text-sm whitespace-nowrap overflow-x-auto">
+        <div className="w-full text-sm">
             <p className="text-red-300 text-sm font-bold">Please report this issue on the GitHub repository</p>
-            <pre className="w-0 min-w-full overflow-x-auto p-4">
+            <pre className="p-4">
                 {message}
             </pre>
         </div>

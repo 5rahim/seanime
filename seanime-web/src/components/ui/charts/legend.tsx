@@ -1,6 +1,7 @@
-import { cn, ColorPalette, ComponentWithAnatomy, defineStyleAnatomy, UIColor } from "../core"
-import React from "react"
 import { cva } from "class-variance-authority"
+import * as React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { ChartColor, ColorPalette } from "./color-theme"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -9,20 +10,20 @@ import { cva } from "class-variance-authority"
 export const LegendAnatomy = defineStyleAnatomy({
     legend: cva([
         "UI-Legend__legend",
-        "flex flex-wrap overflow-hidden truncate"
+        "flex flex-wrap overflow-hidden truncate",
     ]),
     legendItem: cva([
         "UI-Legend__legendItem",
-        "inline-flex items-center truncate mr-4"
+        "inline-flex items-center truncate mr-4",
     ]),
     dot: cva([
         "UI-Legend__dot",
         "shrink-0",
-        "flex-none h-3 w-3 bg-gray rounded-full shadow-sm mr-2"
+        "flex-none h-3 w-3 bg-gray rounded-full shadow-sm mr-2",
     ]),
     label: cva([
         "UI-Legend__label",
-        "whitespace-nowrap truncate text-sm font-medium text-gray-700 dark:text-gray-300"
+        "whitespace-nowrap truncate text-sm font-medium text-[--muted]",
     ]),
 })
 
@@ -30,35 +31,25 @@ export const LegendAnatomy = defineStyleAnatomy({
  * LegendItem
  * -----------------------------------------------------------------------------------------------*/
 
-export interface LegendItemProps {
+export type LegendItemProps = {
     name: string
-    color: UIColor
-    dotClassName?: string
-    labelClassName?: string
-    legendItemClassName?: string
+    color: ChartColor
+    dotClass?: string
+    labelClass?: string
+    legendItemClass?: string
 }
 
-const LegendItem = ({ name, color, dotClassName, legendItemClassName, labelClassName }: LegendItemProps) => (
-    <li
-        className={cn(
-            LegendAnatomy.legendItem(),
-            legendItemClassName
-        )}
-    >
+const LegendItem = ({ name, color, dotClass, legendItemClass, labelClass }: LegendItemProps) => (
+    <li className={cn(LegendAnatomy.legendItem(), legendItemClass)}>
         <svg
-            className={cn(
-                LegendAnatomy.dot(),
-                dotClassName
-            )}
-            style={{
-                color: `var(--${color})`
-            }}
+            className={cn(LegendAnatomy.dot(), dotClass)}
+            style={{ color: `var(--${color})` }}
             fill="currentColor"
             viewBox="0 0 8 8"
         >
-            <circle cx={4} cy={4} r={4}/>
+            <circle cx={4} cy={4} r={4} />
         </svg>
-        <p className={cn(LegendAnatomy.label(), labelClassName)}>
+        <p className={cn(LegendAnatomy.label(), labelClass)}>
             {name}
         </p>
     </li>
@@ -68,9 +59,9 @@ const LegendItem = ({ name, color, dotClassName, legendItemClassName, labelClass
  * Legend
  * -----------------------------------------------------------------------------------------------*/
 
-export interface LegendProps extends React.ComponentPropsWithRef<"ol">, ComponentWithAnatomy<typeof LegendAnatomy> {
+export type LegendProps = React.ComponentPropsWithRef<"ol"> & ComponentAnatomy<typeof LegendAnatomy> & {
     categories: string[]
-    colors?: UIColor[]
+    colors?: ChartColor[]
 }
 
 export const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, ref) => {
@@ -78,10 +69,10 @@ export const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, re
         categories,
         colors = ColorPalette,
         className,
-        legendClassName,
-        legendItemClassName,
-        labelClassName,
-        dotClassName,
+        legendClass,
+        legendItemClass,
+        labelClass,
+        dotClass,
         ...rest
     } = props
     return (
@@ -89,7 +80,7 @@ export const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, re
             ref={ref}
             className={cn(
                 LegendAnatomy.legend(),
-                legendClassName,
+                legendClass,
                 className,
             )}
             {...rest}
@@ -99,9 +90,9 @@ export const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, re
                     key={`item-${idx}`}
                     name={category}
                     color={colors[idx] ?? "brand"}
-                    dotClassName={dotClassName}
-                    legendItemClassName={legendItemClassName}
-                    labelClassName={labelClassName}
+                    dotClass={dotClass}
+                    legendItemClass={legendItemClass}
+                    labelClass={labelClass}
                 />
             ))}
         </ol>

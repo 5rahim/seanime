@@ -176,7 +176,7 @@ func (m *Repository) StartTracking(onVideoCompleted func()) {
 					onVideoCompleted()
 				}
 
-				//m.WSEventManager.SendEvent(events.MediaPlayerPlaybackStatus, playback)
+				m.WSEventManager.SendEvent(events.MediaPlayerPlaybackStatus, playback)
 			}
 		}
 	}()

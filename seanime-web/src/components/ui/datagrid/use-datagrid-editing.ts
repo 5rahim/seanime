@@ -1,20 +1,19 @@
 import { Row, Table } from "@tanstack/react-table"
-import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
-import { DataGridEditingValueUpdater } from "./datagrid-cell-input-field"
+import equal from "fast-deep-equal"
+import * as React from "react"
 import { AnyZodObject, ZodIssue } from "zod"
-import { useToast } from "../toast"
-import isEqual from "lodash/isEqual"
-import flatten from "lodash/flatten"
+import { DataGridEditingValueUpdater } from "./datagrid-cell-input-field"
 
-/**
- * DataGrid Props
- */
+
 export type DataGridRowEditedEvent<T extends Record<string, any>> = {
     row: Row<T>
     originalData: T
     data: T
 }
 
+/**
+ * Type of the `onRowEdit` event
+ */
 export type DataGridOnRowEdit<T extends Record<string, any>> = (event: DataGridRowEditedEvent<T>) => void
 
 //----
@@ -26,6 +25,9 @@ export type DataGridRowValidationError<T extends Record<string, any>> = {
     errors: ZodIssue[]
 }
 
+/**
+ * Type of the `onRowValidationError` event
+ */
 export type DataGridOnRowValidationError<T extends Record<string, any>> = (event: DataGridRowValidationError<T>) => void
 
 //----
@@ -65,11 +67,9 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
         onRowValidationError,
     } = props
 
-    const toast = useToast()
-
     const leafColumns = table.getAllLeafColumns()
     // Keep track of the state of each editable cell
-    const [editableCellStates, setEditableCellStates] = useState<{
+    const [editableCellStates, setEditableCellStates] = React.useState<{
         id: string,
         colId: string,
         rowId: string,
@@ -77,20 +77,20 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
     }[]>([])
 
     // Track updated value
-    const [activeValue, setActiveValue] = useState<unknown>(undefined)
+    const [activeValue, setActiveValue] = React.useState<unknown>(undefined)
     // Track current row data being updated
-    const [rowData, setRowData] = useState<T | undefined>(undefined)
+    const [rowData, setRowData] = React.useState<T | undefined>(undefined)
     // Track current row being updated
-    const [row, setRow] = useState<Row<T> | undefined>(undefined)
+    const [row, setRow] = React.useState<Row<T> | undefined>(undefined)
 
-    const [rowErrors, setRowErrors] = useState<DataGridValidationRowErrors>([])
+    const [rowErrors, setRowErrors] = React.useState<DataGridValidationRowErrors>([])
 
     // Keep track of editable columns (columns defined with the `withEditing` helper)
-    const editableColumns = useMemo(() => {
+    const editableColumns = React.useMemo(() => {
         return leafColumns.filter(n => n.getIsVisible() && !!(n.columnDef.meta as any)?.editingMeta)
     }, [leafColumns])
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (manualPagination) {
             setActiveValue(undefined)
             setRowData(undefined)
@@ -100,15 +100,15 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
     }, [table.getState().pagination.pageIndex, table.getState().pagination.pageSize])
 
     // Keep track of editable cells (cells whose columns are editable)
-    const editableCells = useMemo(() => {
+    const editableCells = React.useMemo(() => {
         if (rows.length > 0) {
-            return flatten(rows.map(row => row.getVisibleCells().filter(cell => !!editableColumns.find(col => col.id === cell.column.id)?.id)))
+            return rows.flatMap(row => row.getVisibleCells().filter(cell => !!editableColumns.find(col => col.id === cell.column.id)?.id))
         }
         return []
     }, [rows])
 
     // Set/update editable cells
-    useLayoutEffect(() => {
+    React.useLayoutEffect(() => {
         // Control the states of individual cells that can be edited
         if (editableCells.length > 0) {
             editableCells.map(cell => {
@@ -123,7 +123,7 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
     }, [editableCells])
 
     /**/
-    const handleStartEditing = useCallback((cellId: string) => {
+    const handleStartEditing = React.useCallback((cellId: string) => {
         // Manage editing state of cells
         setEditableCellStates(prev => {
             const others = prev.filter(prevCell => prevCell.id !== cellId)
@@ -144,23 +144,23 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
     }, [])
 
     /**/
-    const getIsCellActivelyEditing = useCallback((cellId: string) => {
+    const getIsCellActivelyEditing = React.useCallback((cellId: string) => {
         return editableCellStates.some(cell => cell.id === cellId && cell.isEditing)
     }, [editableCellStates])
     /**/
-    const getIsCellEditable = useCallback((cellId: string) => {
+    const getIsCellEditable = React.useCallback((cellId: string) => {
         return !!editableCellStates.find(cell => cell.id === cellId)
     }, [editableCellStates])
     /**/
-    const getIsCurrentlyEditing = useCallback(() => {
+    const getIsCurrentlyEditing = React.useCallback(() => {
         return editableCellStates.some(cell => cell.isEditing)
     }, [editableCellStates])
     /**/
-    const getFirstCellBeingEdited = useCallback(() => {
+    const getFirstCellBeingEdited = React.useCallback(() => {
         return editableCellStates.find(cell => cell.isEditing)
     }, [editableCellStates])
     /**/
-    const handleStopEditing = useCallback(() => {
+    const handleStopEditing = React.useCallback(() => {
         setEditableCellStates(prev => {
             return prev.map(n => ({ ...n, isEditing: false }))
         })
@@ -172,7 +172,7 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
      * When `isDataMutating` is provided to watch mutations,
      * Wait for it to be `false` to cancel editing
      */
-    useEffect(() => {
+    React.useEffect(() => {
         if (isDataMutating !== undefined && !isDataMutating && mutationRef.current) {
             handleStopEditing()
             mutationRef.current = false
@@ -182,58 +182,55 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
     /**
      * When `isDataMutating` is not provided, immediately cancel editing
      */
-    useEffect(() => {
+    React.useEffect(() => {
         if (isDataMutating === undefined) {
             handleStopEditing()
         }
     }, [mutationRef.current])
 
-    const saveEdit = useCallback((transformedData?: T) => {
-        if (!row || !rowData) return
+    const saveEdit = React.useCallback((transformedData?: T) => {
+        if (!row || !rowData) return handleStopEditing()
 
-        startTransition(() => {
-            // Compare data
-            if (!isEqual(rowData, row.original)) {
-                // Return new data
-                onRowEdit && onRowEdit({
-                    originalData: row.original,
-                    data: transformedData || rowData,
-                    row: row,
+        // Compare data
+        if (!equal(rowData, row.original)) {
+            // Return new data
+            onRowEdit && onRowEdit({
+                originalData: row.original,
+                data: transformedData || rowData,
+                row: row,
+            })
+
+            // Optimistic update
+            if (enableOptimisticUpdates && optimisticUpdatePrimaryKey) {
+                let clone = structuredClone(data)
+                const index = clone.findIndex(p => {
+                    if (!p[optimisticUpdatePrimaryKey] || !rowData[optimisticUpdatePrimaryKey]) return false
+                    return p[optimisticUpdatePrimaryKey] === rowData[optimisticUpdatePrimaryKey]
                 })
-
-                // Optimistic update
-                if (enableOptimisticUpdates && optimisticUpdatePrimaryKey) {
-                    let clone = structuredClone(data)
-                    const index = clone.findIndex(p => {
-                        if (!p[optimisticUpdatePrimaryKey] || !rowData[optimisticUpdatePrimaryKey]) return false
-                        return p[optimisticUpdatePrimaryKey] === rowData[optimisticUpdatePrimaryKey]
-                    })
-                    if (clone[index] && index > -1) {
-                        clone[index] = rowData
-                        onDataChange(clone) // Emit optimistic update
-                    } else {
-                        console.error("[DataGrid] Could not perform optimistic update. Make sure `optimisticUpdatePrimaryKey` is a valid property.")
-                    }
-
-                } else if (enableOptimisticUpdates) {
-                    console.error("[DataGrid] Could not perform optimistic update. Make sure `optimisticUpdatePrimaryKey` is defined.")
-                }
-
-                // Immediately stop edit if optimistic updates are enabled
-                if (enableOptimisticUpdates) {
-                    handleStopEditing()
+                if (clone[index] && index > -1) {
+                    clone[index] = rowData
+                    onDataChange(clone) // Emit optimistic update
                 } else {
-                    // Else, we wait for `isDataMutating` to be false
-                    mutationRef.current = true
+                    console.error("[DataGrid] Could not perform optimistic update. Make sure `optimisticUpdatePrimaryKey` is a valid property.")
                 }
-            } else {
-                handleStopEditing()
+
+            } else if (enableOptimisticUpdates) {
+                console.error("[DataGrid] Could not perform optimistic update. Make sure `optimisticUpdatePrimaryKey` is defined.")
             }
 
-        })
+            // Immediately stop edit if optimistic updates are enabled
+            if (enableOptimisticUpdates) {
+                handleStopEditing()
+            } else {
+                // Else, we wait for `isDataMutating` to be false
+                mutationRef.current = true
+            }
+        } else {
+            handleStopEditing()
+        }
     }, [row, rowData])
 
-    const handleOnSave = useCallback(async () => {
+    const handleOnSave = React.useCallback(async () => {
         if (!row || !rowData) return
         setRowErrors([])
 
@@ -244,14 +241,14 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
                 if (parsed.success) {
                     let finalData = structuredClone(rowData)
                     Object.keys(parsed.data).map(key => {
-                        // @ts-ignore
+                        // @ts-expect-error
                         finalData[key] = parsed.data[key]
                     })
                     saveEdit(finalData)
                 } else {
 
+
                     parsed.error.errors.map(error => {
-                        toast.error(error.message ?? "Error")
                         setRowErrors(prev => [
                             ...prev,
                             { rowId: row.id, key: String(error.path[0]), message: error.message },
@@ -267,7 +264,8 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
                         })
                     }
                 }
-            } catch (e) {
+            }
+            catch (e) {
                 console.error("[DataGrid] Could not perform validation")
             }
         } else {
@@ -277,9 +275,9 @@ export function useDataGridEditing<T extends Record<string, any>>(props: Props<T
     }, [row, rowData])
 
     /**
-     * This fires every time the user changes an input
+     * This fires every time the user updates a cell value
      */
-    const handleUpdateValue = useCallback<DataGridEditingValueUpdater<T>>((value, _row, cell, zodType) => {
+    const handleUpdateValue = React.useCallback<DataGridEditingValueUpdater<T>>((value, _row, cell, zodType) => {
         setActiveValue(value) // Set the updated value (could be anything)
         setRow(_row) // Set the row being updated
         setRowData(prev => ({

@@ -1,12 +1,12 @@
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { createDataGridColumns, DataGrid } from "@/components/ui/datagrid"
+import { cn } from "@/components/ui/core/styling"
+import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
 import { AnimeTorrent } from "@/lib/server/types"
-import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 import React, { memo, useMemo } from "react"
+import { BiLinkExternal } from "react-icons/bi"
 
 type TorrentTable = {
     torrents: AnimeTorrent[]
@@ -31,24 +31,24 @@ export const TorrentTable = memo((
         onToggleTorrent,
     }: TorrentTable) => {
 
-    const columns = useMemo(() => createDataGridColumns<AnimeTorrent>(() => [
+    const columns = useMemo(() => defineDataGridColumns<AnimeTorrent>(() => [
         {
             accessorKey: "name",
             header: "Name",
-            cell: info => <div className={"flex items-center gap-2"}>
+            cell: info => <div className="flex items-center gap-2">
                 <Tooltip
                     trigger={<IconButton
                         icon={<BiLinkExternal />}
-                        intent={"primary-basic"}
-                        size={"sm"}
+                        intent="primary-basic"
+                        size="sm"
                         onClick={() => window.open(info.row.original.link, "_blank")}
                     />}
-                >View on NYAA</Tooltip>
+                >Open in browser</Tooltip>
                 <Tooltip
                     trigger={
                         <div
                             className={cn(
-                                "text-[.95rem] truncate text-ellipsis cursor-pointer max-w-[90%] overflow-hidden",
+                                "text-[.95rem] line-clamp-1 cursor-pointer max-w-[90%] overflow-hidden",
                                 {
                                     "text-brand-300 font-semibold": selectedTorrents.some(torrent => torrent.link === info.row.original.link),
                                 },
@@ -78,7 +78,8 @@ export const TorrentTable = memo((
         {
             accessorKey: "date",
             header: "Date",
-            cell: info => formatDistanceToNow(new Date(info.getValue<string>()), { addSuffix: true }),
+            cell: info => formatDistanceToNow(info.getValue<string>().split(" ")[0] + "T" + info.getValue<string>().split(" ")?.[1],
+                { addSuffix: true }),
             size: 10,
         },
     ]), [torrents, selectedTorrents])
@@ -94,9 +95,9 @@ export const TorrentTable = memo((
                     pageIndex: 0,
                 },
             }}
-            tdClassName={"py-4 data-[row-selected=true]:bg-gray-900"}
-            tableBodyClassName={"bg-transparent"}
-            footerClassName={"hidden"}
+            tdClass="py-4 data-[row-selected=true]:bg-gray-900"
+            tableBodyClass="bg-transparent"
+            footerClass="hidden"
             state={{
                 globalFilter,
             }}

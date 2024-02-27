@@ -1,71 +1,95 @@
-import { cn } from "../core"
-import React, { useId } from "react"
+import { cn } from "../core/styling"
+import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
-import { InputAddon, InputAnatomy, inputContainerStyle, InputIcon, InputStyling } from "../input"
+import { extractInputPartProps, InputAddon, InputAnatomy, InputContainer, InputIcon, InputStyling } from "../input"
 
 /* -------------------------------------------------------------------------------------------------
  * TextInput
  * -----------------------------------------------------------------------------------------------*/
 
-export interface TextInputProps extends Omit<React.ComponentPropsWithRef<"input">, "size">,
-    Omit<InputStyling, "hasError" | "isDisabled">,
-    BasicFieldOptions {
+export type TextInputProps = Omit<React.ComponentPropsWithRef<"input">, "size"> &
+    InputStyling &
+    BasicFieldOptions & {
+    /**
+     * Callback invoked when the value changes. Returns the string value.
+     */
+    onValueChange?: (value: string) => void
 }
 
 export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((props, ref) => {
 
+    const [props1, basicFieldProps] = extractBasicFieldProps<TextInputProps>(props, React.useId())
+
     const [{
+        size,
+        intent,
+        leftAddon,
+        leftIcon,
+        rightAddon,
+        rightIcon,
         className,
-        size = "md",
-        intent = "basic",
-        leftAddon = undefined,
-        leftIcon = undefined,
-        rightAddon = undefined,
-        rightIcon = undefined,
-        disabled,
+        onValueChange,
+        onChange,
         ...rest
-    }, basicFieldProps] = extractBasicFieldProps<TextInputProps>(props, useId())
+    }, {
+        inputContainerProps,
+        leftAddonProps,
+        leftIconProps,
+        rightAddonProps,
+        rightIconProps,
+    }] = extractInputPartProps<TextInputProps>({
+        ...props1,
+        size: props1.size ?? "md",
+        intent: props1.intent ?? "basic",
+        leftAddon: props1.leftAddon,
+        leftIcon: props1.leftIcon,
+        rightAddon: props1.rightAddon,
+        rightIcon: props1.rightIcon,
+    })
+
+    const handleOnChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        onValueChange?.(e.target.value)
+        onChange?.(e)
+    }, [])
 
     return (
-        <>
-            <BasicField
-                {...basicFieldProps}
-            >
-                <div className={cn(inputContainerStyle())}>
+        <BasicField{...basicFieldProps}>
+            <InputContainer {...inputContainerProps}>
+                <InputAddon {...leftAddonProps} />
+                <InputIcon {...leftIconProps} />
 
-                    <InputAddon addon={leftAddon} rightIcon={rightIcon} leftIcon={leftIcon} size={size} side={"left"}/>
-                    <InputIcon icon={leftIcon} size={size} side={"left"}/>
+                <input
+                    id={basicFieldProps.id}
+                    name={basicFieldProps.name}
+                    className={cn(
+                        "form-input",
+                        InputAnatomy.root({
+                            size,
+                            intent,
+                            hasError: !!basicFieldProps.error,
+                            isDisabled: !!basicFieldProps.disabled,
+                            isReadonly: !!basicFieldProps.readonly,
+                            hasRightAddon: !!rightAddon,
+                            hasRightIcon: !!rightIcon,
+                            hasLeftAddon: !!leftAddon,
+                            hasLeftIcon: !!leftIcon,
+                        }),
+                        className,
+                    )}
+                    disabled={basicFieldProps.disabled || basicFieldProps.readonly}
+                    data-disabled={basicFieldProps.disabled}
+                    data-readonly={basicFieldProps.readonly}
+                    aria-readonly={basicFieldProps.readonly}
+                    required={basicFieldProps.required}
+                    onChange={handleOnChange}
+                    {...rest}
+                    ref={ref}
+                />
 
-                    <input
-                        id={basicFieldProps.id}
-                        name={basicFieldProps.name}
-                        className={cn(
-                            "form-input",
-                            InputAnatomy.input({
-                                size,
-                                intent,
-                                hasError: !!basicFieldProps.error,
-                                untouchable: !!basicFieldProps.isDisabled,
-                                hasRightAddon: !!rightAddon,
-                                hasRightIcon: !!rightIcon,
-                                hasLeftAddon: !!leftAddon,
-                                hasLeftIcon: !!leftIcon,
-                            }),
-                            className,
-                        )}
-                        spellCheck="false"
-                        disabled={basicFieldProps.isDisabled || disabled}
-                        {...rest}
-                        ref={ref}
-                    />
-
-                    <InputAddon addon={rightAddon} rightIcon={rightIcon} leftIcon={leftAddon} size={size}
-                                side={"right"}/>
-                    <InputIcon icon={rightIcon} size={size} side={"right"}/>
-
-                </div>
-            </BasicField>
-        </>
+                <InputAddon {...rightAddonProps} />
+                <InputIcon {...rightIconProps} />
+            </InputContainer>
+        </BasicField>
     )
 
 })

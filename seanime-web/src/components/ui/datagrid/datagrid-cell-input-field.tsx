@@ -1,11 +1,11 @@
 "use client"
 
-import React from "react"
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
-import { cva } from "class-variance-authority"
-import { DataGridEditingHelper } from "./helpers"
-import { z, ZodTypeAny } from "zod"
 import { Cell, Row, Table } from "@tanstack/react-table"
+import { cva } from "class-variance-authority"
+import * as React from "react"
+import { z, ZodTypeAny } from "zod"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { DataGridEditingHelper } from "./helpers"
 import { DataGridValidationRowErrors } from "./use-datagrid-editing"
 
 /* -------------------------------------------------------------------------------------------------
@@ -23,6 +23,8 @@ export const DataGridCellInputFieldAnatomy = defineStyleAnatomy({
  * -----------------------------------------------------------------------------------------------*/
 
 /**
+ * Context passed to a field in order to render a cell input
+ * @example
  * withEditing({ field: (ctx: DataGridCellInputFieldContext) => <></> })
  */
 export type DataGridEditingFieldContext<T> = {
@@ -31,6 +33,9 @@ export type DataGridEditingFieldContext<T> = {
     ref: React.MutableRefObject<any>
 }
 
+/**
+ * @internal
+ */
 export type DataGridEditingValueUpdater<T extends Record<string, any>> = (
     value: unknown,
     row: Row<T>,
@@ -38,33 +43,39 @@ export type DataGridEditingValueUpdater<T extends Record<string, any>> = (
     zodType: ZodTypeAny | undefined,
 ) => void
 
-export interface DataGridCellInputFieldProps<
-    Schema extends z.ZodObject<z.ZodRawShape>,
-    T extends Record<string, any>,
-    Key extends keyof z.infer<Schema>
->
-    extends ComponentWithAnatomy<typeof DataGridCellInputFieldAnatomy> {
+/**
+ * @internal
+ */
+export type DataGridCellInputFieldProps<T extends Record<string, any>> = ComponentAnatomy<typeof DataGridCellInputFieldAnatomy> & {
+    /**
+     * Meta information about the field from the column definition
+     * - This is defined by the `withEditing` helper
+     */
     meta: DataGridEditingHelper
+    /** Cell being edited */
     cell: Cell<T, unknown>
+    /** Table instance */
     table: Table<T>
+    /** Row being edited */
     row: Row<T>
+    /** Errors coming from the built-in row validation (useDataGridEditing) */
     rowErrors: DataGridValidationRowErrors
+    /** Emits updates to the hook (useDataGridEditing) */
     onValueUpdated: DataGridEditingValueUpdater<T>
+    /** Field container class name */
+    className?: string
 }
 
-export function DataGridCellInputField<
-    Schema extends z.ZodObject<z.ZodRawShape>,
-    T extends Record<string, any>,
-    Key extends keyof z.infer<Schema>
->(props: DataGridCellInputFieldProps<Schema, T, Key>) {
+export function DataGridCellInputField<Schema extends z.ZodObject<z.ZodRawShape>, T extends Record<string, any>, Key extends keyof z.infer<Schema>>
+(props: DataGridCellInputFieldProps<T>) {
 
     const {
-        rootClassName,
+        className,
         cell,
         table,
         row,
         rowErrors,
-        onValueUpdated, // Emits updates to the hook
+        onValueUpdated,
         meta: {
             field,
             zodType,
@@ -85,9 +96,7 @@ export function DataGridCellInputField<
     }, [])
 
     return (
-        <div
-            className={cn(DataGridCellInputFieldAnatomy.root(), rootClassName)}
-        >
+        <div className={cn(DataGridCellInputFieldAnatomy.root(), className)}>
             {field({
                 value: value,
                 onChange: (value => {

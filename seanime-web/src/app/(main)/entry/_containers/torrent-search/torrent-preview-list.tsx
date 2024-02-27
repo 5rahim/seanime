@@ -4,11 +4,9 @@ import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
 import { AnimeTorrent, TorrentPreview } from "@/lib/server/types"
-import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
-import { BiFile } from "@react-icons/all-files/bi/BiFile"
-import { BiLinkExternal } from "@react-icons/all-files/bi/BiLinkExternal"
-import formatDistanceToNow from "date-fns/formatDistanceToNow"
-import React, { memo } from "react"
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
+import React from "react"
+import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
 type TorrentPreviewList = {
     previews: TorrentPreview[],
@@ -17,7 +15,7 @@ type TorrentPreviewList = {
     onToggleTorrent: (t: AnimeTorrent) => void
 }
 
-export const TorrentPreviewList = memo((
+export const TorrentPreviewList = React.memo((
     {
         previews,
         isLoading,
@@ -42,19 +40,22 @@ export const TorrentPreviewList = memo((
                         onClick={() => onToggleTorrent(item.torrent)}
                         action={<Tooltip trigger={<IconButton
                             icon={<BiLinkExternal/>}
-                            intent={"primary-basic"}
-                            size={"sm"}
+                            intent="primary-basic"
+                            size="sm"
                             onClick={() => window.open(item.torrent.link, "_blank")}
                         />}
-                        >View on {item.torrent.provider === "nyaa" ? "Nyaa" : "AnimeTosho"}</Tooltip>}
+                        >Open in browser</Tooltip>}
                     >
-                        <TorrentResolutionBadge resolution={item.torrent.resolution} />
-                        <TorrentSeedersBadge seeders={item.torrent.seeders}/>
-                        <p className="text-gray-300 text-sm flex items-center gap-1">
-                            <BiFile /> {item.torrent.formattedSize}</p>
-                        <p className="text-[--muted] text-sm flex items-center gap-1">
-                            - <BiCalendarAlt/> {formatDistanceToNow(new Date(item.torrent.date), { addSuffix: true })}
-                        </p>
+                        <div className="flex flex-wrap gap-2 items-center">
+                            <TorrentResolutionBadge resolution={item.torrent.resolution} />
+                            <TorrentSeedersBadge seeders={item.torrent.seeders} />
+                            <p className="text-gray-300 text-sm flex items-center gap-1">
+                                <BiFile /> {item.torrent.formattedSize}</p>
+                            <p className="text-[--muted] text-sm flex items-center gap-1">
+                                <BiCalendarAlt /> {formatDistanceToNow(item.torrent.date.split(" ")[0] + "T" + item.torrent.date.split(" ")?.[1],
+                                { addSuffix: true })}
+                            </p>
+                        </div>
                     </TorrentPreviewItem>
                 )
             })}

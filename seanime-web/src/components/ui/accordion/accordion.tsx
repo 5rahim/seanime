@@ -1,144 +1,202 @@
 "use client"
 
-import { Disclosure, Transition } from "@headlessui/react"
+import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { cva } from "class-variance-authority"
-import React from "react"
-import { cn, ComponentWithAnatomy, createPolymorphicComponent, defineStyleAnatomy } from "../core"
+import * as React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const AccordionAnatomy = defineStyleAnatomy({
-    container: cva([
-        "UI-Accordion__container",
-        "space-y-2"
+    root: cva([
+        "UI-Accordion__root",
+    ]),
+    header: cva([
+        "UI-Accordion__header",
+        "flex text-lg",
     ]),
     trigger: cva([
         "UI-Accordion__trigger",
-        "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700",
-        "flex w-full justify-between rounded-lg px-4 py-3 text-left font-medium transition",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[--ring] ring-offset-1",
+        "flex flex-1 items-center justify-between px-4 py-2 font-medium transition-all hover:bg-[--subtle] [&[data-state=open]>svg]:rotate-180",
     ]),
-    panel: cva([
-        "UI-Accordion__panel",
-        "py-2"
+    triggerIcon: cva([
+        "UI-Accordion__triggerIcon",
+        "h-4 w-4 shrink-0 transition-transform duration-200",
     ]),
-    item: cva(["UI-Accordion__item"]),
+    item: cva([
+        "UI-Accordion__item",
+        "",
+    ]),
+    contentContainer: cva([
+        "UI-Accordion__contentContainer",
+        "overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+    ]),
+    content: cva([
+        "UI-Accordion__content",
+        "p-4",
+    ]),
 })
 
 /* -------------------------------------------------------------------------------------------------
  * Accordion
  * -----------------------------------------------------------------------------------------------*/
 
-export interface AccordionProps extends React.ComponentPropsWithoutRef<"div">, ComponentWithAnatomy<typeof AccordionAnatomy> {
-}
+const __AccordionAnatomyContext = React.createContext<ComponentAnatomy<typeof AccordionAnatomy>>({})
 
-const _Accordion = (props: AccordionProps) => {
+export type AccordionProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root> & ComponentAnatomy<typeof AccordionAnatomy>
+
+export const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>((props, ref) => {
 
     const {
-        children,
-        triggerClassName,
-        containerClassName,
-        panelClassName,
-        itemClassName,
         className,
+        headerClass,
+        triggerClass,
+        triggerIconClass,
+        contentContainerClass,
+        contentClass,
+        itemClass,
         ...rest
     } = props
 
-    const itemsWithProps = React.Children.map(children, (child) => {
-        // Checking isValidElement is the safe way and avoids a typescript error too.
-        if (React.isValidElement(child)) {
-            return React.cloneElement(child, { triggerClassName, panelClassName, itemClassName } as any)
-        }
-        return child
-    })
-
     return (
-        <div className={cn(AccordionAnatomy.container(), containerClassName, className)}>
-            {itemsWithProps}
-        </div>
+        <__AccordionAnatomyContext.Provider
+            value={{
+                itemClass,
+                headerClass,
+                triggerClass,
+                triggerIconClass,
+                contentContainerClass,
+                contentClass,
+            }}
+        >
+            <AccordionPrimitive.Root
+                ref={ref}
+                className={cn(AccordionAnatomy.root(), className)}
+                {...rest}
+            />
+        </__AccordionAnatomyContext.Provider>
     )
 
-}
+})
+
+Accordion.displayName = "Accordion"
 
 /* -------------------------------------------------------------------------------------------------
- * Accordion.Item
+ * AccordionItem
  * -----------------------------------------------------------------------------------------------*/
 
-interface AccordionItemProps extends Omit<React.ComponentPropsWithoutRef<"div">, "title">,
-    Omit<ComponentWithAnatomy<typeof AccordionAnatomy>, "containerClassName"> {
-    title: React.ReactNode,
-    defaultOpen?: boolean
-}
+export type AccordionItemProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 
-export const AccordionItem: React.FC<AccordionItemProps> = (
-    {
-        children,
-        title,
-        triggerClassName,
-        panelClassName,
-        itemClassName,
-        className,
-        defaultOpen,
-        ...rest
-    }) => {
+export const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>((props, ref) => {
+
+    const { className, ...rest } = props
+
+    const { itemClass } = React.useContext(__AccordionAnatomyContext)
 
     return (
-        <Disclosure defaultOpen={defaultOpen}>
-            {({ open }) => (
-                <div className={cn(AccordionAnatomy.item(), itemClassName, className)} {...rest}>
-                    <Disclosure.Button className={cn(AccordionAnatomy.trigger(), triggerClassName)}>
-                        {title}
-                        <svg
-                            className={cn(
-                                "ml-1.5 h-5 w-5 flex-shrink-0 transition duration-300",
-                                {
-                                    "-rotate-180": open,
-                                },
-                            )}
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg>
-                    </Disclosure.Button>
-                    <Transition
-                        show={open}
-                        enter="transition duration-300 ease-out"
-                        enterFrom="transform h-0 opacity-0"
-                        enterTo="transform h-full opacity-100"
-                        leave="transition duration-75 ease-out"
-                        leaveFrom="transform h-full opacity-100"
-                        leaveTo="transform h-0 opacity-0"
-                    >
-                        <Disclosure.Panel static className={cn(AccordionAnatomy.panel(), panelClassName)}>
-                            {children}
-                        </Disclosure.Panel>
-                    </Transition>
-                </div>
-            )}
-        </Disclosure>
+        <AccordionPrimitive.Item
+            ref={ref}
+            className={cn(AccordionAnatomy.item(), itemClass, className)}
+            {...rest}
+        />
     )
-}
+
+})
 
 AccordionItem.displayName = "AccordionItem"
 
 /* -------------------------------------------------------------------------------------------------
- * Component
+ * AccordionTrigger
  * -----------------------------------------------------------------------------------------------*/
 
-_Accordion.Item = AccordionItem
+export type AccordionTriggerProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> &
+    Pick<ComponentAnatomy<typeof AccordionAnatomy>, "headerClass" | "triggerIconClass">
 
-export const Accordion = createPolymorphicComponent<"div", AccordionProps, {
-    Item: typeof AccordionItem
-}>(_Accordion)
+export const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerProps>((props, ref) => {
 
-Accordion.displayName = "Accordion"
+    const {
+        className,
+        headerClass,
+        triggerIconClass,
+        children,
+        ...rest
+    } = props
+
+    const {
+        headerClass: _headerClass,
+        triggerClass: _triggerClass,
+        triggerIconClass: _triggerIconClass,
+    } = React.useContext(__AccordionAnatomyContext)
+
+    return (
+        <AccordionPrimitive.Header className={cn(AccordionAnatomy.header(), _headerClass, headerClass)}>
+            <AccordionPrimitive.Trigger
+                ref={ref}
+                className={cn(
+                    AccordionAnatomy.trigger(),
+                    _triggerClass,
+                    className,
+                )}
+                {...rest}
+            >
+                {children}
+                <svg
+                    className={cn(AccordionAnatomy.triggerIcon(), _triggerIconClass, triggerIconClass)}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                    />
+                </svg>
+            </AccordionPrimitive.Trigger>
+        </AccordionPrimitive.Header>
+    )
+
+})
+
+AccordionTrigger.displayName = "AccordionTrigger"
+
+/* -------------------------------------------------------------------------------------------------
+ * AccordionContent
+ * -----------------------------------------------------------------------------------------------*/
+
+export type AccordionContentProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> &
+    Pick<ComponentAnatomy<typeof AccordionAnatomy>, "contentContainerClass">
+
+export const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>((props, ref) => {
+
+    const {
+        className,
+        contentContainerClass,
+        children,
+        ...rest
+    } = props
+
+    const {
+        contentContainerClass: _contentContainerClass,
+        contentClass: _contentClass,
+    } = React.useContext(__AccordionAnatomyContext)
+
+    return (
+        <AccordionPrimitive.Content
+            ref={ref}
+            className={cn(AccordionAnatomy.contentContainer(), _contentContainerClass, contentContainerClass)}
+            {...rest}
+        >
+            <div className={cn(AccordionAnatomy.content(), _contentClass, className)}>
+                {children}
+            </div>
+        </AccordionPrimitive.Content>
+    )
+})
+
+AccordionContent.displayName = "AccordionContent"
+

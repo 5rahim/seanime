@@ -1,18 +1,15 @@
 import { ChartValueFormatter } from "../charts"
-import { UIColor } from "../core"
+import { ChartColor } from "./color-theme"
 
 /* -------------------------------------------------------------------------------------------------
  * Chart Utils
  * -----------------------------------------------------------------------------------------------*/
 
-/**
- * @internal
- */
 export const constructCategoryColors = (
     categories: string[],
-    colors: UIColor[],
-): Map<string, UIColor> => {
-    const categoryColors = new Map<string, UIColor>()
+    colors: ChartColor[],
+): Map<string, ChartColor> => {
+    const categoryColors = new Map<string, ChartColor>()
     categories.forEach((category, idx) => {
         categoryColors.set(category, colors[idx] ?? "gray")
     })
@@ -38,7 +35,7 @@ export const defaultValueFormatter: ChartValueFormatter = (value: number) => val
  * DonutChart Utils
  * -----------------------------------------------------------------------------------------------*/
 
-export const parseChartData = (data: any[], colors: UIColor[]) =>
+export const parseChartData = (data: any[], colors: ChartColor[]) =>
     data.map((dataPoint: any, idx: number) => {
         const baseColor = idx < colors.length ? colors[idx] : "brand"
         return {

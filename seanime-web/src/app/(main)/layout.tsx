@@ -28,14 +28,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LibraryWatcher />
             <ScannerModal />
             <div className="min-h-screen">
-                <div className={"w-full md:h-[8rem] relative overflow-hidden pt-[--titlebar-h]"}>
-                    <div
-                        className="relative z-10 px-4 w-full flex flex-col md:flex-row justify-between md:items-center">
-                        <div className={"flex items-center w-full gap-2"}>
+                <div className="w-full md:h-[5rem] relative overflow-hidden pt-[--titlebar-h]">
+                    <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
+                        <div className="flex items-center w-full gap-2">
                             <AppSidebarTrigger/>
                             <TopNavbar/>
                         </div>
-                        <div className={"flex items-center gap-4"}>
+                        <div className="flex items-center gap-4">
                             <RefreshAnilistButton/>
                         </div>
                     </div>

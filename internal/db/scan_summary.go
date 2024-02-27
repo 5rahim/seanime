@@ -55,6 +55,10 @@ func (db *Database) GetScanSummaries() ([]*ScanSummaryItem, error) {
 }
 
 func (db *Database) InsertScanSummary(sm *summary.ScanSummary) error {
+	if sm == nil {
+		return nil
+	}
+
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {

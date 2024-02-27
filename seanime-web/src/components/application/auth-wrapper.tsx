@@ -4,7 +4,7 @@ import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
@@ -56,9 +56,9 @@ export function AuthWrapper(props: AuthWrapperProps) {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>
-                    <div className={"text-center space-y-4"}>
-                        <div className={"mb-4 flex justify-center w-full"}>
-                            <img src="/logo.png" alt="logo" className={"w-24 h-auto"} />
+                    <div className="text-center space-y-4">
+                        <div className="mb-4 flex justify-center w-full">
+                            <img src="/logo.png" alt="logo" className="w-24 h-auto" />
                         </div>
                         <h3>Welcome!</h3>
                         <Button
@@ -73,8 +73,8 @@ export function AuthWrapper(props: AuthWrapperProps) {
                                     d="M6.361 2.943 0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H22.9c.71 0 1.1-.392 1.1-1.101V17.53c0-.71-.39-1.101-1.1-1.101h-6.483V4.045c0-.71-.392-1.102-1.101-1.102h-2.422c-.71 0-1.101.392-1.101 1.102v1.064l-.758-2.166zm2.324 5.948 1.688 5.018H7.144z"
                                 />
                             </svg>}
-                            intent={"primary"}
-                            size={"xl"}
+                            intent="primary"
+                            size="xl"
                         >Log in with AniList</Button>
                     </div>
                 </AppLayoutStack>
@@ -87,9 +87,9 @@ export function AuthWrapper(props: AuthWrapperProps) {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>
-                    <div className={"text-center space-y-4"}>
-                        <div className={"mb-4 flex justify-center w-full"}>
-                            <img src="/logo.png" alt="logo" className={"w-24 h-auto"} />
+                    <div className="text-center space-y-4">
+                        <div className="mb-4 flex justify-center w-full">
+                            <img src="/logo.png" alt="logo" className="w-24 h-auto" />
                         </div>
                         <h3>Welcome!</h3>
                         <Button
@@ -104,12 +104,12 @@ export function AuthWrapper(props: AuthWrapperProps) {
                                     d="M6.361 2.943 0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H22.9c.71 0 1.1-.392 1.1-1.101V17.53c0-.71-.39-1.101-1.1-1.101h-6.483V4.045c0-.71-.392-1.102-1.101-1.102h-2.422c-.71 0-1.101.392-1.101 1.102v1.064l-.758-2.166zm2.324 5.948 1.688 5.018H7.144z"
                                 />
                             </svg>}
-                            intent={"white"}
-                            size={"md"}
+                            intent="white"
+                            size="md"
                         >Get AniList token</Button>
 
-                        <TypesafeForm
-                            schema={createTypesafeFormSchema(({ z }) => z.object({
+                        <Form
+                            schema={defineSchema(({ z }) => z.object({
                                 token: z.string().min(1, "Token is required"),
                             }))}
                             onSubmit={data => {
@@ -121,7 +121,7 @@ export function AuthWrapper(props: AuthWrapperProps) {
                                 label="Enter the token"
                             />
                             <Field.Submit showLoadingOverlayOnSuccess>Continue</Field.Submit>
-                        </TypesafeForm>
+                        </Form>
                     </div>
                 </AppLayoutStack>
             </Card>

@@ -3,10 +3,9 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/applicat
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
-import { BiLockAlt } from "@react-icons/all-files/bi/BiLockAlt"
-import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
 import { atom, useAtom } from "jotai"
 import React from "react"
+import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi"
 
 export const bulkActionModalAtomIsOpen = atom<boolean>(false)
 
@@ -35,33 +34,35 @@ export function BulkActionModal() {
     })
 
     return (
-        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isClosable title={"Bulk actions"}
-               bodyClassName={"space-y-4"}>
-            <AppLayoutStack spacing={"sm"}>
+        <Modal
+            open={isOpen} onOpenChange={() => setIsOpen(false)} title="Bulk actions"
+            contentClass="space-y-4"
+        >
+            <AppLayoutStack spacing="sm">
                 {/*<p>These actions do not affect ignored files.</p>*/}
                 <Button
-                    leftIcon={<BiLockAlt/>}
-                    intent={"gray-outline"}
-                    className={"w-full"}
-                    isDisabled={isPending || isRemoving}
+                    leftIcon={<BiLockAlt />}
+                    intent="gray-outline"
+                    className="w-full"
+                    disabled={isPending || isRemoving}
                     onClick={lockFiles}
                 >
                     Lock all files
                 </Button>
                 <Button
-                    leftIcon={<BiLockOpenAlt/>}
-                    intent={"gray-outline"}
-                    className={"w-full"}
-                    isDisabled={isPending || isRemoving}
+                    leftIcon={<BiLockOpenAlt />}
+                    intent="gray-outline"
+                    className="w-full"
+                    disabled={isPending || isRemoving}
                     onClick={unlockFiles}
                 >
                     Unlock all files
                 </Button>
                 <Button
-                    intent={"gray-outline"}
-                    className={"w-full"}
-                    isDisabled= {isPending}
-                    isLoading={isRemoving}
+                    intent="gray-outline"
+                    className="w-full"
+                    disabled={isPending}
+                    loading={isRemoving}
                     onClick={() => confirmRemoveEmptyDirs.open()}
                 >
                     Remove empty directories

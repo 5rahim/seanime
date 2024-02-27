@@ -2,20 +2,16 @@ import { serverStatusAtom } from "@/atoms/server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
-import { Divider } from "@/components/ui/divider"
-import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { Field, Form } from "@/components/ui/form"
+import { Separator } from "@/components/ui/separator"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
 import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
-import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
-import { FcMindMap } from "@react-icons/all-files/fc/FcMindMap"
-import { FcVideoCall } from "@react-icons/all-files/fc/FcVideoCall"
-import { FcVlc } from "@react-icons/all-files/fc/FcVlc"
 import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
+import { FcClapperboard, FcFolder, FcMindMap, FcVideoCall, FcVlc } from "react-icons/fc"
 
 export function GettingStarted({ status }: { status: ServerStatus }) {
     const router = useRouter()
@@ -47,15 +43,15 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
 
     if (!data) return (
         <div className="container max-w-5xl py-10">
-            <div className={"mb-4 flex justify-center w-full"}>
-                <img src="/logo.png" alt="logo" className={"w-24 h-auto"}/>
+            <div className="mb-4 flex justify-center w-full">
+                <img src="/logo.png" alt="logo" className="w-24 h-auto" />
             </div>
             <Card className="md:py-2 relative">
                 <AppLayoutStack>
-                    <div className={"space-y-4"}>
+                    <div className="space-y-4">
                         <h3>Getting started</h3>
                         <em className="text-[--muted]">These settings can be modified later.</em>
-                        <TypesafeForm
+                        <Form
                             schema={settingsSchema}
                             onSubmit={data => {
                                 mutate({
@@ -97,7 +93,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
                                 torrentProvider: DEFAULT_TORRENT_PROVIDER,
                             }}
-                            stackClassName="space-y-4"
+                            stackClass="space-y-4"
                         >
                             <Field.DirectorySelector
                                 name="libraryPath"
@@ -105,7 +101,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 leftIcon={<FcFolder/>}
                                 shouldExist
                             />
-                            <Divider/>
+                            <Separator />
                             <Field.Select
                                 name="defaultPlayer"
                                 label="Default player"
@@ -117,7 +113,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 ]}
                                 help="Player that will be used to open files and track your progress automatically."
                             />
-                            {/*<Divider/>*/}
+                            {/*<Separator/>*/}
                             <Field.Text
                                 name="mediaPlayerHost"
                                 label="Host (VLC/MPC-HC)"
@@ -135,7 +131,6 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 <Field.Number
                                     name="vlcPort"
                                     label="Port"
-                                    discrete
                                 />
                             </div>
                             <Field.Text
@@ -147,7 +142,6 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 <Field.Number
                                     name="mpcPort"
                                     label="Port"
-                                    discrete
                                 />
                             </div>
                             <Field.Text
@@ -172,7 +166,6 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 <Field.Number
                                     name="qbittorrentPort"
                                     label="Port"
-                                    discrete
                                 />
                             </div>
                             <Field.Text
@@ -183,9 +176,9 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 className="w-full"
                                 role="submit"
                                 showLoadingOverlayOnSuccess={true}
-                                isLoading={isPending}
+                                loading={isPending}
                             >Continue</Field.Submit>
-                        </TypesafeForm>
+                        </Form>
                     </div>
                 </AppLayoutStack>
             </Card>

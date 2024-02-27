@@ -1,7 +1,7 @@
 import { BuiltInFilterFn, Cell, Column, ColumnDef, Row, Table } from "@tanstack/react-table"
+import React from "react"
 import { AnyZodObject, z, ZodAny, ZodTypeAny } from "zod"
 import { DataGridEditingFieldContext } from "./datagrid-cell-input-field"
-import React from "react"
 import { DataGridValidationRowErrors } from "./use-datagrid-editing"
 
 /* -------------------------------------------------------------------------------------------------
@@ -118,12 +118,12 @@ export type DataGridColumnDefHelpers<T extends Record<string, any>> = {
 /**
  * Return
  * @example
- * const columns = useMemo(() => createDataGridColumns<T>(() => [
+ * const columns = useMemo(() => defineDataGridColumns<T>(() => [
  *  ...
  * ]), [])
  * @param callback
  */
-export function createDataGridColumns<T extends Record<string, any>, Schema extends AnyZodObject = any>(
+export function defineDataGridColumns<T extends Record<string, any>, Schema extends AnyZodObject = any>(
     callback: (helpers: DataGridColumnDefHelpers<T>, schema?: Schema) => Array<ColumnDef<T>>,
 ) {
     return callback({

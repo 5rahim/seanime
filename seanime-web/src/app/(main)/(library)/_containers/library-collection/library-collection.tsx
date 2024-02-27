@@ -3,12 +3,13 @@ import { DiscoverPageHeader } from "@/app/(main)/discover/_containers/discover-s
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { cn } from "@/components/ui/core/styling"
+import { Skeleton } from "@/components/ui/skeleton"
 import { LibraryCollectionEntry, LibraryCollectionList } from "@/lib/server/types"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { useSetAtom } from "jotai"
 import React, { memo, useMemo } from "react"
+import { FiSearch } from "react-icons/fi"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
     collectionList: LibraryCollectionList[],
@@ -19,20 +20,44 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
 
     const hasScanned = useMemo(() => collectionList.some(n => n.entries.length > 0), [collectionList])
 
-    if (isLoading) return <LoadingSpinner />
+    if (isLoading) return <React.Fragment>
+        <div className="p-4 space-y-4">
+            <Skeleton className="h-12 w-full max-w-lg" />
+            <div
+                className={cn(
+                    "grid h-[22rem] min-[2000px]:h-[24rem] grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4",
+                    // "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8"
+                )}
+            >
+                {[1, 2, 3, 4, 5, 6, 7, 8]?.map((_, idx) => {
+                    return <Skeleton
+                        key={idx} className={cn(
+                        "h-[22rem] min-[2000px]:h-[24rem] col-span-1 aspect-[6/7] flex-none rounded-md relative overflow-hidden",
+                        "[&:nth-child(8)]:hidden min-[2000px]:[&:nth-child(8)]:block",
+                        "[&:nth-child(7)]:hidden 2xl:[&:nth-child(7)]:block",
+                        "[&:nth-child(6)]:hidden xl:[&:nth-child(6)]:block",
+                        "[&:nth-child(5)]:hidden xl:[&:nth-child(5)]:block",
+                        "[&:nth-child(4)]:hidden lg:[&:nth-child(4)]:block",
+                        "[&:nth-child(3)]:hidden md:[&:nth-child(3)]:block",
+                    )}
+                    />
+                })}
+            </div>
+        </div>
+    </React.Fragment>
 
     if (!hasScanned && !isLoading) return (
         <>
             <DiscoverPageHeader />
-            <div className="p-8 pt-0">
+            <div className="p-4 sm:p-8 pt-0">
 
                 <div className="text-center space-y-4">
-                    <div className="border-2 border-[--border] border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">
+                    <div className="border-2  border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">
                         <h2>Empty library</h2>
                         <Button
-                            intent={"warning-subtle"}
+                            intent="warning-subtle"
                             leftIcon={<FiSearch />}
-                            size={"xl"}
+                            size="xl"
                             rounded
                             onClick={() => setScannerModalOpen(true)}
                         >

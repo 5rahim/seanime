@@ -1,18 +1,17 @@
 "use client"
 
-import React, { useCallback, useMemo } from "react"
-import { cn, ComponentWithAnatomy, defineStyleAnatomy, useUILocaleConfig } from "../core"
-import { cva } from "class-variance-authority"
-import { DataGridAnatomy, DataGridFilteringHelper, getColumnHelperMeta, getValueFormatter } from "."
-import { Select } from "../select"
 import { Column } from "@tanstack/react-table"
+import { cva } from "class-variance-authority"
+import * as React from "react"
+import { DataGridAnatomy, DataGridFilteringHelper, getColumnHelperMeta, getValueFormatter } from "."
 import { CloseButton } from "../button"
-import { DropdownMenu } from "../dropdown-menu"
 import { CheckboxGroup } from "../checkbox"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { DateRangePicker } from "../date-picker"
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuItem } from "../dropdown-menu"
 import { RadioGroup } from "../radio-group"
-import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date"
-import { DateRangePicker } from "../date-time"
-import locales from "./locales.json"
+import { Select } from "../select"
+import translations, { dateFnsLocales } from "./locales"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -21,14 +20,14 @@ import locales from "./locales.json"
 export const DataGridFilterAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-DataGridFilter__root",
-        "flex gap-2 items-center",
+        "flex items-center max-w-full gap-2",
     ]),
 })
 
 export const DataGridActiveFilterAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-DataGridActiveFilter__root",
-        "py-1 px-2 rounded-[--radius] border border-[--border] flex gap-2 items-center",
+        "py-1 px-2 rounded-[--radius] border flex gap-2 items-center",
     ]),
 })
 
@@ -36,28 +35,27 @@ export const DataGridActiveFilterAnatomy = defineStyleAnatomy({
  * DataGridFilter
  * -----------------------------------------------------------------------------------------------*/
 
-export interface DataGridFilterProps<T extends Record<string, any>> extends React.ComponentPropsWithoutRef<"div">,
-    ComponentWithAnatomy<typeof DataGridFilterAnatomy> {
+export type DataGridFilterProps<T extends Record<string, any>> = React.ComponentPropsWithoutRef<"div"> &
+    ComponentAnatomy<typeof DataGridFilterAnatomy> & {
     column: Column<T>
     onRemove: () => void
+    lng?: string
 }
 
 export function DataGridFilter<T extends Record<string, any>>(props: DataGridFilterProps<T>) {
 
-    const { locale } = useUILocaleConfig()
-
     const {
         children,
-        rootClassName,
         className,
         column,
         onRemove,
+        lng = "en",
         ...rest
     } = props
 
     const filterParams = getColumnHelperMeta(column, "filteringMeta")!
-    const filterValue = useMemo(() => column.getFilterValue(), [column.getFilterValue()]) as any
-    const setFilterValue = useMemo(() => column.setFilterValue, [column.setFilterValue])
+    const filterValue = React.useMemo(() => column.getFilterValue(), [column.getFilterValue()]) as any
+    const setFilterValue = React.useMemo(() => column.setFilterValue, [column.setFilterValue])
     const icon = filterParams.icon
 
     // Value formatter - if undefined, use the default behavior
@@ -67,100 +65,109 @@ export function DataGridFilter<T extends Record<string, any>>(props: DataGridFil
     const options = filterParams.options ?? []
 
     // Update handler
-    const handleUpdate = useCallback((value: any) => {
+    const handleUpdate = React.useCallback((value: any) => {
         setFilterValue(value)
     }, [])
 
     return (
         <div
-            className={cn(DataGridFilterAnatomy.root(), rootClassName, className)}
+            className={cn(DataGridFilterAnatomy.root(), className)}
             {...rest}
         >
             {(filterParams.type === "select" && (!options || options.length === 0)) && (
-                <div className={"text-red-500"}>/!\ "Select" filtering option passed without options</div>
+                <div className="text-red-500">/!\ "Select" filtering option passed without options</div>
             )}
             {/*Select*/}
             {(filterParams.type === "select" && !!options && options.length > 0) && (
                 <Select
                     leftIcon={icon ? icon :
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor"
-                             strokeWidth="2"
-                             strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg" width="18" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"
+                        >
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                         </svg>}
                     leftAddon={filterParams.name}
                     options={[...options.map(n => ({ value: n.value, label: valueFormatter(n.value) }))]}
-                    onChange={e => handleUpdate(e.target.value.trim().toLowerCase())}
-                    size={"sm"}
-                    fieldClassName={"w-fit"}
+                    onValueChange={v => handleUpdate(v.trim().toLowerCase())}
+                    size="sm"
+                    fieldClass="w-fit"
                     className="sm:w-auto pr-8 md:max-w-sm"
                 />
             )}
             {/*Boolean*/}
             {(filterParams.type === "boolean") && (
                 <DropdownMenu
-                    dropdownClassName={"right-[inherit] left"}
+                    className="right-[inherit] left"
                     trigger={
                         <DataGridActiveFilter
                             options={filterParams}
                             value={valueFormatter(filterValue)}
                         />
-                    }>
-                    <DropdownMenu.Group>
-                        <DropdownMenu.Item onClick={() => handleUpdate(true)}>
-                            {typeof valueFormatter(true) === "boolean" ? locales["true"][locale] : valueFormatter(true)}
-                        </DropdownMenu.Item>
-                        <DropdownMenu.Item onClick={() => handleUpdate(false)}>
-                            {typeof valueFormatter(false) === "boolean" ? locales["false"][locale] : valueFormatter(false)}
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Group>
+                    }
+                >
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => handleUpdate(true)}>
+                            {typeof valueFormatter(true) === "boolean" ? translations["true"][lng] : valueFormatter(true)}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleUpdate(false)}>
+                            {typeof valueFormatter(false) === "boolean" ? translations["false"][lng] : valueFormatter(false)}
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
                 </DropdownMenu>
             )}
             {/*Checkbox*/}
             {(filterParams.type === "checkbox" && !!options.length) && (
                 <DropdownMenu
-                    dropdownClassName={"right-[inherit] left"}
+                    className="right-[inherit] left"
                     trigger={
                         <DataGridActiveFilter
                             options={filterParams}
-                            value={Array.isArray(filterValue) ? (filterValue as any).map((n: string) => valueFormatter(n)) : valueFormatter(filterValue)}
+                            value={Array.isArray(filterValue) ?
+                                (filterValue as any).map((n: string) => valueFormatter(n)) :
+                                valueFormatter(filterValue)
+                            }
                         />}
                 >
-                    <DropdownMenu.Group className={"p-1"}>
+                    <DropdownMenuGroup className="p-1">
                         {filterParams.options?.length && (
                             <CheckboxGroup
                                 options={filterParams.options}
                                 value={filterValue}
-                                onChange={handleUpdate}
-                                checkboxContainerClassName={"flex flex-row-reverse w-full justify-between"}
-                                checkboxLabelClassName={"cursor-pointer"}
+                                onValueChange={handleUpdate}
+                                itemContainerClass="flex flex-row-reverse w-full justify-between"
+                                itemLabelClass="cursor-pointer"
                             />
                         )}
-                    </DropdownMenu.Group>
+                    </DropdownMenuGroup>
                 </DropdownMenu>
             )}
             {/*Radio*/}
             {(filterParams.type === "radio" && !!options.length) && (
                 <DropdownMenu
-                    dropdownClassName={"right-[inherit] left"}
+                    className="right-[inherit] left"
                     trigger={
                         <DataGridActiveFilter
                             options={filterParams}
-                            value={Array.isArray(filterValue) ? (filterValue as any).map((n: string) => valueFormatter(n)) : valueFormatter(filterValue)}
+                            value={Array.isArray(filterValue) ?
+                                (filterValue as any).map((n: string) => valueFormatter(n)) :
+                                valueFormatter(filterValue)
+                            }
                         />}
                 >
-                    <DropdownMenu.Group className={"p-1"}>
+                    <DropdownMenuGroup className="p-1">
                         {filterParams.options?.length && (
                             <RadioGroup
                                 options={filterParams.options}
                                 value={filterValue}
-                                onChange={handleUpdate}
-                                radioContainerClassName={"flex flex-row-reverse w-full justify-between"}
-                                radioLabelClassName={"cursor-pointer"}
+                                onValueChange={handleUpdate}
+                                itemContainerClass="flex flex-row-reverse w-full justify-between"
+                                itemLabelClass="cursor-pointer"
                             />
                         )}
-                    </DropdownMenu.Group>
+                    </DropdownMenuGroup>
                 </DropdownMenu>
             )}
             {/*Date*/}
@@ -170,22 +177,25 @@ export function DataGridFilter<T extends Record<string, any>>(props: DataGridFil
                     <span>{filterParams.name}:</span>
                     <DateRangePicker
                         value={filterValue ? {
-                            start: parseAbsoluteToLocal(filterValue.start.toISOString()),
-                            end: parseAbsoluteToLocal(filterValue.end.toISOString()),
+                            from: filterValue.start,
+                            to: filterValue.end,
                         } : undefined}
-                        onChange={value => handleUpdate({
-                            start: value?.start.toDate(getLocalTimeZone()),
-                            end: value?.end.toDate(getLocalTimeZone()),
+                        onValueChange={value => handleUpdate({
+                            start: value?.from,
+                            end: value?.to,
                         })}
-                        intent={"unstyled"}
-                        locale={locale}
-                        hideTimeZone
-                        granularity={"day"}
+                        placeholder={translations["date-range-placeholder"][lng]}
+                        intent="unstyled"
+                        locale={dateFnsLocales[lng]}
                     />
                 </div>
             )}
 
-            <CloseButton onClick={onRemove} size={"sm"}/>
+            <CloseButton
+                intent="gray-outline"
+                onClick={onRemove}
+                size="md"
+            />
         </div>
     )
 
@@ -195,13 +205,13 @@ DataGridFilter.displayName = "DataGridFilter"
 
 
 interface DataGridActiveFilterProps extends Omit<React.ComponentPropsWithRef<"button">, "value">,
-    ComponentWithAnatomy<typeof DataGridActiveFilterAnatomy> {
+    ComponentAnatomy<typeof DataGridActiveFilterAnatomy> {
     children?: React.ReactNode
     options: DataGridFilteringHelper<any>
     value: unknown
 }
 
-export const DataGridActiveFilter: React.FC<DataGridActiveFilterProps> = React.forwardRef((props, ref) => {
+export const DataGridActiveFilter = React.forwardRef<HTMLButtonElement, DataGridActiveFilterProps>((props, ref) => {
 
     const { children, options, value, ...rest } = props
 
@@ -209,11 +219,13 @@ export const DataGridActiveFilter: React.FC<DataGridActiveFilterProps> = React.f
     const displayedValue = Array.isArray(value) ? (value.length > 2 ? [...value.slice(0, 2), "..."].join(", ") : value.join(", ")) : String(value)
 
     return (
-        <button className={cn(DataGridAnatomy.filterDropdownButton(), "truncate overflow-ellipsis")} {...rest}
-                ref={ref}>
+        <button
+            ref={ref}
+            className={cn(DataGridAnatomy.filterDropdownButton(), "truncate overflow-ellipsis")} {...rest}
+        >
             {options.icon && <span>{options.icon}</span>}
             <span>{options.name}:</span>
-            <span className={"font-semibold flex flex-none overflow-hidden whitespace-normal"}>{displayedValue}</span>
+            <span className="font-semibold flex flex-none overflow-hidden whitespace-normal">{displayedValue}</span>
         </button>
     )
 

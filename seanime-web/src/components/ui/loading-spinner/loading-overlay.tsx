@@ -1,6 +1,6 @@
-import { cn, defineStyleAnatomy } from "../core"
 import { cva } from "class-variance-authority"
-import React from "react"
+import * as React from "react"
+import { cn, defineStyleAnatomy } from "../core/styling"
 import { LoadingSpinner } from "./loading-spinner"
 
 /* -------------------------------------------------------------------------------------------------
@@ -10,7 +10,8 @@ import { LoadingSpinner } from "./loading-spinner"
 export const LoadingOverlayAnatomy = defineStyleAnatomy({
     overlay: cva([
         "UI-LoadingOverlay__overlay",
-        "absolute bg-white dark:bg-[rgba(0,0,0,0.3)] bg-opacity-70 w-full h-full z-10 inset-0 pt-4 flex flex-col items-center justify-center backdrop-blur-sm",
+        "absolute bg-[--background]/50 w-full h-full z-10 inset-0 pt-4 flex flex-col items-center justify-center backdrop-blur-sm",
+        "!mt-0",
     ]),
 })
 
@@ -18,27 +19,42 @@ export const LoadingOverlayAnatomy = defineStyleAnatomy({
  * LoadingOverlay
  * -----------------------------------------------------------------------------------------------*/
 
-interface LoadingOverlayProps {
+export type LoadingOverlayProps = {
     children?: React.ReactNode
-    hideSpinner?: boolean
-    show?: boolean
+    /**
+     * Whether to show the loading spinner
+     */
+    showSpinner?: boolean
+    /**
+     * If true, the loading overlay will be unmounted
+     */
+    hide?: boolean
+    className?: string
 }
 
-export const LoadingOverlay: React.FC<LoadingOverlayProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
+export const LoadingOverlay = React.forwardRef<HTMLDivElement, LoadingOverlayProps>((props, ref) => {
 
-    const { children, show = true, className, hideSpinner = false, ...rest } = props
+    const {
+        children,
+        hide = false,
+        showSpinner = true,
+        className,
+        ...rest
+    } = props
 
-    if (!show) return null
+    if (hide) return null
 
     return (
-        <>
-            <div className={cn(LoadingOverlayAnatomy.overlay(), className)} {...rest}>
-                {!hideSpinner && <LoadingSpinner className="justify-auto"/>}
-                {children}
-            </div>
-        </>
+        <div
+            ref={ref}
+            className={cn(LoadingOverlayAnatomy.overlay(), className)}
+            {...rest}
+        >
+            {showSpinner && <LoadingSpinner className="justify-auto" />}
+            {children}
+        </div>
     )
 
-}
+})
 
 LoadingOverlay.displayName = "LoadingOverlay"

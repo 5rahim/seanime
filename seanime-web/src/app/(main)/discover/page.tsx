@@ -4,6 +4,7 @@ import { DiscoverPopular } from "@/app/(main)/discover/_containers/discover-sect
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-sections/trending-movies"
 import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-sections/upcoming"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
 
@@ -11,25 +12,27 @@ export default function Page() {
 
     return (
         <>
-            <DiscoverPageHeader/>
-            <div className={"p-8 space-y-10 pb-10"}>
-                <div className={"space-y-2"}>
+            <DiscoverPageHeader />
+            <PageWrapper
+                className="p-4 sm:p-8 space-y-10 pb-10"
+            >
+                <div className="space-y-2 z-[5] relative">
                     <h2>Popular this season</h2>
-                    <DiscoverTrending/>
+                    <DiscoverTrending />
                 </div>
-                <div className={"space-y-2"}>
+                <div className="space-y-2">
                     <h2>Popular shows</h2>
-                    <DiscoverPopular/>
+                    <DiscoverPopular />
                 </div>
-                <div className={"space-y-2"}>
+                <div className="space-y-2">
                     <h2>Upcoming</h2>
-                    <DiscoverUpcoming/>
+                    <DiscoverUpcoming />
                 </div>
-                <div className={"space-y-2"}>
+                <div className="space-y-2">
                     <h2>Trending movies</h2>
-                    <DiscoverTrendingMovies/>
+                    <DiscoverTrendingMovies />
                 </div>
-            </div>
+            </PageWrapper>
         </>
     )
 }

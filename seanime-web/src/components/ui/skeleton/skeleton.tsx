@@ -1,84 +1,33 @@
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
-import { cva, VariantProps } from "class-variance-authority"
-import React from "react"
+import { cva } from "class-variance-authority"
+import * as React from "react"
+import { cn, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const SkeletonAnatomy = defineStyleAnatomy({
-    skeleton: cva("UI-Skeleton__skeleton", {
-        variants: {
-            type: {
-                box: "h-14 bg-gray-100 dark:bg-gray-800 w-full rounded-[--radius] animate-pulse",
-                text: "h-2 bg-gray-100 dark:bg-gray-800 rounded-[--radius] animate-purple",
-            },
-        },
-        defaultVariants: {},
-    }),
+    root: cva([
+        "UI-Skeleton__root",
+        "animate-pulse rounded-md bg-[--subtle] w-full h-12",
+    ]),
 })
 
 /* -------------------------------------------------------------------------------------------------
  * Skeleton
  * -----------------------------------------------------------------------------------------------*/
 
-export interface SkeletonProps extends React.ComponentPropsWithRef<"div">, VariantProps<typeof SkeletonAnatomy.skeleton>,
-    ComponentWithAnatomy<typeof SkeletonAnatomy> {
-}
+export type SkeletonProps = React.ComponentPropsWithoutRef<"div">
 
 export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>((props, ref) => {
-
-    const {
-        children,
-        className,
-        type = "box",
-        skeletonClassName,
-        ...rest
-    } = props
-
-    // Text
-    if (type === "text") {
-        return (
-            <>
-                <div className="flex flex-col gap-3">
-                    <div
-                        className={cn("w-full", SkeletonAnatomy.skeleton({ type }), skeletonClassName, className)} {...rest}
-                        ref={ref}></div>
-                    <div
-                        className={cn("w-full", SkeletonAnatomy.skeleton({ type }), skeletonClassName, className)} {...rest}
-                        ref={ref}></div>
-                    <div
-                        className={cn("w-full", SkeletonAnatomy.skeleton({ type }), skeletonClassName, className)} {...rest}
-                        ref={ref}></div>
-                    <div
-                        className={cn("w-[98%]", SkeletonAnatomy.skeleton({ type }), skeletonClassName, className)} {...rest}
-                        ref={ref}></div>
-                    <div
-                        className={cn("w-[95%]", SkeletonAnatomy.skeleton({ type }), skeletonClassName, className)} {...rest}
-                        ref={ref}></div>
-                    <div
-                        className={cn("w-[90%]", SkeletonAnatomy.skeleton({ type }), skeletonClassName, className)} {...rest}
-                        ref={ref}></div>
-                </div>
-            </>
-        )
-    }
-
-    // Box
+    const { className, ...rest } = props
     return (
-        <>
-            <div
-                className={cn(
-                    SkeletonAnatomy.skeleton({ type }),
-                    skeletonClassName,
-                    className,
-                )}
-                {...rest}
-                ref={ref}
-            ></div>
-        </>
+        <div
+            ref={ref}
+            className={cn(SkeletonAnatomy.root(), className)}
+            {...rest}
+        />
     )
-
 })
 
 Skeleton.displayName = "Skeleton"

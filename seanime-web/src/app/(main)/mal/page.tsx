@@ -37,8 +37,8 @@ export default function Page() {
                 onClick={() => {
                     window.open(OAUTH_URL, "_self")
                 }}
-                intent={"primary"}
-                size={"lg"}
+                intent="primary"
+                size="lg"
             >Log in with MAL</Button>
         </div>
     )
@@ -58,9 +58,9 @@ export default function Page() {
             <p className="flex justify-between items-center w-full text-8xl relative">
                 <SiMyanimelist />
                 <Button
-                    intent={"alert-subtle"}
-                    size={"sm"}
-                    isLoading={isPending || isSuccess}
+                    intent="alert-subtle"
+                    size="sm"
+                    loading={isPending || isSuccess}
                     onClick={() => {
                         logout()
                     }}
@@ -68,7 +68,7 @@ export default function Page() {
                 >Log out</Button>
             </p>
 
-            <div className="border border-[--border] rounded-[--radius] p-4 bg-[--paper] text-lg space-y-2">
+            <div className="border  rounded-[--radius] p-4 bg-[--paper] text-lg space-y-2">
                 <p>
                     Your MyAnimeList account is connected to Seanime.
                 </p>

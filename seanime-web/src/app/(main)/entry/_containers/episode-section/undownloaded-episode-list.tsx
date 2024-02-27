@@ -2,8 +2,8 @@ import { MediaEntryDownloadInfo } from "@/lib/server/types"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import React, { startTransition } from "react"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { BiDownload } from "@react-icons/all-files/bi/BiDownload"
-import { BiCalendarAlt } from "@react-icons/all-files/bi/BiCalendarAlt"
+import { BiDownload } from "react-icons/bi"
+import { BiCalendarAlt } from "react-icons/bi"
 import {
     torrentSearchDrawerEpisodeAtom,
     torrentSearchDrawerIsOpenAtom,
@@ -27,7 +27,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
             <p className={""}>
                 {downloadInfo?.rewatch ? "You have not downloaded the following:" : "You have not watched nor downloaded the following:"}
             </p>
-            <div className={"grid grid-cols-1 md:grid-cols-2 gap-4"}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {episodes?.sort((a, b) => a.episodeNumber - b.episodeNumber).map((ep, idx) => {
                     if (!ep.episode) return null
                     const episode = ep.episode
@@ -47,13 +47,14 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                                             setTorrentSearchIsOpen(true)
                                         })
                                     }}
-                                    className={"text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"}>
+                                    className="text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
+                                >
                                     <BiDownload/>
                                 </a>
                             </div>}
                         >
-                            <div className={"mt-1"}>
-                                <p className={"flex gap-1 items-center text-sm text-[--muted]"}>
+                            <div className="mt-1">
+                                <p className="flex gap-1 items-center text-sm text-[--muted]">
                                     <BiCalendarAlt/> {episode.episodeMetadata?.airDate ? `Aired on ${new Date(episode.episodeMetadata?.airDate).toLocaleDateString()}` : "Aired"}
                                 </p>
                             </div>

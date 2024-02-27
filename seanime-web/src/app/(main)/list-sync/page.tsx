@@ -3,10 +3,11 @@ import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diff
 import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { cn } from "@/components/ui/core"
+import { PageWrapper } from "@/components/shared/page-wrapper"
+import { Card } from "@/components/ui/card"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { TabPanels } from "@/components/ui/tabs"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { ListSyncAnimeDiff, ListSyncOrigin } from "@/lib/server/types"
@@ -14,10 +15,10 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { InferType } from "prop-types"
 import React from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
-const settingsSchema = createTypesafeFormSchema(({ z, presets }) => z.object({
-    automatic: presets.checkbox,
+const settingsSchema = defineSchema(({ z }) => z.object({
+    automatic: z.boolean(),
     origin: z.string().min(1),
 }))
 
@@ -56,7 +57,9 @@ export default function Page() {
     }
 
     if (!serverStatus?.mal) return (
-        <div className="p-8 space-y-4">
+        <PageWrapper
+            className="p-4 sm:p-8 space-y-4"
+        >
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>List Sync <BetaBadge /></h2>
@@ -66,12 +69,14 @@ export default function Page() {
             <LuffyError title="Nothing to see">
                 Link your MyAnimeList account to use this feature.
             </LuffyError>
-        </div>
+        </PageWrapper>
     )
 
 
     return (
-        <div className="p-8 space-y-4">
+        <PageWrapper
+            className="p-4 sm:p-8 space-y-4"
+        >
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>List Sync <BetaBadge /></h2>
@@ -79,74 +84,66 @@ export default function Page() {
                 </div>
             </div>
 
-            <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
-                <TabPanels
-                    navClassName="border-[--border]"
-                    tabClassName={cn(
-                        "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
-                        "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
-                        "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
-                        "dark:data-[selected=true]:bg-[--highlight]",
-                    )}
+            <Card className="p-0 overflow-hidden">
+                <Tabs
+                    defaultValue="list"
+                    triggerClass="w-full data-[state=active]:bg-[--subtle]"
                 >
-                    <TabPanels.Nav>
-                        <TabPanels.Tab>Lists</TabPanels.Tab>
-                        <TabPanels.Tab>Settings</TabPanels.Tab>
-                    </TabPanels.Nav>
-                    <TabPanels.Container>
-                        <TabPanels.Panel>
-                            {(!isLoading && !serverStatus?.settings?.listSync) && (
-                                <p className="text-[--muted] text-center p-4">
-                                    List sync is not enabled. Enable it in the settings tab.
-                                </p>
-                            )}
-                            {(!isLoading && !!serverStatus?.settings?.listSync) && <div className="p-4">
-                                {typeof animeDiffs !== "string" &&
-                                    <ListSyncDiffs diffs={animeDiffs ?? []} onClearCache={handleClearCache} isDeletingCache={isDeletingCache} />}
-                                {typeof animeDiffs === "string" && <LuffyError>{animeDiffs}</LuffyError>}
-                            </div>}
-                            {isLoading && <LoadingSpinner />}
-                        </TabPanels.Panel>
-                        <TabPanels.Panel>
-                            <div className="p-4">
-                                <TypesafeForm
-                                    schema={settingsSchema}
-                                    onSubmit={data => {
-                                        updateSettings(data)
-                                    }}
-                                    defaultValues={{
-                                        automatic: serverStatus?.settings?.listSync?.automatic ?? false,
-                                        origin: serverStatus?.settings?.listSync?.origin ?? "",
-                                    }}
-                                >
-                                    <Field.RadioGroup
-                                        label="Source"
-                                        help="Select the source of truth for your anime list."
-                                        options={[
-                                            { value: ListSyncOrigin.ANILIST, label: "AniList" },
-                                            ...(!!serverStatus?.mal ? [{ value: ListSyncOrigin.MAL, label: "MyAnimeList" }] : []),
-                                        ]}
-                                        name="origin"
-                                        // fieldClassName="w-fit"
-                                        // radioLabelClassName="font-semibold flex-none flex pr-8"
-                                    />
+                    <TabsList className="flex w-full border-b">
+                        <TabsTrigger value="list">Lists</TabsTrigger>
+                        <TabsTrigger value="settings">Settings</TabsTrigger>
+                    </TabsList>
 
-                                    {/*<Field.Checkbox*/}
-                                    {/*    label="Automatic background sync"*/}
-                                    {/*    help="Automatically sync your lists with the source of truth."*/}
-                                    {/*    name="automatic"*/}
-                                    {/*/>*/}
+                    <TabsContent value="list" className="p-4">
+                        {(!isLoading && !serverStatus?.settings?.listSync) && (
+                            <p className="text-[--muted] text-center p-4">
+                                List sync is not enabled. Enable it in the settings tab.
+                            </p>
+                        )}
+                        {(!isLoading && !!serverStatus?.settings?.listSync) && <div className="">
+                            {typeof animeDiffs !== "string" &&
+                                <ListSyncDiffs diffs={animeDiffs ?? []} onClearCache={handleClearCache} isDeletingCache={isDeletingCache} />}
+                            {typeof animeDiffs === "string" && <LuffyError>{animeDiffs}</LuffyError>}
+                        </div>}
+                        {isLoading && <LoadingSpinner />}
+                    </TabsContent>
+                    <TabsContent value="settings" className="p-4">
+                        <Form
+                            schema={settingsSchema}
+                            onSubmit={data => {
+                                updateSettings(data)
+                            }}
+                            defaultValues={{
+                                automatic: serverStatus?.settings?.listSync?.automatic ?? false,
+                                origin: serverStatus?.settings?.listSync?.origin ?? "",
+                            }}
+                        >
+                            <Field.RadioGroup
+                                label="Source"
+                                help="Select the source of truth for your anime list."
+                                options={[
+                                    { value: ListSyncOrigin.ANILIST, label: "AniList" },
+                                    ...(!!serverStatus?.mal ? [{ value: ListSyncOrigin.MAL, label: "MyAnimeList" }] : []),
+                                ]}
+                                name="origin"
+                                // fieldClass="w-fit"
+                                // radioLabelClass="font-semibold flex-none flex pr-8"
+                            />
 
-                                    <Field.Submit role="save" isLoading={isPending}>
-                                        {!serverStatus?.settings?.listSync ? "Enable" : "Save"}
-                                    </Field.Submit>
-                                </TypesafeForm>
-                            </div>
-                        </TabPanels.Panel>
-                    </TabPanels.Container>
-                </TabPanels>
-            </div>
-        </div>
+                            {/*<Field.Checkbox*/}
+                            {/*    label="Automatic background sync"*/}
+                            {/*    help="Automatically sync your lists with the source of truth."*/}
+                            {/*    name="automatic"*/}
+                            {/*/>*/}
+
+                            <Field.Submit role="save" loading={isPending}>
+                                {!serverStatus?.settings?.listSync ? "Enable" : "Save"}
+                            </Field.Submit>
+                        </Form>
+                    </TabsContent>
+                </Tabs>
+            </Card>
+        </PageWrapper>
     )
 
 }

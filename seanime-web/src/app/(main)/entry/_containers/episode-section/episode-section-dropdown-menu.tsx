@@ -5,15 +5,13 @@ import { useOpenDefaultMediaPlayer, useStartMpvPlaybackDetection } from "@/app/(
 import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useOpenMediaEntryInExplorer } from "@/lib/server/hooks"
 import { MediaEntry } from "@/lib/server/types"
-import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
-import { BiRightArrowAlt } from "@react-icons/all-files/bi/BiRightArrowAlt"
 import { useSetAtom } from "jotai"
 import { useAtomValue } from "jotai/react"
 import React from "react"
-import { BiPlayCircle } from "react-icons/bi"
+import { BiDotsVerticalRounded, BiPlayCircle, BiRightArrowAlt } from "react-icons/bi"
 
 export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
@@ -38,50 +36,42 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     return (
         <>
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent={"gray-basic"} size={"xl"} />}>
+            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="xl" />}>
 
-                {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenu.Item
+                {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenuItem
                     onClick={startMpvPlaybackDetection}
                 >
                     <BiPlayCircle />
                     Start episode detection
-                </DropdownMenu.Item>}
+                </DropdownMenuItem>}
 
-                <DropdownMenu.Item
+                <DropdownMenuItem
                     onClick={() => openEntryInExplorer(entry.mediaId)}
                 >
                     Open folder
-                </DropdownMenu.Item>
-                {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenu.Item
+                </DropdownMenuItem>
+                {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
                     onClick={startDefaultMediaPlayer}
                 >
                     Start video player
-                </DropdownMenu.Item>}
-                <DropdownMenu.Divider />
-                <DropdownMenu.Group title="Bulk actions">
-                    {/*<DropdownMenu.Item*/}
-                    {/*    onClick={bulkOffsetEpisodeModal.toggle}*/}
-                    {/*>*/}
-                    {/*    Offset episode numbers*/}
-                    {/*</DropdownMenu.Item>*/}
-                    <DropdownMenu.Item
-                        className="text-red-500 dark:text-red-200 flex justify-between"
-                        onClick={confirmDeleteFiles.open}
-                        disabled={isPending}
-                    >
-                        <span>Unmatch all files</span> <BiRightArrowAlt />
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                        className="text-red-500 dark:text-red-200 flex justify-between"
-                        onClick={() => setBulkDeleteFilesModalOpen(true)}
-                        disabled={isPending}
-                    >
-                        <span>Delete some files</span> <BiRightArrowAlt />
-                    </DropdownMenu.Item>
-                </DropdownMenu.Group>
+                </DropdownMenuItem>}
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                    className="text-red-500 dark:text-red-200 flex justify-between"
+                    onClick={confirmDeleteFiles.open}
+                    disabled={isPending}
+                >
+                    <span>Unmatch all files</span> <BiRightArrowAlt />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    className="text-red-500 dark:text-red-200 flex justify-between"
+                    onClick={() => setBulkDeleteFilesModalOpen(true)}
+                    disabled={isPending}
+                >
+                    <span>Delete some files</span> <BiRightArrowAlt />
+                </DropdownMenuItem>
             </DropdownMenu>
-
-            {/*<BulkOffsetEpisodesModal entry={entry} isOpen={bulkOffsetEpisodeModal.active} onClose={bulkOffsetEpisodeModal.off} />*/}
             <ConfirmationDialog {...confirmDeleteFiles} />
             <BulkDeleteFilesModal entry={entry} />
         </>

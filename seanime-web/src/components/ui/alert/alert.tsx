@@ -1,26 +1,26 @@
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 import { cva, VariantProps } from "class-variance-authority"
-import React from "react"
+import * as React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const AlertAnatomy = defineStyleAnatomy({
-    container: cva([
-        "UI-Alert__container",
-        "py-3 px-4 flex justify-between rounded-[--radius]"
+    root: cva([
+        "UI-Alert__root",
+        "py-3 px-4 flex justify-between rounded-[--radius]",
     ], {
         variants: {
             intent: {
-                "info": "bg-blue-50 text-blue-500 __UI__DARK__ dark:bg-opacity-10 dark:text-blue-200",
-                "success": "bg-green-50 text-green-500 __UI__DARK__ dark:bg-opacity-10 dark:text-green-200",
-                "warning": "bg-orange-50 text-orange-500 __UI__DARK__ dark:bg-opacity-10 dark:text-orange-200",
-                "alert": "bg-red-50 text-red-500 __UI__DARK__ dark:bg-opacity-10 dark:text-red-200",
-                "info-basic": "bg-white text-gray-800 border border-[--border] __UI__DARK__ dark:bg-gray-800 dark:text-gray-200",
-                "success-basic": "bg-white text-gray-800 border border-[--border] __UI__DARK__ dark:bg-gray-800 dark:text-gray-200",
-                "warning-basic": "bg-white text-gray-800 border border-[--border] __UI__DARK__ dark:bg-gray-800 dark:text-gray-200",
-                "alert-basic": "bg-white text-gray-800 border border-[--border] __UI__DARK__ dark:bg-gray-800 dark:text-gray-200",
+                "info": "bg-blue-50 text-blue-500 dark:bg-opacity-10 dark:text-blue-200",
+                "success": "bg-green-50 text-green-500 dark:bg-opacity-10 dark:text-green-200",
+                "warning": "bg-orange-50 text-orange-500 dark:bg-opacity-10 dark:text-orange-200",
+                "alert": "bg-red-50 text-red-500 dark:bg-opacity-10 dark:text-red-200",
+                "info-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
+                "success-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
+                "warning-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
+                "alert-basic": "bg-white text-gray-800 border dark:bg-gray-800 dark:text-gray-200",
             },
         },
         defaultVariants: {
@@ -29,22 +29,22 @@ export const AlertAnatomy = defineStyleAnatomy({
     }),
     detailsContainer: cva([
         "UI-Alert__detailsContainer",
-        "flex"
+        "flex",
     ]),
     textContainer: cva([
         "UI-Alert__textContainer",
-        "flex flex-col self-center ml-3 gap-.5"
+        "flex flex-col self-center ml-3 gap-.5",
     ]),
     title: cva([
         "UI-Alert__title",
-        "font-bold"
+        "font-bold",
     ]),
     description: cva([
-        "UI-Alert__description"
+        "UI-Alert__description",
     ]),
     icon: cva([
         "UI-Alert__icon",
-        "text-2xl mt-1"
+        "text-2xl mt-1",
     ], {
         variants: {
             intent: {
@@ -64,7 +64,7 @@ export const AlertAnatomy = defineStyleAnatomy({
     }),
     closeButton: cva([
         "UI-Alert__closeButton",
-        "self-start text-2xl hover:opacity-50 transition ease-in cursor-pointer h-5 w-5"
+        "flex-none self-start text-2xl hover:opacity-50 transition ease-in cursor-pointer h-5 w-5",
     ]),
 })
 
@@ -72,12 +72,30 @@ export const AlertAnatomy = defineStyleAnatomy({
  * Alert
  * -----------------------------------------------------------------------------------------------*/
 
-export interface AlertProps extends React.ComponentPropsWithRef<"div">,
-    VariantProps<typeof AlertAnatomy.container>,
-    ComponentWithAnatomy<typeof AlertAnatomy> {
+export type AlertProps = React.ComponentPropsWithRef<"div"> &
+    VariantProps<typeof AlertAnatomy.root> &
+    ComponentAnatomy<typeof AlertAnatomy> & {
+    /**
+     * The title of the alert
+     */
     title?: string,
-    description?: React.ReactNode,
-    isClosable?: boolean,
+    /**
+     * The description text or content of the alert
+     */
+    description?: React.ReactNode
+    /**
+     * Replace the default icon with a custom icon
+     *
+     * - `iconClass` does not apply to custom icons
+     */
+    icon?: React.ReactNode
+    /**
+     * If true, a close button will be rendered
+     */
+    isClosable?: boolean
+    /**
+     * Callback invoked when the close button is clicked
+     */
     onClose?: () => void
 }
 
@@ -91,13 +109,13 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
         isClosable,
         onClose,
         intent = "info-basic",
-        containerClassName,
-        iconClassName,
-        detailsContainerClassName,
-        textContainerClassName,
-        titleClassName,
-        descriptionClassName,
-        closeButtonClassName,
+        iconClass,
+        detailsContainerClass,
+        textContainerClass,
+        titleClass,
+        descriptionClass,
+        closeButtonClass,
+        icon,
         ...rest
     } = props
 
@@ -169,45 +187,42 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
     }
 
     return (
-        <>
-            <div
-                className={cn(
-                    AlertAnatomy.container({ intent }),
-                    containerClassName,
-                    className,
-                )}
-                {...rest}
-                ref={ref}
-            >
-                <div className={cn(AlertAnatomy.detailsContainer(), detailsContainerClassName)}>
-                    <div className={cn(AlertAnatomy.icon({ intent: intent }), iconClassName)}>
-                        {Icon && Icon}
-                    </div>
-                    <div className={cn(AlertAnatomy.textContainer(), textContainerClassName)}>
-                        <span className={cn(AlertAnatomy.title(), titleClassName)}>
-                            {title}
-                        </span>
-                        {!!description && <div className={cn(AlertAnatomy.description(), descriptionClassName)}>
-                            {description}
-                        </div>}
-                    </div>
+        <div
+            className={cn(
+                AlertAnatomy.root({ intent }),
+                className,
+            )}
+            {...rest}
+            ref={ref}
+        >
+            <div className={cn(AlertAnatomy.detailsContainer(), detailsContainerClass)}>
+                {icon ? icon : <div className={cn(AlertAnatomy.icon({ intent: intent }), iconClass)}>
+                    {Icon && Icon}
+                </div>}
+                <div className={cn(AlertAnatomy.textContainer(), textContainerClass)}>
+                    <span className={cn(AlertAnatomy.title(), titleClass)}>
+                        {title}
+                    </span>
+                    {!!description && <div className={cn(AlertAnatomy.description(), descriptionClass)}>
+                        {description}
+                    </div>}
                 </div>
-                {onClose && <button className={cn(AlertAnatomy.closeButton(), closeButtonClassName)} onClick={onClose}>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <line x1="18" x2="6" y1="6" y2="18"></line>
-                        <line x1="6" x2="18" y1="6" y2="18"></line>
-                    </svg>
-                </button>}
             </div>
-        </>
+            {onClose && <button className={cn(AlertAnatomy.closeButton(), closeButtonClass)} onClick={onClose}>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    <line x1="18" x2="6" y1="6" y2="18"></line>
+                    <line x1="6" x2="18" y1="6" y2="18"></line>
+                </svg>
+            </button>}
+        </div>
     )
 
 })

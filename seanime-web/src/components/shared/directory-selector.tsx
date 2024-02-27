@@ -1,14 +1,11 @@
 import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { BiCheck } from "@react-icons/all-files/bi/BiCheck"
-import { BiFolderOpen } from "@react-icons/all-files/bi/BiFolderOpen"
-import { BiFolderPlus } from "@react-icons/all-files/bi/BiFolderPlus"
-import { BiX } from "@react-icons/all-files/bi/BiX"
-import { FaFolder } from "@react-icons/all-files/fa/FaFolder"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"
+import { BiCheck, BiFolderOpen, BiFolderPlus, BiX } from "react-icons/bi"
+import { FaFolder } from "react-icons/fa"
 import { useUpdateEffect } from "react-use"
 import * as upath from "upath"
 import { useDebounce } from "use-debounce"
@@ -102,8 +99,8 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                         value={input}
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
-                                <BiCheck className={"text-green-500"} /> : shouldExist ?
-                                    <BiX className={"text-red-500"} /> : <BiFolderPlus />)}
+                                <BiCheck className="text-green-500" /> : shouldExist ?
+                                    <BiX className="text-red-500" /> : <BiFolderPlus />)}
                         </div>}
                         onChange={e => {
                             setInput(upath.normalize(e.target.value ?? ""))
@@ -118,13 +115,13 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                 </div>
                 {(!data?.exists && data?.suggestions && data.suggestions.length > 0) &&
                     <div
-                        className={"w-full flex flex-none flex-nowrap overflow-x-auto gap-2 items-center bg-gray-800 rounded-md p-1 px-4"}
+                        className="w-full flex flex-none flex-nowrap overflow-x-auto gap-2 items-center bg-gray-800 rounded-md p-1 px-4"
                     >
-                        <div className={"flex-none"}>Sub-folders:</div>
+                        <div className="flex-none">Sub-folders:</div>
                         {data.suggestions.map(folder => (
                             <div
                                 key={folder.fullPath}
-                                className={"py-1 text-sm px-3 rounded-md border border-[--border] flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"}
+                                className="py-1 text-sm px-3 rounded-md border  flex-none cursor-pointer bg-gray-900 hover:bg-gray-800"
                                 onClick={() => setInput(upath.normalize(folder.fullPath))}
                             >
                                 {folder.folderName}
@@ -133,18 +130,17 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                     </div>}
             </div>
             <Modal
-                isOpen={selectorState.active}
-                onClose={selectorState.off}
-                isClosable
+                open={selectorState.active}
+                onOpenChange={selectorState.toggle}
                 title="Directory selector"
-                bodyClassName="mt-4 space-y-4"
+                contentClass="mt-4 space-y-4"
             >
                 <TextInput
                     leftIcon={<FaFolder />}
                     value={input}
                     rightIcon={isLoading ? null : (data?.exists ?
-                        <BiCheck className={"text-green-500"} /> : shouldExist ?
-                            <BiX className={"text-red-500"} /> : <BiFolderPlus />)}
+                        <BiCheck className="text-green-500" /> : shouldExist ?
+                            <BiX className="text-red-500" /> : <BiFolderPlus />)}
                     onChange={e => {
                         setInput(upath.normalize(e.target.value ?? ""))
                     }}
@@ -155,13 +151,13 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                 />
                 {(data && (data?.content && data.content.length > 0)) &&
                     <div
-                        className={"w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"}
+                        className="w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"
                     >
-                        <div className={"flex-none"}>Sub-folders:</div>
+                        <div className="flex-none">Sub-folders:</div>
                         {data.content.map(folder => (
                             <div
                                 key={folder.fullPath}
-                                className={"w-full py-2 text-sm px-3 rounded-md border border-[--border] flex-none cursor-pointer bg-gray-900 hover:bg-gray-800 truncate"}
+                                className="w-full py-2 text-sm px-3 rounded-md border  flex-none cursor-pointer bg-gray-900 hover:bg-gray-800 truncate"
                                 onClick={() => setInput(upath.normalize(folder.fullPath))}
                             >
                                 {folder.folderName}

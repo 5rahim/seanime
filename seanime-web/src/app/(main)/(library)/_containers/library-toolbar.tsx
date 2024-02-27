@@ -5,18 +5,15 @@ import { _unknownMediaManagerIsOpen } from "@/app/(main)/(library)/_containers/u
 import { _unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Button, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { cn } from "@/components/ui/core/styling"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useOpenInExplorer } from "@/lib/server/hooks"
 import { LibraryCollectionList, LocalFile, UnknownGroup } from "@/lib/server/types"
-import { BiCollection } from "@react-icons/all-files/bi/BiCollection"
-import { BiDotsVerticalRounded } from "@react-icons/all-files/bi/BiDotsVerticalRounded"
-import { BiFileFind } from "@react-icons/all-files/bi/BiFileFind"
-import { BiFolder } from "@react-icons/all-files/bi/BiFolder"
-import { FiDatabase } from "@react-icons/all-files/fi/FiDatabase"
-import { FiSearch } from "@react-icons/all-files/fi/FiSearch"
 import { useAtomValue, useSetAtom } from "jotai/react"
+import Link from "next/link"
 import React from "react"
+import { BiCollection, BiDotsVerticalRounded, BiFileFind, BiFolder } from "react-icons/bi"
+import { FiDatabase, FiSearch } from "react-icons/fi"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 
 export type LibraryToolbarProps = {
@@ -46,7 +43,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         <div className="flex w-full justify-between p-4">
             <div className="flex gap-2">
                 {!!status?.settings?.library?.libraryPath && hasScanned && <Button
-                    intent={hasScanned ? "primary-subtle" : "primary"}
+                    intent={hasScanned ? "primary-outline" : "primary"}
                     leftIcon={<FiSearch />}
                     onClick={() => setScannerModalOpen(true)}
                 >
@@ -70,17 +67,17 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 </Button>}
             </div>
             <div className="flex gap-2">
-                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent={"gray-basic"} />}>
-                    <DropdownMenu.Item
+                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+                    <DropdownMenuItem
                         disabled={!status?.settings?.library?.libraryPath}
-                        className={cn({ "!text-[--muted]": !status?.settings?.library?.libraryPath })}
+                        className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
                         onClick={() => {
                             openInExplorer(status?.settings?.library?.libraryPath ?? "")
                         }}
                     >
                         <BiFolder />
                         <span>Open folder</span>
-                    </DropdownMenu.Item>
+                    </DropdownMenuItem>
 
                     {/*<DropdownMenu.Item*/}
                     {/*    onClick={() => {*/}
@@ -92,22 +89,24 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     {/*    <span>Manage ignored files</span>*/}
                     {/*</DropdownMenu.Item>*/}
 
-                    <DropdownMenu.Item
+                    <DropdownMenuItem
                         onClick={() => setBulkActionIsOpen(true)}
                         disabled={!hasScanned}
                         className={cn({ "!text-[--muted]": !hasScanned })}
                     >
                         <BiCollection />
                         <span>Bulk actions</span>
-                    </DropdownMenu.Item>
+                    </DropdownMenuItem>
 
-                    <DropdownMenu.Link
-                        href="/scan-summaries"
-                        className={cn({ "!text-[--muted]": !hasScanned })}
-                    >
-                        <PiClockCounterClockwiseFill />
-                        <span>Scan summaries</span>
-                    </DropdownMenu.Link>
+                    <Link href="/scan-summaries">
+                        <DropdownMenuItem
+
+                            className={cn({ "!text-[--muted]": !hasScanned })}
+                        >
+                            <PiClockCounterClockwiseFill />
+                            <span>Scan summaries</span>
+                        </DropdownMenuItem>
+                    </Link>
                 </DropdownMenu>
 
             </div>

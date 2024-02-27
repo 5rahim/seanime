@@ -1,336 +1,360 @@
 "use client"
 
-import React, { Fragment } from "react"
-import {
-    cn,
-    ComponentWithAnatomy,
-    createPolymorphicComponent,
-    defineStyleAnatomy,
-    getChildDisplayName,
-    useMediaQuery,
-} from "../core"
-import { cva, VariantProps } from "class-variance-authority"
-import { Menu, Transition } from "@headlessui/react"
-import { Divider, DividerProps } from "../divider"
-import { Modal, ModalProps } from "../modal"
-import { useDropdownOutOfBounds } from "./use-dropdown-out-of-bounds"
-import Link from "next/link"
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
+import { cva } from "class-variance-authority"
+import * as React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const DropdownMenuAnatomy = defineStyleAnatomy({
-    menu: cva([
-        "UI-DropdownMenu__menu",
-        "relative inline-block text-left",
+    subTrigger: cva([
+        "UI-DropdownMenu__subTrigger",
+        "focus:bg-[--subtle] data-[state=open]:bg-[--subtle]",
     ]),
-    dropdown: cva([
-        "UI-DropdownMenu__dropdown",
-        "bg-[--paper] border border-[--border] p-1",
-        "absolute z-[100] mt-2 w-56 rounded-[--radius] shadow-md focus:outline-none space-y-1",
-    ], {
-        variants: {
-            top: { true: "", right: "" },
-            bottom: { true: "", right: "" },
-            left: { true: "", right: "" },
-            right: { true: "", right: "" },
-        },
-        compoundVariants: [
-            { bottom: false, className: "origin-top-right right-0" },
-            { bottom: true, className: "origin-bottom-right" },
-            { left: true, className: "left-0" },
-            { bottom: true, left: true, right: false, className: "origin-bottom-right left-0 bottom-0" },
-            { right: true, bottom: true, left: false, className: "origin-bottom-right right-0 bottom-0" },
-        ]
-    }),
-    mobileDropdown: cva([
-        "DropdownMenu__mobileDropdown",
-        "mt-2 space-y-1"
+    subContent: cva([
+        "UI-DropdownMenu__subContent",
+        "z-50 min-w-[12rem] overflow-hidden rounded-[--radius] border bg-[--paper] p-1 text-[--foreground] shadow-sm",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-95",
+        "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
+        "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
     ]),
-    mobilePanel: cva([
-        "DropdownMenu__mobilePanel",
-        "pt-2 pb-2 pl-4 pr-12"
-    ])
-})
-
-export const DropdownMenuItemAnatomy = defineStyleAnatomy({
-    item: cva(["UI-DropdownMenu__item transition",
-        "text-gray-800 dark:text-gray-200 hover:text-black dark:hover:text-white",
-        "font-medium group flex w-full items-center rounded-[--radius] px-2 py-2 text-sm gap-2"
-    ], {
-        variants: {
-            active: {
-                true: "bg-[--highlight]",
-                false: null
-            }
-        },
-        defaultVariants: { active: false }
-    })
-})
-
-export const DropdownMenuGroupAnatomy = defineStyleAnatomy({
-    group: cva(["UI-DropdownMenu__group group",
-        "text-gray-800 dark:text-gray-200",
+    root: cva([
+        "UI-DropdownMenu__root",
+        "z-50 min-w-[15rem] overflow-hidden rounded-[--radius] border bg-[--paper] p-1 text-[--foreground] shadow-sm",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "data-[state=closed]:zoom-out-100 data-[state=open]:zoom-in-95",
+        "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
+        "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
     ]),
-    title: cva(["UI-DropdownMenu_title text-[--muted] text-sm font-medium px-2 py-1"]),
-    content: cva(["UI-DropdownMenu_content"])
+    item: cva([
+        "UI-DropdownMenu__item",
+        "relative flex cursor-default select-none items-center rounded-[--radius] cursor-pointer px-2 py-2 text-sm outline-none transition-colors",
+        "focus:bg-[--subtle] data-[disabled]:pointer-events-none",
+        "data-[disabled]:opacity-50",
+        "[&>svg]:mr-2 [&>svg]:text-lg",
+    ]),
+    group: cva([
+        "UI-DropdownMenu__group",
+    ]),
+    label: cva([
+        "UI-DropdownMenu__label",
+        "px-2 py-1.5 text-sm font-semibold text-[--muted]",
+    ]),
+    separator: cva([
+        "UI-DropdownMenu__separator",
+        "-mx-1 my-1 h-px bg-[--border]",
+    ]),
+    shortcut: cva([
+        "UI-DropdownMenu__shortcut",
+        "ml-auto text-xs tracking-widest opacity-60",
+    ]),
 })
 
 /* -------------------------------------------------------------------------------------------------
  * DropdownMenu
  * -----------------------------------------------------------------------------------------------*/
 
-export interface DropdownMenuProps
-    extends React.ComponentPropsWithRef<"div">,
-        ComponentWithAnatomy<typeof DropdownMenuAnatomy>,
-        ComponentWithAnatomy<typeof DropdownMenuItemAnatomy>,
-        VariantProps<typeof DropdownMenuAnatomy.dropdown> {
-    trigger: React.ReactElement,
-    mobilePlacement?: ModalProps["mobilePlacement"]
+const __DropdownMenuAnatomyContext = React.createContext<ComponentAnatomy<typeof DropdownMenuAnatomy>>({})
+
+export type DropdownMenuProps =
+    ComponentAnatomy<typeof DropdownMenuAnatomy> &
+    Pick<React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>, "defaultOpen" | "open" | "onOpenChange" | "dir"> &
+    React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & {
+    /**
+     * Interaction with outside elements will be enabled and other elements will be visible to screen readers.
+     */
+    allowOutsideInteraction?: boolean
+    /**
+     * The trigger element that is always visible and is used to open the menu.
+     */
+    trigger?: React.ReactNode
 }
 
-const _DropdownMenu = (props: DropdownMenuProps) => {
-
+export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>((props, ref) => {
     const {
         children,
         trigger,
-        menuClassName,
-        dropdownClassName,
-        mobileDropdownClassName,
-        mobilePanelClassName,
-        itemClassName,
+        // Root
+        defaultOpen,
+        open,
+        onOpenChange,
+        dir,
+        allowOutsideInteraction,
+        // Content
+        sideOffset = 4,
         className,
-        mobilePlacement = "bottom",
+        subContentClass,
+        subTriggerClass,
+        shortcutClass,
+        itemClass,
+        labelClass,
+        separatorClass,
+        groupClass,
         ...rest
     } = props
-
-    const isMobile = useMediaQuery("(max-width: 768px)")
-
-    const [triggerRef, _, triggerSize] = useDropdownOutOfBounds()
-    const [componentRef, outOfBounds] = useDropdownOutOfBounds()
-
-    // Pass `itemClassName` to every child
-    const itemsWithProps = React.useMemo(() => React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && (
-            getChildDisplayName(child) === "DropdownMenuItem" ||
-            getChildDisplayName(child) === "DropdownMenuGroup" ||
-            getChildDisplayName(child) === "DropdownMenuLink")
-        ) {
-            return React.cloneElement(child, { itemClassName } as any)
-        }
-        return child
-    }), [children])
-
-    const _trigger = React.cloneElement(trigger, { ref: triggerRef })
 
     return (
-        <Menu
-            as="div"
-            className={cn(
-                DropdownMenuAnatomy.menu(),
-                menuClassName,
-                className
-            )}
-            {...rest}
+        <__DropdownMenuAnatomyContext.Provider
+            value={{
+                subContentClass,
+                subTriggerClass,
+                shortcutClass,
+                itemClass,
+                labelClass,
+                separatorClass,
+                groupClass,
+            }}
         >
-            {({ open, close }) => (
-                <>
-                    <Menu.Button as={Fragment}>
-                        {_trigger}
-                    </Menu.Button>
-                    {/*Desktop*/}
-                    {!isMobile && <Transition
-                        as={Fragment}
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
+            <DropdownMenuPrimitive.Root
+                defaultOpen={defaultOpen}
+                open={open}
+                onOpenChange={onOpenChange}
+                dir={dir}
+                modal={!allowOutsideInteraction}
+                {...rest}
+            >
+                <DropdownMenuPrimitive.Trigger asChild>
+                    {trigger}
+                </DropdownMenuPrimitive.Trigger>
+
+                <DropdownMenuPrimitive.Portal>
+                    <DropdownMenuPrimitive.Content
+                        ref={ref}
+                        sideOffset={sideOffset}
+                        className={cn(DropdownMenuAnatomy.root(), className)}
+                        {...rest}
                     >
-                        <Menu.Items
-                            ref={componentRef}
-                            className={cn(
-                                DropdownMenuAnatomy.dropdown({
-                                    top: outOfBounds.top > 0,
-                                    bottom: outOfBounds.bottom > 0,
-                                    left: outOfBounds.left > 0,
-                                    right: outOfBounds.right > 0
-                                }),
-                                dropdownClassName,
-                            )}
-                            style={{
-                                bottom: outOfBounds.bottom > 0 ? `${triggerSize.height + 8}px` : undefined
-                            }}
-                        >
-                            {itemsWithProps}
-                        </Menu.Items>
-                    </Transition>}
-                    {/*Mobile*/}
-                    {isMobile && <Modal
-                        isOpen={open}
-                        onClose={close}
-                        isClosable
-                        className="block md:hidden"
-                        panelClassName={cn(DropdownMenuAnatomy.mobilePanel(), mobilePanelClassName)}
-                        mobilePlacement={mobilePlacement}
-                    >
-                        <Menu.Items className={cn(DropdownMenuAnatomy.mobileDropdown(), mobileDropdownClassName)}>
-                            {itemsWithProps}
-                        </Menu.Items>
-                    </Modal>}
-                </>
-            )}
-        </Menu>
+                        {children}
+                    </DropdownMenuPrimitive.Content>
+                </DropdownMenuPrimitive.Portal>
+            </DropdownMenuPrimitive.Root>
+        </__DropdownMenuAnatomyContext.Provider>
     )
-
-}
-
-_DropdownMenu.displayName = "DropdownMenu"
-
-/* -------------------------------------------------------------------------------------------------
- * DropdownMenu.Item
- * -----------------------------------------------------------------------------------------------*/
-
-interface DropdownMenuItemProps extends React.ComponentPropsWithRef<"button">, ComponentWithAnatomy<typeof DropdownMenuItemAnatomy> {
-}
-
-export const DropdownMenuItem: React.FC<DropdownMenuItemProps> = React.forwardRef<HTMLButtonElement, DropdownMenuItemProps>((props, ref) => {
-
-    const { children, itemClassName, className, ...rest } = props
-
-    return <Menu.Item as={Fragment}>
-        {({ active }) => (
-            <button
-                className={cn(DropdownMenuItemAnatomy.item({ active }), itemClassName, className)}
-                ref={ref}
-                {...rest}
-            >
-                {children}
-            </button>
-        )}
-    </Menu.Item>
-
 })
 
-DropdownMenuItem.displayName = "DropdownMenuItem"
+DropdownMenu.displayName = "DropdownMenu"
+
 
 /* -------------------------------------------------------------------------------------------------
- * DropdownMenu.Link
- * - You can change the `a` element to a `Link` if you are using Next.js
+ * DropdownMenuGroup
  * -----------------------------------------------------------------------------------------------*/
 
-interface DropdownMenuLinkProps extends React.ComponentPropsWithRef<"a">, ComponentWithAnatomy<typeof DropdownMenuItemAnatomy> {
-    href: string
-}
+export type DropdownMenuGroupProps = React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Group>
 
-export const DropdownMenuLink: React.FC<DropdownMenuLinkProps> = React.forwardRef<HTMLAnchorElement, DropdownMenuLinkProps>((props, ref) => {
+export const DropdownMenuGroup = React.forwardRef<HTMLDivElement, DropdownMenuGroupProps>((props, ref) => {
+    const { className, ...rest } = props
 
-    const { children, className, itemClassName, href, ...rest } = props
+    const { groupClass } = React.useContext(__DropdownMenuAnatomyContext)
 
-    return <Menu.Item as={Fragment}>
-        {({ active }) => (
-            <Link
-                href={href}
-                className={cn(DropdownMenuItemAnatomy.item({ active }), itemClassName, className)}
-                ref={ref}
-                {...rest}
-            >
-                {children}
-            </Link>
-        )}
-    </Menu.Item>
-
-})
-
-DropdownMenuLink.displayName = "DropdownMenuLink"
-
-/* -------------------------------------------------------------------------------------------------
- * DropdownMenu.Group
- * -----------------------------------------------------------------------------------------------*/
-
-interface DropdownMenuGroupProps extends React.ComponentPropsWithRef<"div">,
-    ComponentWithAnatomy<typeof DropdownMenuGroupAnatomy>,
-    ComponentWithAnatomy<typeof DropdownMenuItemAnatomy> {
-    title?: string
-}
-
-export const DropdownMenuGroup: React.FC<DropdownMenuGroupProps> = React.forwardRef<HTMLDivElement, DropdownMenuGroupProps>((props, ref) => {
-
-    const {
-        children,
-        className,
-        groupClassName,
-        title,
-        titleClassName,
-        contentClassName,
-        itemClassName,
-        ...rest
-    } = props
-
-    // Pass `itemClassName` to every child
-    const itemsWithProps = React.useMemo(() => React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && (
-            getChildDisplayName(child) === "DropdownMenuItem" ||
-            getChildDisplayName(child) === "DropdownMenuGroup" ||
-            getChildDisplayName(child) === "DropdownMenuLink")
-        ) {
-            return React.cloneElement(child, { itemClassName } as any)
-        }
-        return child
-    }), [children])
-
-    return <div
-        className={cn(DropdownMenuGroupAnatomy.group(), groupClassName, className)}
-        aria-label={title}
-        ref={ref}
-        {...rest}
-    >
-        {title && <div className={cn(DropdownMenuGroupAnatomy.title(), titleClassName)} aria-labelledby={title}>
-            {title}
-        </div>}
-        <div className={cn(DropdownMenuGroupAnatomy.content(), contentClassName)}>
-            {itemsWithProps}
-        </div>
-    </div>
-
+    return (
+        <DropdownMenuPrimitive.Group
+            ref={ref}
+            className={cn(DropdownMenuAnatomy.group(), groupClass, className)}
+            {...rest}
+        />
+    )
 })
 
 DropdownMenuGroup.displayName = "DropdownMenuGroup"
 
 /* -------------------------------------------------------------------------------------------------
- * DropdownMenu.Divider
+ * DropdownMenuSub
  * -----------------------------------------------------------------------------------------------*/
 
-interface DropdownMenuDivider extends DividerProps {
+export type DropdownMenuSubProps =
+    Pick<ComponentAnatomy<typeof DropdownMenuAnatomy>, "subTriggerClass"> &
+    Pick<React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Sub>, "defaultOpen" | "open" | "onOpenChange"> &
+    React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent> & {
+    /**
+     * The content of the default trigger element that will open the sub menu.
+     *
+     * By default, the trigger will be an item with a right chevron icon.
+     */
+    triggerContent?: React.ReactNode
+    /**
+     * Props to pass to the default trigger element that will open the sub menu.
+     */
+    triggerProps?: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger>
+    triggerInset?: boolean
 }
 
-export const DropdownMenuDivider: React.FC<DropdownMenuDivider> = React.forwardRef<HTMLHRElement, DropdownMenuDivider>(
-    (props, ref) => {
+export const DropdownMenuSub = React.forwardRef<HTMLDivElement, DropdownMenuSubProps>((props, ref) => {
+    const {
+        children,
+        triggerContent,
+        triggerProps,
+        triggerInset,
+        // Sub
+        defaultOpen,
+        open,
+        onOpenChange,
+        // SubContent
+        sideOffset = 8,
+        className,
+        subTriggerClass,
+        ...rest
+    } = props
 
-        return <Divider {...props} ref={ref}/>
+    const { subTriggerClass: _subTriggerClass, subContentClass } = React.useContext(__DropdownMenuAnatomyContext)
 
-    }
-)
+    return (
+        <DropdownMenuPrimitive.Sub
+            {...rest}
+        >
+            <DropdownMenuPrimitive.SubTrigger
+                className={cn(
+                    DropdownMenuAnatomy.item(),
+                    DropdownMenuAnatomy.subTrigger(),
+                    triggerInset && "pl-8",
+                    _subTriggerClass,
+                    subTriggerClass,
+                    className,
+                )}
+                {...triggerProps}
+            >
+                {triggerContent}
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={cn(
+                        DropdownMenuAnatomy.shortcut(),
+                        "w-4 h-4 ml-auto",
+                    )}
+                >
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </DropdownMenuPrimitive.SubTrigger>
 
-DropdownMenuDivider.displayName = "DropdownMenuDivider"
+            <DropdownMenuPrimitive.Portal>
+                <DropdownMenuPrimitive.SubContent
+                    ref={ref}
+                    sideOffset={sideOffset}
+                    className={cn(
+                        DropdownMenuAnatomy.subContent(),
+                        subContentClass,
+                        className,
+                    )}
+                    {...rest}
+                >
+                    {children}
+                </DropdownMenuPrimitive.SubContent>
+            </DropdownMenuPrimitive.Portal>
+        </DropdownMenuPrimitive.Sub>
+    )
+})
+
+DropdownMenuSub.displayName = "DropdownMenuSub"
 
 
 /* -------------------------------------------------------------------------------------------------
- * Component
+ * DropdownMenuItem
  * -----------------------------------------------------------------------------------------------*/
 
-_DropdownMenu.Item = DropdownMenuItem
-_DropdownMenu.Link = DropdownMenuLink
-_DropdownMenu.Group = DropdownMenuGroup
-_DropdownMenu.Divider = DropdownMenuDivider
+export type DropdownMenuItemProps = React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
+    inset?: boolean
+}
 
-export const DropdownMenu = createPolymorphicComponent<"div", DropdownMenuProps, {
-    Item: typeof DropdownMenuItem
-    Link: typeof DropdownMenuLink
-    Group: typeof DropdownMenuGroup
-    Divider: typeof DropdownMenuDivider
-}>(_DropdownMenu)
+export const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuItemProps>((props, ref) => {
+    const { className, inset, ...rest } = props
 
-DropdownMenu.displayName = "DropdownMenu"
+    const { itemClass } = React.useContext(__DropdownMenuAnatomyContext)
+
+    return (
+        <DropdownMenuPrimitive.Item
+            ref={ref}
+            className={cn(
+                DropdownMenuAnatomy.item(),
+                inset && "pl-8",
+                itemClass,
+                className,
+            )}
+            {...rest}
+        />
+    )
+})
+DropdownMenuItem.displayName = "DropdownMenuItem"
+
+/* -------------------------------------------------------------------------------------------------
+ * DropdownMenuLabel
+ * -----------------------------------------------------------------------------------------------*/
+
+export type DropdownMenuLabelProps = React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
+    inset?: boolean
+}
+
+export const DropdownMenuLabel = React.forwardRef<HTMLDivElement, DropdownMenuLabelProps>((props, ref) => {
+    const { className, inset, ...rest } = props
+
+    const { labelClass } = React.useContext(__DropdownMenuAnatomyContext)
+
+    return (
+        <DropdownMenuPrimitive.Label
+            ref={ref}
+            className={cn(
+                DropdownMenuAnatomy.label(),
+                inset && "pl-8",
+                labelClass,
+                className,
+            )}
+            {...rest}
+        />
+    )
+})
+
+DropdownMenuLabel.displayName = "DropdownMenuLabel"
+
+/* -------------------------------------------------------------------------------------------------
+ * DropdownMenuSeparator
+ * -----------------------------------------------------------------------------------------------*/
+
+export type DropdownMenuSeparatorProps = React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
+
+export const DropdownMenuSeparator = React.forwardRef<HTMLDivElement, DropdownMenuSeparatorProps>((props, ref) => {
+    const { className, ...rest } = props
+
+    const { separatorClass } = React.useContext(__DropdownMenuAnatomyContext)
+
+    return (
+        <DropdownMenuPrimitive.Separator
+            ref={ref}
+            className={cn(DropdownMenuAnatomy.separator(), separatorClass, className)}
+            {...rest}
+        />
+    )
+})
+
+DropdownMenuSeparator.displayName = "DropdownMenuSeparator"
+
+/* -------------------------------------------------------------------------------------------------
+ * DropdownMenuShortcut
+ * -----------------------------------------------------------------------------------------------*/
+
+export type DropdownMenuShortcutProps = React.HTMLAttributes<HTMLSpanElement>
+
+export const DropdownMenuShortcut = React.forwardRef<HTMLSpanElement, DropdownMenuShortcutProps>((props, ref) => {
+    const { className, ...rest } = props
+
+    const { shortcutClass } = React.useContext(__DropdownMenuAnatomyContext)
+
+    return (
+        <span
+            ref={ref}
+            className={cn(DropdownMenuAnatomy.shortcut(), shortcutClass, className)}
+            {...rest}
+        />
+    )
+})
+
+DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
+

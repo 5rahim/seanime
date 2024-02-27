@@ -1,25 +1,26 @@
 "use client"
 
-import React from "react"
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 import { cva } from "class-variance-authority"
+import Link from "next/link"
+import * as React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const BreadcrumbsAnatomy = defineStyleAnatomy({
-    container: cva([
-        "UI-Breadcrumbs__container",
-        "flex"
+    root: cva([
+        "UI-Breadcrumbs__root",
+        "flex",
     ]),
     list: cva([
         "UI-Breadcrumbs__list",
-        "flex items-center space-x-2"
+        "flex items-center space-x-2",
     ]),
     chevronIcon: cva([
         "UI-Breadcrumbs__chevronIcon",
-        "h-5 w-5 flex-shrink-0 text-gray-400 mr-4"
+        "h-5 w-5 flex-shrink-0 text-gray-400 mr-4",
     ]),
     item: cva([
         "UI-Breadcrumbs__item",
@@ -27,16 +28,16 @@ export const BreadcrumbsAnatomy = defineStyleAnatomy({
     ]),
     itemLink: cva([
         "UI-Breadcrumbs__itemLink",
-        "text-sm font-medium text-[--muted] hover:text-[--text-color]",
-        "data-[selected=true]:pointer-events-none data-[selected=true]:font-semibold data-[selected=true]:text-[--text-color]" // Selected
+        "text-sm font-medium text-[--muted] hover:text-[--foreground]",
+        "data-[selected=true]:pointer-events-none data-[selected=true]:font-semibold data-[selected=true]:text-[--foreground]", // Selected
     ]),
     homeItem: cva([
         "UI-Breadcrumbs__homeItem",
-        "text-[--muted] hover:text-[--text-color]"
+        "text-[--muted] hover:text-[--foreground]",
     ]),
     homeIcon: cva([
         "UI-Breadcrumbs__homeIcon",
-        "h-5 w-5 flex-shrink-0"
+        "h-5 w-5 flex-shrink-0",
     ]),
 })
 
@@ -44,9 +45,12 @@ export const BreadcrumbsAnatomy = defineStyleAnatomy({
  * Breadcrumbs
  * -----------------------------------------------------------------------------------------------*/
 
-export interface BreadcrumbsProps extends React.ComponentPropsWithRef<"nav">, ComponentWithAnatomy<typeof BreadcrumbsAnatomy> {
-    homeHref?: string
-    items: { name: string, href: string | null | undefined, isCurrent: boolean }[]
+export type BreadcrumbsOption = { name: string, href: string | null | undefined, isCurrent: boolean }
+
+export type BreadcrumbsProps = React.ComponentPropsWithRef<"nav"> &
+    ComponentAnatomy<typeof BreadcrumbsAnatomy> & {
+    rootHref?: string
+    items: BreadcrumbsOption[]
     showHomeButton?: boolean
     homeIcon?: React.ReactElement
 }
@@ -55,75 +59,76 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = React.forwardRef<HTMLElem
 
     const {
         children,
-        containerClassName,
-        listClassName,
-        itemClassName,
-        itemLinkClassName,
-        chevronIconClassName,
-        homeIconClassName,
-        homeItemClassName,
+        listClass,
+        itemClass,
+        itemLinkClass,
+        chevronIconClass,
+        homeIconClass,
+        homeItemClass,
         className,
         items,
-        homeHref = "/",
+        rootHref = "/",
         showHomeButton = true,
         homeIcon,
         ...rest
     } = props
 
     return (
-        <div
+        <nav
+            className={cn(BreadcrumbsAnatomy.root(), className)}
+            {...rest}
+            ref={ref}
         >
-            <nav
-                className={cn(BreadcrumbsAnatomy.container(), containerClassName, className)}
-                {...rest}
-                ref={ref}
-            >
-                <ol role="list" className={cn(BreadcrumbsAnatomy.list(), listClassName)}>
-                    {showHomeButton &&
-                        <li>
-                            <div>
-                                <a
-                                    href={homeHref}
-                                    className={cn(BreadcrumbsAnatomy.homeItem(), homeItemClassName)}
-                                >
-                                    {homeIcon ? homeIcon :
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             strokeWidth="2" stroke="currentColor"
-                                             className={cn(BreadcrumbsAnatomy.homeIcon(), homeIconClassName)}>
-                                            <path strokeLinecap="round" strokeLinejoin="round"
-                                                  d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
-                                        </svg>}
-                                </a>
-                            </div>
-                        </li>
-                    }
-                    {items.map((page, idx) => (
-                        <li key={page.name}>
-                            <div className={cn(BreadcrumbsAnatomy.item(), itemClassName)}>
-                                {(!showHomeButton && idx > 0 || showHomeButton) &&
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                         className={cn(BreadcrumbsAnatomy.chevronIcon(), chevronIconClassName)}
+            <ol role="list" className={cn(BreadcrumbsAnatomy.list(), listClass)}>
+                {showHomeButton &&
+                    <li>
+                        <div>
+                            <Link
+                                href={rootHref}
+                                className={cn(BreadcrumbsAnatomy.homeItem(), homeItemClass)}
+                            >
+                                {homeIcon ? homeIcon :
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        strokeWidth="2" stroke="currentColor"
+                                        className={cn(BreadcrumbsAnatomy.homeIcon(), homeIconClass)}
                                     >
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
-                                }
-                                <a
-                                    href={page.href ?? "#"}
-                                    className={cn(BreadcrumbsAnatomy.itemLink(), itemLinkClassName)}
-                                    data-selected={page.isCurrent}
-                                    aria-current={page.isCurrent ? "page" : undefined}
+                                        <path
+                                            strokeLinecap="round" strokeLinejoin="round"
+                                            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                                        />
+                                    </svg>}
+                            </Link>
+                        </div>
+                    </li>
+                }
+                {items.map((page, idx) => (
+                    <li key={page.name}>
+                        <div className={cn(BreadcrumbsAnatomy.item(), itemClass)}>
+                            {(!showHomeButton && idx > 0 || showHomeButton) &&
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                    className={cn(BreadcrumbsAnatomy.chevronIcon(), chevronIconClass)}
                                 >
-                                    {page.name}
-                                </a>
-                            </div>
-                        </li>
-                    ))}
-                </ol>
-            </nav>
-        </div>
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            }
+                            <Link
+                                href={page.href ?? "#"}
+                                className={cn(BreadcrumbsAnatomy.itemLink(), itemLinkClass)}
+                                data-selected={page.isCurrent}
+                                aria-current={page.isCurrent ? "page" : undefined}
+                            >
+                                {page.name}
+                            </Link>
+                        </div>
+                    </li>
+                ))}
+            </ol>
+        </nav>
     )
 
 })

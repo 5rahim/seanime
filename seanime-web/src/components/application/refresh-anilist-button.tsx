@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button"
 import { AnimeCollectionQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
-import { IoReload } from "@react-icons/all-files/io5/IoReload"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
-import toast from "react-hot-toast"
+import { IoReload } from "react-icons/io5"
+import { toast } from "sonner"
 
 interface RefreshAnilistButtonProps {
     children?: React.ReactNode
@@ -39,9 +39,10 @@ export const RefreshAnilistButton: React.FC<RefreshAnilistButtonProps> = (props)
         <>
             <Button
                 onClick={() => mutate()}
-                intent={"warning-subtle"}
+                intent="warning-subtle"
+                size="sm"
                 rightIcon={<IoReload />}
-                isLoading={isPending}
+                loading={isPending}
                 leftIcon={<svg
                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
                     viewBox="0 0 24 24" role="img"

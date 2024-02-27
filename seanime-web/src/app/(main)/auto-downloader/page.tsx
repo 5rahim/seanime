@@ -5,27 +5,26 @@ import { RuleForm } from "@/app/(main)/auto-downloader/_components/rule-form"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
+import { cn } from "@/components/ui/core/styling"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { TabPanels } from "@/components/ui/tabs"
-import { createTypesafeFormSchema, Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { AutoDownloaderItem, AutoDownloaderRule } from "@/lib/server/types"
-import { BiChevronRight } from "@react-icons/all-files/bi/BiChevronRight"
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { InferType } from "prop-types"
 import React from "react"
-import toast from "react-hot-toast"
+import { BiChevronRight, BiPlus } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
+import { toast } from "sonner"
 
-const settingsSchema = createTypesafeFormSchema(({ z }) => z.object({
+const settingsSchema = defineSchema(({ z }) => z.object({
     interval: z.number().min(2),
     enabled: z.boolean(),
     downloadAutomatically: z.boolean(),
@@ -74,151 +73,142 @@ export default function Page() {
     return (
         <div className="space-y-4">
 
-            <TabPanels
-                navClassName="border-[--border]"
-                tabClassName={cn(
-                    "text-sm rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
-                    "hover:bg-transparent dark:hover:bg-transparent hover:text-white",
-                    "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
-                    "dark:data-[selected=true]:bg-[--highlight]",
-                )}
+            <Tabs
+                defaultValue="rules"
+                triggerClass="w-full data-[state=active]:bg-[--subtle]"
             >
-                <TabPanels.Nav>
-                    <TabPanels.Tab>Rules</TabPanels.Tab>
-                    <TabPanels.Tab>
+                <TabsList className="flex w-full border-b">
+                    <TabsTrigger value="rules">Rules</TabsTrigger>
+                    <TabsTrigger value="queue">
                         Queue
                         {!!items?.length && (
                             <Badge className="ml-1 font-bold" intent="alert">
                                 {items.length}
                             </Badge>
                         )}
-                    </TabPanels.Tab>
-                    <TabPanels.Tab>Settings</TabPanels.Tab>
-                </TabPanels.Nav>
-                <TabPanels.Container>
+                    </TabsTrigger>
+                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                </TabsList>
+                <TabsContent value="rules">
+                    <div className="p-4">
+                        {isLoading && <LoadingSpinner />}
+                        {!isLoading && (
+                            <div className="space-y-4">
+                                <div className="w-full flex justify-between items-center gap-2">
+                                    <Button
+                                        className="rounded-full"
+                                        intent="primary-subtle"
+                                        leftIcon={<FaSquareRss />}
+                                        onClick={() => {
+                                            runAutoDownloader()
+                                        }}
+                                        loading={isRunning}
+                                    >
+                                        Check RSS feed
+                                    </Button>
+                                    <Button
+                                        className="rounded-full"
+                                        intent="success-subtle"
+                                        leftIcon={<BiPlus />}
+                                        onClick={() => {
+                                            createRuleModal.on()
+                                        }}
+                                    >
+                                        New Rule
+                                    </Button>
+                                </div>
 
-                    <TabPanels.Panel>
-                        <div className="p-4">
-                            {isLoading && <LoadingSpinner />}
-                            {!isLoading && (
-                                <div className="space-y-4">
-                                    <div className="w-full flex justify-between items-center gap-2">
-                                        <Button
-                                            className="rounded-full"
-                                            intent="primary-subtle"
-                                            leftIcon={<FaSquareRss />}
-                                            onClick={() => {
-                                                runAutoDownloader()
-                                            }}
-                                            isLoading={isRunning}
-                                        >
-                                            Check RSS feed
-                                        </Button>
-                                        <Button
-                                            className="rounded-full"
-                                            intent="success-subtle"
-                                            leftIcon={<BiPlus />}
-                                            onClick={() => {
-                                                createRuleModal.on()
-                                            }}
-                                        >
-                                            New Rule
-                                        </Button>
+                                <ul className="text-base text-[--muted]">
+                                    <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
+                                                                                 parameters you set.
+                                    </li>
+                                </ul>
+
+                                {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
+                                {(!!data?.length) && <div className="space-y-4">
+                                    {data?.map(rule => (
+                                        <Rule
+                                            key={rule.dbId}
+                                            rule={rule}
+                                            userMedia={userMedia}
+                                        />
+                                    ))}
+                                </div>}
+                            </div>
+                        )}
+                    </div>
+                </TabsContent>
+
+
+                <TabsContent value="queue">
+
+                    <div className="p-4">
+                        <AutoDownloaderItems items={items} isLoading={itemsLoading} />
+                    </div>
+
+                </TabsContent>
+
+                <TabsContent value="settings">
+                    <div className="p-4">
+                        <Form
+                            schema={settingsSchema}
+                            onSubmit={data => {
+                                updateSettings(data)
+                            }}
+                            defaultValues={{
+                                enabled: serverStatus?.settings?.autoDownloader?.enabled ?? false,
+                                interval: serverStatus?.settings?.autoDownloader?.interval ?? 10,
+                                downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
+                            }}
+                        >
+                            {(f) => (
+                                <>
+                                    <Field.Switch
+                                        label="Enabled"
+                                        name="enabled"
+                                    />
+
+                                    <Separator />
+
+                                    <div
+                                        className={cn(
+                                            "space-y-2",
+                                            !f.watch("enabled") && "pointer-events-none opacity-50",
+                                        )}
+                                    >
+                                        <Field.Checkbox
+                                            label="Download episodes immediately"
+                                            name="downloadAutomatically"
+                                            help="If disabled, torrents will be added to the queue"
+                                        />
+                                        <Field.Number
+                                            label="Interval"
+                                            help="How often to check for new episodes"
+                                            name="interval"
+                                            leftAddon="Every"
+                                            rightAddon="minutes"
+                                            size="sm"
+                                            className="text-center w-20"
+                                            min={2}
+                                        />
                                     </div>
 
-                                    <ul className="text-base text-[--muted]">
-                                        <li><em className="font-semibold">Rules</em> allow you to programmatically download new episodes based on the
-                                                                                     parameters you set.
-                                        </li>
-                                    </ul>
-
-                                    {(!data?.length) && <div className="p-4 text-[--muted] text-center">No rules</div>}
-                                    {(!!data?.length) && <div className="space-y-4">
-                                        {data?.map(rule => (
-                                            <Rule
-                                                key={rule.dbId}
-                                                rule={rule}
-                                                userMedia={userMedia}
-                                            />
-                                        ))}
-                                    </div>}
-                                </div>
+                                    <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
+                                </>
                             )}
-                        </div>
-                    </TabPanels.Panel>
+                        </Form>
+                    </div>
+                </TabsContent>
 
-
-                    <TabPanels.Panel>
-
-                        <div className="p-4">
-                            <AutoDownloaderItems items={items} isLoading={itemsLoading} />
-                        </div>
-
-                    </TabPanels.Panel>
-
-                    <TabPanels.Panel>
-                        <div className="p-4">
-                            <TypesafeForm
-                                schema={settingsSchema}
-                                onSubmit={data => {
-                                    updateSettings(data)
-                                }}
-                                defaultValues={{
-                                    enabled: serverStatus?.settings?.autoDownloader?.enabled ?? false,
-                                    interval: serverStatus?.settings?.autoDownloader?.interval ?? 10,
-                                    downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
-                                }}
-                            >
-                                {(f) => (
-                                    <>
-                                        <Field.Switch
-                                            label="Enabled"
-                                            name="enabled"
-                                        />
-
-                                        <Divider />
-
-                                        <div
-                                            className={cn(
-                                                "space-y-2",
-                                                !f.watch("enabled") && "pointer-events-none opacity-50",
-                                            )}
-                                        >
-                                            <Field.Checkbox
-                                                label="Download episodes immediately"
-                                                name="downloadAutomatically"
-                                                help="If disabled, torrents will be added to the queue"
-                                            />
-                                            <Field.Number
-                                                label="Interval"
-                                                help="How often to check for new episodes"
-                                                name="interval"
-                                                leftAddon="Every"
-                                                rightAddon="minutes"
-                                                discrete
-                                                size="sm"
-                                                className="text-center w-20"
-                                                min={2}
-                                            />
-                                        </div>
-
-                                        <Field.Submit role="save" isLoading={isPending} />
-                                    </>
-                                )}
-                            </TypesafeForm>
-                        </div>
-                    </TabPanels.Panel>
-
-                </TabPanels.Container>
-            </TabPanels>
+            </Tabs>
 
 
             <Modal
-                isOpen={createRuleModal.active}
-                onClose={createRuleModal.off}
+                open={createRuleModal.active}
+                onOpenChange={createRuleModal.off}
                 title="Create a new rule"
-                size="2xl"
-                isClosable
+                contentClass="max-w-3xl"
+
             >
                 <RuleForm type="create" onRuleCreatedOrDeleted={() => createRuleModal.off()} />
             </Modal>
@@ -248,7 +238,7 @@ function Rule(props: RuleProps) {
 
     return (
         <>
-            <div className="rounded-[--radius] bg-[--background-color] hover:bg-gray-800 transition-colors">
+            <div className="rounded-[--radius] bg-[--background] hover:bg-gray-800 transition-colors">
                 <div className="flex justify-between p-3 gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
 
                     <div className="space-y-1 w-full">
@@ -284,11 +274,11 @@ function Rule(props: RuleProps) {
                 </div>
             </div>
             <Modal
-                isOpen={modal.active}
-                onClose={modal.off}
+                open={modal.active}
+                onOpenChange={modal.off}
                 title="Edit rule"
-                size="2xl"
-                isClosable
+                contentClass="max-w-3xl"
+
             >
                 <RuleForm type="edit" rule={rule} />
             </Modal>

@@ -5,7 +5,7 @@ import {
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
 import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
@@ -87,21 +87,21 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
     const EpisodeNumberInput = useCallback(() => {
         return <NumberInput
-            label={"Episode number"}
+            label="Episode number"
             value={quickSearchEpisode}
-            onChange={(value) => {
+            onValueChange={(value) => {
                 startTransition(() => {
                     setQuickSearchEpisode(value)
                 })
             }}
-            discrete
+            hideControls
             size="sm"
-            fieldClassName={cn(
-                "flex items-center justify-end gap-3 space-y-0",
+            fieldClass={cn(
+                "flex items-center md:justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (quickSearchBatch || !quickSearch) },
             )}
-            fieldLabelClassName={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
-            inputClassName="max-w-[6rem]"
+            fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
+            className="max-w-[6rem]"
         />
     }, [quickSearch, quickSearchBatch, downloadInfo, soughtEpisode])
 
@@ -118,12 +118,12 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     return (
         <>
             <div>
-                <div className="pb-4 flex w-full justify-between">
+                <div className="py-4 flex w-full justify-between">
                     <Switch
                         label="Smart search"
                         help="Builds a search query automatically, based on parameters"
-                        checked={quickSearch}
-                        onChange={setQuickSearch}
+                        value={quickSearch}
+                        onValueChange={setQuickSearch}
                     />
 
                     <TorrentConfirmationContinueButton/>
@@ -131,13 +131,13 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
                 {quickSearch && <div>
                     <div className="space-y-2">
-                        <div className="flex gap-4 justify-between w-full">
+                        <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
                             <Switch
                                 label="Batches"
                                 help={!downloadInfo?.canBatch ? "Cannot look for batches for this media" : undefined}
-                                checked={quickSearchBatch}
-                                onChange={setQuickSearchBatch}
-                                fieldClassName={cn(
+                                value={quickSearchBatch}
+                                onValueChange={setQuickSearchBatch}
+                                fieldClass={cn(
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                 )}
                             />
@@ -145,21 +145,21 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             <EpisodeNumberInput/>
 
                             <Select
-                                label={"Resolution"}
+                                label="Resolution"
                                 value={quickSearchResolution}
-                                onChange={e => setQuickSearchResolution(e.target.value ?? "")}
+                                onValueChange={v => setQuickSearchResolution(v != "-" ? v : "")}
                                 options={[
-                                    { value: "", label: "Any" },
+                                    { value: "-", label: "Any" },
                                     { value: "1080", label: "1080p" },
                                     { value: "720", label: "720p" },
                                     { value: "480", label: "480p" },
                                 ]}
                                 size="sm"
-                                fieldClassName={cn(
-                                    "flex items-center justify-end gap-3 space-y-0",
+                                fieldClass={cn(
+                                    "flex items-center md:justify-end gap-3 space-y-0",
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch },
                                 )}
-                                fieldLabelClassName={"flex-none self-center font-normal !text-md sm:text-md lg:text-md"}
+                                fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                 className="w-[6rem]"
                             />
                         </div>
@@ -168,7 +168,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             value={globalFilter ?? ""}
                             onChange={v => setGlobalFilter(v)}
                             placeholder={quickSearch ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
-                            fieldClassName="md:max-w-full w-full"
+                            fieldClass="md:max-w-full w-full"
                         />
 
                         <div className="pb-1"/>

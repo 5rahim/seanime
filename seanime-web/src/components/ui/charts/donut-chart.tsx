@@ -1,48 +1,77 @@
 "use client"
 
+import * as React from "react"
+import { Pie, PieChart as ReChartsDonutChart, ResponsiveContainer, Sector, Tooltip } from "recharts"
+import { cn } from "../core/styling"
 import { ChartTooltipFrame, ChartTooltipRow } from "./chart-tooltip"
-import { ChartValueFormatter } from "../charts/types"
-import { cn, ColorPalette, ComponentWithAnatomy, defineStyleAnatomy, UIColor } from "../core"
-import React from "react"
-import { Pie, PieChart as ReChartsDonutChart, ResponsiveContainer, Tooltip } from "recharts"
+import { ChartColor, ColorPalette } from "./color-theme"
+import { ChartValueFormatter } from "./types"
 import { defaultValueFormatter, parseChartData, parseChartLabelInput } from "./utils"
-import { cva } from "class-variance-authority"
-
-/* -------------------------------------------------------------------------------------------------
- * Anatomy
- * -----------------------------------------------------------------------------------------------*/
-
-export const DonutChartAnatomy = defineStyleAnatomy({
-    root: cva([
-        "UI-DonutChart__root",
-    ])
-})
 
 /* -------------------------------------------------------------------------------------------------
  * DonutChart
  * -----------------------------------------------------------------------------------------------*/
 
-type DonutChartVariant = "donut" | "pie"
-
-export interface DonutChartProps extends React.HTMLAttributes<HTMLDivElement>, ComponentWithAnatomy<typeof DonutChartAnatomy> {
+export type DonutChartProps = React.HTMLAttributes<HTMLDivElement> & {
+    /**
+     * The data to be displayed in the chart.
+     * An array of objects. Each object represents a data point.
+     */
     data: any[]
-    category?: string
-    index?: string
-    colors?: UIColor[]
-    variant?: DonutChartVariant
+    /**
+     * The key containing the quantitative chart values.
+     */
+    category: string
+    /**
+     * The key to map the data to the axis.
+     * e.g. "value"
+     */
+    index: string
+    /**
+     * Color palette to be used in the chart.
+     */
+    colors?: ChartColor[]
+    /**
+     * The type of chart to display
+     * @default "donut"
+     */
+    variant?: "donut" | "pie"
+    /**
+     * Changes the text formatting of the label.
+     * This only works when the variant is "donut".
+     */
     valueFormatter?: ChartValueFormatter
+    /**
+     * The text to be placed the center of the donut chart.
+     * Only available when variant "donut".
+     */
     label?: string
+    /**
+     * If true, the label will be displayed in the center of the chart
+     * @default true
+     */
     showLabel?: boolean
+    /**
+     * If true, the chart will animate when rendered
+     */
     showAnimation?: boolean
+    /**
+     * If true, a tooltip will be displayed when hovering over a data point
+     * @default true
+     */
     showTooltip?: boolean
-    noDataText?: string
+    /**
+     * The element to be displayed when there is no data
+     * @default <></>
+     */
+    emptyDisplay?: React.ReactElement
 }
 
 export const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>((props, ref) => {
     const {
         data = [],
-        category = "value",
-        index = "name",
+        category,
+        index,
         colors = ColorPalette,
         variant = "donut",
         valueFormatter = defaultValueFormatter,
@@ -51,7 +80,7 @@ export const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>((pro
         showAnimation = true,
         showTooltip = true,
         className,
-        noDataText,
+        emptyDisplay = <></>,
         ...other
     } = props
     const isDonut = variant == "donut"
@@ -69,8 +98,7 @@ export const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>((pro
                                 y="50%"
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fill={`var(--muted)`}
-                                className={"font-semibold"}
+                                className="fill-[--foreground] dark:fill-[--foreground] font-semibold"
                             >
                                 {parsedLabelInput}
                             </text>
@@ -84,26 +112,29 @@ export const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>((pro
                             innerRadius={isDonut ? "75%" : "0%"}
                             outerRadius="100%"
                             paddingAngle={0}
+                            stroke=""
+                            strokeLinejoin="round"
                             dataKey={category}
                             nameKey={index}
                             isAnimationActive={showAnimation}
+                            inactiveShape={renderInactiveShape}
+                            style={{ outline: "none" }}
+                            className="stroke-[--background] dark:stroke-[--background]"
                         />
-                        {showTooltip ? (
-                            <Tooltip
-                                wrapperStyle={{ outline: "none" }}
-                                content={({ active, payload }) => (
-                                    <DonutChartTooltip
-                                        active={active}
-                                        payload={payload}
-                                        valueFormatter={valueFormatter}
-                                    />
-                                )}
-                            />
-                        ) : null}
+                        <Tooltip
+                            cursorStyle={{ outline: "none" }}
+                            wrapperStyle={{ outline: "none" }}
+                            isAnimationActive={false}
+                            content={showTooltip ? ({ active, payload }) => (
+                                <DonutChartTooltip
+                                    active={active}
+                                    payload={payload}
+                                    valueFormatter={valueFormatter}
+                                />
+                            ) : <></>}
+                        />
                     </ReChartsDonutChart>
-                ) : (
-                    <div>...</div>
-                )}
+                ) : emptyDisplay}
             </ResponsiveContainer>
         </div>
     )
@@ -111,18 +142,52 @@ export const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>((pro
 
 DonutChart.displayName = "DonutChart"
 
+const renderInactiveShape = (props: any) => {
+    const {
+        cx,
+        cy,
+        // midAngle,
+        innerRadius,
+        outerRadius,
+        startAngle,
+        endAngle,
+        // fill,
+        // payload,
+        // percent,
+        // value,
+        // activeIndex,
+        className,
+    } = props
+
+    return (
+        <g>
+            <Sector
+                cx={cx}
+                cy={cy}
+                innerRadius={innerRadius}
+                outerRadius={outerRadius}
+                startAngle={startAngle}
+                endAngle={endAngle}
+                className={className}
+                fill=""
+                opacity={0.3}
+                style={{ outline: "none" }}
+            />
+        </g>
+    )
+}
+
 /* -------------------------------------------------------------------------------------------------
  * DonutChartTooltip
  * -----------------------------------------------------------------------------------------------*/
 
-
-export interface DonutChartTooltipProps {
-    active: boolean | undefined
+type DonutChartTooltipProps = {
+    active?: boolean
     payload: any
     valueFormatter: ChartValueFormatter
 }
 
-export const DonutChartTooltip = ({ active, payload, valueFormatter }: DonutChartTooltipProps) => {
+const DonutChartTooltip = ({ active, payload, valueFormatter }: DonutChartTooltipProps) => {
     if (active && payload[0]) {
         const payloadRow = payload[0]
         return (

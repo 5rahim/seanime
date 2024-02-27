@@ -1,7 +1,7 @@
-import { cn } from "@/components/ui/core"
-import { AiFillWarning } from "@react-icons/all-files/ai/AiFillWarning"
+import { cn } from "@/components/ui/core/styling"
 import React, { memo } from "react"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
+import { AiFillWarning } from "react-icons/ai"
+import { FcFolder } from "react-icons/fc"
 
 type TorrentPreviewItemProps = {
     isSelected?: boolean
@@ -36,7 +36,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
     return (
         <div
             className={cn(
-                "border border-[--border] p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
+                "border  p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
                 {
                     "border-brand-200 bg-gray-800 hover:bg-gray-800": isSelected,
                     "hover:border-gray-500": !isSelected,
@@ -67,14 +67,14 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     )}>{releaseGroup}</p>
                     {!!image && <img
                         src={image}
-                        alt={"episode image"}
+                        alt="episode image"
                         className="object-cover object-center absolute w-full h-full blur-xs opacity-20 z-[0] select-none pointer-events-none"
                         data-src={image}
                     />}
                     {isBatch && <FcFolder className="text-7xl absolute opacity-20"/>}
                 </div>
 
-                <div className={"relative overflow-hidden"}>
+                <div className="relative overflow-hidden">
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
                         className="text-lg text-red-500"/> Unidentified</p>}
                     <h4 className={cn("font-medium transition line-clamp-2")}>{isBatch ? "Batch" : title}</h4>
@@ -87,7 +87,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 </div>
             </div>
 
-            {action && <div className={"absolute right-1 top-1 flex flex-col items-center"}>
+            {action && <div className="absolute right-1 top-1 flex flex-col items-center">
                 {action}
             </div>}
         </div>

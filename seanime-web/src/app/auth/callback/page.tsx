@@ -7,7 +7,7 @@ import { ServerStatus } from "@/lib/server/types"
 import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import { useUpdateEffect } from "react-use"
 
 export default function Page() {
@@ -56,8 +56,8 @@ export default function Page() {
 
     return (
         <div>
-            <LoadingOverlay className={"fixed w-full h-full z-[80]"}>
-                <h3 className={"mt-2"}>Authenticating...</h3>
+            <LoadingOverlay className="fixed w-full h-full z-[80]">
+                <h3 className="mt-2">Authenticating...</h3>
             </LoadingOverlay>
         </div>
     )

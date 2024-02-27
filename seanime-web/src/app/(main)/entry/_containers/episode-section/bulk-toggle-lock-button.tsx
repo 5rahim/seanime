@@ -2,9 +2,9 @@ import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk
 import { IconButton } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import { MediaEntry } from "@/lib/server/types"
-import { BiLockOpenAlt } from "@react-icons/all-files/bi/BiLockOpenAlt"
-import { VscVerified } from "@react-icons/all-files/vsc/VscVerified"
 import React from "react"
+import { BiLockOpenAlt } from "react-icons/bi"
+import { VscVerified } from "react-icons/vsc"
 
 export function BulkToggleLockButton({ entry }: { entry: MediaEntry }) {
 
@@ -17,10 +17,10 @@ export function BulkToggleLockButton({ entry }: { entry: MediaEntry }) {
             <IconButton
                 icon={entry.libraryData?.allFilesLocked ? <VscVerified/> : <BiLockOpenAlt/>}
                 intent={allLocked ? "success-subtle" : "warning-subtle"}
-                size={"xl"}
-                className={"hover:opacity-60"}
+                size="xl"
+                className="hover:opacity-60"
                 onClick={() => toggleLock(entry.mediaId)}
-                isLoading={isPending}
+                loading={isPending}
             />
         }>
             {allLocked ? "Unlock all files" : "Lock all files"}

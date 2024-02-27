@@ -1,24 +1,26 @@
 import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
 import { libraryCollectionAtom } from "@/app/(main)/_loaders/library-collection"
 import { CloseButton, IconButton } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
+import { cn } from "@/components/ui/core/styling"
+import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { createTypesafeFormSchema, DangerZone, Field, InferType, TypesafeForm } from "@/components/ui/typesafe-form"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { AutoDownloaderRule, LibraryCollection } from "@/lib/server/types"
-import { BiPlus } from "@react-icons/all-files/bi/BiPlus"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
-import toast from "react-hot-toast"
+import { BiPlus } from "react-icons/bi"
+import { FcFolder } from "react-icons/fc"
+import { LuTextCursorInput } from "react-icons/lu"
+import { MdVerified } from "react-icons/md"
+import { toast } from "sonner"
 
 type RuleFormProps = {
     type: "create" | "edit"
@@ -26,7 +28,7 @@ type RuleFormProps = {
     onRuleCreatedOrDeleted?: () => void
 }
 
-const schema = createTypesafeFormSchema(({ z }) => z.object({
+const schema = defineSchema(({ z }) => z.object({
     enabled: z.boolean(),
     mediaId: z.number().min(1),
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
@@ -111,8 +113,8 @@ export function RuleForm(props: RuleFormProps) {
     }
 
     return (
-        <div className="space-y-4 mt-8">
-            <TypesafeForm
+        <div className="space-y-4 mt-2">
+            <Form
                 schema={schema}
                 onSubmit={handleSave}
                 defaultValues={{
@@ -139,7 +141,7 @@ export function RuleForm(props: RuleFormProps) {
                     libraryCollection={libraryCollection}
                     rule={rule}
                 />}
-            </TypesafeForm>
+            </Form>
             {type === "edit" && <DangerZone
                 actionText="Delete this rule"
                 onDelete={() => {
@@ -201,20 +203,20 @@ export function RuleFormForm(props: RuleFormFormProps) {
     return (
         <>
             <Field.Switch name="enabled" label="Enabled" />
-            <Divider />
+            <Separator />
             <div
                 className={cn(
                     "space-y-3",
                     !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
-                <div className={"flex gap-4 items-end"}>
+                <div className="flex gap-4 items-end">
                     <div
                         className="w-[6rem] h-[6rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
                     >
                         {!!selectedMedia?.coverImage?.large && <Image
                             src={selectedMedia.coverImage.large}
-                            alt={"banner"}
+                            alt="banner"
                             fill
                             quality={80}
                             priority
@@ -227,9 +229,9 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         label="Library Entry"
                         options={notFinishedMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))}
                         value={String(form.watch("mediaId"))}
-                        onChange={(e) => form.setValue("mediaId", parseInt(e.target.value))}
+                        onValueChange={(v) => form.setValue("mediaId", parseInt(v))}
                         help="The anime must be airing or upcoming"
-                        isDisabled={type === "edit"}
+                        disabled={type === "edit"}
                     />
                 </div>
 
@@ -243,8 +245,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     shouldExist={false}
                 />
 
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Title</div>
+                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Title</div>
                     <Field.Text
                         name="comparisonTitle"
                         label="Comparison title"
@@ -254,31 +256,51 @@ export function RuleFormForm(props: RuleFormFormProps) {
                         label="Type of search"
                         name="titleComparisonType"
                         options={[
-                            { label: "Most likely", value: "likely", help: "A comparison algorithm will be used" },
                             {
-                                label: "Exact match",
+                                label: <div className="w-full">
+                                    <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Most likely</p>
+                                    <p className="font-normal text-sm text-[--muted]">The torrent name will be parsed and analyzed using a comparison
+                                                                                      algorithm</p>
+                                </div>,
+                                value: "likely",
+                            },
+                            {
+                                label: <div className="w-full">
+                                    <p className="mb-1 flex items-center"><LuTextCursorInput className="text-lg inline-block mr-2" />Exact match</p>
+                                    <p className="font-normal text-sm text-[--muted]">The torrent name must contain the comparison title you set (case
+                                                                                      insensitive)</p>
+                                </div>,
                                 value: "contains",
-                                help: "The torrent name must contain the title (Use this for more precise control)",
                             },
                         ]}
-                        radioHelpClassName="text-sm text-gray-400"
                     />
                 </div>
                 <div
                     className={cn(
-                        "border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3",
+                        "border  rounded-[--radius] p-4 relative !mt-8 space-y-3",
                         (selectedMedia?.format === "MOVIE" || (!!selectedMedia.episodes && selectedMedia.episodes === 1)) && "opacity-50 pointer-events-none",
                     )}
                 >
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Episodes</div>
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Episodes</div>
                     <Field.RadioCards
                         name="episodeType"
                         label="Episodes to look for"
                         options={[
-                            { label: "Recent releases", value: "recent", help: "New episodes you have not yet watched" },
-                            { label: "Select", value: "selected", help: "Only the specified episodes that aren't in your library" },
+                            {
+                                label: <div className="w-full">
+                                    <p>Recent releases</p>
+                                    <p className="font-normal text-sm text-[--muted]">New episodes you have not yet watched</p>
+                                </div>,
+                                value: "recent",
+                            },
+                            {
+                                label: <div className="w-full">
+                                    <p>Select</p>
+                                    <p className="font-normal text-sm text-[--muted]">Only the specified episodes that aren't in your library</p>
+                                </div>,
+                                value: "selected",
+                            },
                         ]}
-                        radioHelpClassName="text-sm text-gray-400"
                     />
 
                     {form.watch("episodeType") === "selected" && <TextArrayField
@@ -289,8 +311,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     />}
                 </div>
 
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Release Groups</div>
+                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
                     <p className="text-sm">
                         List of release groups to look for. If empty, any release group will be accepted.
                     </p>
@@ -303,8 +325,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     />
                 </div>
 
-                <div className="border border-[--border] rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-900 px-2">Resolutions</div>
+                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                    <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
                     <p className="text-sm">
                         List of resolutions to look for. If empty, the highest resolution will be accepted.
                     </p>
@@ -318,8 +340,9 @@ export function RuleFormForm(props: RuleFormFormProps) {
                 </div>
 
             </div>
-            {type === "create" && <Field.Submit role="create" isLoading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess />}
-            {type === "edit" && <Field.Submit role="update" isLoading={isPending} />}
+            {type === "create" &&
+                <Field.Submit role="create" loading={isPending} disableOnSuccess={false} showLoadingOverlayOnSuccess>Create</Field.Submit>}
+            {type === "edit" && <Field.Submit role="update" loading={isPending}>Update</Field.Submit>}
         </>
     )
 }
@@ -333,10 +356,6 @@ type TextArrayFieldProps<T extends string | number> = {
 }
 
 export function TextArrayField<T extends string | number>(props: TextArrayFieldProps<T>) {
-
-    React.useEffect(() => {
-        console.log(props.value)
-    }, [props.value])
 
     return (
         <div className="space-y-2">

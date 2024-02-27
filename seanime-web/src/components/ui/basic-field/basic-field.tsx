@@ -1,6 +1,6 @@
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
 import { cva } from "class-variance-authority"
-import React from "react"
+import * as React from "react"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -9,19 +9,13 @@ import React from "react"
 export const BasicFieldAnatomy = defineStyleAnatomy({
     fieldLabel: cva([
         "UI-BasicField__fieldLabel",
-        "block text-md sm:text-lg font-semibold self-start"
-    ], {
-        variants: {
-            hasError: {
-                true: "text-red-500",
-                false: null,
-            },
-        },
-    }),
+        "text-base w-fit font-semibold self-start",
+        "data-[error=true]:text-red-500",
+    ]),
     fieldAsterisk: cva("UI-BasicField__fieldAsterisk ml-1 text-red-500 text-sm"),
     fieldDetails: cva("UI-BasicField__fieldDetails"),
-    field: cva("UI-BasicField__field w-full space-y-1"),
-    fieldHelpText: cva("UI-BasicField__fieldHelpText text-sm text-gray-500"),
+    field: cva("UI-BasicField__field relative w-full space-y-1"),
+    fieldHelpText: cva("UI-BasicField__fieldHelpText text-sm text-[--muted]"),
     fieldErrorText: cva("UI-BasicField__fieldErrorText text-sm text-red-500"),
 })
 
@@ -30,16 +24,43 @@ export const BasicFieldAnatomy = defineStyleAnatomy({
  * - Field components inherit these props
  * -----------------------------------------------------------------------------------------------*/
 
-export interface BasicFieldOptions extends ComponentWithAnatomy<typeof BasicFieldAnatomy> {
+export type BasicFieldOptions = ComponentAnatomy<typeof BasicFieldAnatomy> & {
+    /**
+     * The id of the field. If not provided, a unique id will be generated.
+     */
     id?: string | undefined
+    /**
+     * The form field name.
+     */
     name?: string
+    /**
+     * The label of the field.
+     */
     label?: React.ReactNode
-    labelProps?: object
+    /**
+     * Additional props to pass to the label element.
+     */
+    labelProps?: React.LabelHTMLAttributes<HTMLLabelElement>
+    /**
+     * Help or description text to display below the field.
+     */
     help?: React.ReactNode
+    /**
+     * Error text to display below the field.
+     */
     error?: string
-    isRequired?: boolean
-    isDisabled?: boolean
-    isReadOnly?: boolean
+    /**
+     * If `true`, the field will be required.
+     */
+    required?: boolean
+    /**
+     * If `true`, the field will be disabled.
+     */
+    disabled?: boolean
+    /**
+     * If `true`, the field will be readonly.
+     */
+    readonly?: boolean
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -53,14 +74,15 @@ export function extractBasicFieldProps<Props extends BasicFieldOptions>(props: P
         labelProps,
         help,
         error,
-        isRequired,
-        isDisabled = false,
-        isReadOnly = false,
-        fieldDetailsClassName,
-        fieldLabelClassName,
-        fieldClassName,
-        fieldErrorTextClassName,
-        fieldHelpTextClassName,
+        required,
+        disabled = false,
+        readonly = false,
+        fieldDetailsClass,
+        fieldLabelClass,
+        fieldAsteriskClass,
+        fieldClass,
+        fieldErrorTextClass,
+        fieldHelpTextClass,
         id: _id,
         ...rest
     } = props
@@ -72,22 +94,23 @@ export function extractBasicFieldProps<Props extends BasicFieldOptions>(props: P
             label,
             help,
             error,
-            isDisabled,
-            isRequired,
-            isReadOnly,
-            fieldErrorTextClassName,
-            fieldHelpTextClassName,
-            fieldDetailsClassName,
-            fieldLabelClassName,
-            fieldClassName,
+            disabled,
+            required,
+            readonly,
+            fieldAsteriskClass,
+            fieldErrorTextClass,
+            fieldHelpTextClass,
+            fieldDetailsClass,
+            fieldLabelClass,
+            fieldClass,
             labelProps,
         },
     ] as [
         Omit<Props,
             "label" | "name" | "help" | "error" |
-            "isDisabled" | "isRequired" | "isReadOnly" |
-            "fieldDetailsClassName" | "fieldLabelClassName" | "fieldClassName" | "fieldHelpTextClassName" |
-            "fieldErrorTextClassName" | "id" | "labelProps"
+            "disabled" | "required" | "readonly" |
+            "fieldDetailsClass" | "fieldLabelClass" | "fieldClass" | "fieldHelpTextClass" |
+            "fieldErrorTextClass" | "id" | "labelProps" | "fieldAsteriskClass"
         >,
             Omit<BasicFieldOptions, "id"> & {
             id: string
@@ -99,10 +122,9 @@ export function extractBasicFieldProps<Props extends BasicFieldOptions>(props: P
  * BasicField
  * -----------------------------------------------------------------------------------------------*/
 
-export interface BasicFieldProps extends React.ComponentPropsWithRef<"div">, BasicFieldOptions {
-}
+export type BasicFieldProps = React.ComponentPropsWithoutRef<"div"> & BasicFieldOptions
 
-export const BasicField: React.FC<BasicFieldProps> = React.memo(React.forwardRef<HTMLDivElement, BasicFieldProps>((props, ref) => {
+export const BasicField = React.memo(React.forwardRef<HTMLDivElement, BasicFieldProps>((props, ref) => {
 
     const {
         children,
@@ -112,54 +134,53 @@ export const BasicField: React.FC<BasicFieldProps> = React.memo(React.forwardRef
         label,
         error,
         help,
-        isDisabled,
-        isReadOnly,
-        isRequired,
-        fieldClassName,
-        fieldDetailsClassName,
-        fieldLabelClassName,
-        fieldAsteriskClassName,
-        fieldErrorTextClassName,
-        fieldHelpTextClassName,
+        disabled,
+        readonly,
+        required,
+        fieldClass,
+        fieldDetailsClass,
+        fieldLabelClass,
+        fieldAsteriskClass,
+        fieldErrorTextClass,
+        fieldHelpTextClass,
         ...rest
     } = props
 
     return (
-        <>
-            <div
-                className={cn(
-                    BasicFieldAnatomy.field(),
-                    className,
-                    fieldClassName,
-                )}
-                {...rest}
-                ref={ref}
-            >
-                {!!label &&
-                    <label
-                        htmlFor={isDisabled ? undefined : id}
-                        className={cn(BasicFieldAnatomy.fieldLabel({ hasError: !!error }), fieldLabelClassName)}
-                        {...labelProps}
-                    >
-                        {label}
-                        {isRequired &&
-                            <span className={cn(BasicFieldAnatomy.fieldAsterisk(), fieldAsteriskClassName)}>*</span>
-                        }
-                    </label>
-                }
+        <div
+            className={cn(
+                BasicFieldAnatomy.field(),
+                className,
+                fieldClass,
+            )}
+            {...rest}
+            ref={ref}
+        >
+            {!!label &&
+                <label
+                    htmlFor={disabled ? undefined : id}
+                    className={cn(BasicFieldAnatomy.fieldLabel(), fieldLabelClass)}
+                    data-error={!!error}
+                    {...labelProps}
+                >
+                    {label}
+                    {required &&
+                        <span className={cn(BasicFieldAnatomy.fieldAsterisk(), fieldAsteriskClass)}>*</span>
+                    }
+                </label>
+            }
 
-                {children}
+            {children}
 
-                {(!!help || !!error) &&
-                    <div className={cn(BasicFieldAnatomy.fieldDetails(), fieldDetailsClassName)}>
-                        {!!help &&
-                            <p className={cn(BasicFieldAnatomy.fieldHelpText(), fieldHelpTextClassName)}>{help}</p>}
-                        {!!error &&
-                            <p className={cn(BasicFieldAnatomy.fieldErrorText(), fieldErrorTextClassName)}>{error}</p>}
-                    </div>
-                }
-            </div>
-        </>
+            {(!!help || !!error) &&
+                <div className={cn(BasicFieldAnatomy.fieldDetails(), fieldDetailsClass)}>
+                    {!!help &&
+                        <p className={cn(BasicFieldAnatomy.fieldHelpText(), fieldHelpTextClass)}>{help}</p>}
+                    {!!error &&
+                        <p className={cn(BasicFieldAnatomy.fieldErrorText(), fieldErrorTextClass)}>{error}</p>}
+                </div>
+            }
+        </div>
     )
 
 }))

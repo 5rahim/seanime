@@ -48,7 +48,8 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     return (
         <WebSocketContext.Provider value={socket}>
             {!isConnected && <div
-                className="fixed right-4 bottom-4 bg-gray-800 border border-[--border] text-gray-100 py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center">
+                className="fixed right-4 bottom-4 bg-gray-800 border  text-gray-100 py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center"
+            >
                 <Spinner className="w-5 h-5"/>
                 Websocket connection
             </div>}

@@ -1,9 +1,9 @@
 "use client"
-import React from "react"
-import Image from "next/image"
 import { Button } from "@/components/ui/button/button"
+import { cn } from "@/components/ui/core/styling"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { cn } from "@/components/ui/core"
+import React from "react"
 
 interface LuffyErrorProps {
     children?: React.ReactNode
@@ -26,7 +26,7 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                 {<div
                     className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden">
                     <Image
-                        src={"/luffy-01.png"}
+                        src="/luffy-01.png"
                         alt={""}
                         fill
                         quality={100}
@@ -35,15 +35,15 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                         className="object-contain object-top"
                     />
                 </div>}
-                <div className={"text-center space-y-4"}>
+                <div className="text-center space-y-4">
                     {!!title && <h2>{title}</h2>}
                     <p>{children}</p>
                     <div>
                         {(showRefreshButton && !reset) && (
-                            <Button intent={"warning-subtle"} onClick={() => router.refresh()}>Retry</Button>
+                            <Button intent="warning-subtle" onClick={() => router.refresh()}>Retry</Button>
                         )}
                         {!!reset && (
-                            <Button intent={"warning-subtle"} onClick={reset}>Retry</Button>
+                            <Button intent="warning-subtle" onClick={reset}>Retry</Button>
                         )}
                     </div>
                 </div>

@@ -1,21 +1,21 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { cn } from "@/components/ui/core"
-import { Divider } from "@/components/ui/divider"
-import { TabPanels } from "@/components/ui/tabs"
-import { Field, TypesafeForm } from "@/components/ui/typesafe-form"
+import { PageWrapper } from "@/components/shared/page-wrapper"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Card } from "@/components/ui/card"
+import { Field, Form } from "@/components/ui/form"
+import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
-import { FcClapperboard } from "@react-icons/all-files/fc/FcClapperboard"
-import { FcFolder } from "@react-icons/all-files/fc/FcFolder"
-import { FcVideoCall } from "@react-icons/all-files/fc/FcVideoCall"
-import { FcVlc } from "@react-icons/all-files/fc/FcVlc"
 import { useAtom } from "jotai/react"
 import React, { useEffect } from "react"
-import toast from "react-hot-toast"
 import { BsPlayCircleFill } from "react-icons/bs"
+import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
+import { toast } from "sonner"
+
 
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
@@ -36,13 +36,13 @@ export default function Page() {
     }, [data, isPending])
 
     return (
-        <div className="p-12 space-y-4">
+        <PageWrapper className="p-4 sm:p-8 space-y-4">
             <div className="space-y-1">
                 <h2>Settings</h2>
                 <p className="text-[--muted]">App version: {status?.version}</p>
             </div>
-            {/*<Divider/>*/}
-            <TypesafeForm
+            {/*<Separator/>*/}
+            <Form
                 schema={settingsSchema}
                 onSubmit={data => {
                     mutate({
@@ -98,176 +98,197 @@ export default function Page() {
                     autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                     disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
                 }}
-                stackClassName="space-y-4"
+                stackClass="space-y-4"
             >
 
-                <TabPanels
-                    navClassName="border-[--border]"
-                    tabClassName={cn(
-                        "rounded-none border-b border-b-2 data-[selected=true]:text-white data-[selected=true]:border-brand-400",
-                        "hover:bg-transparent dark:hover:bg-transparent hover:text-white text-sm",
-                        "dark:border-transparent dark:hover:border-b-transparent dark:data-[selected=true]:border-brand-400 dark:data-[selected=true]:text-white",
-                        "hover:bg-[--highlight] line-clamp-1 truncate",
-                        "dark:data-[selected=true]:bg-[--highlight]",
-                    )}
-                >
-                    <div className="border border-[--border] rounded-[--radius] bg-[--paper] text-lg space-y-2">
-                        <TabPanels.Nav>
-                            <TabPanels.Tab>Seanime</TabPanels.Tab>
-                            <TabPanels.Tab>Media Players</TabPanels.Tab>
-                            <TabPanels.Tab>qBittorrent</TabPanels.Tab>
-                        </TabPanels.Nav>
+                <Card className="p-0 overflow-hidden">
+                    <Tabs
+                        defaultValue="seanime"
+                        triggerClass="w-full data-[state=active]:bg-[--subtle]"
+                    >
+                        <TabsList className="flex w-full border-b">
+                            <TabsTrigger value="seanime">Seanime</TabsTrigger>
+                            <TabsTrigger value="media-player">Media Player</TabsTrigger>
+                            <TabsTrigger value="qbittorrent">qBittorrent</TabsTrigger>
+                        </TabsList>
+
                         <div className="p-4">
-                            <TabPanels.Container>
-                                <TabPanels.Panel className="space-y-4">
-                                    <Field.DirectorySelector
-                                        name="libraryPath"
-                                        label="Library folder"
-                                        leftIcon={<FcFolder />}
-                                        help="Folder where your anime library is located. (Keep the casing consistent)"
-                                        shouldExist
-                                    />
-                                    <Divider />
-                                    <Field.Switch
-                                        name="autoUpdateProgress"
-                                        label="Automatically update progress"
-                                        help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
-                                    />
-                                    <Divider />
-                                    <Field.Switch
-                                        name="disableUpdateCheck"
-                                        label="Do not check for updates"
-                                        help="If enabled, Seanime will not check for new releases."
-                                    />
-                                    <Divider />
-                                    <Field.Switch
-                                        name="hideAudienceScore"
-                                        label="Hide audience score"
-                                        help="If enabled, the audience score will be hidden on the media entry page."
-                                    />
-                                    <Divider />
-                                    <Field.RadioGroup
-                                        options={[
-                                            { label: "Nyaa", value: "nyaa" },
-                                            { label: "AnimeTosho", value: "animetosho" },
-                                        ]}
-                                        name="torrentProvider"
-                                        label="Torrent provider"
-                                        help="Provider to use for searching and downloading torrents."
-                                    />
+                            <TabsContent value="seanime" className="space-y-4">
+                                <Field.DirectorySelector
+                                    name="libraryPath"
+                                    label="Library folder"
+                                    leftIcon={<FcFolder />}
+                                    help="Folder where your anime library is located. (Keep the casing consistent)"
+                                    shouldExist
+                                />
+                                <Separator />
+                                <Field.Switch
+                                    name="autoUpdateProgress"
+                                    label="Automatically update progress"
+                                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
+                                />
+                                <Separator />
+                                <Field.Switch
+                                    name="disableUpdateCheck"
+                                    label="Do not check for updates"
+                                    help="If enabled, Seanime will not check for new releases."
+                                />
+                                <Separator />
+                                <Field.Switch
+                                    name="hideAudienceScore"
+                                    label="Hide audience score"
+                                    help="If enabled, the audience score will be hidden on the media entry page."
+                                />
+                                <Separator />
+                                <Field.RadioGroup
+                                    options={[
+                                        { label: "Nyaa", value: "nyaa" },
+                                        { label: "AnimeTosho", value: "animetosho" },
+                                    ]}
+                                    name="torrentProvider"
+                                    label="Torrent provider"
+                                    help="Provider to use for searching and downloading torrents."
+                                />
 
-                                </TabPanels.Panel>
+                            </TabsContent>
 
-                                <TabPanels.Panel className="space-y-4">
-                                    <Field.Select
-                                        name="defaultPlayer"
-                                        label="Default player"
-                                        leftIcon={<FcVideoCall />}
-                                        options={[
-                                            { label: "VLC", value: "vlc" },
-                                            { label: "MPC-HC (Windows only)", value: "mpc-hc" },
-                                            { label: "MPV", value: "mpv" },
-                                        ]}
-                                        help="Player that will be used to open files and track your progress automatically."
-                                    />
+                            <TabsContent value="media-player" className="space-y-4">
+                                <Field.Select
+                                    name="defaultPlayer"
+                                    label="Default player"
+                                    leftIcon={<FcVideoCall />}
+                                    options={[
+                                        { label: "VLC", value: "vlc" },
+                                        { label: "MPC-HC (Windows only)", value: "mpc-hc" },
+                                        { label: "MPV", value: "mpv" },
+                                    ]}
+                                    help="Player that will be used to open files and track your progress automatically."
+                                />
 
+                                <Field.Text
+                                    name="mediaPlayerHost"
+                                    label="Host"
+                                    help="VLC/MPC-HC"
+                                />
+
+                                <Accordion
+                                    type="single"
+                                    className="border"
+                                    triggerClass=""
+                                >
+                                    <AccordionItem value="vlc">
+                                        <AccordionTrigger>
+                                            <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="space-y-4">
+                                            <div className="flex flex-col md:flex-row gap-4">
+                                                <Field.Text
+                                                    name="vlcUsername"
+                                                    label="Username"
+                                                />
+                                                <Field.Text
+                                                    name="vlcPassword"
+                                                    label="Password"
+                                                />
+                                                <Field.Number
+                                                    name="vlcPort"
+                                                    label="Port"
+                                                    formatOptions={{
+                                                        useGrouping: false,
+                                                    }}
+                                                    hideControls
+                                                />
+                                            </div>
+                                            <Field.Text
+                                                name="vlcPath"
+                                                label="Application path"
+                                            />
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    <AccordionItem value="mpc-hc">
+                                        <AccordionTrigger>
+                                            <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
+                                        </AccordionTrigger>
+                                        <AccordionContent>
+                                            <div className="flex flex-col md:flex-row gap-4">
+                                                <Field.Number
+                                                    name="mpcPort"
+                                                    label="Port"
+                                                    formatOptions={{
+                                                        useGrouping: false,
+                                                    }}
+                                                    hideControls
+                                                />
+                                                <Field.Text
+                                                    name="mpcPath"
+                                                    label="Application path"
+                                                />
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    <AccordionItem value="mpv">
+                                        <AccordionTrigger>
+                                            <h4 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV</h4>
+                                        </AccordionTrigger>
+                                        <AccordionContent>
+                                            <div className="flex gap-4">
+                                                <Field.Text
+                                                    name="mpvSocket"
+                                                    label="Socket"
+                                                    placeholder={`Default: '${getDefaultMpcSocket(status?.os ?? "")}'`}
+                                                />
+                                                <Field.Text
+                                                    name="mpvPath"
+                                                    label="Application path"
+                                                    placeholder="Defaults to 'mpv' command"
+                                                    help="Leave empty to automatically use the 'mpv' command"
+                                                />
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+
+                            </TabsContent>
+
+                            <TabsContent value="qbittorrent" className="space-y-4">
+                                <Field.Text
+                                    name="qbittorrentHost"
+                                    label="Host"
+                                />
+                                <div className="flex flex-col md:flex-row gap-4">
                                     <Field.Text
-                                        name="mediaPlayerHost"
-                                        label="Host"
-                                        help="VLC/MPC-HC"
+                                        name="qbittorrentUsername"
+                                        label="Username"
                                     />
-
-                                    <Divider />
-
-                                    <h3 className="flex gap-2 items-center"><FcVlc /> VLC</h3>
-                                    <div className="flex gap-4">
-                                        <Field.Text
-                                            name="vlcUsername"
-                                            label="Username"
-                                        />
-                                        <Field.Text
-                                            name="vlcPassword"
-                                            label="Password"
-                                        />
-                                        <Field.Number
-                                            name="vlcPort"
-                                            label="Port"
-                                            discrete
-                                        />
-                                    </div>
                                     <Field.Text
-                                        name="vlcPath"
-                                        label="Application path"
+                                        name="qbittorrentPassword"
+                                        label="Password"
                                     />
-
-                                    <Divider />
-
-                                    <h3 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h3>
-                                    <div className="flex gap-4">
-                                        <Field.Number
-                                            name="mpcPort"
-                                            label="Port"
-                                            discrete
-                                        />
-                                    </div>
-                                    <Field.Text
-                                        name="mpcPath"
-                                        label="Application path"
+                                    <Field.Number
+                                        name="qbittorrentPort"
+                                        label="Port"
+                                        formatOptions={{
+                                            useGrouping: false,
+                                        }}
+                                        hideControls
                                     />
-
-                                    <Divider />
-
-                                    <h3 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV</h3>
-                                    <div className="flex gap-4">
-                                        <Field.Text
-                                            name="mpvSocket"
-                                            label="Socket"
-                                            placeholder={`Default: '${getDefaultMpcSocket(status?.os ?? "")}'`}
-                                        />
-                                        <Field.Text
-                                            name="mpvPath"
-                                            label="Application path"
-                                            placeholder={"Defaults to 'mpv' command"}
-                                            help={"Leave empty to automatically use the 'mpv' command"}
-                                        />
-                                    </div>
-                                </TabPanels.Panel>
-
-                                <TabPanels.Panel className="space-y-4">
-                                    <Field.Text
-                                        name="qbittorrentHost"
-                                        label="Host"
-                                    />
-                                    <div className="flex gap-4">
-                                        <Field.Text
-                                            name="qbittorrentUsername"
-                                            label="Username"
-                                        />
-                                        <Field.Text
-                                            name="qbittorrentPassword"
-                                            label="Password"
-                                        />
-                                        <Field.Number
-                                            name="qbittorrentPort"
-                                            label="Port"
-                                            discrete
-                                        />
-                                    </div>
-                                    <Field.Text
-                                        name="qbittorrentPath"
-                                        label="Application path"
-                                    />
-                                </TabPanels.Panel>
-                                <div className="mt-4">
-                                    <Field.Submit role="save" isLoading={isPending} />
                                 </div>
-                            </TabPanels.Container>
+                                <Field.Text
+                                    name="qbittorrentPath"
+                                    label="Application path"
+                                />
+                            </TabsContent>
+                            <div className="mt-4">
+                                <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
+                            </div>
                         </div>
-                    </div>
-                </TabPanels>
+                    </Tabs>
+                </Card>
 
-            </TypesafeForm>
-        </div>
+            </Form>
+        </PageWrapper>
     )
 
 }

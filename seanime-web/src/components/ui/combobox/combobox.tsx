@@ -1,287 +1,366 @@
 "use client"
 
-import { cn, ComponentWithAnatomy, defineStyleAnatomy } from "../core"
-import * as combobox from "@zag-js/combobox"
-import { normalizeProps, useMachine } from "@zag-js/react"
 import { cva } from "class-variance-authority"
-import _find from "lodash/find"
-import _isEmpty from "lodash/isEmpty"
-import React, { startTransition, useEffect, useId, useMemo, useState } from "react"
+import equal from "fast-deep-equal"
+import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
-import { InputAddon, InputAnatomy, inputContainerStyle, InputIcon, InputStyling } from "../input"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandProps } from "../command"
+import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { mergeRefs } from "../core/utils"
+import { extractInputPartProps, hiddenInputStyles, InputAddon, InputAnatomy, InputContainer, InputIcon, InputStyling } from "../input"
+import { Popover } from "../popover"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
  * -----------------------------------------------------------------------------------------------*/
 
 export const ComboboxAnatomy = defineStyleAnatomy({
-    menuContainer: cva([
-        "UI-Combobox__menuContainer",
-        "absolute z-10 -bottom-0.5",
-        "left-0 translate-y-full max-h-56 w-full overflow-auto rounded-[--radius] p-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm",
-        "bg-[--paper] border border-[--border]",
+    root: cva([
+        "UI-Combobox__root",
+        "justify-between h-auto",
+    ], {
+        variants: {
+            size: {
+                sm: "min-h-8 px-2 py-1 text-sm",
+                md: "min-h-10 px-3 py-2 ",
+                lg: "min-h-12 px-4 py-3 text-md",
+            },
+        },
+        defaultVariants: {
+            size: "md",
+        },
+    }),
+    popover: cva([
+        "UI-Combobox__popover",
+        "w-[--radix-popover-trigger-width] p-0",
     ]),
-    menuItem: cva([
-        "UI-Combobox__menuItem",
-        "relative cursor-pointer py-2 pl-3 pr-9 rounded-[--radius] data-[highlighted]:bg-[--highlight] text-base",
+    checkIcon: cva([
+        "UI-Combobox__checkIcon",
+        "h-4 w-4",
+        "data-[selected=true]:opacity-100 data-[selected=false]:opacity-0",
     ]),
-    menuNoOptionText: cva([
-        "UI-Combobox__menuNoOptionText",
-        "text-base text-center py-1 text-gray-500 dark:text-gray-700",
+    item: cva([
+        "UI-Combobox__item",
+        "flex gap-1 items-center bg-gray-100 dark:bg-gray-800 px-2 pr-1 rounded-[--radius] line-clamp-1 max-w-96",
+    ]),
+    placeholder: cva([
+        "UI-Combobox__placeholder",
+        "text-[--muted] truncate",
+    ]),
+    inputValuesContainer: cva([
+        "UI-Combobox__inputValuesContainer",
+        "grow flex flex-wrap gap-2",
+    ]),
+    chevronIcon: cva([
+        "UI-Combobox__chevronIcon",
+        "ml-2 h-4 w-4 shrink-0 opacity-50",
+    ]),
+    removeItemButton: cva([
+        "UI-Badge__removeItemButton",
+        "text-lg cursor-pointer transition ease-in hover:opacity-60",
     ]),
 })
+
 
 /* -------------------------------------------------------------------------------------------------
  * Combobox
  * -----------------------------------------------------------------------------------------------*/
 
-export interface ComboboxProps extends Omit<React.ComponentPropsWithRef<"input">, "onChange" | "size" | "defaultChecked">,
-    BasicFieldOptions,
-    InputStyling,
-    ComponentWithAnatomy<typeof ComboboxAnatomy> {
-    options: { value: string, label?: string }[]
+export type ComboboxOption = { value: string, textValue?: string, label: React.ReactNode }
+
+export type ComboboxProps = Omit<React.ComponentPropsWithRef<"button">, "size" | "value"> &
+    BasicFieldOptions &
+    InputStyling &
+    ComponentAnatomy<typeof ComboboxAnatomy> & {
     /**
-     * Filter the specified options as the user is typing
+     * The selected values
      */
-    withFiltering?: boolean
+    value?: string[]
     /**
-     * Get the value on of the input as the user is typing
-     * @param value
+     * Callback fired when the selected values change
      */
-    onInputChange?: (value: string) => void
+    onValueChange?: (value: string[]) => void
     /**
-     * Get the selected value
-     * @param value
+     * Callback fired when the search input changes
      */
-    onChange?: (value: string | undefined) => void
+    onTextChange?: (value: string) => void
+    /**
+     * Additional props for the command component
+     */
+    commandProps?: CommandProps
+    /**
+     * The options to display in the dropdown
+     */
+    options: ComboboxOption[]
+    /**
+     * The message to display when there are no options
+     */
+    emptyMessage: React.ReactNode
+    /**
+     * The placeholder text
+     */
     placeholder?: string
     /**
-     * Message to display when there are no options
+     * Allow multiple values to be selected
      */
-    noOptionsMessage?: string
+    multiple?: boolean
     /**
-     * Allow the user to enter custom values that are not specified in the options
+     * Default value when uncontrolled
      */
-    allowCustomValue?: boolean
+    defaultValue?: string[]
     /**
-     * Allow the user to enter custom values that are not specified in the options
+     * Ref to the input element
      */
-    defaultValue?: string
-    /**
-     * Control the value
-     */
-    value?: string
-    valueInputRef?: React.Ref<HTMLInputElement>
-    /**
-     * We can either return the value or label of the options.
-     * Returning the label is useful if users can enter custom values or if the selection doesn't depend on IDs.
-     */
-    returnValueOrLabel?: "value" | "label"
+    inputRef?: React.Ref<HTMLInputElement>
 }
 
-export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>((props, ref) => {
+export const Combobox = React.forwardRef<HTMLButtonElement, ComboboxProps>((props, ref) => {
+
+    const [props1, basicFieldProps] = extractBasicFieldProps<ComboboxProps>(props, React.useId())
 
     const [{
         size,
         intent,
-        leftIcon,
         leftAddon,
-        rightIcon,
+        leftIcon,
         rightAddon,
-        children,
+        rightIcon,
         className,
+        popoverClass,
+        checkIconClass,
+        itemClass,
+        placeholderClass,
+        inputValuesContainerClass,
+        chevronIconClass,
+        removeItemButtonClass,
+        /**/
+        commandProps,
         options,
-        withFiltering = true,
+        emptyMessage,
         placeholder,
-        noOptionsMessage,
-        allowCustomValue = false,
-        onInputChange,
-        valueInputRef,
+        value: controlledValue,
+        onValueChange,
+        onTextChange,
+        multiple = false,
         defaultValue,
-        onChange,
-        value,
-        returnValueOrLabel = "value",
-        menuContainerClassName,
-        menuItemClassName,
-        menuNoOptionTextClassName,
+        inputRef,
         ...rest
-    }, { ...basicFieldProps }] = extractBasicFieldProps<ComboboxProps>(props, useId())
+    }, {
+        inputContainerProps,
+        leftAddonProps,
+        leftIconProps,
+        rightAddonProps,
+        rightIconProps,
+    }] = extractInputPartProps<ComboboxProps>({
+        ...props1,
+        size: props1.size ?? "md",
+        intent: props1.intent ?? "basic",
+        leftAddon: props1.leftAddon,
+        leftIcon: props1.leftIcon,
+        rightAddon: props1.rightAddon,
+        rightIcon: props1.rightIcon,
+    })
 
-    const [data, setData] = useState(options)
+    const buttonRef = React.useRef<HTMLButtonElement>(null)
 
-    const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined)
+    const valueRef = React.useRef<string[]>(controlledValue || defaultValue || [])
+    const [value, setValue] = React.useState<string[]>(controlledValue || defaultValue || [])
 
-    const [state, send] = useMachine(
-        combobox.machine({
-            id: basicFieldProps.id,
-            allowCustomValue: allowCustomValue,
-            inputBehavior: "autohighlight",
-            openOnClick: true,
-            loop: true,
-            blurOnSelect: true,
-            placeholder: placeholder,
-            onOpen() {
-                startTransition(() => {
-                    setData(options)
-                })
-            },
-            onSelect: (details) => {
-                startTransition(() => {
-                    if (returnValueOrLabel === "value") {
-                        setSelectedValue(details.value)
-                        onChange && onChange(details.value)
+    const [open, setOpen] = React.useState(false)
 
-                    } else if (returnValueOrLabel === "label") {
-                        setSelectedValue(details.label)
-                        onChange && onChange(details.label)
-                    }
-                })
-            },
-            onInputChange({ value }) {
-                onInputChange && onInputChange(value)
-                startTransition(() => {
-                    if (withFiltering) {
-                        const filtered = options.filter((item) => {
-                                if (item.label) {
-                                    return item.label.toLowerCase().includes(value.toLowerCase())
-                                } else {
-                                    return item.value.toLowerCase().includes(value.toLowerCase())
-                                }
-                            },
-                        )
-                        // Do not empty options if there is no 'noOptionsMessage'
-                        setData(filtered.length > 0 ? filtered : noOptionsMessage ? [] : data)
-                    }
-                })
-            },
-        }),
-    )
+    const handleUpdateValue = React.useCallback((value: string[]) => {
+        setValue(value)
+        valueRef.current = value
+    }, [])
 
-    const api = combobox.connect(state, send, normalizeProps)
-
-    // Set default value
-    useEffect(() => {
-        if (returnValueOrLabel === "value") {
-            if (defaultValue) {
-                setSelectedValue(defaultValue)
-                api.setInputValue(_find(options, ["value", defaultValue])?.label ?? "")
-                api.setValue(_find(options, ["value", defaultValue])?.value ?? "")
-            }
+    React.useEffect(() => {
+        if (controlledValue !== undefined && !equal(controlledValue, valueRef.current)) {
+            handleUpdateValue(controlledValue)
         }
-        if (returnValueOrLabel === "label") {
-            if (defaultValue) {
-                setSelectedValue(_find(options, ["label", defaultValue])?.value ?? defaultValue)
-                api.setInputValue(_find(options, ["label", defaultValue])?.label ?? defaultValue)
-                api.setValue(_find(options, ["label", defaultValue])?.value ?? defaultValue)
-            }
-        }
-    }, [defaultValue])
+    }, [controlledValue])
 
-    // Control the state
-    useEffect(() => {
-        value && setSelectedValue(value)
+    React.useEffect(() => {
+        onValueChange?.(value)
     }, [value])
 
-    const list = useMemo(() => {
-        return withFiltering ? data : options
-    }, [options, withFiltering, data])
+    const selectedOptions = options.filter((option) => value.includes(option.value))
 
-    return (
-        <>
-            <BasicField
-                {...basicFieldProps}
-                ref={ref}
-            >
-                <input type="text" hidden value={selectedValue ?? ""} onChange={() => {
-                }} ref={valueInputRef}/>
-
-                <div {...api.rootProps}>
-                    <div {...api.controlProps} className={cn(inputContainerStyle())}>
-
-                        <InputAddon addon={leftAddon} rightIcon={rightIcon} leftIcon={leftIcon} size={size}
-                                    side={"left"}/>
-                        <InputIcon icon={leftIcon} size={size} side={"left"} props={api.triggerProps}/>
-
-                        <input
-                            className={cn(
-                                "appearance-none",
-                                InputAnatomy.input({
-                                    size,
-                                    intent,
-                                    hasError: !!basicFieldProps.error,
-                                    untouchable: !!basicFieldProps.isDisabled,
-                                    hasRightAddon: !!rightAddon,
-                                    hasRightIcon: !!rightIcon,
-                                    hasLeftAddon: !!leftAddon,
-                                    hasLeftIcon: !!leftIcon,
-                                }),
-                            )}
-                            disabled={basicFieldProps.isDisabled}
-                            onBlur={() => {
-                                // If we do not allow custom values and the user blurs the input, we reset the input
-                                startTransition(() => {
-                                    if (!allowCustomValue) {
-                                        if (options.length === 0 && !api.selectedValue || (api.selectedValue && api.selectedValue.length === 0)) {
-                                            api.setInputValue("")
-                                        }
-
-                                        if (
-                                            options.length > 0 &&
-                                            (!_isEmpty(_find(options, ["value", api.selectedValue])?.label)
-                                                || !_isEmpty(_find(options, ["value", api.selectedValue])?.value)
-                                            )
-                                        ) {
-                                            api.selectedValue && api.setValue(api.selectedValue)
-                                        }
-                                    }
-                                })
-                            }}
-                            {...rest}
-                            ref={ref}
-                            {...api.inputProps}
-                        />
-
-                        <InputAddon addon={rightAddon} rightIcon={rightIcon} leftIcon={leftAddon} size={size}
-                                    side={"right"}/>
-                        <InputIcon icon={rightIcon} size={size} side={"right"} props={api.triggerProps}/>
-
-                    </div>
-                </div>
-
-                {/* Menu */}
-                <div {...api.positionerProps} className="z-10">
-                    {(!!noOptionsMessage || list.length > 0) && (
-                        <ul
-                            className={cn(ComboboxAnatomy.menuContainer(), menuContainerClassName)}
-                            {...api.contentProps}
-                        >
-                            {(list.length === 0 && !!noOptionsMessage) &&
-                                <div
-                                    className={cn(ComboboxAnatomy.menuNoOptionText(), menuNoOptionTextClassName)}>{noOptionsMessage}</div>}
-                            {list.map((item, index) => (
-                                <li
-                                    className={cn(
-                                        ComboboxAnatomy.menuItem(),
-                                        menuItemClassName,
-                                    )}
-                                    key={`combobox:${item.value}:${index}`}
-                                    {...api.getOptionProps({
-                                        label: item.label ?? item.value,
-                                        value: item.value,
-                                        index,
-                                        disabled: basicFieldProps.isDisabled,
-                                    })}
-                                >
-                                    {item.label ?? item.value}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            </BasicField>
-        </>
+    const selectedValues = (
+        (!!value.length && !!selectedOptions.length) ?
+            multiple ? selectedOptions.map((option) => <div key={option.value} className={cn(ComboboxAnatomy.item(), itemClass)}>
+                <span className="truncate">{option.textValue || option.value}</span>
+                <span
+                    className={cn(ComboboxAnatomy.removeItemButton(), "rounded-full", removeItemButtonClass)} onClick={(e) => {
+                    e.preventDefault()
+                    handleUpdateValue(value.filter((v) => v !== option.value))
+                    setOpen(false)
+                }}
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"
+                        fill="currentColor"
+                    >
+                        <path
+                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"
+                        ></path>
+                    </svg>
+                </span>
+            </div>) : <span className="truncate">{selectedOptions[0].label}</span>
+            : <span className={cn(ComboboxAnatomy.placeholder(), placeholderClass)}>{placeholder}</span>
     )
 
+    return (
+        <BasicField{...basicFieldProps}>
+            <InputContainer {...inputContainerProps}>
+                <InputAddon {...leftAddonProps} />
+                <InputIcon {...leftIconProps} />
+
+                <Popover
+                    open={open}
+                    onOpenChange={setOpen}
+                    className={cn(
+                        ComboboxAnatomy.popover(),
+                        popoverClass,
+                    )}
+                    trigger={<button
+                        ref={mergeRefs([buttonRef, ref])}
+                        id={basicFieldProps.id}
+                        role="combobox"
+                        aria-expanded={open}
+                        className={cn(
+                            InputAnatomy.root({
+                                size,
+                                intent,
+                                hasError: !!basicFieldProps.error,
+                                isDisabled: !!basicFieldProps.disabled,
+                                isReadonly: !!basicFieldProps.readonly,
+                                hasRightAddon: !!rightAddon,
+                                hasRightIcon: !!rightIcon,
+                                hasLeftAddon: !!leftAddon,
+                                hasLeftIcon: !!leftIcon,
+                            }),
+                            ComboboxAnatomy.root({
+                                size,
+                            }),
+                        )}
+                        {...rest}
+                    >
+                        <div className={cn(ComboboxAnatomy.inputValuesContainer())}>
+                            {selectedValues}
+                        </div>
+                        <div className="flex items-center">
+                            {(!!value.length && !!selectedOptions.length && !multiple) && (
+                                <span
+                                    className={cn(ComboboxAnatomy.removeItemButton(), removeItemButtonClass)} onClick={(e) => {
+                                    e.preventDefault()
+                                    handleUpdateValue([])
+                                    setOpen(false)
+                                }}
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"
+                                        ></path>
+                                    </svg>
+                                </span>
+                            )}
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className={cn(
+                                    ComboboxAnatomy.chevronIcon(),
+                                    chevronIconClass,
+                                )}
+                            >
+                                <path d="m7 15 5 5 5-5" />
+                                <path d="m7 9 5-5 5 5" />
+                            </svg>
+                        </div>
+                    </button>}
+                >
+                    <Command
+                        inputContainerClass="py-1"
+                        {...commandProps}
+                    >
+                        <CommandInput
+                            placeholder={placeholder}
+                            onValueChange={onTextChange}
+                        />
+                        <CommandList>
+                            <CommandEmpty>{emptyMessage}</CommandEmpty>
+                            <CommandGroup>
+                                {options.map((option) => (
+                                    <CommandItem
+                                        key={option.value}
+                                        value={option.textValue || option.value}
+                                        onSelect={(currentValue) => {
+                                            const _option = options.find(n => (n.textValue || n.value).toLowerCase() === currentValue.toLowerCase())
+                                            if (_option) {
+                                                if (!multiple) {
+                                                    handleUpdateValue(value.includes(_option.value) ? [] : [_option.value])
+                                                } else {
+                                                    handleUpdateValue(
+                                                        !value.includes(_option.value)
+                                                            ? [...value, _option.value]
+                                                            : value.filter((v) => v !== _option.value),
+                                                    )
+                                                }
+                                            }
+                                            setOpen(false)
+                                        }}
+                                        leftIcon={
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className={cn(
+                                                    ComboboxAnatomy.checkIcon(),
+                                                    checkIconClass,
+                                                )}
+                                                data-selected={value.includes(option.value)}
+                                            >
+                                                <path d="M20 6 9 17l-5-5" />
+                                            </svg>
+                                        }
+                                    >
+                                        {option.label}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </Popover>
+
+                <input
+                    ref={inputRef}
+                    type="text"
+                    name={basicFieldProps.name}
+                    className={hiddenInputStyles}
+                    value={basicFieldProps.required ? (!!value.length ? JSON.stringify(value) : "") : JSON.stringify(value)}
+                    aria-hidden="true"
+                    required={basicFieldProps.required}
+                    tabIndex={-1}
+                    onChange={() => {}}
+                    onFocusCapture={() => buttonRef.current?.focus()}
+                />
+
+                <InputAddon {...rightAddonProps} />
+                <InputIcon {...rightIconProps} />
+            </InputContainer>
+        </BasicField>
+    )
 })
 
 Combobox.displayName = "Combobox"

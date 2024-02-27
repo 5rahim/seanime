@@ -2,7 +2,7 @@ import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime
 import { useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_containers/discover-sections/header"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { Slider } from "@/components/shared/slider"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
@@ -41,7 +41,7 @@ export function DiscoverTrending() {
     }, [data, randomNumber])
 
     return (
-        <Slider
+        <HorizontalDraggableScroll
             onSlideEnd={() => fetchNextPage()}
         >
             {!isLoading ? data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).map(media => {
@@ -50,11 +50,11 @@ export function DiscoverTrending() {
                         key={media.id}
                         media={media}
                         showLibraryBadge
-                        containerClassName={"min-w-[250px] max-w-[250px] mt-8"}
+                        containerClassName="min-w-[250px] max-w-[250px] mt-8"
                     />
                 )
             }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
-        </Slider>
+        </HorizontalDraggableScroll>
     )
 
 }

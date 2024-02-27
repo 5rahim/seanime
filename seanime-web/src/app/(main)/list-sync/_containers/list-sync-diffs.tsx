@@ -2,23 +2,22 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/components/ui/core"
+import { cn } from "@/components/ui/core/styling"
 import { Spinner } from "@/components/ui/loading-spinner"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { ListSyncAnimeDiff, ListSyncAnimeDiffKind, ListSyncAnimeMetadataDiffKind } from "@/lib/server/types"
-import { BiListPlus } from "@react-icons/all-files/bi/BiListPlus"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
-import toast from "react-hot-toast"
-import { BiRefresh } from "react-icons/bi"
+import { BiListPlus, BiRefresh } from "react-icons/bi"
 import { FiMinusCircle, FiPlusCircle } from "react-icons/fi"
 import { LuUploadCloud } from "react-icons/lu"
 import { SiAnilist, SiMyanimelist } from "react-icons/si"
 import { useInterval } from "react-use"
+import { toast } from "sonner"
 
 type ListSyncDiffsProps = {
     children?: React.ReactNode
@@ -143,8 +142,8 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
                     intent="primary-outline"
                     onClick={onClearCache}
                     leftIcon={<BiRefresh />}
-                    isLoading={isDeletingCache}
-                    isDisabled={disabledButton}
+                    loading={isDeletingCache}
+                    disabled={disabledButton}
                 >
                     Refresh data
                 </Button>
@@ -153,11 +152,11 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
             <div className="flex items-center justify-between w-full">
                 <h4>Items to sync: <Badge size="lg" className="ml-1 px-1.5">{diffs.length}</Badge></h4>
                 <div className="flex items-center gap-2">
-                    <Button size="sm" intent="white-outline" onClick={handleSyncDetails} isDisabled={disabledButton || !diffs.length}>Sync
+                    <Button size="sm" intent="white-outline" onClick={handleSyncDetails} disabled={disabledButton || !diffs.length}>Sync
                                                                                                                                       details</Button>
-                    <Button size="sm" intent="success-outline" onClick={handleSyncAdditions} isDisabled={disabledButton || !diffs.length}>
+                    <Button size="sm" intent="success-outline" onClick={handleSyncAdditions} disabled={disabledButton || !diffs.length}>
                         Sync additions</Button>
-                    <Button size="sm" intent="alert-outline" onClick={handleSyncRemovals} isDisabled={disabledButton || !diffs.length}>Sync
+                    <Button size="sm" intent="alert-outline" onClick={handleSyncRemovals} disabled={disabledButton || !diffs.length}>Sync
                                                                                                                                        removals</Button>
                 </div>
             </div>
@@ -204,7 +203,7 @@ function DiffItem(props: DiffItemProps) {
 
     return (
         <div
-            className={cn("border border-[--border] rounded-[--radius] p-2 flex w-full relative")}
+            className={cn("border rounded-[--radius] p-2 flex w-full relative")}
         >
             <div
                 className="bg-cover bg-center w-16 h-16 rounded-[--radius] mr-4"

@@ -1,2 +1,2 @@
-export * from "./navigation-tabs"
-export * from "./tab-panels"
+export * from "./tabs"
+export * from "./static-tabs"
