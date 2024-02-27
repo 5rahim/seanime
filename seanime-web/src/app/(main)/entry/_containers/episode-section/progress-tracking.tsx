@@ -60,6 +60,25 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         },
     })
 
+    // Tracking progress
+    useWebsocketMessageListener<MediaPlayerPlaybackStatus | null>({
+        type: WSEvents.MEDIA_PLAYER_PLAYBACK_STATUS,
+        onMessage: data => {
+            // Set progress tracking state if not present
+            if (data) {
+                const foundEp = entry.episodes?.find(ep => removeSpecificFileExtension(ep.localFile?.name) === removeSpecificFileExtension(data.filename))
+                if (foundEp) { // Episode is found
+                    if (!episode) { // Set episode if not set
+                        setEpisode(foundEp)
+                    }
+                    // Set appropriate states
+                    if (!isTracking.active) isTracking.on()
+                    if (!serverSideTracking.active) serverSideTracking.on()
+                }
+            }
+        },
+    })
+
     // Video is completed
     useWebsocketMessageListener<MediaPlayerPlaybackStatus | null>({
         type: WSEvents.MEDIA_PLAYER_VIDEO_COMPLETED,

@@ -124,7 +124,7 @@ export const InputAddonsAnatomy = defineStyleAnatomy({
     icon: cva([
         "UI-Input__addons--icon",
         "pointer-events-none absolute inset-y-0 grid place-content-center text-gray-500",
-        "dark:text-gray-300",
+        "dark:text-gray-300 !z-[1]",
     ], {
         variants: {
             size: { sm: "w-10 text-md", md: "w-12 text-lg", lg: "w-14 text-2xl" },
