@@ -4,6 +4,7 @@ import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { BaseMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
 import { addSeconds, formatDistanceToNow } from "date-fns"
+import { motion } from "framer-motion"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
@@ -41,7 +43,20 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
     return (
         <div className="space-y-8 pb-10">
             <div className="space-y-8 p-6 sm:p-8 rounded-xl bg-gray-950 bg-opacity-80 drop-shadow-md relative">
-                <div className="space-y-4">
+                <motion.div
+                    {...{
+                        initial: { opacity: 0 },
+                        animate: { opacity: 1 },
+                        exit: { opacity: 0 },
+                        transition: {
+                            type: "spring",
+                            damping: 20,
+                            stiffness: 100,
+                            delay: 0.1,
+                        },
+                    }}
+                    className="space-y-4"
+                >
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <h1 className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-center md:text-left text-pretty text-3xl lg:text-5xl">{entry.media.title?.userPreferred}</h1>
@@ -172,7 +187,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         </p>
                     )}
 
-                </div>
+                </motion.div>
 
             </div>
 

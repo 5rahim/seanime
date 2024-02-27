@@ -2,6 +2,7 @@
 
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -66,8 +67,9 @@ export default function Home() {
     const droppedList = useMemo(() => getList("DROPPED"), [search, getList, anilistLists])
 
     return (
-        <main className="p-4 sm:p-8 pt-4 relative">
-
+        <PageWrapper
+            className="p-4 sm:p-8 pt-4 relative"
+        >
             <SearchInput />
 
             <Tabs
@@ -120,7 +122,7 @@ export default function Home() {
                 </div>
             </Tabs>
 
-        </main>
+        </PageWrapper>
     )
 }
 

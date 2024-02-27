@@ -1,5 +1,6 @@
 "use client"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -17,7 +18,9 @@ import * as upath from "upath"
 export default function Page() {
 
     return (
-        <AppLayoutStack className="p-4 sm:p-8">
+        <PageWrapper
+            className="space-y-4 p-4 sm:p-8"
+        >
             <div className="flex items-center w-full justify-between">
                 <div>
                     <h2>Active torrents</h2>
@@ -33,9 +36,9 @@ export default function Page() {
             </div>
 
             <div className="pb-10">
-                <Content/>
+                <Content />
             </div>
-        </AppLayoutStack>
+        </PageWrapper>
     )
 }
 
@@ -58,7 +61,7 @@ function Content() {
         mutate(props)
     }, [mutate])
 
-    if (isLoading) return <LoadingSpinner/>
+    if (isLoading) return <LoadingSpinner />
 
     return (
         <AppLayoutStack className={""}>
@@ -90,15 +93,17 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
     return (
         <div className="p-4 border rounded-md  overflow-hidden relative flex gap-2">
             <div className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
-                <div className={cn(
-                    "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                    {
-                        "bg-green-300": torrent.status === "downloading",
-                        "bg-gray-500": torrent.status === "paused",
-                        "bg-blue-500": torrent.status === "seeding",
-                    },
-                )}
-                     style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}></div>
+                <div
+                    className={cn(
+                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                        {
+                            "bg-green-300": torrent.status === "downloading",
+                            "bg-gray-500": torrent.status === "paused",
+                            "bg-blue-500": torrent.status === "seeding",
+                        },
+                    )}
+                    style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}
+                ></div>
             </div>
             <div className="w-full">
                 <div
@@ -132,7 +137,7 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
             <div className="flex gap-2 items-center">
                 <div className="flex-none">
                     <IconButton
-                        icon={<BiFolder/>}
+                        icon={<BiFolder />}
                         size="sm"
                         intent="gray-subtle"
                         className="flex-none"
@@ -147,51 +152,57 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
                 </div>
                 {torrent.status !== "seeding" ? (
                     <>
-                        <Tooltip trigger={<IconButton
-                            icon={<BiPause/>}
-                            size="sm"
-                            intent="gray-subtle"
-                            className="flex-none"
-                            onClick={async () => {
-                                onTorrentAction({
-                                    hash: torrent.hash,
-                                    action: "pause",
-                                    dir: torrent.contentPath,
-                                })
-                                refetch()
-                            }}
-                        />}>Pause</Tooltip>
-                        <Tooltip trigger={<div>{torrent.status !== "downloading" && <IconButton
-                            icon={<BiPlay/>}
-                            size="sm"
-                            intent="gray-subtle"
-                            className="flex-none"
-                            onClick={async () => {
-                                onTorrentAction({
-                                    hash: torrent.hash,
-                                    action: "resume",
-                                    dir: torrent.contentPath,
-                                })
-                                refetch()
-                            }}
-                        />}</div>}>
+                        <Tooltip
+                            trigger={<IconButton
+                                icon={<BiPause />}
+                                size="sm"
+                                intent="gray-subtle"
+                                className="flex-none"
+                                onClick={async () => {
+                                    onTorrentAction({
+                                        hash: torrent.hash,
+                                        action: "pause",
+                                        dir: torrent.contentPath,
+                                    })
+                                    refetch()
+                                }}
+                            />}
+                        >Pause</Tooltip>
+                        <Tooltip
+                            trigger={<div>{torrent.status !== "downloading" && <IconButton
+                                icon={<BiPlay />}
+                                size="sm"
+                                intent="gray-subtle"
+                                className="flex-none"
+                                onClick={async () => {
+                                    onTorrentAction({
+                                        hash: torrent.hash,
+                                        action: "resume",
+                                        dir: torrent.contentPath,
+                                    })
+                                    refetch()
+                                }}
+                            />}</div>}
+                        >
                             Resume
                         </Tooltip>
                     </>
-                ) : <Tooltip trigger={<IconButton
-                    icon={<BiStop/>}
-                    size="sm"
-                    intent="primary"
-                    className="flex-none"
-                    onClick={async () => {
-                        onTorrentAction({
-                            hash: torrent.hash,
-                            action: "pause",
-                            dir: torrent.contentPath,
-                        })
-                        refetch()
-                    }}
-                />}>End</Tooltip>}
+                ) : <Tooltip
+                    trigger={<IconButton
+                        icon={<BiStop />}
+                        size="sm"
+                        intent="primary"
+                        className="flex-none"
+                        onClick={async () => {
+                            onTorrentAction({
+                                hash: torrent.hash,
+                                action: "pause",
+                                dir: torrent.contentPath,
+                            })
+                            refetch()
+                        }}
+                    />}
+                >End</Tooltip>}
             </div>
         </div>
     )

@@ -1,5 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
@@ -35,7 +36,7 @@ export default function Page() {
     }, [data, isPending])
 
     return (
-        <div className="p-4 sm:p-8 space-y-4">
+        <PageWrapper className="p-4 sm:p-8 space-y-4">
             <div className="space-y-1">
                 <h2>Settings</h2>
                 <p className="text-[--muted]">App version: {status?.version}</p>
@@ -287,7 +288,7 @@ export default function Page() {
                 </Card>
 
             </Form>
-        </div>
+        </PageWrapper>
     )
 
 }

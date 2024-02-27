@@ -1,5 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -40,7 +41,9 @@ export default function Page() {
     console.log(data)
 
     return (
-        <div className="p-4 sm:p-8 space-y-4">
+        <PageWrapper
+            className="p-4 sm:p-8 space-y-4"
+        >
             <div className="flex justify-between items-center w-full relative">
                 <div>
                     <h2>Scan summaries</h2>
@@ -140,7 +143,7 @@ export default function Page() {
                     </div>
                 )}
             </div>
-        </div>
+        </PageWrapper>
     )
 
 }

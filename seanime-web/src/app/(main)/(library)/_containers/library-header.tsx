@@ -24,7 +24,7 @@ export function LibraryHeader() {
         }
         const t = setTimeout(() => {
             setActualImage(image)
-        }, 500)
+        }, 600)
 
         return () => {
             clearTimeout(t)

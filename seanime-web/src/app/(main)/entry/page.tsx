@@ -5,6 +5,8 @@ import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-section/e
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
+import { PageWrapper } from "@/components/shared/page-wrapper"
+import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
@@ -32,16 +34,18 @@ export default function Page() {
         <div>
             <EntryHeaderBackground entry={mediaEntry} />
             <div
-                className="-mt-[8rem] relative z-10 max-w-full px-4 md:px-10 grid grid-cols-1 2xl:grid-cols-2 gap-8 pb-16"
+                className={cn(
+                    "-mt-[8rem] relative z-10 max-w-full px-4 md:px-10 grid grid-cols-1 gap-8 pb-16 2xl:grid-cols-2",
+                    // { "2xl:grid-cols-[minmax(0,1fr),_700px]": !!mediaEntry?.libraryData },
+                    // { "2xl:grid-cols-2": !mediaEntry?.libraryData },
+                )}
             >
                 <div className="-mt-[18rem] h-[fit-content] 2xl:sticky top-[5rem] backdrop-blur-xl">
-                    {/*<div*/}
-                    {/*    className="-mt-[18rem] p-8 rounded-xl backdrop-blur-2xl bg-gray-900 bg-opacity-50 backdrop-opacity-80 drop-shadow-md">*/}
                     <MetaSection entry={mediaEntry} details={mediaDetails} />
                 </div>
-                <div className="relative 2xl:order-first pb-10">
+                <PageWrapper className="relative 2xl:order-first pb-10">
                     <EpisodeSection entry={mediaEntry} />
-                </div>
+                </PageWrapper>
             </div>
             <TorrentSearchDrawer entry={mediaEntry} />
         </div>

@@ -365,7 +365,7 @@ const ProgressBadge = (props: { media: BaseMediaFragment, listData?: MediaEntryL
 
     return (
         <div className="absolute z-10 left-1 bottom-1">
-            <Badge size="lg" className="rounded-md">
+            <Badge size="lg" className="rounded-md px-1.5">
                 {progress}/{episodes ?? "-"}
             </Badge>
         </div>

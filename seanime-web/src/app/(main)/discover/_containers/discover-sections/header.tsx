@@ -1,8 +1,10 @@
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-sections/trending"
+import { PAGE_TRANSITION } from "@/components/shared/page-transition"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
+import { motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import Image from "next/image"
@@ -24,7 +26,15 @@ export function DiscoverPageHeader() {
     const setHoveringHeader = useSetAtom(__discover_hoveringHeaderAtom)
 
     return (
-        <div className="__header h-[20rem]">
+        <motion.div
+            {...{
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                exit: { opacity: 0 },
+                transition: { delay: 0.2, duration: 0.2 },
+            }}
+            className="__header h-[24rem]"
+        >
             <div
                 className="h-[30rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
             >
@@ -46,7 +56,18 @@ export function DiscoverPageHeader() {
                 />}
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 {!!randomTrending && (
-                    <div
+                    <motion.div
+                        {...{
+                            initial: { opacity: 0, y: -40 },
+                            animate: { opacity: 1, y: 0 },
+                            exit: { opacity: 0, y: -40 },
+                            transition: {
+                                delay: 0.5,
+                                type: "spring",
+                                damping: 20,
+                                stiffness: 100,
+                            },
+                        }}
                         className="absolute bottom-[8rem] right-2 w-fit h-[10rem] bg-gradient-to-t z-[3] hidden lg:block"
                     >
                         <div
@@ -56,7 +77,7 @@ export function DiscoverPageHeader() {
                         >
                             <div className="flex-none">
                                 {randomTrending.coverImage?.large && <div
-                                    className="w-[140px] h-[180px] relative rounded-md overflow-hidden bg-[--background] shadow-md border "
+                                    className="w-[180px] h-[220px] relative rounded-md overflow-hidden bg-[--background] shadow-md border "
                                 >
                                     <Image
                                         src={randomTrending.coverImage.large}
@@ -96,16 +117,24 @@ export function DiscoverPageHeader() {
                                 </div>
                                 {/*<p className="text-[--muted]">{randomTrending.}</p>*/}
                             </div>
-                            <div
-                                className="bg-[url(/pattern-1.svg)] z-[-1] w-full h-full absolute opacity-100 top-0 left-0 bg-no-repeat bg-right bg-contain"
-                            />
                         </div>
-                    </div>
+                    </motion.div>
                 )}
                 <div
                     className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                 />
-                <div
+                <motion.div
+                    {...{
+                        initial: { opacity: 0, x: -40 },
+                        animate: { opacity: 1, x: 0 },
+                        exit: { opacity: 0, x: -40 },
+                        transition: {
+                            delay: 1,
+                            type: "spring",
+                            damping: 20,
+                            stiffness: 100,
+                        },
+                    }}
                     className="absolute bottom-16 left-8 z-[3] cursor-pointer opacity-80 transition-opacity hover:opacity-100"
                     onClick={() => router.push(`/search`)}
                 >
@@ -118,9 +147,9 @@ export function DiscoverPageHeader() {
                         onChange={() => {
                         }}
                     />
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     )
 
 }
