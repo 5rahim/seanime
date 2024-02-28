@@ -8,7 +8,6 @@ import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolb
 import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { cn } from "@/components/ui/core/styling"
 import React from "react"
 
 export default function Library() {
@@ -26,11 +25,7 @@ export default function Library() {
     return (
         <div>
             <LibraryHeader list={continueWatchingList} />
-            <PageWrapper
-                className={cn(
-                    "mt-10",
-                )}
-            >
+            <PageWrapper>
                 <LibraryToolbar
                     collectionList={libraryCollectionList}
                     unmatchedLocalFiles={unmatchedLocalFiles}
