@@ -42,7 +42,7 @@ export default function Page({ params: urlParams }: {
     })
 
     return (
-        <PageWrapper className="space-y-6 mt-8 p-8 pt-0 pb-10">
+        <PageWrapper className="space-y-6 mt-8 px-4 md:p-8 pt-0 pb-10">
             <div className="flex items-center gap-4">
                 <Link href={`/discover`}>
                     <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />

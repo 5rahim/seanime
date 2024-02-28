@@ -27,7 +27,7 @@ export function AdvancedSearchOptions() {
 
     return (
         <AppLayoutStack className="px-4 xl:px-0">
-            <div className="flex flex-row xl:flex-col gap-4">
+            <div className="flex flex-col md:flex-row xl:flex-col gap-4">
                 <TitleInput/>
                 <Select
                     // label="Sorting"
@@ -41,7 +41,7 @@ export function AdvancedSearchOptions() {
                     disabled={!!params.title && params.title.length > 0}
                 />
             </div>
-            <div className="flex flex-row xl:flex-col gap-4 items-end xl:items-start">
+            <div className="flex flex-col md:flex-row xl:flex-col gap-4 items-end xl:items-start">
                 <Combobox
                     multiple
                     emptyMessage="No option found"
@@ -52,6 +52,7 @@ export function AdvancedSearchOptions() {
                         draft.genre = v
                         return
                     })}
+                    fieldLabelClass="hidden"
                 />
                 <Select
                     label="Format" placeholder="All formats" className="w-full"
@@ -61,6 +62,7 @@ export function AdvancedSearchOptions() {
                         draft.format = v as any
                         return
                     })}
+                    fieldLabelClass="hidden"
                 />
                 <Select
                     label="Season" placeholder="All seasons" className="w-full"
@@ -70,6 +72,7 @@ export function AdvancedSearchOptions() {
                         draft.season = v as any
                         return
                     })}
+                    fieldLabelClass="hidden"
                 />
                 <Select
                     label="Year" placeholder="Timeless" className="w-full"
@@ -82,6 +85,7 @@ export function AdvancedSearchOptions() {
                         draft.year = v as any
                         return
                     })}
+                    fieldLabelClass="hidden"
                 />
                 <Select
                     label="Status" placeholder="All" className="w-full"
@@ -91,6 +95,7 @@ export function AdvancedSearchOptions() {
                         draft.status = [v] as any
                         return
                     })}
+                    fieldLabelClass="hidden"
                 />
                 <IconButton
                     icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
