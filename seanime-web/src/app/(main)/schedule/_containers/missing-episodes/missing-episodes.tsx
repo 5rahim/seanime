@@ -1,9 +1,10 @@
 "use client"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
+import { GenericSliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
-import { Skeleton } from "@/components/ui/skeleton"
 import { MediaEntryEpisode } from "@/lib/server/types"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -28,40 +29,37 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                     <>
                         <h2 className="flex gap-3 items-center"><IoLibrary /> Missing from your library</h2>
 
-                        <HorizontalDraggableScroll>
-                            {!isLoading && missingEpisodes?.map(episode => {
-                                return <LargeEpisodeListItem
-                                    key={episode.displayTitle + episode.basicMedia?.id}
-                                    image={episode.episodeMetadata?.image}
-                                    topTitle={episode.basicMedia?.title?.userPreferred}
-                                    title={episode.displayTitle}
-                                    meta={episode.episodeMetadata?.airDate ?? undefined}
-                                    actionIcon={<AiOutlineDownload />}
-                                    isInvalid={episode.isInvalid}
-                                    onClick={() => {
-                                        router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
-                                    }}
-                                />
-                            })}
-                            {isLoading && <>
-                                <Skeleton
-                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"
-                                />
-                                <Skeleton
-                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"
-                                />
-                                <Skeleton
-                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-end flex-none"
-                                />
-                            </>}
-                            {!isLoading && !missingEpisodes?.length && (
-                                <div
-                                    className="rounded-md h-auto overflow-hidden aspect-[4/2] w-96 relative flex items-center justify-center flex-none bg-gray-900 text-[--muted]"
-                                >
-                                    No missing episodes
-                                </div>
-                            )}
-                        </HorizontalDraggableScroll>
+                        <Carousel
+                            className="w-full max-w-full"
+                            gap="md"
+                            opts={{
+                                align: "start",
+                            }}
+                            autoScroll
+                        >
+                            <CarouselDotButtons />
+                            <CarouselContent>
+                                {!isLoading && missingEpisodes?.map(episode => {
+                                    return <CarouselItem
+                                        key={episode?.localFile?.path}
+                                        className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
+                                    >
+                                        <GenericSliderEpisodeItem
+                                            key={episode.displayTitle + episode.basicMedia?.id}
+                                            image={episode.episodeMetadata?.image}
+                                            topTitle={episode.basicMedia?.title?.userPreferred}
+                                            title={episode.displayTitle}
+                                            meta={episode.episodeMetadata?.airDate ?? undefined}
+                                            actionIcon={<AiOutlineDownload className="opacity-50" />}
+                                            isInvalid={episode.isInvalid}
+                                            onClick={() => {
+                                                router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                            }}
+                                        />
+                                    </CarouselItem>
+                                })}
+                            </CarouselContent>
+                        </Carousel>
                     </>
                 )}
 

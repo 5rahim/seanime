@@ -19,22 +19,22 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 
 - ✨ **User-friendly web interface**
   - Set up Seanime with a few clicks
-  - Netflix-like experience for your local anime library
+  - Modern, simple, responsive UI
 - ✨ **Seamless integration with AniList**
   - Manage your AniList collection (add, update, delete entries)
-- 🎉 **Scan your local library**
-  - Seanime does not require a mandatory folder structure or naming convention
-  - Seanime also supports torrents with absolute episode numbers
-- 🎉 **Download new episodes automatically**
+  - Discover new anime, track your progress, see upcoming episodes, and get recommendations
+- 🚀 **Powerful scanner**
+  - No mandatory folder structure or naming convention
+  - Support for torrents with absolute episode numbers
+- 🚀 **Download new episodes automatically**
   - Add rules (filters) that specify which torrent to download based on parameters such as release group, resolution, episode numbers
-  - Seanime will check RSS feeds for new episodes and download them automatically via qBittorrent
-- 🎉 **Integrated torrent search engine**
-  - You can manually search and download new episodes with a few clicks without leaving the web interface
-  - Seanime will notify you when new episodes are available in the schedule page
-- 🎉 **Automatically track your progress**
-  - Launch an episode from the web interface and Seanime will automatically update your progress on AniList
-  - VLC, MPC-HC, and MPV are supported
-- 🎉 **MyAnimeList integration**
+  - Support for Nyaa and AnimeTosho
+- 🚀 **Integrated torrent search engine**
+  - Manually search and download new episodes with a few clicks without leaving the web interface
+- 🚀 **Third-party media players**
+  - Launch an episode from the web interface and Seanime will automatically update your progress on AniList (& MAL)
+  - MPV, VLC, and MPC-HC are supported
+- 🚀 **MyAnimeList integration**
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
 - **No data collection**
