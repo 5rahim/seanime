@@ -35,7 +35,7 @@ export function useLibraryCollection() {
     return {
         isLoading: isLoading,
         libraryCollectionList: sortedCollection,
-        continueWatchingList: [],// data?.continueWatchingList ?? [],
+        continueWatchingList: data?.continueWatchingList ?? [],
         unmatchedLocalFiles: data?.unmatchedLocalFiles ?? [],
         ignoredLocalFiles: data?.ignoredLocalFiles ?? [],
         unmatchedGroups: data?.unmatchedGroups ?? [],

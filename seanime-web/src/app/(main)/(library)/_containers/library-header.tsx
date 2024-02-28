@@ -106,7 +106,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                 <div
                     className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
                 />
-                <div className="h-full absolute w-full xl:-left-28">
+                <div className="h-full absolute w-full xl-right-48">
                     <Image
                         src={"/mask-2.png"}
                         alt="mask"
@@ -115,7 +115,20 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                         priority
                         sizes="100vw"
                         className={cn(
-                            "object-cover object-left z-[2] transition-opacity duration-1000 opacity-70",
+                            "object-cover object-left z-[2] transition-opacity duration-1000 opacity-40",
+                        )}
+                    />
+                </div>
+                <div className="h-full absolute w-full xl:-right-48">
+                    <Image
+                        src={"/mask.png"}
+                        alt="mask"
+                        fill
+                        quality={100}
+                        priority
+                        sizes="100vw"
+                        className={cn(
+                            "object-cover object-right z-[2] transition-opacity duration-1000 opacity-30",
                         )}
                     />
                 </div>
