@@ -176,8 +176,8 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     </div>
 
                     {(!entry.aniDBId || entry.aniDBId === 0) && (
-                        <p className="text-center text-red-300 opacity-50">
-                            No mapping found for AniDB. The episodes will have no metadata.
+                        <p className="text-center text-red-300 opacity-60">
+                            No metadata found on AniDB
                         </p>
                     )}
 

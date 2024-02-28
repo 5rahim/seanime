@@ -26,7 +26,7 @@ export const ModalAnatomy = defineStyleAnatomy({
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         // "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
         // "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-        "sm:rounded-[--radius]",
+        "sm:rounded-lg",
     ]),
     close: cva([
         "UI-Modal__close",
@@ -126,6 +126,7 @@ export function Modal(props: ModalProps) {
             <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)}>
 
 
+                {/*<div className="flex w-full justify-center h-full items-center">*/}
                 <DialogPrimitive.Content
                     className={cn(ModalAnatomy.content(), contentClass)}
                     onOpenAutoFocus={onOpenAutoFocus}
@@ -155,6 +156,7 @@ export function Modal(props: ModalProps) {
                     </DialogPrimitive.Close>}
 
                 </DialogPrimitive.Content>
+                {/*</div>*/}
 
 
             </DialogPrimitive.Overlay>

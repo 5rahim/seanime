@@ -233,7 +233,7 @@ export function TorrentConfirmationContinueButton() {
     return (
         <Button
             intent="primary"
-            className="animate-pulse"
+            className=""
             onClick={() => setter(true)}
         >
             Continue ({st.length})

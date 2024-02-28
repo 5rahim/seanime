@@ -12,8 +12,9 @@ import { LibraryCollectionList, LocalFile, UnknownGroup } from "@/lib/server/typ
 import { useAtomValue, useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
-import { BiCollection, BiDotsVerticalRounded, BiFileFind, BiFolder } from "react-icons/bi"
-import { FiDatabase, FiSearch } from "react-icons/fi"
+import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
+import { FiSearch } from "react-icons/fi"
+import { IoLibrarySharp } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 
 export type LibraryToolbarProps = {
@@ -50,17 +51,17 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     {hasScanned ? "Refresh entries" : "Scan your library"}
                 </Button>}
                 {(unmatchedLocalFiles.length > 0) && <Button
-                    intent="alert-outline"
-                    leftIcon={<FiDatabase />}
-                    className="animate-pulse"
+                    intent="alert"
+                    leftIcon={<IoLibrarySharp />}
+                    className=""
                     onClick={() => setUnmatchedFileManagerOpen(true)}
                 >
                     Resolve unmatched ({unmatchedLocalFiles.length})
                 </Button>}
                 {(unknownGroups.length > 0) && <Button
-                    intent="warning-outline"
-                    leftIcon={<BiFileFind />}
-                    className="animate-pulse"
+                    intent="warning"
+                    leftIcon={<IoLibrarySharp />}
+                    className=""
                     onClick={() => setUnknownMediaManagerOpen(true)}
                 >
                     Resolve hidden media ({unknownGroups.length})

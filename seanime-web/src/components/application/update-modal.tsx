@@ -2,6 +2,7 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
@@ -16,7 +17,9 @@ import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiDownload } from "react-icons/bi"
 import { toast } from "sonner"
 
-type UpdateModalProps = {}
+type UpdateModalProps = {
+    collapsed?: boolean
+}
 
 
 export const updateModalOpenAtom = atom<boolean>(false)
@@ -66,6 +69,7 @@ export function UpdateModal(props: UpdateModalProps) {
     return (
         <>
             <VerticalMenu
+                collapsed={props.collapsed}
                 items={[
                     {
                         iconType: AiFillExclamationCircle,
@@ -78,11 +82,11 @@ export function UpdateModal(props: UpdateModalProps) {
             <Modal
                 open={updateModalOpen}
                 onOpenChange={() => ignoreUpdate()}
-                contentClass="max-w-xl"
+                contentClass="max-w-2xl"
             >
                 <Downloader release={updateData.release} />
                 <div
-                    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[10rem] absolute opacity-60 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
+                    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-60 left-0 bg-no-repeat bg-right bg-cover"
                 >
                     <div
                         className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"
@@ -93,7 +97,7 @@ export function UpdateModal(props: UpdateModalProps) {
                     <p className="text-[--muted]">A new version of Seanime is available on the GitHub repository.</p>
                     {body.some(n => n.includes("🚑️")) &&
                         <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
-                    <div className="bg-[--background] rounded-[--radius] p-2 px-4 space-y-1.5">
+                    <div className="rounded-[--radius] space-y-1.5">
                         {body.map((line, index) => {
                             if (line.startsWith("##")) return <h5 key={index}>What's new?</h5>
                             if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
@@ -178,19 +182,25 @@ export function Downloader(props: DownloaderProps) {
         <Modal
             open={downloaderOpen}
             onOpenChange={() => setDownloaderOpen(false)}
-            title="Download update"
-            contentClass="space-y-4"
+            title="Download new release"
+            contentClass="space-y-4 max-w-2xl overflow-hidden"
         >
             <div>
                 <RadioGroup
-                    // TODO
-                    // fieldClass="w-full"
-                    // fieldLabelClass="text-md"
-                    // radioContainerClass={cn(
-                    //     "block w-full py-2 px-3 cursor-pointer dark:bg-gray-900 transition border  rounded-[--radius] opacity-60
-                    // hover:opacity-100", "data-[checked=true]:opacity-100 data-[checked=true]:ring-.5 ring-opacity-20 ring-brand-200
-                    // dark:data-[checked=true]:bg-[--brand]", )} radioControlClass="hidden absolute right-2 top-2 h-5 w-5 text-xs"
-                    // radioHelpClass="text-sm" radioLabelClass="font-medium flex-none flex" stackClass="flex flex-col gap-2 space-y-0"
+                    itemClass={cn(
+                        "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
+                        "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
+                        "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
+                    )}
+                    itemIndicatorClass="hidden"
+                    itemLabelClass="font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+                    itemContainerClass={cn(
+                        "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-2 w-full",
+                        "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                        "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+                        "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+                        "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                    )}
                     value={asset}
                     onValueChange={v => !!v ? setAsset(v) : {}}
                     options={release.assets.filter(n => !n.name.endsWith(".txt")).map((asset) => ({

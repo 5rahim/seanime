@@ -73,6 +73,9 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         return <NumberInput
             value={anilistId}
             onValueChange={v => setAnilistId(v)}
+            formatOptions={{
+                useGrouping: false,
+            }}
         />
     }, [currentGroup?.dir, _r])
 
@@ -183,45 +186,58 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     onValueChange={handleSelectAnime}
                     options={suggestions.map((media) => (
                         {
-                            label: media.title?.userPreferred || media.title?.english || media.title?.romaji || "",
-                            value: String(media.id) || "",
-                            help: <div className="mt-2 flex w-full gap-4">
-                                {media.coverImage?.medium && <div
-                                    className="h-28 w-28 flex-none rounded-md object-cover object-center relative overflow-hidden">
-                                    <Image
-                                        src={media.coverImage.medium}
-                                        alt={""}
-                                        fill
-                                        quality={100}
-                                        priority
-                                        sizes="10rem"
-                                        className="object-cover object-center"
-                                    />
-                                </div>}
-                                <div className="text-[--muted]">
-                                    {/*<p className="line-clamp-1">{media.title?.userPreferred || media.title?.english || media.title?.romaji}</p>*/}
-                                    <p>Type: <span
-                                        className="text-gray-200 font-semibold"
-                                    >{media.format}</span>
-                                    </p>
-                                    <p>Aired: {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
-                                        year: "numeric",
-                                    }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}</p>
-                                    <p>Status: {media.status}</p>
-                                    <Button
-                                        intent="primary-link"
-                                        size="sm"
-                                        className="px-0"
-                                        onClick={() => window.open(`https://anilist.co/anime/${media.id}`, "_target")}
-                                    >Open on AniList</Button>
+                            label: <div>
+                                <p className="text-base md:text-md font-medium !-mt-1.5 line-clamp-1">{media.title?.userPreferred || media.title?.english || media.title?.romaji || "N/A"}</p>
+                                <div className="mt-2 flex w-full gap-4">
+                                    {media.coverImage?.medium && <div
+                                        className="h-28 w-28 flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                    >
+                                        <Image
+                                            src={media.coverImage.medium}
+                                            alt={""}
+                                            fill
+                                            quality={100}
+                                            priority
+                                            sizes="10rem"
+                                            className="object-cover object-center"
+                                        />
+                                    </div>}
+                                    <div className="text-[--muted]">
+                                        <p>Type: <span
+                                            className="text-gray-200 font-semibold"
+                                        >{media.format}</span>
+                                        </p>
+                                        <p>Aired: {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
+                                            year: "numeric",
+                                        }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}</p>
+                                        <p>Status: {media.status}</p>
+                                        <Button
+                                            intent="primary-link"
+                                            size="sm"
+                                            className="px-0"
+                                            onClick={() => window.open(`https://anilist.co/anime/${media.id}`, "_target")}
+                                        >Open on AniList</Button>
+                                    </div>
                                 </div>
                             </div>,
+                            value: String(media.id) || "",
                         }
                     ))}
-                    // TODO
-                    // radioContainerClass="block w-full p-4 cursor-pointer dark:bg-gray-900 transition border  rounded-[--radius]
-                    // data-[checked=true]:ring-2 ring-[--ring]" radioControlClass="absolute right-2 top-2 h-5 w-5 text-xs" radioHelpClass="text-sm"
-                    // radioLabelClass="font-semibold flex-none w-[90%] line-clamp-1" stackClass="grid grid-cols-2 gap-2 space-y-0"
+                    stackClass="grid grid-cols-1 md:grid-cols-2 gap-2 space-y-0"
+                    itemContainerClass={cn(
+                        "items-start cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
+                        "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                        "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+                        "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+                        "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                    )}
+                    itemClass={cn(
+                        "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
+                        "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
+                        "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
+                    )}
+                    itemIndicatorClass="hidden"
+                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
                 />}
 
             </AppLayoutStack>

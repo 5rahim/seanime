@@ -37,17 +37,17 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                             title={episode.displayTitle}
                             episodeTitle={episode.episodeTitle}
                             action={<div className={""}>
-                                <a
+                                <div
                                     onClick={() => {
                                         setTorrentSearchEpisode(episode.episodeNumber)
                                         startTransition(() => {
                                             setTorrentSearchIsOpen(true)
                                         })
                                     }}
-                                    className="text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
+                                    className="inline-block cursor-pointer text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
                                 >
                                     <BiDownload/>
-                                </a>
+                                </div>
                             </div>}
                         >
                             <div className="mt-1">

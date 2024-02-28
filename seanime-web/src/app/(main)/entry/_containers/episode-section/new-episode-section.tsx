@@ -1,8 +1,8 @@
 "use client"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
+import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/episode-section/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
-import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/meta-section/_components/relations-recommendations-accordion"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Alert } from "@/components/ui/alert"
@@ -11,6 +11,7 @@ import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/c
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
 import React, { useMemo } from "react"
+import { IoLibrarySharp } from "react-icons/io5"
 
 
 export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
@@ -58,7 +59,9 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
 
     if (!!media && (!entry.listData || !entry.libraryData)) {
         return <div className="space-y-10">
-            {media?.status !== "NOT_YET_RELEASED" ? <p>Not in your library</p> : <p>Not yet released</p>}
+            {media?.status !== "NOT_YET_RELEASED"
+                ? <h4 className="text-brand-200 flex items-center gap-2"><IoLibrarySharp /> Not in your library</h4>
+                : <h5 className="text-brand-200">Not yet released</h5>}
             <div className="overflow-y-auto pt-4 lg:pt-0 space-y-10">
                 <UndownloadedEpisodeList
                     downloadInfo={entry.downloadInfo}

@@ -73,7 +73,7 @@ export function ContinueWatching({ list, isLoading }: {
     if (list.length > 0) return (
         <div className="space-y-3 lg:space-y-6 p-4 lg:mt-10">
             <h2>Continue watching</h2>
-            <h1 className="w-full lg:max-w-[50%] line-clamp-1 hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>
+            <h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>
             <Carousel
                 className="w-full max-w-full"
                 gap="md"

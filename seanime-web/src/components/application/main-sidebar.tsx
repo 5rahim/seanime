@@ -154,13 +154,14 @@ export function MainSidebar() {
                     />
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
-                    <UpdateModal />
+                    <UpdateModal collapsed={isCollapsed} />
                     <div>
                         <VerticalMenu
                             collapsed={isCollapsed}
                             itemClass="relative"
                             onMouseEnter={handleExpandSidebar}
                             onMouseLeave={handleUnexpandedSidebar}
+                            onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 {
                                     iconType: FiSettings,
@@ -190,6 +191,7 @@ export function MainSidebar() {
                                 itemClass="relative"
                                 onMouseEnter={handleExpandSidebar}
                                 onMouseLeave={handleUnexpandedSidebar}
+                                onLinkItemClick={() => ctx.setOpen(false)}
                                 items={[
                                     {
                                         iconType: FiLogIn,
