@@ -2,6 +2,7 @@
 
 import { cva } from "class-variance-authority"
 import { EmblaCarouselType, EmblaOptionsType, EmblaPluginType } from "embla-carousel"
+import AutoScroll from "embla-carousel-autoplay"
 import useEmblaCarousel from "embla-carousel-react"
 import * as React from "react"
 import { Button, ButtonProps, IconButton } from "../button"
@@ -107,6 +108,7 @@ export type CarouselProps = {
     orientation?: "horizontal" | "vertical"
     gap?: "none" | "sm" | "md" | "lg" | "xl"
     setApi?: (api: EmblaCarouselType) => void
+    autoScroll?: boolean
 }
 
 type CarouselContextProps = {
@@ -128,10 +130,18 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         plugins,
         className,
         children,
+        autoScroll,
         ...rest
     } = props
 
-    const [carouselRef, api] = useEmblaCarousel({ ...opts, axis: orientation === "horizontal" ? "x" : "y" }, plugins)
+    const _plugins = React.useMemo(() => {
+        return [
+            ...(plugins || []),
+            ...(autoScroll ? [AutoScroll({ delay: 5000, stopOnMouseEnter: true, stopOnInteraction: false })] : []),
+        ]
+    }, [plugins, autoScroll])
+
+    const [carouselRef, api] = useEmblaCarousel({ ...opts, axis: orientation === "horizontal" ? "x" : "y" }, _plugins)
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
 

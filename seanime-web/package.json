@@ -60,6 +60,8 @@
     "date-fns": "^3.3.1",
     "domelementtype": "^2.3.0",
     "domhandler": "^5.0.3",
+    "embla-carousel-auto-scroll": "^8.0.0",
+    "embla-carousel-autoplay": "^8.0.0",
     "embla-carousel-react": "^8.0.0",
     "execa": "^8.0.1",
     "fast-deep-equal": "^3.1.3",

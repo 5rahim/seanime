@@ -41,7 +41,20 @@ export default function Page() {
             <NewMetaSection entry={mediaEntry} details={mediaDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">
-                <PageWrapper className="relative 2xl:order-first pb-10">
+                <PageWrapper
+                    className="relative 2xl:order-first pb-10"
+                    {...{
+                        initial: { opacity: 0, y: 60 },
+                        animate: { opacity: 1, y: 0 },
+                        exit: { opacity: 0, y: 60 },
+                        transition: {
+                            type: "spring",
+                            damping: 10,
+                            stiffness: 80,
+                            delay: 0.6,
+                        },
+                    }}
+                >
                     <EpisodeListGridProvider container="expanded">
                         <NewEpisodeSection entry={mediaEntry} details={mediaDetails} />
                     </EpisodeListGridProvider>

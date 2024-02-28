@@ -26,13 +26,13 @@ export function DynamicHeaderBackground() {
                         <SiAnilist className="text-5xl text-white relative z-[1]" />
                     </div>
                 </div>}
-                {(pathname === "/") && <Image
-                    src="/landscape-tenki-no-ko.jpg"
-                    alt="tenki no ko"
-                    fill
-                    priority
-                    className="object-cover object-bottom opacity-30 z-[-2]"
-                />}
+                {/*{(pathname === "/") && <Image*/}
+                {/*    src="/landscape-tenki-no-ko.jpg"*/}
+                {/*    alt="tenki no ko"*/}
+                {/*    fill*/}
+                {/*    priority*/}
+                {/*    className="object-cover object-bottom opacity-30 z-[-2]"*/}
+                {/*/>}*/}
                 {(pathname.startsWith("/search")) && <Image
                     src="/landscape-tenki-no-ko.jpg"
                     alt="tenki no ko"
