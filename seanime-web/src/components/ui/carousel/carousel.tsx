@@ -334,9 +334,8 @@ type UseDotButtonType = {
     onDotButtonClick: (index: number) => void
 }
 
-export const useDotButton = (
-    emblaApi: EmblaCarouselType | undefined,
-): UseDotButtonType => {
+export const useDotButton = (): UseDotButtonType => {
+    const { api: emblaApi } = useCarousel()
     const [selectedIndex, setSelectedIndex] = React.useState(0)
     const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([])
 
@@ -379,8 +378,9 @@ const DotButton = (props: ButtonProps) => {
     return (
         <Button
             size="xs"
-            className={cn("rounded-full size-5 p-0", className)}
-            intent="gray-outline"
+            className={cn("rounded-full size-5 p-0 bg-gray-600 dark:bg-opacity-50", className)}
+            intent="gray-subtle"
+            {...rest}
         >
             {children}
         </Button>
@@ -390,19 +390,18 @@ const DotButton = (props: ButtonProps) => {
 
 export const CarouselDotButtons = () => {
 
-    const { api } = useCarousel()
+    const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton()
 
-    const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(api)
-
+    if (scrollSnaps.length > 30) return null
 
     return (
-        <div className="absolute -top-8 right-0 flex gap-2">
+        <div className="absolute -top-8 right-0 hidden md:flex gap-2 ">
             {scrollSnaps.map((_, index) => (
                 <DotButton
                     key={index}
                     onClick={() => onDotButtonClick(index)}
                     className={cn(
-                        { "": index === selectedIndex },
+                        { "bg-white": index === selectedIndex },
                     )}
                 />
             ))}

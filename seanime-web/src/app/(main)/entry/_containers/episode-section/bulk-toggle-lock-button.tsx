@@ -17,7 +17,7 @@ export function BulkToggleLockButton({ entry }: { entry: MediaEntry }) {
             <IconButton
                 icon={entry.libraryData?.allFilesLocked ? <VscVerified/> : <BiLockOpenAlt/>}
                 intent={allLocked ? "success-subtle" : "warning-subtle"}
-                size="xl"
+                size="lg"
                 className="hover:opacity-60"
                 onClick={() => toggleLock(entry.mediaId)}
                 loading={isPending}

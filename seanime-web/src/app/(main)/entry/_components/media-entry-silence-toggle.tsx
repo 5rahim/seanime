@@ -30,6 +30,7 @@ export function MediaEntrySilenceToggle(props: MediaEntrySilenceToggleProps) {
                     onClick={toggleSilenceStatus}
                     loading={silenceStatusIsLoading || silenceStatusIsUpdating}
                     intent={isSilenced ? "warning-subtle" : "primary-subtle"}
+                    size="lg"
                     {...rest}
                 />}
             >

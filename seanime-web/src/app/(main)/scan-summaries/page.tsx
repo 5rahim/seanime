@@ -78,7 +78,7 @@ export default function Page() {
 
                                 {!!selectSummary?.unmatchedFiles?.length && <div className="space-y-2">
                                     <h5>Unmatched files</h5>
-                                    <Accordion type="single">
+                                    <Accordion type="single" collapsible>
                                         <div className="grid grid-cols-1 gap-4">
                                             {selectSummary?.unmatchedFiles?.map(file => (
                                                 <ScanSummaryGroupItem file={file} key={file.id} />
@@ -127,7 +127,7 @@ export default function Page() {
                                             </div>
 
                                             <div>
-                                                <Accordion type="single">
+                                                <Accordion type="single" collapsible>
                                                     <div className="grid grid-cols-1 gap-2">
                                                         {group.files.map(file => (
                                                             <ScanSummaryGroupItem file={file} key={file.id} />

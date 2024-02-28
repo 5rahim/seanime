@@ -2,13 +2,14 @@
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
+import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/meta-section/_components/relations-recommendations-accordion"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
-import { Separator } from "@/components/ui/separator"
+import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry, MediaEntryEpisode } from "@/lib/server/types"
 import { isBefore, subYears } from "date-fns"
 import Image from "next/image"
@@ -16,8 +17,8 @@ import React, { memo, useMemo } from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 
 
-export function NewEpisodeSection(props: { entry: MediaEntry }) {
-    const { entry } = props
+export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
+    const { entry, details } = props
     const media = entry.media
 
     const { playVideo } = useMediaPlayer()
@@ -67,6 +68,7 @@ export function NewEpisodeSection(props: { entry: MediaEntry }) {
                     downloadInfo={entry.downloadInfo}
                     media={media}
                 />
+                <RelationsRecommendationsSection entry={entry} details={details} />
             </div>
         </div>
     }
@@ -110,15 +112,6 @@ export function NewEpisodeSection(props: { entry: MediaEntry }) {
 
                 {episodesToWatch.length > 0 && (
                     <>
-                        {/*<HorizontalDraggableScroll>*/}
-                        {/*    {episodesToWatch.map(episode => (*/}
-                        {/*        <SliderEpisodeItem*/}
-                        {/*            key={episode.localFile?.path || ""}*/}
-                        {/*            episode={episode}*/}
-                        {/*            onPlay={playVideo}*/}
-                        {/*        />*/}
-                        {/*    ))}*/}
-                        {/*</HorizontalDraggableScroll>*/}
                         <Carousel
                             className="w-full max-w-full"
                             gap="md"
@@ -165,8 +158,7 @@ export function NewEpisodeSection(props: { entry: MediaEntry }) {
                     />
 
                     {specialEpisodes.length > 0 && <>
-                        <Separator />
-                        <h3>Specials</h3>
+                        <h2>Specials</h2>
                         <EpisodeListGrid>
                             {specialEpisodes.map(episode => (
                                 <EpisodeItem
@@ -180,8 +172,7 @@ export function NewEpisodeSection(props: { entry: MediaEntry }) {
                     </>}
 
                     {ncEpisodes.length > 0 && <>
-                        <Separator />
-                        <h3>Others</h3>
+                        <h2>Others</h2>
                         <EpisodeListGrid>
                             {ncEpisodes.map(episode => (
                                 <EpisodeItem
@@ -193,6 +184,8 @@ export function NewEpisodeSection(props: { entry: MediaEntry }) {
                             ))}
                         </EpisodeListGrid>
                     </>}
+
+                    <RelationsRecommendationsSection entry={entry} details={details} />
 
                 </div>
             </AppLayoutStack>

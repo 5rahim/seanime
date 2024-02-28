@@ -43,7 +43,7 @@ export default function Page() {
             <div className="px-4 md:px-8 relative z-[8]">
                 <PageWrapper className="relative 2xl:order-first pb-10">
                     <EpisodeListGridProvider container="expanded">
-                        <NewEpisodeSection entry={mediaEntry} />
+                        <NewEpisodeSection entry={mediaEntry} details={mediaDetails} />
                     </EpisodeListGridProvider>
                 </PageWrapper>
             </div>

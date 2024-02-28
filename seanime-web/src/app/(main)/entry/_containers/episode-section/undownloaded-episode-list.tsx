@@ -25,7 +25,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                 {downloadInfo?.rewatch ? "You have not downloaded the following:" : "You have not watched nor downloaded the following:"}
             </p>
             <EpisodeListGrid>
-                {episodes?.sort((a, b) => a.episodeNumber - b.episodeNumber).map((ep, idx) => {
+                {episodes?.sort((a, b) => a.episodeNumber - b.episodeNumber).slice(0, 28).map((ep, idx) => {
                     if (!ep.episode) return null
                     const episode = ep.episode
                     return (
@@ -59,6 +59,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                     )
                 })}
             </EpisodeListGrid>
+            {episodes.length > 28 && <h3>And more...</h3>}
         </div>
     )
 

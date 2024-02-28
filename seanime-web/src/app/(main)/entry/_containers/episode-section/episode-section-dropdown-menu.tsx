@@ -36,7 +36,7 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     return (
         <>
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="xl" />}>
+            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="lg" />}>
 
                 {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenuItem
                     onClick={startMpvPlaybackDetection}
