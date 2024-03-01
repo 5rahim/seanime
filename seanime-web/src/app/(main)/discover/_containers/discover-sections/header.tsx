@@ -63,7 +63,7 @@ export function DiscoverPageHeader() {
                     priority
                     sizes="100vw"
                     className={cn(
-                        "object-cover object-right z-[2] transition-opacity duration-1000 opacity-90 hidden lg:block",
+                        "object-cover object-right z-[2] transition-opacity duration-1000 opacity-60 hidden lg:block",
                     )}
                 />
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
@@ -118,7 +118,7 @@ export function DiscoverPageHeader() {
                                     )}
                                 </div>
                                 <div className="pt-2">
-                                    <ScrollArea className="max-w-md h-[75px] mb-4">{(randomTrending as any)?.description?.replace(
+                                    <ScrollArea className="max-w-md leading-6 h-[75px] mb-4">{(randomTrending as any)?.description?.replace(
                                         /(<([^>]+)>)/ig,
                                         "")}</ScrollArea>
                                     <Link

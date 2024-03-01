@@ -21,16 +21,16 @@ export default function Page() {
                     <DiscoverTrending />
                 </div>
                 <div className="space-y-2">
-                    <h2>Popular shows</h2>
-                    <DiscoverPopular />
-                </div>
-                <div className="space-y-2">
                     <h2>Upcoming</h2>
                     <DiscoverUpcoming />
                 </div>
                 <div className="space-y-2">
                     <h2>Trending movies</h2>
                     <DiscoverTrendingMovies />
+                </div>
+                <div className="space-y-2">
+                    <h2>Popular shows</h2>
+                    <DiscoverPopular />
                 </div>
             </PageWrapper>
         </>

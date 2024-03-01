@@ -2,7 +2,7 @@ import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime
 import { useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_containers/discover-sections/header"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
+import { Carousel, CarouselContent, CarouselDotButtons, CarouselMasks } from "@/components/ui/carousel"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
@@ -41,20 +41,47 @@ export function DiscoverTrending() {
     }, [data, randomNumber])
 
     return (
-        <HorizontalDraggableScroll
-            onSlideEnd={() => fetchNextPage()}
+        <Carousel
+            className="w-full max-w-full"
+            gap="xl"
+            opts={{
+                align: "start",
+            }}
+            autoScroll
         >
-            {!isLoading ? data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).map(media => {
-                return (
-                    <AnimeListItem
-                        key={media.id}
-                        media={media}
-                        showLibraryBadge
-                        containerClassName="min-w-[250px] max-w-[250px] mt-8"
-                    />
-                )
-            }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
-        </HorizontalDraggableScroll>
+            <CarouselMasks />
+            <CarouselDotButtons />
+            <CarouselContent className="px-6">
+                {!isLoading ? data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).map(media => {
+                    return (
+
+                        <AnimeListItem
+                            key={media.id}
+                            media={media}
+                            showLibraryBadge
+                            containerClassName="basis-[250px] mx-2 my-8"
+                        />
+                    )
+                }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+            </CarouselContent>
+        </Carousel>
     )
+
+    // return (
+    //     <HorizontalDraggableScroll
+    //         onSlideEnd={() => fetchNextPage()}
+    //     >
+    //         {!isLoading ? data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).map(media => {
+    //             return (
+    //                 <AnimeListItem
+    //                     key={media.id}
+    //                     media={media}
+    //                     showLibraryBadge
+    //                     containerClassName="min-w-[250px] max-w-[250px] mt-8"
+    //                 />
+    //             )
+    //         }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+    //     </HorizontalDraggableScroll>
+    // )
 
 }
