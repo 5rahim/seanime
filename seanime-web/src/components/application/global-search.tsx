@@ -93,7 +93,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                     placeholder="Search..."
                                                     onChange={(event) => setInputValue(event.target.value)}
                                                 />
-                                                <Link href="/search" onClick={() => setOpen(false)}>
+                                                <Link href="/search" onClick={() => setOpen(false)} className="hidden lg:block">
                                                     <Button
                                                         className="absolute top-3 right-2 z-1"
                                                         intent="gray-basic"

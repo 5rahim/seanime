@@ -2,7 +2,6 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -101,19 +100,20 @@ export default function Page() {
                 stackClass="space-y-4"
             >
 
-                <Card className="p-0 overflow-hidden">
+                {/*<Card className="p-0 overflow-hidden">*/}
                     <Tabs
                         defaultValue="seanime"
-                        triggerClass="w-full data-[state=active]:bg-[--subtle]"
+                        triggerClass="text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] hover:bg-gray-950 data-[state=active]:text-white dark:hover:text-white"
+                        listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
                     >
-                        <TabsList className="flex w-full border-b">
+                        <TabsList>
                             <TabsTrigger value="seanime">Seanime</TabsTrigger>
                             <TabsTrigger value="media-player">Media Player</TabsTrigger>
                             <TabsTrigger value="qbittorrent">qBittorrent</TabsTrigger>
                         </TabsList>
 
-                        <div className="p-4">
-                            <TabsContent value="seanime" className="space-y-4">
+                        <div className="pt-4">
+                            <TabsContent value="seanime" className="space-y-6">
                                 <Field.DirectorySelector
                                     name="libraryPath"
                                     label="Library folder"
@@ -173,8 +173,11 @@ export default function Page() {
 
                                 <Accordion
                                     type="single"
-                                    className="border"
-                                    triggerClass=""
+                                    className=""
+                                    triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
+                                    itemClass="border-b"
+                                    contentClass="pb-8"
+                                    collapsible
                                 >
                                     <AccordionItem value="vlc">
                                         <AccordionTrigger>
@@ -230,7 +233,7 @@ export default function Page() {
 
                                     <AccordionItem value="mpv">
                                         <AccordionTrigger>
-                                            <h4 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1" /> MPV</h4>
+                                            <h4 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1 text-purple-100" /> MPV</h4>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div className="flex gap-4">
@@ -285,7 +288,7 @@ export default function Page() {
                             </div>
                         </div>
                     </Tabs>
-                </Card>
+                {/*</Card>*/}
 
             </Form>
         </PageWrapper>

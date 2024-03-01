@@ -3,6 +3,7 @@ import { useAutoDownloaderQueueCount } from "@/app/(main)/auto-downloader/_lib/a
 import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useCurrentUser } from "@/atoms/user"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { __globalSearch_isOpenAtom } from "@/components/application/global-search"
 import { UpdateModal } from "@/components/application/update-modal"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
@@ -22,14 +23,14 @@ import { useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { AiOutlineClockCircle } from "react-icons/ai"
-import { BiCollection, BiDownload, BiLogOut } from "react-icons/bi"
+import { BiCalendarAlt, BiChart, BiCollection, BiDownload, BiLogOut } from "react-icons/bi"
+import { FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
 import { MdSyncAlt } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
-import { TbWorldDownload } from "react-icons/tb"
+
 
 export function MainSidebar() {
 
@@ -74,6 +75,14 @@ export function MainSidebar() {
         // }
     }
 
+    const confirmSignOut = useConfirmationDialog({
+        title: "Sign out",
+        description: "Are you sure you want to sign out?",
+        onConfirm: () => {
+            () => logout()
+        },
+    })
+
     return (
         <>
             <AppSidebar
@@ -101,7 +110,7 @@ export function MainSidebar() {
                                 isCurrent: pathname === "/",
                             },
                             {
-                                iconType: AiOutlineClockCircle,
+                                iconType: BiCalendarAlt,
                                 name: "Schedule",
                                 href: "/schedule",
                                 isCurrent: pathname === "/schedule",
@@ -117,7 +126,13 @@ export function MainSidebar() {
                                 isCurrent: pathname === "/anilist",
                             },
                             {
-                                iconType: TbWorldDownload,
+                                iconType: BiChart,
+                                name: "Discover",
+                                href: "/discover",
+                                isCurrent: pathname === "/discover",
+                            },
+                            {
+                                iconType: FaRssSquare,
                                 name: "Auto downloader",
                                 href: "/auto-downloader",
                                 isCurrent: pathname === "/auto-downloader",
@@ -178,7 +193,7 @@ export function MainSidebar() {
                                     {
                                         iconType: BiLogOut,
                                         name: "Sign out",
-                                        onClick: () => logout(),
+                                        onClick: confirmSignOut.open,
                                     },
                                 ] : []),
                             ]}
@@ -221,7 +236,7 @@ export function MainSidebar() {
                                     <SiMyanimelist className="text-lg text-indigo-200" /> MyAnimeList
                                 </DropdownMenuItem>
                             </Link>
-                            <DropdownMenuItem onClick={() => logout()}>
+                            <DropdownMenuItem onClick={confirmSignOut.open}>
                                 <BiLogOut /> Sign out
                             </DropdownMenuItem>
                         </DropdownMenu>
@@ -242,6 +257,8 @@ export function MainSidebar() {
                     >Login with AniList</Button>
                 </div>
             </Modal>
+
+            <ConfirmationDialog {...confirmSignOut} />
         </>
     )
 

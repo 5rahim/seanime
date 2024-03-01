@@ -61,7 +61,7 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                 </p>
             )}
             {data?.map((item) => (
-                <div className="rounded-[--radius] p-3 bg-[--background]" key={item.id}>
+                <div className="rounded-[--radius] p-3 bg-gray-900" key={item.id}>
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-base font-medium tracking-wide">{item.torrentName}</h3>

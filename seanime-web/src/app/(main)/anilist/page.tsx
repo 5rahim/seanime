@@ -74,6 +74,7 @@ export default function Home() {
 
             <Tabs
                 triggerClass="w-fit md:w-full rounded-full border-none data-[state=active]:border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--brand]"
+                listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
                 value={selectedIndex}
                 onValueChange={value => {
                     startTransition(() => {
@@ -81,7 +82,7 @@ export default function Home() {
                     })
                 }}
             >
-                <TabsList className="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12">
+                <TabsList>
                     <TabsTrigger value="current">
                         Currently Watching
                     </TabsTrigger>

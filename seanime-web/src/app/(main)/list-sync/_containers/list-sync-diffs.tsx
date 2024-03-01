@@ -138,12 +138,13 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
 
             <div>
                 <Button
-                    size="sm"
-                    intent="primary-outline"
+                    size="md"
+                    intent="primary-subtle"
                     onClick={onClearCache}
-                    leftIcon={<BiRefresh />}
+                    leftIcon={<BiRefresh className="text-xl" />}
                     loading={isDeletingCache}
                     disabled={disabledButton}
+                    className="rounded-full"
                 >
                     Refresh data
                 </Button>
@@ -152,11 +153,11 @@ export function ListSyncDiffs(props: ListSyncDiffsProps) {
             <div className="flex items-center justify-between w-full">
                 <h4>Items to sync: <Badge size="lg" className="ml-1 px-1.5">{diffs.length}</Badge></h4>
                 <div className="flex items-center gap-2">
-                    <Button size="sm" intent="white-outline" onClick={handleSyncDetails} disabled={disabledButton || !diffs.length}>Sync
+                    <Button size="sm" intent="white-subtle" onClick={handleSyncDetails} disabled={disabledButton || !diffs.length}>Sync
                                                                                                                                       details</Button>
-                    <Button size="sm" intent="success-outline" onClick={handleSyncAdditions} disabled={disabledButton || !diffs.length}>
+                    <Button size="sm" intent="success-subtle" onClick={handleSyncAdditions} disabled={disabledButton || !diffs.length}>
                         Sync additions</Button>
-                    <Button size="sm" intent="alert-outline" onClick={handleSyncRemovals} disabled={disabledButton || !diffs.length}>Sync
+                    <Button size="sm" intent="alert-subtle" onClick={handleSyncRemovals} disabled={disabledButton || !diffs.length}>Sync
                                                                                                                                        removals</Button>
                 </div>
             </div>
@@ -203,7 +204,7 @@ function DiffItem(props: DiffItemProps) {
 
     return (
         <div
-            className={cn("border rounded-[--radius] p-2 flex w-full relative")}
+            className={cn("bg-gray-900 rounded-[--radius] p-2 flex w-full relative")}
         >
             <div
                 className="bg-cover bg-center w-16 h-16 rounded-[--radius] mr-4"

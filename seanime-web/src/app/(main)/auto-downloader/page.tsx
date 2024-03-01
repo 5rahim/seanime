@@ -75,9 +75,10 @@ export default function Page() {
 
             <Tabs
                 defaultValue="rules"
-                triggerClass="w-full data-[state=active]:bg-[--subtle]"
+                triggerClass="text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] hover:bg-gray-950 data-[state=active]:text-white dark:hover:text-white"
+                listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
             >
-                <TabsList className="flex w-full border-b">
+                <TabsList>
                     <TabsTrigger value="rules">Rules</TabsTrigger>
                     <TabsTrigger value="queue">
                         Queue
@@ -90,7 +91,7 @@ export default function Page() {
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
                 <TabsContent value="rules">
-                    <div className="p-4">
+                    <div className="pt-4">
                         {isLoading && <LoadingSpinner />}
                         {!isLoading && (
                             <div className="space-y-4">
@@ -142,14 +143,14 @@ export default function Page() {
 
                 <TabsContent value="queue">
 
-                    <div className="p-4">
+                    <div className="pt-4">
                         <AutoDownloaderItems items={items} isLoading={itemsLoading} />
                     </div>
 
                 </TabsContent>
 
                 <TabsContent value="settings">
-                    <div className="p-4">
+                    <div className="pt-4">
                         <Form
                             schema={settingsSchema}
                             onSubmit={data => {
@@ -160,6 +161,7 @@ export default function Page() {
                                 interval: serverStatus?.settings?.autoDownloader?.interval ?? 10,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
                             }}
+                            stackClass="space-y-6"
                         >
                             {(f) => (
                                 <>
@@ -172,7 +174,7 @@ export default function Page() {
 
                                     <div
                                         className={cn(
-                                            "space-y-2",
+                                            "space-y-3",
                                             !f.watch("enabled") && "pointer-events-none opacity-50",
                                         )}
                                     >
@@ -238,7 +240,7 @@ function Rule(props: RuleProps) {
 
     return (
         <>
-            <div className="rounded-[--radius] bg-[--background] hover:bg-gray-800 transition-colors">
+            <div className="rounded-[--radius] bg-gray-900 hover:bg-gray-800 transition-colors">
                 <div className="flex justify-between p-3 gap-2 items-center cursor-pointer" onClick={() => modal.on()}>
 
                     <div className="space-y-1 w-full">

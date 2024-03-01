@@ -4,7 +4,6 @@ import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
-import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -84,17 +83,17 @@ export default function Page() {
                 </div>
             </div>
 
-            <Card className="p-0 overflow-hidden">
                 <Tabs
                     defaultValue="list"
-                    triggerClass="w-full data-[state=active]:bg-[--subtle]"
+                    triggerClass="text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] hover:bg-gray-950 data-[state=active]:text-white dark:hover:text-white"
+                    listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
                 >
-                    <TabsList className="flex w-full border-b">
+                    <TabsList>
                         <TabsTrigger value="list">Lists</TabsTrigger>
                         <TabsTrigger value="settings">Settings</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="list" className="p-4">
+                    <TabsContent value="list" className="pt-4">
                         {(!isLoading && !serverStatus?.settings?.listSync) && (
                             <p className="text-[--muted] text-center p-4">
                                 List sync is not enabled. Enable it in the settings tab.
@@ -107,7 +106,7 @@ export default function Page() {
                         </div>}
                         {isLoading && <LoadingSpinner />}
                     </TabsContent>
-                    <TabsContent value="settings" className="p-4">
+                    <TabsContent value="settings" className="pt-4">
                         <Form
                             schema={settingsSchema}
                             onSubmit={data => {
@@ -142,7 +141,6 @@ export default function Page() {
                         </Form>
                     </TabsContent>
                 </Tabs>
-            </Card>
         </PageWrapper>
     )
 

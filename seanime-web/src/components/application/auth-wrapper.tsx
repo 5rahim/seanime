@@ -119,6 +119,7 @@ export function AuthWrapper(props: AuthWrapperProps) {
                             <Field.Textarea
                                 name="token"
                                 label="Enter the token"
+                                fieldClass="px-4"
                             />
                             <Field.Submit showLoadingOverlayOnSuccess>Continue</Field.Submit>
                         </Form>

@@ -1,6 +1,5 @@
 "use client"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
-import { Card } from "@/components/ui/card"
 import React from "react"
 
 
@@ -17,9 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </div>
 
-            <Card className="p-0 overflow-hidden">
-                {children}
-            </Card>
+            {children}
         </PageWrapper>
     )
 
