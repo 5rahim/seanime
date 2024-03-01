@@ -13,7 +13,7 @@ func main() {
 
 	purple := color.New(color.FgHiMagenta)
 	fmt.Println()
-	purple.Print("                    ⦿ SEANIME")
+	purple.Print("                    SEANIME")
 	fmt.Printf(" %s ", constants.Version)
 	fmt.Println()
 	fmt.Println()

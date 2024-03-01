@@ -215,7 +215,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	// Estimate bitrate
 	bitrate := 0.0
 	if duration > 0 {
-		bitrate = float64(size) * 8 / duration
+		bitrate = float64(size) / duration
 	}
 
 	mi := &MediaInfo{
@@ -236,8 +236,8 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	subtitles := make([]Subtitle, 0)
 	// Go through track entries
 	audioIndex := 0
+	subtitleIndex := 0
 	for _, entry := range tracks.TrackEntry {
-
 		//
 		// Video
 		//
@@ -280,7 +280,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 				link = &x
 			}
 			s := &Subtitle{
-				Index:     uint32(entry.TrackNumber),
+				Index:     uint32(subtitleIndex),
 				Title:     entry.Name,
 				Codec:     entry.CodecID,
 				IsDefault: entry.FlagDefault == 1,
@@ -290,6 +290,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 				Link:      link,
 			}
 			subtitles = append(subtitles, *s)
+			subtitleIndex += 1
 		}
 	}
 
