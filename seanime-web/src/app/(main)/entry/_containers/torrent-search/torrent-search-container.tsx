@@ -5,6 +5,7 @@ import {
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
 import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
@@ -15,13 +16,13 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { buildSeaQuery, useSeaQuery } from "@/lib/server/query"
 import { AnimeTorrent, MediaEntry, TorrentSearchData } from "@/lib/server/types"
 import { atom } from "jotai"
-import { useAtom } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const downloadInfo = entry.downloadInfo
 
     const hasEpisodesToDownload = !!downloadInfo?.episodesToDownload?.length
@@ -146,7 +147,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
                             <Select
                                 label="Resolution"
-                                value={quickSearchResolution}
+                                value={quickSearchResolution || "-"}
                                 onValueChange={v => setQuickSearchResolution(v != "-" ? v : "")}
                                 options={[
                                     { value: "-", label: "Any" },
@@ -164,12 +165,12 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             />
                         </div>
 
-                        <DataGridSearchInput
+                        {serverStatus?.settings?.library?.torrentProvider != "animetosho" && <DataGridSearchInput
                             value={globalFilter ?? ""}
                             onChange={v => setGlobalFilter(v)}
                             placeholder={quickSearch ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
                             fieldClass="md:max-w-full w-full"
-                        />
+                        />}
 
                         <div className="pb-1"/>
 
