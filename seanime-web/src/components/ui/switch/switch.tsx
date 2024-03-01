@@ -1,5 +1,6 @@
 "use client"
 
+import { hiddenInputStyles } from "@/components/ui/input"
 import * as SwitchPrimitive from "@radix-ui/react-switch"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
@@ -146,19 +147,19 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                     {label}
                 </label>}
 
-                {/*<input*/}
-                {/*    ref={inputRef}*/}
-                {/*    type="checkbox"*/}
-                {/*    name={basicFieldProps.name}*/}
-                {/*    className={hiddenInputStyles}*/}
-                {/*    value={_value ? "on" : "off"}*/}
-                {/*    checked={basicFieldProps.required ? _value : true}*/}
-                {/*    aria-hidden="true"*/}
-                {/*    required={basicFieldProps.required}*/}
-                {/*    tabIndex={-1}*/}
-                {/*    onChange={() => {}}*/}
-                {/*    onFocusCapture={() => buttonRef.current?.focus()}*/}
-                {/*/>*/}
+                <input
+                    ref={inputRef}
+                    type="checkbox"
+                    name={basicFieldProps.name}
+                    className={hiddenInputStyles}
+                    value={_value ? "on" : "off"}
+                    checked={basicFieldProps.required ? _value : true}
+                    aria-hidden="true"
+                    required={controlledValue === undefined && basicFieldProps.required}
+                    tabIndex={-1}
+                    onChange={() => {}}
+                    onFocusCapture={() => buttonRef.current?.focus()}
+                />
             </div>
         </BasicField>
     )

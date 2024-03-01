@@ -208,7 +208,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>((prop
                     value={_value === "indeterminate" ? "indeterminate" : _value ? "on" : "off"}
                     checked={basicFieldProps.required ? _value === true : true}
                     aria-hidden="true"
-                    required={basicFieldProps.required}
+                    required={controlledValue === undefined && basicFieldProps.required}
                     tabIndex={-1}
                     onChange={() => {}}
                     onFocusCapture={() => buttonRef.current?.focus()}

@@ -81,7 +81,7 @@
     "libphonenumber-js": "^1.10.57",
     "memory-cache": "^0.2.0",
     "needle": "^3.3.1",
-    "next": "^14.1.1-canary.74",
+    "next": "^14.1.1",
     "next-themes": "^0.2.1",
     "ora": "^8.0.1",
     "postcss": "^8",
