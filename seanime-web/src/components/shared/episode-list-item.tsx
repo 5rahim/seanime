@@ -3,7 +3,7 @@ import { cn } from "@/components/ui/core/styling"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import Image from "next/image"
 import React from "react"
-import { AiFillWarning } from "react-icons/ai"
+import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
 type EpisodeListItemProps = {
     media: BaseMediaFragment,
@@ -22,6 +22,7 @@ type EpisodeListItemProps = {
     imageClassName?: string
     imageContainerClassName?: string
     className?: string
+    actionIcon?: React.ReactElement | null
 }
 
 export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
@@ -43,6 +44,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
         imageClassName,
         imageContainerClassName,
         className,
+        actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-70 text-4xl" /> : undefined,
         ...rest
     } = props
 
@@ -63,13 +65,25 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
             <div
                 className={cn(
                     "flex gap-4 relative",
-                    { "cursor-pointer": !!onClick },
                 )}
-                onClick={onClick}
             >
-                {(image || media.coverImage?.medium) && <div
-                    className={cn("h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden", imageContainerClassName)}>
-                    <Image
+                <div
+                    className={cn(
+                        "h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden cursor-pointer",
+                        "group/ep-item-img-container",
+                        imageContainerClassName,
+                    )}
+                    onClick={onClick}
+                >
+                    {!!onClick && <div
+                        className={cn(
+                            "absolute inset-0 bg-gray-950 bg-opacity-60 z-[1] flex items-center justify-center",
+                            "transition-opacity opacity-0 group-hover/ep-item-img-container:opacity-100",
+                        )}
+                    >
+                        {actionIcon && actionIcon}
+                    </div>}
+                    {(image || media.coverImage?.medium) && <Image
                         src={image || media.coverImage?.medium || ""}
                         alt="episode image"
                         fill
@@ -80,10 +94,11 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
                             "opacity-30 group-hover/episode-list-item:opacity-100": isWatched,
                         }, imageClassName)}
                         data-src={image}
-                    />
-                </div>}
+                    />}
+                </div>
                 {(image && unoptimizedImage) && <div
-                    className="h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden">
+                    className="h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden"
+                >
                     <img
                         src={image}
                         alt="episode image"
@@ -94,10 +109,14 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
 
                 <div className="relative overflow-hidden">
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
-                        className="text-lg text-red-500"/> Unidentified</p>}
+                        className="text-lg text-red-500"
+                    /> Unidentified</p>}
                     {isInvalid && <p className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}
 
-                    <h4 className={cn("font-medium transition line-clamp-2", { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched })}>{title}</h4>
+                    <h4
+                        className={cn("font-medium transition line-clamp-2",
+                            { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched })}
+                    >{title}</h4>
 
                     {!!episodeTitle && <p className={cn("text-md text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
 
