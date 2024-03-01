@@ -48,36 +48,24 @@ support transcoding or streaming to other devices (yet).
 
 [How to use Seanime.](https://seanime.rahim.app/docs)
 
-# Future plans
+# Roadmap
 
 Here are some features that are planned, from most to least probable:
 
 - [ ] Transmission support
 - [ ] Manga support
-- [ ] Docker container
-- [ ] Desktop client
-- [ ] Kitsu integration
-
-## Research phase
-
-The following features are in the research phase and may or may not be implemented:
-
 - [ ] Offline support
-- [ ] Consumet integration for online streaming
-- [ ] Support for transcoding & streaming library content within network
-
-Feel free to contribute if you want to see these features implemented sooner.
+- [ ] Kitsu integration
+- [ ] Docker container
+- [ ] Transcoding and streaming
  
-## Not planned
+### Not planned
 
 The following features are not planned:
 
 - Support for other providers such as Trakt, SIMKL, etc.
-  - Requires a lot of work to maintain mappings
 - Torrent streaming
-  - Use Miru instead 
 - Support for other languages
-  - The current architecture is not designed to support multiple languages
 - Mobile app
 
 ## Resources
