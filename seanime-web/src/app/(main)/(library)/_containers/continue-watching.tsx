@@ -6,7 +6,7 @@ import { MediaEntryEpisode } from "@/lib/server/types"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
-import React, { useEffect } from "react"
+import React, { useDeferredValue, useEffect } from "react"
 
 export const __libraryHeaderEpisodeAtom = atom<MediaEntryEpisode | null>(null)
 
@@ -20,6 +20,9 @@ export function ContinueWatching({ list, isLoading }: {
 
     const [episodeRefs, setEpisodeRefs] = React.useState<React.RefObject<any>[]>([])
     const [inViewEpisodes, setInViewEpisodes] = React.useState<any>([])
+    const debouncedInViewEpisodes = useDeferredValue(inViewEpisodes)
+
+    const debounceTimeout = React.useRef<NodeJS.Timeout | null>(null)
 
     // Create refs for each episode
     useEffect(() => {
@@ -58,7 +61,11 @@ export function ContinueWatching({ list, isLoading }: {
 
     // Set header image when new episode is in view
     useEffect(() => {
-        const t = setTimeout(() => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current)
+        }
+
+        debounceTimeout.current = setTimeout(() => {
             if (inViewEpisodes.length > 0) {
                 const randomIndex = inViewEpisodes[Math.floor(Math.random() * inViewEpisodes.length)]
                 const episode = list[randomIndex]
@@ -67,8 +74,12 @@ export function ContinueWatching({ list, isLoading }: {
                 }
             }
         }, 500)
-        return () => clearTimeout(t)
-    }, [inViewEpisodes, list])
+        return () => {
+            if (debounceTimeout.current) {
+                clearTimeout(debounceTimeout.current)
+            }
+        }
+    }, [debouncedInViewEpisodes, list])
 
     if (list.length > 0) return (
         <div className="space-y-3 lg:space-y-6 p-4 lg:mt-10">

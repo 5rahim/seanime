@@ -28,6 +28,9 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
         } else {
             setActualImage(null)
         }
+    }, [image])
+
+    React.useLayoutEffect(() => {
         const t = setTimeout(() => {
             setActualImage(image)
             setHeaderEpisode(list.find(ep => ep.basicMedia?.bannerImage === image || ep.episodeMetadata?.image === image) || null)
