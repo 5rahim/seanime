@@ -26,13 +26,14 @@ type AnimeListItemProps = {
     listData?: MediaEntryListData
     libraryData?: MediaEntryLibraryData
     showLibraryBadge?: boolean
+    overlay?: React.ReactNode
 } & {
     containerClassName?: string
 }
 
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
-    const { media, listData: _listData, libraryData: _libraryData } = props
+    const { media, listData: _listData, libraryData: _libraryData, overlay } = props
 
     const [listData, setListData] = useState(_listData)
     const [libraryData, setLibraryData] = useState(_libraryData)
@@ -89,10 +90,16 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
             )}
         >
 
+            {overlay && <div
+                className={cn(
+                    "absolute z-[14] top-0 left-0 w-full",
+                )}
+            >{overlay}</div>}
+
             {/*ACTION POPUP*/}
             <div
                 className={cn(
-                    "absolute z-20 bg-gray-950 opacity-0 scale-70 border ",
+                    "absolute z-[15] bg-gray-950 opacity-0 scale-70 border",
                     "group-hover/anime-list-item:opacity-100 group-hover/anime-list-item:scale-100",
                     "group-focus-visible/anime-list-item:opacity-100 group-focus-visible/anime-list-item:scale-100",
                     "focus-visible:opacity-100 focus-visible:scale-100",
@@ -223,7 +230,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         </div>}
 
                     {/*RELEASING BADGE*/}
-                    {media.status === "RELEASING" && <div className="absolute z-10 right-1 top-2">
+                    {media.status === "RELEASING" && <div className="absolute z-[10] right-1 top-2">
                         <Tooltip
                             trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
                         >
@@ -232,8 +239,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     </div>}
 
                     {/*NOT YET RELEASED BADGE*/}
-                    {media.status === "NOT_YET_RELEASED" && <div className="absolute z-10 right-1 top-1">
-                        <Tooltip
+                    {media.status === "NOT_YET_RELEASED" && <div className="absolute z-[10] right-1 top-1">
+                        {(!!media.startDate && !!media.startDate?.year) && <Tooltip
                             trigger={<Badge intent="gray-solid" size="lg"><RiSignalTowerLine /></Badge>}
                         >
                             {!!media.startDate?.year ?
@@ -244,7 +251,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                                 }).format(new Date(media.startDate.year, media.startDate?.month || 0, media.startDate?.day || 0))
                                 : "-"
                             }
-                        </Tooltip>
+                        </Tooltip>}
                     </div>}
 
 
@@ -267,15 +274,13 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 <div>
                     <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3">{media.title?.userPreferred}</p>
                 </div>
-                <div>
-                    <div>
-                        <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
-                            <BiCalendarAlt />{capitalize(media.season ?? "")} {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
-                            year: "numeric",
-                        }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}
-                        </p>
-                    </div>
-                </div>
+                {(!!media.season || !!media.startDate?.year) && <div>
+                    <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
+                        <BiCalendarAlt />{capitalize(media.season ?? "")} {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
+                        year: "numeric",
+                    }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}
+                    </p>
+                </div>}
             </div>
 
         </div>
@@ -343,7 +348,7 @@ const ScoreBadge = (props: { listData?: MediaEntryListData }) => {
     ) : ""
 
     return (
-        <div className="absolute z-10 right-1 bottom-1">
+        <div className="absolute z-[10] right-1 bottom-1">
             <div
                 className={cn(
                     "backdrop-blur-lg inline-flex items-center justify-center gap-1 w-14 h-7 rounded-full font-bold bg-opacity-70 drop-shadow-sm shadow-lg",
@@ -364,7 +369,7 @@ const ProgressBadge = (props: { media: BaseMediaFragment, listData?: MediaEntryL
     if (!props.listData || !progress) return null
 
     return (
-        <div className="absolute z-10 left-1 bottom-1">
+        <div className="absolute z-[10] left-1 bottom-1">
             <Badge size="lg" className="rounded-md px-1.5">
                 {progress}/{episodes ?? "-"}
             </Badge>

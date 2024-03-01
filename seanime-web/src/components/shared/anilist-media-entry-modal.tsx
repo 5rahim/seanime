@@ -50,7 +50,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const qc = useQueryClient()
 
-    const { mutate, isPending } = useSeaMutation<any, InferType<typeof entrySchema> & { mediaId: number }>({
+    const { mutate, isPending, isSuccess } = useSeaMutation<any, InferType<typeof entrySchema> & { mediaId: number }>({
         endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
         mutationKey: ["update-anilist-list-entry"],
         onSuccess: async () => {
@@ -91,6 +91,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 icon={<BiPlus />}
                 rounded
                 size="sm"
+                className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
                 onClick={() => mutate({
                     mediaId: media?.id || 0,
                     status: "PLANNING",
