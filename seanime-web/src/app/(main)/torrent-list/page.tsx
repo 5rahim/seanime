@@ -1,6 +1,6 @@
 "use client"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

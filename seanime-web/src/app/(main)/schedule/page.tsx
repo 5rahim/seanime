@@ -4,7 +4,7 @@ import { ComingUpNext } from "@/app/(main)/schedule/_containers/coming-up-next/c
 import { MissingEpisodes } from "@/app/(main)/schedule/_containers/missing-episodes/missing-episodes"
 import { RecentReleases } from "@/app/(main)/schedule/_containers/recent-releases/recent-releases"
 import { useMissingEpisodes } from "@/app/(main)/schedule/_lib/missing-episodes"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 export default function Page() {

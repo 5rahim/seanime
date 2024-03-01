@@ -3,7 +3,7 @@ import { AdvancedSearchList } from "@/app/(main)/discover/_containers/advanced-s
 import { AdvancedSearchOptions } from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-options"
 import { AdvancedSearchPageTitle } from "@/app/(main)/discover/_containers/advanced-search/_components/advanced-search-page-title"
 import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { AppLayoutGrid } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { MediaFormat, MediaSeason, MediaSort, MediaStatus } from "@/lib/anilist/gql/graphql"

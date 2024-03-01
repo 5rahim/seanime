@@ -8,7 +8,7 @@ import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-se
 import { NewMetaSection } from "@/app/(main)/entry/_containers/meta-section/new-meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"

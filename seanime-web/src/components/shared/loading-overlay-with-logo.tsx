@@ -1,3 +1,4 @@
+import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import Image from "next/image"
 import React from "react"
@@ -12,6 +13,6 @@ export function LoadingOverlayWithLogo() {
             height={80}
             className="animate-pulse"
         />
-        <p className="text-lg mt-2 text-[--muted] animate-pulse">Loading...</p>
+        <TextGenerateEffect className="text-lg mt-2 text-[--muted] animate-pulse" words={"S e a n i m e"} />
     </LoadingOverlay>
 }

@@ -1,5 +1,5 @@
 "use client"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Card } from "@/components/ui/card"
 import React from "react"
 

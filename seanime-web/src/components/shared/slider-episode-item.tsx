@@ -1,4 +1,4 @@
-import { imageShimmer } from "@/components/shared/image-helpers"
+import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import { MediaEntryEpisode } from "@/lib/server/types"
 import Image from "next/image"

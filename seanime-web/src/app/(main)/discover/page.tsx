@@ -4,7 +4,7 @@ import { DiscoverPopular } from "@/app/(main)/discover/_containers/discover-sect
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-sections/trending-movies"
 import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-sections/upcoming"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import React from "react"
 
 
@@ -14,7 +14,7 @@ export default function Page() {
         <>
             <DiscoverPageHeader />
             <PageWrapper
-                className="p-4 sm:p-8 space-y-10 pb-10"
+                className="p-4 mt-8 sm:p-8 space-y-10 pb-10"
             >
                 <div className="space-y-2 z-[5] relative">
                     <h2>Popular this season</h2>

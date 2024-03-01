@@ -2,6 +2,7 @@ import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/
 import { DiscoverPageHeader } from "@/app/(main)/discover/_containers/discover-sections/header"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -49,10 +50,9 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
     if (!hasScanned && !isLoading) return (
         <>
             <DiscoverPageHeader />
-            <div className="p-4 sm:p-8 pt-0">
-
+            <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8">
                 <div className="text-center space-y-4">
-                    <div className="border-2  border-dashed rounded-xl py-6 px-10 w-fit mx-auto space-y-4">
+                    <div className="w-fit mx-auto space-y-4">
                         <h2>Empty library</h2>
                         <Button
                             intent="warning-subtle"
@@ -65,19 +65,21 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
                         </Button>
                     </div>
                 </div>
-                <h3>Popular this season</h3>
-                <DiscoverTrending />
-            </div>
+                <div>
+                    <h3>Popular this season</h3>
+                    <DiscoverTrending />
+                </div>
+            </PageWrapper>
         </>
     )
 
     return (
-        <div className="p-4 space-y-8 relative">
+        <PageWrapper className="p-4 space-y-8 relative">
             {collectionList.map(collection => {
                 if (collection.entries.length === 0) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} />
             })}
-        </div>
+        </PageWrapper>
     )
 
 }

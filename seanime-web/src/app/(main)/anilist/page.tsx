@@ -2,7 +2,7 @@
 
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"

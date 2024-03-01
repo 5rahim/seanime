@@ -3,7 +3,7 @@ import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diff
 import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"

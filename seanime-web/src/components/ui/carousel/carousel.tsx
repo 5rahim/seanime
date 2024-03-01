@@ -109,6 +109,7 @@ export type CarouselProps = {
     gap?: "none" | "sm" | "md" | "lg" | "xl"
     setApi?: (api: EmblaCarouselType) => void
     autoScroll?: boolean
+    autoScrollDelay?: number
 }
 
 type CarouselContextProps = {
@@ -131,13 +132,14 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         className,
         children,
         autoScroll,
+        autoScrollDelay = 5000,
         ...rest
     } = props
 
     const _plugins = React.useMemo(() => {
         return [
             ...(plugins || []),
-            ...(autoScroll ? [AutoScroll({ delay: 5000, stopOnMouseEnter: true, stopOnInteraction: false })] : []),
+            ...(autoScroll ? [AutoScroll({ delay: autoScrollDelay, stopOnMouseEnter: true, stopOnInteraction: false })] : []),
         ]
     }, [plugins, autoScroll])
 

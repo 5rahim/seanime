@@ -1,7 +1,7 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_loaders/library-collection"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
-import { imageShimmer } from "@/components/shared/image-helpers"
+import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

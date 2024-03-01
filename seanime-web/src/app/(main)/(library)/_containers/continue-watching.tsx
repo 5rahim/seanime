@@ -1,6 +1,7 @@
 "use client"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_containers/library-header"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
+import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { MediaEntryEpisode } from "@/lib/server/types"
 import { atom } from "jotai/index"
@@ -82,9 +83,13 @@ export function ContinueWatching({ list, isLoading }: {
     }, [debouncedInViewEpisodes, list])
 
     if (list.length > 0) return (
-        <div className="space-y-3 lg:space-y-6 p-4 lg:mt-10">
+        <div className="space-y-3 lg:space-y-6 p-4">
             <h2>Continue watching</h2>
-            <h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>
+            {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>*/}
+            <TextGenerateEffect
+                words={headerEpisode?.basicMedia?.title?.userPreferred || ""}
+                className="w-full text-xl lg:text-5xl lg:max-w-[50%] !mt-1 line-clamp-1 truncate hidden lg:block pb-1"
+            />
             <Carousel
                 className="w-full max-w-full"
                 gap="md"
@@ -92,6 +97,7 @@ export function ContinueWatching({ list, isLoading }: {
                     align: "start",
                 }}
                 autoScroll
+                autoScrollDelay={8000}
             >
                 <CarouselDotButtons />
                 <CarouselContent>
@@ -149,3 +155,4 @@ const EpisodeItem = React.memo(({ episode, mRef }: { episode: MediaEntryEpisode,
         />
     )
 })
+

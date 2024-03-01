@@ -12,7 +12,6 @@ import { useWindowScroll } from "react-use"
 
 export const __libraryHeaderImageAtom = atom<string | null>(null)
 
-// ugly but works
 export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
 
     const image = useAtomValue(__libraryHeaderImageAtom)
@@ -23,17 +22,21 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
     const setHeaderEpisode = useSetAtom(__libraryHeaderEpisodeAtom)
 
     useEffect(() => {
-        if (actualImage === null) {
-            setActualImage(image)
-        } else {
-            setActualImage(null)
+        if (image != actualImage) {
+            if (actualImage === null) {
+                setActualImage(image)
+            } else {
+                setActualImage(null)
+            }
         }
     }, [image])
 
     React.useLayoutEffect(() => {
         const t = setTimeout(() => {
-            setActualImage(image)
-            setHeaderEpisode(list.find(ep => ep.basicMedia?.bannerImage === image || ep.episodeMetadata?.image === image) || null)
+            if (image != actualImage) {
+                setActualImage(image)
+                setHeaderEpisode(list.find(ep => ep.basicMedia?.bannerImage === image || ep.episodeMetadata?.image === image) || null)
+            }
         }, 600)
 
         return () => {
@@ -69,7 +72,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                 className="h-[30rem] z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
             >
                 <div
-                    className="w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[--background] to-transparent via"
+                    className="w-full absolute z-[2] top-0 h-[10rem] opacity-60 bg-gradient-to-b from-[--background] to-transparent via"
                 />
                 <Transition
                     show={!!actualImage}
@@ -88,7 +91,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                         priority
                         sizes="100vw"
                         className={cn(
-                            "object-cover object-center z-[1] opacity-100 transition-all duration-700",
+                            "object-cover object-center z-[1] opacity-80 transition-all duration-700",
                             // "group-hover/library-header:opacity-100",
                             { "opacity-10": dimmed },
                         )}
@@ -107,7 +110,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                     )}
                 />}
                 <div
-                    className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
+                    className="w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
                 />
                 <div className="h-full absolute w-full xl-right-48">
                     <Image
@@ -131,7 +134,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                         priority
                         sizes="100vw"
                         className={cn(
-                            "object-cover object-right z-[2] transition-opacity duration-1000 opacity-30",
+                            "object-cover object-right z-[2] transition-opacity duration-1000 opacity-40",
                         )}
                     />
                 </div>

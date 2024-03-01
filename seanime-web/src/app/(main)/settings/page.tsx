@@ -1,6 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { PageWrapper } from "@/components/shared/page-wrapper"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
