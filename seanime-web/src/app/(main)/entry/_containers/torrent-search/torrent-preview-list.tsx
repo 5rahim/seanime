@@ -3,8 +3,8 @@ import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-searc
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
+import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { AnimeTorrent, TorrentPreview } from "@/lib/server/types"
-import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 import React from "react"
 import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
@@ -23,7 +23,7 @@ export const TorrentPreviewList = React.memo((
         onToggleTorrent,
     }: TorrentPreviewList) => {
 
-    if (isLoading) return <LoadingSpinner/>
+    if (isLoading) return <LoadingSpinner />
 
     return (
         <div className="space-y-2">
@@ -38,12 +38,13 @@ export const TorrentPreviewList = React.memo((
                         image={item.episode?.episodeMetadata?.image}
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent)}
-                        action={<Tooltip trigger={<IconButton
-                            icon={<BiLinkExternal/>}
-                            intent="primary-basic"
-                            size="sm"
-                            onClick={() => window.open(item.torrent.link, "_blank")}
-                        />}
+                        action={<Tooltip
+                            trigger={<IconButton
+                                icon={<BiLinkExternal />}
+                                intent="primary-basic"
+                                size="sm"
+                                onClick={() => window.open(item.torrent.link, "_blank")}
+                            />}
                         >Open in browser</Tooltip>}
                     >
                         <div className="flex flex-wrap gap-2 items-center">
@@ -52,8 +53,7 @@ export const TorrentPreviewList = React.memo((
                             <p className="text-gray-300 text-sm flex items-center gap-1">
                                 <BiFile /> {item.torrent.formattedSize}</p>
                             <p className="text-[--muted] text-sm flex items-center gap-1">
-                                <BiCalendarAlt /> {formatDistanceToNow(item.torrent.date.split(" ")[0] + "T" + item.torrent.date.split(" ")?.[1],
-                                { addSuffix: true })}
+                                <BiCalendarAlt /> {formatDistanceToNowSafe(item.torrent.date)}
                             </p>
                         </div>
                     </TorrentPreviewItem>

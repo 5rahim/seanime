@@ -157,14 +157,6 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 		finalStr = fmt.Sprintf("(%s) | (%s)", absoluteEpStr, queryStr) // Override finalStr
 	}
 
-	//check cache
-	if opts.Cache != nil {
-		cacheRes, found := opts.Cache.Get(finalStr)
-		if found {
-			return cacheRes, nil
-		}
-	}
-
 	format := "?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-a"
 	query := fmt.Sprintf(format, url.QueryEscape(finalStr))
 
@@ -177,6 +169,14 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 			finalStr += " " + *opts.Resolution
 		}
 		query = fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-d", url.QueryEscape(finalStr))
+	}
+
+	//check cache
+	if opts.Cache != nil {
+		cacheRes, found := opts.Cache.Get(finalStr)
+		if found {
+			return cacheRes, nil
+		}
 	}
 
 	torrents, err = fetchTorrents(query)

@@ -188,6 +188,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                 formatOptions={{
                                     maximumFractionDigits: 0,
                                     minimumFractionDigits: 0,
+                                    useGrouping: false,
                                 }}
                                 rightIcon={<BiStar />}
                             />
@@ -201,6 +202,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                 formatOptions={{
                                     maximumFractionDigits: 0,
                                     minimumFractionDigits: 0,
+                                    useGrouping: false,
                                 }}
                                 rightIcon={<BiListPlus />}
                             />

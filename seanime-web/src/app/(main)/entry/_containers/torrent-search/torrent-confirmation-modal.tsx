@@ -185,7 +185,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                             />
                         </div>}
                     >
-                        Open on {torrent.provider === "nyaa" ? "Nyaa" : "AnimeTosho"}
+                        Open in browser
                     </Tooltip>
                 ))}
                 <div className="!mt-4 flex w-full justify-between gap-2 items-center">

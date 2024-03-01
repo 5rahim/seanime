@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/seanime-parser"
 	"strconv"
+	"time"
 )
 
 type (
@@ -36,9 +37,15 @@ func NewAnimeTorrentFromNyaa(torrent *nyaa.DetailedTorrent) *AnimeTorrent {
 	leechers, _ := strconv.Atoi(torrent.Leechers)
 	downloads, _ := strconv.Atoi(torrent.Downloads)
 
+	formattedDate := ""
+	parsedDate, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", torrent.Date)
+	if err == nil {
+		formattedDate = parsedDate.Format(time.RFC3339)
+	}
+
 	t := &AnimeTorrent{
 		Name:          torrent.Name,
-		Date:          torrent.Date,
+		Date:          formattedDate,
 		Size:          torrent.GetSizeInBytes(),
 		FormattedSize: torrent.Size,
 		Seeders:       seeders,
@@ -58,9 +65,13 @@ func NewAnimeTorrentFromNyaa(torrent *nyaa.DetailedTorrent) *AnimeTorrent {
 func NewAnimeTorrentFromAnimeTosho(torrent *animetosho.Torrent) *AnimeTorrent {
 	metadata := seanime_parser.Parse(torrent.Title)
 
+	formattedDate := ""
+	parsedDate := time.Unix(int64(torrent.Timestamp), 0)
+	formattedDate = parsedDate.Format(time.RFC3339)
+
 	t := &AnimeTorrent{
 		Name:          torrent.Title,
-		Date:          util.TimestampToDateStr(int64(torrent.Timestamp)),
+		Date:          formattedDate,
 		Size:          torrent.TotalSize,
 		FormattedSize: util.ToHumanReadableSize(int(torrent.TotalSize)),
 		Seeders:       torrent.Seeders,

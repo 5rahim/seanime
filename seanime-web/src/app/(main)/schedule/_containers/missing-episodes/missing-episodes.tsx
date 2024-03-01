@@ -41,7 +41,7 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                             <CarouselContent>
                                 {!isLoading && missingEpisodes?.map(episode => {
                                     return <CarouselItem
-                                        key={episode?.localFile?.path}
+                                        key={episode?.basicMedia?.id + episode.displayTitle}
                                         className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                                     >
                                         <GenericSliderEpisodeItem

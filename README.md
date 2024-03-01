@@ -50,18 +50,18 @@ support transcoding or streaming to other devices (yet).
 
 # Roadmap
 
-Here are some features that are planned, from most to least probable:
-
+- [ ] New UI 
 - [ ] Transmission support
 - [ ] Manga support
 - [ ] Offline support
 - [ ] Kitsu integration
 - [ ] Docker container
 - [ ] Transcoding and streaming
+  - Built-in player
+  - Direct play
+  - On-the-fly transcoding
  
 ### Not planned
-
-The following features are not planned:
 
 - Support for other providers such as Trakt, SIMKL, etc.
 - Torrent streaming

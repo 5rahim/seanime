@@ -3,8 +3,8 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
+import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { AnimeTorrent } from "@/lib/server/types"
-import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 import React, { memo, useMemo } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 
@@ -78,8 +78,7 @@ export const TorrentTable = memo((
         {
             accessorKey: "date",
             header: "Date",
-            cell: info => formatDistanceToNow(info.getValue<string>().split(" ")[0] + "T" + info.getValue<string>().split(" ")?.[1],
-                { addSuffix: true }),
+            cell: info => formatDistanceToNowSafe(info.getValue<string>()),
             size: 10,
         },
     ]), [torrents, selectedTorrents])
@@ -110,3 +109,4 @@ export const TorrentTable = memo((
     )
 
 })
+

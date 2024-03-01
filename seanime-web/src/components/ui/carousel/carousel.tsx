@@ -388,7 +388,9 @@ const DotButton = (props: ButtonProps) => {
     return (
         <Button
             size="xs"
-            className={cn("rounded-full size-5 p-0 bg-gray-600 dark:bg-opacity-50", className)}
+            className={cn(
+                "rounded-full size-4 p-0 bg-gray-600 dark:bg-opacity-50", className,
+            )}
             intent="gray-subtle"
             {...rest}
         >
@@ -412,6 +414,7 @@ export const CarouselDotButtons = () => {
                     onClick={() => onDotButtonClick(index)}
                     className={cn(
                         { "bg-white": index === selectedIndex },
+                        { "size-4 [&:nth-child(odd)]:hidden": scrollSnaps.length > 30 },
                     )}
                 />
             ))}
