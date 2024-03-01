@@ -4,7 +4,7 @@ import "time"
 
 const (
 	Version             = "0.5.0"
-	VersionName         = "Laboon"
+	VersionName         = "Whitebeard"
 	DevelopmentWebBuild = true
 	GcTime              = time.Minute * 30
 	ConfigFileName      = "config.toml"

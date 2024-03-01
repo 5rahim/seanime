@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/streamer"
 	"github.com/seanime-app/seanime/internal/vlc"
 )
 
@@ -83,6 +84,13 @@ func (a *App) InitOrRefreshModules() {
 
 	// Save account and Anilist collection
 	a.initAnilistData()
+
+	// Initialize transcoder
+	a.Transcoder, err = streamer.NewTranscoder()
+	if err != nil {
+		a.Logger.Fatal().Err(err).Msg("app: Failed to initialize transcoder")
+		return
+	}
 
 	a.Logger.Info().Msg("app: Initialized modules")
 

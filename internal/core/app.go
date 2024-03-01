@@ -20,6 +20,7 @@ import (
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/streamer"
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
@@ -48,9 +49,10 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		Version  string
-		Updater  *updater.Updater
-		Settings *models.Settings
+		Version    string
+		Updater    *updater.Updater
+		Settings   *models.Settings
+		Transcoder *streamer.Transcoder
 	}
 
 	AppOptions struct {

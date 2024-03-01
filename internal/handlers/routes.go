@@ -227,6 +227,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/download-release", makeHandler(app, HandleDownloadRelease))
 
 	//
+	// Stream
+	//
+	v1.Get("/stream/*", makeHandler(app, HandleStream))
+
+	//
 	// Websocket
 	//
 
