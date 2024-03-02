@@ -429,8 +429,8 @@ export const CarouselMasks = () => {
 
     return (
         <>
-            <div className="absolute left-0 h-full w-8 bg-gradient-to-r from-[--background] to-transparent z-[1]" />
-            <div className="absolute right-0 h-full w-8 bg-gradient-to-l from-[--background] to-transparent z-[1]" />
+            <div className="absolute hidden md:block left-0 h-full w-8 bg-gradient-to-r from-[--background] to-transparent z-[1]" />
+            <div className="absolute hidden md:block right-0 h-full w-8 bg-gradient-to-l from-[--background] to-transparent z-[1]" />
         </>
     )
 }

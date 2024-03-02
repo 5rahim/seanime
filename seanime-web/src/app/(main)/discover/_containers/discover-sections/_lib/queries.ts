@@ -1,17 +1,22 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-
 import { searchAnilistMediaList } from "@/lib/anilist/queries/search-media"
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
+import { atom } from "jotai"
+import { useAtomValue } from "jotai/react"
+
+export const __discover_trendingGenresAtom = atom<string[]>([])
 
 export function useDiscoverTrendingAnime() {
+    const genres = useAtomValue(__discover_trendingGenresAtom)
 
     return useInfiniteQuery({
-        queryKey: ["discover-trending-anime"],
+        queryKey: ["discover-trending-anime", genres],
         initialPageParam: 1,
         queryFn: async ({ pageParam }) => {
             return searchAnilistMediaList({
                 page: pageParam,
                 perPage: 20,
                 sort: ["TRENDING_DESC"],
+                genres: genres.length > 0 ? genres : undefined,
             })
         },
         getNextPageParam: (lastPage, pages) => {

@@ -24,7 +24,7 @@ export function AdvancedSearchList() {
                 <div
                     className={cn(
                         "h-full col-span-1 group/anime-list-item relative flex flex-col place-content-stretch rounded-md animate-none min-h-[348px]",
-                        "cursor-pointer border border-dashed  border-none text-[--muted] hover:text-white pt-24 items-center gap-2 transition",
+                        "cursor-pointer border border-none text-[--muted] hover:text-white pt-24 items-center gap-2 transition",
                     )}
                     onClick={() => fetchNextPage()}
                 >

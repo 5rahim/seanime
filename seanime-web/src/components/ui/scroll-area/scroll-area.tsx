@@ -45,7 +45,10 @@ export const ScrollAreaAnatomy = defineStyleAnatomy({
 
 export type ScrollAreaProps =
     React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
-    & ComponentAnatomy<typeof ScrollAreaAnatomy>
+    & ComponentAnatomy<typeof ScrollAreaAnatomy> &
+    {
+        orientation?: "vertical" | "horizontal"
+    }
 
 export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>((props, ref) => {
     const {
@@ -54,6 +57,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>((pro
         thumbClass,
         viewportClass,
         children,
+        orientation = "vertical",
         ...rest
     } = props
     return (
@@ -68,6 +72,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>((pro
             <ScrollBar
                 className={scrollbarClass}
                 thumbClass={thumbClass}
+                orientation={orientation}
             />
             <ScrollAreaPrimitive.Corner />
         </ScrollAreaPrimitive.Root>
