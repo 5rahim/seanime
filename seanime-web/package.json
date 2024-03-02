@@ -56,6 +56,7 @@
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
     "collect.js": "^4.36.1",
+    "colord": "^2.9.3",
     "concurrently": "^8.2.2",
     "date-fns": "^3.3.1",
     "domelementtype": "^2.3.0",

@@ -2,7 +2,7 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { IconButton } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
+import { Field, Form } from "@/components/ui/form"
 import { settingsSchema } from "@/lib/server/settings"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
@@ -45,6 +45,9 @@ export default function Page() {
                 stackClass="space-y-4"
             >
 
+                <Field.ColorPicker
+                    name=""
+                />
 
             </Form>
         </PageWrapper>

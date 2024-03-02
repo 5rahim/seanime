@@ -2,7 +2,10 @@
 
 import { DirectorySelector, DirectorySelectorProps } from "@/components/shared/directory-selector"
 import { cn } from "@/components/ui/core/styling"
+import { useDebounce } from "@/hooks/use-debounce"
+import { colord } from "colord"
 import React, { forwardRef, useMemo } from "react"
+import { HexColorPicker } from "react-colorful"
 import { Controller, FormState, get, useController, useFormContext } from "react-hook-form"
 import { AddressInput, AddressInputProps } from "../address-input"
 import { Autocomplete, AutocompleteProps } from "../autocomplete"
@@ -14,6 +17,7 @@ import { DatePicker, DatePickerProps, DateRangePicker, DateRangePickerProps } fr
 import { NativeSelect, NativeSelectProps } from "../native-select"
 import { NumberInput, NumberInputProps } from "../number-input"
 import { PhoneInput, PhoneInputProps } from "../phone-input"
+import { Popover } from "../popover"
 import { RadioGroup, RadioGroupProps } from "../radio-group"
 import { Select, SelectProps } from "../select"
 import { SimpleDropzone, SimpleDropzoneProps } from "../simple-dropzone"
@@ -174,6 +178,53 @@ const NativeSelectField = React.memo(withControlledInput(forwardRef<HTMLSelectEl
             {...props}
             ref={ref}
         />
+    },
+)))
+
+const ColorPickerField = React.memo(withControlledInput(forwardRef<HTMLInputElement, FieldComponent<TextInputProps>>(
+    (props, ref) => {
+        const context = useFormContext()
+        const controller = useController({ name: props.name })
+        const validColorRef = React.useRef("#000")
+
+        const [value, setValue] = React.useState(get(context.formState.defaultValues, props.name) || "#000")
+        const deferredValue = useDebounce(value, 200)
+
+        React.useEffect(() => {
+            controller.field.onChange(deferredValue)
+            if (colord(deferredValue).isValid()) {
+                validColorRef.current = deferredValue
+            }
+        }, [deferredValue])
+
+        const handleColorChange = React.useCallback(() => {
+            if (!colord(value).isValid()) {
+                setValue(validColorRef.current)
+            } else {
+                setValue(value)
+            }
+        }, [validColorRef.current, value])
+
+        return <div>
+            <TextInput
+                {...props}
+                ref={ref}
+                value={value}
+                onValueChange={setValue}
+                onBlur={handleColorChange}
+                rightAddon={<Popover
+                    className="flex justify-center"
+                    trigger={<div className="cursor-pointer size-7 rounded-md" style={{ backgroundColor: value }} />}
+                >
+                    <HexColorPicker
+                        color={value}
+                        onChange={color => {
+                            setValue(color)
+                        }}
+                    />
+                </Popover>}
+            />
+        </div>
     },
 )))
 
@@ -378,6 +429,7 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     SimpleDropzone: typeof SimpleDropzoneField
     DirectorySelector: typeof DirectorySelectorField
     RadioCards: typeof RadioCardsField
+    ColorPicker: typeof ColorPickerField
     Submit: typeof SubmitField
 }>({
     Text: TextInputField,
@@ -398,6 +450,7 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     Address: AddressInputField,
     SimpleDropzone: SimpleDropzoneField,
     DirectorySelector: DirectorySelectorField,
+    ColorPicker: ColorPickerField,
     RadioCards: RadioCardsField,
     Submit: SubmitField,
 })
