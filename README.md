@@ -57,9 +57,6 @@ support transcoding or streaming to other devices (yet).
 - [ ] Kitsu integration
 - [ ] Docker container
 - [ ] Transcoding and streaming
-  - Built-in player
-  - Direct play
-  - On-the-fly transcoding
  
 ### Not planned
 

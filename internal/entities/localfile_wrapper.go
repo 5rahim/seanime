@@ -24,14 +24,14 @@ func NewLocalFileWrapper(lfs []*LocalFile) *LocalFileWrapper {
 
 	// Group local files by media id
 	groupedLfs := GroupLocalFilesByMediaID(lfs)
-	for mId, lfs := range groupedLfs {
+	for mId, gLfs := range groupedLfs {
 		if mId == 0 {
-			lfw.UnmatchedLocalFiles = lfs
+			lfw.UnmatchedLocalFiles = gLfs
 			continue
 		}
 		lfw.LocalEntries = append(lfw.LocalEntries, &LocalFileWrapperEntry{
 			MediaId:    mId,
-			LocalFiles: lfs,
+			LocalFiles: gLfs,
 		})
 	}
 

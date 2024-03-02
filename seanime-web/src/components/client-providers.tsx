@@ -1,5 +1,6 @@
 "use client"
 import { AuthWrapper } from "@/components/application/auth-wrapper"
+import { OfflineDetector } from "@/components/application/offline-detector"
 import { WebsocketProvider } from "@/components/application/websocket-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClient } from "@tanstack/query-core"
@@ -31,6 +32,7 @@ export const ClientProviders: React.FC<ClientProvidersProps> = ({ children }) =>
                 <QueryClientProvider client={queryClient}>
                     <WebsocketProvider>
                         <AuthWrapper>
+                            <OfflineDetector />
                             {children}
                         </AuthWrapper>
                     </WebsocketProvider>
