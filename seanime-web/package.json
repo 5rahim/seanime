@@ -86,6 +86,7 @@
     "ora": "^8.0.1",
     "postcss": "^8",
     "react": "^18",
+    "react-colorful": "^5.6.1",
     "react-currency-input-field": "^3.8.0",
     "react-day-picker": "^8.10.0",
     "react-dom": "^18",

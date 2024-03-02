@@ -2,6 +2,7 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,9 +11,12 @@ import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
 import { useAtom } from "jotai/react"
+import Link from "next/link"
 import React, { useEffect } from "react"
 import { BsPlayCircleFill } from "react-icons/bs"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
+import { GoArrowRight } from "react-icons/go"
+import { LuPalette } from "react-icons/lu"
 import { toast } from "sonner"
 
 
@@ -36,9 +40,21 @@ export default function Page() {
 
     return (
         <PageWrapper className="p-4 sm:p-8 space-y-4">
-            <div className="space-y-1">
-                <h2>Settings</h2>
-                <p className="text-[--muted]">App version: {status?.version}</p>
+            <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
+                <div className="space-y-1">
+                    <h2>Settings</h2>
+                    <p className="text-[--muted]">App version: {status?.version}</p>
+                </div>
+                <div>
+                    <Link href="/settings/theme">
+                        <Button
+                            className="rounded-full"
+                            intent="primary-subtle"
+                            leftIcon={<LuPalette />}
+                            rightIcon={<GoArrowRight />}
+                        >Customize theme</Button>
+                    </Link>
+                </div>
             </div>
             {/*<Separator/>*/}
             <Form
@@ -291,6 +307,7 @@ export default function Page() {
                                     label="Application path"
                                 />
                             </TabsContent>
+
                             <div className="mt-4">
                                 <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
                             </div>

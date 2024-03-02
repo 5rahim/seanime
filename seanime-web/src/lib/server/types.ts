@@ -33,6 +33,7 @@ export type ServerStatus = {
     settings: Settings | null
     mal: MalInfo | null
     version: string
+    themeSettings?: ThemeSettings | null
 }
 
 /**
@@ -463,8 +464,25 @@ export type ReleaseAsset = {
     browser_download_url: string
 }
 
+export type ThemeSettings = {
+    animeEntryScreenLayout: string
+    smallerEpisodeCarouselSize: boolean
+    expandSidebarOnHover: boolean
+    backgroundColor: string
+    sidebarBackgroundColor: string
+    libraryScreenShowTrending: boolean
+    libraryScreenShowAnimeBanner: boolean
+    libraryScreenShowCustomBanner: boolean
+    libraryScreenCustomBanner: string
+    libraryScreenCustomBannerAutoDim: number
+    libraryScreenShowCustomBackground: boolean
+    libraryScreenCustomBackground: string
+    libraryScreenCustomBackgroundAutoDim: number
+}
 
-//---
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export type AnilistCollectionEntry = {
     id: number,
