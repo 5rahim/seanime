@@ -84,38 +84,64 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 }
 
 // SetSettings should be called after the settings are fetched and updated from the database.
+// If the AutoDownloader is not active, it will start it if the settings are enabled.
+// If the AutoDownloader is active, it will stop it if the settings are disabled.
 func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, provider string) {
-	ad.Settings = settings
-	// Update the provider if it's provided
-	if provider != "" {
-		ad.Settings.Provider = provider
+	if ad == nil {
+		return
 	}
-	ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
-	if ad.Settings.Enabled && !ad.active {
-		ad.startCh <- struct{}{} // Start the auto downloader
-	} else if !ad.Settings.Enabled && ad.active {
-		ad.stopCh <- struct{}{} // Stop the auto downloader
-	}
+	go func() {
+		ad.mu.Lock()
+		defer ad.mu.Unlock()
+		ad.Settings = settings
+		// Update the provider if it's provided
+		if provider != "" {
+			ad.Settings.Provider = provider
+		}
+		ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
+		if ad.Settings.Enabled && !ad.active {
+			ad.startCh <- struct{}{} // Start the auto downloader
+		} else if !ad.Settings.Enabled && ad.active {
+			ad.stopCh <- struct{}{} // Stop the auto downloader
+		}
+	}()
 }
 
-// Start will start the auto downloader.
-// This should be run in a goroutine.
-func (ad *AutoDownloader) Start() {
-
-	if ad.Settings.Enabled {
-		started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
-		if !started {
-			ad.Logger.Warn().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
-			return
-		}
+func (ad *AutoDownloader) SetAnilistCollection(collection *anilist.AnimeCollection) {
+	if ad == nil {
+		return
 	}
+	ad.AnilistCollection = collection
+}
 
-	// Start the auto downloader
-	ad.start()
+// Start will start the auto downloader in a goroutine
+func (ad *AutoDownloader) Start() {
+	if ad == nil {
+		return
+	}
+	go func() {
+		if ad.Settings.Enabled {
+			started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
+			if !started {
+				ad.Logger.Warn().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
+				return
+			}
+		}
+
+		// Start the auto downloader
+		ad.start()
+	}()
 }
 
 func (ad *AutoDownloader) Run() {
-	ad.startCh <- struct{}{}
+	if ad == nil {
+		return
+	}
+	go func() {
+		ad.mu.Lock()
+		defer ad.mu.Unlock()
+		ad.startCh <- struct{}{}
+	}()
 }
 
 // CleanUpDownloadedItems will clean up downloaded items from the database.
@@ -591,7 +617,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 }
 
 func (ad *AutoDownloader) getRuleListEntry(rule *entities.AutoDownloaderRule) (*anilistListEntry, bool) {
-	if rule == nil || rule.MediaId == 0 {
+	if rule == nil || rule.MediaId == 0 || ad.AnilistCollection == nil {
 		return nil, false
 	}
 

@@ -67,6 +67,7 @@ type LibrarySettings struct {
 	AutoUpdateProgress bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
 	DisableUpdateCheck bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
 	TorrentProvider    string `gorm:"column:torrent_provider" json:"torrentProvider"`
+	AutoScan           bool   `gorm:"column:auto_scan" json:"autoScan"`
 }
 
 type TorrentSettings struct {

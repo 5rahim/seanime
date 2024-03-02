@@ -4,8 +4,7 @@
 
 <h2 align="center"><b>Seanime</b></h2>
 
-<h4 align="center">User-friendly, self-hosted server that brings you a Netflix-like experience for your local
-anime library.</h4>
+<h4 align="center">Self-hosted and user-friendly interface for your local anime library.</h4>
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">
@@ -17,24 +16,24 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 
-- ✨ **User-friendly web interface**
+- **User-friendly web interface**
   - Set up Seanime with a few clicks
   - Modern, simple, responsive UI
-- ✨ **Seamless integration with AniList**
+- **Seamless integration with AniList**
   - Manage your AniList collection (add, update, delete entries)
   - Discover new anime, track your progress, see upcoming episodes, and get recommendations
-- 🚀 **Powerful scanner**
+- **Powerful scanner**
   - No mandatory folder structure or naming convention
   - Support for torrents with absolute episode numbers
-- 🚀 **Download new episodes automatically**
+- **Download new episodes automatically**
   - Add rules (filters) that specify which torrent to download based on parameters such as release group, resolution, episode numbers
   - Support for Nyaa and AnimeTosho
-- 🚀 **Integrated torrent search engine**
+- **Integrated torrent search engine**
   - Manually search and download new episodes with a few clicks without leaving the web interface
-- 🚀 **Third-party media players**
+- **Third-party media players**
   - Launch an episode from the web interface and Seanime will automatically update your progress on AniList (& MAL)
   - MPV, VLC, and MPC-HC are supported
-- 🚀 **MyAnimeList integration**
+- **MyAnimeList integration**
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
 - **No data collection**

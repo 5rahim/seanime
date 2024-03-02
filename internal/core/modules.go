@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/autodownloader"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
@@ -9,8 +10,42 @@ import (
 	"github.com/seanime-app/seanime/internal/vlc"
 )
 
-// InitOrRefreshModules will initialize or refresh modules that use settings.
-// This function should be called after App.Database is initialized and after settings are updated.
+// InitModulesOnce will initialize modules that need to persist.
+// This function is called once after the App instance is created.
+// The settings of these modules will be set/refreshed in InitOrRefreshModules.
+func (a *App) InitModulesOnce() {
+
+	// Auto downloader
+	a.AutoDownloader = autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
+		Logger:            a.Logger,
+		QbittorrentClient: a.QBittorrent,
+		AnilistCollection: nil, // Will be set and refreshed in app.RefreshAnilistCollection
+		Database:          a.Database,
+		WSEventManager:    a.WSEventManager,
+		AniZipCache:       a.AnizipCache,
+	})
+
+	a.AutoDownloader.Start()
+
+	// Auto scanner
+	a.AutoScanner = scanner.NewAutoScanner(&scanner.NewAutoScannerOptions{
+		Database:             a.Database,
+		Enabled:              false,
+		AutoDownloader:       a.AutoDownloader,
+		AnilistClientWrapper: a.AnilistClientWrapper,
+		Logger:               a.Logger,
+		WSEventManager:       a.WSEventManager,
+	})
+
+	a.AutoScanner.Start()
+
+}
+
+// InitOrRefreshModules will initialize or refresh modules that depend on settings.
+// This function is called:
+//   - After the App instance is created
+//   - After App.Database is initialized
+//   - After settings are updated.
 func (a *App) InitOrRefreshModules() {
 
 	// Stop watching if already watching
@@ -27,12 +62,24 @@ func (a *App) InitOrRefreshModules() {
 
 	a.Settings = settings // Store settings instance in app
 
-	// Update updater
+	// +---------------------+
+	// |   Module settings   |
+	// +---------------------+
+	// Refresh settings of modules that were initialized in InitModulesOnce
+
+	// Refresh updater settings
 	if settings.Library != nil && a.Updater != nil {
-		a.Updater.CheckForUpdate = !settings.Library.DisableUpdateCheck
+		a.Updater.SetEnabled(!settings.Library.DisableUpdateCheck)
 	}
 
-	// Update VLC/MPC-HC
+	// Refresh auto scanner settings
+	if settings.Library != nil && a.AutoScanner != nil {
+		a.AutoScanner.SetEnabled(settings.Library.AutoScan)
+	}
+
+	// +---------------------+
+	// |    Media Player     |
+	// +---------------------+
 
 	if settings.MediaPlayer != nil {
 		a.MediaPlayer.VLC = &vlc.VLC{
@@ -53,7 +100,9 @@ func (a *App) InitOrRefreshModules() {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}
 
-	// Update qBittorrent
+	// +---------------------+
+	// |   Torrent Client    |
+	// +---------------------+
 
 	if settings.Torrent != nil {
 		a.QBittorrent = qbittorrent.NewClient(&qbittorrent.NewClientOptions{
@@ -69,10 +118,16 @@ func (a *App) InitOrRefreshModules() {
 		a.Logger.Warn().Msg("app: Did not initialize qBittorrent module, no settings found")
 	}
 
-	// Update Auto Downloader
-	if settings.AutoDownloader != nil {
-		go a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
-	}
+	// +---------------------+
+	// |   AutoDownloader    |
+	// +---------------------+
+
+	// Update Auto Downloader - This runs in a goroutine
+	a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
+
+	// +---------------------+
+	// |   Library Watcher   |
+	// +---------------------+
 
 	// Initialize library watcher
 	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
@@ -81,18 +136,18 @@ func (a *App) InitOrRefreshModules() {
 		a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
 	}
 
-	// Save account and Anilist collection
+	// +---------------------+
+	// |       AniList       |
+	// +---------------------+
+
 	a.initAnilistData()
 
 	a.Logger.Info().Msg("app: Initialized modules")
 
 }
 
-func (a *App) initAutoDownloader() {
-	go a.AutoDownloader.Start()
-}
-
-// InitLibraryWatcher will initialize the library watcher.
+// initLibraryWatcher will initialize the library watcher.
+//   - Used by AutoScanner
 func (a *App) initLibraryWatcher(path string) {
 	// Create a new matcher
 	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
@@ -117,11 +172,15 @@ func (a *App) initLibraryWatcher(path string) {
 	a.Watcher = watcher
 
 	// Start watching
-	a.Watcher.StartWatching()
+	a.Watcher.StartWatching(
+		func() {
+			// Notify the auto scanner when a file action occurs
+			a.AutoScanner.Notify()
+		})
 
 }
 
-// initAnilistData will initialize the Anilist anime collection dependency and the account.
+// initAnilistData will initialize the Anilist anime collection and the account.
 // This function should be called after App.Database is initialized and after settings are updated.
 func (a *App) initAnilistData() {
 
@@ -147,6 +206,8 @@ func (a *App) initAnilistData() {
 
 }
 
+// UpdateAnilistClientToken will update the Anilist Client Wrapper token.
+// This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
 	a.AnilistClientWrapper = anilist.NewClientWrapper(token)
 }

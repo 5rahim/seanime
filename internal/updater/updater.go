@@ -11,7 +11,7 @@ type (
 		CurrentVersion      string
 		hasCheckedForUpdate bool
 		LatestRelease       *Release
-		CheckForUpdate      bool
+		checkForUpdate      bool
 	}
 
 	Update struct {
@@ -50,12 +50,12 @@ func New(currVersion string) *Updater {
 	return &Updater{
 		CurrentVersion:      currVersion,
 		hasCheckedForUpdate: false,
-		CheckForUpdate:      true,
+		checkForUpdate:      true,
 	}
 }
 
 func (u *Updater) GetLatestUpdate() (*Update, error) {
-	if !u.CheckForUpdate {
+	if !u.checkForUpdate {
 		return nil, nil
 	}
 
@@ -77,6 +77,10 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 
 func (u *Updater) ShouldRefetchReleases() {
 	u.hasCheckedForUpdate = false
+}
+
+func (u *Updater) SetEnabled(checkForUpdate bool) {
+	u.checkForUpdate = checkForUpdate
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

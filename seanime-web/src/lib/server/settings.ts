@@ -49,6 +49,7 @@ export const settingsSchema = z.object({
     libraryPath: z.string().min(1),
     defaultPlayer: z.string(),
     torrentProvider: z.string().default(DEFAULT_TORRENT_PROVIDER),
+    autoScan: z.boolean().optional().default(false),
     mediaPlayerHost: z.string(),
     vlcUsername: z.string().optional().default(""),
     vlcPassword: z.string().optional().default(""),

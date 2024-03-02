@@ -170,8 +170,8 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Update Auto Downloader
-	go c.App.AutoDownloader.SetSettings(autoDownloaderSettings, prevSettings.Library.TorrentProvider)
+	// Update Auto Downloader - This runs in a goroutine
+	c.App.AutoDownloader.SetSettings(autoDownloaderSettings, prevSettings.Library.TorrentProvider)
 
 	return c.RespondWithData(true)
 }

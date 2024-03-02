@@ -50,6 +50,7 @@ export default function Page() {
                             autoUpdateProgress: data.autoUpdateProgress,
                             disableUpdateCheck: data.disableUpdateCheck,
                             torrentProvider: data.torrentProvider,
+                            autoScan: data.autoScan,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -79,6 +80,7 @@ export default function Page() {
                     libraryPath: status?.settings?.library?.libraryPath,
                     mediaPlayerHost: status?.settings?.mediaPlayer?.host,
                     torrentProvider: status?.settings?.library?.torrentProvider || DEFAULT_TORRENT_PROVIDER, // (Backwards compatibility)
+                    autoScan: status?.settings?.library?.autoScan,
                     defaultPlayer: status?.settings?.mediaPlayer?.defaultPlayer,
                     vlcPort: status?.settings?.mediaPlayer?.vlcPort,
                     vlcUsername: status?.settings?.mediaPlayer?.vlcUsername,
@@ -120,6 +122,12 @@ export default function Page() {
                                     leftIcon={<FcFolder />}
                                     help="Folder where your anime library is located. (Keep the casing consistent)"
                                     shouldExist
+                                />
+                                <Separator />
+                                <Field.Switch
+                                    name="autoScan"
+                                    label="Automatically refresh library"
+                                    help="If enabled, your library refreshed in the background when new files are added/deleted."
                                 />
                                 <Separator />
                                 <Field.Switch

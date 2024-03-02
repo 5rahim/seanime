@@ -16,9 +16,11 @@ import (
 type (
 	AutoScanner struct {
 		fileActionCh         chan struct{} // Used to notify the scanner that a file action has occurred.
-		scanning             bool          // Used to prevent multiple scans from occurring at the same time.
+		waiting              bool          // Used to prevent multiple scans from occurring at the same time.
 		missedAction         bool          // Used to indicate that a file action was missed while scanning.
-		mu                   sync.RWMutex
+		mu                   sync.Mutex
+		scannedCh            chan struct{}
+		waitTime             time.Duration // Wait time to listen to additional changes before triggering a scan.
 		Enabled              bool
 		AnilistClientWrapper *anilist.ClientWrapper
 		Logger               *zerolog.Logger
@@ -27,29 +29,42 @@ type (
 		AutoDownloader       *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
 	}
 	NewAutoScannerOptions struct {
-		Database       *db.Database
-		Scanner        *Scanner
-		Enabled        bool
-		AutoDownloader *autodownloader.AutoDownloader
+		Database             *db.Database
+		AnilistClientWrapper *anilist.ClientWrapper
+		Logger               *zerolog.Logger
+		WSEventManager       events.IWSEventManager
+		Enabled              bool
+		AutoDownloader       *autodownloader.AutoDownloader
+		WaitTime             time.Duration
 	}
 )
 
 func NewAutoScanner(opts *NewAutoScannerOptions) *AutoScanner {
+	wt := time.Second * 15 // Default wait time is 15 seconds.
+	if opts.WaitTime > 0 {
+		wt = opts.WaitTime
+	}
+
 	return &AutoScanner{
 		fileActionCh:         make(chan struct{}, 1),
-		scanning:             false,
+		scannedCh:            make(chan struct{}, 1),
+		waiting:              false,
 		missedAction:         false,
+		waitTime:             wt,
 		Enabled:              opts.Enabled,
 		AutoDownloader:       opts.AutoDownloader,
-		AnilistClientWrapper: opts.Scanner.AnilistClientWrapper,
-		Logger:               opts.Scanner.Logger,
-		WSEventManager:       opts.Scanner.WSEventManager,
+		AnilistClientWrapper: opts.AnilistClientWrapper,
+		Logger:               opts.Logger,
+		WSEventManager:       opts.WSEventManager,
 		Database:             opts.Database,
 	}
 }
 
 // Notify is used to notify the AutoScanner that a file action has occurred.
 func (as *AutoScanner) Notify() {
+	if as == nil {
+		return
+	}
 
 	defer util.HandlePanicInModuleThen("scanner/autoscanner/Notify", func() {
 		as.Logger.Error().Msg("autoscanner: recovered from panic")
@@ -59,7 +74,7 @@ func (as *AutoScanner) Notify() {
 	defer as.mu.Unlock()
 
 	// If we are currently scanning, we will set the missedAction flag to true.
-	if as.scanning {
+	if as.waiting {
 		as.missedAction = true
 		return
 	}
@@ -72,14 +87,15 @@ func (as *AutoScanner) Notify() {
 	}
 }
 
-// Start starts the AutoScanner.
-// It will start a goroutine that will watch for file actions and trigger a scan.
+// Start starts the AutoScanner in a goroutine.
 func (as *AutoScanner) Start() {
-	if as.Enabled {
-		as.Logger.Info().Msg("autoscanner: Module started")
-	}
+	go func() {
+		if as.Enabled {
+			as.Logger.Info().Msg("autoscanner: Module started")
+		}
 
-	go as.watch()
+		as.watch()
+	}()
 }
 
 // SetEnabled should be called after the settings are fetched and updated from the database.
@@ -101,29 +117,40 @@ func (as *AutoScanner) watch() {
 		as.Logger.Error().Msg("autoscanner: recovered from panic")
 	})
 
-	for range as.fileActionCh { // Wait for a file action to occur.
-		as.mu.Lock()
-		as.scanning = true      // Set the scanning flag to true.
-		as.missedAction = false // Reset the missedAction flag.
-		as.mu.Unlock()
-
-		// Wait 30 seconds before triggering a scan.
-		// During this time, if another file action occurs, it will reset the timer after it has expired.
-		<-time.After(time.Second * 30)
-
-		as.mu.Lock()
-		// If a file action occurred while we were waiting, we will trigger another scan.
-		if as.missedAction {
-			as.mu.Unlock()
-			continue
-		}
-
-		as.scanning = false
-		as.mu.Unlock()
-
-		// Trigger a scan.
-		as.scan()
+	for {
+		// Block until the file action channel is ready to receive a signal.
+		<-as.fileActionCh
+		as.waitAndScan()
 	}
+
+}
+
+// waitAndScan is used to wait for additional file actions before triggering a scan.
+func (as *AutoScanner) waitAndScan() {
+	as.Logger.Trace().Msgf("autoscanner: File action occurred, waiting %v seconds before triggering a scan.", as.waitTime.Seconds())
+	as.mu.Lock()
+	as.waiting = true       // Set the scanning flag to true.
+	as.missedAction = false // Reset the missedAction flag.
+	as.mu.Unlock()
+
+	// Wait 30 seconds before triggering a scan.
+	// During this time, if another file action occurs, it will reset the timer after it has expired.
+	<-time.After(as.waitTime)
+
+	as.mu.Lock()
+	// If a file action occurred while we were waiting, we will trigger another scan.
+	if as.missedAction {
+		as.Logger.Trace().Msg("autoscanner: Missed file action")
+		as.mu.Unlock()
+		as.waitAndScan()
+		return
+	}
+
+	as.waiting = false
+	as.mu.Unlock()
+
+	// Trigger a scan.
+	as.scan()
 }
 
 // scan is used to trigger a scan.
@@ -135,6 +162,10 @@ func (as *AutoScanner) scan() {
 
 	// Create scan summary logger
 	scanSummaryLogger := summary.NewScanSummaryLogger()
+
+	as.Logger.Trace().Msg("autoscanner: Starting scanner")
+	as.WSEventManager.SendEvent(events.AutoScanStarted, nil)
+	defer as.WSEventManager.SendEvent(events.AutoScanCompleted, nil)
 
 	settings, err := as.Database.GetSettings()
 	if err != nil || settings == nil {
@@ -185,19 +216,25 @@ func (as *AutoScanner) scan() {
 		}
 	}
 
-	// Insert the local files
-	_, err = as.Database.InsertLocalFiles(allLfs)
-	if err != nil {
-		as.Logger.Error().Err(err).Msg("failed to insert local files")
-		return
-	}
+	if as.Database != nil && len(allLfs) > 0 {
+		as.Logger.Trace().Msg("autoscanner: Updating local files")
 
-	// Save the scan summary
-	err = as.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
-	if err != nil {
-		as.Logger.Error().Err(err).Msg("failed to insert scan summary")
+		// Insert the local files
+		_, err = as.Database.InsertLocalFiles(allLfs)
+		if err != nil {
+			as.Logger.Error().Err(err).Msg("failed to insert local files")
+			return
+		}
+
+		// Save the scan summary
+		err = as.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+		if err != nil {
+			as.Logger.Error().Err(err).Msg("failed to insert scan summary")
+		}
 	}
 
 	// Refresh the queue
 	go as.AutoDownloader.CleanUpDownloadedItems()
+
+	return
 }

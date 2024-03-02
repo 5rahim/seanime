@@ -70,6 +70,7 @@ export type LibrarySettings = {
     autoUpdateProgress: boolean
     disableUpdateCheck: boolean
     torrentProvider: string
+    autoScan: boolean
 }
 
 export const DEFAULT_TORRENT_PROVIDER = "nyaa"

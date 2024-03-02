@@ -41,16 +41,17 @@ type (
 		anilistCollection     *anilist.AnimeCollection
 		account               *models.Account
 		WSEventManager        *events.WSEventManager
-		ListSyncCache         *listsync.Cache // DEVNOTE: Shelved
+		ListSyncCache         *listsync.Cache
 		AutoDownloader        *autodownloader.AutoDownloader
 		MediaPlayer           struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		Version  string
-		Updater  *updater.Updater
-		Settings *models.Settings
+		Version     string
+		Updater     *updater.Updater
+		Settings    *models.Settings
+		AutoScanner *scanner.AutoScanner
 	}
 
 	AppOptions struct {
@@ -113,16 +114,6 @@ func NewApp(options *AppOptions, version string) *App {
 	// AniZip Cache
 	anizipCache := anizip.NewCache()
 
-	// Auto downloader
-	nAutoDownloader := autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
-		Logger:            logger,
-		QbittorrentClient: nil, // Will be set in app.InitOrRefreshModules
-		AnilistCollection: nil, // Will be set and refreshed in app.RefreshAnilistCollection
-		Database:          db,
-		WSEventManager:    wsEventManager,
-		AniZipCache:       anizipCache,
-	})
-
 	app := &App{
 		Config:                cfg,
 		Database:              db,
@@ -132,16 +123,15 @@ func NewApp(options *AppOptions, version string) *App {
 		AnimeToshoSearchCache: animetosho.NewSearchCache(),
 		WSEventManager:        wsEventManager,
 		ListSyncCache:         listsync.NewCache(),
-		AutoDownloader:        nAutoDownloader,
 		Logger:                logger,
 		Version:               version,
 		Updater:               updater.New(version),
+		AutoDownloader:        nil, // Initialized in App.InitModulesOnce
+		AutoScanner:           nil, // Initialized in App.InitModulesOnce
 	}
 
+	app.InitModulesOnce()
 	app.InitOrRefreshModules()
-
-	// Initialize the AutoDownloader
-	app.initAutoDownloader()
 
 	return app
 }

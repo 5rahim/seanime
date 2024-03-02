@@ -60,6 +60,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         autoUpdateProgress: false,
                                         disableUpdateCheck: false,
                                         torrentProvider: DEFAULT_TORRENT_PROVIDER,
+                                        autoScan: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -92,6 +93,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 qbittorrentPort: 8081,
                                 mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
                                 torrentProvider: DEFAULT_TORRENT_PROVIDER,
+                                autoScan: false,
                             }}
                             stackClass="space-y-4"
                         >

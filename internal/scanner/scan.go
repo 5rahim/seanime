@@ -254,7 +254,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		}
 	}
 
-	scn.Logger.Debug().Msg("scanner: Scan completed")
+	scn.Logger.Info().Msg("scanner: Scan completed")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
 
