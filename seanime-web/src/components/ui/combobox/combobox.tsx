@@ -41,7 +41,7 @@ export const ComboboxAnatomy = defineStyleAnatomy({
     ]),
     item: cva([
         "UI-Combobox__item",
-        "flex gap-1 items-center bg-gray-100 dark:bg-gray-800 px-2 pr-1 rounded-[--radius] line-clamp-1 max-w-96",
+        "flex gap-1 items-center flex-none truncate bg-gray-100 dark:bg-gray-800 px-2 pr-1 rounded-[--radius] max-w-96",
     ]),
     placeholder: cva([
         "UI-Combobox__placeholder",

@@ -47,7 +47,7 @@ export function AdvancedSearchOptions() {
                     emptyMessage="No option found"
                     label="Genre" placeholder="All genres" className="w-full"
                     options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}
-                    value={params.genre ? params.genre : undefined}
+                    value={params.genre ? params.genre : []}
                     onValueChange={v => setParams(draft => {
                         draft.genre = v
                         return
