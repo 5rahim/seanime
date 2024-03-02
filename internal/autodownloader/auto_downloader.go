@@ -121,6 +121,9 @@ func (ad *AutoDownloader) Run() {
 // CleanUpDownloadedItems will clean up downloaded items from the database.
 // This should be run after a scan is completed.
 func (ad *AutoDownloader) CleanUpDownloadedItems() {
+	if ad == nil {
+		return
+	}
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
 	err := ad.Database.DeleteDownloadedAutoDownloaderItems()
