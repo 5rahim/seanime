@@ -70,6 +70,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.AutoDownloaderRule{},
 		&models.AutoDownloaderItem{},
 		&models.SilencedMediaEntry{},
+		&models.Theme{},
 	)
 	if err != nil {
 

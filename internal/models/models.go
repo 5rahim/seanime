@@ -139,3 +139,24 @@ type AutoDownloaderSettings struct {
 type SilencedMediaEntry struct {
 	BaseModel
 }
+
+// +---------------------+
+// |        Theme        |
+// +---------------------+
+
+type Theme struct {
+	BaseModel
+	AnimeEntryScreenLayout               string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"`
+	SmallerEpisodeCarouselSize           bool   `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
+	ExpandSidebarOnHover                 bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
+	BackgroundColor                      string `gorm:"column:background_color" json:"backgroundColor"`
+	SidebarBackgroundColor               string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`
+	LibraryScreenShowTrending            bool   `gorm:"column:library_screen_show_trending" json:"libraryScreenShowTrending"`
+	LibraryScreenShowDynamicAnimeBanner  bool   `gorm:"column:library_screen_show_anime_banner" json:"libraryScreenShowAnimeBanner"`
+	LibraryScreenShowCustomBanner        bool   `gorm:"column:library_screen_show_custom_banner" json:"libraryScreenShowCustomBanner"`
+	LibraryScreenCustomBanner            string `gorm:"column:library_screen_custom_banner" json:"libraryScreenCustomBanner"`
+	LibraryScreenCustomBannerAutoDim     int    `gorm:"column:library_screen_custom_banner_auto_dim" json:"libraryScreenCustomBannerAutoDim"`
+	LibraryScreenShowCustomBackground    bool   `gorm:"column:library_screen_show_custom_background" json:"libraryScreenShowCustomBackground"`
+	LibraryScreenCustomBackground        string `gorm:"column:library_screen_custom_background" json:"libraryScreenCustomBackground"`
+	LibraryScreenCustomBackgroundAutoDim int    `gorm:"column:library_screen_custom_background_auto_dim" json:"libraryScreenCustomBackgroundAutoDim"`
+}

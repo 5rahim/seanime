@@ -227,6 +227,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/download-release", makeHandler(app, HandleDownloadRelease))
 
 	//
+	// Theme
+	//
+
+	v1.Get("/theme", makeHandler(app, HandleGetTheme))
+	v1.Patch("/theme", makeHandler(app, HandleUpdateTheme))
+
+	//
 	// Websocket
 	//
 
