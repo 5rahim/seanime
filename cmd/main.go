@@ -11,10 +11,15 @@ import (
 
 func main() {
 
-	purple := color.New(color.FgHiMagenta)
+	col := color.New(color.FgHiBlue)
+	bold := color.New(color.FgHiWhite, color.Bold)
 	fmt.Println()
-	purple.Print("                    ⦿ SEANIME")
-	fmt.Printf(" %s ", constants.Version)
+	col.Print("           *      .         .                   .\n    .                                      *        \n                      *            *           \n        *        *         .                        * \n                    .                   *      \n")
+	col.Print("              ^\n             / \\\n            /___\\\n          ____|____\n`~^~  ~^= \\_o_o_o_/")
+	col.Printf("  ~^= =~^=~^~^= ~^~^~  ~^~^ ~^~`\n")
+	col.Print("=-=-_-__=_-= _=_=-=")
+	bold.Printf(" SEANIME %s ", constants.Version)
+	col.Print("=-=-_-__=_-= _=_=-=")
 	fmt.Println()
 	fmt.Println()
 

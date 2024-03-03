@@ -33,7 +33,7 @@ export function EpisodeItemBottomGradient() {
     if (!!ts.libraryScreenCustomBackgroundImage || ts.hasCustomBackgroundColor) {
         return (
             <div
-                className="z-[1] absolute bottom-0 w-full h-full opacity-80 md:h-[60%] bg-gradient-to-t from-[--background] to-transparent"
+                className="z-[1] absolute bottom-0 w-full h-full opacity-70 md:h-[60%] bg-gradient-to-t from-[--background] to-transparent"
             />
         )
     }
