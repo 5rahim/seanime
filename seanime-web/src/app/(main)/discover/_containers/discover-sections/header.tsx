@@ -27,19 +27,22 @@ export function DiscoverPageHeader() {
 
     return (
         <motion.div
-            {...{
-                initial: { opacity: 0 },
-                animate: { opacity: 1 },
-                exit: { opacity: 0 },
-                transition: { delay: 0.2, duration: 0.3 },
-            }}
             className="__header lg:h-[26rem]"
         >
             <div
+                className="CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[46rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-80% to-transparent via"
+            />
+            <motion.div
+                {...{
+                    initial: { opacity: 0 },
+                    animate: { opacity: 1 },
+                    exit: { opacity: 0 },
+                    transition: { delay: 0.2, duration: 0.5 },
+                }}
                 className="lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
             >
                 <div
-                    className="w-full absolute z-[2] top-0 h-[15rem] bg-gradient-to-b from-[--background] to-transparent via"
+                    className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
                 {(!!randomTrending?.bannerImage || !!randomTrending?.coverImage?.extraLarge) && <Image
                     src={randomTrending.bannerImage || randomTrending.coverImage?.extraLarge!}
@@ -165,7 +168,7 @@ export function DiscoverPageHeader() {
                         }}
                     />
                 </motion.div>
-            </div>
+            </motion.div>
         </motion.div>
     )
 

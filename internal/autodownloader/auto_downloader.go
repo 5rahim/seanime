@@ -174,10 +174,10 @@ func (ad *AutoDownloader) start() {
 			break // Restart the loop
 		case <-ad.stopCh:
 			ad.active = false
-			ad.Logger.Debug().Msg("autodownloader: Auto Downloader stopped")
+			ad.Logger.Info().Msg("autodownloader: Auto Downloader stopped")
 		case <-ad.startCh:
 			ad.active = true
-			ad.Logger.Debug().Msg("autodownloader: Auto Downloader started")
+			ad.Logger.Info().Msg("autodownloader: Auto Downloader started")
 			ad.checkForNewEpisodes()
 		case <-ticker.C:
 			if ad.active {

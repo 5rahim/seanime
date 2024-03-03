@@ -41,7 +41,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const { openInExplorer } = useOpenInExplorer()
 
     return (
-        <div className="flex w-full justify-end gap-2 p-4">
+        <div className="flex w-full justify-end gap-2 p-4 relative z-[4]">
             <div className="flex gap-2">
                 {!!status?.settings?.library?.libraryPath && hasScanned && <Button
                     intent={hasScanned ? "primary-subtle" : "primary"}

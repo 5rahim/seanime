@@ -1,3 +1,4 @@
+import { EpisodeItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import { MediaEntryEpisode } from "@/lib/server/types"
@@ -39,9 +40,8 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
                 /> : <div
                     className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                 ></div>}
-                <div
-                    className="z-[1] absolute bottom-0 w-full h-full md:h-[80%] bg-gradient-to-t from-[--background] to-transparent"
-                />
+                {/*[CUSTOM UI] BOTTOM GRADIENT*/}
+                <EpisodeItemBottomGradient />
             </div>
             <div
                 className={cn(

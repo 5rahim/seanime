@@ -51,7 +51,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
     return <>
         <div
             className={cn(
-                "border p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
+                "border p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item bg-[--background]",
                 {
                     "border-brand-200 bg-gray-800 hover:bg-gray-800": isSelected,
                     "border-red-700": isInvalid,

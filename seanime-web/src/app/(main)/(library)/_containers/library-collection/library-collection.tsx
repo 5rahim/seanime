@@ -22,8 +22,8 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
     const hasScanned = useMemo(() => collectionList.some(n => n.entries.length > 0), [collectionList])
 
     if (isLoading) return <React.Fragment>
-        <div className="p-4 space-y-4">
-            <Skeleton className="h-12 w-full max-w-lg" />
+        <div className="p-4 space-y-4 relative z-[4]">
+            <Skeleton className="h-12 w-full max-w-lg relative" />
             <div
                 className={cn(
                     "grid h-[22rem] min-[2000px]:h-[24rem] grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4",
@@ -50,7 +50,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
     if (!hasScanned && !isLoading) return (
         <>
             <DiscoverPageHeader />
-            <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8">
+            <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8 relative z-[4]">
                 <div className="text-center space-y-4">
                     <div className="w-fit mx-auto space-y-4">
                         <h2>Empty library</h2>
@@ -74,7 +74,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
     )
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative">
+        <PageWrapper className="p-4 space-y-8 relative z-[4]">
             {collectionList.map(collection => {
                 if (collection.entries.length === 0) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} />

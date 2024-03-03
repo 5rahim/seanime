@@ -1,11 +1,12 @@
 "use client"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_containers/library-header"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
+import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { MediaEntryEpisode } from "@/lib/server/types"
-import { ThemeLibraryScreenBanner, useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
@@ -87,10 +88,10 @@ export function ContinueWatching({ list, isLoading }: {
     }, [debouncedInViewEpisodes, list])
 
     if (list.length > 0) return (
-        <div className="space-y-3 lg:space-y-6 p-4">
+        <PageWrapper className="space-y-3 lg:space-y-6 p-4 relative z-[4]">
             <h2>Continue watching</h2>
             {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>*/}
-            {ts.libraryScreenBanner === ThemeLibraryScreenBanner.Episode && <TextGenerateEffect
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <TextGenerateEffect
                 words={headerEpisode?.basicMedia?.title?.userPreferred || ""}
                 className="w-full text-xl lg:text-5xl lg:max-w-[50%] !mt-1 line-clamp-1 truncate hidden lg:block pb-1"
             />}
@@ -122,7 +123,7 @@ export function ContinueWatching({ list, isLoading }: {
                     ))}
                 </CarouselContent>
             </Carousel>
-        </div>
+        </PageWrapper>
     )
 }
 

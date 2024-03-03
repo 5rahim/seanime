@@ -16,7 +16,7 @@ import React, { useEffect } from "react"
 import { BsPlayCircleFill } from "react-icons/bs"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
 import { GoArrowRight } from "react-icons/go"
-import { LuPalette } from "react-icons/lu"
+import { LuLayoutDashboard } from "react-icons/lu"
 import { toast } from "sonner"
 
 
@@ -46,13 +46,13 @@ export default function Page() {
                     <p className="text-[--muted]">App version: {status?.version}</p>
                 </div>
                 <div>
-                    <Link href="/settings/theme">
+                    <Link href="/settings/ui">
                         <Button
                             className="rounded-full"
                             intent="primary-subtle"
-                            leftIcon={<LuPalette />}
+                            leftIcon={<LuLayoutDashboard />}
                             rightIcon={<GoArrowRight />}
-                        >Customize theme</Button>
+                        >Customize UI</Button>
                     </Link>
                 </div>
             </div>

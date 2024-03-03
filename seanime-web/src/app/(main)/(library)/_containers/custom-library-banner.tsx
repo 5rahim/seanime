@@ -4,29 +4,22 @@ import { getAssetUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import React, { useEffect, useState } from "react"
-import { useWindowScroll } from "react-use"
+import React from "react"
 
 
 export function CustomLibraryBanner() {
 
     const ts = useThemeSettings()
-    const image = React.useMemo(() => getAssetUrl(ts.libraryScreenCustomBanner), [ts.libraryScreenCustomBanner])
-    const [dimmed, setDimmed] = useState(false)
+    const image = React.useMemo(() => getAssetUrl(ts.libraryScreenCustomBannerImage), [ts.libraryScreenCustomBannerImage])
 
-    const { y } = useWindowScroll()
-
-    useEffect(() => {
-        if (y > 100)
-            setDimmed(true)
-        else
-            setDimmed(false)
-    }, [(y > 100)])
 
     return (
         <>
-            <div className="py-10"></div>
-            <div className="__header h-[20rem] z-[-1] top-0 w-full fixed group/library-header">
+            <div className="py-20"></div>
+            <div
+                className="CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[44rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-80% to-transparent via"
+            />
+            <div className="__header h-[20rem] z-[1] top-0 w-full absolute group/library-header">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -37,35 +30,22 @@ export function CustomLibraryBanner() {
                     )}
                 >
                     <div
-                        className="w-full absolute z-[2] top-0 h-[10rem] opacity-80 bg-gradient-to-b from-[--background] to-transparent via"
+                        className="CUSTOM_LIB_BANNER_TOP_FADE w-full absolute z-[2] top-0 h-[5rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
                     />
                     <div
                         className={cn(
-                            "z-[1] absolute inset-0 w-full h-full bg-cover bg-no-repeat transition-opacity duration-1000 opacity-100",
-                            dimmed && "opacity-10",
+                            "CUSTOM_LIB_BANNER_IMG z-[1] absolute inset-0 w-full h-full bg-cover bg-no-repeat transition-opacity duration-1000",
                         )}
                         style={{
                             backgroundImage: `url(${image})`,
-                            backgroundPosition: ts.libraryScreenBannerPosition || "50% 50%",
+                            backgroundPosition: ts.libraryScreenCustomBannerPosition || "50% 50%",
+                            opacity: (ts.libraryScreenCustomBannerOpacity || 100) / 100,
                             backgroundRepeat: "no-repeat",
                             backgroundSize: "cover",
                         }}
                     />
-
-                    {/*{(!!image) && <Image*/}
-                    {/*    src={image}*/}
-                    {/*    alt="banner image"*/}
-                    {/*    fill*/}
-                    {/*    quality={100}*/}
-                    {/*    priority*/}
-                    {/*    sizes="100vw"*/}
-                    {/*    className={cn(*/}
-                    {/*        "object-cover object-center z-[1] opacity-100 transition-all duration-1000",*/}
-                    {/*        dimmed && "opacity-10",*/}
-                    {/*    )}*/}
-                    {/*/>}*/}
                     <div
-                        className="w-full z-[2] absolute bottom-0 h-[25rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
+                        className="CUSTOM_LIB_BANNER_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
                     />
                     <div className="h-full absolute z-[2] w-full xl-right-48">
                         <Image
@@ -76,7 +56,7 @@ export function CustomLibraryBanner() {
                             priority
                             sizes="100vw"
                             className={cn(
-                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-30",
+                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-10",
                             )}
                         />
                     </div>
@@ -89,7 +69,7 @@ export function CustomLibraryBanner() {
                             priority
                             sizes="100vw"
                             className={cn(
-                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-20",
+                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-10",
                             )}
                         />
                     </div>

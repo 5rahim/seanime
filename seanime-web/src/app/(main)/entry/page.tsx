@@ -4,14 +4,17 @@ import { EntryHeaderBackground } from "@/app/(main)/entry/_components/entry-head
 import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-section/episode-section"
 import { NewEpisodeSection } from "@/app/(main)/entry/_containers/episode-section/new-episode-section"
+import { RelationsRecommendationsAccordion } from "@/app/(main)/entry/_containers/meta-section/_components/relations-recommendations-accordion"
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
 import { NewMetaSection } from "@/app/(main)/entry/_containers/meta-section/new-meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
+import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { motion } from "framer-motion"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
@@ -22,8 +25,8 @@ export default function Page() {
     const { mediaEntry, mediaEntryLoading } = useMediaEntry(mediaId)
     const { mediaDetails, mediaDetailsLoading } = useMediaDetails(mediaId)
 
+    // [CUSTOM UI]
     const ts = useThemeSettings()
-
     const newDesign = ts.animeEntryScreenLayout === "stacked"
 
     useEffect(() => {
@@ -40,12 +43,15 @@ export default function Page() {
 
     if (newDesign) {
         return <div>
+            {/*[CUSTOM UI]*/}
+            <CustomBackgroundImage />
 
             <NewMetaSection entry={mediaEntry} details={mediaDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">
+
                 <PageWrapper
-                    className="relative 2xl:order-first pb-10"
+                    className="relative 2xl:order-first pb-10 pt-4"
                     {...{
                         initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
@@ -70,17 +76,39 @@ export default function Page() {
 
     return (
         <div>
+            {/*[CUSTOM UI]*/}
+            <CustomBackgroundImage />
+
             <EntryHeaderBackground entry={mediaEntry} />
+
             <div
                 className={cn(
                     "-mt-[8rem] relative z-10 max-w-full px-4 md:px-10 grid grid-cols-1 gap-8 pb-16 2xl:grid-cols-2",
                     { "2xl:grid-cols-[minmax(0,1.2fr),1fr]": !!mediaEntry?.libraryData },
                 )}
             >
-                <div className="-mt-[18rem] h-[fit-content] 2xl:sticky top-[5rem] backdrop-blur-xl">
-                    <MetaSection entry={mediaEntry} details={mediaDetails} />
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className={cn(
+                        "w-full z-[0] left-0 absolute top-[8rem] h-[30rem] bg-gradient-to-b from-[--background] via-[--background] via-opacity-50 via-50% to-transparent",
+                        !mediaEntry.libraryData && "h-[10rem]",
+                    )}
+                />
+
+                <div className="-mt-[18rem] h-[fit-content] 2xl:sticky top-[5rem] space-y-8">
+                    <div className="backdrop-blur-xl rounded-xl">
+                        <MetaSection entry={mediaEntry} details={mediaDetails} />
+                    </div>
+                    <RelationsRecommendationsAccordion
+                        entry={mediaEntry}
+                        details={mediaDetails}
+                    />
                 </div>
-                <PageWrapper className="relative 2xl:order-first pb-10">
+                <PageWrapper className="relative 2xl:order-first pb-10 z-[1]">
                     <EpisodeSection entry={mediaEntry} />
                 </PageWrapper>
             </div>

@@ -19,6 +19,7 @@ import { ANILIST_OAUTH_URL } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { ServerStatus } from "@/lib/server/types"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -27,6 +28,7 @@ import { BiCalendarAlt, BiChart, BiCollection, BiDownload, BiLogOut } from "reac
 import { FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
+import { LuLayoutDashboard } from "react-icons/lu"
 import { MdSyncAlt } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
@@ -35,11 +37,12 @@ import { SiMyanimelist } from "react-icons/si"
 export function MainSidebar() {
 
     const ctx = useAppSidebarContext()
+    const ts = useThemeSettings()
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
     // const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
-    const isCollapsed = !ctx.isBelowBreakpoint
+    const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
     const { user } = useCurrentUser()
     const pathname = usePathname()
@@ -65,14 +68,14 @@ export function MainSidebar() {
     const loginModal = useDisclosure(false)
 
     const handleExpandSidebar = () => {
-        // if (!ctx.isBelowBreakpoint) {
-        //     setExpandSidebar(true)
-        // }
+        if (!ctx.isBelowBreakpoint && ts.expandSidebarOnHover) {
+            setExpandSidebar(true)
+        }
     }
     const handleUnexpandedSidebar = () => {
-        // if (expandedSidebar) {
-        //     setExpandSidebar(false)
-        // }
+        if (expandedSidebar && ts.expandSidebarOnHover) {
+            setExpandSidebar(false)
+        }
     }
 
     const confirmSignOut = useConfirmationDialog({
@@ -82,6 +85,13 @@ export function MainSidebar() {
             () => logout()
         },
     })
+
+    // shelved
+    // React.useEffect(() => {
+    //     let r = document.querySelector(':root');
+    //     if (pathname === "/" || pathname.includes("/entry") || pathname.includes("/schedule") || pathname.includes("/anilist") ||
+    // pathname.includes("/discover")) { //@ts-ignore r.style.setProperty('--background', ts.backgroundColor) } else { //@ts-ignore
+    // r.style.setProperty('--background', "#0c0c0c") } }, [ts.backgroundColor,pathname])
 
     return (
         <>
@@ -179,10 +189,16 @@ export function MainSidebar() {
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 {
+                                    iconType: LuLayoutDashboard,
+                                    name: "UI Settings",
+                                    href: "/settings/ui",
+                                    isCurrent: pathname.includes("/settings/ui"),
+                                },
+                                {
                                     iconType: FiSettings,
                                     name: "Settings",
                                     href: "/settings",
-                                    isCurrent: pathname.includes("/settings"),
+                                    isCurrent: pathname === ("/settings"),
                                 },
                                 ...(ctx.isBelowBreakpoint ? [
                                     {

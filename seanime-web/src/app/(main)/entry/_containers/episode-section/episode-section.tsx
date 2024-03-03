@@ -117,7 +117,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                                 align: "start",
                             }}
                         >
-                            <CarouselDotButtons className="-top-1.5" />
+                            <CarouselDotButtons className="-top-3" />
                             <CarouselContent>
                                 {episodesToWatch.map((episode, idx) => (
                                     <CarouselItem

@@ -2,6 +2,7 @@
 import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/continue-watching"
 import { cn } from "@/components/ui/core/styling"
 import { MediaEntryEpisode } from "@/lib/server/types"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { Transition } from "@headlessui/react"
 import { motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
@@ -13,6 +14,8 @@ import { useWindowScroll } from "react-use"
 export const __libraryHeaderImageAtom = atom<string | null>(null)
 
 export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
+
+    const ts = useThemeSettings()
 
     const image = useAtomValue(__libraryHeaderImageAtom)
     const [actualImage, setActualImage] = useState<string | null>(null)
@@ -63,83 +66,96 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
     if (!image) return null
 
     return (
-        <div className="__header h-[20rem] z-[-1] top-0 w-full fixed group/library-header">
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="h-[30rem] z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
-            >
+        <>
+            {!!ts.libraryScreenCustomBackgroundImage && (
                 <div
-                    className="w-full absolute z-[2] top-0 h-[10rem] opacity-60 bg-gradient-to-b from-[--background] to-transparent via"
+                    className="LIB_HEADER_FADE_BG w-full absolute z-[1] top-0 h-[40rem] opacity-100 bg-gradient-to-b from-[#0c0c0c] via-[#0c0c0c] to-transparent via"
                 />
-                <Transition
-                    show={!!actualImage}
-                    enter="transition-opacity duration-500"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="transition-opacity duration-500"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
+            )}
+            <div
+                className={cn(
+                    "LIB_HEADER_CONTAINER __header h-[20rem] z-[1] top-0 w-full absolute group/library-header",
+                    // Make it not fixed when the user scrolls down if a background image is set
+                    !ts.libraryScreenCustomBackgroundImage && "fixed",
+                )}
+            >
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className="LIB_HEADER_INNER_CONTAINER h-full z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
                 >
-                    {(actualImage || prevImage) && <Image
-                        src={actualImage || prevImage!}
+
+                    <div
+                        className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-60 bg-gradient-to-b from-[#0c0c0c] to-transparent via"
+                    />
+                    <Transition
+                        show={!!actualImage}
+                        enter="transition-opacity duration-500"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="transition-opacity duration-500"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        {(actualImage || prevImage) && <Image
+                            src={actualImage || prevImage!}
+                            alt="banner image"
+                            fill
+                            quality={100}
+                            priority
+                            sizes="100vw"
+                            className={cn(
+                                "object-cover object-center z-[1] opacity-80 transition-all duration-700",
+                                { "opacity-10": dimmed },
+                            )}
+                        />}
+                    </Transition>
+                    {prevImage && <Image
+                        src={prevImage}
                         alt="banner image"
                         fill
                         quality={100}
                         priority
                         sizes="100vw"
                         className={cn(
-                            "object-cover object-center z-[1] opacity-80 transition-all duration-700",
-                            // "group-hover/library-header:opacity-100",
+                            "object-cover object-center z-[1] opacity-50 transition-all",
                             { "opacity-10": dimmed },
                         )}
                     />}
-                </Transition>
-                {prevImage && <Image
-                    src={prevImage}
-                    alt="banner image"
-                    fill
-                    quality={100}
-                    priority
-                    sizes="100vw"
-                    className={cn(
-                        "object-cover object-center z-[1] opacity-50 transition-all",
-                        { "opacity-10": dimmed },
-                    )}
-                />}
-                <div
-                    className="w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
-                />
-                <div className="h-full absolute w-full xl-right-48">
-                    <Image
-                        src={"/mask-2.png"}
-                        alt="mask"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className={cn(
-                            "object-cover object-left z-[2] transition-opacity duration-1000 opacity-40",
-                        )}
+                    <div
+                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
                     />
-                </div>
-                <div className="h-full absolute w-full xl:-right-48">
-                    <Image
-                        src={"/mask.png"}
-                        alt="mask"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className={cn(
-                            "object-cover object-right z-[2] transition-opacity duration-1000 opacity-40",
-                        )}
-                    />
-                </div>
-            </motion.div>
-        </div>
+                    <div className="h-full absolute w-full xl-right-48">
+                        <Image
+                            src={"/mask-2.png"}
+                            alt="mask"
+                            fill
+                            quality={100}
+                            priority
+                            sizes="100vw"
+                            className={cn(
+                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-40",
+                            )}
+                        />
+                    </div>
+                    <div className="h-full absolute w-full xl:-right-48">
+                        <Image
+                            src={"/mask.png"}
+                            alt="mask"
+                            fill
+                            quality={100}
+                            priority
+                            sizes="100vw"
+                            className={cn(
+                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-40",
+                            )}
+                        />
+                    </div>
+                </motion.div>
+            </div>
+        </>
     )
 
 }

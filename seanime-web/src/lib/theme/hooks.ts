@@ -2,27 +2,34 @@ import { serverStatusAtom } from "@/atoms/server-status"
 import { ThemeSettings } from "@/lib/server/types"
 import { useAtomValue } from "jotai/react"
 
-export const THEME_DEFAULT_VALUES: { [key: string]: any } = {
+export const THEME_DEFAULT_VALUES: ThemeSettings = {
     animeEntryScreenLayout: "stacked",
     smallerEpisodeCarouselSize: false,
     expandSidebarOnHover: false,
     backgroundColor: "#0c0c0c",
     sidebarBackgroundColor: "#0c0c0c",
-    libraryScreenBanner: "episode",
-    libraryScreenBannerPosition: "50% 50%",
-    libraryScreenCustomBanner: "",
-    libraryScreenCustomBannerAutoDim: 1, // not implemented
-    libraryScreenShowCustomBackground: false,
-    libraryScreenCustomBackground: "",
-    libraryScreenCustomBackgroundAutoDim: 1, // not implemented
+    libraryScreenBannerType: ThemeLibraryScreenBannerType.Dynamic,
+    libraryScreenCustomBannerImage: "",
+    libraryScreenCustomBannerPosition: "50% 50%",
+    libraryScreenCustomBannerOpacity: 100,
+    libraryScreenCustomBackgroundImage: "",
+    libraryScreenCustomBackgroundOpacity: 10,
 }
 
-export const enum ThemeLibraryScreenBanner {
-    Episode = "episode",
+export const enum ThemeLibraryScreenBannerType {
+    Dynamic = "dynamic",
     Custom = "custom",
 }
 
-export function useThemeSettings(): ThemeSettings {
+export type ThemeSettingsHook = {
+    hasCustomBackgroundColor: boolean
+} & ThemeSettings
+
+/**
+ * Get the current theme settings
+ * This hook will return the default values if some values are not set
+ */
+export function useThemeSettings(): ThemeSettingsHook {
     const serverStatus = useAtomValue(serverStatusAtom)
     return {
         animeEntryScreenLayout: getThemeValue("animeEntryScreenLayout", serverStatus?.themeSettings),
@@ -30,22 +37,28 @@ export function useThemeSettings(): ThemeSettings {
         expandSidebarOnHover: getThemeValue("expandSidebarOnHover", serverStatus?.themeSettings),
         backgroundColor: getThemeValue("backgroundColor", serverStatus?.themeSettings),
         sidebarBackgroundColor: getThemeValue("sidebarBackgroundColor", serverStatus?.themeSettings),
-        libraryScreenBanner: getThemeValue("libraryScreenBanner", serverStatus?.themeSettings),
-        libraryScreenBannerPosition: getThemeValue("libraryScreenBannerPosition", serverStatus?.themeSettings),
-        libraryScreenCustomBanner: getThemeValue("libraryScreenCustomBanner", serverStatus?.themeSettings),
-        libraryScreenCustomBannerAutoDim: getThemeValue("libraryScreenCustomBannerAutoDim", serverStatus?.themeSettings),
-        libraryScreenShowCustomBackground: getThemeValue("libraryScreenShowCustomBackground", serverStatus?.themeSettings),
-        libraryScreenCustomBackground: getThemeValue("libraryScreenCustomBackground", serverStatus?.themeSettings),
-        libraryScreenCustomBackgroundAutoDim: getThemeValue("libraryScreenCustomBackgroundAutoDim", serverStatus?.themeSettings),
+        libraryScreenBannerType: getThemeValue("libraryScreenBannerType", serverStatus?.themeSettings),
+        libraryScreenCustomBannerImage: getThemeValue("libraryScreenCustomBannerImage", serverStatus?.themeSettings),
+        libraryScreenCustomBannerPosition: getThemeValue("libraryScreenCustomBannerPosition", serverStatus?.themeSettings),
+        libraryScreenCustomBannerOpacity: getThemeValue("libraryScreenCustomBannerOpacity", serverStatus?.themeSettings),
+        libraryScreenCustomBackgroundImage: getThemeValue("libraryScreenCustomBackgroundImage", serverStatus?.themeSettings),
+        libraryScreenCustomBackgroundOpacity: getThemeValue("libraryScreenCustomBackgroundOpacity", serverStatus?.themeSettings),
+
+        hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
     }
 }
 
 function getThemeValue(key: string, settings: ThemeSettings | undefined | null): any {
     if (!settings) {
+        // @ts-ignore
         return THEME_DEFAULT_VALUES[key]
     }
     const val = (settings as any)[key]
     if (typeof val === "string" && val === "") {
+        // @ts-ignore
+        return THEME_DEFAULT_VALUES[key]
+    } else if (typeof val === "number" && val === 0) {
+        // @ts-ignore
         return THEME_DEFAULT_VALUES[key]
     } else {
         return val

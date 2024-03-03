@@ -13,7 +13,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">
                     <AppLayoutSidebar>
-                        <MainSidebar/>
+                        <MainSidebar />
                     </AppLayoutSidebar>
                     <AppLayout>
                         <AppLayoutContent>
@@ -22,7 +22,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
                     </AppLayout>
                 </AppLayout>
             </AppSidebarProvider>
-            <GlobalSearch/>
+            <GlobalSearch />
         </>
     )
 }

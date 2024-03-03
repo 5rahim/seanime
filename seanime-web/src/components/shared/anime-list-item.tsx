@@ -1,6 +1,7 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_loaders/library-collection"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { AnimeListItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
@@ -203,10 +204,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
             >
                 <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden">
 
-                    {/*BOTTOM GRADIENT*/}
-                    <div
-                        className="z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-black to-transparent"
-                    />
+                    {/*[CUSTOM UI] BOTTOM GRADIENT*/}
+                    <AnimeListItemBottomGradient />
 
                     {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                         <div

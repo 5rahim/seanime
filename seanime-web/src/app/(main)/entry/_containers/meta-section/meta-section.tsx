@@ -1,7 +1,6 @@
 "use client"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
-import { RelationsRecommendationsAccordion } from "@/app/(main)/entry/_containers/meta-section/_components/relations-recommendations-accordion"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section/_components/torrent-search-button"
 import { getMediaDetailsStats } from "@/app/(main)/entry/_containers/meta-section/helpers"
@@ -36,7 +35,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
     if (!entry.media) return null
 
     return (
-        <div className="space-y-8 pb-10">
+        <div className="space-y-8">
             <div className="space-y-8 p-6 sm:p-8 rounded-xl bg-gray-950 bg-opacity-80 drop-shadow-md relative">
                 <motion.div
                     {...{
@@ -186,11 +185,6 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                 </motion.div>
 
             </div>
-
-            <RelationsRecommendationsAccordion
-                entry={entry}
-                details={details}
-            />
 
         </div>
     )

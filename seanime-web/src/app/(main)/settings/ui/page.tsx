@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { ThemeSettings } from "@/lib/server/types"
-import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/hooks"
+import { THEME_DEFAULT_VALUES, ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
@@ -23,13 +23,15 @@ const themeSchema = defineSchema(({ z }) => z.object({
     expandSidebarOnHover: z.boolean().default(THEME_DEFAULT_VALUES.expandSidebarOnHover),
     backgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.backgroundColor),
     sidebarBackgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.sidebarBackgroundColor),
-    libraryScreenBanner: z.string().default(THEME_DEFAULT_VALUES.libraryScreenBanner),
-    libraryScreenBannerPosition: z.string().min(0).default(THEME_DEFAULT_VALUES.libraryScreenBannerPosition),
-    libraryScreenCustomBanner: z.string().min(0).default(THEME_DEFAULT_VALUES.libraryScreenCustomBanner),
-    libraryScreenCustomBannerAutoDim: z.number().default(THEME_DEFAULT_VALUES.libraryScreenCustomBannerAutoDim),
-    libraryScreenShowCustomBackground: z.boolean().default(THEME_DEFAULT_VALUES.libraryScreenShowCustomBackground),
-    libraryScreenCustomBackground: z.string().min(0).default(THEME_DEFAULT_VALUES.libraryScreenCustomBackground),
-    libraryScreenCustomBackgroundAutoDim: z.number().default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundAutoDim),
+
+    libraryScreenBannerType: z.string().default(THEME_DEFAULT_VALUES.libraryScreenBannerType),
+    libraryScreenCustomBannerImage: z.string().default(THEME_DEFAULT_VALUES.libraryScreenCustomBannerImage),
+    libraryScreenCustomBannerPosition: z.string().default(THEME_DEFAULT_VALUES.libraryScreenCustomBannerPosition),
+    libraryScreenCustomBannerOpacity: z.number().transform(v => v === 0 ? 100 : v).default(THEME_DEFAULT_VALUES.libraryScreenCustomBannerOpacity),
+    libraryScreenCustomBackgroundImage: z.string().default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundImage),
+    libraryScreenCustomBackgroundOpacity: z.number()
+        .transform(v => v === 0 ? 100 : v)
+        .default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundOpacity),
 }))
 
 export default function Page() {
@@ -55,9 +57,9 @@ export default function Page() {
                     <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />
                 </Link>
                 <div className="space-y-1">
-                    <h2>Theme</h2>
+                    <h2>User Interface</h2>
                     <p className="text-[--muted]">
-                        Change the look and feel of Seanime
+                        Change the user interface settings
                     </p>
                 </div>
             </div>
@@ -81,31 +83,31 @@ export default function Page() {
                     expandSidebarOnHover: themeSettings?.expandSidebarOnHover,
                     backgroundColor: themeSettings?.backgroundColor,
                     sidebarBackgroundColor: themeSettings?.sidebarBackgroundColor,
-                    libraryScreenBanner: themeSettings?.libraryScreenBanner,
-                    libraryScreenBannerPosition: themeSettings?.libraryScreenBannerPosition,
-                    libraryScreenCustomBanner: themeSettings?.libraryScreenCustomBanner,
-                    libraryScreenCustomBannerAutoDim: themeSettings?.libraryScreenCustomBannerAutoDim,
-                    libraryScreenShowCustomBackground: themeSettings?.libraryScreenShowCustomBackground,
-                    libraryScreenCustomBackground: themeSettings?.libraryScreenCustomBackground,
-                    libraryScreenCustomBackgroundAutoDim: themeSettings?.libraryScreenCustomBackgroundAutoDim,
+                    libraryScreenBannerType: themeSettings?.libraryScreenBannerType,
+                    libraryScreenCustomBannerImage: themeSettings?.libraryScreenCustomBannerImage,
+                    libraryScreenCustomBannerPosition: themeSettings?.libraryScreenCustomBannerPosition,
+                    libraryScreenCustomBannerOpacity: themeSettings?.libraryScreenCustomBannerOpacity,
+                    libraryScreenCustomBackgroundImage: themeSettings?.libraryScreenCustomBackgroundImage,
+                    libraryScreenCustomBackgroundOpacity: themeSettings?.libraryScreenCustomBackgroundOpacity,
                 }}
                 stackClass="space-y-4"
             >
                 {(f) => (
                     <>
-                        <h3>Main</h3>
+                        <h3>Sidebar</h3>
 
-                        <div className="flex flex-col md:flex-row gap-4 w-full">
-                            <Field.ColorPicker
-                                name="backgroundColor"
-                                label="Background color"
-                            />
+                        {/*<div className="flex flex-col md:flex-row gap-4 w-full">*/}
+                        {/*    <Field.ColorPicker*/}
+                        {/*        name="backgroundColor"*/}
+                        {/*        label="Background color"*/}
+                        {/*        help="Default: #0c0c0c"*/}
+                        {/*    />*/}
 
-                            <Field.ColorPicker
-                                name="sidebarBackgroundColor"
-                                label="Sidebar background color"
-                            />
-                        </div>
+                        {/*    <Field.ColorPicker*/}
+                        {/*        name="sidebarBackgroundColor"*/}
+                        {/*        label="Sidebar background color"*/}
+                        {/*    />*/}
+                        {/*</div>*/}
 
                         <Field.Switch
                             label="Expand sidebar on hover"
@@ -114,14 +116,28 @@ export default function Page() {
 
                         <Separator />
 
-                        <h3>Library Page</h3>
+                        <h3>Main</h3>
 
-                        <Field.Text
-                            label="Background image path"
-                            name="libraryScreenCustomBackground"
-                            placeholder="e.g., /path/to/image.jpg"
-                            help="This will be used as the background image for the library page."
-                        />
+                        <div className="flex flex-col md:flex-row gap-3">
+                            <Field.Text
+                                label="Background image path"
+                                name="libraryScreenCustomBackgroundImage"
+                                placeholder="e.g., /path/to/image.jpg"
+                                help="This will be used as the background image for the library page."
+                            />
+
+                            <Field.Number
+                                label="Background image opacity"
+                                name="libraryScreenCustomBackgroundOpacity"
+                                placeholder="Default: 10"
+                                min={1}
+                                max={100}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        <h3>Library screen</h3>
 
                         <h5>Continue Watching</h5>
 
@@ -134,34 +150,56 @@ export default function Page() {
 
                         <Field.RadioCards
                             label="Banner type"
-                            name="libraryScreenBanner"
+                            name="libraryScreenBannerType"
                             options={[
                                 {
                                     label: "Dynamic Banner",
-                                    value: "episode",
+                                    value: "dynamic",
                                 },
                                 {
                                     label: "Custom Banner",
                                     value: "custom",
                                 },
+                                {
+                                    label: "None",
+                                    value: "none",
+                                },
                             ]}
+                            itemContainerClass={cn(
+                                "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
+                                "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                                "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+                                "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+                                "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                            )}
                         />
 
-                        {f.watch("libraryScreenBanner") === "custom" && (
-                            <>
+                        {f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && (
+                            <div className="flex flex-col md:flex-row gap-3">
                                 <Field.Text
-                                    label="Custom Banner image path"
-                                    name="libraryScreenCustomBanner"
+                                    label="Custom banner image path"
+                                    name="libraryScreenCustomBannerImage"
                                     placeholder="e.g., /path/to/image.jpg"
                                 />
-                                <Field.Text label="Custom Banner position" name="libraryScreenBannerPosition" placeholder="50% 50%" />
-                            </>
+                                <Field.Text
+                                    label="Custom banner position"
+                                    name="libraryScreenCustomBannerPosition"
+                                    placeholder="Default: 50% 50%"
+                                />
+                                <Field.Number
+                                    label="Custom banner Opacity"
+                                    name="libraryScreenCustomBannerOpacity"
+                                    placeholder="Default: 10"
+                                    min={1}
+                                    max={100}
+                                />
+                            </div>
                         )}
 
 
                         <Separator />
 
-                        <h3>Anime Entry</h3>
+                        <h3>Anime screen</h3>
 
                         <Field.RadioCards
                             label="Layout"
@@ -169,7 +207,7 @@ export default function Page() {
                             options={[
                                 {
                                     label: <div className="w-full space-y-2">
-                                        <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />New layout</p>
+                                        <p className="mb-1 flex items-center"><MdVerified className="text-lg inline-block mr-2" />Default</p>
                                         <div className="grid grid-cols-1 gap-2 w-full">
                                             <div className="w-full h-20 rounded-sm bg-gray-600" />
                                             <div className="grid grid-cols-3 gap-2">
@@ -193,7 +231,7 @@ export default function Page() {
                                 },
                                 {
                                     label: <div className="w-full space-y-2">
-                                        <p className="mb-1 flex items-center">Old layout</p>
+                                        <p className="mb-1 flex items-center">Legacy</p>
                                         <div className="grid grid-cols-2 gap-2 w-full">
                                             <div className="space-y-2">
                                                 <div className="w-full h-20 rounded-sm bg-gray-700" />

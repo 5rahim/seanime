@@ -48,15 +48,19 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="__header relative bg-[--background]"
+            className="__header relative"
         >
+
+            <div
+                className="META_SECTION_FADE_BG w-full absolute z-[1] top-0 h-dvh opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-80% to-transparent via"
+            />
 
             <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
-                className="pb-[1rem] relative z-[4]"
+                className="relative z-[4]"
             >
                 <div className="space-y-8 p-6 sm:p-8 lg:max-w-[50%] 2xl:max-w-[60rem] relative">
                     <motion.div
@@ -252,10 +256,10 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
             </motion.div>
 
             <div
-                className="h-[40rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden"
+                className="h-[40rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
             >
                 <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] bg-gradient-to-b from-[rgba(0,0,0,0.8)] to-transparent via"
+                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
                 />
                 <div className="absolute lg:left-[16rem] w-full h-full">
                     {(!!entry.media?.bannerImage || !!entry.media?.coverImage?.extraLarge) && <Image
@@ -273,7 +277,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     />
                 </div>
                 <div
-                    className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
+                    className="w-full z-[2] absolute bottom-0 h-[10rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-30% to-transparent"
                 />
 
                 <Image
@@ -284,7 +288,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     priority
                     sizes="100vw"
                     className={cn(
-                        "object-cover object-left z-[2] transition-opacity duration-1000 opacity-90 lg:opacity-90",
+                        "object-cover object-left z-[3] transition-opacity duration-1000 opacity-90 lg:opacity-90",
                     )}
                 />
 

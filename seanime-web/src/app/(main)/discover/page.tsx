@@ -4,7 +4,7 @@ import { DiscoverPopular } from "@/app/(main)/discover/_containers/discover-sect
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-sections/trending-movies"
 import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-sections/upcoming"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { motion } from "framer-motion"
 import React from "react"
 
 
@@ -13,8 +13,11 @@ export default function Page() {
     return (
         <>
             <DiscoverPageHeader />
-            <PageWrapper
-                className="p-4 mt-8 sm:p-8 space-y-10 pb-10"
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="p-4 mt-8 sm:p-8 space-y-10 pb-10 relative z-[4]"
             >
                 <div className="space-y-2 z-[5] relative">
                     <h2>Popular this season</h2>
@@ -32,7 +35,7 @@ export default function Page() {
                     <h2>Popular shows</h2>
                     <DiscoverPopular />
                 </div>
-            </PageWrapper>
+            </motion.div>
         </>
     )
 }

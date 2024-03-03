@@ -1,5 +1,6 @@
 "use client"
 
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { cva } from "class-variance-authority"
 import { EmblaCarouselType, EmblaOptionsType, EmblaPluginType } from "embla-carousel"
 import AutoScroll from "embla-carousel-autoplay"
@@ -426,6 +427,10 @@ export const CarouselDotButtons = (props: { className?: string }) => {
 
 
 export const CarouselMasks = () => {
+
+    const ts = useThemeSettings()
+
+    if (!!ts.libraryScreenCustomBackgroundImage) return null
 
     return (
         <>

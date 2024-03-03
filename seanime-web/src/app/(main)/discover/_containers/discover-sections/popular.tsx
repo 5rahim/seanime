@@ -27,7 +27,7 @@ export function DiscoverPopular() {
                             key={media.id}
                             media={media}
                             showLibraryBadge
-                            containerClassName="basis-[250px] mx-2 my-8"
+                            containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                         />
                     )
                 }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}

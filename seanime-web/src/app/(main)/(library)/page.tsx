@@ -8,7 +8,8 @@ import { LibraryHeader } from "@/app/(main)/(library)/_containers/library-header
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
 import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
-import { ThemeLibraryScreenBanner, useThemeSettings } from "@/lib/theme/hooks"
+import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
 export default function Library() {
@@ -27,8 +28,10 @@ export default function Library() {
 
     return (
         <div>
-            {ts.libraryScreenBanner === ThemeLibraryScreenBanner.Episode && <LibraryHeader list={continueWatchingList} />}
-            {ts.libraryScreenBanner === ThemeLibraryScreenBanner.Custom && <CustomLibraryBanner />}
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner />}
+            {/*[CUSTOM UI]*/}
+            <CustomBackgroundImage />
             <LibraryToolbar
                 collectionList={libraryCollectionList}
                 unmatchedLocalFiles={unmatchedLocalFiles}

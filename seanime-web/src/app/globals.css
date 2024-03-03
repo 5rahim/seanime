@@ -75,10 +75,10 @@
         --pink: theme('colors.pink.300');
         --rose: theme('colors.rose.300');
 
-        --border: #313131;
+        --border: rgba(255, 255, 255, 0.1);
         --ring: theme('colors.brand.200');
 
-        --muted: theme('colors.gray.400');
+        --muted: rgba(255, 255, 255, 0.45);
         --muted-highlight: theme('colors.gray.300');
 
         --paper: theme('colors.gray.950');
