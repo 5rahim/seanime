@@ -3,7 +3,9 @@ import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_containers/lib
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
+import { cn } from "@/components/ui/core/styling"
 import { MediaEntryEpisode } from "@/lib/server/types"
+import { ThemeLibraryScreenBanner, useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
@@ -15,6 +17,8 @@ export function ContinueWatching({ list, isLoading }: {
     list: MediaEntryEpisode[],
     isLoading: boolean
 }) {
+
+    const ts = useThemeSettings()
 
     const setHeaderImage = useSetAtom(__libraryHeaderImageAtom)
     const [headerEpisode, setHeaderEpisode] = useAtom(__libraryHeaderEpisodeAtom)
@@ -86,10 +90,10 @@ export function ContinueWatching({ list, isLoading }: {
         <div className="space-y-3 lg:space-y-6 p-4">
             <h2>Continue watching</h2>
             {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>*/}
-            <TextGenerateEffect
+            {ts.libraryScreenBanner === ThemeLibraryScreenBanner.Episode && <TextGenerateEffect
                 words={headerEpisode?.basicMedia?.title?.userPreferred || ""}
                 className="w-full text-xl lg:text-5xl lg:max-w-[50%] !mt-1 line-clamp-1 truncate hidden lg:block pb-1"
-            />
+            />}
             <Carousel
                 className="w-full max-w-full"
                 gap="md"
@@ -104,7 +108,10 @@ export function ContinueWatching({ list, isLoading }: {
                     {list.map((episode, idx) => (
                         <CarouselItem
                             key={episode?.localFile?.path || idx}
-                            className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
+                            className={cn(
+                                !ts.smallerEpisodeCarouselSize && "md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4",
+                                ts.smallerEpisodeCarouselSize && "md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5",
+                            )}
                         >
                             <EpisodeItem
                                 key={episode.localFile?.path || ""}

@@ -69,6 +69,10 @@ export const enum SeaEndpoints {
      */
     LATEST_UPDATE = "/latest-update", // (GET)
     DOWNLOAD_RELEASE = "/download-release", // (POST)
+    /**
+     * Theme
+     */
+    THEME = "/theme", // (GET, PATCH)
 }
 
 export const enum WSEvents {

@@ -11,6 +11,7 @@ import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-en
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
@@ -21,7 +22,9 @@ export default function Page() {
     const { mediaEntry, mediaEntryLoading } = useMediaEntry(mediaId)
     const { mediaDetails, mediaDetailsLoading } = useMediaDetails(mediaId)
 
-    const newDesign = true
+    const ts = useThemeSettings()
+
+    const newDesign = ts.animeEntryScreenLayout === "stacked"
 
     useEffect(() => {
         if (!mediaId) {
@@ -71,8 +74,7 @@ export default function Page() {
             <div
                 className={cn(
                     "-mt-[8rem] relative z-10 max-w-full px-4 md:px-10 grid grid-cols-1 gap-8 pb-16 2xl:grid-cols-2",
-                    // { "2xl:grid-cols-[minmax(0,1fr),_700px]": !!mediaEntry?.libraryData },
-                    // { "2xl:grid-cols-2": !mediaEntry?.libraryData },
+                    { "2xl:grid-cols-[minmax(0,1.2fr),1fr]": !!mediaEntry?.libraryData },
                 )}
             >
                 <div className="-mt-[18rem] h-[fit-content] 2xl:sticky top-[5rem] backdrop-blur-xl">

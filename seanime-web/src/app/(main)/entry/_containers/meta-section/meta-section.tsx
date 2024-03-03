@@ -7,6 +7,7 @@ import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section
 import { getMediaDetailsStats } from "@/app/(main)/entry/_containers/meta-section/helpers"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
@@ -43,17 +44,18 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         animate: { opacity: 1 },
                         exit: { opacity: 0 },
                         transition: {
-                            type: "spring",
-                            damping: 20,
-                            stiffness: 100,
-                            delay: 0.1,
+                            delay: 0.3,
+                            duration: 0.3,
                         },
                     }}
                     className="space-y-4"
                 >
                     {/*TITLE*/}
                     <div className="space-y-2">
-                        <h1 className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-center md:text-left text-pretty text-3xl lg:text-5xl">{entry.media.title?.userPreferred}</h1>
+                        <TextGenerateEffect
+                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 text-center md:text-left text-pretty text-3xl lg:text-5xl"
+                            words={entry.media.title?.userPreferred || ""}
+                        />
                         {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase() &&
                             <h4 className="text-gray-400 text-center md:text-left">{entry.media.title?.english}</h4>}
                         {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.romaji?.toLowerCase() &&
@@ -91,7 +93,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                             : entry.listData?.status)}</p>
                     </div>
 
-                    <p className="max-h-24 overflow-y-auto">{details?.description?.replace(/(<([^>]+)>)/ig, "")}</p>
+                    <p className="max-h-24 text-[--muted] text-sm overflow-y-auto">{details?.description?.replace(/(<([^>]+)>)/ig, "")}</p>
 
                     {/*STUDIO*/}
                     {!!details?.studios?.nodes && <div>

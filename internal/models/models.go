@@ -151,9 +151,8 @@ type Theme struct {
 	ExpandSidebarOnHover                 bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
 	BackgroundColor                      string `gorm:"column:background_color" json:"backgroundColor"`
 	SidebarBackgroundColor               string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`
-	LibraryScreenShowTrending            bool   `gorm:"column:library_screen_show_trending" json:"libraryScreenShowTrending"`
-	LibraryScreenShowDynamicAnimeBanner  bool   `gorm:"column:library_screen_show_anime_banner" json:"libraryScreenShowAnimeBanner"`
-	LibraryScreenShowCustomBanner        bool   `gorm:"column:library_screen_show_custom_banner" json:"libraryScreenShowCustomBanner"`
+	LibraryScreenBanner                  string `gorm:"column:library_screen_banner" json:"libraryScreenBanner"`
+	LibraryScreenBannerPosition          string `gorm:"column:library_screen_banner_position" json:"libraryScreenBannerPosition"`
 	LibraryScreenCustomBanner            string `gorm:"column:library_screen_custom_banner" json:"libraryScreenCustomBanner"`
 	LibraryScreenCustomBannerAutoDim     int    `gorm:"column:library_screen_custom_banner_auto_dim" json:"libraryScreenCustomBannerAutoDim"`
 	LibraryScreenShowCustomBackground    bool   `gorm:"column:library_screen_show_custom_background" json:"libraryScreenShowCustomBackground"`

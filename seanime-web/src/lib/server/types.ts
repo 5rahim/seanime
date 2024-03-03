@@ -470,9 +470,8 @@ export type ThemeSettings = {
     expandSidebarOnHover: boolean
     backgroundColor: string
     sidebarBackgroundColor: string
-    libraryScreenShowTrending: boolean
-    libraryScreenShowAnimeBanner: boolean
-    libraryScreenShowCustomBanner: boolean
+    libraryScreenBanner: string
+    libraryScreenBannerPosition: string
     libraryScreenCustomBanner: string
     libraryScreenCustomBannerAutoDim: number
     libraryScreenShowCustomBackground: boolean

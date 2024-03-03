@@ -6,15 +6,14 @@ import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episo
 import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section/progress-tracking"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
-import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
+import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
+import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { Separator } from "@/components/ui/separator"
-import { MediaEntry, MediaEntryEpisode } from "@/lib/server/types"
-import { formatDistanceToNow, isBefore, subYears } from "date-fns"
-import { memo, useMemo } from "react"
+import { MediaEntry } from "@/lib/server/types"
+import React, { useMemo } from "react"
 import { FiPlayCircle } from "react-icons/fi"
 
 export function EpisodeSection(props: { entry: MediaEntry }) {
@@ -76,7 +75,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
         <>
             <AppLayoutStack spacing="lg">
 
-                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between">
+                <div className="mb-8 mt-8 flex flex-col md:flex-row md:items-center justify-between">
 
                     <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
                         <h2>{media.format === "MOVIE" ? "Movie" : "Episodes"}</h2>
@@ -111,16 +110,29 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
 
                 {episodesToWatch.length > 0 && (
                     <>
-                        <HorizontalDraggableScroll>
-                            {episodesToWatch.map(episode => (
-                                <SliderEpisodeItem
-                                    key={episode.localFile?.path || ""}
-                                    episode={episode}
-                                    onPlay={playVideo}
-                                />
-                            ))}
-                        </HorizontalDraggableScroll>
-                        <Separator />
+                        <Carousel
+                            className="w-full max-w-full pt-4 relative"
+                            gap="md"
+                            opts={{
+                                align: "start",
+                            }}
+                        >
+                            <CarouselDotButtons className="-top-1.5" />
+                            <CarouselContent>
+                                {episodesToWatch.map((episode, idx) => (
+                                    <CarouselItem
+                                        key={episode?.localFile?.path || idx}
+                                        className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/2 min-[2000px]:basis-1/3"
+                                    >
+                                        <SliderEpisodeItem
+                                            key={episode.localFile?.path || ""}
+                                            episode={episode}
+                                            onPlay={playVideo}
+                                        />
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                        </Carousel>
                     </>
                 )}
 
@@ -179,31 +191,3 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
     )
 
 }
-
-const SliderEpisodeItem = memo(({ episode, onPlay }: {
-    episode: MediaEntryEpisode,
-    onPlay: ({ path }: { path: string }) => void
-}) => {
-
-    const date = episode.episodeMetadata?.airDate ? new Date(episode.episodeMetadata.airDate) : undefined
-    const mediaIsOlder = useMemo(() => date ? isBefore(date, subYears(new Date(), 2)) : undefined, [])
-
-    const offset = episode.progressNumber - episode.episodeNumber
-
-    return (
-        <LargeEpisodeListItem
-            image={episode.episodeMetadata?.image}
-            title={<span>{episode.displayTitle} {!!episode.basicMedia?.episodes &&
-                (episode.basicMedia.episodes != 1 &&
-                    <span className="opacity-40">/{` `}{episode.basicMedia.episodes - offset}</span>)}</span>}
-            topTitle={episode.episodeTitle}
-            actionIcon={undefined}
-            meta={(date) ? (!mediaIsOlder ? `${formatDistanceToNow(date, { addSuffix: true })}` : new Intl.DateTimeFormat("en-US", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "2-digit",
-            }).format(date)) : undefined}
-            onClick={() => onPlay({ path: episode.localFile?.path ?? "" })}
-        />
-    )
-})

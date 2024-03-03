@@ -86,7 +86,7 @@ export function withControlledInput<T extends FieldBaseProps>(InputComponent: Re
                             value={field.value} // Default prop, can be overridden in Field component definition
                             onChange={callAllHandlers(inputProps.onChange, field.onChange)} // Default prop, can be overridden in Field component
                             onBlur={callAllHandlers(inputProps.onBlur, field.onBlur)} // Default prop, can be overridden in Field component
-                            required={required}
+                            // required={required}
                             {...inputProps} // Props passed in <FieldComponent /> then props passed in <Field.Component />
                             // The props below will not be overridden.
                             // e.g: <Field.ComponentField error="Error" /> will not work
@@ -304,9 +304,6 @@ const RadioGroupField = React.memo(withControlledInput(forwardRef<HTMLButtonElem
 const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLButtonElement, FieldComponent<RadioGroupProps>>(
     ({ onChange, ...props }, ref) => {
         return <RadioGroup
-            {...props}
-            onValueChange={onChange}
-            stackClass="flex flex-col md:flex-row gap-2 space-y-0"
             itemContainerClass={cn(
                 "items-start cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
                 "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
@@ -321,6 +318,9 @@ const RadioCardsField = React.memo(withControlledInput(forwardRef<HTMLButtonElem
             )}
             itemIndicatorClass="hidden"
             itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+            {...props}
+            onValueChange={onChange}
+            stackClass="flex flex-col md:flex-row gap-2 space-y-0"
             ref={ref}
         />
     },

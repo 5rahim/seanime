@@ -146,6 +146,11 @@ func NewFiberApp(app *App) *fiber.App {
 		DisableStartupMessage: true,
 	})
 
+	fiberApp.Static("/assets", "./assets", fiber.Static{
+		Index:    "index.html",
+		Compress: false,
+	})
+
 	if constants.DevelopmentWebBuild {
 		fiberApp.Static("/", "./seanime-web/out", fiber.Static{
 			Index:    "index.html",

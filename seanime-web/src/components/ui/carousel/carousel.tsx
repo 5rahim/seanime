@@ -402,14 +402,14 @@ const DotButton = (props: ButtonProps) => {
 }
 
 
-export const CarouselDotButtons = () => {
+export const CarouselDotButtons = (props: { className?: string }) => {
 
     const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton()
 
     if (scrollSnaps.length > 30) return null
 
     return (
-        <div className="absolute -top-8 right-0 hidden md:flex gap-2 ">
+        <div className={cn("absolute -top-8 right-0 hidden md:flex gap-2", props.className)}>
             {scrollSnaps.map((_, index) => (
                 <DotButton
                     key={index}

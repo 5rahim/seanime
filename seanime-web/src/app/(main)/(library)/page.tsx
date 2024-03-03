@@ -1,12 +1,14 @@
 "use client"
 import { BulkActionModal } from "@/app/(main)/(library)/_containers/bulk-actions/bulk-action-modal"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
+import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useLibraryCollection } from "@/app/(main)/(library)/_containers/library-collection/_lib/library-collection"
 import { LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection/library-collection"
 import { LibraryHeader } from "@/app/(main)/(library)/_containers/library-header"
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
 import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
+import { ThemeLibraryScreenBanner, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
 export default function Library() {
@@ -21,9 +23,12 @@ export default function Library() {
         unknownGroups,
     } = useLibraryCollection()
 
+    const ts = useThemeSettings()
+
     return (
         <div>
-            <LibraryHeader list={continueWatchingList} />
+            {ts.libraryScreenBanner === ThemeLibraryScreenBanner.Episode && <LibraryHeader list={continueWatchingList} />}
+            {ts.libraryScreenBanner === ThemeLibraryScreenBanner.Custom && <CustomLibraryBanner />}
             <LibraryToolbar
                 collectionList={libraryCollectionList}
                 unmatchedLocalFiles={unmatchedLocalFiles}
