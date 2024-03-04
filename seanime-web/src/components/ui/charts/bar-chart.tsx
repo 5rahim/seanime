@@ -35,7 +35,7 @@ export type BarChartProps = React.ComponentPropsWithRef<"div"> & BaseChartProps 
     intervalType?: "preserveStart" | "preserveEnd" | "preserveStartEnd" | "equidistantPreserveStart"
 }
 
-export const BarChart: React.FC<BarChartProps> = React.forwardRef<HTMLDivElement, BarChartProps>((props, ref) => {
+export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>((props, ref) => {
 
     const {
         children,

@@ -82,7 +82,7 @@ export function MainSidebar() {
         title: "Sign out",
         description: "Are you sure you want to sign out?",
         onConfirm: () => {
-            () => logout()
+            logout()
         },
     })
 

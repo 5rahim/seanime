@@ -29,7 +29,7 @@ export default function Page() {
         },
     })
 
-    if (!status?.mal && window.location.host === "127.0.0.1:43211") return (
+    if (!status?.mal && window?.location?.host === "127.0.0.1:43211") return (
         <div className="p-12 text-center">
             <p className="flex justify-center w-full text-8xl"><SiMyanimelist /></p>
             <p className="-mt-2 pb-6 text-lg">Connect your MyAnimeList account to Seanime</p>
@@ -43,7 +43,7 @@ export default function Page() {
         </div>
     )
 
-    if (!status?.mal && window.location.host !== "127.0.0.1:43211") return (
+    if (!status?.mal && window?.location?.host !== "127.0.0.1:43211") return (
         <div className="p-12 text-center">
             <p className="flex justify-center w-full text-8xl"><SiMyanimelist /></p>
             <p className="-mt-2 pb-6 text-lg">Connect your MyAnimeList account to Seanime</p>

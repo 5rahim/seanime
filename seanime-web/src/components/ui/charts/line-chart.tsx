@@ -38,7 +38,7 @@ export type LineChartProps = React.ComponentPropsWithRef<"div"> & BaseChartProps
 }
 
 
-export const LineChart: React.FC<LineChartProps> = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) => {
+export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) => {
 
     const {
         className,

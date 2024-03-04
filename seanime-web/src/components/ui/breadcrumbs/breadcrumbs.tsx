@@ -55,7 +55,7 @@ export type BreadcrumbsProps = React.ComponentPropsWithRef<"nav"> &
     homeIcon?: React.ReactElement
 }
 
-export const Breadcrumbs: React.FC<BreadcrumbsProps> = React.forwardRef<HTMLElement, BreadcrumbsProps>((props, ref) => {
+export const Breadcrumbs = React.forwardRef<HTMLElement, BreadcrumbsProps>((props, ref) => {
 
     const {
         children,

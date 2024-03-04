@@ -44,8 +44,8 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
         queryKey: ["directory-settings", debouncedInput],
         queryFn: async () => {
             const res = await axios.post<DirectorySelectorResponse>("http://" + (process.env.NODE_ENV === "development"
-                ? `${window.location.hostname}:43211`
-                : window.location.host) + "/api/v1/directory-selector", {
+                ? `${window?.location?.hostname}:43211`
+                : window?.location?.host) + "/api/v1/directory-selector", {
                 input: debouncedInput,
             })
             return res.data
