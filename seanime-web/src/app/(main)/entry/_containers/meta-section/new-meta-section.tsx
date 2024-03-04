@@ -137,7 +137,8 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                                         : entry.listData?.status)}</p>
                                 </div>
 
-                                <ScrollArea className="h-16 text-[--muted] text-sm pr-2">{details?.description?.replace(/(<([^>]+)>)/ig,
+                                <ScrollArea className="h-16 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">{details?.description?.replace(
+                                    /(<([^>]+)>)/ig,
                                     "")}</ScrollArea>
                             </div>
 
@@ -288,7 +289,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     priority
                     sizes="100vw"
                     className={cn(
-                        "object-cover object-left z-[3] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-85",
+                        "object-cover object-left z-[3] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-80",
                     )}
                 />
 

@@ -225,7 +225,7 @@ export function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
                         {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
                     </p>
                     <p className="text-[--muted]">
-                        {episode.episodeMetadata?.summary || "No summary"}
+                        {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
                     </p>
                     {
                         (!!episode.episodeMetadata?.aniDBId) && <>

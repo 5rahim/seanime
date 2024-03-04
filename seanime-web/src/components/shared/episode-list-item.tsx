@@ -91,7 +91,7 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
                         placeholder={imageShimmer(700, 475)}
                         sizes="10rem"
                         className={cn("object-cover object-center transition", {
-                            "opacity-30 group-hover/episode-list-item:opacity-100": isWatched,
+                            "opacity-25 group-hover/episode-list-item:opacity-100": isWatched,
                         }, imageClassName)}
                         data-src={image}
                     />}
@@ -114,8 +114,10 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
                     {isInvalid && <p className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}
 
                     <h4
-                        className={cn("font-medium transition line-clamp-2",
-                            { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched })}
+                        className={cn(
+                            "font-medium transition line-clamp-2",
+                            // { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched },
+                        )}
                     >{title}</h4>
 
                     {!!episodeTitle && <p className={cn("text-md text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
