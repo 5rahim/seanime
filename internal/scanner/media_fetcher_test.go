@@ -143,7 +143,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			scanLogger, err := NewScanLogger()
+			scanLogger, err := NewScanLogger("./logs")
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}
@@ -222,7 +222,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			scanLogger, err := NewScanLogger()
+			scanLogger, err := NewScanLogger("./logs")
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}

@@ -3,6 +3,7 @@ package scanner
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -15,20 +16,21 @@ type ScanLogger struct {
 }
 
 // NewScanLogger creates a new ScanLogger with a log file named based on the current datetime.
-func NewScanLogger() (*ScanLogger, error) {
+// - dir: The directory to save the log file in. This should come from the config.
+func NewScanLogger(outputDir string) (*ScanLogger, error) {
 	// Generate a log file name with the current datetime
 	logFileName := fmt.Sprintf("%s-scan.log", time.Now().Format("2006-01-02_15-04-05"))
 
 	// Create the logs directory if it doesn't exist
-	if _, err := os.Stat("logs"); os.IsNotExist(err) {
-		err := os.Mkdir("logs", 0755)
+	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
+		err := os.Mkdir(outputDir, 0755)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	// Open the log file for writing
-	logFile, err := os.OpenFile("logs/"+logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile(filepath.Join(outputDir, logFileName), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
 	}

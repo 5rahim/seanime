@@ -99,11 +99,13 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc.synonyms = synonyms
 	mc.allMedia = opts.AllMedia
 
-	mc.ScanLogger.LogMediaContainer(zerolog.InfoLevel).
-		Any("inputCount", len(opts.AllMedia)).
-		Any("mediaCount", len(mc.NormalizedMedia)).
-		Any("titles", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
-		Msg("Created media container")
+	if mc.ScanLogger != nil {
+		mc.ScanLogger.LogMediaContainer(zerolog.InfoLevel).
+			Any("inputCount", len(opts.AllMedia)).
+			Any("mediaCount", len(mc.NormalizedMedia)).
+			Any("titles", len(mc.engTitles)+len(mc.romTitles)+len(mc.synonyms)).
+			Msg("Created media container")
+	}
 
 	return mc
 }

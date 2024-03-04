@@ -26,6 +26,7 @@ type Scanner struct {
 	SkipLockedFiles      bool
 	SkipIgnoredFiles     bool
 	ScanSummaryLogger    *summary.ScanSummaryLogger
+	ScanLogger           *ScanLogger
 }
 
 // Scan will scan the directory and return a list of entities.LocalFile.
@@ -38,12 +39,6 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 
 	// Create a new Anilist rate limiter
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-
-	// Create a new scan logger
-	scanLogger, err := NewScanLogger()
-	if err != nil {
-		return nil, err
-	}
 
 	if scn.ScanSummaryLogger == nil {
 		scn.ScanSummaryLogger = summary.NewScanSummaryLogger()
@@ -63,20 +58,26 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		return nil, err
 	}
 
-	scanLogger.logger.Info().
-		Any("count", len(localFiles)).
-		Msg("Retrieved and parsed local files")
-
-	for _, lf := range localFiles {
-		scanLogger.logger.Trace().
-			Str("path", lf.Path).
-			Any("parsedData", spew.Sdump(lf.ParsedData)).
-			Any("parsedFolderData", spew.Sdump(lf.ParsedFolderData)).
-			Msg("Parsed local file")
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Info().
+			Any("count", len(localFiles)).
+			Msg("Retrieved and parsed local files")
 	}
 
-	scanLogger.logger.Debug().
-		Msg("===========================================================================================================")
+	for _, lf := range localFiles {
+		if scn.ScanLogger != nil {
+			scn.ScanLogger.logger.Trace().
+				Str("path", lf.Path).
+				Any("parsedData", spew.Sdump(lf.ParsedData)).
+				Any("parsedFolderData", spew.Sdump(lf.ParsedFolderData)).
+				Msg("Parsed local file")
+		}
+	}
+
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Debug().
+			Msg("===========================================================================================================")
+	}
 
 	// +---------------------+
 	// | Filter local files  |
@@ -147,7 +148,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		AnizipCache:          anizipCache,
 		Logger:               scn.Logger,
 		AnilistRateLimiter:   anilistRateLimiter,
-		ScanLogger:           scanLogger,
+		ScanLogger:           scn.ScanLogger,
 	})
 	if err != nil {
 		return nil, err
@@ -163,7 +164,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 	// Create a new container for media
 	mc := NewMediaContainer(&MediaContainerOptions{
 		AllMedia:   mf.AllMedia,
-		ScanLogger: scanLogger,
+		ScanLogger: scn.ScanLogger,
 	})
 
 	scn.Logger.Debug().
@@ -180,7 +181,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		MediaContainer:    mc,
 		BaseMediaCache:    baseMediaCache,
 		Logger:            scn.Logger,
-		ScanLogger:        scanLogger,
+		ScanLogger:        scn.ScanLogger,
 		ScanSummaryLogger: scn.ScanSummaryLogger,
 	}
 
@@ -213,7 +214,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		BaseMediaCache:       baseMediaCache,
 		AnilistRateLimiter:   anilistRateLimiter,
 		Logger:               scn.Logger,
-		ScanLogger:           scanLogger,
+		ScanLogger:           scn.ScanLogger,
 		ScanSummaryLogger:    scn.ScanSummaryLogger,
 	}
 	hydrator.HydrateMetadata()
@@ -258,11 +259,13 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
 
-	scanLogger.logger.Info().
-		Int("scannedFileCount", len(localFiles)).
-		Int("skippedFileCount", len(skippedLfs)).
-		Int("unknownMediaCount", len(mf.UnknownMediaIds)).
-		Msg("Scan completed")
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Info().
+			Int("scannedFileCount", len(localFiles)).
+			Int("skippedFileCount", len(skippedLfs)).
+			Int("unknownMediaCount", len(mf.UnknownMediaIds)).
+			Msg("Scan completed")
+	}
 
 	return localFiles, nil
 

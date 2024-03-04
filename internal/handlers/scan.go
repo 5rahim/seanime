@@ -55,6 +55,12 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	// Create scan summary logger
 	scanSummaryLogger := summary.NewScanSummaryLogger()
 
+	// Create a new scan logger
+	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
 	// Create a new scanner
 	sc := scanner.Scanner{
 		DirPath:              libraryPath,
@@ -67,6 +73,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		SkipLockedFiles:      body.SkipLockedFiles,
 		SkipIgnoredFiles:     body.SkipIgnoredFiles,
 		ScanSummaryLogger:    scanSummaryLogger,
+		ScanLogger:           scanLogger,
 	}
 
 	// Scan the library

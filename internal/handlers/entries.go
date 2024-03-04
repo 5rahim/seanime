@@ -370,7 +370,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	scanLogger, err := scanner.NewScanLogger()
+	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

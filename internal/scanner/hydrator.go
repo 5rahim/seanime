@@ -27,7 +27,7 @@ type FileHydrator struct {
 	AnilistClientWrapper *anilist.ClientWrapper
 	AnilistRateLimiter   *limiter.Limiter
 	Logger               *zerolog.Logger
-	ScanLogger           *ScanLogger
+	ScanLogger           *ScanLogger                // optional
 	ScanSummaryLogger    *summary.ScanSummaryLogger // optional
 }
 
@@ -47,9 +47,11 @@ func (fh *FileHydrator) HydrateMetadata() {
 	// Remove the group with unmatched media
 	delete(groups, 0)
 
-	fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
-		Int("entryCount", len(groups)).
-		Msg("Starting metadata hydration process")
+	if fh.ScanLogger != nil {
+		fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
+			Int("entryCount", len(groups)).
+			Msg("Starting metadata hydration process")
+	}
 
 	// Process each group in parallel
 	p := pool.New()
@@ -62,9 +64,11 @@ func (fh *FileHydrator) HydrateMetadata() {
 	}
 	p.Wait()
 
-	fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
-		Any("ms", time.Since(start).Milliseconds()).
-		Msg("Finished metadata hydration")
+	if fh.ScanLogger != nil {
+		fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
+			Any("ms", time.Since(start).Milliseconds()).
+			Msg("Finished metadata hydration")
+	}
 }
 
 func (fh *FileHydrator) hydrateGroupMetadata(
@@ -78,9 +82,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		return media.ID == mId
 	})
 	if !found {
-		fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
-			Int("mediaId", mId).
-			Msg("Could not find media in FileHydrator options")
+		if fh.ScanLogger != nil {
+			fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
+				Int("mediaId", mId).
+				Msg("Could not find media in FileHydrator options")
+		}
 		return
 	}
 
@@ -96,9 +102,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		defer util.HandlePanicInModuleThenS("scanner/hydrator/hydrateGroupMetadata", func(stackTrace string) {
 			lf.MediaId = 0
 			/*Log*/
-			fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
-				Str("filename", lf.Name).
-				Msg("Panic occurred, file un-matched")
+			if fh.ScanLogger != nil {
+				fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
+					Str("filename", lf.Name).
+					Msg("Panic occurred, file un-matched")
+			}
 			fh.ScanSummaryLogger.LogPanic(lf, stackTrace)
 		})
 
@@ -119,8 +127,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.Type = entities.LocalFileTypeNC
 
 			/*Log */
-			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-				Msg("File has been marked as NC")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+					Msg("File has been marked as NC")
+			}
 			fh.ScanSummaryLogger.LogMetadataNC(lf)
 			return
 		}
@@ -143,8 +153,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			}
 
 			/*Log */
-			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-				Msg("File has been marked as special")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+					Msg("File has been marked as special")
+			}
 			fh.ScanSummaryLogger.LogMetadataSpecial(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
@@ -154,8 +166,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = "1"
 
 			/*Log */
-			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-				Msg("File has been marked as main")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+					Msg("File has been marked as main")
+			}
 			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
@@ -173,8 +187,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				lf.Metadata.AniDBEpisode = "S1"
 
 				/*Log */
-				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-					Msg("File has been marked as main")
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+						Msg("File has been marked as main")
+				}
 				fh.ScanSummaryLogger.LogMetadataEpisodeZero(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 				return
 			}
@@ -183,8 +199,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
 
 			/*Log */
-			fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-				Msg("File has been marked as main")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+					Msg("File has been marked as main")
+			}
 			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
@@ -197,9 +215,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = "1"
 
 			/*Log */
-			fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
-				Str("warning", "File's episode number is higher than the media's episode count, but the media only has 1 episode").
-				Msg("File has been marked as main")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+					Str("warning", "File's episode number is higher than the media's episode count, but the media only has 1 episode").
+					Msg("File has been marked as main")
+			}
 			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
@@ -210,9 +230,11 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = "1"
 
 			/*Log */
-			fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
-				Str("warning", "No episode number found, but the media only has 1 episode").
-				Msg("File has been marked as main")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+					Str("warning", "No episode number found, but the media only has 1 episode").
+					Msg("File has been marked as main")
+			}
 			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
@@ -225,8 +247,10 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			lf.Metadata.AniDBEpisode = "S1"
 
 			/*Log */
-			fh.logFileHydration(zerolog.ErrorLevel, lf, mId, episode).
-				Msg("No episode number found, file has been marked as special")
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.ErrorLevel, lf, mId, episode).
+					Msg("No episode number found, file has been marked as special")
+			}
 			fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, errors.New("no episode number found"), lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 		}
@@ -252,20 +276,24 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 					/*Log */
 					if mta != nil && mta.branches != nil {
-						fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
-							Int("mediaId", mId).
-							Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
-							Int("requests", len(mediaTreeAnalysis.branches)).
-							Any("branches", mediaTreeAnalysis.printBranches()).
-							Msg("Media tree fetched")
+						if fh.ScanLogger != nil {
+							fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
+								Int("mediaId", mId).
+								Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+								Int("requests", len(mediaTreeAnalysis.branches)).
+								Any("branches", mediaTreeAnalysis.printBranches()).
+								Msg("Media tree fetched")
+						}
 						fh.ScanSummaryLogger.LogMetadataMediaTreeFetched(lf, time.Since(mediaTreeFetchStart).Milliseconds(), len(mediaTreeAnalysis.branches))
 					}
 				} else {
-					fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
-						Int("mediaId", mId).
-						Str("error", err.Error()).
-						Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
-						Msg("Could not fetch media tree")
+					if fh.ScanLogger != nil {
+						fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
+							Int("mediaId", mId).
+							Str("error", err.Error()).
+							Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+							Msg("Could not fetch media tree")
+					}
 					fh.ScanSummaryLogger.LogMetadataMediaTreeFetchFailed(lf, err, time.Since(mediaTreeFetchStart).Milliseconds())
 				}
 			}
@@ -274,23 +302,27 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			if err := fh.normalizeEpisodeNumberAndHydrate(mediaTreeAnalysis, lf, episode, media.GetCurrentEpisodeCount()); err != nil {
 
 				/*Log */
-				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
-					Dict("mediaTreeAnalysis", zerolog.Dict().
-						Bool("normalized", false).
-						Str("error", err.Error()).
-						Str("reason", "Episode normalization failed"),
-					).
-					Msg("File has been marked as special")
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+						Dict("mediaTreeAnalysis", zerolog.Dict().
+							Bool("normalized", false).
+							Str("error", err.Error()).
+							Str("reason", "Episode normalization failed"),
+						).
+						Msg("File has been marked as special")
+				}
 				fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, err, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			} else {
 				/*Log */
-				fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-					Dict("mediaTreeAnalysis", zerolog.Dict().
-						Bool("normalized", true).
-						Bool("hasNewMediaId", lf.MediaId != mId).
-						Int("newMediaId", lf.MediaId),
-					).
-					Msg("File has been marked as main")
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+						Dict("mediaTreeAnalysis", zerolog.Dict().
+							Bool("normalized", true).
+							Bool("hasNewMediaId", lf.MediaId != mId).
+							Int("newMediaId", lf.MediaId),
+						).
+						Msg("File has been marked as main")
+				}
 				fh.ScanSummaryLogger.LogMetadataEpisodeNormalized(lf, mId, episode, lf.Metadata.Episode, lf.MediaId, lf.Metadata.AniDBEpisode)
 			}
 			return

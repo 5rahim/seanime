@@ -53,7 +53,6 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		opts.BaseMediaCache == nil ||
 		opts.AnizipCache == nil ||
 		opts.Logger == nil ||
-		opts.ScanLogger == nil ||
 		opts.AnilistRateLimiter == nil {
 		return nil, errors.New("missing options")
 	}
@@ -68,8 +67,10 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		Any("username", opts.Username).
 		Msg("media fetcher: Creating media fetcher")
 
-	mf.ScanLogger.LogMediaFetcher(zerolog.InfoLevel).
-		Msg("Creating media fetcher")
+	if mf.ScanLogger != nil {
+		mf.ScanLogger.LogMediaFetcher(zerolog.InfoLevel).
+			Msg("Creating media fetcher")
+	}
 
 	// +---------------------+
 	// |     All media       |
@@ -100,9 +101,11 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		}
 	}
 
-	mf.ScanLogger.LogMediaFetcher(zerolog.DebugLevel).
-		Int("count", len(mf.AllMedia)).
-		Msg("Fetched media from AniList collection")
+	if mf.ScanLogger != nil {
+		mf.ScanLogger.LogMediaFetcher(zerolog.DebugLevel).
+			Int("count", len(mf.AllMedia)).
+			Msg("Fetched media from AniList collection")
+	}
 
 	//--------------------------------------------
 
@@ -153,10 +156,12 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		return m.ID
 	})
 
-	mf.ScanLogger.LogMediaFetcher(zerolog.DebugLevel).
-		Int("unknownMediaCount", len(mf.UnknownMediaIds)).
-		Int("allMediaCount", len(mf.AllMedia)).
-		Msg("Finished creating media fetcher")
+	if mf.ScanLogger != nil {
+		mf.ScanLogger.LogMediaFetcher(zerolog.DebugLevel).
+			Int("unknownMediaCount", len(mf.UnknownMediaIds)).
+			Int("allMediaCount", len(mf.AllMedia)).
+			Msg("Finished creating media fetcher")
+	}
 
 	return mf, nil
 }
@@ -179,9 +184,11 @@ func FetchMediaFromLocalFiles(
 	scanLogger *ScanLogger,
 ) ([]*anilist.BaseMedia, bool) {
 
-	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
-		Str("module", "Enhanced").
-		Msg("Fetching media from local files")
+	if scanLogger != nil {
+		scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+			Str("module", "Enhanced").
+			Msg("Fetching media from local files")
+	}
 
 	rateLimiter := limiter.NewLimiter(time.Second, 20)
 	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
@@ -189,10 +196,12 @@ func FetchMediaFromLocalFiles(
 	// Get titles
 	titles := entities.GetUniqueAnimeTitlesFromLocalFiles(localFiles)
 
-	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
-		Str("module", "Enhanced").
-		Str("context", spew.Sprint(titles)).
-		Msg("Parsed titles from local files")
+	if scanLogger != nil {
+		scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+			Str("module", "Enhanced").
+			Str("context", spew.Sprint(titles)).
+			Msg("Parsed titles from local files")
+	}
 
 	// +---------------------+
 	// |     MyAnimeList     |
@@ -214,12 +223,14 @@ func FetchMediaFromLocalFiles(
 	// Get the MAL media IDs
 	malIds := lop.Map(malMedia, func(n *mal.SearchResultAnime, index int) int { return n.ID })
 
-	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
-		Str("module", "Enhanced").
-		Str("context", spew.Sprint(lo.Map(malMedia, func(n *mal.SearchResultAnime, _ int) string {
-			return n.Name
-		}))).
-		Msg("Fetched MAL media from titles")
+	if scanLogger != nil {
+		scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+			Str("module", "Enhanced").
+			Str("context", spew.Sprint(lo.Map(malMedia, func(n *mal.SearchResultAnime, _ int) string {
+				return n.Name
+			}))).
+			Msg("Fetched MAL media from titles")
+	}
 
 	// +---------------------+
 	// |       AniZip        |
@@ -255,24 +266,30 @@ func FetchMediaFromLocalFiles(
 		media, err := anilist.GetBaseMediaById(anilistClientWrapper.Client, id)
 		if err == nil {
 			anilistMedia = append(anilistMedia, media)
-			scanLogger.LogMediaFetcher(zerolog.DebugLevel).
-				Str("module", "Enhanced").
-				Str("title", media.GetTitleSafe()).
-				Msg("Fetched Anilist media from MAL id")
+			if scanLogger != nil {
+				scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+					Str("module", "Enhanced").
+					Str("title", media.GetTitleSafe()).
+					Msg("Fetched Anilist media from MAL id")
+			}
 		} else {
-			scanLogger.LogMediaFetcher(zerolog.WarnLevel).
-				Str("module", "Enhanced").
-				Int("id", id).
-				Msg("Failed to fetch Anilist media from MAL id")
+			if scanLogger != nil {
+				scanLogger.LogMediaFetcher(zerolog.WarnLevel).
+					Str("module", "Enhanced").
+					Int("id", id).
+					Msg("Failed to fetch Anilist media from MAL id")
+			}
 		}
 	})
 
-	scanLogger.LogMediaFetcher(zerolog.DebugLevel).
-		Str("module", "Enhanced").
-		Str("context", spew.Sprint(lo.Map(anilistMedia, func(n *anilist.BaseMedia, _ int) string {
-			return n.GetTitleSafe()
-		}))).
-		Msg("Fetched Anilist media from MAL ids")
+	if scanLogger != nil {
+		scanLogger.LogMediaFetcher(zerolog.DebugLevel).
+			Str("module", "Enhanced").
+			Str("context", spew.Sprint(lo.Map(anilistMedia, func(n *anilist.BaseMedia, _ int) string {
+				return n.GetTitleSafe()
+			}))).
+			Msg("Fetched Anilist media from MAL ids")
+	}
 
 	// +---------------------+
 	// |     MediaTree       |
@@ -301,14 +318,16 @@ func FetchMediaFromLocalFiles(
 		return true
 	})
 
-	scanLogger.LogMediaFetcher(zerolog.InfoLevel).
-		Str("module", "Enhanced").
-		Int("ms", int(time.Since(start).Milliseconds())).
-		Int("count", len(scanned)).
-		Str("context", spew.Sprint(lo.Map(scanned, func(n *anilist.BaseMedia, _ int) string {
-			return n.GetTitleSafe()
-		}))).
-		Msg("Finished fetching media from local files")
+	if scanLogger != nil {
+		scanLogger.LogMediaFetcher(zerolog.InfoLevel).
+			Str("module", "Enhanced").
+			Int("ms", int(time.Since(start).Milliseconds())).
+			Int("count", len(scanned)).
+			Str("context", spew.Sprint(lo.Map(scanned, func(n *anilist.BaseMedia, _ int) string {
+				return n.GetTitleSafe()
+			}))).
+			Msg("Finished fetching media from local files")
+	}
 
 	return scanned, true
 }

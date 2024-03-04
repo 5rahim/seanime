@@ -59,7 +59,10 @@ func TestScanner_Scan(t *testing.T) {
 				ExistingLocalFiles:   existingLfs,
 				SkipLockedFiles:      false,
 				SkipIgnoredFiles:     false,
+				ScanLogger:           nil,
+				ScanSummaryLogger:    nil,
 			}
+
 			lfs, err := scanner.Scan()
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
