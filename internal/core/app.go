@@ -9,7 +9,6 @@ import (
 	"github.com/seanime-app/seanime/internal/animetosho"
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/autodownloader"
-	"github.com/seanime-app/seanime/internal/constants"
 	_db "github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
@@ -24,6 +23,8 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -75,6 +76,14 @@ func NewApp(options *AppOptions, version string) *App {
 
 	logger := util.NewLogger()
 
+	// Print working directory
+	pwd, err := os.Getwd()
+	if err != nil {
+		logger.Fatal().Err(err).Msg("app: Failed to get working directory")
+	}
+
+	logger.Debug().Msgf("app: Working directory: \"%s\"", filepath.ToSlash(pwd))
+
 	// Initialize the config
 	// If the config file does not exist, it will be created
 	cfg, err := NewConfig(opts.Config)
@@ -82,7 +91,7 @@ func NewApp(options *AppOptions, version string) *App {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
 	}
 
-	logger.Info().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
+	logger.Debug().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
 
 	// Initialize the database
 	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
@@ -103,7 +112,7 @@ func NewApp(options *AppOptions, version string) *App {
 	// Delete old scan summaries
 	db.CleanUpScanSummaries()
 
-	logger.Info().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
+	logger.Debug().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
 	// Get token from stored account or return empty string
 	anilistToken := db.GetAnilistToken()
@@ -146,22 +155,17 @@ func NewFiberApp(app *App) *fiber.App {
 		DisableStartupMessage: true,
 	})
 
-	fiberApp.Static("/assets", "./assets", fiber.Static{
+	app.Logger.Debug().Msgf("app: Serving web interface from \"%s\"", app.Config.Web.Dir)
+	fiberApp.Static("/", app.Config.Web.Dir, fiber.Static{
+		Index:    "index.html",
+		Compress: true,
+	})
+
+	app.Logger.Debug().Msgf("app: Serving web assets from \"%s\"", app.Config.Web.AssetDir)
+	fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{
 		Index:    "index.html",
 		Compress: false,
 	})
-
-	if constants.DevelopmentWebBuild {
-		fiberApp.Static("/", "./seanime-web/out", fiber.Static{
-			Index:    "index.html",
-			Compress: true,
-		})
-	} else {
-		fiberApp.Static("/", "./web", fiber.Static{
-			Index:    "index.html",
-			Compress: true,
-		})
-	}
 
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
 		path := c.OriginalURL()
@@ -187,11 +191,7 @@ func NewFiberApp(app *App) *fiber.App {
 		if path == "/.html" {
 			path = "/index.html"
 		}
-		if constants.DevelopmentWebBuild {
-			return c.SendFile("./seanime-web/out" + path)
-		} else {
-			return c.SendFile("./web" + path)
-		}
+		return c.SendFile("./web" + path)
 	})
 
 	return fiberApp

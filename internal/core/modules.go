@@ -183,6 +183,7 @@ func (a *App) initLibraryWatcher(path string) {
 // initAnilistData will initialize the Anilist anime collection and the account.
 // This function should be called after App.Database is initialized and after settings are updated.
 func (a *App) initAnilistData() {
+	a.Logger.Debug().Msg("app: Initializing Anilist data")
 
 	acc, err := a.Database.GetAccount()
 	if err != nil {
