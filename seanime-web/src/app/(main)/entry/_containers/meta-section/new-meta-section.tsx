@@ -48,7 +48,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="__header relative"
+            className="__header relative group/meta-section"
         >
 
             <div
@@ -261,7 +261,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                 <div
                     className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
                 />
-                <div className="absolute lg:left-[16rem] w-full h-full">
+                <div className="absolute lg:left-[6rem] w-full h-full">
                     {(!!entry.media?.bannerImage || !!entry.media?.coverImage?.extraLarge) && <Image
                         src={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge || ""}
                         alt="banner image"
@@ -273,11 +273,11 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     />}
                     {/*LEFT MASK*/}
                     <div
-                        className="hidden lg:block w-[20rem] z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
+                        className="hidden lg:block w-[30rem] z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                     />
                 </div>
                 <div
-                    className="w-full z-[2] absolute bottom-0 h-[10rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-30% to-transparent"
+                    className="w-full z-[2] absolute bottom-0 h-[5rem] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
                 />
 
                 <Image
@@ -288,7 +288,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     priority
                     sizes="100vw"
                     className={cn(
-                        "object-cover object-left z-[3] transition-opacity duration-1000 opacity-90 lg:opacity-90",
+                        "object-cover object-left z-[3] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-85",
                     )}
                 />
 

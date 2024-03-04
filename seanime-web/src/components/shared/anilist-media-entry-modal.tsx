@@ -107,7 +107,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 onOpenChange={o => toggle(o)}
                 title={media?.title?.userPreferred ?? undefined}
                 titleClass="text-xl"
-                contentClass="max-w-2xl"
+                contentClass="max-w-2xl overflow-hidden"
             >
 
                 {media?.bannerImage && <div

@@ -22,8 +22,8 @@ type MediaFetcher struct {
 	AllMedia           []*anilist.BaseMedia
 	CollectionMediaIds []int
 	UnknownMediaIds    []int // Media IDs that are not in the user's collection
-	ScanLogger         *ScanLogger
 	AnilistCollection  *anilist.AnimeCollection
+	ScanLogger         *ScanLogger
 }
 
 type MediaFetcherOptions struct {
