@@ -7,6 +7,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/comparison"
 	"github.com/seanime-app/seanime/internal/util"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -60,13 +61,32 @@ func (f *LocalFile) IsIgnored() bool {
 // GetNormalizedPath returns the lowercase path of the LocalFile.
 // Use this for comparison.
 func (f *LocalFile) GetNormalizedPath() string {
-	return strings.ToLower(f.Path)
+	return filepath.ToSlash(strings.ToLower(f.Path))
 }
 func (f *LocalFile) GetPath() string {
 	return f.Path
 }
+
 func (f *LocalFile) HasSamePath(path string) bool {
-	return strings.ToLower(f.Path) == strings.ToLower(path)
+	return f.GetNormalizedPath() == filepath.ToSlash(strings.ToLower(path))
+}
+
+// IsInDir returns true if the LocalFile is in the given directory.
+func (f *LocalFile) IsInDir(dirPath string) bool {
+	dirPath = strings.ToLower(filepath.ToSlash(dirPath))
+	if !filepath.IsAbs(dirPath) {
+		return false
+	}
+	return strings.HasPrefix(f.GetNormalizedPath(), dirPath)
+}
+
+// IsAtRootOf returns true if the LocalFile is at the root of the given directory.
+func (f *LocalFile) IsAtRootOf(dirPath string) bool {
+	dirPath = strings.TrimSuffix(strings.ToLower(filepath.ToSlash(dirPath)), "/")
+	if !filepath.IsAbs(dirPath) {
+		return false
+	}
+	return strings.HasPrefix(f.GetNormalizedPath(), dirPath) && strings.Count(f.GetNormalizedPath(), "/") == strings.Count(dirPath, "/")
 }
 
 func (f *LocalFile) Equals(lf *LocalFile) bool {

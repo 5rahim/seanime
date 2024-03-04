@@ -114,7 +114,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
             title="Resolve unmatched"
 
         >
-            <AppLayoutStack>
+            <AppLayoutStack className="mt-4">
 
                 <div className={cn("flex w-full justify-between", { "hidden": unmatchedGroups.length <= 1 })}>
                     <Button

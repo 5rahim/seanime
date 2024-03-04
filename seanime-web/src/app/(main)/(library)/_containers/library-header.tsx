@@ -88,7 +88,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                 >
 
                     <div
-                        className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-60 bg-gradient-to-b from-[#0c0c0c] to-transparent via"
+                        className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[#0c0c0c] to-transparent via"
                     />
                     <Transition
                         show={!!actualImage}
@@ -125,7 +125,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                         )}
                     />}
                     <div
-                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[40rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
+                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
                     />
                     <div className="h-full absolute w-full xl-right-48">
                         <Image
@@ -136,7 +136,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                             priority
                             sizes="100vw"
                             className={cn(
-                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-40",
+                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-5",
                             )}
                         />
                     </div>
@@ -149,7 +149,7 @@ export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
                             priority
                             sizes="100vw"
                             className={cn(
-                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-40",
+                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-5",
                             )}
                         />
                     </div>

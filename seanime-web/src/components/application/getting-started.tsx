@@ -46,7 +46,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
             <div className="mb-4 flex justify-center w-full">
                 <img src="/logo.png" alt="logo" className="w-24 h-auto" />
             </div>
-            <Card className="md:py-2 relative">
+            <Card className="relative p-4">
                 <AppLayoutStack>
                     <div className="space-y-4">
                         <h3>Getting started</h3>

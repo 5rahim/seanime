@@ -267,6 +267,11 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("no local files found for selected directory"))
 	}
 
+	// Filter out local files that are already matched
+	selectedLfs = lo.Filter(selectedLfs, func(item *entities.LocalFile, _ int) bool {
+		return item.MediaId == 0
+	})
+
 	title := selectedLfs[0].GetParsedTitle()
 
 	// Fetch 8 suggestions from MAL

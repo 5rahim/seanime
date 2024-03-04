@@ -10,7 +10,7 @@ import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
 import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import React from "react"
+import React, { useMemo } from "react"
 
 export default function Library() {
 
@@ -26,12 +26,16 @@ export default function Library() {
 
     const ts = useThemeSettings()
 
+    const hasScanned = useMemo(() => libraryCollectionList?.some(n => n.entries.length > 0), [libraryCollectionList])
+
     return (
         <div>
-            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
-            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner />}
-            {/*[CUSTOM UI]*/}
-            <CustomBackgroundImage />
+            {hasScanned && <>
+                {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
+                {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner />}
+                {/*[CUSTOM UI]*/}
+                <CustomBackgroundImage />
+            </>}
             <LibraryToolbar
                 collectionList={libraryCollectionList}
                 unmatchedLocalFiles={unmatchedLocalFiles}

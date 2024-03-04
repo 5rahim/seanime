@@ -7,5 +7,5 @@ export function getAssetUrl(path: string) {
 
     return process.env.NODE_ENV === "development"
         ? `http://${window?.location?.hostname}:43211/assets/${p}`
-        : `https://${window?.location?.host}/assets/${p}`
+        : `http://${window?.location?.host}/assets/${p}`
 }
