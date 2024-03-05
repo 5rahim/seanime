@@ -52,7 +52,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
         >
 
             <div
-                className="META_SECTION_FADE_BG w-full absolute z-[1] top-0 h-dvh opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-80% to-transparent via"
+                className="META_SECTION_FADE_BG w-full absolute z-[1] top-0 h-[45rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-80% to-transparent via"
             />
 
             <motion.div
