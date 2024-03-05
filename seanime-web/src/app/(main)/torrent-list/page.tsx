@@ -1,5 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -14,7 +15,7 @@ import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
 import React, { useCallback } from "react"
-import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiUpArrow } from "react-icons/bi"
+import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
 import * as upath from "upath"
 
 export default function Page() {
@@ -32,6 +33,7 @@ export default function Page() {
                     </p>
                 </div>
                 <div>
+                    {/*Show embedded client button only for qBittorrent*/}
                     {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <Link href={`/qbittorrent`}>
                         <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
                     </Link>}
@@ -46,23 +48,46 @@ export default function Page() {
 }
 
 function Content() {
-    const { data, isLoading, refetch } = useSeaQuery<SeaTorrent[]>({
+    const [enabled, setEnabled] = React.useState(true)
+
+    const { data, isLoading, status, refetch } = useSeaQuery<SeaTorrent[]>({
         endpoint: SeaEndpoints.TORRENT_CLIENT_LIST,
         queryKey: ["torrents"],
         refetchInterval: 2500,
         gcTime: 0,
         retry: false,
         refetchOnWindowFocus: false,
+        enabled: enabled,
     })
 
     const { mutate, isPending } = useSeaMutation<boolean, SeaTorrentActionProps>({
         endpoint: SeaEndpoints.TORRENT_CLIENT_ACTION,
         mutationKey: ["torrent-action"],
+        onSuccess: () => {
+            refetch()
+        },
     })
+
+    React.useEffect(() => {
+        if (status === "error") {
+            setEnabled(false)
+        }
+    }, [status])
 
     const handleTorrentAction = useCallback((props: SeaTorrentActionProps) => {
         mutate(props)
     }, [mutate])
+
+    if (!enabled) return <LuffyError title="Failed to connect">
+        <div className="flex flex-col gap-4 items-center">
+            <p className="max-w-md">Failed to connect to the torrent client, verify your settings and make sure it is running.</p>
+            <Button
+                intent="primary-subtle" onClick={() => {
+                setEnabled(true)
+            }}
+            >Retry</Button>
+        </div>
+    </LuffyError>
 
     if (isLoading) return <LoadingSpinner />
 
@@ -72,8 +97,8 @@ function Content() {
                 return <TorrentItem
                     key={torrent.hash}
                     torrent={torrent}
-                    refetch={refetch}
                     onTorrentAction={handleTorrentAction}
+                    isPending={isPending}
                 />
             })}
             {(!isLoading && !data?.length) && <LuffyError title="Nothing to see">No active torrents</LuffyError>}
@@ -85,13 +110,25 @@ function Content() {
 
 type TorrentItemProps = {
     torrent: SeaTorrent
-    refetch: () => void
     onTorrentAction: (props: SeaTorrentActionProps) => void
+    isPending?: boolean
 }
 
-function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
+const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, isPending }: TorrentItemProps) {
 
     const progress = `${(torrent.progress * 100).toFixed(1)}%`
+
+    const confirmDeleteTorrentProps = useConfirmationDialog({
+        title: "Remove torrent",
+        description: "This action cannot be undone.",
+        onConfirm: () => {
+            onTorrentAction({
+                hash: torrent.hash,
+                action: "remove",
+                dir: torrent.contentPath,
+            })
+        },
+    })
 
     return (
         <div className="p-4 border rounded-md  overflow-hidden relative flex gap-2">
@@ -137,22 +174,7 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
                     >{capitalize(torrent.status)}</strong>
                 </div>
             </div>
-            <div className="flex gap-2 items-center">
-                <div className="flex-none">
-                    <IconButton
-                        icon={<BiFolder />}
-                        size="sm"
-                        intent="gray-subtle"
-                        className="flex-none"
-                        onClick={async () => {
-                            onTorrentAction({
-                                hash: torrent.hash,
-                                action: "open",
-                                dir: upath.dirname(torrent.contentPath),
-                            })
-                        }}
-                    />
-                </div>
+            <div className="flex-none flex gap-2 items-center">
                 {torrent.status !== "seeding" ? (
                     <>
                         <Tooltip
@@ -167,12 +189,12 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
                                         action: "pause",
                                         dir: torrent.contentPath,
                                     })
-                                    refetch()
                                 }}
+                                disabled={isPending}
                             />}
                         >Pause</Tooltip>
-                        <Tooltip
-                            trigger={<div>{torrent.status !== "downloading" && <IconButton
+                        {torrent.status !== "downloading" && <Tooltip
+                            trigger={<IconButton
                                 icon={<BiPlay />}
                                 size="sm"
                                 intent="gray-subtle"
@@ -183,12 +205,12 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
                                         action: "resume",
                                         dir: torrent.contentPath,
                                     })
-                                    refetch()
                                 }}
-                            />}</div>}
+                                disabled={isPending}
+                            />}
                         >
                             Resume
-                        </Tooltip>
+                        </Tooltip>}
                     </>
                 ) : <Tooltip
                     trigger={<IconButton
@@ -202,11 +224,39 @@ function TorrentItem({ torrent, refetch, onTorrentAction }: TorrentItemProps) {
                                 action: "pause",
                                 dir: torrent.contentPath,
                             })
-                            refetch()
                         }}
+                        disabled={isPending}
                     />}
                 >End</Tooltip>}
+
+                <div className="flex-none flex gap-2 items-center">
+                    <IconButton
+                        icon={<BiFolder />}
+                        size="sm"
+                        intent="gray-subtle"
+                        className="flex-none"
+                        onClick={async () => {
+                            onTorrentAction({
+                                hash: torrent.hash,
+                                action: "open",
+                                dir: upath.dirname(torrent.contentPath),
+                            })
+                        }}
+                        disabled={isPending}
+                    />
+                    <IconButton
+                        icon={<BiTrash />}
+                        size="sm"
+                        intent="alert-subtle"
+                        className="flex-none"
+                        onClick={async () => {
+                            confirmDeleteTorrentProps.open()
+                        }}
+                        disabled={isPending}
+                    />
+                </div>
             </div>
+            <ConfirmationDialog {...confirmDeleteTorrentProps} />
         </div>
     )
-}
+})

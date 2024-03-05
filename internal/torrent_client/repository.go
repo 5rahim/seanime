@@ -87,60 +87,82 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) Start() error {
-	panic("not implemented")
+func (r *Repository) Start() bool {
+	switch r.Provider {
+	case QbittorrentProvider:
+		return r.QbittorrentClient.CheckStart()
+	case TransmissionProvider:
+		return r.Transmission.CheckStart()
+	default:
+		return false
+	}
 }
-func (r *Repository) CheckStart() bool {
-	panic("not implemented")
-}
-func (r *Repository) GetProperties(hash string) (*TorrentProperties, error) {
-	panic("not implemented")
+func (r *Repository) TorrentExists(hash string) bool {
+	switch r.Provider {
+	case QbittorrentProvider:
+		p, err := r.QbittorrentClient.Torrent.GetProperties(hash)
+		return err == nil && p != nil
+	case TransmissionProvider:
+		torrents, err := r.Transmission.Client.TorrentGetAllForHashes(context.Background(), []string{hash})
+		return err == nil && len(torrents) > 0
+	default:
+		return false
+	}
 }
 
 // GetList will return all torrents from the torrent client.
 func (r *Repository) GetList() ([]*Torrent, error) {
-	if r.Provider == QbittorrentProvider {
-
-		torrents, err := r.QbittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
-			Filter: "all",
-		})
+	switch r.Provider {
+	case QbittorrentProvider:
+		torrents, err := r.QbittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{Filter: "all"})
 		if err != nil {
 			r.Logger.Err(err).Msg("torrent client: Error while getting torrent list (qBittorrent)")
 			return nil, err
 		}
 		return r.FromQbitTorrents(torrents), nil
-
-	} else if r.Provider == TransmissionProvider {
-
+	case TransmissionProvider:
 		torrents, err := r.Transmission.Client.TorrentGetAll(context.Background())
 		if err != nil {
 			r.Logger.Err(err).Msg("torrent client: Error while getting torrent list (Transmission)")
 			return nil, err
 		}
 		return r.FromTransmissionTorrents(torrents), nil
-
-	} else {
+	default:
 		return nil, errors.New("torrent client: No torrent client provider found")
 	}
 }
+
+// GetActiveTorrents will return all torrents that are currently downloading, paused or seeding.
+func (r *Repository) GetActiveTorrents() ([]*Torrent, error) {
+	torrents, err := r.GetList()
+	if err != nil {
+		return nil, err
+	}
+	var active []*Torrent
+	for _, t := range torrents {
+		if t.Status == TorrentStatusDownloading || t.Status == TorrentStatusSeeding || t.Status == TorrentStatusPaused {
+			active = append(active, t)
+		}
+	}
+	return active, nil
+}
 func (r *Repository) AddMagnets(magnets []string, dest string) error {
-
 	r.Logger.Debug().Msg("torrent client: Adding magnets")
-	var err error
 
-	if r.Provider == QbittorrentProvider {
+	var err error
+	switch r.Provider {
+	case QbittorrentProvider:
 		err = r.QbittorrentClient.Torrent.AddURLs(magnets, &qbittorrent_model.AddTorrentsOptions{
 			Savepath: dest,
 		})
-	} else if r.Provider == TransmissionProvider {
+	case TransmissionProvider:
 		for _, magnet := range magnets {
-			_, err := r.Transmission.Client.TorrentAdd(context.Background(), transmissionrpc.TorrentAddPayload{
+			_, err = r.Transmission.Client.TorrentAdd(context.Background(), transmissionrpc.TorrentAddPayload{
 				Filename:    &magnet,
 				DownloadDir: &dest,
 			})
 			if err != nil {
-				r.Logger.Err(err).Msg("torrent client: Error while adding magnets (Transmission)")
-				return err
+				break
 			}
 		}
 	}
@@ -150,30 +172,23 @@ func (r *Repository) AddMagnets(magnets []string, dest string) error {
 	}
 
 	return err
-
 }
 
 func (r *Repository) RemoveTorrents(hashes []string) error {
-
 	var err error
-
-	if r.Provider == QbittorrentProvider {
-
+	switch r.Provider {
+	case QbittorrentProvider:
 		err = r.QbittorrentClient.Torrent.DeleteTorrents(hashes, true)
-
-	} else if r.Provider == TransmissionProvider {
-
-		// 1. Get ids
+	case TransmissionProvider:
 		torrents, err := r.Transmission.Client.TorrentGetAllForHashes(context.Background(), hashes)
 		if err != nil {
 			r.Logger.Err(err).Msg("torrent client: Error while fetching torrents (Transmission)")
 			return err
 		}
-		ids := make([]int64, 0, len(torrents))
-		for _, t := range torrents {
-			ids = append(ids, *t.ID)
+		ids := make([]int64, len(torrents))
+		for i, t := range torrents {
+			ids[i] = *t.ID
 		}
-		// 2. Remove
 		err = r.Transmission.Client.TorrentRemove(context.Background(), transmissionrpc.TorrentRemovePayload{
 			IDs:             ids,
 			DeleteLocalData: true,
@@ -182,24 +197,19 @@ func (r *Repository) RemoveTorrents(hashes []string) error {
 			r.Logger.Err(err).Msg("torrent client: Error while removing torrents (Transmission)")
 			return err
 		}
-
 	}
-
 	if err != nil {
 		r.Logger.Err(err).Msg("torrent client: Error while removing torrents")
 	}
-
 	return err
-
 }
 
 func (r *Repository) PauseTorrents(hashes []string) error {
-
 	var err error
-
-	if r.Provider == QbittorrentProvider {
+	switch r.Provider {
+	case QbittorrentProvider:
 		err = r.QbittorrentClient.Torrent.StopTorrents(hashes)
-	} else if r.Provider == TransmissionProvider {
+	case TransmissionProvider:
 		err = r.Transmission.Client.TorrentStopHashes(context.Background(), hashes)
 	}
 
@@ -208,16 +218,14 @@ func (r *Repository) PauseTorrents(hashes []string) error {
 	}
 
 	return err
-
 }
 
 func (r *Repository) ResumeTorrents(hashes []string) error {
-
 	var err error
-
-	if r.Provider == QbittorrentProvider {
+	switch r.Provider {
+	case QbittorrentProvider:
 		err = r.QbittorrentClient.Torrent.StopTorrents(hashes)
-	} else if r.Provider == TransmissionProvider {
+	case TransmissionProvider:
 		err = r.Transmission.Client.TorrentStartHashes(context.Background(), hashes)
 	}
 
@@ -226,7 +234,6 @@ func (r *Repository) ResumeTorrents(hashes []string) error {
 	}
 
 	return err
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,17 +247,67 @@ func (r *Repository) FromTransmissionTorrents(t []transmissionrpc.Torrent) []*To
 }
 
 func (r *Repository) FromTransmissionTorrent(t *transmissionrpc.Torrent) *Torrent {
+	name := "N/A"
+	if t.Name != nil {
+		name = *t.Name
+	}
+
+	hash := "N/A"
+	if t.HashString != nil {
+		hash = *t.HashString
+	}
+
+	seeds := 0
+	if t.PeersSendingToUs != nil {
+		seeds = int(*t.PeersSendingToUs)
+	}
+
+	upSpeed := "0 KB/s"
+	if t.RateUpload != nil {
+		upSpeed = util.ToHumanReadableSpeed(int(*t.RateUpload))
+	}
+
+	downSpeed := "0 KB/s"
+	if t.RateDownload != nil {
+		downSpeed = util.ToHumanReadableSpeed(int(*t.RateDownload))
+	}
+
+	progress := 0.0
+	if t.PercentDone != nil {
+		progress = *t.PercentDone
+	}
+
+	size := "N/A"
+	if t.TotalSize != nil {
+		size = util.ToHumanReadableSize(int(*t.TotalSize))
+	}
+
+	eta := "???"
+	if t.ETA != nil {
+		eta = util.FormatETA(int(*t.ETA))
+	}
+
+	contentPath := ""
+	if t.DownloadDir != nil {
+		contentPath = *t.DownloadDir
+	}
+
+	status := TorrentStatusOther
+	if t.Status != nil && t.IsFinished != nil {
+		status = fromTransmissionTorrentStatus(*t.Status, *t.IsFinished)
+	}
+
 	return &Torrent{
-		Name:        *t.Name,
-		Hash:        *t.HashString,
-		Seeds:       int(*t.PeersSendingToUs),
-		UpSpeed:     util.ToHumanReadableSpeed(int(*t.RateUpload)),
-		DownSpeed:   util.ToHumanReadableSpeed(int(*t.RateDownload)),
-		Progress:    *t.PercentDone,
-		Size:        util.ToHumanReadableSize(int(*t.TotalSize)),
-		Eta:         util.FormatETA(int(*t.ETA)),
-		ContentPath: *t.DownloadDir,
-		Status:      fromTransmissionTorrentStatus(*t.Status, *t.IsFinished),
+		Name:        name,
+		Hash:        hash,
+		Seeds:       seeds,
+		UpSpeed:     upSpeed,
+		DownSpeed:   downSpeed,
+		Progress:    progress,
+		Size:        size,
+		Eta:         eta,
+		ContentPath: contentPath,
+		Status:      status,
 	}
 }
 
@@ -260,7 +317,7 @@ func fromTransmissionTorrentStatus(st transmissionrpc.TorrentStatus, isFinished 
 		return TorrentStatusSeeding
 	} else if st == transmissionrpc.TorrentStatusStopped && isFinished {
 		return TorrentStatusStopped
-	} else if st == transmissionrpc.TorrentStatusStopped && !isFinished { // TODO Verify this
+	} else if st == transmissionrpc.TorrentStatusStopped && !isFinished {
 		return TorrentStatusPaused
 	} else if st == transmissionrpc.TorrentStatusDownload || st == transmissionrpc.TorrentStatusDownloadWait {
 		return TorrentStatusDownloading

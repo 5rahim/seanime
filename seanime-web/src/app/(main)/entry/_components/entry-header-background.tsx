@@ -17,7 +17,7 @@ export function EntryHeaderBackground({ entry }: { entry: MediaEntry }) {
                 className="h-[35rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
             >
                 <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] bg-gradient-to-b from-[rgba(0,0,0,0.8)] to-transparent via"
+                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-50 bg-gradient-to-b from-[#0c0c0c] to-transparent via"
                 />
                 {(!!entry.media?.bannerImage || !!entry.media?.coverImage?.extraLarge) && <Image
                     src={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge || ""}

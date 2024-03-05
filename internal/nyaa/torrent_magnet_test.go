@@ -1,6 +1,7 @@
 package nyaa
 
 import (
+	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -23,7 +24,7 @@ func TestExtractHashFromMagnet(t *testing.T) {
 	t.Log(magnet)
 	assert.NotEmpty(t, magnet)
 
-	hash, ok := ExtractHashFromMagnet(magnet)
+	hash, ok := torrent.ExtractHashFromMagnet(magnet)
 	assert.True(t, ok)
 
 	t.Log(hash)

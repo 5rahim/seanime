@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -269,7 +270,7 @@ var syncPool = sync.Pool{
 func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) (err error) {
 		defer util.HandlePanicInModuleThen("handlers/routes", func() {
-			err = c.Status(500).SendString("Internal Server Error")
+			err = errors.New("runtime panic")
 		})
 
 		ctx := syncPool.Get().(*RouteCtx)

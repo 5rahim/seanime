@@ -130,6 +130,8 @@ func FormatETA(etaInSeconds int) string {
 		return fmt.Sprintf("%d hours left", hours)
 	case minutes > 0:
 		return fmt.Sprintf("%d minutes left", minutes)
+	case seconds < 0:
+		return "No ETA"
 	default:
 		return fmt.Sprintf("%d seconds left", seconds)
 	}

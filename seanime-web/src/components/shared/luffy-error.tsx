@@ -37,7 +37,7 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                 </div>}
                 <div className="text-center space-y-4">
                     {!!title && <h2>{title}</h2>}
-                    <p>{children}</p>
+                    <div>{children}</div>
                     <div>
                         {(showRefreshButton && !reset) && (
                             <Button intent="warning-subtle" onClick={() => router.refresh()}>Retry</Button>

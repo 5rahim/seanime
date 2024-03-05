@@ -53,7 +53,7 @@ export function useSeaMutation<R, V = void>(
     }: SeaMutationProps<R | undefined, V>): UseMutationResult<R | undefined, SeaError, V, unknown> {
     return useMutation({
         onError: error => {
-            toast.error(_handleSeaError(error.response?.data?.error))
+            toast.error(_handleSeaError(error.response?.data))
         },
         mutationFn: async (variables) => {
             return buildSeaQuery<R, V>({
@@ -96,7 +96,8 @@ export function useSeaQuery<TData, TParams = any>(
 
     useEffect(() => {
         if (props.isError) {
-            toast.error(_handleSeaError(props.error?.response?.data?.error))
+            console.log("Sea error", props.error)
+            toast.error(_handleSeaError(props.error?.response?.data))
         }
     }, [props.error, props.isError])
 
@@ -105,7 +106,11 @@ export function useSeaQuery<TData, TParams = any>(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function _handleSeaError(err: string | null | undefined): string {
+function _handleSeaError(data: any): string {
+    if (typeof data === "string") return "Internal Server Error: " + data
+
+    const err = data?.error as string
+
     if (!err) return "Unknown error"
 
     if (err.includes("Too many requests"))

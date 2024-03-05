@@ -47,6 +47,9 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const serverStatus = useAtomValue(serverStatusAtom)
     const libraryPath = serverStatus?.settings?.library?.libraryPath
 
+    /**
+     * Default path for the destination folder
+     */
     const defaultPath = useMemo(() => {
         const fPath = entry.localFiles?.findLast(n => n)?.path // file path
         const newPath = libraryPath ? upath.join(libraryPath, sanitizeDirectoryName(media.title?.romaji || "")) : ""
@@ -59,15 +62,28 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const setTorrentDrawerIsOpen = useSetAtom(torrentSearchDrawerIsOpenAtom)
     const selectedTorrents = useAtomValue(__torrentSearch_selectedTorrentsAtom)
 
+    /**
+     * If the user can auto-select the missing episodes
+     * - TODO: Add support for Transmission
+     */
     const canSmartSelect = useMemo(() => {
-        return selectedTorrents.length === 1
+        return serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" &&
+            selectedTorrents.length === 1
             && selectedTorrents[0].isBatch
             && media.format !== "MOVIE"
             && media.status === "FINISHED"
             && !!media.episodes && media.episodes > 1
             && !!entry.downloadInfo?.episodesToDownload && entry.downloadInfo?.episodesToDownload.length > 0
             && entry.downloadInfo?.episodesToDownload.length !== (media.episodes || (media.nextAiringEpisode?.episode! - 1))
-    }, [selectedTorrents, media.format, media.status, media.episodes, entry.downloadInfo?.episodesToDownload, media.nextAiringEpisode?.episode])
+    }, [
+        selectedTorrents,
+        media.format,
+        media.status,
+        media.episodes,
+        entry.downloadInfo?.episodesToDownload,
+        media.nextAiringEpisode?.episode,
+        serverStatus?.settings?.torrent?.defaultTorrentClient,
+    ])
 
 
     // download via torrent client
@@ -200,20 +216,31 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                     </div>
 
                     <div className="flex w-full justify-end gap-2">
-                        {(selectedTorrents.length > 0 && canSmartSelect) && <Button
-                            leftIcon={<BiCollection />}
-                            intent="white-outline"
-                            onClick={() => handleLaunchDownload(true)}
-                            disabled={isDisabled}
-                            loading={isPending}
-                        >Download missing only</Button>}
-                        {selectedTorrents.length > 0 && <Button
-                            leftIcon={<BiDownload />}
-                            intent="white"
-                            onClick={() => handleLaunchDownload(false)}
-                            disabled={isDisabled}
-                            loading={isPending}
-                        >{canSmartSelect ? "Download all" : "Download"}</Button>}
+
+                        {(selectedTorrents.length > 0 && canSmartSelect) && (
+                            <Button
+                                leftIcon={<BiCollection />}
+                                intent="white-outline"
+                                onClick={() => handleLaunchDownload(true)}
+                                disabled={isDisabled}
+                                loading={isPending}
+                            >
+                                Download missing only
+                            </Button>
+                        )}
+
+                        {selectedTorrents.length > 0 && (
+                            <Button
+                                leftIcon={<BiDownload />}
+                                intent="white"
+                                onClick={() => handleLaunchDownload(false)}
+                                disabled={isDisabled}
+                                loading={isPending}
+                            >
+                                {canSmartSelect ? "Download all" : "Download"}
+                            </Button>
+                        )}
+
                     </div>
                 </div>
             </div>

@@ -4,10 +4,12 @@ import (
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/seanime-app/seanime/internal/transmission"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 var destination = "E:/COLLECTION"
@@ -18,7 +20,7 @@ func TestSmartSelect(t *testing.T) {
 	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 
 	// get repo
-	repo := getRepo(t)
+	repo := getTestRepo(t)
 
 	tests := []struct {
 		name             string
@@ -47,15 +49,17 @@ func TestSmartSelect(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			err := repo.QbittorrentClient.Start()
-			assert.NoError(t, err)
+			ok := repo.Start()
+			if !assert.True(t, ok) {
+				return
+			}
 
 			// get magnet
 			magnet, err := nyaa.TorrentMagnet(tt.url)
 			assert.NoError(t, err)
 
 			// get hash
-			hash, ok := nyaa.ExtractHashFromMagnet(magnet)
+			hash, ok := torrent.ExtractHashFromMagnet(magnet)
 			assert.True(t, ok)
 
 			t.Log(tt.name, hash)
@@ -94,18 +98,52 @@ func TestSmartSelect(t *testing.T) {
 
 }
 
+// Add and remove
+func TestAddAndRemove(t *testing.T) {
+
+	const url = "https://animetosho.org/view/subsplease-sousou-no-frieren-24-480p-c467b289-mkv.1847941"
+
+	// get repo
+	repo := getTestRepo(t)
+
+	ok := repo.Start()
+	if !assert.True(t, ok) {
+		return
+	}
+
+	// get magnet
+	magnet, err := torrent.GetTorrentMagnetFromUrl(url)
+	assert.NoError(t, err)
+	// get hash
+	hash, ok := torrent.ExtractHashFromMagnet(magnet)
+	assert.True(t, ok)
+
+	err = repo.AddMagnets([]string{magnet}, destination)
+	if err != nil {
+		t.Fatalf("error adding magnet: %s", err.Error())
+	}
+
+	t.Log(hash)
+
+	time.Sleep(5 * time.Second)
+
+	err = repo.RemoveTorrents([]string{hash})
+	assert.NoError(t, err)
+
+}
+
 // Clean up
 func TestRemoveTorrents(t *testing.T) {
 
-	const url = "https://nyaa.si/view/1553978"
+	const url = "https://animetosho.org/view/subsplease-sousou-no-frieren-24-480p-c467b289-mkv.1847941"
 
 	// get repo
-	repo := getRepo(t)
+	repo := getTestRepo(t)
 	// get magnet
-	magnet, err := nyaa.TorrentMagnet(url)
+	magnet, err := torrent.GetTorrentMagnetFromUrl(url)
 	assert.NoError(t, err)
 	// get hash
-	hash, ok := nyaa.ExtractHashFromMagnet(magnet)
+	hash, ok := torrent.ExtractHashFromMagnet(magnet)
 	assert.True(t, ok)
 
 	t.Log(hash)
@@ -117,7 +155,7 @@ func TestRemoveTorrents(t *testing.T) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func getRepo(t *testing.T) *Repository {
+func getTestRepo(t *testing.T) *Repository {
 
 	logger := util.NewLogger()
 

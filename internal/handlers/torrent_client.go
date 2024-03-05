@@ -6,83 +6,27 @@ import (
 	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/seanime-app/seanime/internal/torrent_client"
 	"github.com/sourcegraph/conc/pool"
-	"time"
-)
-
-const (
-	TorrentStatusDownloading TorrentStatus = "downloading"
-	TorrentStatusSeeding     TorrentStatus = "seeding"
-	TorrentStatusPaused      TorrentStatus = "paused"
-)
-
-type (
-	Torrent struct {
-		Name        string        `json:"name"`
-		Hash        string        `json:"hash"`
-		Seeds       int           `json:"seeds"`
-		UpSpeed     string        `json:"upSpeed"`
-		DownSpeed   string        `json:"downSpeed"`
-		Progress    float64       `json:"progress"`
-		Size        string        `json:"size"`
-		Eta         string        `json:"eta"`
-		Status      TorrentStatus `json:"status"`
-		ContentPath string        `json:"contentPath"`
-	}
-	TorrentStatus string
 )
 
 // HandleGetActiveTorrentList will return all active qBittorrent torrents. (i.e. downloading or seeding)
 // This handler is used by the client to display the active torrents.
 //
-// DEVNOTE: Could be modified to support other torrent clients.
-//
 //	GET /v1/torrent-client/list
 func HandleGetActiveTorrentList(c *RouteCtx) error {
 
-	res, err := c.App.TorrentClientRepository.GetList()
+	// Get torrent list
+	res, err := c.App.TorrentClientRepository.GetActiveTorrents()
+	// If an error occurred, try to start the torrent client and get the list again
+	// DEVNOTE: We try to get the list first because this route is called repeatedly by the client.
 	if err != nil {
-		c.App.TorrentClientRepository.Start()
-		timeout := time.After(time.Second * 15)
-		ticker := time.NewTicker(time.Second * 1)
-		open := make(chan struct{})
-		defer ticker.Stop()
-		go func() {
-			for {
-				select {
-				case <-ticker.C:
-					res, err = c.App.TorrentClientRepository.GetList()
-					if err == nil {
-						close(open)
-						return
-					}
-				case <-timeout:
-					ticker.Stop()
-					return
-				}
-			}
-		}()
-
-	work:
-		for {
-			select {
-			case <-open:
-				break work
-			case <-timeout:
-				return c.RespondWithError(err)
-			}
+		ok := c.App.TorrentClientRepository.Start()
+		if !ok {
+			return c.RespondWithError(errors.New("could not start torrent client"))
 		}
+		res, err = c.App.TorrentClientRepository.GetActiveTorrents()
 	}
 
-	var torrents []*torrent_client.Torrent
-	for _, t := range res {
-		// skip torrents that are not downloading or seeding
-		if t.Status == torrent_client.TorrentStatusDownloading {
-			continue
-		}
-		torrents = append(torrents, t)
-	}
-
-	return c.RespondWithData(torrents)
+	return c.RespondWithData(res)
 
 }
 
@@ -115,6 +59,11 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 		}
 	case "resume":
 		err := c.App.TorrentClientRepository.ResumeTorrents([]string{b.Hash})
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+	case "remove":
+		err := c.App.TorrentClientRepository.RemoveTorrents([]string{b.Hash})
 		if err != nil {
 			return c.RespondWithError(err)
 		}
@@ -151,10 +100,10 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// try to start qbittorrent if it's not running
-	err := c.App.TorrentClientRepository.Start()
-	if err != nil {
-		return c.RespondWithError(err)
+	// try to start torrent client if it's not running
+	ok := c.App.TorrentClientRepository.Start()
+	if !ok {
+		return c.RespondWithError(errors.New("could not start torrent client"))
 	}
 
 	// get magnets
@@ -222,10 +171,10 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// try to start qbittorrent if it's not running
-	err = c.App.TorrentClientRepository.Start()
-	if err != nil {
-		return c.RespondWithError(err)
+	// try to start torrent client if it's not running
+	ok := c.App.TorrentClientRepository.Start()
+	if !ok {
+		return c.RespondWithError(errors.New("could not start torrent client"))
 	}
 
 	// try to add torrents to client, on error return error

@@ -6,8 +6,8 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/comparison"
 	"github.com/seanime-app/seanime/internal/entities"
-	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"math"
@@ -41,7 +41,7 @@ func (r *Repository) SmartSelect(opts *SmartSelect) error {
 
 	magnet := opts.Magnets[0]
 	// get hash
-	hash, ok := nyaa.ExtractHashFromMagnet(magnet)
+	hash, ok := torrent.ExtractHashFromMagnet(magnet)
 	if !ok {
 		return errors.New("could not extract hash")
 	}

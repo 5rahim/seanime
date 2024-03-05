@@ -361,7 +361,7 @@ export type SeaTorrent = {
     contentPath: string
 }
 
-export type SeaTorrentActionProps = { hash: string, action: "pause" | "resume" | "open", dir: string }
+export type SeaTorrentActionProps = { hash: string, action: "pause" | "resume" | "remove" | "open", dir: string }
 
 /**
  * Scan Summary

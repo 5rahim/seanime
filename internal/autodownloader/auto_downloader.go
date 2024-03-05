@@ -22,7 +22,6 @@ import (
 const (
 	NyaaProvider        = "nyaa"
 	AnimeToshoProvider  = "animetosho"
-	NyaaViewURL         = "https://nyaa.si/view/"
 	ComparisonThreshold = 0.8
 )
 
@@ -122,9 +121,9 @@ func (ad *AutoDownloader) Start() {
 	}
 	go func() {
 		if ad.Settings.Enabled {
-			started := ad.TorrentClientRepository.CheckStart() // Start qBittorrent if it's not running
+			started := ad.TorrentClientRepository.Start() // Start torrent client if it's not running
 			if !started {
-				ad.Logger.Warn().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
+				ad.Logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running for the Auto Downloader to work.")
 				return
 			}
 		}
@@ -360,15 +359,15 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 		return
 	}
 
-	started := ad.TorrentClientRepository.CheckStart() // Start qBittorrent if it's not running
+	started := ad.TorrentClientRepository.Start() // Start torrent client if it's not running
 	if !started {
-		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. qBittorrent is not running.")
+		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
 		return
 	}
 
 	// Return if the torrent is already added
-	_, err := ad.TorrentClientRepository.GetProperties(t.Hash)
-	if err == nil {
+	torrentExists := ad.TorrentClientRepository.TorrentExists(t.Hash)
+	if torrentExists {
 		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
 		return
 	}
@@ -386,10 +385,10 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 
 		ad.Logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
 
-		// Add the torrent to qBittorrent
+		// Add the torrent to torrent client
 		err := ad.TorrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
 		if err != nil {
-			ad.Logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to qBittorrent")
+			ad.Logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
 			return
 		}
 
