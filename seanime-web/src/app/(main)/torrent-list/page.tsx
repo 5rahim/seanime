@@ -1,4 +1,5 @@
 "use client"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -9,6 +10,7 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { SeaTorrent, SeaTorrentActionProps } from "@/lib/server/types"
+import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
 import React, { useCallback } from "react"
@@ -16,6 +18,7 @@ import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime,
 import * as upath from "upath"
 
 export default function Page() {
+    const serverStatus = useAtomValue(serverStatusAtom)
 
     return (
         <PageWrapper
@@ -28,10 +31,10 @@ export default function Page() {
                         See torrents currently being downloaded
                     </p>
                 </div>
-                <div className={""}>
-                    <Link href={`/qbittorrent`}>
+                <div>
+                    {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <Link href={`/qbittorrent`}>
                         <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
-                    </Link>
+                    </Link>}
                 </div>
             </div>
 

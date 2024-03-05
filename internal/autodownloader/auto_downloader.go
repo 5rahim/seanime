@@ -10,8 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/models"
-	"github.com/seanime-app/seanime/internal/qbittorrent"
-	"github.com/seanime-app/seanime/internal/qbittorrent/model"
+	"github.com/seanime-app/seanime/internal/torrent_client"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
@@ -27,31 +26,33 @@ const (
 	ComparisonThreshold = 0.8
 )
 
+// TODO: Verify
+
 type (
 	anilistListEntry = anilist.AnimeCollection_MediaListCollection_Lists_Entries
 	AutoDownloader   struct {
-		Logger            *zerolog.Logger
-		QbittorrentClient *qbittorrent.Client
-		Database          *db.Database
-		AnilistCollection *anilist.AnimeCollection
-		WSEventManager    events.IWSEventManager
-		Settings          *models.AutoDownloaderSettings
-		AniZipCache       *anizip.Cache
-		settingsUpdatedCh chan struct{}
-		stopCh            chan struct{}
-		startCh           chan struct{}
-		active            bool
-		debugTrace        bool
-		mu                sync.Mutex
+		Logger                  *zerolog.Logger
+		TorrentClientRepository *torrent_client.Repository
+		Database                *db.Database
+		AnilistCollection       *anilist.AnimeCollection
+		WSEventManager          events.IWSEventManager
+		Settings                *models.AutoDownloaderSettings
+		AniZipCache             *anizip.Cache
+		settingsUpdatedCh       chan struct{}
+		stopCh                  chan struct{}
+		startCh                 chan struct{}
+		active                  bool
+		debugTrace              bool
+		mu                      sync.Mutex
 	}
 
 	NewAutoDownloaderOptions struct {
-		Logger            *zerolog.Logger
-		QbittorrentClient *qbittorrent.Client
-		WSEventManager    events.IWSEventManager
-		Database          *db.Database
-		AnilistCollection *anilist.AnimeCollection
-		AniZipCache       *anizip.Cache
+		Logger                  *zerolog.Logger
+		TorrentClientRepository *torrent_client.Repository
+		WSEventManager          events.IWSEventManager
+		Database                *db.Database
+		AnilistCollection       *anilist.AnimeCollection
+		AniZipCache             *anizip.Cache
 	}
 
 	tmpTorrentToDownload struct {
@@ -62,12 +63,12 @@ type (
 
 func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 	return &AutoDownloader{
-		Logger:            opts.Logger,
-		QbittorrentClient: opts.QbittorrentClient,
-		Database:          opts.Database,
-		WSEventManager:    opts.WSEventManager,
-		AnilistCollection: opts.AnilistCollection,
-		AniZipCache:       opts.AniZipCache,
+		Logger:                  opts.Logger,
+		TorrentClientRepository: opts.TorrentClientRepository,
+		Database:                opts.Database,
+		WSEventManager:          opts.WSEventManager,
+		AnilistCollection:       opts.AnilistCollection,
+		AniZipCache:             opts.AniZipCache,
 		Settings: &models.AutoDownloaderSettings{
 			Provider:              NyaaProvider, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
@@ -121,7 +122,7 @@ func (ad *AutoDownloader) Start() {
 	}
 	go func() {
 		if ad.Settings.Enabled {
-			started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
+			started := ad.TorrentClientRepository.CheckStart() // Start qBittorrent if it's not running
 			if !started {
 				ad.Logger.Warn().Msg("autodownloader: Failed to start qBittorrent. Make sure it's running for the Auto Downloader to work.")
 				return
@@ -223,11 +224,11 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 
 	// Get existing torrents
-	existingTorrents := make([]*qbittorrent_model.Torrent, 0)
-	if ad.QbittorrentClient != nil {
-		existingTorrents, err = ad.QbittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{})
+	existingTorrents := make([]*torrent_client.Torrent, 0)
+	if ad.TorrentClientRepository != nil {
+		existingTorrents, err = ad.TorrentClientRepository.GetList()
 		if err != nil {
-			existingTorrents = make([]*qbittorrent_model.Torrent, 0)
+			existingTorrents = make([]*torrent_client.Torrent, 0)
 		}
 	}
 
@@ -354,19 +355,19 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
 
-	if ad.QbittorrentClient == nil {
-		ad.Logger.Error().Msg("autodownloader: qBittorrent client not found")
+	if ad.TorrentClientRepository == nil {
+		ad.Logger.Error().Msg("autodownloader: torrent client not found")
 		return
 	}
 
-	started := ad.QbittorrentClient.CheckStart() // Start qBittorrent if it's not running
+	started := ad.TorrentClientRepository.CheckStart() // Start qBittorrent if it's not running
 	if !started {
 		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. qBittorrent is not running.")
 		return
 	}
 
 	// Return if the torrent is already added
-	_, err := ad.QbittorrentClient.Torrent.GetProperties(t.Hash)
+	_, err := ad.TorrentClientRepository.GetProperties(t.Hash)
 	if err == nil {
 		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
 		return
@@ -386,9 +387,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 		ad.Logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
 
 		// Add the torrent to qBittorrent
-		err := ad.QbittorrentClient.Torrent.AddURLs([]string{magnet}, &qbittorrent_model.AddTorrentsOptions{
-			Savepath: rule.Destination,
-		})
+		err := ad.TorrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
 		if err != nil {
 			ad.Logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to qBittorrent")
 			return

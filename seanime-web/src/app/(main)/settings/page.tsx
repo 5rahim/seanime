@@ -113,7 +113,7 @@ export default function Page() {
                     mpcPath: status?.settings?.mediaPlayer?.mpcPath,
                     mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
                     mpvPath: status?.settings?.mediaPlayer?.mpvPath,
-                    defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT,
+                    defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards compatibility)
                     qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                     qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                     qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,

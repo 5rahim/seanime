@@ -7,6 +7,8 @@ import (
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/torrent_client"
+	"github.com/seanime-app/seanime/internal/transmission"
 	"github.com/seanime-app/seanime/internal/vlc"
 )
 
@@ -17,12 +19,12 @@ func (a *App) InitModulesOnce() {
 
 	// Auto downloader
 	a.AutoDownloader = autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
-		Logger:            a.Logger,
-		QbittorrentClient: a.QBittorrent,
-		AnilistCollection: nil, // Will be set and refreshed in app.RefreshAnilistCollection
-		Database:          a.Database,
-		WSEventManager:    a.WSEventManager,
-		AniZipCache:       a.AnizipCache,
+		Logger:                  a.Logger,
+		TorrentClientRepository: a.TorrentClientRepository,
+		AnilistCollection:       nil, // Will be set and refreshed in app.RefreshAnilistCollection
+		Database:                a.Database,
+		WSEventManager:          a.WSEventManager,
+		AniZipCache:             a.AnizipCache,
 	})
 
 	a.AutoDownloader.Start()
@@ -105,7 +107,8 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Torrent != nil {
-		a.QBittorrent = qbittorrent.NewClient(&qbittorrent.NewClientOptions{
+		// Init qBittorrent
+		qbit := qbittorrent.NewClient(&qbittorrent.NewClientOptions{
 			Logger:   a.Logger,
 			Username: settings.Torrent.QBittorrentUsername,
 			Password: settings.Torrent.QBittorrentPassword,
@@ -113,7 +116,28 @@ func (a *App) InitOrRefreshModules() {
 			Host:     settings.Torrent.QBittorrentHost,
 			Path:     settings.Torrent.QBittorrentPath,
 		})
-		a.AutoDownloader.QbittorrentClient = a.QBittorrent
+		// Init Transmission
+		trans, err := transmission.New(&transmission.NewTransmissionOptions{
+			Logger:   a.Logger,
+			Username: settings.Torrent.TransmissionUsername,
+			Password: settings.Torrent.TransmissionPassword,
+			Port:     settings.Torrent.TransmissionPort,
+			Path:     settings.Torrent.TransmissionPath,
+		})
+		if err != nil && settings.Torrent.TransmissionUsername != "" && settings.Torrent.TransmissionPassword != "" { // Only log error if username and password are set
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize transmission client")
+		}
+
+		// Set Repository
+		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
+			Logger:            a.Logger,
+			QbittorrentClient: qbit,
+			Transmission:      trans,
+			Provider:          settings.Torrent.Default,
+		})
+
+		// Set AutoDownloader qBittorrent client
+		a.AutoDownloader.TorrentClientRepository = a.TorrentClientRepository
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize qBittorrent module, no settings found")
 	}

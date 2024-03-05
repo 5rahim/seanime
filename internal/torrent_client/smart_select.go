@@ -21,8 +21,8 @@ import (
 // The torrent will be deleted when an error occurs.
 // SmartSelect will block until it is done.
 //
-// TODO: Generalize this
-func (r *TorrentClientRepository) SmartSelect(opts *SmartSelect) error {
+// TODO: Add support for transmission
+func (r *Repository) SmartSelect(opts *SmartSelect) error {
 	if !opts.Enabled {
 		return nil
 	}
@@ -33,6 +33,10 @@ func (r *TorrentClientRepository) SmartSelect(opts *SmartSelect) error {
 
 	if opts.Enabled && opts.Media == nil {
 		return errors.New("no media found")
+	}
+
+	if r.Provider == TransmissionProvider {
+		return errors.New("automatic file selection not supported for transmission")
 	}
 
 	magnet := opts.Magnets[0]
@@ -173,13 +177,13 @@ workDone:
 }
 
 // getBestTempLocalFiles returns the best local files that match the media
-func (r *TorrentClientRepository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*TmpLocalFile {
+func (r *Repository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*TmpLocalFile {
 
 	// get local files from contents
 	tmpLfs := lop.Map(contents, func(content *qbittorrent_model.TorrentContent, idx int) *TmpLocalFile {
 		return &TmpLocalFile{
 			torrentContent: content,
-			localFile:      entities.NewLocalFile(content.Name, r.Destination),
+			localFile:      entities.NewLocalFile(content.Name, opts.Destination),
 			index:          idx,
 		}
 	})

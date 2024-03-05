@@ -1,4 +1,4 @@
-import { DEFAULT_TORRENT_PROVIDER } from "@/lib/server/types"
+import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER } from "@/lib/server/types"
 import { z } from "zod"
 
 export function useDefaultSettingsPaths() {
@@ -71,7 +71,7 @@ export const settingsSchema = z.object({
     mpcPath: z.string().optional().default(""),
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
-    defaultTorrentClient: z.string().optional().default("qbittorrent"),
+    defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
     qbittorrentPath: z.string().optional().default(""),
     qbittorrentHost: z.string().optional().default(""),
     qbittorrentPort: z.number(),

@@ -2,22 +2,23 @@ package torrent_client
 
 import (
 	"github.com/seanime-app/seanime/internal/anilist"
-	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/transmission"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var destination = "E:/Anime/Temp"
+var destination = "E:/COLLECTION"
+var testDefaultClient = TransmissionProvider
 
 func TestSmartSelect(t *testing.T) {
 
 	anilistClientWrapper := anilist.MockAnilistClientWrapper()
 
 	// get repo
-	repo := getRepo(t, destination)
+	repo := getRepo(t)
 
 	tests := []struct {
 		name             string
@@ -28,7 +29,7 @@ func TestSmartSelect(t *testing.T) {
 	}{
 		{
 			name:             "Kakegurui xx",
-			mediaId:          1553978,
+			mediaId:          100876,
 			url:              "https://nyaa.si/view/1553978", // kakegurui season 1 + season 2
 			selectedEpisodes: []int{10, 11, 12},
 			absoluteOffset:   12,
@@ -65,7 +66,7 @@ func TestSmartSelect(t *testing.T) {
 				t.Fatalf("error getting media: %s", err.Error())
 			}
 
-			err = repo.AddMagnets([]string{magnet})
+			err = repo.AddMagnets([]string{magnet}, destination)
 			if err != nil {
 				t.Fatalf("error adding magnet: %s", err.Error())
 			}
@@ -78,9 +79,14 @@ func TestSmartSelect(t *testing.T) {
 				Media:                 media,
 			})
 
-			if assert.NoError(t, err) {
-				err = repo.PauseTorrents([]string{hash})
+			if testDefaultClient == TransmissionProvider {
+				assert.Error(t, err)
+			} else if testDefaultClient == QbittorrentProvider {
+				assert.NoError(t, err)
 			}
+
+			err = repo.PauseTorrents([]string{hash})
+			assert.NoError(t, err)
 
 		})
 
@@ -94,7 +100,7 @@ func TestRemoveTorrents(t *testing.T) {
 	const url = "https://nyaa.si/view/1553978"
 
 	// get repo
-	repo := getRepo(t, destination)
+	repo := getRepo(t)
 	// get magnet
 	magnet, err := nyaa.TorrentMagnet(url)
 	assert.NoError(t, err)
@@ -111,10 +117,9 @@ func TestRemoveTorrents(t *testing.T) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func getRepo(t *testing.T, destination string) *TorrentClientRepository {
+func getRepo(t *testing.T) *Repository {
 
 	logger := util.NewLogger()
-	WSEventManager := events.NewMockWSEventManager(logger)
 
 	qBittorrentClient := qbittorrent.NewClient(&qbittorrent.NewClientOptions{
 		Logger:   logger,
@@ -125,15 +130,26 @@ func getRepo(t *testing.T, destination string) *TorrentClientRepository {
 		Path:     "C:/Program Files/qBittorrent/qbittorrent.exe",
 	})
 
-	err := qBittorrentClient.Login()
+	trans, err := transmission.New(&transmission.NewTransmissionOptions{
+		Logger:   logger,
+		Username: "seanime",
+		Password: "seanime",
+		Port:     9091,
+		Path:     "C:/Program Files/Transmission/transmission-qt.exe",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = qBittorrentClient.Login()
 	assert.NoError(t, err)
 
 	// create repository
-	repo := &TorrentClientRepository{
+	repo := &Repository{
 		Logger:            logger,
 		QbittorrentClient: qBittorrentClient,
-		WSEventManager:    WSEventManager,
-		Destination:       destination,
+		Transmission:      trans,
+		Provider:          testDefaultClient,
 	}
 
 	return repo

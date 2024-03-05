@@ -3,10 +3,8 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/anilist"
-	qbittorrent_model "github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/seanime-app/seanime/internal/torrent_client"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"time"
 )
@@ -41,11 +39,9 @@ type (
 //	GET /v1/torrent-client/list
 func HandleGetActiveTorrentList(c *RouteCtx) error {
 
-	res, err := c.App.QBittorrent.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
-		Filter: "all",
-	})
+	res, err := c.App.TorrentClientRepository.GetList()
 	if err != nil {
-		c.App.QBittorrent.Start()
+		c.App.TorrentClientRepository.Start()
 		timeout := time.After(time.Second * 15)
 		ticker := time.NewTicker(time.Second * 1)
 		open := make(chan struct{})
@@ -54,9 +50,7 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 			for {
 				select {
 				case <-ticker.C:
-					res, err = c.App.QBittorrent.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{
-						Filter: "all",
-					})
+					res, err = c.App.TorrentClientRepository.GetList()
 					if err == nil {
 						close(open)
 						return
@@ -79,29 +73,13 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 		}
 	}
 
-	var torrents []*Torrent
-	for _, torrent := range res {
+	var torrents []*torrent_client.Torrent
+	for _, t := range res {
 		// skip torrents that are not downloading or seeding
-		if torrent.State == qbittorrent_model.StatePausedUP ||
-			torrent.State == qbittorrent_model.StateCheckingResumeData ||
-			torrent.State == qbittorrent_model.StateUnknown ||
-			torrent.State == qbittorrent_model.StateMissingFiles ||
-			torrent.State == qbittorrent_model.StateError ||
-			torrent.State == qbittorrent_model.StateMoving {
+		if t.Status == torrent_client.TorrentStatusDownloading {
 			continue
 		}
-		torrents = append(torrents, &Torrent{
-			Name:        torrent.Name,
-			Hash:        torrent.Hash,
-			Seeds:       torrent.NumSeeds,
-			UpSpeed:     util.ToHumanReadableSpeed(torrent.Upspeed),
-			DownSpeed:   util.ToHumanReadableSpeed(torrent.Dlspeed),
-			Progress:    torrent.Progress,
-			Size:        util.ToHumanReadableSize(torrent.Size),
-			Eta:         util.FormatETA(torrent.Eta),
-			ContentPath: torrent.ContentPath,
-			Status:      getTorrentStatus(torrent.State),
-		})
+		torrents = append(torrents, t)
 	}
 
 	return c.RespondWithData(torrents)
@@ -112,8 +90,6 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 // It returns true if the action was successful.
 //
 //	POST /v1/torrent-client/action
-//
-// FIXME Animetosho
 func HandleTorrentClientAction(c *RouteCtx) error {
 
 	type body struct {
@@ -133,12 +109,12 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 
 	switch b.Action {
 	case "pause":
-		err := c.App.QBittorrent.Torrent.StopTorrents([]string{b.Hash})
+		err := c.App.TorrentClientRepository.PauseTorrents([]string{b.Hash})
 		if err != nil {
 			return c.RespondWithError(err)
 		}
 	case "resume":
-		err := c.App.QBittorrent.Torrent.ResumeTorrents([]string{b.Hash})
+		err := c.App.TorrentClientRepository.ResumeTorrents([]string{b.Hash})
 		if err != nil {
 			return c.RespondWithError(err)
 		}
@@ -153,27 +129,10 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 
 }
 
-// getTorrentStatus returns a normalized status for the torrent.
-func getTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
-	if st == qbittorrent_model.StateQueuedUP ||
-		st == qbittorrent_model.StateStalledUP ||
-		st == qbittorrent_model.StateForcedUP ||
-		st == qbittorrent_model.StateCheckingUP ||
-		st == qbittorrent_model.StateUploading {
-		return TorrentStatusSeeding
-	} else if st == qbittorrent_model.StatePausedDL {
-		return TorrentStatusPaused
-	} else {
-		return TorrentStatusDownloading
-	}
-}
-
 // HandleTorrentClientDownload will get magnets from Nyaa and add them to qBittorrent.
 // It also handles smart selection (torrent_client.SmartSelect).
 //
 //	POST /v1/torrent-client/download
-//
-// FIXME Animetosho
 func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	type body struct {
@@ -193,7 +152,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	}
 
 	// try to start qbittorrent if it's not running
-	err := c.App.QBittorrent.Start()
+	err := c.App.TorrentClientRepository.Start()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -213,26 +172,19 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// create repository
-	repo := &torrent_client.TorrentClientRepository{
-		Logger:            c.App.Logger,
-		QbittorrentClient: c.App.QBittorrent,
-		WSEventManager:    c.App.WSEventManager,
-		Destination:       b.Destination,
-	}
-
 	// try to add torrents to qbittorrent, on error return error
-	err = repo.AddMagnets(magnets)
+	err = c.App.TorrentClientRepository.AddMagnets(magnets, b.Destination)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	err = repo.SmartSelect(&torrent_client.SmartSelect{
+	err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelect{
 		Magnets:               magnets,
 		Enabled:               b.SmartSelect.Enabled,
 		MissingEpisodeNumbers: b.SmartSelect.MissingEpisodeNumbers,
 		AbsoluteOffset:        b.SmartSelect.AbsoluteOffset,
 		Media:                 b.Media,
+		Destination:           b.Destination,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -271,21 +223,13 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	}
 
 	// try to start qbittorrent if it's not running
-	err = c.App.QBittorrent.Start()
+	err = c.App.TorrentClientRepository.Start()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	// create repository
-	repo := &torrent_client.TorrentClientRepository{
-		Logger:            c.App.Logger,
-		QbittorrentClient: c.App.QBittorrent,
-		WSEventManager:    c.App.WSEventManager,
-		Destination:       rule.Destination,
-	}
-
 	// try to add torrents to client, on error return error
-	err = repo.AddMagnets([]string{b.MagnetUrl})
+	err = c.App.TorrentClientRepository.AddMagnets([]string{b.MagnetUrl}, rule.Destination)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

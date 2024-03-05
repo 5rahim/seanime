@@ -17,8 +17,8 @@ import (
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/nyaa"
-	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
+	"github.com/seanime-app/seanime/internal/torrent_client"
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
@@ -30,21 +30,21 @@ import (
 
 type (
 	App struct {
-		Config                *Config
-		Database              *_db.Database
-		Logger                *zerolog.Logger
-		QBittorrent           *qbittorrent.Client
-		Watcher               *scanner.Watcher
-		AnizipCache           *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClientWrapper  *anilist.ClientWrapper
-		NyaaSearchCache       *nyaa.SearchCache
-		AnimeToshoSearchCache *animetosho.SearchCache
-		anilistCollection     *anilist.AnimeCollection
-		account               *models.Account
-		WSEventManager        *events.WSEventManager
-		ListSyncCache         *listsync.Cache
-		AutoDownloader        *autodownloader.AutoDownloader
-		MediaPlayer           struct {
+		Config                  *Config
+		Database                *_db.Database
+		Logger                  *zerolog.Logger
+		TorrentClientRepository *torrent_client.Repository
+		Watcher                 *scanner.Watcher
+		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+		AnilistClientWrapper    *anilist.ClientWrapper
+		NyaaSearchCache         *nyaa.SearchCache
+		AnimeToshoSearchCache   *animetosho.SearchCache
+		anilistCollection       *anilist.AnimeCollection
+		account                 *models.Account
+		WSEventManager          *events.WSEventManager
+		ListSyncCache           *listsync.Cache
+		AutoDownloader          *autodownloader.AutoDownloader
+		MediaPlayer             struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
@@ -124,19 +124,20 @@ func NewApp(options *AppOptions, version string) *App {
 	anizipCache := anizip.NewCache()
 
 	app := &App{
-		Config:                cfg,
-		Database:              db,
-		AnilistClientWrapper:  anilist.NewClientWrapper(anilistToken),
-		AnizipCache:           anizipCache,
-		NyaaSearchCache:       nyaa.NewSearchCache(),
-		AnimeToshoSearchCache: animetosho.NewSearchCache(),
-		WSEventManager:        wsEventManager,
-		ListSyncCache:         listsync.NewCache(),
-		Logger:                logger,
-		Version:               version,
-		Updater:               updater.New(version),
-		AutoDownloader:        nil, // Initialized in App.InitModulesOnce
-		AutoScanner:           nil, // Initialized in App.InitModulesOnce
+		Config:                  cfg,
+		Database:                db,
+		AnilistClientWrapper:    anilist.NewClientWrapper(anilistToken),
+		AnizipCache:             anizipCache,
+		NyaaSearchCache:         nyaa.NewSearchCache(),
+		AnimeToshoSearchCache:   animetosho.NewSearchCache(),
+		WSEventManager:          wsEventManager,
+		ListSyncCache:           listsync.NewCache(),
+		Logger:                  logger,
+		Version:                 version,
+		Updater:                 updater.New(version),
+		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
+		AutoScanner:             nil, // Initialized in App.InitModulesOnce
+		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 	}
 
 	app.InitModulesOnce()
