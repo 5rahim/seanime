@@ -62,7 +62,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 mutate({
                                     library: {
                                         libraryPath: data.libraryPath,
-                                        autoUpdateProgress: false,
+                                        autoUpdateProgress: true,
                                         disableUpdateCheck: false,
                                         torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
                                         autoScan: false,

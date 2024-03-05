@@ -17,6 +17,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/nyaa"
+	"github.com/seanime-app/seanime/internal/progressmanager"
 	"github.com/seanime-app/seanime/internal/scanner"
 	"github.com/seanime-app/seanime/internal/torrent_client"
 	"github.com/seanime-app/seanime/internal/updater"
@@ -49,10 +50,11 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		Version     string
-		Updater     *updater.Updater
-		Settings    *models.Settings
-		AutoScanner *scanner.AutoScanner
+		Version         string
+		Updater         *updater.Updater
+		Settings        *models.Settings
+		AutoScanner     *scanner.AutoScanner
+		ProgressManager *progressmanager.ProgressManager
 	}
 
 	AppOptions struct {
@@ -117,6 +119,9 @@ func NewApp(options *AppOptions, version string) *App {
 	// Get token from stored account or return empty string
 	anilistToken := db.GetAnilistToken()
 
+	// Anilist Client Wrapper
+	anilistCW := anilist.NewClientWrapper(anilistToken)
+
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
 
@@ -126,7 +131,7 @@ func NewApp(options *AppOptions, version string) *App {
 	app := &App{
 		Config:                  cfg,
 		Database:                db,
-		AnilistClientWrapper:    anilist.NewClientWrapper(anilistToken),
+		AnilistClientWrapper:    anilistCW,
 		AnizipCache:             anizipCache,
 		NyaaSearchCache:         nyaa.NewSearchCache(),
 		AnimeToshoSearchCache:   animetosho.NewSearchCache(),
@@ -135,6 +140,7 @@ func NewApp(options *AppOptions, version string) *App {
 		Logger:                  logger,
 		Version:                 version,
 		Updater:                 updater.New(version),
+		ProgressManager:         nil, // Initialized in App.InitModulesOnce
 		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
 		AutoScanner:             nil, // Initialized in App.InitModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules

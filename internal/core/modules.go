@@ -5,6 +5,7 @@ import (
 	"github.com/seanime-app/seanime/internal/autodownloader"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
+	"github.com/seanime-app/seanime/internal/progressmanager"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
 	"github.com/seanime-app/seanime/internal/torrent_client"
@@ -16,6 +17,14 @@ import (
 // This function is called once after the App instance is created.
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) InitModulesOnce() {
+
+	// Progress manager
+	a.ProgressManager = progressmanager.New(&progressmanager.NewProgressManagerOptions{
+		Logger:               a.Logger,
+		WSEventManager:       a.WSEventManager,
+		AnilistClientWrapper: a.AnilistClientWrapper,
+		AnilistCollection:    nil, // Will be set and refreshed in app.RefreshAnilistCollection
+	})
 
 	// Auto downloader
 	a.AutoDownloader = autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{

@@ -25,8 +25,6 @@ const (
 	ComparisonThreshold = 0.8
 )
 
-// TODO: Verify
-
 type (
 	anilistListEntry = anilist.AnimeCollection_MediaListCollection_Lists_Entries
 	AutoDownloader   struct {
@@ -433,6 +431,8 @@ func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *entitie
 	return false
 }
 
+// isResolutionMatch
+// DEVOTE: Improve this
 func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoDownloaderRule) bool {
 	if len(rule.Resolutions) == 0 {
 		return true
