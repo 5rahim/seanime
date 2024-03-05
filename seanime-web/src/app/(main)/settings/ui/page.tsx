@@ -116,7 +116,7 @@ export default function Page() {
 
                         <Separator />
 
-                        <h3>Main</h3>
+                        <h3>Main Pages</h3>
 
                         <div className="flex flex-col md:flex-row gap-3">
                             <Field.Text
@@ -137,7 +137,7 @@ export default function Page() {
 
                         <Separator />
 
-                        <h3>Library screen</h3>
+                        <h3>Library page</h3>
 
                         <h5>Continue Watching</h5>
 
@@ -199,7 +199,7 @@ export default function Page() {
 
                         <Separator />
 
-                        <h3>Anime screen</h3>
+                        <h3>Anime page</h3>
 
                         <Field.RadioCards
                             label="Layout"

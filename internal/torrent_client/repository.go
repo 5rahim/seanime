@@ -162,6 +162,7 @@ func (r *Repository) AddMagnets(magnets []string, dest string) error {
 				DownloadDir: &dest,
 			})
 			if err != nil {
+				r.Logger.Err(err).Msg("torrent client: Error while adding magnets (Transmission)")
 				break
 			}
 		}

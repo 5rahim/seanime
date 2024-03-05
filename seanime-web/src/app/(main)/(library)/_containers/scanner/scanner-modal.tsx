@@ -66,7 +66,7 @@ export function ScannerModal() {
                         setOpen(o)
                     }
                 }}
-                title="Scanner"
+                title="Library scanner"
                 titleClass="text-center"
                 contentClass="space-y-4 max-w-2xl"
             >

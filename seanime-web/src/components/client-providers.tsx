@@ -32,9 +32,9 @@ export const ClientProviders: React.FC<ClientProvidersProps> = ({ children }) =>
                     <WebsocketProvider>
                         <AuthWrapper>
                             {children}
+                            <Toaster />
                         </AuthWrapper>
                     </WebsocketProvider>
-                    <Toaster />
                 </QueryClientProvider>
             </JotaiProvider>
         </ThemeProvider>

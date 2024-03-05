@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { MediaEntry } from "@/lib/server/types"
 import React, { useMemo } from "react"
 import { FiPlayCircle } from "react-icons/fi"
+import { IoLibrarySharp } from "react-icons/io5"
 
 export function EpisodeSection(props: { entry: MediaEntry }) {
     const { entry } = props
@@ -61,7 +62,9 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
 
     if (!!media && (!entry.listData || !entry.libraryData)) {
         return <div className="space-y-10">
-            {media?.status !== "NOT_YET_RELEASED" ? <p>Not in your library</p> : <p>Not yet released</p>}
+            {media?.status !== "NOT_YET_RELEASED"
+                ? <h4 className="text-yellow-50 flex items-center gap-2"><IoLibrarySharp /> Not in your library</h4>
+                : <h5 className="text-yellow-50">Not yet released</h5>}
             <div className="overflow-y-auto pt-4 lg:pt-0 space-y-10">
                 <UndownloadedEpisodeList
                     downloadInfo={entry.downloadInfo}
@@ -99,8 +102,6 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     </div>}
 
                 </div>
-
-                {!entry.episodes?.length && <p>Not in your library</p>}
 
                 {hasInvalidEpisodes && <Alert
                     intent="alert"

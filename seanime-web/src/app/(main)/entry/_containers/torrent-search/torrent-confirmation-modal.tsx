@@ -225,7 +225,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                 disabled={isDisabled}
                                 loading={isPending}
                             >
-                                Download missing only
+                                Download missing episodes
                             </Button>
                         )}
 

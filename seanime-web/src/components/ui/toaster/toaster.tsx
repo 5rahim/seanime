@@ -10,7 +10,7 @@ import { cn, defineStyleAnatomy } from "../core/styling"
  * -----------------------------------------------------------------------------------------------*/
 
 export const ToasterAnatomy = defineStyleAnatomy({
-    toaster: cva(["group toaster"]),
+    toaster: cva(["group toaster z-[150]"]),
     toast: cva([
         "group/toast",
         "group-[.toaster]:py-3 group-[.toaster]:gap-3",

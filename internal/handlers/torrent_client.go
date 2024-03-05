@@ -21,7 +21,7 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 	if err != nil {
 		ok := c.App.TorrentClientRepository.Start()
 		if !ok {
-			return c.RespondWithError(errors.New("could not start torrent client"))
+			return c.RespondWithError(errors.New("could not start torrent client, verify your settings"))
 		}
 		res, err = c.App.TorrentClientRepository.GetActiveTorrents()
 	}
@@ -103,7 +103,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	// try to start torrent client if it's not running
 	ok := c.App.TorrentClientRepository.Start()
 	if !ok {
-		return c.RespondWithError(errors.New("could not start torrent client"))
+		return c.RespondWithError(errors.New("could not start torrent client, verify your settings"))
 	}
 
 	// get magnets
@@ -174,7 +174,7 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	// try to start torrent client if it's not running
 	ok := c.App.TorrentClientRepository.Start()
 	if !ok {
-		return c.RespondWithError(errors.New("could not start torrent client"))
+		return c.RespondWithError(errors.New("could not start torrent client, verify your settings"))
 	}
 
 	// try to add torrents to client, on error return error
