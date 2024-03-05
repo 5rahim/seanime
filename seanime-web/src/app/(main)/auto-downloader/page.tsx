@@ -104,6 +104,7 @@ export default function Page() {
                                             runAutoDownloader()
                                         }}
                                         loading={isRunning}
+                                        disabled={!serverStatus?.settings?.autoDownloader?.enabled}
                                     >
                                         Check RSS feed
                                     </Button>
@@ -158,7 +159,7 @@ export default function Page() {
                             }}
                             defaultValues={{
                                 enabled: serverStatus?.settings?.autoDownloader?.enabled ?? false,
-                                interval: serverStatus?.settings?.autoDownloader?.interval ?? 10,
+                                interval: serverStatus?.settings?.autoDownloader?.interval || 10,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
                             }}
                             stackClass="space-y-6"

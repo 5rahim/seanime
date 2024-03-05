@@ -83,9 +83,8 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 		return nil
 	}
 	summary := &ScanSummary{
-		ID:     uuid.NewString(),
-		Groups: make([]*ScanSummaryGroup, 0),
-		//Files:          make([]*ScanSummaryFile, 0),
+		ID:             uuid.NewString(),
+		Groups:         make([]*ScanSummaryGroup, 0),
 		UnmatchedFiles: make([]*ScanSummaryFile, 0),
 	}
 

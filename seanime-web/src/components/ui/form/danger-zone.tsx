@@ -31,11 +31,11 @@ export const DangerZoneAnatomy = defineStyleAnatomy({
     ]),
     dialogBody: cva([
         "UI-DangerZone__dialogBody",
-        "mt-2 text-sm text-[--muted]",
+        "mt-2 text-base text-[--muted]",
     ]),
     dialogAction: cva([
         "UI-DangerZone__dialogAction",
-        "mt-4 flex gap-2",
+        "mt-2 flex gap-2 justify-end",
     ]),
 })
 
@@ -115,7 +115,7 @@ export const DangerZone = React.forwardRef<HTMLDivElement, DangerZoneProps>((pro
                 </div>
             </div>
 
-            <Modal open={isOpen} onOpenChange={open => setIsOpen(open)}>
+            <Modal open={isOpen} onOpenChange={open => setIsOpen(open)} contentClass="gap-2">
                 <h3 className={cn(DangerZoneAnatomy.dialogTitle(), dialogTitleClass)}>
                     {locales["dangerZone"]["confirm_delete"][locale]}
                 </h3>
@@ -125,17 +125,17 @@ export const DangerZone = React.forwardRef<HTMLDivElement, DangerZoneProps>((pro
 
                 <div className={cn(DangerZoneAnatomy.dialogAction(), dialogActionClass)}>
                     <Button
-                        intent="gray-outline"
-                        size="sm"
-                        onClick={() => setIsOpen(false)}
-                    >{locales["dangerZone"]["cancel"][locale]}</Button>
-                    <Button
                         intent="alert" size="sm" onClick={() => {
                         setIsOpen(false)
                         showLoadingOverlayOnDelete && setBlockScreen(true)
                         onDelete && onDelete()
                     }}
                     >{locales["dangerZone"]["delete"][locale]}</Button>
+                    <Button
+                        intent="gray-outline"
+                        size="sm"
+                        onClick={() => setIsOpen(false)}
+                    >{locales["dangerZone"]["cancel"][locale]}</Button>
                 </div>
             </Modal>
         </>

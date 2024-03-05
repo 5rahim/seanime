@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/autodownloader"
 	"github.com/seanime-app/seanime/internal/models"
 	"runtime"
 	"time"
@@ -148,7 +147,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
-		Provider:              autodownloader.NyaaProvider, // DEVNOTE: Hardcoded. Only one supported for now
+		Provider:              prevSettings.Library.TorrentProvider,
 		Interval:              body.Interval,
 		Enabled:               body.Enabled,
 		DownloadAutomatically: body.DownloadAutomatically,

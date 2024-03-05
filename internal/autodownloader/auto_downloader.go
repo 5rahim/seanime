@@ -40,7 +40,6 @@ type (
 		settingsUpdatedCh       chan struct{}
 		stopCh                  chan struct{}
 		startCh                 chan struct{}
-		active                  bool
 		debugTrace              bool
 		mu                      sync.Mutex
 	}
@@ -77,7 +76,6 @@ func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		settingsUpdatedCh: make(chan struct{}, 1),
 		stopCh:            make(chan struct{}, 1),
 		startCh:           make(chan struct{}, 1),
-		active:            false,
 		debugTrace:        true,
 		mu:                sync.Mutex{},
 	}
@@ -99,9 +97,9 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, p
 			ad.Settings.Provider = provider
 		}
 		ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
-		if ad.Settings.Enabled && !ad.active {
+		if ad.Settings.Enabled {
 			ad.startCh <- struct{}{} // Start the auto downloader
-		} else if !ad.Settings.Enabled && ad.active {
+		} else if !ad.Settings.Enabled {
 			ad.stopCh <- struct{}{} // Stop the auto downloader
 		}
 	}()
@@ -120,6 +118,7 @@ func (ad *AutoDownloader) Start() {
 		return
 	}
 	go func() {
+		ad.mu.Lock()
 		if ad.Settings.Enabled {
 			started := ad.TorrentClientRepository.Start() // Start torrent client if it's not running
 			if !started {
@@ -127,6 +126,7 @@ func (ad *AutoDownloader) Start() {
 				return
 			}
 		}
+		ad.mu.Unlock()
 
 		// Start the auto downloader
 		ad.start()
@@ -173,14 +173,14 @@ func (ad *AutoDownloader) start() {
 		case <-ad.settingsUpdatedCh:
 			break // Restart the loop
 		case <-ad.stopCh:
-			ad.active = false
 			ad.Logger.Info().Msg("autodownloader: Auto Downloader stopped")
 		case <-ad.startCh:
-			ad.active = true
-			ad.Logger.Info().Msg("autodownloader: Auto Downloader started")
-			ad.checkForNewEpisodes()
+			if ad.Settings.Enabled {
+				ad.Logger.Info().Msg("autodownloader: Auto Downloader started")
+				ad.checkForNewEpisodes()
+			}
 		case <-ticker.C:
-			if ad.active {
+			if ad.Settings.Enabled {
 				ad.checkForNewEpisodes()
 			}
 		}
@@ -190,6 +190,12 @@ func (ad *AutoDownloader) start() {
 }
 
 func (ad *AutoDownloader) checkForNewEpisodes() {
+	ad.mu.Lock()
+	if ad == nil || !ad.Settings.Enabled {
+		return
+	}
+	ad.mu.Unlock()
+
 	torrents := make([]*NormalizedTorrent, 0)
 
 	// Get rules from the database
@@ -459,7 +465,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 			lev := metrics.NewLevenshtein()
 			lev.CaseSensitive = false
 			res := lev.Distance(torrentTitle, rule.ComparisonTitle)
-			if res < 4 {
+			if res < 30 {
 				return true
 			}
 			return false

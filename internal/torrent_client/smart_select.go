@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
+	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/comparison"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/qbittorrent/model"
@@ -14,6 +15,23 @@ import (
 	"slices"
 	"strconv"
 	"time"
+)
+
+type (
+	SmartSelect struct {
+		Magnets               []string
+		Enabled               bool
+		MissingEpisodeNumbers []int
+		AbsoluteOffset        int
+		Media                 *anilist.BaseMedia
+		Destination           string
+	}
+
+	tmpLocalFile struct {
+		torrentContent *qbittorrent_model.TorrentContent
+		localFile      *entities.LocalFile
+		index          int
+	}
 )
 
 // SmartSelect will select only episodes that are missing.
@@ -107,7 +125,7 @@ workDone:
 	tmpLfs := r.getBestTempLocalFiles(contents, opts)
 
 	// filter out files that are not main and without episode numbers
-	tmpLfs = lo.Filter(tmpLfs, func(tmpLf *TmpLocalFile, _ int) bool {
+	tmpLfs = lo.Filter(tmpLfs, func(tmpLf *tmpLocalFile, _ int) bool {
 		// remove files that are not main
 		if comparison.ValueContainsSpecial(tmpLf.localFile.Name) || comparison.ValueContainsNC(tmpLf.localFile.Name) {
 			return false
@@ -119,13 +137,13 @@ workDone:
 		return true
 	})
 
-	hasAtLeastOneAbsoluteEpisode := lo.SomeBy(tmpLfs, func(tmpLf *TmpLocalFile) bool {
+	hasAtLeastOneAbsoluteEpisode := lo.SomeBy(tmpLfs, func(tmpLf *tmpLocalFile) bool {
 		episode, _ := util.StringToInt(tmpLf.localFile.ParsedData.Episode)
 		return episode > opts.Media.GetCurrentEpisodeCount()
 	})
 
 	// detect absolute episode number
-	tmpLfs = lop.Map(tmpLfs, func(tmpLf *TmpLocalFile, _ int) *TmpLocalFile {
+	tmpLfs = lop.Map(tmpLfs, func(tmpLf *tmpLocalFile, _ int) *tmpLocalFile {
 		episode, ok := util.StringToInt(tmpLf.localFile.ParsedData.Episode)
 		if !ok {
 			return tmpLf
@@ -142,7 +160,7 @@ workDone:
 	// if there are duplicate episode numbers (more than 3 duplicates), return error
 	// we choose 3 as the threshold because sometimes there might be 1or2 episodes with different versions
 	// this is used to prevent incorrect selections
-	duplicates := lo.FindDuplicatesBy(tmpLfs, func(item *TmpLocalFile) int {
+	duplicates := lo.FindDuplicatesBy(tmpLfs, func(item *tmpLocalFile) int {
 		return item.localFile.Metadata.Episode
 	})
 	if len(duplicates) > 2 {
@@ -150,12 +168,12 @@ workDone:
 	}
 
 	// remove files whose episode number is not in the missing episode numbers list
-	toRemove := lo.Filter(tmpLfs, func(tmpLf *TmpLocalFile, _ int) bool {
+	toRemove := lo.Filter(tmpLfs, func(tmpLf *tmpLocalFile, _ int) bool {
 		return !slices.Contains(opts.MissingEpisodeNumbers, tmpLf.localFile.Metadata.Episode)
 	})
 
 	// get the indices of the files that we will deselect
-	toRemoveIndices := lop.Map(toRemove, func(tmpLf *TmpLocalFile, _ int) string {
+	toRemoveIndices := lop.Map(toRemove, func(tmpLf *tmpLocalFile, _ int) string {
 		return strconv.Itoa(tmpLf.index)
 	})
 
@@ -177,11 +195,11 @@ workDone:
 }
 
 // getBestTempLocalFiles returns the best local files that match the media
-func (r *Repository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*TmpLocalFile {
+func (r *Repository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*tmpLocalFile {
 
 	// get local files from contents
-	tmpLfs := lop.Map(contents, func(content *qbittorrent_model.TorrentContent, idx int) *TmpLocalFile {
-		return &TmpLocalFile{
+	tmpLfs := lop.Map(contents, func(content *qbittorrent_model.TorrentContent, idx int) *tmpLocalFile {
+		return &tmpLocalFile{
 			torrentContent: content,
 			localFile:      entities.NewLocalFile(content.Name, opts.Destination),
 			index:          idx,
@@ -189,7 +207,7 @@ func (r *Repository) getBestTempLocalFiles(contents []*qbittorrent_model.Torrent
 	})
 
 	type comparisonRes struct {
-		tmpLocalFile *TmpLocalFile
+		tmpLocalFile *tmpLocalFile
 		rating       float64
 	}
 
@@ -257,7 +275,7 @@ func (r *Repository) getBestTempLocalFiles(contents []*qbittorrent_model.Torrent
 		return item.rating == highestRating || math.Abs(item.rating-highestRating) < 0.2
 	})
 
-	usedTmpLfs := lop.Map(usedComps, func(item *comparisonRes, index int) *TmpLocalFile {
+	usedTmpLfs := lop.Map(usedComps, func(item *comparisonRes, index int) *tmpLocalFile {
 		return item.tmpLocalFile
 	})
 
