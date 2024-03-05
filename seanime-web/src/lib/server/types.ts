@@ -74,14 +74,21 @@ export type LibrarySettings = {
     autoScan: boolean
 }
 
-export const DEFAULT_TORRENT_PROVIDER = "nyaa"
+export const DEFAULT_TORRENT_PROVIDER = "animetosho"
+export const DEFAULT_TORRENT_CLIENT = "qbittorrent"
 
 export type TorrentSettings = {
+    defaultTorrentClient: string
     qbittorrentPath: string
     qbittorrentHost: string
     qbittorrentPort: number
     qbittorrentUsername: string
     qbittorrentPassword: string
+    transmissionPath: string
+    transmissionHost: string
+    transmissionPort: number
+    transmissionUsername: string
+    transmissionPassword: string
 }
 
 /**

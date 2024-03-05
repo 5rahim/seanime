@@ -9,13 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
-import { DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
+import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, ServerStatus, Settings } from "@/lib/server/types"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
 import React, { useEffect } from "react"
-import { BsPlayCircleFill } from "react-icons/bs"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
 import { GoArrowRight } from "react-icons/go"
+import { HiPlay } from "react-icons/hi"
+import { ImDownload } from "react-icons/im"
 import { LuLayoutDashboard } from "react-icons/lu"
 import { toast } from "sonner"
 
@@ -81,11 +82,17 @@ export default function Page() {
                             mpvPath: data.mpvPath || "",
                         },
                         torrent: {
+                            defaultTorrentClient: data.defaultTorrentClient,
                             qbittorrentPath: data.qbittorrentPath,
                             qbittorrentHost: data.qbittorrentHost,
                             qbittorrentPort: data.qbittorrentPort,
                             qbittorrentPassword: data.qbittorrentPassword,
                             qbittorrentUsername: data.qbittorrentUsername,
+                            transmissionPath: data.transmissionPath,
+                            transmissionHost: data.transmissionHost,
+                            transmissionPort: data.transmissionPort,
+                            transmissionUsername: data.transmissionUsername,
+                            transmissionPassword: data.transmissionPassword,
                         },
                         anilist: {
                             hideAudienceScore: data.hideAudienceScore,
@@ -106,11 +113,17 @@ export default function Page() {
                     mpcPath: status?.settings?.mediaPlayer?.mpcPath,
                     mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
                     mpvPath: status?.settings?.mediaPlayer?.mpvPath,
+                    defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT,
                     qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                     qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                     qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
                     qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
                     qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
+                    transmissionPath: status?.settings?.torrent?.transmissionPath,
+                    transmissionHost: status?.settings?.torrent?.transmissionHost,
+                    transmissionPort: status?.settings?.torrent?.transmissionPort,
+                    transmissionUsername: status?.settings?.torrent?.transmissionUsername,
+                    transmissionPassword: status?.settings?.torrent?.transmissionPassword,
                     hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
                     autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                     disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
@@ -127,7 +140,7 @@ export default function Page() {
                         <TabsList>
                             <TabsTrigger value="seanime">Seanime</TabsTrigger>
                             <TabsTrigger value="media-player">Media Player</TabsTrigger>
-                            <TabsTrigger value="qbittorrent">qBittorrent</TabsTrigger>
+                            <TabsTrigger value="torrent-client">Torrent Client</TabsTrigger>
                         </TabsList>
 
                         <div className="pt-4">
@@ -257,7 +270,7 @@ export default function Page() {
 
                                     <AccordionItem value="mpv">
                                         <AccordionTrigger>
-                                            <h4 className="flex gap-2 items-center"><BsPlayCircleFill className="mr-1 text-purple-100" /> MPV</h4>
+                                            <h4 className="flex gap-2 items-center"><HiPlay className="mr-1 text-purple-100" /> MPV</h4>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div className="flex gap-4">
@@ -279,33 +292,92 @@ export default function Page() {
 
                             </TabsContent>
 
-                            <TabsContent value="qbittorrent" className="space-y-4">
-                                <Field.Text
-                                    name="qbittorrentHost"
-                                    label="Host"
+                            <TabsContent value="torrent-client" className="space-y-4">
+
+                                <Field.Select
+                                    name="defaultTorrentClient"
+                                    label="Default torrent client"
+                                    options={[
+                                        { label: "qBittorrent", value: "qbittorrent" },
+                                        { label: "Transmission", value: "transmission" },
+                                    ]}
                                 />
-                                <div className="flex flex-col md:flex-row gap-4">
-                                    <Field.Text
-                                        name="qbittorrentUsername"
-                                        label="Username"
-                                    />
-                                    <Field.Text
-                                        name="qbittorrentPassword"
-                                        label="Password"
-                                    />
-                                    <Field.Number
-                                        name="qbittorrentPort"
-                                        label="Port"
-                                        formatOptions={{
-                                            useGrouping: false,
-                                        }}
-                                        hideControls
-                                    />
-                                </div>
-                                <Field.Text
-                                    name="qbittorrentPath"
-                                    label="Application path"
-                                />
+
+                                <Accordion
+                                    type="single"
+                                    className=""
+                                    triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
+                                    itemClass="border-b"
+                                    contentClass="pb-8"
+                                    collapsible
+                                    defaultValue={status?.settings?.torrent?.defaultTorrentClient}
+                                >
+                                    <AccordionItem value="qbittorrent">
+                                        <AccordionTrigger>
+                                            <h4 className="flex gap-2 items-center"><ImDownload className="text-blue-400" /> qBittorrent</h4>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-0 py-4 space-y-4">
+                                            <Field.Text
+                                                name="qbittorrentHost"
+                                                label="Host"
+                                            />
+                                            <div className="flex flex-col md:flex-row gap-4">
+                                                <Field.Text
+                                                    name="qbittorrentUsername"
+                                                    label="Username"
+                                                />
+                                                <Field.Text
+                                                    name="qbittorrentPassword"
+                                                    label="Password"
+                                                />
+                                                <Field.Number
+                                                    name="qbittorrentPort"
+                                                    label="Port"
+                                                    formatOptions={{
+                                                        useGrouping: false,
+                                                    }}
+                                                />
+                                            </div>
+                                            <Field.Text
+                                                name="qbittorrentPath"
+                                                label="Executable"
+                                            />
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                    <AccordionItem value="transmission">
+                                        <AccordionTrigger>
+                                            <h4 className="flex gap-2 items-center"><ImDownload className="text-orange-200" /> Transmission</h4>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-0 py-4 space-y-4">
+                                            <Field.Text
+                                                name="transmissionHost"
+                                                label="Host"
+                                            />
+                                            <div className="flex flex-col md:flex-row gap-4">
+                                                <Field.Text
+                                                    name="transmissionUsername"
+                                                    label="Username"
+                                                />
+                                                <Field.Text
+                                                    name="transmissionPassword"
+                                                    label="Password"
+                                                />
+                                                <Field.Number
+                                                    name="transmissionPort"
+                                                    label="Port"
+                                                    formatOptions={{
+                                                        useGrouping: false,
+                                                    }}
+                                                />
+                                            </div>
+                                            <Field.Text
+                                                name="transmissionPath"
+                                                label="Executable"
+                                            />
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+
                             </TabsContent>
 
                             <div className="mt-4">

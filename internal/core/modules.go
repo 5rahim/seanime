@@ -123,7 +123,9 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	// Update Auto Downloader - This runs in a goroutine
-	a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
+	if settings.AutoDownloader != nil {
+		a.AutoDownloader.SetSettings(settings.AutoDownloader, settings.Library.TorrentProvider)
+	}
 
 	// +---------------------+
 	// |   Library Watcher   |

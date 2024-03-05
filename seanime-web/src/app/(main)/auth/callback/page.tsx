@@ -8,7 +8,6 @@ import axios from "axios"
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
-import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
 export default function CallbackPage() {
@@ -36,6 +35,9 @@ export default function CallbackPage() {
                 router.push("/")
             }, 1000)
         },
+        onError: (error) => {
+            toast.error(error.message)
+        },
     })
 
     React.useEffect(() => {
@@ -52,14 +54,6 @@ export default function CallbackPage() {
             }
         }
     }, [])
-
-
-    useUpdateEffect(() => {
-        if (!!error) {
-            toast.error(error.message)
-            router.push("/")
-        }
-    }, [error])
 
     React.useEffect(() => {
         if (!!status?.user) {

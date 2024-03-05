@@ -71,11 +71,17 @@ type LibrarySettings struct {
 }
 
 type TorrentSettings struct {
-	QBittorrentPath     string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`
-	QBittorrentHost     string `gorm:"column:qbittorrent_host" json:"qbittorrentHost"`
-	QBittorrentPort     int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
-	QBittorrentUsername string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
-	QBittorrentPassword string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
+	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
+	QBittorrentPath      string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`
+	QBittorrentHost      string `gorm:"column:qbittorrent_host" json:"qbittorrentHost"`
+	QBittorrentPort      int    `gorm:"column:qbittorrent_port" json:"qbittorrentPort"`
+	QBittorrentUsername  string `gorm:"column:qbittorrent_username" json:"qbittorrentUsername"`
+	QBittorrentPassword  string `gorm:"column:qbittorrent_password" json:"qbittorrentPassword"`
+	TransmissionPath     string `gorm:"column:transmission_path" json:"transmissionPath"`
+	TransmissionHost     string `gorm:"column:transmission_host" json:"transmissionHost"`
+	TransmissionPort     int    `gorm:"column:transmission_port" json:"transmissionPort"`
+	TransmissionUsername string `gorm:"column:transmission_username" json:"transmissionUsername"`
+	TransmissionPassword string `gorm:"column:transmission_password" json:"transmissionPassword"`
 }
 
 type ListSyncSettings struct {

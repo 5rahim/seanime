@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/anilist"
-	"github.com/seanime-app/seanime/internal/downloader"
 	qbittorrent_model "github.com/seanime-app/seanime/internal/qbittorrent/model"
 	"github.com/seanime-app/seanime/internal/torrent"
+	"github.com/seanime-app/seanime/internal/torrent_client"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"time"
@@ -169,7 +169,7 @@ func getTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 }
 
 // HandleTorrentClientDownload will get magnets from Nyaa and add them to qBittorrent.
-// It also handles smart selection (downloader.SmartSelect).
+// It also handles smart selection (torrent_client.SmartSelect).
 //
 //	POST /v1/torrent-client/download
 //
@@ -214,7 +214,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	}
 
 	// create repository
-	repo := &downloader.TorrentClientRepository{
+	repo := &torrent_client.TorrentClientRepository{
 		Logger:            c.App.Logger,
 		QbittorrentClient: c.App.QBittorrent,
 		WSEventManager:    c.App.WSEventManager,
@@ -227,7 +227,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err = repo.SmartSelect(&downloader.SmartSelect{
+	err = repo.SmartSelect(&torrent_client.SmartSelect{
 		Magnets:               magnets,
 		Enabled:               b.SmartSelect.Enabled,
 		MissingEpisodeNumbers: b.SmartSelect.MissingEpisodeNumbers,
@@ -277,7 +277,7 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	}
 
 	// create repository
-	repo := &downloader.TorrentClientRepository{
+	repo := &torrent_client.TorrentClientRepository{
 		Logger:            c.App.Logger,
 		QbittorrentClient: c.App.QBittorrent,
 		WSEventManager:    c.App.WSEventManager,

@@ -28,6 +28,18 @@ export function useDefaultSettingsPaths() {
                     return "C:/Program Files/qBittorrent/qbittorrent.exe"
             }
         },
+        getDefaultTransmissionPath: (os: string) => {
+            switch (os) {
+                case "windows":
+                    return "C:/Program Files/Transmission/transmission-qt.exe"
+                case "linux":
+                    return "/usr/bin/transmission-gtk"
+                case "darwin":
+                    return "/Applications/Transmission.app/Contents/MacOS/Transmission"
+                default:
+                    return "C:/Program Files/Transmission/transmission-qt.exe"
+            }
+        },
     }
 
 }
@@ -59,11 +71,17 @@ export const settingsSchema = z.object({
     mpcPath: z.string().optional().default(""),
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
+    defaultTorrentClient: z.string().optional().default("qbittorrent"),
     qbittorrentPath: z.string().optional().default(""),
-    qbittorrentHost: z.string(),
+    qbittorrentHost: z.string().optional().default(""),
     qbittorrentPort: z.number(),
     qbittorrentUsername: z.string().optional().default(""),
     qbittorrentPassword: z.string().optional().default(""),
+    transmissionPath: z.string().optional().default(""),
+    transmissionHost: z.string().optional().default(""),
+    transmissionPort: z.number().optional().default(9091),
+    transmissionUsername: z.string().optional().default(""),
+    transmissionPassword: z.string().optional().default(""),
     hideAudienceScore: z.boolean().optional().default(false),
     autoUpdateProgress: z.boolean().optional().default(false),
     disableUpdateCheck: z.boolean().optional().default(false),

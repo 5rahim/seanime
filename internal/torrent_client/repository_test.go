@@ -1,4 +1,4 @@
-package downloader
+package torrent_client
 
 import (
 	"github.com/seanime-app/seanime/internal/anilist"

@@ -1,6 +1,7 @@
-package downloader
+package torrent_client
 
 import (
+	"github.com/hekmon/transmissionrpc/v3"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/entities"
@@ -16,11 +17,12 @@ const (
 
 type (
 	TorrentClientRepository struct {
-		Logger            *zerolog.Logger
-		QbittorrentClient *qbittorrent.Client
-		WSEventManager    events.IWSEventManager
-		Destination       string
-		Provider          string
+		Logger             *zerolog.Logger
+		QbittorrentClient  *qbittorrent.Client
+		TransmissionClient *transmissionrpc.Client
+		WSEventManager     events.IWSEventManager
+		Destination        string
+		Provider           string
 	}
 
 	SmartSelect struct {
