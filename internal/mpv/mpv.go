@@ -104,26 +104,34 @@ func (m *Mpv) launchPlayer(start int, filePath string) error {
 	// This is done so that we only have one instance of mpv running at a time
 	if m.cancel != nil {
 		m.cancel()
-		if m.conn != nil {
-			// Close the player
-			_, err := m.conn.Call("stop")
-			if err != nil {
-				return err
-			}
-		}
-		time.Sleep(1 * time.Second)
+		//if m.conn != nil {
+		//	// Close the player
+		//	_, err := m.conn.Call("stop")
+		//	if err != nil {
+		//		return err
+		//	}
+		//}
 	}
 
 	switch start {
 	case StartExecPath, StartExecCommand, StartExec:
-		cmd, err := m.execCmd(start, "--input-ipc-server="+m.SocketName, filePath)
-		if err != nil {
-			return err
-		}
+		// If no connection exists, start the player and play the file
+		if m.conn == nil || m.conn.IsClosed() {
+			cmd, err := m.execCmd(start, "--input-ipc-server="+m.SocketName, filePath)
+			if err != nil {
+				return err
+			}
 
-		err = cmd.Start()
-		if err != nil {
-			return err
+			err = cmd.Start()
+			if err != nil {
+				return err
+			}
+		} else {
+			// If the connection is still open, just play the file
+			_, err := m.conn.Call("loadfile", filePath, "replace")
+			if err != nil {
+				return err
+			}
 		}
 
 		// Wait 1 second for the player to start

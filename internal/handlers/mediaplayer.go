@@ -36,7 +36,7 @@ func HandlePlayVideo(c *RouteCtx) error {
 	//	// This is enabled on the settings page.
 	//	if settings.Library.AutoUpdateProgress {
 	//		c.App.WSEventManager.SendEvent(events.MediaPlayerProgressUpdateRequest, nil)
-	//		c.App.Logger.Debug().Msg("mediaplayer: Automatic progress update requested")
+	//		c.App.Logger.Debug().Msg("media player: Automatic progress update requested")
 	//	}
 	//})
 
@@ -59,7 +59,7 @@ func HandleMpvDetectPlayback(c *RouteCtx) error {
 	//	// This is enabled on the settings page.
 	//	if settings.Library.AutoUpdateProgress {
 	//		c.App.WSEventManager.SendEvent(events.MediaPlayerProgressUpdateRequest, nil)
-	//		c.App.Logger.Debug().Msg("mediaplayer: Automatic progress update requested")
+	//		c.App.Logger.Debug().Msg("media player: Automatic progress update requested")
 	//	}
 	//})
 

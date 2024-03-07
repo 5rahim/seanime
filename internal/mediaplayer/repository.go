@@ -159,7 +159,7 @@ func (m *Repository) Play(path string) error {
 func (m *Repository) StartTracking() {
 	// If a previous context exists, cancel it
 	if m.cancel != nil {
-		m.Logger.Debug().Msg("mediaplayer: Cancelling previous context")
+		m.Logger.Debug().Msg("media player: Cancelling previous context")
 		m.cancel()
 	}
 
@@ -178,17 +178,17 @@ func (m *Repository) StartTracking() {
 		for {
 			select {
 			case <-done:
-				m.Logger.Debug().Msg("mediaplayer: Connection lost")
+				m.Logger.Debug().Msg("media player: Connection lost")
 				return
 			case <-trackingCtx.Done():
-				m.Logger.Debug().Msg("mediaplayer: Context cancelled")
+				m.Logger.Debug().Msg("media player: Context cancelled")
 				return
 			default:
 				time.Sleep(3 * time.Second)
 				status, err := m.getStatus()
 
 				if err != nil {
-					m.Logger.Error().Msgf("mediaplayer: Failed to get status, retrying (%d/%d)", retries+1, 3)
+					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
 						m.trackingStopped("Failed to get status")
 						close(done)
@@ -202,7 +202,7 @@ func (m *Repository) StartTracking() {
 				playback, ok := m.processStatus(m.Default, status)
 
 				if !ok {
-					m.Logger.Error().Msgf("mediaplayer: Failed to get status, retrying (%d/%d)", retries+1, 3)
+					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
 						m.trackingStopped("Failed to process status")
 						close(done)
@@ -218,7 +218,7 @@ func (m *Repository) StartTracking() {
 
 				// New video has started playing \/
 				if filename == "" || filename != playback.Filename {
-					m.Logger.Debug().Msg("mediaplayer: Video started playing")
+					m.Logger.Debug().Msg("media player: Video started playing")
 					m.trackingStarted(playback)
 					filename = playback.Filename
 					completed = false
@@ -226,7 +226,7 @@ func (m *Repository) StartTracking() {
 
 				// Video completed \/
 				if playback.CompletionPercentage > m.completionThreshold && !completed {
-					m.Logger.Debug().Msg("mediaplayer: Video completed")
+					m.Logger.Debug().Msg("media player: Video completed")
 					m.videoCompleted(playback)
 					completed = true
 				}
