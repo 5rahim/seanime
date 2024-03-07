@@ -1,25 +1,21 @@
 package mpv
 
 import (
+	"context"
 	"errors"
 	"github.com/jannson/mpvipc"
 	"github.com/rs/zerolog"
-	"os"
 	"os/exec"
 	"runtime"
 	"sync"
 	"time"
 )
 
-var (
-	ErrConnClosed = errors.New("connection closed")
-)
-
 const (
-	StartExecCommand = iota
-	StartDetectPlayback
-	StartExecPath
-	StartExec
+	StartExecCommand    = iota // Start mpv using the "mpv" command
+	StartDetectPlayback        // Skip starting mpv, just detect if it's already running
+	StartExecPath              // Start mpv using the path provided
+	StartExec                  // Start mpv using the path provided, if not provided, use the "mpv" command
 )
 
 type (
@@ -33,17 +29,20 @@ type (
 	}
 
 	Mpv struct {
-		Logger     *zerolog.Logger
-		ExitCh     chan error
-		CloseCh    chan struct{}
-		Playback   *Playback
-		SocketName string
-		AppPath    string
-		conn       *mpvipc.Connection
-		isRunning  bool
-		mu         sync.Mutex
-		playbackMu sync.RWMutex
-		process    *os.Process
+		Logger      *zerolog.Logger
+		Playback    *Playback
+		SocketName  string
+		AppPath     string
+		isRunning   bool
+		mu          sync.Mutex
+		playbackMu  sync.RWMutex
+		cancel      context.CancelFunc     // Cancel function for the context
+		subscribers map[string]*Subscriber // Subscribers to the mpv events
+		conn        *mpvipc.Connection     // Reference to the mpv connection
+	}
+
+	Subscriber struct {
+		ClosedCh chan struct{}
 	}
 )
 
@@ -52,14 +51,13 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		socketName = getSocketName()
 	}
 	return &Mpv{
-		Logger:     logger,
-		ExitCh:     make(chan error),
-		CloseCh:    make(chan struct{}),
-		Playback:   &Playback{},
-		mu:         sync.Mutex{},
-		playbackMu: sync.RWMutex{},
-		SocketName: socketName,
-		AppPath:    appPath,
+		Logger:      logger,
+		Playback:    &Playback{},
+		mu:          sync.Mutex{},
+		playbackMu:  sync.RWMutex{},
+		SocketName:  socketName,
+		AppPath:     appPath,
+		subscribers: make(map[string]*Subscriber),
 	}
 }
 
@@ -76,38 +74,65 @@ func getSocketName() string {
 	}
 }
 
-func (m *Mpv) Play(filepath string, start int) error {
+func (m *Mpv) execCmd(mode int, args ...string) (*exec.Cmd, error) {
+	var cmd *exec.Cmd
+	switch mode {
+	case StartExecPath:
+		if m.AppPath == "" {
+			return nil, errors.New("mpv path is not set")
+		}
+		cmd = exec.Command(m.AppPath, args...)
 
-	// Open and play the file if not running
-	if !m.isRunning {
-		return m.OpenAndPlay(filepath, start)
+	case StartExecCommand:
+		cmd = exec.Command("mpv", args...)
+
+	case StartExec:
+		if m.AppPath > "" {
+			cmd = exec.Command(m.AppPath, args...)
+		} else {
+			cmd = exec.Command("mpv", args...)
+		}
+
+	default:
+		panic("invalid execution mode")
 	}
-
-	// If running, just play the file
-	//_, err := m.conn.Call("loadfile", filepath, "replace")
-	//
-	panic("not implemented")
+	return cmd, nil
 }
 
 func (m *Mpv) launchPlayer(start int, filePath string) error {
-	var cmd *exec.Cmd
+	// Cancel previous context
+	// This is done so that we only have one instance of mpv running at a time
+	if m.cancel != nil {
+		m.cancel()
+		if m.conn != nil {
+			// Close the player
+			_, err := m.conn.Call("stop")
+			if err != nil {
+				return err
+			}
+		}
+		time.Sleep(1 * time.Second)
+	}
 
 	switch start {
-	case StartExecPath, StartExec:
-		if m.AppPath == "" {
-			return errors.New("mpv path is not set")
+	case StartExecPath, StartExecCommand, StartExec:
+		cmd, err := m.execCmd(start, "--input-ipc-server="+m.SocketName, filePath)
+		if err != nil {
+			return err
 		}
-		cmd = exec.Command(m.AppPath, "--input-ipc-server="+m.SocketName, filePath)
-	default:
-		cmd = exec.Command("mpv", "--input-ipc-server="+m.SocketName, filePath)
+
+		err = cmd.Start()
+		if err != nil {
+			return err
+		}
+
+		// Wait 1 second for the player to start
+		time.Sleep(1 * time.Second)
+
+	case StartDetectPlayback:
+		// Do nothing
 	}
 
-	err := cmd.Start()
-	if err != nil {
-		return err
-	}
-
-	m.process = cmd.Process
 	return nil
 }
 
@@ -115,20 +140,17 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.CloseCh = make(chan struct{}, 1)
-	m.ExitCh = make(chan error, 1)
 	m.Playback = &Playback{}
 
 	// Launch player
-	if m.isRunning && m.process != nil {
-		m.process.Kill()
-	}
 	err := m.launchPlayer(start, filePath)
 	if err != nil {
 		return err
 	}
 
-	time.Sleep(1 * time.Second)
+	// Create context
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// Establish connection
 	m.conn = mpvipc.NewConnection(m.SocketName)
@@ -140,6 +162,11 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 	m.isRunning = true
 	m.Logger.Debug().Msg("mpv: Connection established")
 
+	// Reset subscriber's done channel in case it was closed
+	for _, sub := range m.subscribers {
+		sub.ClosedCh = make(chan struct{})
+	}
+
 	// Listen for events in a goroutine
 	go func() {
 		// Close the connection when the goroutine ends
@@ -148,51 +175,61 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 			m.ResetPlaybackStatus()
 			m.isRunning = false
 			m.conn.Close()
-			if m.process != nil {
-				m.process.Kill()
-			}
-			m.ExitCh <- ErrConnClosed
-			m.Logger.Debug().Msg("mpv: Connection closed")
+			m.publishDone()
+			m.Logger.Debug().Msg("mpv: Instance closed")
 		}()
 
 		events, stopListening := m.conn.NewEventListener()
+		m.Logger.Debug().Msg("mpv: Listening for events")
 
 		_, err = m.conn.Get("path")
 		if err != nil {
-			m.ExitCh <- err
+			m.Logger.Error().Err(err).Msg("mpv: Failed to get path")
 			return
 		}
 
 		_, err = m.conn.Call("observe_property", 42, "time-pos")
 		if err != nil {
-			m.ExitCh <- err
+			m.Logger.Error().Err(err).Msg("mpv: Failed to observe time-pos")
 			return
 		}
 		_, err = m.conn.Call("observe_property", 43, "pause")
 		if err != nil {
-			m.ExitCh <- err
+			m.Logger.Error().Err(err).Msg("mpv: Failed to observe pause")
 			return
 		}
 		_, err = m.conn.Call("observe_property", 44, "duration")
 		if err != nil {
-			m.ExitCh <- err
+			m.Logger.Error().Err(err).Msg("mpv: Failed to observe duration")
 			return
 		}
 		_, err = m.conn.Call("observe_property", 45, "filename")
 		if err != nil {
-			m.ExitCh <- err
+			m.Logger.Error().Err(err).Msg("mpv: Failed to observe filename")
 			return
 		}
 		_, err = m.conn.Call("observe_property", 46, "path")
 		if err != nil {
-			m.ExitCh <- err
+			m.Logger.Error().Err(err).Msg("mpv: Failed to observe path")
 			return
 		}
 
 		// Listen for close event
 		go func() {
 			m.conn.WaitUntilClosed()
+			m.Logger.Debug().Msg("mpv: Connection has been closed")
 			stopListening <- struct{}{}
+		}()
+
+		go func() {
+			<-ctx.Done()
+			m.Logger.Debug().Msg("mpv: Context cancelled")
+			err := m.conn.Close()
+			if err != nil {
+				m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
+			}
+			stopListening <- struct{}{}
+			return
 		}()
 
 		// Listen for events
@@ -236,7 +273,7 @@ func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 
 func (m *Mpv) ResetPlaybackStatus() {
 	m.playbackMu.Lock()
-	//m.Logger.Debug().Msg("mpv: resetting playback status")
+	m.Logger.Debug().Msg("mpv: Resetting playback status")
 	m.Playback.Filename = ""
 	m.Playback.Filepath = ""
 	m.Playback.Paused = false
@@ -246,12 +283,38 @@ func (m *Mpv) ResetPlaybackStatus() {
 	return
 }
 
-func (m *Mpv) Close() {
-	m.conn.Close()
+func (m *Mpv) CloseAll() {
+	err := m.conn.Close()
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
+	}
 	m.ResetPlaybackStatus()
 	m.isRunning = false
-	if m.process != nil {
-		m.process.Kill()
+}
+
+func (m *Mpv) Subscribe(id string) *Subscriber {
+	sub := &Subscriber{
+		ClosedCh: make(chan struct{}),
 	}
-	m.ExitCh <- ErrConnClosed
+	m.subscribers[id] = sub
+	return sub
+}
+
+func (m *Mpv) Unsubscribe(id string) {
+	delete(m.subscribers, id)
+}
+
+func (m *Mpv) publishDone() {
+	defer func() {
+		if r := recover(); r != nil {
+			m.Logger.Warn().Msgf("mpv: Connection already closed")
+		}
+	}()
+	for _, sub := range m.subscribers {
+		close(sub.ClosedCh)
+	}
+}
+
+func (s *Subscriber) Done() chan struct{} {
+	return s.ClosedCh
 }

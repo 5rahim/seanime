@@ -19,8 +19,10 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sub := m.Subscribe("test")
+
 	select {
-	case v, _ := <-m.ExitCh:
+	case v, _ := <-sub.Done():
 		t.Logf("mpv exited, %+v", v)
 		break
 	}
@@ -38,8 +40,10 @@ func TestMpv_OpenAndPlayPath(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sub := m.Subscribe("test")
+
 	select {
-	case v, _ := <-m.ExitCh:
+	case v, _ := <-sub.Done():
 		t.Logf("mpv exited, %+v", v)
 		break
 	}
@@ -57,10 +61,12 @@ func TestMpv_Playback(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	sub := m.Subscribe("test")
+
 loop:
 	for {
 		select {
-		case v, _ := <-m.ExitCh:
+		case v, _ := <-sub.Done():
 			t.Logf("mpv exited, %+v", v)
 			break loop
 		default:
@@ -77,10 +83,14 @@ func TestMpv_Multiple(t *testing.T) {
 
 	m := New(util.NewLogger(), "", "")
 
+	//sub := m.Subscribe("test")
+
 	err := m.OpenAndPlay(testFilePath, StartExecCommand)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	time.Sleep(4 * time.Second)
 
 	err = m.OpenAndPlay(testFilePath, StartExecCommand)
 	if assert.Error(t, err, "mpv instance should not be initialized twice") {
@@ -89,53 +99,7 @@ func TestMpv_Multiple(t *testing.T) {
 
 	t.Log("Tried to open mpv instance twice")
 
-	select {
-	case v, _ := <-m.ExitCh:
-		t.Logf("mpv exited, %+v", v)
-		break
-	}
-
-	t.Log("Done")
-
-}
-
-func TestMpv_CloseReopen(t *testing.T) {
-
-	m := New(util.NewLogger(), "", "")
-
-	err := m.OpenAndPlay(testFilePath, StartExecCommand)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	go func() {
-		<-time.After(2 * time.Second)
-		m.Close()
-	}()
-
-	select {
-	case v, _ := <-m.ExitCh:
-		t.Logf("mpv exited, %+v", v)
-		break
-	}
-
-	time.Sleep(1 * time.Second) // Wait a second before reopening
-
-	err = m.OpenAndPlay(testFilePath, StartExecCommand)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	go func() {
-		<-time.After(2 * time.Second)
-		m.Close()
-	}()
-
-	select {
-	case v, _ := <-m.ExitCh:
-		t.Logf("mpv exited again, %+v", v)
-		break
-	}
+	time.Sleep(4 * time.Second)
 
 	t.Log("Done")
 

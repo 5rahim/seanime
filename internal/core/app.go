@@ -85,8 +85,7 @@ func NewApp(options *AppOptions, version string) *App {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("app: Failed to get working directory")
 	}
-
-	logger.Debug().Msgf("app: Working directory: \"%s\"", pwd)
+	logger.Debug().Msgf("app: Working directory: \"%s\"\n", pwd)
 
 	// Initialize the config
 	// If the config file does not exist, it will be created
