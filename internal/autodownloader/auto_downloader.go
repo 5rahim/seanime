@@ -26,8 +26,7 @@ const (
 )
 
 type (
-	anilistListEntry = anilist.AnimeCollection_MediaListCollection_Lists_Entries
-	AutoDownloader   struct {
+	AutoDownloader struct {
 		Logger                  *zerolog.Logger
 		TorrentClientRepository *torrent_client.Repository
 		Database                *db.Database
@@ -209,6 +208,8 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch local files from the database")
 		return
 	}
+	// Create a LocalFileWrapper
+	lfWrapper := entities.NewLocalFileWrapper(lfs)
 
 	if ad.Settings.Provider == NyaaProvider {
 		nyaaTorrents, err := ad.getCurrentTorrentsFromNyaa()
@@ -255,8 +256,6 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				return // Skip rule
 			}
 
-			// Create a LocalFileWrapper
-			lfWrapper := entities.NewLocalFileWrapper(lfs)
 			localEntry, _ := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
 
 			// Get all torrents that follow the rule
@@ -330,7 +329,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 func (ad *AutoDownloader) torrentFollowsRule(
 	t *NormalizedTorrent,
 	rule *entities.AutoDownloaderRule,
-	listEntry *anilistListEntry,
+	listEntry *anilist.MediaListEntry,
 	localEntry *entities.LocalFileWrapperEntry,
 ) (int, bool) {
 
@@ -453,7 +452,7 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoD
 	return false
 }
 
-func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoDownloaderRule, listEntry *anilistListEntry) bool {
+func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoDownloaderRule, listEntry *anilist.MediaListEntry) bool {
 	switch rule.TitleComparisonType {
 	case entities.AutoDownloaderRuleTitleComparisonContains:
 		// +---------------------+
@@ -516,7 +515,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 func (ad *AutoDownloader) isEpisodeMatch(
 	episodes []string,
 	rule *entities.AutoDownloaderRule,
-	listEntry *anilistListEntry,
+	listEntry *anilist.MediaListEntry,
 	localEntry *entities.LocalFileWrapperEntry,
 ) (int, bool) {
 	if listEntry == nil {
@@ -620,7 +619,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	return -1, false
 }
 
-func (ad *AutoDownloader) getRuleListEntry(rule *entities.AutoDownloaderRule) (*anilistListEntry, bool) {
+func (ad *AutoDownloader) getRuleListEntry(rule *entities.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
 	if rule == nil || rule.MediaId == 0 || ad.AnilistCollection == nil {
 		return nil, false
 	}

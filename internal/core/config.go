@@ -48,13 +48,13 @@ var defaultConfigValues = Config{
 		Dir      string
 		AssetDir string
 	}{
-		Dir:      "./web",
-		AssetDir: "$SEA_DATA_DIR/assets",
+		Dir:      "$SEANIME_WORKING_DIR/web",
+		AssetDir: "$SEANIME_DATA_DIR/assets",
 	},
 	Logs: struct {
 		Dir string
 	}{
-		Dir: "$SEA_DATA_DIR/logs",
+		Dir: "$SEANIME_DATA_DIR/logs",
 	},
 }
 
@@ -76,8 +76,17 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	}
 
 	// Set the app data directory environment variable
-	if os.Getenv("SEA_DATA_DIR") == "" {
-		if err = os.Setenv("SEA_DATA_DIR", dataDir); err != nil {
+	if os.Getenv("SEANIME_DATA_DIR") == "" {
+		if err = os.Setenv("SEANIME_DATA_DIR", dataDir); err != nil {
+			return nil, err
+		}
+	}
+	if os.Getenv("SEANIME_WORKING_DIR") == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		if err = os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
 			return nil, err
 		}
 	}
@@ -187,9 +196,9 @@ func hydrateValues(cfg *Config) {
 			// Do nothing
 		}
 	}()
-	cfg.Web.AssetDir = os.ExpandEnv(cfg.Web.AssetDir)
-	cfg.Web.Dir = os.ExpandEnv(cfg.Web.Dir)
-	cfg.Logs.Dir = os.ExpandEnv(cfg.Logs.Dir)
+	cfg.Web.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Web.AssetDir))
+	cfg.Web.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Web.Dir))
+	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
 }
 
 // saveConfigToFile saves the config to the config file.
@@ -232,8 +241,8 @@ func getUserPaths(_definedDataDir string) (configPath string, dataDir string, er
 		return "", "", err
 	}
 
-	configPath = filepath.ToSlash(filepath.Join(dataDir, constants.ConfigFileName))
-	dataDir = filepath.ToSlash(dataDir)
+	configPath = filepath.FromSlash(filepath.Join(dataDir, constants.ConfigFileName))
+	dataDir = filepath.FromSlash(dataDir)
 
 	return configPath, dataDir, nil
 }

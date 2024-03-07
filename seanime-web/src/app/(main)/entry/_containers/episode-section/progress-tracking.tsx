@@ -163,7 +163,8 @@ export function ProgressTracking({ entry }: { entry: MediaEntry }) {
         <>
             {isTracking.active && canTrackProgress && <Button
                 intent="success"
-                className={cn({ "animate-pulse": isCompleted.active })}
+                size="lg"
+                className={cn({ "animate-bounce": isCompleted.active })}
                 onClick={trackerModal.on}
             >
                 Update progress

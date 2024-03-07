@@ -51,7 +51,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                 className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center"
             >
                 <LuLoader className="text-brand-200 animate-spin text-lg" />
-                Waiting for server...
+                Establishing connection...
             </div>}
             {children}
         </WebSocketContext.Provider>

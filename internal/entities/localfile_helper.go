@@ -25,6 +25,9 @@ func (f *LocalFile) IsParsedEpisodeValid() bool {
 // GetEpisodeNumber returns the metadata episode number.
 // This requires the LocalFile to be hydrated.
 func (f *LocalFile) GetEpisodeNumber() int {
+	if f.Metadata == nil {
+		return -1
+	}
 	return f.Metadata.Episode
 }
 

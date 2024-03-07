@@ -13,11 +13,12 @@ import (
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/listsync"
+	"github.com/seanime-app/seanime/internal/mediaplayer"
 	"github.com/seanime-app/seanime/internal/models"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/nyaa"
-	"github.com/seanime-app/seanime/internal/progressmanager"
+	"github.com/seanime-app/seanime/internal/playbackmanager"
 	"github.com/seanime-app/seanime/internal/scanner"
 	"github.com/seanime-app/seanime/internal/torrent_client"
 	"github.com/seanime-app/seanime/internal/updater"
@@ -25,7 +26,6 @@ import (
 	"github.com/seanime-app/seanime/internal/vlc"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -50,11 +50,13 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		Version         string
-		Updater         *updater.Updater
-		Settings        *models.Settings
-		AutoScanner     *scanner.AutoScanner
-		ProgressManager *progressmanager.ProgressManager
+		MediaPlayRepository *mediaplayer.Repository
+		Version             string
+		Updater             *updater.Updater
+		Settings            *models.Settings
+		AutoScanner         *scanner.AutoScanner
+		PlaybackManager     *playbackmanager.PlaybackManager
+		WD                  string // Working directory
 	}
 
 	AppOptions struct {
@@ -84,7 +86,7 @@ func NewApp(options *AppOptions, version string) *App {
 		logger.Fatal().Err(err).Msg("app: Failed to get working directory")
 	}
 
-	logger.Debug().Msgf("app: Working directory: \"%s\"", filepath.ToSlash(pwd))
+	logger.Debug().Msgf("app: Working directory: \"%s\"", pwd)
 
 	// Initialize the config
 	// If the config file does not exist, it will be created
@@ -140,10 +142,12 @@ func NewApp(options *AppOptions, version string) *App {
 		Logger:                  logger,
 		Version:                 version,
 		Updater:                 updater.New(version),
-		ProgressManager:         nil, // Initialized in App.InitModulesOnce
+		PlaybackManager:         nil, // Initialized in App.InitModulesOnce
 		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
 		AutoScanner:             nil, // Initialized in App.InitModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
+		MediaPlayRepository:     nil, // Initialized in App.InitOrRefreshModules
+		WD:                      pwd,
 	}
 
 	app.InitModulesOnce()
@@ -198,7 +202,7 @@ func NewFiberApp(app *App) *fiber.App {
 		if path == "/.html" {
 			path = "/index.html"
 		}
-		return c.SendFile("./web" + path)
+		return c.SendFile(app.Config.Web.Dir + path)
 	})
 
 	return fiberApp

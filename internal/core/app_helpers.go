@@ -46,8 +46,8 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to AutoDownloader
 	a.AutoDownloader.SetAnilistCollection(collection)
 
-	// Save the collection to ProgressManager
-	a.ProgressManager.SetAnilistCollection(collection)
+	// Save the collection to PlaybackManager
+	a.PlaybackManager.SetAnilistCollection(collection)
 
 	return collection, nil
 }

@@ -47,8 +47,6 @@ func (lfw *LocalFileWrapper) GetLocalEntryById(mId int) (*LocalFileWrapperEntry,
 	return nil, false
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // GetMainLocalFiles returns the *main* local files.
 func (e *LocalFileWrapperEntry) GetMainLocalFiles() ([]*LocalFile, bool) {
 	lfs := make([]*LocalFile, 0)
@@ -100,4 +98,21 @@ func (e *LocalFileWrapperEntry) FindLatestLocalFile() (*LocalFile, bool) {
 		}
 	}
 	return latest, true
+}
+
+// FindNextEpisode returns the *main* local file whose episode number is after the given local file.
+func (e *LocalFileWrapperEntry) FindNextEpisode(lf *LocalFile) (*LocalFile, bool) {
+	lfs, ok := e.GetMainLocalFiles()
+	if !ok {
+		return nil, false
+	}
+	// Get the local file whose episode number is after the given local file
+	var next *LocalFile
+	for _, l := range lfs {
+		if l.GetEpisodeNumber() == lf.GetEpisodeNumber()+1 {
+			next = l
+			break
+		}
+	}
+	return next, true
 }

@@ -29,6 +29,7 @@ type (
 		Position  float64
 		Duration  float64
 		IsRunning bool
+		Filepath  string
 	}
 
 	Mpv struct {
@@ -75,50 +76,63 @@ func getSocketName() string {
 	}
 }
 
+func (m *Mpv) Play(filepath string, start int) error {
+
+	// Open and play the file if not running
+	if !m.isRunning {
+		return m.OpenAndPlay(filepath, start)
+	}
+
+	// If running, just play the file
+	//_, err := m.conn.Call("loadfile", filepath, "replace")
+	//
+	panic("not implemented")
+}
+
+func (m *Mpv) launchPlayer(start int, filePath string) error {
+	var cmd *exec.Cmd
+
+	switch start {
+	case StartExecPath, StartExec:
+		if m.AppPath == "" {
+			return errors.New("mpv path is not set")
+		}
+		cmd = exec.Command(m.AppPath, "--input-ipc-server="+m.SocketName, filePath)
+	default:
+		cmd = exec.Command("mpv", "--input-ipc-server="+m.SocketName, filePath)
+	}
+
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	m.process = cmd.Process
+	return nil
+}
+
 func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
-	if m.isRunning {
-		return errors.New("an instance of mpv is already running")
-	}
 
 	m.CloseCh = make(chan struct{}, 1)
 	m.ExitCh = make(chan error, 1)
 	m.Playback = &Playback{}
 
-	sn := m.SocketName
-
-	// If StartExecCommand is set, launch mpv by executing a command before establishing connection
-	if start == StartExecPath || (start == StartExec && m.AppPath != "") {
-		if m.AppPath == "" {
-			return errors.New("mpv path is not set")
-		}
-
-		cmd := exec.Command(m.AppPath, "--input-ipc-server="+sn, filePath)
-		err := cmd.Start()
-		if err != nil {
-			return err
-		}
-
-		m.process = cmd.Process
-	} else if start == StartExecCommand || m.AppPath == "" || start == StartExec {
-		// Launch player
-		cmd := exec.Command("mpv", "--input-ipc-server="+sn, filePath)
-		err := cmd.Start()
-		if err != nil {
-			return err
-		}
-
-		m.process = cmd.Process
-	} else if start == StartDetectPlayback {
-		// Do nothing
+	// Launch player
+	if m.isRunning && m.process != nil {
+		m.process.Kill()
 	}
+	err := m.launchPlayer(start, filePath)
+	if err != nil {
+		return err
+	}
+
 	time.Sleep(1 * time.Second)
 
 	// Establish connection
-	m.conn = mpvipc.NewConnection(sn)
-	err := m.conn.Open()
+	m.conn = mpvipc.NewConnection(m.SocketName)
+	err = m.conn.Open()
 	if err != nil {
 		return err
 	}
@@ -169,6 +183,11 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 			m.ExitCh <- err
 			return
 		}
+		_, err = m.conn.Call("observe_property", 46, "path")
+		if err != nil {
+			m.ExitCh <- err
+			return
+		}
 
 		// Listen for close event
 		go func() {
@@ -190,6 +209,8 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 					m.Playback.Duration = event.Data.(float64)
 				case 45:
 					m.Playback.Filename = event.Data.(string)
+				case 46:
+					m.Playback.Filepath = event.Data.(string)
 				}
 			}
 		}
@@ -217,6 +238,7 @@ func (m *Mpv) ResetPlaybackStatus() {
 	m.playbackMu.Lock()
 	//m.Logger.Debug().Msg("mpv: resetting playback status")
 	m.Playback.Filename = ""
+	m.Playback.Filepath = ""
 	m.Playback.Paused = false
 	m.Playback.Position = 0
 	m.Playback.Duration = 0

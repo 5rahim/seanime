@@ -28,6 +28,7 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 	t.Log("Done")
 
 }
+
 func TestMpv_OpenAndPlayPath(t *testing.T) {
 
 	m := New(util.NewLogger(), "", "C:\\Program Files\\mpv.net\\mpvnet.exe")

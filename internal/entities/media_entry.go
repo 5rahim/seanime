@@ -79,7 +79,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// If the Anilist List entry does not exist, fetch the media from AniList
 	if !found {
 		// If the Anilist entry does not exist, instantiate one with zero values
-		anilistEntry = &anilist.AnimeCollection_MediaListCollection_Lists_Entries{}
+		anilistEntry = &anilist.MediaListEntry{}
 
 		// Fetch the media
 		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClientWrapper.Client, opts.MediaId) // DEVNOTE: Maybe cache it?
@@ -176,7 +176,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 // hydrateEntryEpisodeData
 // AniZipData, Media and LocalFiles should be defined
 func (e *MediaEntry) hydrateEntryEpisodeData(
-	anilistEntry *anilist.AnimeCollection_MediaListCollection_Lists_Entries,
+	anilistEntry *anilist.MediaListEntry,
 	anizipData *anizip.Media,
 ) {
 

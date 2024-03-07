@@ -1,6 +1,7 @@
 package mediaplayer
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
@@ -8,11 +9,28 @@ import (
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/vlc"
+	"sync"
 	"time"
 )
 
 type (
+	// Repository provides a common interface to interact with media players
 	Repository struct {
+		Logger                *zerolog.Logger
+		Default               string
+		VLC                   *vlc.VLC
+		MpcHc                 *mpchc.MpcHc
+		Mpv                   *mpv.Mpv
+		WSEventManager        events.IWSEventManager
+		completionThreshold   float64
+		mu                    sync.Mutex
+		isRunning             bool
+		currentPlaybackStatus *PlaybackStatus
+		subscribers           map[string]*RepositorySubscriber
+		cancel                context.CancelFunc
+	}
+
+	NewRepositoryOptions struct {
 		Logger         *zerolog.Logger
 		Default        string
 		VLC            *vlc.VLC
@@ -21,15 +39,91 @@ type (
 		WSEventManager events.IWSEventManager
 	}
 
-	playbackStatus struct {
+	RepositorySubscriber struct {
+		TrackingStartedCh chan *PlaybackStatus
+		TrackingRetryCh   chan string
+		VideoCompletedCh  chan *PlaybackStatus
+		TrackingStoppedCh chan string
+		PlaybackStatusCh  chan *PlaybackStatus
+	}
+
+	PlaybackStatus struct {
 		CompletionPercentage float64 `json:"completionPercentage"`
 		Playing              bool    `json:"playing"`
 		Filename             string  `json:"filename"`
+		Path                 string  `json:"path"`
 		Duration             int     `json:"duration"` // in ms
+		Filepath             string  `json:"filepath"`
 	}
 )
 
+func NewRepository(opts *NewRepositoryOptions) *Repository {
+	return &Repository{
+		Logger:              opts.Logger,
+		Default:             opts.Default,
+		VLC:                 opts.VLC,
+		MpcHc:               opts.MpcHc,
+		Mpv:                 opts.Mpv,
+		WSEventManager:      opts.WSEventManager,
+		completionThreshold: 0.9,
+		subscribers:         make(map[string]*RepositorySubscriber),
+	}
+}
+
+func (m *Repository) Subscribe(id string) *RepositorySubscriber {
+	sub := &RepositorySubscriber{
+		TrackingStartedCh: make(chan *PlaybackStatus, 1),
+		TrackingRetryCh:   make(chan string, 1),
+		VideoCompletedCh:  make(chan *PlaybackStatus, 1),
+		TrackingStoppedCh: make(chan string, 1),
+		PlaybackStatusCh:  make(chan *PlaybackStatus, 1),
+	}
+	m.subscribers[id] = sub
+	return sub
+}
+
+func (m *Repository) GetStatus() *PlaybackStatus {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.currentPlaybackStatus
+}
+
+func (m *Repository) IsRunning() bool {
+	return m.isRunning
+}
+
+func (m *Repository) trackingStopped(reason string) {
+	for _, sub := range m.subscribers {
+		sub.TrackingStoppedCh <- reason
+	}
+}
+
+func (m *Repository) trackingStarted(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.TrackingStartedCh <- status
+	}
+}
+
+func (m *Repository) trackingRetry(reason string) {
+	for _, sub := range m.subscribers {
+		sub.TrackingRetryCh <- reason
+	}
+}
+
+func (m *Repository) videoCompleted(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.VideoCompletedCh <- status
+	}
+}
+
+func (m *Repository) playbackStatus(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.PlaybackStatusCh <- status
+	}
+}
+
 func (m *Repository) Play(path string) error {
+
 	switch m.Default {
 	case "vlc":
 		err := m.VLC.Start()
@@ -62,127 +156,101 @@ func (m *Repository) Play(path string) error {
 	}
 }
 
-// StartTracking will start a goroutine that will monitor the status of the media player
-func (m *Repository) StartTracking(onVideoCompleted func()) {
-	// Create a channel to signal the goroutine to exit
+func (m *Repository) StartTracking() {
+	// If a previous context exists, cancel it
+	if m.cancel != nil {
+		m.Logger.Debug().Msg("mediaplayer: Cancelling previous context")
+		m.cancel()
+	}
+
+	// Create a new context
+	var trackingCtx context.Context
+	trackingCtx, m.cancel = context.WithCancel(context.Background())
+
 	done := make(chan struct{})
 	var filename string
 	var completed bool
 	var retries int
-	var sRetries int
-	var started bool
 
-	m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, nil)
+	m.isRunning = true
 
 	go func() {
 		for {
 			select {
 			case <-done:
+				m.Logger.Debug().Msg("mediaplayer: Connection lost")
 				return
-			case <-time.After(3 * time.Second):
-				var status interface{}
-				var err error
-
-				// Get the status based on the default player
-				switch m.Default {
-				case "vlc":
-					status, err = m.VLC.GetStatus()
-				case "mpc-hc":
-					status, err = m.MpcHc.GetVariables()
-				case "mpv":
-					status, err = m.Mpv.GetPlaybackStatus()
-				}
+			case <-trackingCtx.Done():
+				m.Logger.Debug().Msg("mediaplayer: Context cancelled")
+				return
+			default:
+				time.Sleep(3 * time.Second)
+				status, err := m.getStatus()
 
 				if err != nil {
-					// Retry 2 times before exiting, only if the tracking has started
-					if started || (!started && retries >= 2) {
-						if !started {
-							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Failed to get status")
-						} else {
-							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Closed")
-						}
-						m.Logger.Error().Msgf("mediaplayer: Failed to get status, %s", err.Error())
-						m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
-						switch m.Default {
-						case "vlc":
-							m.VLC.Stop()
-						case "mpc-hc":
-							m.MpcHc.Stop()
-						case "mpv":
-							m.Mpv.Close()
-						}
-						close(done) // Signal to exit the goroutine
-						return
+					m.Logger.Error().Msgf("mediaplayer: Failed to get status, retrying (%d/%d)", retries+1, 3)
+					if retries >= 2 {
+						m.trackingStopped("Failed to get status")
+						close(done)
+						break
 					}
-					if !started {
-						retries++
-						m.Logger.Error().Msgf("mediaplayer: Failed to get status, retrying (%d/%d)", retries, 2)
-						continue
-					}
+					retries++
+					continue
 				}
+				retries = 0
 
-				// Process the status
 				playback, ok := m.processStatus(m.Default, status)
 
-				// Signal that the tracking has started
-				if !started && err == nil && ok {
-					started = true
-				}
-
 				if !ok {
-					if started || (!started && sRetries >= 2) {
-						if !started {
-							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Failed to process status")
-						} else {
-							m.WSEventManager.SendEvent(events.MediaPlayerTrackingStopped, "Closed")
-						}
-						m.Logger.Error().Msg("mediaplayer: Failed to process status")
-						m.Logger.Debug().Msg("mediaplayer: Tracking stopped")
-						switch m.Default {
-						case "vlc":
-							m.VLC.Stop()
-						case "mpc-hc":
-							m.MpcHc.Stop()
-						case "mpv":
-							m.Mpv.Close()
-						}
-						close(done) // Signal to exit the goroutine
-						return
+					m.Logger.Error().Msgf("mediaplayer: Failed to get status, retrying (%d/%d)", retries+1, 3)
+					if retries >= 2 {
+						m.trackingStopped("Failed to process status")
+						close(done)
+						break
 					}
-					if !started {
-						sRetries++
-						m.Logger.Error().Msgf("mediaplayer: Failed to process status, retrying (%d/%d)", sRetries, 2)
-						continue
-					}
+					retries++
+					continue
 				}
 
-				if filename == "" {
-					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, playback)
+				m.mu.Lock()
+				m.currentPlaybackStatus = playback
+				m.mu.Unlock()
+
+				// New video has started playing \/
+				if filename == "" || filename != playback.Filename {
+					m.Logger.Debug().Msg("mediaplayer: Video started playing")
+					m.trackingStarted(playback)
 					filename = playback.Filename
 					completed = false
 				}
 
-				// reset completed status if filename changes
-				if filename != "" && filename != playback.Filename {
-					m.WSEventManager.SendEvent(events.MediaPlayerTrackingStarted, playback)
-					filename = playback.Filename
-					completed = false
-				}
-
-				if playback.CompletionPercentage > 0.9 && playback.Filename == filename && !completed {
-					m.WSEventManager.SendEvent(events.MediaPlayerVideoCompleted, playback)
+				// Video completed \/
+				if playback.CompletionPercentage > m.completionThreshold && !completed {
 					m.Logger.Debug().Msg("mediaplayer: Video completed")
+					m.videoCompleted(playback)
 					completed = true
-					onVideoCompleted()
 				}
 
-				m.WSEventManager.SendEvent(events.MediaPlayerPlaybackStatus, playback)
+				m.playbackStatus(playback)
+
 			}
 		}
 	}()
 }
 
-func (m *Repository) processStatus(player string, status interface{}) (*playbackStatus, bool) {
+func (m *Repository) getStatus() (interface{}, error) {
+	switch m.Default {
+	case "vlc":
+		return m.VLC.GetStatus()
+	case "mpc-hc":
+		return m.MpcHc.GetVariables()
+	case "mpv":
+		return m.Mpv.GetPlaybackStatus()
+	}
+	return nil, errors.New("unsupported media player")
+}
+
+func (m *Repository) processStatus(player string, status interface{}) (*PlaybackStatus, bool) {
 	switch player {
 	case "vlc":
 		// Process VLC status
@@ -191,11 +259,12 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 			return nil, false
 		}
 
-		ret := &playbackStatus{
+		ret := &PlaybackStatus{
 			CompletionPercentage: st.Position,
 			Playing:              st.State == "playing",
 			Filename:             st.Information.Category["meta"].Filename,
 			Duration:             int(st.Length * 1000),
+			Filepath:             "", // VLC does not provide the filepath
 		}
 
 		return ret, true
@@ -205,12 +274,12 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 		if st == nil || st.Duration == 0 {
 			return nil, false
 		}
-
-		ret := &playbackStatus{
+		ret := &PlaybackStatus{
 			CompletionPercentage: st.Position / st.Duration,
 			Playing:              st.State == 2,
 			Filename:             st.File,
 			Duration:             int(st.Duration),
+			Filepath:             st.FilePath,
 		}
 
 		return ret, true
@@ -220,11 +289,12 @@ func (m *Repository) processStatus(player string, status interface{}) (*playback
 		if st == nil || st.Duration == 0 || st.IsRunning == false {
 			return nil, false
 		}
-		ret := &playbackStatus{
+		ret := &PlaybackStatus{
 			CompletionPercentage: st.Position / st.Duration,
 			Playing:              !st.Paused,
 			Filename:             st.Filename,
 			Duration:             int(st.Duration),
+			Filepath:             st.Filepath,
 		}
 
 		return ret, true

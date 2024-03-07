@@ -1,4 +1,5 @@
 "use client"
+import { ProgressTracking } from "@/app/(main)/(library)/_containers/progress-tracking"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scanner/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
 import { useAnilistCollectionListener } from "@/app/(main)/_loaders/anilist-collection"
@@ -33,6 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         <div className="flex items-center w-full gap-2">
                             <AppSidebarTrigger/>
                             <TopNavbar/>
+                            <ProgressTracking />
                         </div>
                         <div className="flex items-center gap-4">
                             <RefreshAnilistButton/>

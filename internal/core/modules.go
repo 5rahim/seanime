@@ -3,9 +3,10 @@ package core
 import (
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/autodownloader"
+	"github.com/seanime-app/seanime/internal/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
-	"github.com/seanime-app/seanime/internal/progressmanager"
+	"github.com/seanime-app/seanime/internal/playbackmanager"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
 	"github.com/seanime-app/seanime/internal/scanner"
 	"github.com/seanime-app/seanime/internal/torrent_client"
@@ -19,10 +20,11 @@ import (
 func (a *App) InitModulesOnce() {
 
 	// Progress manager
-	a.ProgressManager = progressmanager.New(&progressmanager.NewProgressManagerOptions{
+	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewProgressManagerOptions{
 		Logger:               a.Logger,
 		WSEventManager:       a.WSEventManager,
 		AnilistClientWrapper: a.AnilistClientWrapper,
+		Database:             a.Database,
 		AnilistCollection:    nil, // Will be set and refreshed in app.RefreshAnilistCollection
 	})
 
@@ -107,6 +109,18 @@ func (a *App) InitOrRefreshModules() {
 			Logger: a.Logger,
 		}
 		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath)
+
+		// Set media player repository
+		a.MediaPlayRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
+			Logger:         a.Logger,
+			Default:        settings.MediaPlayer.Default,
+			VLC:            a.MediaPlayer.VLC,
+			MpcHc:          a.MediaPlayer.MpcHc,
+			Mpv:            a.MediaPlayer.Mpv,
+			WSEventManager: a.WSEventManager,
+		})
+
+		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayRepository)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}
@@ -246,4 +260,5 @@ func (a *App) initAnilistData() {
 // This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
 	a.AnilistClientWrapper = anilist.NewClientWrapper(token)
+	a.PlaybackManager.SetAnilistClientWrapper(a.AnilistClientWrapper) // Update Anilist Client Wrapper in Playback Manager
 }

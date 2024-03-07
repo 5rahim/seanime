@@ -44,5 +44,5 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 	if err != nil {
 		m.Logger.Err(err).Msg("ws: Failed to send message")
 	}
-	m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
+	//m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
 }

@@ -2,7 +2,6 @@
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
 import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-dropdown-menu"
-import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section/progress-tracking"
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section/_components/torrent-search-button"
@@ -239,7 +238,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                             </div>
                             {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
                                 <MediaEntrySilenceToggle mediaId={entry.mediaId} />
-                                <ProgressTracking entry={entry} />
+                                {/*<ProgressTracking entry={entry} />*/}
                                 <BulkToggleLockButton entry={entry} />
                                 <EpisodeSectionDropdownMenu entry={entry} />
                             </div>}

@@ -3,7 +3,6 @@ import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-gri
 import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-dropdown-menu"
-import { ProgressTracking } from "@/app/(main)/entry/_containers/episode-section/progress-tracking"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
@@ -96,7 +95,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     </div>
 
                     {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
-                        <ProgressTracking entry={entry}/>
+                        {/*<ProgressTracking entry={entry}/>*/}
                         <BulkToggleLockButton entry={entry}/>
                         <EpisodeSectionDropdownMenu entry={entry} />
                     </div>}
