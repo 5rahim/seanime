@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	VideoPlaybackTracking  VideoPlaybackStateType = "tracking"
-	VideoPlaybackCompleted VideoPlaybackStateType = "completed"
+	VideoPlaybackTracking  PlaybackStateType = "tracking"
+	VideoPlaybackCompleted PlaybackStateType = "completed"
 )
 
 type (
@@ -33,22 +33,22 @@ type (
 		mu                           sync.Mutex
 		ctx                          context.Context
 		cancel                       context.CancelFunc
-		history                      []VideoPlaybackState            // This is used to keep track of the user's completed video playbacks
+		history                      []PlaybackState                 // This is used to keep track of the user's completed video playbacks
 		currentMediaListEntry        *anilist.MediaListEntry         // List Entry for the current video playback (can be nil)
 		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
 		currentLocalFileWrapperEntry *entities.LocalFileWrapperEntry // This contains the current media entry local file data
 	}
 
-	VideoPlaybackStateType string
+	PlaybackStateType string
 
-	VideoPlaybackState struct {
-		State                VideoPlaybackStateType `json:"state"`                // The state of the video playback
-		EpisodeNumber        int                    `json:"episodeNumber"`        // The episode number
-		MediaTitle           string                 `json:"mediaTitle"`           // The title of the media
-		MediaTotalEpisodes   int                    `json:"MediaTotalEpisodes"`   // The total number of episodes
-		Filename             string                 `json:"filename"`             // The filename
-		CompletionPercentage float64                `json:"completionPercentage"` // The completion percentage
-		CanPlayNext          bool                   `json:"canPlayNext"`          // Whether the next episode can be played
+	PlaybackState struct {
+		State                PlaybackStateType `json:"state"`                // The state of the video playback
+		EpisodeNumber        int               `json:"episodeNumber"`        // The episode number
+		MediaTitle           string            `json:"mediaTitle"`           // The title of the media
+		MediaTotalEpisodes   int               `json:"mediaTotalEpisodes"`   // The total number of episodes
+		Filename             string            `json:"filename"`             // The filename
+		CompletionPercentage float64           `json:"completionPercentage"` // The completion percentage
+		CanPlayNext          bool              `json:"canPlayNext"`          // Whether the next episode can be played
 	}
 
 	Playlist struct {
@@ -130,9 +130,9 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				return
 			case status := <-pm.mediaPlayerRepoSubscriber.TrackingStartedCh: // New video has started playing
 				// Send event to the client
-				vps := pm.getVideoPlaybackState(status)
+				_ps := pm.getPlaybackState(status)
 				pm.Logger.Debug().Msg("playback manager: Tracking started, extracting metadata...")
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStarted, vps)
+				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStarted, _ps)
 
 				// Retrieve data about the current video playback
 				// Set PlaybackManager.currentMediaListEntry to the list entry of the current video
@@ -141,24 +141,25 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				if err != nil {
 					pm.Logger.Error().Err(err).Msg("playback manager: failed to get media data")
 					// Send error event to the client
-					pm.wsEventManager.SendEvent(events.PlaybackManagerMetadataError, err.Error())
+					pm.wsEventManager.SendEvent(events.PlaybackManagerProgressMetadataError, err.Error())
 				}
 
 				pm.Logger.Debug().Msgf("playback manager: Watching %s - Episode %d", pm.currentMediaListEntry.GetMedia().GetPreferredTitle(), pm.currentLocalFile.GetEpisodeNumber())
 
 			case status := <-pm.mediaPlayerRepoSubscriber.VideoCompletedCh: // Video has been watched completely but still tracking
-				vps := pm.getVideoPlaybackState(status)
-				pm.Logger.Debug().Msg("playback manager: Video completed")
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressCompleted, vps)
+				_ps := pm.getPlaybackState(status)
+				pm.Logger.Debug().Msg("playback manager: Received video completed event")
+				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressVideoCompleted, _ps)
 				// Push the video playback state to the history
-				pm.history = append(pm.history, vps)
+				pm.history = append(pm.history, _ps)
 
 			case path := <-pm.mediaPlayerRepoSubscriber.TrackingStoppedCh: // Tracking has stopped completely
 				pm.Logger.Debug().Msg("playback manager: Received tracking stopped event")
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStopped, path)
 
-			case playbackStatus := <-pm.mediaPlayerRepoSubscriber.PlaybackStatusCh: // Playback status has changed
-				pm.wsEventManager.SendEvent(events.MediaPlayerPlaybackStatus, playbackStatus)
+			case status := <-pm.mediaPlayerRepoSubscriber.PlaybackStatusCh: // Playback status has changed
+				_ps := pm.getPlaybackState(status)
+				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
 			case _ = <-pm.mediaPlayerRepoSubscriber.TrackingRetryCh: // Error occurred while starting tracking
 				// DEVNOTE: This event is not sent to the client
@@ -167,12 +168,12 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 	}()
 }
 
-func (pm *PlaybackManager) getVideoPlaybackState(status *mediaplayer.PlaybackStatus) VideoPlaybackState {
+func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) PlaybackState {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
 	if pm.currentLocalFileWrapperEntry == nil || pm.currentLocalFile == nil || pm.currentMediaListEntry == nil {
-		return VideoPlaybackState{}
+		return PlaybackState{}
 	}
 
 	state := VideoPlaybackTracking
@@ -181,7 +182,7 @@ func (pm *PlaybackManager) getVideoPlaybackState(status *mediaplayer.PlaybackSta
 	}
 	// Find the following episode
 	_, canPlayNext := pm.currentLocalFileWrapperEntry.FindNextEpisode(pm.currentLocalFile)
-	return VideoPlaybackState{
+	return PlaybackState{
 		State:                state,
 		EpisodeNumber:        pm.currentLocalFile.GetEpisodeNumber(),
 		MediaTitle:           pm.currentMediaListEntry.GetMedia().GetPreferredTitle(),

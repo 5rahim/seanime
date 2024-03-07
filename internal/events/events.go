@@ -17,7 +17,8 @@ const (
 	PlaybackManagerProgressTrackingStarted = "playback-manager-progress-tracking-started" // The video progress tracking has started
 	PlaybackManagerProgressTrackingStopped = "playback-manager-progress-tracking-stopped" // The video progress tracking has stopped
 	PlaybackManagerProgressTrackingError   = "playback-manager-progress-tracking-error"   // The video progress tracking has an error
-	PlaybackManagerMetadataError           = "playback-manager-metadata-error"            // Error occurred while fetching metadata
-	PlaybackManagerProgressCompleted       = "playback-manager-progress-completed"        // The video progress has been completed
+	PlaybackManagerProgressMetadataError   = "playback-manager-progress-metadata-error"   // Error occurred while fetching metadata
+	PlaybackManagerProgressVideoCompleted  = "playback-manager-progress-video-completed"  // The video progress has been completed
+	PlaybackManagerProgressPlaybackState   = "playback-manager-progress-playback-state"   // Dispatches the current playback state
 
 )

@@ -79,14 +79,25 @@ export const enum WSEvents {
     SCAN_PROGRESS = "scan-progress",
     SCAN_STATUS = "scan-status",
     REFRESHED_ANILIST_COLLECTION = "refreshed-anilist-collection",
+    // @deprecated
     MEDIA_PLAYER_TRACKING_STOPPED = "media-player-tracking-stopped",
+    // @deprecated
     MEDIA_PLAYER_TRACKING_STARTED = "media-player-tracking-started",
+    // @deprecated
     MEDIA_PLAYER_VIDEO_COMPLETED = "media-player-video-completed",
+    // @deprecated
     MEDIA_PLAYER_PROGRESS_UPDATE_REQUEST = "media-player-progress-update-request",
+    // @deprecated
     MEDIA_PLAYER_PLAYBACK_STATUS = "media-player-playback-status",
     LIBRARY_WATCHER_FILE_ADDED = "library-watcher-file-added",
     LIBRARY_WATCHER_FILE_REMOVED = "library-watcher-file-removed",
     AUTO_DOWNLOADER_ITEM_ADDED = "auto-downloader-item-added",
     AUTO_SCAN_STARTED = "auto-scan-started",
     AUTO_SCAN_COMPLETED = "auto-scan-completed",
+    PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED = "playback-manager-progress-tracking-started",
+    PLAYBACK_MANAGER_PROGRESS_TRACKING_STOPPED = "playback-manager-progress-tracking-stopped",
+    PLAYBACK_MANAGER_PROGRESS_TRACKING_ERROR = "playback-manager-progress-tracking-error",
+    PLAYBACK_MANAGER_PROGRESS_METADATA_ERROR = "playback-manager-progress-metadata-error",
+    PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED = "playback-manager-progress-video-completed",
+    PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE = "playback-manager-progress-playback-state",
 }

@@ -315,6 +315,20 @@ export type MediaPlayerPlaybackStatus = {
 }
 
 /**
+ * Playback Manager
+ */
+
+export type PlaybackManagerPlaybackState = {
+    state: "tracking" | "completed"
+    filename: string
+    mediaTitle: string
+    mediaTotalEpisodes: number
+    episodeNumber: number
+    completionPercentage: number
+    canPlayNext: boolean
+}
+
+/**
  * Torrent
  */
 
