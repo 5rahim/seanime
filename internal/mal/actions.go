@@ -176,6 +176,31 @@ func (w *Wrapper) GetAnimeCollection() ([]*AnimeListEntry, error) {
 	return data.Data, nil
 }
 
+type AnimeListProgressParams struct {
+	NumEpisodesWatched *int
+}
+
+func (w *Wrapper) UpdateAnimeProgress(opts *AnimeListProgressParams, mId int) error {
+	// Get anime details
+	anime, err := w.GetAnimeDetails(mId)
+	if err != nil {
+		return err
+	}
+
+	status := MediaListStatusWatching
+	if anime.Status == MediaStatusFinishedAiring && anime.NumEpisodes == *opts.NumEpisodesWatched {
+		status = MediaListStatusCompleted
+	}
+
+	// Update MAL list entry
+	err = w.UpdateAnimeListStatus(&AnimeListStatusParams{
+		Status:             &status,
+		NumEpisodesWatched: opts.NumEpisodesWatched,
+	}, mId)
+
+	return err
+}
+
 type AnimeListStatusParams struct {
 	Status             *MediaListStatus
 	IsRewatching       *bool

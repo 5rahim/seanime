@@ -326,6 +326,8 @@ export type PlaybackManagerPlaybackState = {
     episodeNumber: number
     completionPercentage: number
     canPlayNext: boolean
+    progressUpdated: boolean
+    mediaId: number
 }
 
 /**

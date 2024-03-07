@@ -53,16 +53,3 @@ export function useOpenDefaultMediaPlayer() {
     }
 
 }
-
-export function useStartMpvPlaybackDetection() {
-
-    const { mutate } = useSeaMutation({
-        endpoint: SeaEndpoints.START_MPV_PLAYBACK_DETECTION,
-        mutationKey: ["start-mpv-playback-detection"],
-    })
-
-    return {
-        startMpvPlaybackDetection: () => mutate(),
-    }
-
-}

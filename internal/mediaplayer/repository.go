@@ -189,6 +189,15 @@ func (m *Repository) StartTracking() {
 
 				if err != nil {
 					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
+
+					// Video is completed, and we are unable to get the status
+					// We can safely assume that the player has been closed
+					if retries == 1 && completed {
+						m.trackingStopped("Player closed")
+						close(done)
+						break
+					}
+
 					if retries >= 2 {
 						m.trackingStopped("Failed to get status")
 						close(done)

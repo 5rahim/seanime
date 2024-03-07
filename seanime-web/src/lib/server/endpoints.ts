@@ -6,7 +6,6 @@ export const enum SeaEndpoints {
     LIST_SYNC_SETTINGS = "/settings/list-sync", // (PATCH)
     AUTO_DOWNLOADER_SETTINGS = "/settings/auto-downloader", // (PATCH)
     START_MEDIA_PLAYER = "/media-player/start", // (POST)
-    START_MPV_PLAYBACK_DETECTION = "/media-player/mpv-detect-playback", // (POST)
     OPEN_IN_EXPLORER = "/open-in-explorer", // (POST)
     PLAY_VIDEO = "/media-player/play",
     /**
@@ -100,4 +99,5 @@ export const enum WSEvents {
     PLAYBACK_MANAGER_PROGRESS_METADATA_ERROR = "playback-manager-progress-metadata-error",
     PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED = "playback-manager-progress-video-completed",
     PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE = "playback-manager-progress-playback-state",
+    PLAYBACK_MANAGER_PROGRESS_UPDATED = "playback-manager-progress-updated",
 }

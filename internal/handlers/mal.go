@@ -126,20 +126,8 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 	// Get MAL Wrapper
 	malWrapper := mal.NewWrapper(malInfo.AccessToken)
 
-	// Get anime details
-	anime, err := malWrapper.GetAnimeDetails(*b.MediaId)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	status := mal.MediaListStatusWatching
-	if anime.Status == mal.MediaStatusFinishedAiring && anime.NumEpisodes == *b.Progress {
-		status = mal.MediaListStatusCompleted
-	}
-
 	// Update MAL list entry
-	err = malWrapper.UpdateAnimeListStatus(&mal.AnimeListStatusParams{
-		Status:             &status,
+	err = malWrapper.UpdateAnimeProgress(&mal.AnimeListProgressParams{
 		NumEpisodesWatched: b.Progress,
 	}, *b.MediaId)
 	if err != nil {

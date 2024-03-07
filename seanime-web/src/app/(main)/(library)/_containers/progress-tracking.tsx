@@ -11,6 +11,7 @@ import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import { useState } from "react"
 import { PiPopcornFill } from "react-icons/pi"
+import { toast } from "sonner"
 
 
 const __pt_showModalAtom = atom(false)
@@ -55,6 +56,14 @@ export function ProgressTracking() {
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STOPPED,
         onMessage: data => {
             setIsTracking(false)
+            if (state?.progressUpdated) {
+                setIsCompleted(false) // If the progress has been updated, reset the completed state, so that the modal doesn't show up again
+            }
+            if (data === "Player closed") {
+                toast.info("Player closed")
+            } else {
+                toast.error(data)
+            }
         },
     })
 
@@ -77,6 +86,19 @@ export function ProgressTracking() {
         },
     })
 
+    // Progress has been updated
+    useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
+        type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATED,
+        onMessage: data => {
+            if (data) {
+                qc.refetchQueries({ queryKey: ["get-media-entry", data.mediaId] })
+                qc.refetchQueries({ queryKey: ["get-library-collection"] })
+                qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+                setState(data)
+            }
+        },
+    })
+
     // const { mutate: updateAniListProgress, isPending } = useSeaMutation<any, { mediaId: number, progress: number, episodes: number }>({
     //     endpoint: SeaEndpoints.ANILIST_LIST_ENTRY_PROGRESS,
     //     mutationKey: ["update-anilist-list-entry-progress"],
@@ -90,7 +112,7 @@ export function ProgressTracking() {
     //         // }
     //     },
     // })
-            // await qc.refetchQueries({ queryKey: ["get-media-entry", entry.mediaId] })
+    // await qc.refetchQueries({ queryKey: ["get-media-entry", entry.mediaId] })
     // await qc.refetchQueries({ queryKey: ["get-library-collection"] })
     // await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
 
@@ -132,14 +154,19 @@ export function ProgressTracking() {
                     <p className="text-[--muted]">Currently watching</p>
                     <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
                     <p className="text-2xl font-bold">Episode {state?.episodeNumber}
-                        <span className="text-[--muted]">/ {state?.mediaTotalEpisodes || "-"}</span></p>
+                        <span className="text-[--muted]">{" / "}{state?.mediaTotalEpisodes || "-"}</span></p>
                     {!!state?.completionPercentage && <div className="absolute left-0 top-0 w-full">
                         <ProgressBar className="h-2" value={state.completionPercentage * 100} />
                     </div>}
                 </div>}
-                {serverStatus?.settings?.library?.autoUpdateProgress && (
+                {(serverStatus?.settings?.library?.autoUpdateProgress && !state?.progressUpdated) && (
                     <p className="text-[--muted] text-center">
                         Your progress will be automatically updated
+                    </p>
+                )}
+                {(state?.progressUpdated) && (
+                    <p className="text-green-300 text-center">
+                        Progress updated
                     </p>
                 )}
                 {/*<div className="flex gap-2 justify-center items-center">*/}
@@ -152,7 +179,11 @@ export function ProgressTracking() {
                 {/*    icon={<BiDotsVertical />}*/}
                 {/*/>*/}
                 {/*</div>*/}
-                {(!!state?.completionPercentage && state?.completionPercentage > 0.7) && <div className="flex gap-2 justify-center items-center">
+                {(
+                    !!state?.completionPercentage
+                    && state?.completionPercentage > 0.7
+                    && !state.progressUpdated
+                ) && <div className="flex gap-2 justify-center items-center">
                     <Button
                         intent="primary-subtle"
                         disabled={false}

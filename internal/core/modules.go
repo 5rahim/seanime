@@ -26,6 +26,9 @@ func (a *App) InitModulesOnce() {
 		AnilistClientWrapper: a.AnilistClientWrapper,
 		Database:             a.Database,
 		AnilistCollection:    nil, // Will be set and refreshed in app.RefreshAnilistCollection
+		RefreshAnilistCollectionFunc: func() {
+			_, _ = a.RefreshAnilistCollection()
+		},
 	})
 
 	// Auto downloader

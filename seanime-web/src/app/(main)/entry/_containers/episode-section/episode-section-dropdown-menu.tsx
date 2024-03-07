@@ -1,7 +1,7 @@
 "use client"
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
-import { useOpenDefaultMediaPlayer, useStartMpvPlaybackDetection } from "@/app/(main)/entry/_lib/media-player"
+import { useOpenDefaultMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import { MediaEntry } from "@/lib/server/types"
 import { useSetAtom } from "jotai"
 import { useAtomValue } from "jotai/react"
 import React from "react"
-import { BiDotsVerticalRounded, BiPlayCircle, BiRightArrowAlt } from "react-icons/bi"
+import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 
 export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
@@ -19,7 +19,6 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
     const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
-    const { startMpvPlaybackDetection } = useStartMpvPlaybackDetection()
 
     const { unmatchAll, isPending } = useMediaEntryBulkAction(entry.mediaId)
 
@@ -37,13 +36,6 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
     return (
         <>
             <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="lg" />}>
-
-                {serverStatus?.settings?.mediaPlayer?.defaultPlayer == "mpv" && <DropdownMenuItem
-                    onClick={startMpvPlaybackDetection}
-                >
-                    <BiPlayCircle />
-                    Start episode detection
-                </DropdownMenuItem>}
 
                 <DropdownMenuItem
                     onClick={() => openEntryInExplorer(entry.mediaId)}

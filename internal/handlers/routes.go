@@ -85,8 +85,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// POST /v1/media-player/play
 	v1.Post("/media-player/play", makeHandler(app, HandlePlayVideo))
-	// POST /v1/media-player/mpv-detect-playback
-	v1.Post("/media-player/mpv-detect-playback", makeHandler(app, HandleMpvDetectPlayback))
 
 	//
 	// AniList

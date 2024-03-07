@@ -30,7 +30,9 @@ type (
 		wsEventManager               events.IWSEventManager
 		anilistClientWrapper         *anilist.ClientWrapper
 		anilistCollection            *anilist.AnimeCollection
+		refreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                           sync.Mutex
+		eventMu                      sync.Mutex
 		ctx                          context.Context
 		cancel                       context.CancelFunc
 		history                      []PlaybackState                 // This is used to keep track of the user's completed video playbacks
@@ -49,6 +51,8 @@ type (
 		Filename             string            `json:"filename"`             // The filename
 		CompletionPercentage float64           `json:"completionPercentage"` // The completion percentage
 		CanPlayNext          bool              `json:"canPlayNext"`          // Whether the next episode can be played
+		ProgressUpdated      bool              `json:"progressUpdated"`      // Whether the progress has been updated
+		MediaId              int               `json:"mediaId"`              // The media ID
 	}
 
 	Playlist struct {
@@ -57,22 +61,24 @@ type (
 	}
 
 	NewProgressManagerOptions struct {
-		WSEventManager       events.IWSEventManager
-		Logger               *zerolog.Logger
-		AnilistClientWrapper *anilist.ClientWrapper
-		AnilistCollection    *anilist.AnimeCollection
-		Database             *db.Database
+		WSEventManager               events.IWSEventManager
+		Logger                       *zerolog.Logger
+		AnilistClientWrapper         *anilist.ClientWrapper
+		AnilistCollection            *anilist.AnimeCollection
+		Database                     *db.Database
+		RefreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
 	}
 )
 
 func New(opts *NewProgressManagerOptions) *PlaybackManager {
 	return &PlaybackManager{
-		Logger:               opts.Logger,
-		Database:             opts.Database,
-		wsEventManager:       opts.WSEventManager,
-		anilistClientWrapper: opts.AnilistClientWrapper,
-		anilistCollection:    opts.AnilistCollection,
-		mu:                   sync.Mutex{},
+		Logger:                       opts.Logger,
+		Database:                     opts.Database,
+		wsEventManager:               opts.WSEventManager,
+		anilistClientWrapper:         opts.AnilistClientWrapper,
+		anilistCollection:            opts.AnilistCollection,
+		refreshAnilistCollectionFunc: opts.RefreshAnilistCollectionFunc,
+		mu:                           sync.Mutex{},
 	}
 }
 
@@ -119,78 +125,6 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 
 		// DEVNOTE: pm.listenToClientPlayerEvents()
 	}()
-}
-
-func (pm *PlaybackManager) listenToMediaPlayerEvents() {
-	// Listen for media player events
-	go func() {
-		for {
-			select {
-			case <-pm.ctx.Done(): // Context has been cancelled
-				return
-			case status := <-pm.mediaPlayerRepoSubscriber.TrackingStartedCh: // New video has started playing
-				// Send event to the client
-				_ps := pm.getPlaybackState(status)
-				pm.Logger.Debug().Msg("playback manager: Tracking started, extracting metadata...")
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStarted, _ps)
-
-				// Retrieve data about the current video playback
-				// Set PlaybackManager.currentMediaListEntry to the list entry of the current video
-				var err error
-				pm.currentMediaListEntry, pm.currentLocalFile, pm.currentLocalFileWrapperEntry, err = pm.getListEntryFromLocalFilePath(status.Filename)
-				if err != nil {
-					pm.Logger.Error().Err(err).Msg("playback manager: failed to get media data")
-					// Send error event to the client
-					pm.wsEventManager.SendEvent(events.PlaybackManagerProgressMetadataError, err.Error())
-				}
-
-				pm.Logger.Debug().Msgf("playback manager: Watching %s - Episode %d", pm.currentMediaListEntry.GetMedia().GetPreferredTitle(), pm.currentLocalFile.GetEpisodeNumber())
-
-			case status := <-pm.mediaPlayerRepoSubscriber.VideoCompletedCh: // Video has been watched completely but still tracking
-				_ps := pm.getPlaybackState(status)
-				pm.Logger.Debug().Msg("playback manager: Received video completed event")
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressVideoCompleted, _ps)
-				// Push the video playback state to the history
-				pm.history = append(pm.history, _ps)
-
-			case path := <-pm.mediaPlayerRepoSubscriber.TrackingStoppedCh: // Tracking has stopped completely
-				pm.Logger.Debug().Msg("playback manager: Received tracking stopped event")
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStopped, path)
-
-			case status := <-pm.mediaPlayerRepoSubscriber.PlaybackStatusCh: // Playback status has changed
-				_ps := pm.getPlaybackState(status)
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
-
-			case _ = <-pm.mediaPlayerRepoSubscriber.TrackingRetryCh: // Error occurred while starting tracking
-				// DEVNOTE: This event is not sent to the client
-			}
-		}
-	}()
-}
-
-func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) PlaybackState {
-	pm.mu.Lock()
-	defer pm.mu.Unlock()
-
-	if pm.currentLocalFileWrapperEntry == nil || pm.currentLocalFile == nil || pm.currentMediaListEntry == nil {
-		return PlaybackState{}
-	}
-
-	state := VideoPlaybackTracking
-	if status.CompletionPercentage > 0.9 {
-		state = VideoPlaybackCompleted
-	}
-	// Find the following episode
-	_, canPlayNext := pm.currentLocalFileWrapperEntry.FindNextEpisode(pm.currentLocalFile)
-	return PlaybackState{
-		State:                state,
-		EpisodeNumber:        pm.currentLocalFile.GetEpisodeNumber(),
-		MediaTitle:           pm.currentMediaListEntry.GetMedia().GetPreferredTitle(),
-		MediaTotalEpisodes:   pm.currentMediaListEntry.GetMedia().GetCurrentEpisodeCount(),
-		Filename:             status.Filename,
-		CompletionPercentage: status.CompletionPercentage,
-		CanPlayNext:          canPlayNext,
-	}
 }
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {

@@ -20,5 +20,6 @@ const (
 	PlaybackManagerProgressMetadataError   = "playback-manager-progress-metadata-error"   // Error occurred while fetching metadata
 	PlaybackManagerProgressVideoCompleted  = "playback-manager-progress-video-completed"  // The video progress has been completed
 	PlaybackManagerProgressPlaybackState   = "playback-manager-progress-playback-state"   // Dispatches the current playback state
+	PlaybackManagerProgressUpdated         = "playback-manager-progress-updated"          // Signals that the progress has been updated
 
 )

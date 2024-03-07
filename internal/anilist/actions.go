@@ -29,5 +29,7 @@ func (cw *ClientWrapper) UpdateMediaListEntryProgress(ctx context.Context, media
 		return err
 	}
 
+	cw.logger.Debug().Msgf("anilist: Updated media list entry for mediaId %d", *mediaId)
+
 	return nil
 }

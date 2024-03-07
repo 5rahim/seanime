@@ -8,6 +8,8 @@ import (
 	"github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/Yamashou/gqlgenc/graphqljson"
 	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,6 +20,7 @@ type (
 	// ClientWrapper is a wrapper around the AniList API client.
 	ClientWrapper struct {
 		Client *Client
+		logger *zerolog.Logger
 	}
 )
 
@@ -36,6 +39,7 @@ func NewClientWrapper(token string) *ClientWrapper {
 					return next(ctx, req, gqlInfo, res)
 				}),
 		},
+		logger: util.NewLogger(),
 	}
 
 	cw.Client.Client.CustomDo = cw.customDoFunc
@@ -44,11 +48,25 @@ func NewClientWrapper(token string) *ClientWrapper {
 }
 
 // customDoFunc is a custom request interceptor function that handles rate limiting and retries.
-func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) error {
+func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) (err error) {
+
+	reqTime := time.Now()
+	defer func() {
+		timeSince := time.Since(reqTime)
+		formattedDur := timeSince.Truncate(time.Millisecond).String()
+		if err != nil {
+			cw.logger.Error().Str("duration", formattedDur).Err(err).Msg("anilist: Failed Request")
+		} else {
+			if timeSince > 600*time.Millisecond {
+				cw.logger.Warn().Str("rtt", formattedDur).Msg("anilist: Long Request")
+			} else {
+				cw.logger.Trace().Str("rtt", formattedDur).Msg("anilist: Successful Request")
+			}
+		}
+	}()
 
 	client := http.DefaultClient
 	var resp *http.Response
-	var err error
 
 	retryCount := 2
 
@@ -105,12 +123,14 @@ func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gq
 		}
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	var body []byte
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	return parseResponse(body, resp.StatusCode, res)
+	err = parseResponse(body, resp.StatusCode, res)
+	return
 }
 
 func parseResponse(body []byte, httpCode int, result interface{}) error {
