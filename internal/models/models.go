@@ -165,3 +165,13 @@ type Theme struct {
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`
 }
+
+// +---------------------+
+// |      Playlist       |
+// +---------------------+
+
+type PlaylistEntry struct {
+	BaseModel
+	Name  string `gorm:"column:name" json:"name"`
+	Value []byte `gorm:"column:value" json:"value"`
+}

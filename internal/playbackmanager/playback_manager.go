@@ -97,7 +97,7 @@ func (pm *PlaybackManager) SetAnilistCollection(anilistCollection *anilist.Anime
 
 // PlayNextEpisode plays the next episode of the media that has been watched
 // - This method is called when the user clicks on the "Next" button in the client
-func (pm *PlaybackManager) PlayNextEpisode() {
+func (pm *PlaybackManager) PlayNextEpisode() error {
 	panic("not implemented")
 	// devnote: make sure not to relaunch the media player
 }

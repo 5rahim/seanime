@@ -93,7 +93,7 @@ func (f *LocalFile) IsAtRootOf(dirPath string) bool {
 }
 
 func (f *LocalFile) Equals(lf *LocalFile) bool {
-	return strings.ToLower(f.Path) == strings.ToLower(lf.Path)
+	return filepath.ToSlash(strings.ToLower(f.Path)) == filepath.ToSlash(strings.ToLower(lf.Path))
 }
 
 func (f *LocalFile) IsIncluded(lfs []*LocalFile) bool {

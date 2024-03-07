@@ -239,6 +239,15 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playback-manager/sync-current-progress", makeHandler(app, HandlePlaybackSyncCurrentProgress))
 
 	//
+	// Playlists
+	//
+
+	v1.Get("/playlists", makeHandler(app, HandleGetPlaylists))
+	v1.Post("/playlist", makeHandler(app, HandleCreatePlaylist))
+	v1.Patch("/playlist", makeHandler(app, HandleUpdatePlaylist))
+	v1.Delete("/playlist", makeHandler(app, HandleDeletePlaylist))
+
+	//
 	// Websocket
 	//
 

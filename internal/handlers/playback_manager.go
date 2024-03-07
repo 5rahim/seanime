@@ -15,3 +15,16 @@ func HandlePlaybackSyncCurrentProgress(c *RouteCtx) error {
 
 	return c.RespondWithData(mId)
 }
+
+// HandlePlaybackPlayNextEpisode will play the next episode of the currently playing media.
+//
+//	POST /v1/playback-manager/play-next
+func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
+
+	err := c.App.PlaybackManager.PlayNextEpisode()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}

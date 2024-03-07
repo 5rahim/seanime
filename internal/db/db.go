@@ -71,6 +71,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.AutoDownloaderItem{},
 		&models.SilencedMediaEntry{},
 		&models.Theme{},
+		&models.PlaylistEntry{},
 	)
 	if err != nil {
 
