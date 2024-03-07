@@ -233,6 +233,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Patch("/theme", makeHandler(app, HandleUpdateTheme))
 
 	//
+	// Playback Manager
+	//
+
+	v1.Post("/playback-manager/sync-current-progress", makeHandler(app, HandlePlaybackSyncCurrentProgress))
+
+	//
 	// Websocket
 	//
 

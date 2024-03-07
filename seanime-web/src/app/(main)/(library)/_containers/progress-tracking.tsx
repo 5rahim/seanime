@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
-import { WSEvents } from "@/lib/server/endpoints"
+import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
 import { PlaybackManagerPlaybackState } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
@@ -99,35 +100,21 @@ export function ProgressTracking() {
         },
     })
 
-    // const { mutate: updateAniListProgress, isPending } = useSeaMutation<any, { mediaId: number, progress: number, episodes: number }>({
-    //     endpoint: SeaEndpoints.ANILIST_LIST_ENTRY_PROGRESS,
-    //     mutationKey: ["update-anilist-list-entry-progress"],
-    //     onSuccess: async () => {
-    //         toast.success("Progress updated on AniList")
-    //         // setStatus(null)
-    //         // isCompleted.off()
-    //         // if (!serverSideTracking.active) {
-    //         //     showModal.off()
-    //         //     isTracking.off()
-    //         // }
-    //     },
-    // })
-    // await qc.refetchQueries({ queryKey: ["get-media-entry", entry.mediaId] })
-    // await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-    // await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+    const { mutate: syncProgress, isPending } = useSeaMutation<number>({
+        endpoint: SeaEndpoints.PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS,
+        method: "post",
+        mutationKey: ["playback-sync-current-progress"],
+        onSuccess: async (mediaId: number | undefined) => {
+            qc.refetchQueries({ queryKey: ["get-media-entry", mediaId] })
+            qc.refetchQueries({ queryKey: ["get-library-collection"] })
+            qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            toast.success("Progress updated")
+        },
+    })
 
 
     function handleUpdateProgress() {
-        // if (episode) {
-        //     updateAniListProgress({ mediaId: entry.mediaId, progress: episode!.progressNumber, episodes: entry.media?.episodes ?? 0 })
-        //
-        //     // If the media has a MAL ID, update the progress on MAL as well
-        //     if (serverStatus?.mal && entry.media?.idMal) {
-        //         updateMALProgress({ mediaId: entry.media?.idMal, progress: episode!.episodeNumber })
-        //     }
-        // } else {
-        //     toast.error("Could not detect the episode number.")
-        // }
+        syncProgress()
     }
 
     return (
@@ -186,9 +173,10 @@ export function ProgressTracking() {
                 ) && <div className="flex gap-2 justify-center items-center">
                     <Button
                         intent="primary-subtle"
-                        disabled={false}
+                        disabled={isPending || state?.progressUpdated}
                         onClick={handleUpdateProgress}
                         className="w-full"
+                        loading={isPending}
                     >
                         Update progress now
                     </Button>

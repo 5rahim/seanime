@@ -49,18 +49,19 @@ func NewClientWrapper(token string) *ClientWrapper {
 
 // customDoFunc is a custom request interceptor function that handles rate limiting and retries.
 func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) (err error) {
+	var rlRemainingStr string
 
 	reqTime := time.Now()
 	defer func() {
 		timeSince := time.Since(reqTime)
 		formattedDur := timeSince.Truncate(time.Millisecond).String()
 		if err != nil {
-			cw.logger.Error().Str("duration", formattedDur).Err(err).Msg("anilist: Failed Request")
+			cw.logger.Error().Str("duration", formattedDur).Str("rlr", rlRemainingStr).Err(err).Msg("anilist: Failed Request")
 		} else {
 			if timeSince > 600*time.Millisecond {
-				cw.logger.Warn().Str("rtt", formattedDur).Msg("anilist: Long Request")
+				cw.logger.Warn().Str("rtt", formattedDur).Str("rlr", rlRemainingStr).Msg("anilist: Long Request")
 			} else {
-				cw.logger.Trace().Str("rtt", formattedDur).Msg("anilist: Successful Request")
+				cw.logger.Trace().Str("rtt", formattedDur).Str("rlr", rlRemainingStr).Msg("anilist: Successful Request")
 			}
 		}
 	}()
@@ -91,13 +92,14 @@ func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gq
 			return fmt.Errorf("request failed: %w", err)
 		}
 
-		rlRemainingStr := resp.Header.Get("X-Ratelimit-Remaining")
+		rlRemainingStr = resp.Header.Get("X-Ratelimit-Remaining")
 		rlRetryAfterStr := resp.Header.Get("Retry-After")
 		//println("Remaining:", rlRemainingStr, " | RetryAfter:", rlRetryAfterStr)
 
 		// If we have a rate limit, sleep for the time
 		rlRetryAfter, err := strconv.Atoi(rlRetryAfterStr)
 		if err == nil {
+			cw.logger.Warn().Msgf("anilist: Rate limited, retrying in %d seconds", rlRetryAfter+1)
 			select {
 			case <-time.After(time.Duration(rlRetryAfter+1) * time.Second):
 				continue

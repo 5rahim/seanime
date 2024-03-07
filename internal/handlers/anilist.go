@@ -57,6 +57,8 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleEditAnilistListEntryProgress
+// DEPRECATED
 func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
 
 	type body struct {

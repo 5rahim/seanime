@@ -69,6 +69,10 @@ export const enum SeaEndpoints {
     LATEST_UPDATE = "/latest-update", // (GET)
     DOWNLOAD_RELEASE = "/download-release", // (POST)
     /**
+     * Playback Manager
+     */
+    PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS = "/playback-manager/sync-current-progress", // (POST)
+    /**
      * Theme
      */
     THEME = "/theme", // (GET, PATCH)

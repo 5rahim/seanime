@@ -8,16 +8,13 @@ import (
 	"strings"
 )
 
-//func (p *PlaybackManager) getLocalFileFromFilename(filename string, lfs []*entities.LocalFile) (*entities.LocalFile, bool) {
-//	p.mu.Lock()
-//	defer p.mu.Unlock()
-//	lf, ok := p.localFilesMap[path]
-//	if !ok {
-//		return nil, false
-//	}
-//
-//	return p.anilistCollection.GetListEntryFromMediaId(lf.MediaId)
-//}
+// GetCurrentMediaID returns the media id of the currently playing media
+func (pm *PlaybackManager) GetCurrentMediaID() (int, error) {
+	if pm.currentLocalFile == nil {
+		return 0, errors.New("no media is currently playing")
+	}
+	return pm.currentLocalFile.MediaId, nil
+}
 
 // getListEntryFromLocalFilePath returns the list entry from the given entities.LocalFile path.
 // This method should be called once everytime a new video is played

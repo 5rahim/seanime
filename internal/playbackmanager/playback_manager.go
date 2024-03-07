@@ -36,6 +36,7 @@ type (
 		ctx                          context.Context
 		cancel                       context.CancelFunc
 		history                      []PlaybackState                 // This is used to keep track of the user's completed video playbacks
+		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus     // The current video playback status
 		currentMediaListEntry        *anilist.MediaListEntry         // List Entry for the current video playback (can be nil)
 		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
 		currentLocalFileWrapperEntry *entities.LocalFileWrapperEntry // This contains the current media entry local file data
