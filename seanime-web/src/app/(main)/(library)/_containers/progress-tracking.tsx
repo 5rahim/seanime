@@ -82,6 +82,14 @@ export function ProgressTracking() {
         },
     })
 
+    // Progress update error
+    useWebsocketMessageListener<string>({
+        type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATE_ERROR,
+        onMessage: data => {
+            toast.error(data)
+        },
+    })
+
     // Playback state
     useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE,
@@ -102,6 +110,7 @@ export function ProgressTracking() {
                 qc.refetchQueries({ queryKey: ["get-library-collection"] })
                 qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
                 setState(data)
+                toast.success("Progress updated")
             }
         },
     })
@@ -130,7 +139,6 @@ export function ProgressTracking() {
             qc.refetchQueries({ queryKey: ["get-media-entry", mediaId] })
             qc.refetchQueries({ queryKey: ["get-library-collection"] })
             qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            toast.success("Progress updated")
         },
     })
 

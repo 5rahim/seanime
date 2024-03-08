@@ -73,7 +73,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				// The client will use this to notify the user if the progress has been updated
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressVideoCompleted, _ps)
 				// Push the video playback state to the history
-				pm.history = append(pm.history, _ps)
+				pm.historyMap[status.Filename] = _ps
 
 				// ------- Playlist ------- //
 				go pm.playlistHub.onVideoCompleted(pm.currentMediaListEntry, pm.currentLocalFile, _ps)
@@ -98,11 +98,8 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				_ps := pm.getPlaybackState(status)
 				// Update the playback state if the filename is in the history
 				// This is done so the completion status of the PlaybackState is not overwritten
-				for _, h := range pm.history {
-					if h.Filename == _ps.Filename {
-						_ps = h
-						break
-					}
+				if h, ok := pm.historyMap[status.Filename]; ok {
+					_ps = h
 				}
 				// Send the playback state to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
@@ -161,7 +158,11 @@ func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 			} else {
 				_ps.ProgressUpdated = true
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
+				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyError, "Failed to update progress on MyAnimeList")
 			}
+		} else {
+			_ps.ProgressUpdated = true
+			pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
 		}
 	} else if err != nil {
 		pm.Logger.Error().Err(err).Msg("playback manager: Failed to check if auto update progress is enabled")
@@ -174,26 +175,29 @@ func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 //   - This method will refresh the anilist collection
 func (pm *PlaybackManager) SyncCurrentProgress() error {
 	pm.eventMu.Lock()
-	defer pm.eventMu.Unlock()
 	if pm.currentMediaListEntry == nil || pm.currentLocalFile == nil {
 		return errors.New("no video is being watched")
 	}
 
 	err := pm.updateProgress(pm.currentMediaListEntry, pm.currentLocalFile)
 	if err != nil && errors.Is(err, ErrProgressUpdateAnilist) {
+		pm.eventMu.Unlock()
 		return err
+	} else if err != nil {
+		pm.Logger.Error().Err(err).Msg("playback manager: Failed to update progress on AniList")
 	}
 
 	// Push the current playback state to the history
 	if pm.currentMediaPlaybackStatus != nil {
 		_ps := pm.getPlaybackState(pm.currentMediaPlaybackStatus)
 		_ps.ProgressUpdated = true
-		pm.history = append(pm.history, _ps)
+		pm.historyMap[pm.currentMediaPlaybackStatus.Filename] = _ps
 		pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
 	}
 
 	pm.refreshAnilistCollectionFunc()
 
+	pm.eventMu.Unlock()
 	return nil
 }
 

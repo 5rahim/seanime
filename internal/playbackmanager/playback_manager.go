@@ -36,6 +36,7 @@ type (
 		ctx                          context.Context
 		cancel                       context.CancelFunc
 		history                      []PlaybackState                 // This is used to keep track of the user's completed video playbacks
+		historyMap                   map[string]PlaybackState        // This is used to keep track of the user's completed video playbacks (keyed by filename)
 		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus     // The current video playback status (can be nil)
 		currentMediaListEntry        *anilist.MediaListEntry         // List Entry for the current video playback (can be nil)
 		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
@@ -77,6 +78,8 @@ func New(opts *NewProgressManagerOptions) *PlaybackManager {
 		refreshAnilistCollectionFunc: opts.RefreshAnilistCollectionFunc,
 		playlistHub:                  newPlaylistHub(opts.Logger, opts.WSEventManager),
 		mu:                           sync.Mutex{},
+		history:                      make([]PlaybackState, 0),
+		historyMap:                   make(map[string]PlaybackState),
 	}
 }
 
@@ -197,14 +200,14 @@ func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 	}()
 
 	// Delete playlist in goroutine
-	//go func() {
-	//	err := pm.Database.DeletePlaylist(playlist.DbId)
-	//	if err != nil {
-	//		pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
-	//		return
-	//	}
-	//	pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
-	//}() TODO Undo this
+	go func() {
+		err := pm.Database.DeletePlaylist(playlist.DbId)
+		if err != nil {
+			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
+			return
+		}
+		pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
+	}()
 
 	return nil
 }

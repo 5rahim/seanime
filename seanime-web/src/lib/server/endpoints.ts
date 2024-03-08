@@ -110,6 +110,7 @@ export const enum WSEvents {
     PLAYBACK_MANAGER_PROGRESS_TRACKING_STOPPED = "playback-manager-progress-tracking-stopped",
     PLAYBACK_MANAGER_PROGRESS_TRACKING_ERROR = "playback-manager-progress-tracking-error",
     PLAYBACK_MANAGER_PROGRESS_METADATA_ERROR = "playback-manager-progress-metadata-error",
+    PLAYBACK_MANAGER_PROGRESS_UPDATE_ERROR = "playback-manager-progress-update-error",
     PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED = "playback-manager-progress-video-completed",
     PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE = "playback-manager-progress-playback-state",
     PLAYBACK_MANAGER_PROGRESS_UPDATED = "playback-manager-progress-updated",

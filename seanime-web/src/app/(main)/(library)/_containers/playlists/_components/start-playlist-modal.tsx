@@ -61,7 +61,7 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
                 intent="primary"
                 size="lg"
                 loading={isPending}
-                // disabled={!canStart} // TODO Re-enable this
+                disabled={!canStart}
                 onClick={() => startPlaylist({ dbId: playlist.dbId })}
             >Start</Button>
         </Modal>
