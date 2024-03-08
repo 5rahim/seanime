@@ -130,7 +130,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
                     strategy={verticalListSortingStrategy}
                     items={paths}
                 >
-                    <div className="space-y-2" data-vaul-no-drag>
+                    <div className="space-y-2">
                         <ul className="space-y-2">
                             {paths.map((path, index) => (
                                 <SortableItem
@@ -172,10 +172,10 @@ function SortableItem({ localFile, id, media, setPaths }: {
     if (!localFile) return null
 
     if (!media) return (
-        <li data-vaul-no-drag ref={setNodeRef} style={style}>
+        <li ref={setNodeRef} style={style}>
             <div
                 className="px-2.5 py-2 bg-[#0c0c0c] border-[--red] rounded-md border flex gap-3 relative"
-                data-vaul-no-drag
+
             >
                 <IconButton
                     className="absolute top-2 right-2 rounded-full"
@@ -183,32 +183,32 @@ function SortableItem({ localFile, id, media, setPaths }: {
                     intent="alert-subtle"
                     size="sm"
                     onClick={() => setPaths((prev: string[]) => prev.filter(n => n !== id))}
-                    data-vaul-no-drag
+
                 />
                 <div
-                    data-vaul-no-drag
+
                     className="rounded-full w-4 h-auto bg-[--muted] md:bg-[--subtle] md:hover:bg-[--subtle-highlight] cursor-move"
                     {...attributes} {...listeners}
                 />
-                <div data-vaul-no-drag>
-                    <p data-vaul-no-drag className="text-lg text-white font-semibold">
-                        <span data-vaul-no-drag>
+                <div>
+                    <p className="text-lg text-white font-semibold">
+                        <span>
                             ???
                         </span>
-                        <span data-vaul-no-drag className="text-gray-400 font-medium max-w-lg truncate">
+                        <span className="text-gray-400 font-medium max-w-lg truncate">
                         </span>
                     </p>
-                    <p data-vaul-no-drag className="text-sm text-[--muted] font-normal italic line-clamp-1">{localFile.name}</p>
+                    <p className="text-sm text-[--muted] font-normal italic line-clamp-1">{localFile.name}</p>
                 </div>
             </div>
         </li>
     )
 
     return (
-        <li data-vaul-no-drag ref={setNodeRef} style={style}>
+        <li ref={setNodeRef} style={style}>
             <div
                 className="px-2.5 py-2 bg-[#0c0c0c] rounded-md border flex gap-3 relative"
-                data-vaul-no-drag
+
             >
                 <IconButton
                     className="absolute top-2 right-2 rounded-full"
@@ -216,15 +216,14 @@ function SortableItem({ localFile, id, media, setPaths }: {
                     intent="alert-subtle"
                     size="sm"
                     onClick={() => setPaths((prev: string[]) => prev.filter(n => n !== id))}
-                    data-vaul-no-drag
+
                 />
                 <div
-                    data-vaul-no-drag
                     className="rounded-full w-4 h-auto bg-[--muted] md:bg-[--subtle] md:hover:bg-[--subtle-highlight] cursor-move"
                     {...attributes} {...listeners}
                 />
                 <div
-                    data-vaul-no-drag
+
                     className="w-16 aspect-square rounded-md border overflow-hidden relative transition bg-[#0c0c0c]"
                 >
                     <Image
@@ -234,19 +233,19 @@ function SortableItem({ localFile, id, media, setPaths }: {
                         fill
                         alt=""
                         className="object-center object-cover"
-                        data-vaul-no-drag
+
                     />
                 </div>
-                <div data-vaul-no-drag>
-                    <p data-vaul-no-drag className="text-lg text-white font-semibold">
-                        <span data-vaul-no-drag>
+                <div>
+                    <p className="text-lg text-white font-semibold">
+                        <span>
                             {media?.format !== "MOVIE" ? `Episode ${localFile.metadata.episode}` : "Movie"}
                         </span>
-                        <span data-vaul-no-drag className="text-gray-400 font-medium max-w-lg truncate">
+                        <span className="text-gray-400 font-medium max-w-lg truncate">
                             {" - "}{media?.title?.userPreferred || media?.title?.romaji}
                         </span>
                     </p>
-                    <p data-vaul-no-drag className="text-sm text-[--muted] font-normal italic line-clamp-1">{localFile.name}</p>
+                    <p className="text-sm text-[--muted] font-normal italic line-clamp-1">{localFile.name}</p>
                 </div>
             </div>
         </li>
@@ -300,8 +299,8 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                         )}
                         onClick={() => handleSelect(lf.path)}
                     >
-                        <p>{entry.media?.format !== "MOVIE" ? `Episode ${lf.metadata.episode}` : "Movie"}</p>
-                        <p className="text-sm text-[--muted] font-normal italic line-clamp-1">{lf.name}</p>
+                        <p className="">{entry.media?.format !== "MOVIE" ? `Episode ${lf.metadata.episode}` : "Movie"}</p>
+                        <p className="text-sm text-[--muted] font-normal italic max-w-lg truncate">{lf.name}</p>
                     </div>
                 )
             })}

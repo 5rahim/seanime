@@ -1,8 +1,8 @@
 import { PlaylistManager } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-manager"
 import { useCreatePlaylist, useDeletePlaylist, useUpdatePlaylist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist-actions"
-import { Vaul, VaulContent, VaulHeader, VaulTitle, VaulTrigger } from "@/components/shared/vaul"
-import { Button, CloseButton } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { DangerZone } from "@/components/ui/form"
+import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { Playlist } from "@/lib/server/types"
@@ -11,7 +11,7 @@ import { toast } from "sonner"
 
 type PlaylistModalProps = {
     playlist?: Playlist
-    trigger: React.ReactNode
+    trigger: React.ReactElement
 }
 
 export function PlaylistModal(props: PlaylistModalProps) {
@@ -53,13 +53,12 @@ export function PlaylistModal(props: PlaylistModalProps) {
         if (isUpdate && !!props.playlist) {
             updatePlaylist({ dbId: props.playlist.dbId, name, paths }, {
                 onSuccess: () => {
-                    setIsOpen(false)
                 },
             })
         } else {
+            setIsOpen(false)
             createPlaylist({ name, paths }, {
                 onSuccess: () => {
-                    setIsOpen(false)
                     reset()
                 },
             })
@@ -67,52 +66,47 @@ export function PlaylistModal(props: PlaylistModalProps) {
     }
 
     return (
-        <Vaul open={isOpen} onOpenChange={v => setIsOpen(v)}>
-            <VaulTrigger asChild>
-                {trigger}
-            </VaulTrigger>
-            <VaulContent className="h-full mt-24 lg:mt-72 max-h-[90%]">
-                <CloseButton className="absolute top-2 right-2" onClick={() => setIsOpen(false)} />
-                <div className="w-full p-4 lg:p-8 space-y-4 overflow-y-auto" data-vaul-no-drag>
-                    <VaulHeader className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <VaulTitle>
-                            {isUpdate ? "Edit playlist" : "Create playlist"}
-                        </VaulTitle>
-                    </VaulHeader>
+        <Modal
+            title={isUpdate ? "Edit playlist" : "Create playlist"}
+            trigger={trigger}
+            open={isOpen}
+            onOpenChange={v => setIsOpen(v)}
+            contentClass="max-w-4xl"
+        >
+            <div className="space-y-4">
 
-                    <div className="space-y-4">
-                        <TextInput
-                            label="Name"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                        />
+                <div className="space-y-4">
+                    <TextInput
+                        label="Name"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                    />
 
-                        <Separator />
+                    <Separator />
 
-                        <PlaylistManager
-                            paths={paths}
-                            setPaths={setPaths}
-                        />
-                        <div className="">
-                            <Button disabled={paths.length === 0} onClick={handleSubmit} loading={isCreating || isDeleting || isUpdating}>
-                                {isUpdate ? "Update" : "Create"}
-                            </Button>
-                        </div>
+                    <PlaylistManager
+                        paths={paths}
+                        setPaths={setPaths}
+                    />
+                    <div className="">
+                        <Button disabled={paths.length === 0} onClick={handleSubmit} loading={isCreating || isDeleting || isUpdating}>
+                            {isUpdate ? "Update" : "Create"}
+                        </Button>
                     </div>
-
-                    {isUpdate && <DangerZone
-                        actionText="Delete playlist" onDelete={() => {
-                        if (isUpdate && !!props.playlist) {
-                            deletePlaylist({ dbId: props.playlist.dbId }, {
-                                onSuccess: () => {
-                                    setIsOpen(false)
-                                },
-                            })
-                        }
-                    }}
-                    />}
                 </div>
-            </VaulContent>
-        </Vaul>
+
+                {isUpdate && <DangerZone
+                    actionText="Delete playlist" onDelete={() => {
+                    if (isUpdate && !!props.playlist) {
+                        deletePlaylist({ dbId: props.playlist.dbId }, {
+                            onSuccess: () => {
+                                setIsOpen(false)
+                            },
+                        })
+                    }
+                }}
+                />}
+            </div>
+        </Modal>
     )
 }

@@ -1,9 +1,9 @@
 import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-modal"
 import { PlaylistsList } from "@/app/(main)/(library)/_containers/playlists/_components/playlists-list"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { Vaul, VaulContent, VaulHeader, VaulTitle } from "@/components/shared/vaul"
 import { Alert } from "@/components/ui/alert"
-import { Button, CloseButton } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
+import { Drawer } from "@/components/ui/drawer"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
@@ -26,40 +26,41 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
 
     return (
         <>
-            <Vaul open={isOpen} onOpenChange={v => setIsOpen(v)}>
-                <VaulContent className="h-full mt-24 lg:mt-72 max-h-[90%]">
-                    <CloseButton className="absolute top-2 right-2" onClick={() => setIsOpen(false)} />
-                    <div className="w-full p-4 lg:p-8 space-y-4 overflow-y-auto" data-vaul-no-drag>
-                        <VaulHeader className="flex flex-col md:flex-row justify-between items-center gap-4">
-                            <VaulTitle>Playlists</VaulTitle>
-                            <div className="flex gap-2 items-center">
-
-                                <PlaylistModal
-                                    trigger={
-                                        <Button intent="success" className="rounded-full">
-                                            Add a playlist
-                                        </Button>
-                                    }
-                                />
-                            </div>
-                        </VaulHeader>
-
-                        {!serverStatus?.settings?.library?.autoUpdateProgress && <Alert
-                            className="max-w-2xl mx-auto"
-                            intent="warning"
-                            description={<>
-                                <p>
-                                    You need to enable the "auto-update progress" feature to use playlists.
-                                </p>
-                            </>}
-                        />}
-
-                        <div className="">
-                            <PlaylistsList />
+            <Drawer
+                open={isOpen}
+                onOpenChange={v => setIsOpen(v)}
+                size="lg"
+                side="bottom"
+            >
+                <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <p>Playlists</p>
+                        <div className="flex gap-2 items-center md:pr-8">
+                            <PlaylistModal
+                                trigger={
+                                    <Button intent="success" className="rounded-full">
+                                        Add a playlist
+                                    </Button>
+                                }
+                            />
                         </div>
                     </div>
-                </VaulContent>
-            </Vaul>
+
+                    {!serverStatus?.settings?.library?.autoUpdateProgress && <Alert
+                        className="max-w-2xl mx-auto"
+                        intent="warning-basic"
+                        description={<>
+                            <p>
+                                You need to enable the "auto-update progress" feature to use playlists.
+                            </p>
+                        </>}
+                    />}
+
+                    <div className="">
+                        <PlaylistsList />
+                    </div>
+                </div>
+            </Drawer>
         </>
     )
 }
