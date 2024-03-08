@@ -47,10 +47,12 @@ support transcoding or streaming to other devices (yet).
 
 [How to use Seanime.](https://seanime.rahim.app/docs)
 
+# Next releases
+
+- [ ] **v1.0.0** - Saturday, 3/9/2024
+
 # Roadmap
 
-- [ ] New UI 
-- [ ] Transmission support
 - [ ] Manga support
 - [ ] Offline support
 - [ ] Kitsu integration
