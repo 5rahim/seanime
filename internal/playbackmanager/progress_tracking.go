@@ -42,9 +42,17 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 					pm.Logger.Error().Err(err).Msg("playback manager: failed to get media data")
 					// Send error event to the client
 					pm.wsEventManager.SendEvent(events.PlaybackManagerProgressMetadataError, err.Error())
+					//
+					pm.MediaPlayerRepository.Cancel()
 				} else {
-					pm.Logger.Debug().Msgf("playback manager: Watching %s - Episode %d", pm.currentMediaListEntry.GetMedia().GetPreferredTitle(), pm.currentLocalFile.GetEpisodeNumber())
+					pm.Logger.Debug().
+						Str("media", pm.currentMediaListEntry.GetMedia().GetPreferredTitle()).
+						Int("episode", pm.currentLocalFile.GetEpisodeNumber()).
+						Msg("playback manager: Playback started")
 				}
+
+				// ------- Playlist ------- //
+				go pm.playlistHub.onVideoStart(pm.currentMediaListEntry, pm.currentLocalFile, pm.anilistCollection, _ps)
 
 				pm.eventMu.Unlock()
 			case status := <-pm.mediaPlayerRepoSubscriber.VideoCompletedCh: // Video has been watched completely but still tracking
@@ -67,12 +75,18 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				// Push the video playback state to the history
 				pm.history = append(pm.history, _ps)
 
+				// ------- Playlist ------- //
+				go pm.playlistHub.onVideoCompleted(pm.currentMediaListEntry, pm.currentLocalFile, _ps)
+
 				pm.eventMu.Unlock()
 			case path := <-pm.mediaPlayerRepoSubscriber.TrackingStoppedCh: // Tracking has stopped completely
 				pm.eventMu.Lock()
 
 				pm.Logger.Debug().Msg("playback manager: Received tracking stopped event")
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStopped, path)
+
+				// ------- Playlist ------- //
+				go pm.playlistHub.onTrackingStopped()
 
 				pm.eventMu.Unlock()
 			case status := <-pm.mediaPlayerRepoSubscriber.PlaybackStatusCh: // Playback status has changed
@@ -93,9 +107,15 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				// Send the playback state to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
 
+				// ------- Playlist ------- //
+				go pm.playlistHub.onPlaybackStatus(pm.currentMediaListEntry, pm.currentLocalFile, _ps)
+
 				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.TrackingRetryCh: // Error occurred while starting tracking
 				// DEVNOTE: This event is not sent to the client
+
+				// ------- Playlist ------- //
+				go pm.playlistHub.onTrackingError()
 			}
 		}
 	}()
@@ -134,11 +154,14 @@ func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 		pm.Logger.Debug().Msg("playback manager: Updating progress on AniList")
 		err := pm.updateProgress(pm.currentMediaListEntry, pm.currentLocalFile)
 
-		if err != nil && errors.Is(err, ErrProgressUpdateMAL) {
-			_ps.ProgressUpdated = false
-		} else {
-			_ps.ProgressUpdated = true
-			pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
+		if err != nil {
+			if errors.Is(err, ErrProgressUpdateAnilist) {
+				_ps.ProgressUpdated = false
+				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyError, "Failed to update progress on AniList")
+			} else {
+				_ps.ProgressUpdated = true
+				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
+			}
 		}
 	} else if err != nil {
 		pm.Logger.Error().Err(err).Msg("playback manager: Failed to check if auto update progress is enabled")

@@ -75,7 +75,7 @@ func New(opts *NewProgressManagerOptions) *PlaybackManager {
 		anilistClientWrapper:         opts.AnilistClientWrapper,
 		anilistCollection:            opts.AnilistCollection,
 		refreshAnilistCollectionFunc: opts.RefreshAnilistCollectionFunc,
-		playlistHub:                  newPlaylistHub(opts.Logger),
+		playlistHub:                  newPlaylistHub(opts.Logger, opts.WSEventManager),
 		mu:                           sync.Mutex{},
 	}
 }
@@ -108,6 +108,8 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 			pm.cancel()
 		}
 
+		pm.playlistHub.reset()
+
 		// Create a new context
 		pm.ctx, pm.cancel = context.WithCancel(context.Background())
 
@@ -126,6 +128,8 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 }
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
+	pm.playlistHub.reset()
+
 	err := pm.MediaPlayerRepository.Play(videopath)
 	if err != nil {
 		return err
@@ -133,6 +137,16 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 
 	pm.MediaPlayerRepository.StartTracking()
 
+	return nil
+}
+
+func (pm *PlaybackManager) CancelCurrentPlaylist() error {
+	go pm.playlistHub.reset()
+	return nil
+}
+
+func (pm *PlaybackManager) RequestNextPlaylistFile() error {
+	go pm.playlistHub.playNextFile()
 	return nil
 }
 
@@ -148,7 +162,49 @@ func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 
 	pm.MediaPlayerRepository.StartTracking()
 
-	// TODO: Delete playlist in goroutine
+	var ctx context.Context
+	ctx, pm.playlistHub.cancel = context.WithCancel(context.Background())
+
+	// Listen to new play requests
+	go func() {
+		pm.Logger.Debug().Msg("playback manager: Listening for new file requests")
+		for {
+			select {
+			case <-ctx.Done():
+				pm.Logger.Debug().Msg("playback manager: Playlist context cancelled")
+				pm.wsEventManager.SendEvent(events.PlaybackManagerPlaylistState, nil)
+				return
+			case path := <-pm.playlistHub.requestNewFileCh:
+				pm.Logger.Debug().Str("path", path).Msg("playback manager: Playing next file")
+				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyInfo, "Playing next file in playlist")
+				err := pm.MediaPlayerRepository.Play(path)
+				if err != nil {
+					pm.Logger.Error().Err(err).Msg("playback manager: failed to play next file in playlist")
+					pm.playlistHub.cancel()
+					return
+				}
+				pm.MediaPlayerRepository.StartTracking()
+			case <-pm.playlistHub.endOfPlaylistCh:
+				pm.Logger.Debug().Msg("playback manager: End of playlist")
+				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyInfo, "End of playlist")
+				pm.wsEventManager.SendEvent(events.PlaybackManagerPlaylistState, nil)
+				go pm.MediaPlayerRepository.Stop()
+				pm.playlistHub.cancel()
+				return
+			default:
+			}
+		}
+	}()
+
+	// Delete playlist in goroutine
+	//go func() {
+	//	err := pm.Database.DeletePlaylist(playlist.DbId)
+	//	if err != nil {
+	//		pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
+	//		return
+	//	}
+	//	pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
+	//}() TODO Undo this
 
 	return nil
 }

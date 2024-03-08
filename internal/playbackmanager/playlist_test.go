@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-var defaultPlayer = "mpc-hc"
+var defaultPlayer = "vlc"
 var localFilePaths = []string{
 	"E:/ANIME/Dungeon Meshi/[EMBER] Dungeon Meshi - 04.mkv",
 	"E:/ANIME/Dungeon Meshi/[EMBER] Dungeon Meshi - 05.mkv",
@@ -52,7 +52,7 @@ func TestPlaylists(t *testing.T) {
 
 	err = playbackManager.StartPlaylist(playlist)
 	if err != nil {
-		return
+		t.Fatal(err)
 	}
 
 	select {}

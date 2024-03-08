@@ -31,6 +31,13 @@ func (m *BaseMedia) GetPreferredTitle() string {
 	return m.GetTitleSafe()
 }
 
+func (m *BaseMedia) GetCoverImageSafe() string {
+	if m.GetCoverImage().GetExtraLarge() != nil {
+		return *m.GetCoverImage().GetExtraLarge()
+	}
+	return *m.GetBannerImage()
+}
+
 func (m *BaseMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasEnglishTitle() {

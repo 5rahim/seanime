@@ -72,6 +72,9 @@ export const enum SeaEndpoints {
      * Playback Manager
      */
     PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS = "/playback-manager/sync-current-progress", // (POST)
+    PLAYBACK_MANAGER_START_PLAYLIST = "/playback-manager/start-playlist", // (POST)
+    PLAYBACK_MANAGER_CANCEL_PLAYLIST = "/playback-manager/cancel-playlist", // (POST)
+    PLAYBACK_MANAGER_PLAYLIST_NEXT = "/playback-manager/playlist-next", // (GET)
     /**
      * Playlist
      */
@@ -110,4 +113,7 @@ export const enum WSEvents {
     PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED = "playback-manager-progress-video-completed",
     PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE = "playback-manager-progress-playback-state",
     PLAYBACK_MANAGER_PROGRESS_UPDATED = "playback-manager-progress-updated",
+    PLAYBACK_MANAGER_NOTIFY_INFO = "playback-manager-notify-info",
+    PLAYBACK_MANAGER_NOTIFY_ERROR = "playback-manager-notify-error",
+    PLAYBACK_MANAGER_PLAYLIST_STATE = "playback-manager-playlist-state",
 }

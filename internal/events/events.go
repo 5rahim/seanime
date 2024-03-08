@@ -3,7 +3,7 @@ package events
 const (
 	EventScanProgress                      = "scan-progress"                              // Progress of the scan
 	EventScanStatus                        = "scan-status"                                // Status text of the scan
-	RefreshedAnilistCollection             = "refreshed-anilist-collection"               // DEPRECATED: The anilist collection has been refreshed
+	RefreshedAnilistCollection             = "refreshed-anilist-collection"               // The anilist collection has been refreshed
 	MediaPlayerTrackingStopped             = "media-player-tracking-stopped"              // DEPRECATED: The media player tracking has stopped
 	MediaPlayerTrackingStarted             = "media-player-tracking-started"              // DEPRECATED: The media player tracking has started
 	MediaPlayerVideoCompleted              = "media-player-video-completed"               // DEPRECATED: The video has been completed
@@ -21,5 +21,7 @@ const (
 	PlaybackManagerProgressVideoCompleted  = "playback-manager-progress-video-completed"  // The video progress has been completed
 	PlaybackManagerProgressPlaybackState   = "playback-manager-progress-playback-state"   // Dispatches the current playback state
 	PlaybackManagerProgressUpdated         = "playback-manager-progress-updated"          // Signals that the progress has been updated
-
+	PlaybackManagerNotifyInfo              = "playback-manager-notify-info"
+	PlaybackManagerNotifyError             = "playback-manager-notify-error"
+	PlaybackManagerPlaylistState           = "playback-manager-playlist-state" // Dispatches the current playlist state
 )

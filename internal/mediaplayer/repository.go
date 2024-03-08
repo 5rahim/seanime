@@ -65,7 +65,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		MpcHc:               opts.MpcHc,
 		Mpv:                 opts.Mpv,
 		WSEventManager:      opts.WSEventManager,
-		completionThreshold: 0.9,
+		completionThreshold: 0.8,
 		subscribers:         make(map[string]*RepositorySubscriber),
 	}
 }
@@ -124,7 +124,7 @@ func (m *Repository) playbackStatus(status *PlaybackStatus) {
 
 func (m *Repository) Play(path string) error {
 
-	m.Logger.Debug().Msgf("media player: Requested \"%s\"", path)
+	m.Logger.Debug().Str("path", path).Msg("media player: Media requested")
 
 	switch m.Default {
 	case "vlc":
@@ -159,7 +159,32 @@ func (m *Repository) Play(path string) error {
 
 }
 
+// Cancel will stop the tracking process and publish an "abnormal" event
+func (m *Repository) Cancel() {
+	m.mu.Lock()
+	if m.cancel != nil {
+		m.Logger.Debug().Msg("media player: Cancel request received")
+		m.cancel()
+		m.trackingStopped("Something went wrong, tracking cancelled")
+	} else {
+		m.Logger.Debug().Msg("media player: Cancel request received, but no context found")
+	}
+	m.mu.Unlock()
+}
+
+// Stop will stop the tracking process and publish a "normal" event
+func (m *Repository) Stop() {
+	m.mu.Lock()
+	if m.cancel != nil {
+		m.Logger.Debug().Msg("media player: Stop request received")
+		m.cancel()
+		m.trackingStopped("Tracking stopped")
+	}
+	m.mu.Unlock()
+}
+
 func (m *Repository) StartTracking() {
+	m.mu.Lock()
 	// If a previous context exists, cancel it
 	if m.cancel != nil {
 		m.Logger.Debug().Msg("media player: Cancelling previous context")
@@ -177,20 +202,29 @@ func (m *Repository) StartTracking() {
 
 	m.isRunning = true
 
+	m.mu.Unlock()
+
 	go func() {
 		for {
 			select {
 			case <-done:
+				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Connection lost")
+				m.isRunning = false
+				m.mu.Unlock()
 				return
 			case <-trackingCtx.Done():
+				m.mu.Lock()
 				m.Logger.Debug().Msg("media player: Context cancelled")
+				m.isRunning = false
+				m.mu.Unlock()
 				return
 			default:
 				time.Sleep(3 * time.Second)
 				status, err := m.getStatus()
 
 				if err != nil {
+					m.trackingRetry("Failed to get status")
 					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
 
 					// Video is completed, and we are unable to get the status
@@ -214,6 +248,7 @@ func (m *Repository) StartTracking() {
 				playback, ok := m.processStatus(m.Default, status)
 
 				if !ok {
+					m.trackingRetry("Failed to get status")
 					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
 						m.trackingStopped("Failed to process status")
@@ -224,9 +259,7 @@ func (m *Repository) StartTracking() {
 					continue
 				}
 
-				m.mu.Lock()
 				m.currentPlaybackStatus = playback
-				m.mu.Unlock()
 
 				// New video has started playing \/
 				if filename == "" || filename != playback.Filename {

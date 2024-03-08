@@ -1,13 +1,18 @@
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
 import { Playlist } from "@/lib/server/types"
+import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { FaPlay } from "react-icons/fa"
+import { toast } from "sonner"
 
 type StartPlaylistModalProps = {
     trigger?: React.ReactElement
     playlist: Playlist
     canStart?: boolean
+    onPlaylistLoaded: () => void
 }
 
 export function StartPlaylistModal(props: StartPlaylistModalProps) {
@@ -16,8 +21,21 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
         trigger,
         playlist,
         canStart,
+        onPlaylistLoaded,
         ...rest
     } = props
+
+    const qc = useQueryClient()
+
+    const { mutate: startPlaylist, isPending } = useSeaMutation<void, { dbId: number }>({
+        endpoint: SeaEndpoints.PLAYBACK_MANAGER_START_PLAYLIST,
+        method: "post",
+        onSuccess: async () => {
+            toast.success("Playlist loaded")
+            onPlaylistLoaded()
+            await qc.refetchQueries({ queryKey: ["get-playlists"] })
+        },
+    })
 
     return (
         <Modal
@@ -42,7 +60,9 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
                 leftIcon={<FaPlay />}
                 intent="primary"
                 size="lg"
-                disabled={!canStart}
+                loading={isPending}
+                // disabled={!canStart} // TODO Re-enable this
+                onClick={() => startPlaylist({ dbId: playlist.dbId })}
             >Start</Button>
         </Modal>
     )

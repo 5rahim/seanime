@@ -1,6 +1,7 @@
 import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-modal"
 import { StartPlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/start-playlist-modal"
 import { useGetPlaylists } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist-actions"
+import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { useAtomValue } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import React from "react"
 import { FaCirclePlay } from "react-icons/fa6"
@@ -29,6 +30,12 @@ export function PlaylistsList(props: PlaylistsListProps) {
     const userMedia = useAtomValue(anilistUserMediaAtom)
     const serverStatus = useAtomValue(serverStatusAtom)
 
+    const setOpen = useSetAtom(__playlists_modalOpenAtom)
+
+    const handlePlaylistLoaded = React.useCallback(() => {
+        setOpen(false)
+    }, [])
+
     if (isLoading) {
         return (
             <LoadingSpinner />
@@ -45,6 +52,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
             </div>
         )
     }
+
 
     return (
         // <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -102,6 +110,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
                                             </div>
                                         </div>}
                                         playlist={p}
+                                        onPlaylistLoaded={handlePlaylistLoaded}
                                     />
                                     <div className="space-y-1 items-center">
                                         <p className="text-md font-bold text-white max-w-lg truncate text-center">{p.name}</p>

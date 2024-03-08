@@ -28,3 +28,60 @@ func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 
 	return c.RespondWithData(true)
 }
+
+// HandlePlaybackStartPlaylist will start playing a playlist.
+// The client should:
+//
+//   - Refetch playlists
+//
+//     POST /v1/playback-manager/start-playlist
+func HandlePlaybackStartPlaylist(c *RouteCtx) error {
+
+	type body struct {
+		DbId uint `json:"dbId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get playlist
+	playlist, err := c.App.Database.GetPlaylist(b.DbId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err = c.App.PlaybackManager.StartPlaylist(playlist)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandlePlaybackCancelCurrentPlaylist will end the current playlist
+//
+//	POST /v1/playback-manager/cancel-playlist
+func HandlePlaybackCancelCurrentPlaylist(c *RouteCtx) error {
+
+	err := c.App.PlaybackManager.CancelCurrentPlaylist()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandlePlaybackPlaylistNext will end the current playlist
+//
+//	POST /v1/playback-manager/playlist-next
+func HandlePlaybackPlaylistNext(c *RouteCtx) error {
+
+	err := c.App.PlaybackManager.RequestNextPlaylistFile()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}

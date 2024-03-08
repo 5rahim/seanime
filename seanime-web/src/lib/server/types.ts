@@ -330,6 +330,17 @@ export type PlaybackManagerPlaybackState = {
     mediaId: number
 }
 
+export type PlaybackManagerPlaylistState = {
+    current: PlaybackManagerPlaylistStateItem | null
+    next: PlaybackManagerPlaylistStateItem | null
+    remaining: number
+}
+
+export type PlaybackManagerPlaylistStateItem = {
+    name: string
+    mediaImage: string
+}
+
 /**
  * Torrent
  */

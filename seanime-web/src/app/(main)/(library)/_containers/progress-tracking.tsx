@@ -1,16 +1,19 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
+import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
-import { PlaybackManagerPlaybackState } from "@/lib/server/types"
+import { PlaybackManagerPlaybackState, PlaybackManagerPlaylistState } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
-import { useState } from "react"
+import Image from "next/image"
+import React, { useState } from "react"
+import { FaCirclePlay } from "react-icons/fa6"
 import { PiPopcornFill } from "react-icons/pi"
 import { toast } from "sonner"
 
@@ -32,6 +35,7 @@ export function ProgressTracking() {
     const shouldBeDisplayed = isTracking || isCompleted
 
     const [state, setState] = useState<PlaybackManagerPlaybackState | null>(null)
+    const [playlistState, setPlaylistState] = useState<PlaybackManagerPlaylistState | null>(null)
 
     // Tracking started
     useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
@@ -62,6 +66,8 @@ export function ProgressTracking() {
             }
             if (data === "Player closed") {
                 toast.info("Player closed")
+            } else if (data === "Tracking stopped") {
+                toast.info("Tracking stopped")
             } else {
                 toast.error(data)
             }
@@ -100,6 +106,22 @@ export function ProgressTracking() {
         },
     })
 
+    useWebsocketMessageListener<string>({
+        type: WSEvents.PLAYBACK_MANAGER_NOTIFY_INFO,
+        onMessage: data => {
+            if (!!data) {
+                toast.info(data)
+            }
+        },
+    })
+
+    useWebsocketMessageListener<PlaybackManagerPlaylistState | null>({
+        type: WSEvents.PLAYBACK_MANAGER_PLAYLIST_STATE,
+        onMessage: data => {
+            setPlaylistState(data)
+        },
+    })
+
     const { mutate: syncProgress, isPending } = useSeaMutation<number>({
         endpoint: SeaEndpoints.PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS,
         method: "post",
@@ -109,6 +131,24 @@ export function ProgressTracking() {
             qc.refetchQueries({ queryKey: ["get-library-collection"] })
             qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
             toast.success("Progress updated")
+        },
+    })
+
+    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = useSeaMutation({
+        endpoint: SeaEndpoints.PLAYBACK_MANAGER_PLAYLIST_NEXT,
+        method: "post",
+        mutationKey: ["playback-playlist-next", playlistState?.current?.name],
+        onSuccess: async () => {
+            toast.info("Loading next file")
+        },
+    })
+
+    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = useSeaMutation({
+        endpoint: SeaEndpoints.PLAYBACK_MANAGER_CANCEL_PLAYLIST,
+        method: "post",
+        mutationKey: ["playback-cancel-playlist", playlistState?.current?.name],
+        onSuccess: async () => {
+            toast.info("Cancelling playlist")
         },
     })
 
@@ -181,6 +221,47 @@ export function ProgressTracking() {
                         Update progress now
                     </Button>
                 </div>}
+                {!!playlistState?.next && (
+                    <div className="space-y-3">
+                        <h4 className="text-lg font-medium text-center">Playlist</h4>
+                        <div className="space-y-3">
+                            <p className="text-center truncate line-clamp-1">Next: <span className="font-semibold">{playlistState?.next?.name}</span>
+                            </p>
+                            <div
+                                className={cn(
+                                    "w-full rounded-md relative overflow-hidden",
+                                    submittedPlaylistNext ? "opacity-50" : "cursor-pointer",
+                                )}
+                                onClick={() => {
+                                    if (!submittedPlaylistNext) playlistNext()
+                                }}
+                            >
+                                {(playlistState.next?.mediaImage) && <Image
+                                    src={playlistState.next?.mediaImage || ""}
+                                    placeholder={imageShimmer(700, 475)}
+                                    sizes="10rem"
+                                    fill
+                                    alt=""
+                                    className="object-center object-cover z-[1]"
+                                />}
+                                <div className="inset-0 relative z-[2] bg-black bg-opacity-50 hover:bg-opacity-70 transition flex flex-col gap-2 items-center justify-center p-4">
+                                    <p className="flex gap-2 items-center"><FaCirclePlay className="block text-2xl" /> Play next</p>
+                                </div>
+                            </div>
+                        </div>
+                        <Button
+                            intent="alert-subtle"
+                            onClick={() => {
+                                if (!submittedStopPlaylist) stopPlaylist()
+                            }}
+                            size="sm"
+                            className="w-full"
+                            loading={submittedStopPlaylist}
+                        >
+                            Stop playlist
+                        </Button>
+                    </div>
+                )}
             </Modal>
         </>
     )
