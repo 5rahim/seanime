@@ -7,6 +7,7 @@ import { FaPlay } from "react-icons/fa"
 type StartPlaylistModalProps = {
     trigger?: React.ReactElement
     playlist: Playlist
+    canStart?: boolean
 }
 
 export function StartPlaylistModal(props: StartPlaylistModalProps) {
@@ -14,6 +15,7 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
     const {
         trigger,
         playlist,
+        canStart,
         ...rest
     } = props
 
@@ -30,12 +32,17 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
             <p className="text-[--muted] text-center">
                 Reminder: The playlist will be deleted once you start it, whether you finish it or not.
             </p>
+            {!canStart && (
+                <p className="text-orange-300 text-center">
+                    Please enable "Automatically update progress" to start
+                </p>
+            )}
             <Button
                 className="w-full flex-none"
                 leftIcon={<FaPlay />}
-                intent="white-subtle"
+                intent="primary"
                 size="lg"
-
+                disabled={!canStart}
             >Start</Button>
         </Modal>
     )

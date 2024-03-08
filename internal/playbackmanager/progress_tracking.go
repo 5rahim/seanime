@@ -42,9 +42,9 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 					pm.Logger.Error().Err(err).Msg("playback manager: failed to get media data")
 					// Send error event to the client
 					pm.wsEventManager.SendEvent(events.PlaybackManagerProgressMetadataError, err.Error())
+				} else {
+					pm.Logger.Debug().Msgf("playback manager: Watching %s - Episode %d", pm.currentMediaListEntry.GetMedia().GetPreferredTitle(), pm.currentLocalFile.GetEpisodeNumber())
 				}
-
-				pm.Logger.Debug().Msgf("playback manager: Watching %s - Episode %d", pm.currentMediaListEntry.GetMedia().GetPreferredTitle(), pm.currentLocalFile.GetEpisodeNumber())
 
 				pm.eventMu.Unlock()
 			case status := <-pm.mediaPlayerRepoSubscriber.VideoCompletedCh: // Video has been watched completely but still tracking

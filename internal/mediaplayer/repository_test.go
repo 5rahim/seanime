@@ -3,6 +3,7 @@ package mediaplayer
 import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mpchc"
+	"github.com/seanime-app/seanime/internal/mpv"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"github.com/stretchr/testify/assert"
@@ -31,6 +32,7 @@ func TestRepository_StartTracking(t *testing.T) {
 		Default:        "vlc",
 		VLC:            vlc,
 		MpcHc:          mpc,
+		Mpv:            mpv.New(logger, "", ""),
 		WSEventManager: WSEventManager,
 	}
 

@@ -25,7 +25,7 @@ func (m *BaseMedia) GetRomajiTitleSafe() string {
 }
 
 func (m *BaseMedia) GetPreferredTitle() string {
-	if m.Title.UserPreferred != nil {
+	if m.GetTitle().GetUserPreferred() != nil {
 		return *m.GetTitle().GetUserPreferred()
 	}
 	return m.GetTitleSafe()

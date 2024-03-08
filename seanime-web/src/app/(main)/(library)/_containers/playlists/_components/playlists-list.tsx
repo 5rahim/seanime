@@ -2,6 +2,7 @@ import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_com
 import { StartPlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/start-playlist-modal"
 import { useGetPlaylists } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist-actions"
 import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -26,6 +27,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
 
     const { playlists, isLoading } = useGetPlaylists()
     const userMedia = useAtomValue(anilistUserMediaAtom)
+    const serverStatus = useAtomValue(serverStatusAtom)
 
     if (isLoading) {
         return (
@@ -79,12 +81,13 @@ export function PlaylistsList(props: PlaylistsListProps) {
                                 />}
                                 <div
                                     className={cn(
-                                        "absolute inset-0 bg-gray-900 transition-opacity",
+                                        "absolute inset-0 bg-gray-950 transition-opacity",
                                         "lg:opacity-0 lg:group-hover/playlist-item:opacity-100 z-[2] p-2 space-y-3",
                                         "flex flex-col",
                                     )}
                                 >
                                     <StartPlaylistModal
+                                        canStart={serverStatus?.settings?.library?.autoUpdateProgress}
                                         trigger={<div className="w-full h-full rounded-md overflow-hidden relative cursor-pointer">
                                             {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image
                                                 src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}

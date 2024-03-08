@@ -124,6 +124,8 @@ func (m *Repository) playbackStatus(status *PlaybackStatus) {
 
 func (m *Repository) Play(path string) error {
 
+	m.Logger.Debug().Msgf("media player: Requested \"%s\"", path)
+
 	switch m.Default {
 	case "vlc":
 		err := m.VLC.Start()
@@ -154,6 +156,7 @@ func (m *Repository) Play(path string) error {
 	default:
 		return errors.New("no default media player set")
 	}
+
 }
 
 func (m *Repository) StartTracking() {

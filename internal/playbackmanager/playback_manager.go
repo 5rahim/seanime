@@ -36,10 +36,11 @@ type (
 		ctx                          context.Context
 		cancel                       context.CancelFunc
 		history                      []PlaybackState                 // This is used to keep track of the user's completed video playbacks
-		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus     // The current video playback status
+		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus     // The current video playback status (can be nil)
 		currentMediaListEntry        *anilist.MediaListEntry         // List Entry for the current video playback (can be nil)
 		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
-		currentLocalFileWrapperEntry *entities.LocalFileWrapperEntry // This contains the current media entry local file data
+		currentLocalFileWrapperEntry *entities.LocalFileWrapperEntry // This contains the current media entry local file data (can be nil)
+		playlistHub                  *playlistHub                    // The playlist hub
 	}
 
 	PlaybackStateType string
@@ -54,11 +55,6 @@ type (
 		CanPlayNext          bool              `json:"canPlayNext"`          // Whether the next episode can be played
 		ProgressUpdated      bool              `json:"progressUpdated"`      // Whether the progress has been updated
 		MediaId              int               `json:"mediaId"`              // The media ID
-	}
-
-	Playlist struct {
-		localFiles []*entities.LocalFile
-		media      *anilist.BaseMedia
 	}
 
 	NewProgressManagerOptions struct {
@@ -79,6 +75,7 @@ func New(opts *NewProgressManagerOptions) *PlaybackManager {
 		anilistClientWrapper:         opts.AnilistClientWrapper,
 		anilistCollection:            opts.AnilistCollection,
 		refreshAnilistCollectionFunc: opts.RefreshAnilistCollectionFunc,
+		playlistHub:                  newPlaylistHub(opts.Logger),
 		mu:                           sync.Mutex{},
 	}
 }
@@ -135,6 +132,23 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	}
 
 	pm.MediaPlayerRepository.StartTracking()
+
+	return nil
+}
+
+func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
+	pm.playlistHub.loadPlaylist(playlist)
+
+	firstVidPath := playlist.LocalFiles[0].Path
+
+	err := pm.MediaPlayerRepository.Play(firstVidPath)
+	if err != nil {
+		return err
+	}
+
+	pm.MediaPlayerRepository.StartTracking()
+
+	// TODO: Delete playlist in goroutine
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/goccy/go-json"
 	"net/url"
+	"path/filepath"
 	"strconv"
 )
 
@@ -200,7 +201,7 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 	if len(option) > 1 {
 		return errors.New("please provide only one option")
 	}
-	urlSegment := "/requests/status.json?command=in_play&input=" + url.PathEscape(uri)
+	urlSegment := "/requests/status.json?command=in_play&input=" + url.PathEscape(filepath.FromSlash(uri))
 	if len(option) == 1 {
 		if (option[0] != "noaudio") && (option[0] != "novideo") {
 			return errors.New("invalid option")

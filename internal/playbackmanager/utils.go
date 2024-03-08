@@ -2,6 +2,7 @@ package playbackmanager
 
 import (
 	"errors"
+	"fmt"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/entities"
 	"path/filepath"
@@ -27,7 +28,7 @@ func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.
 	// Find the local file from the path
 	lfs, _, err := pm.Database.GetLocalFiles()
 	if err != nil {
-		return nil, nil, nil, errors.New("error getting local files")
+		return nil, nil, nil, fmt.Errorf("error getting local files: %s", err.Error())
 	}
 
 	var lf *entities.LocalFile

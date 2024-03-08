@@ -32,7 +32,7 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
                 size="lg"
                 side="bottom"
             >
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p>Playlists</p>
                         <div className="flex gap-2 items-center md:pr-8">
@@ -51,7 +51,7 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
                         intent="warning-basic"
                         description={<>
                             <p>
-                                You need to enable the "auto-update progress" feature to use playlists.
+                                You need to enable "Automatically update progress" to use playlists.
                             </p>
                         </>}
                     />}

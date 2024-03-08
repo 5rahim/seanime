@@ -13,6 +13,7 @@ assets/
 
 test/sample
 test/jwt.json
+test/db.json
 whats-new.md
 
 */mock_data.json
