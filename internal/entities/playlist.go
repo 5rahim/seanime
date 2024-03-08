@@ -8,9 +8,9 @@ import (
 type (
 	// Playlist holds the data from models.PlaylistEntry
 	Playlist struct {
-		DbId       uint         // DbId is the database ID of the models.PlaylistEntry
-		Name       string       // Name is the name of the playlist
-		LocalFiles []*LocalFile // LocalFiles is a list of local files in the playlist, in order
+		DbId       uint         `json:"dbId"`       // DbId is the database ID of the models.PlaylistEntry
+		Name       string       `json:"name"`       // Name is the name of the playlist
+		LocalFiles []*LocalFile `json:"localFiles"` // LocalFiles is a list of local files in the playlist, in order
 	}
 )
 

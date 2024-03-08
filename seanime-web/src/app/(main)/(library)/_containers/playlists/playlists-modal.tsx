@@ -12,7 +12,7 @@ type PlaylistsModalProps = {
     children?: React.ReactNode
 }
 
-export const __playlists_modalOpenAtom = atom(true) // TODO: This should be false
+export const __playlists_modalOpenAtom = atom(false)
 
 export function PlaylistsModal(props: PlaylistsModalProps) {
 
@@ -29,14 +29,14 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
             <Vaul open={isOpen} onOpenChange={v => setIsOpen(v)}>
                 <VaulContent className="h-full mt-24 lg:mt-72 max-h-[90%]">
                     <CloseButton className="absolute top-2 right-2" onClick={() => setIsOpen(false)} />
-                    <div className="w-full p-4 lg:p-8 space-y-4" data-vaul-no-drag>
+                    <div className="w-full p-4 lg:p-8 space-y-4 overflow-y-auto" data-vaul-no-drag>
                         <VaulHeader className="flex flex-col md:flex-row justify-between items-center gap-4">
                             <VaulTitle>Playlists</VaulTitle>
                             <div className="flex gap-2 items-center">
 
                                 <PlaylistModal
                                     trigger={
-                                        <Button intent="success-subtle" className="rounded-full">
+                                        <Button intent="success" className="rounded-full">
                                             Add a playlist
                                         </Button>
                                     }

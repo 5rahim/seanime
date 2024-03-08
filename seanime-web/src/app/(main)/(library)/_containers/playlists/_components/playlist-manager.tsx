@@ -55,7 +55,6 @@ export function PlaylistManager(props: PlaylistManagerProps) {
     }, [paths])
 
     const handleDragEnd = React.useCallback((event: DragEndEvent) => {
-        console.log("drag end")
         const { active, over } = event
 
         if (active.id !== over?.id) {
@@ -171,6 +170,39 @@ function SortableItem({ localFile, id, media, setPaths }: {
     }
 
     if (!localFile) return null
+
+    if (!media) return (
+        <li data-vaul-no-drag ref={setNodeRef} style={style}>
+            <div
+                className="px-2.5 py-2 bg-[#0c0c0c] border-[--red] rounded-md border flex gap-3 relative"
+                data-vaul-no-drag
+            >
+                <IconButton
+                    className="absolute top-2 right-2 rounded-full"
+                    icon={<BiTrash />}
+                    intent="alert-subtle"
+                    size="sm"
+                    onClick={() => setPaths((prev: string[]) => prev.filter(n => n !== id))}
+                    data-vaul-no-drag
+                />
+                <div
+                    data-vaul-no-drag
+                    className="rounded-full w-4 h-auto bg-[--muted] md:bg-[--subtle] md:hover:bg-[--subtle-highlight] cursor-move"
+                    {...attributes} {...listeners}
+                />
+                <div data-vaul-no-drag>
+                    <p data-vaul-no-drag className="text-lg text-white font-semibold">
+                        <span data-vaul-no-drag>
+                            ???
+                        </span>
+                        <span data-vaul-no-drag className="text-gray-400 font-medium max-w-lg truncate">
+                        </span>
+                    </p>
+                    <p data-vaul-no-drag className="text-sm text-[--muted] font-normal italic line-clamp-1">{localFile.name}</p>
+                </div>
+            </div>
+        </li>
+    )
 
     return (
         <li data-vaul-no-drag ref={setNodeRef} style={style}>

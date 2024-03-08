@@ -1,6 +1,8 @@
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { Playlist } from "@/lib/server/types"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export const useGetPlaylists = () => {
 
@@ -23,9 +25,14 @@ type CreatePlaylistProps = {
 }
 
 export const useCreatePlaylist = () => {
-    const { mutate, isPending } = useSeaMutation<CreatePlaylistProps>({
+    const qc = useQueryClient()
+    const { mutate, isPending } = useSeaMutation<void, CreatePlaylistProps>({
         endpoint: SeaEndpoints.PLAYLIST,
         method: "post",
+        onSuccess: () => {
+            qc.refetchQueries({ queryKey: ["get-playlists"] })
+            toast.success("Playlist created")
+        },
     })
     return {
         createPlaylist: mutate,
@@ -40,9 +47,14 @@ type UpdatePlaylistProps = {
 }
 
 export const useUpdatePlaylist = () => {
-    const { mutate, isPending } = useSeaMutation<UpdatePlaylistProps>({
+    const qc = useQueryClient()
+    const { mutate, isPending } = useSeaMutation<void, UpdatePlaylistProps>({
         endpoint: SeaEndpoints.PLAYLIST,
         method: "patch",
+        onSuccess: () => {
+            qc.refetchQueries({ queryKey: ["get-playlists"] })
+            toast.success("Playlist updated")
+        },
     })
     return {
         updatePlaylist: mutate,
@@ -51,9 +63,14 @@ export const useUpdatePlaylist = () => {
 }
 
 export const useDeletePlaylist = () => {
-    const { mutate, isPending } = useSeaMutation<{ dbId: number }>({
+    const qc = useQueryClient()
+    const { mutate, isPending } = useSeaMutation<void, { dbId: number }>({
         endpoint: SeaEndpoints.PLAYLIST,
         method: "delete",
+        onSuccess: () => {
+            qc.refetchQueries({ queryKey: ["get-playlists"] })
+            toast.success("Playlist deleted")
+        },
     })
     return {
         deletePlaylist: mutate,

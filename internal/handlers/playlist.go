@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/entities"
+	"path/filepath"
+	"strings"
 )
 
 // HandleCreatePlaylist will create a new playlist.
@@ -32,7 +34,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	lfs := make([]*entities.LocalFile, 0)
 	for _, path := range b.Paths {
 		for _, lf := range dbLfs {
-			if lf.GetNormalizedPath() == path {
+			if lf.GetNormalizedPath() == strings.ToLower(filepath.ToSlash(path)) {
 				lfs = append(lfs, lf)
 				break
 			}
@@ -91,7 +93,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	lfs := make([]*entities.LocalFile, 0)
 	for _, path := range b.Paths {
 		for _, lf := range dbLfs {
-			if lf.GetNormalizedPath() == path {
+			if lf.GetNormalizedPath() == strings.ToLower(filepath.ToSlash(path)) {
 				lfs = append(lfs, lf)
 				break
 			}

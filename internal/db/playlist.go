@@ -13,10 +13,10 @@ func (db *Database) GetPlaylists() ([]*entities.Playlist, error) {
 		return nil, err
 	}
 
-	var playlists []*entities.Playlist
+	playlists := make([]*entities.Playlist, 0)
 	for _, p := range res {
 		var localFiles []*entities.LocalFile
-		if err := json.Unmarshal(p.Value, &localFiles); err != nil {
+		if err := json.Unmarshal(p.Value, &localFiles); err == nil {
 			playlist := entities.NewPlaylist(p.Name)
 			playlist.SetLocalFiles(localFiles)
 			playlist.DbId = p.ID
