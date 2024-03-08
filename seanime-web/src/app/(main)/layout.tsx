@@ -1,4 +1,5 @@
 "use client"
+import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ProgressTracking } from "@/app/(main)/(library)/_containers/progress-tracking"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scanner/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
@@ -28,19 +29,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <ScanProgressBar />
             <LibraryWatcher />
             <ScannerModal />
+            <PlaylistsModal />
             <div className="min-h-screen">
                 <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
                     <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
                         <div className="flex items-center w-full gap-2">
-                            <AppSidebarTrigger/>
-                            <TopNavbar/>
+                            <AppSidebarTrigger />
+                            <TopNavbar />
                             <ProgressTracking />
                         </div>
                         <div className="flex items-center gap-4">
-                            <RefreshAnilistButton/>
+                            <RefreshAnilistButton />
                         </div>
                     </div>
-                    <DynamicHeaderBackground/>
+                    <DynamicHeaderBackground />
                 </div>
 
                 <div>

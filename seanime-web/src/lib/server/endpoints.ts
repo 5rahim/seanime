@@ -73,6 +73,12 @@ export const enum SeaEndpoints {
      */
     PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS = "/playback-manager/sync-current-progress", // (POST)
     /**
+     * Playlist
+     */
+    PLAYLISTS = "/playlists", // (GET)
+    PLAYLIST = "/playlist", // (POST, PATCH, DELETE)
+    PLAYLIST_EPISODES = "/playlist/episodes/{id}/{progress}", // (POST)
+    /**
      * Theme
      */
     THEME = "/theme", // (GET, PATCH)

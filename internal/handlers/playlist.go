@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/entities"
 )
 
@@ -130,4 +132,43 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(true)
+}
+
+// HandleGetPlaylistEpisodes will return all the playable local files of a playlist media entry
+//
+//	GET /v1/playlist/episodes/:id/:progress
+func HandleGetPlaylistEpisodes(c *RouteCtx) error {
+
+	lfs, _, err := c.App.Database.GetLocalFiles()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	lfw := entities.NewLocalFileWrapper(lfs)
+
+	// Params
+	mId, err := c.Fiber.ParamsInt("id")
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	progress, err := c.Fiber.ParamsInt("progress")
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	group, found := lfw.GetLocalEntryById(mId)
+	if !found {
+		return c.RespondWithError(errors.New("media entry not found"))
+	}
+
+	toWatch, found := group.GetMainLocalFiles()
+	if !found {
+		return c.RespondWithError(errors.New("no local files found"))
+	}
+
+	toWatch = lo.Filter(toWatch, func(lf *entities.LocalFile, i int) bool {
+		return lf.GetEpisodeNumber() > progress
+	})
+
+	return c.RespondWithData(toWatch)
 }

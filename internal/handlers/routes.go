@@ -246,6 +246,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playlist", makeHandler(app, HandleCreatePlaylist))
 	v1.Patch("/playlist", makeHandler(app, HandleUpdatePlaylist))
 	v1.Delete("/playlist", makeHandler(app, HandleDeletePlaylist))
+	v1.Get("/playlist/episodes/:id/:progress", makeHandler(app, HandleGetPlaylistEpisodes))
 
 	//
 	// Websocket

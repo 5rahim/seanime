@@ -10,6 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dnd-kit/modifiers": "^7.0.0",
+    "@dnd-kit/sortable": "^8.0.0",
     "@googlemaps/js-api-loader": "^1.16.6",
     "@graphql-codegen/cli": "^5.0.2",
     "@headlessui/react": "^1.7.18",
@@ -104,6 +106,7 @@
     "typescript": "^5",
     "upath": "^2.0.1",
     "use-debounce": "^10.0.0",
+    "vaul": "^0.9.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

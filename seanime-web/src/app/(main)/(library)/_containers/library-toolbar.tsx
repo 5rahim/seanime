@@ -1,5 +1,6 @@
 "use client"
 import { bulkActionModalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-actions/bulk-action-modal"
+import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
 import { _unknownMediaManagerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
 import { _unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
@@ -13,7 +14,7 @@ import { useAtomValue, useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
-import { FiSearch } from "react-icons/fi"
+import { FiPlayCircle, FiSearch } from "react-icons/fi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 
@@ -35,6 +36,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const setScannerModalOpen = useSetAtom(_scannerModalIsOpen)
     const setUnmatchedFileManagerOpen = useSetAtom(_unmatchedFileManagerIsOpen)
     const setUnknownMediaManagerOpen = useSetAtom(_unknownMediaManagerIsOpen)
+    const setPlaylistsModalOpen = useSetAtom(__playlists_modalOpenAtom)
 
     const hasScanned = collectionList.some(n => n.entries.length > 0)
 
@@ -43,9 +45,16 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     return (
         <div className="flex w-full justify-end gap-2 p-4 relative z-[4]">
             <div className="flex gap-2">
+                {(!!status?.settings?.library?.libraryPath && hasScanned) && <Button
+                    intent={"white-subtle"}
+                    leftIcon={<FiPlayCircle className="text-2xl" />}
+                    onClick={() => setPlaylistsModalOpen(true)}
+                >
+                    Playlists
+                </Button>}
                 {!!status?.settings?.library?.libraryPath && hasScanned && <Button
                     intent={hasScanned ? "primary-subtle" : "primary"}
-                    leftIcon={<FiSearch />}
+                    leftIcon={<FiSearch className="text-xl" />}
                     onClick={() => setScannerModalOpen(true)}
                 >
                     {hasScanned ? "Refresh entries" : "Scan your library"}
