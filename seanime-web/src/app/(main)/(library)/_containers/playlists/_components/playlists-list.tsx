@@ -45,7 +45,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
     if (!playlists?.length) {
         return (
             <div className="text-center text-[--muted] space-y-1">
-                <PiMonitorPlayFill className="mx-auto text-6xl text-white" />
+                <PiMonitorPlayFill className="mx-auto text-6xl text-[--muted]" />
                 <div>
                     You haven't set up any playlists yet
                 </div>

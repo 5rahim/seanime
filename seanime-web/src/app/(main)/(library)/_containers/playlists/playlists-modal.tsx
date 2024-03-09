@@ -34,7 +34,7 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
             >
                 <div className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p>Playlists</p>
+                        <h4>Playlists</h4>
                         <div className="flex gap-2 items-center md:pr-8">
                             <PlaylistModal
                                 trigger={
