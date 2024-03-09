@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime/internal/core"
@@ -11,7 +12,12 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 	return websocket.New(func(c *websocket.Conn) {
 
 		// Attach the websocket connection to the app instance, so it is available to other handlers
-		app.WSEventManager.Conn = c
+		//app.WSEventManager.Conn = c
+
+		id := c.Locals("id").(string)
+
+		app.WSEventManager.AddConn(id, c)
+		app.Logger.Trace().Str("id", id).Msg("ws: Client connected")
 
 		var (
 			_   int
@@ -22,8 +28,11 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 			if _, msg, err = c.ReadMessage(); err != nil {
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 					app.Logger.Trace().Msg("ws: Client disconnected")
+					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				} else {
 					app.Logger.Trace().Msg("ws: Client disconnection")
+					spew.Dump(c.Locals("id"))
+					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				}
 				break
 			}
@@ -40,6 +49,8 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 func websocketUpgradeMiddleware(c *fiber.Ctx) error {
 	if websocket.IsWebSocketUpgrade(c) {
 		c.Locals("allowed", true)
+		c.Locals("userAgent", c.Get("User-Agent"))
+		c.Locals("id", c.Query("id", "0"))
 		return c.Next()
 	}
 	return fiber.ErrUpgradeRequired

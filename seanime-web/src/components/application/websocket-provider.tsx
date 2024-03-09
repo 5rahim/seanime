@@ -4,6 +4,15 @@ import React, { useState } from "react"
 import { LuLoader } from "react-icons/lu"
 import { useEffectOnce } from "react-use"
 
+
+function uuidv4(): string {
+    // @ts-ignore
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
+    )
+}
+
+
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useState(false)
@@ -13,7 +22,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         function connectWebSocket() {
             const newSocket = new WebSocket(`ws://${process.env.NODE_ENV === "development"
                 ? `${window?.location?.hostname}:43211`
-                : window?.location?.host}/events`)
+                : window?.location?.host}/events?id=${uuidv4()}`)
 
             newSocket.addEventListener("open", () => {
                 console.log("WebSocket connection opened")

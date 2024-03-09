@@ -79,18 +79,18 @@ export function PlaylistsList(props: PlaylistsListProps) {
                             // onClick={() => handleSelect(lf.path)}
                         >
                             <div className="group/playlist-item flex gap-3 h-full justify-between items-center bg-gray-950 rounded-md border transition relative overflow-hidden">
-                                {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image
-                                    src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}
-                                    placeholder={imageShimmer(700, 475)}
-                                    sizes="10rem"
-                                    fill
-                                    alt=""
-                                    className="object-center object-cover z-[1] transition-opacity lg:group-hover/playlist-item:opacity-0"
-                                />}
+                                {/*{(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image*/}
+                                {/*    src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}*/}
+                                {/*    placeholder={imageShimmer(700, 475)}*/}
+                                {/*    sizes="10rem"*/}
+                                {/*    fill*/}
+                                {/*    alt=""*/}
+                                {/*    className="object-center object-cover z-[1] transition-opacity lg:group-hover/playlist-item:opacity-0"*/}
+                                {/*/>}*/}
                                 <div
                                     className={cn(
                                         "absolute inset-0 bg-gray-950 transition-opacity",
-                                        "lg:opacity-0 lg:group-hover/playlist-item:opacity-100 z-[2] p-2 space-y-3",
+                                        "opacity-100 z-[2] p-2 space-y-3",
                                         "flex flex-col",
                                     )}
                                 >

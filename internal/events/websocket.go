@@ -13,8 +13,14 @@ type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
 	WSEventManager struct {
-		Conn   *websocket.Conn
+		//Conn   *websocket.Conn // DEPRECATED
+		Conns  []*WSConn
 		Logger *zerolog.Logger
+	}
+
+	WSConn struct {
+		ID   string
+		Conn *websocket.Conn
 	}
 
 	WSEvent struct {
@@ -27,22 +33,50 @@ type (
 func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 	return &WSEventManager{
 		Logger: logger,
+		Conns:  make([]*WSConn, 0),
+	}
+}
+
+func (m *WSEventManager) AddConn(id string, conn *websocket.Conn) {
+	m.Conns = append(m.Conns, &WSConn{
+		ID:   id,
+		Conn: conn,
+	})
+}
+
+func (m *WSEventManager) RemoveConn(id string) {
+	for i, conn := range m.Conns {
+		if conn.ID == id {
+			m.Conns = append(m.Conns[:i], m.Conns[i+1:]...)
+			break
+		}
 	}
 }
 
 // SendEvent sends a websocket event to the client.
 func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 	// If there's no connection, do nothing
-	if m.Conn == nil {
-		return
+	//if m.Conn == nil {
+	//	return
+	//}
+
+	for _, conn := range m.Conns {
+		err := conn.Conn.WriteJSON(WSEvent{
+			Type:    t,
+			Payload: payload,
+		})
+		if err != nil {
+			m.Logger.Err(err).Msg("ws: Failed to send message")
+		}
+		//m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
 	}
 
-	err := m.Conn.WriteJSON(WSEvent{
-		Type:    t,
-		Payload: payload,
-	})
-	if err != nil {
-		m.Logger.Err(err).Msg("ws: Failed to send message")
-	}
+	//err := m.Conn.WriteJSON(WSEvent{
+	//	Type:    t,
+	//	Payload: payload,
+	//})
+	//if err != nil {
+	//	m.Logger.Err(err).Msg("ws: Failed to send message")
+	//}
 	//m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
 }

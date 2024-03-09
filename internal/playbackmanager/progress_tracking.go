@@ -25,6 +25,9 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				return
 			case status := <-pm.mediaPlayerRepoSubscriber.TrackingStartedCh: // New video has started playing
 				pm.eventMu.Lock()
+
+				pm.historyMap = make(map[string]PlaybackState)
+
 				// Set the current media playback status
 				pm.currentMediaPlaybackStatus = status
 				// Get the playback state
@@ -99,7 +102,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				// Update the playback state if the filename is in the history
 				// This is done so the completion status of the PlaybackState is not overwritten
 				if h, ok := pm.historyMap[status.Filename]; ok {
-					_ps = h
+					_ps.ProgressUpdated = h.ProgressUpdated
 				}
 				// Send the playback state to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressPlaybackState, _ps)
