@@ -8,7 +8,7 @@
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">
-<img src="docs/images/rec_main.gif" alt="preview" width="100%"/>
+<img src="docs/images/v1/rec_play.gif" alt="preview" width="100%"/>
 </a>
 </h1>
 
@@ -28,6 +28,7 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - **Download new episodes automatically**
   - Add rules (filters) that specify which torrent to download based on parameters such as release group, resolution, episode numbers
   - Support for Nyaa and AnimeTosho
+  - Support for Transmission and qBittorrent
 - **Integrated torrent search engine**
   - Manually search and download new episodes with a few clicks without leaving the web interface
 - **Third-party media players**
@@ -37,6 +38,15 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
 - **No data collection**
+
+
+### Additional features
+
+- Customizable UI
+- Playlists for queueing episodes
+- Auto scan
+- Advanced anime search
+- Scan summaries
 
 ### What it is not
 
@@ -49,7 +59,8 @@ support transcoding or streaming to other devices (yet).
 
 # Next releases
 
-- [ ] **v1.0.0** - Saturday, 3/9/2024
+- [ ] **v1.0.1**
+- [x] **v1.0.0** - Saturday, 3/9/2024
 
 # Roadmap
 
@@ -89,29 +100,30 @@ support transcoding or streaming to other devices (yet).
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">
-<img src="docs/images/rec_fresh-scan.gif" alt="preview" width="100%"/>
+<img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
 </a>
 </h1>
 
 ## Library
 
-<img src="docs/images/my-library_02.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/my-library_04.png" alt="preview" width="100%"/>
 
 ## Anime Entry
 
-<img src="docs/images/entry_2.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
 
 ## Torrent search & download
 
-<img src="docs/images/torrent-search.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
 
 ## Discover
 
-<img src="docs/images/discover.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/discover.png" alt="preview" width="100%"/>
 
 ## Schedule
 
-<img src="docs/images/schedule.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/schedule.png" alt="preview" width="100%"/>
 
 # Disclaimer
 
