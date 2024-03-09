@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime/internal/core"
@@ -31,7 +30,6 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				} else {
 					app.Logger.Trace().Msg("ws: Client disconnection")
-					spew.Dump(c.Locals("id"))
 					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				}
 				break

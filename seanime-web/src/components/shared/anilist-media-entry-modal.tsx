@@ -130,7 +130,6 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 {(!!listData) && <Form
                     schema={entrySchema}
                     onSubmit={data => {
-                        console.log(data.startedAt)
                         mutate({
                             mediaId: media?.id || 0,
                             status: data.status || "PLANNING",

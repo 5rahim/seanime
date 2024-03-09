@@ -42,10 +42,8 @@ export default function CallbackPage() {
 
     React.useEffect(() => {
         if (typeof window !== "undefined") {
-            console.log(window?.location?.hash)
             const _token = window?.location?.hash?.replace("#access_token=", "")?.replace(/&.*/, "")
             setToken(_token)
-            console.log(_token)
             if (!!_token) {
                 login({ token: _token })
             } else {

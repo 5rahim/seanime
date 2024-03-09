@@ -32,7 +32,6 @@ export function AuthWrapper(props: AuthWrapperProps) {
 
     useEffect(() => {
         if (!isLoading) {
-            console.log(data)
             if (data?.user) {
                 Cookies.set("anilistToken", data?.user?.token ?? "", {
                     expires: 30 * 24 * 60 * 60,

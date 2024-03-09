@@ -34,8 +34,6 @@ export default function Page() {
 
     const selectSummary = React.useMemo(() => data?.find(summary => summary.id === selectedSummaryId), [selectedSummaryId, data])
 
-    console.log(data)
-
     return (
         <PageWrapper
             className="p-4 sm:p-8 space-y-4"
