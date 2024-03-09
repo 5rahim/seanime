@@ -61,6 +61,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 	}
 }
 
+// getSocketName returns the default name of the socket/pipe.
 func getSocketName() string {
 	switch runtime.GOOS {
 	case "windows":
@@ -74,6 +75,8 @@ func getSocketName() string {
 	}
 }
 
+// execCmd returns a new exec.Cmd instance based on the provided mode and arguments.
+// The mode is determined by user settings.
 func (m *Mpv) execCmd(mode int, args ...string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
 	switch mode {
@@ -99,18 +102,13 @@ func (m *Mpv) execCmd(mode int, args ...string) (*exec.Cmd, error) {
 	return cmd, nil
 }
 
+// launchPlayer starts the mpv player and plays the file.
+// If the player is already running, it just loads the new file.
 func (m *Mpv) launchPlayer(start int, filePath string) error {
 	// Cancel previous context
-	// This is done so that we only have one instance of mpv running at a time
+	// This is done so that we only have one connection open at a time
 	if m.cancel != nil {
 		m.cancel()
-		//if m.conn != nil {
-		//	// Close the player
-		//	_, err := m.conn.Call("stop")
-		//	if err != nil {
-		//		return err
-		//	}
-		//}
 	}
 
 	switch start {
@@ -156,11 +154,12 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 		return err
 	}
 
-	// Create context
+	// Create context for the connection
+	// When the cancel method is called (by launchPlayer), the previous connection will be closed
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
-	// Establish connection
+	// Establish new connection
 	m.conn = mpvipc.NewConnection(m.SocketName)
 	err = m.conn.Open()
 	if err != nil {
@@ -230,6 +229,7 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 		}()
 
 		go func() {
+			// When the context is cancelled, close the connection
 			<-ctx.Done()
 			m.Logger.Debug().Msg("mpv: Context cancelled")
 			err := m.conn.Close()

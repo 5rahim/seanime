@@ -33,10 +33,10 @@ type (
 		refreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                           sync.Mutex
 		eventMu                      sync.Mutex
-		ctx                          context.Context
 		cancel                       context.CancelFunc
-		history                      []PlaybackState                 // This is used to keep track of the user's completed video playbacks
-		historyMap                   map[string]PlaybackState        // This is used to keep track of the user's completed video playbacks (keyed by filename)
+		// historyMap stores PlaybackState whose state is "completed"
+		// Since PlaybackState is sent to client, once it is stored in historyMap, only the one stored in historyMap will be sent to client
+		historyMap                   map[string]PlaybackState
 		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus     // The current video playback status (can be nil)
 		currentMediaListEntry        *anilist.MediaListEntry         // List Entry for the current video playback (can be nil)
 		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
@@ -46,16 +46,17 @@ type (
 
 	PlaybackStateType string
 
+	// PlaybackState is used to keep track of the user's current video playback
+	// It is sent to the client each time the video playback state is picked up -- this is used to update the client's UI
 	PlaybackState struct {
-		State                PlaybackStateType `json:"state"`                // The state of the video playback
-		EpisodeNumber        int               `json:"episodeNumber"`        // The episode number
-		MediaTitle           string            `json:"mediaTitle"`           // The title of the media
-		MediaTotalEpisodes   int               `json:"mediaTotalEpisodes"`   // The total number of episodes
-		Filename             string            `json:"filename"`             // The filename
-		CompletionPercentage float64           `json:"completionPercentage"` // The completion percentage
-		CanPlayNext          bool              `json:"canPlayNext"`          // Whether the next episode can be played
-		ProgressUpdated      bool              `json:"progressUpdated"`      // Whether the progress has been updated
-		MediaId              int               `json:"mediaId"`              // The media ID
+		EpisodeNumber        int     `json:"episodeNumber"`        // The episode number
+		MediaTitle           string  `json:"mediaTitle"`           // The title of the media
+		MediaTotalEpisodes   int     `json:"mediaTotalEpisodes"`   // The total number of episodes
+		Filename             string  `json:"filename"`             // The filename
+		CompletionPercentage float64 `json:"completionPercentage"` // The completion percentage
+		CanPlayNext          bool    `json:"canPlayNext"`          // Whether the next episode can be played
+		ProgressUpdated      bool    `json:"progressUpdated"`      // Whether the progress has been updated
+		MediaId              int     `json:"mediaId"`              // The media ID
 	}
 
 	NewProgressManagerOptions struct {
@@ -78,7 +79,6 @@ func New(opts *NewProgressManagerOptions) *PlaybackManager {
 		refreshAnilistCollectionFunc: opts.RefreshAnilistCollectionFunc,
 		playlistHub:                  newPlaylistHub(opts.Logger, opts.WSEventManager),
 		mu:                           sync.Mutex{},
-		history:                      make([]PlaybackState, 0),
 		historyMap:                   make(map[string]PlaybackState),
 	}
 }
@@ -113,18 +113,20 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 
 		pm.playlistHub.reset()
 
-		// Create a new context
-		pm.ctx, pm.cancel = context.WithCancel(context.Background())
+		// Create a new context for listening to the MediaPlayer instance's event
+		// When this is canceled above, the previous listener goroutine will stop -- this is done to prevent multiple listeners
+		var ctx context.Context
+		ctx, pm.cancel = context.WithCancel(context.Background())
 
 		pm.mu.Lock()
-		// Set the media player repository
+		// Set the new media player repository instance
 		pm.MediaPlayerRepository = mediaPlayerRepository
-		// Set up event listeners for the media player
+		// Set up event listeners for the media player instance
 		pm.mediaPlayerRepoSubscriber = pm.MediaPlayerRepository.Subscribe("playbackmanager")
 		pm.mu.Unlock()
 
-		// Start listening to media player events
-		pm.listenToMediaPlayerEvents()
+		// Start listening to new media player events
+		pm.listenToMediaPlayerEvents(ctx)
 
 		// DEVNOTE: pm.listenToClientPlayerEvents()
 	}()
@@ -143,28 +145,36 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	return nil
 }
 
+// CancelCurrentPlaylist cancels the current playlist.
+// This is an action triggered by the client.
 func (pm *PlaybackManager) CancelCurrentPlaylist() error {
 	go pm.playlistHub.reset()
 	return nil
 }
 
+// RequestNextPlaylistFile will play the next file in the playlist.
+// This is an action triggered by the client.
 func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 	go pm.playlistHub.playNextFile()
 	return nil
 }
 
+// StartPlaylist starts a playlist.
+// This action is triggered by the client.
 func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 	pm.playlistHub.loadPlaylist(playlist)
 
+	// Play the first video in the playlist
 	firstVidPath := playlist.LocalFiles[0].Path
-
 	err := pm.MediaPlayerRepository.Play(firstVidPath)
 	if err != nil {
 		return err
 	}
 
+	// Start tracking the video
 	pm.MediaPlayerRepository.StartTracking()
 
+	// Create a new context for the playlist hub
 	var ctx context.Context
 	ctx, pm.playlistHub.cancel = context.WithCancel(context.Background())
 
@@ -173,19 +183,27 @@ func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 		pm.Logger.Debug().Msg("playback manager: Listening for new file requests")
 		for {
 			select {
+			// When the playlist hub context is cancelled (No playlist is being played)
 			case <-ctx.Done():
 				pm.Logger.Debug().Msg("playback manager: Playlist context cancelled")
+				// Send event to the client -- nil signals that no playlist is being played
 				pm.wsEventManager.SendEvent(events.PlaybackManagerPlaylistState, nil)
 				return
 			case path := <-pm.playlistHub.requestNewFileCh:
+				// requestNewFileCh receives the path of the next video to play
+				// The channel is fed when it's time to play the next video or when the client requests the next video
+				// see: RequestNextPlaylistFile, playlistHub code
 				pm.Logger.Debug().Str("path", path).Msg("playback manager: Playing next file")
+				// Send notification to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyInfo, "Playing next file in playlist")
+				// Play the requested video
 				err := pm.MediaPlayerRepository.Play(path)
 				if err != nil {
 					pm.Logger.Error().Err(err).Msg("playback manager: failed to play next file in playlist")
 					pm.playlistHub.cancel()
 					return
 				}
+				// Start tracking the video
 				pm.MediaPlayerRepository.StartTracking()
 			case <-pm.playlistHub.endOfPlaylistCh:
 				pm.Logger.Debug().Msg("playback manager: End of playlist")

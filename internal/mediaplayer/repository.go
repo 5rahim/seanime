@@ -122,6 +122,9 @@ func (m *Repository) playbackStatus(status *PlaybackStatus) {
 	}
 }
 
+// Play will start the media player and load the video at the given path.
+// The implementation of the specific media player is handled by the respective media player package.
+// Calling it multiple *should* not open multiple instances of the media player -- subsequent calls should just load a new video if the media player is already open.
 func (m *Repository) Play(path string) error {
 
 	m.Logger.Debug().Str("path", path).Msg("media player: Media requested")
@@ -183,6 +186,8 @@ func (m *Repository) Stop() {
 	m.mu.Unlock()
 }
 
+// StartTracking will start tracking media player status.
+// This method is safe to call multiple times -- it will cancel the previous context and start a new one.
 func (m *Repository) StartTracking() {
 	m.mu.Lock()
 	// If a previous context exists, cancel it

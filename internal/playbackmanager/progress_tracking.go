@@ -16,16 +16,18 @@ var (
 	ErrProgressUpdateMAL     = errors.New("playback manager: Failed to update progress on MyAnimeList")
 )
 
-func (pm *PlaybackManager) listenToMediaPlayerEvents() {
+func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 	// Listen for media player events
 	go func() {
 		for {
 			select {
-			case <-pm.ctx.Done(): // Context has been cancelled
+			// Stop listening when the context is cancelled -- meaning a new MediaPlayer instance is set
+			case <-ctx.Done():
 				return
 			case status := <-pm.mediaPlayerRepoSubscriber.TrackingStartedCh: // New video has started playing
 				pm.eventMu.Lock()
 
+				// Reset the history map
 				pm.historyMap = make(map[string]PlaybackState)
 
 				// Set the current media playback status
@@ -99,8 +101,8 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 				pm.currentMediaPlaybackStatus = status
 				// Get the playback state
 				_ps := pm.getPlaybackState(status)
-				// Update the playback state if the filename is in the history
-				// This is done so the completion status of the PlaybackState is not overwritten
+				// If the same PlaybackState is in the history, update the ProgressUpdated flag
+				// PlaybackStatusCh has no way of knowing if the progress has been updated
 				if h, ok := pm.historyMap[status.Filename]; ok {
 					_ps.ProgressUpdated = h.ProgressUpdated
 				}
@@ -121,6 +123,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents() {
 	}()
 }
 
+// getPlaybackState returns a new PlaybackState
 func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) PlaybackState {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -129,14 +132,9 @@ func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) 
 		return PlaybackState{}
 	}
 
-	state := VideoPlaybackTracking
-	if status.CompletionPercentage > 0.9 {
-		state = VideoPlaybackCompleted
-	}
 	// Find the following episode
 	_, canPlayNext := pm.currentLocalFileWrapperEntry.FindNextEpisode(pm.currentLocalFile)
 	return PlaybackState{
-		State:                state,
 		EpisodeNumber:        pm.currentLocalFile.GetEpisodeNumber(),
 		MediaTitle:           pm.currentMediaListEntry.GetMedia().GetPreferredTitle(),
 		MediaTotalEpisodes:   pm.currentMediaListEntry.GetMedia().GetCurrentEpisodeCount(),
@@ -147,7 +145,8 @@ func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) 
 	}
 }
 
-// SyncCurrentProgress syncs the current video playback progress with providers
+// autoSyncCurrentProgress syncs the current video playback progress with providers.
+// This is called once when a "video complete" event is heard.
 func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 	if shouldUpdate, err := pm.Database.AutoUpdateProgressIsEnabled(); err == nil && shouldUpdate {
 		// Update the progress on AniList

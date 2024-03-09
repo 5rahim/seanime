@@ -65,7 +65,7 @@ export default function Page() {
             </div>
 
             <p>
-                Images should be in a folder called <code>assets</code> at the root of your Seanime installation.
+                Images should be in a directory whose location is configurable in your <code>config.toml</code> file.
             </p>
 
             <Separator />

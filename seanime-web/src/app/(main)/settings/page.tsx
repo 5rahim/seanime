@@ -156,7 +156,7 @@ export default function Page() {
                                 <Field.Switch
                                     name="autoScan"
                                     label="Automatically refresh library"
-                                    help="If enabled, your library refreshed in the background when new files are added/deleted."
+                                    help="If enabled, your library will be refreshed in the background when new files are added/deleted."
                                 />
                                 <Separator />
                                 <Field.Switch

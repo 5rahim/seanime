@@ -95,7 +95,6 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     </div>
 
                     {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
-                        {/*<ProgressTracking entry={entry}/>*/}
                         <BulkToggleLockButton entry={entry}/>
                         <EpisodeSectionDropdownMenu entry={entry} />
                     </div>}

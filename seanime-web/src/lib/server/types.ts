@@ -319,7 +319,6 @@ export type MediaPlayerPlaybackStatus = {
  */
 
 export type PlaybackManagerPlaybackState = {
-    state: "tracking" | "completed"
     filename: string
     mediaTitle: string
     mediaTotalEpisodes: number

@@ -184,7 +184,6 @@ export function ProgressTracking() {
                 titleClass="text-center"
                 contentClass="!space-y-2 relative"
             >
-                {/*<PiPopcornFill className="text-6xl mx-auto absolute top-4 left-4 text-yellow-100 z-[1]" />*/}
                 {state && <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
                     <p className="text-[--muted]">Currently watching</p>
                     <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
@@ -204,16 +203,6 @@ export function ProgressTracking() {
                         Progress updated
                     </p>
                 )}
-                {/*<div className="flex gap-2 justify-center items-center">*/}
-                {/*<IconButton*/}
-                {/*    intent="white"*/}
-                {/*    onClick={handleUpdateProgress}*/}
-                {/*    loading={isPending}*/}
-                {/*    className="w-full"*/}
-                {/*    disabled*/}
-                {/*    icon={<BiDotsVertical />}*/}
-                {/*/>*/}
-                {/*</div>*/}
                 {(
                     !!state?.completionPercentage
                     && state?.completionPercentage > 0.7
@@ -274,25 +263,4 @@ export function ProgressTracking() {
         </>
     )
 
-}
-
-function removeSpecificFileExtension(filename: string | undefined): string {
-    if (!filename) {
-        return ""
-    }
-    const validExtensions = [".mkv", ".mp4"]
-    const lastDotIndex = filename.lastIndexOf(".")
-
-    if (lastDotIndex === -1) {
-        // No extension found
-        return filename
-    }
-
-    const extension = filename.slice(lastDotIndex)
-
-    if (validExtensions.includes(extension)) {
-        return filename.slice(0, lastDotIndex)
-    }
-
-    return filename
 }
