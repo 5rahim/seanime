@@ -94,31 +94,16 @@ export default function Page() {
             >
                 {(f) => (
                     <>
-                        <h3>Sidebar</h3>
-
-                        {/*<div className="flex flex-col md:flex-row gap-4 w-full">*/}
-                        {/*    <Field.ColorPicker*/}
-                        {/*        name="backgroundColor"*/}
-                        {/*        label="Background color"*/}
-                        {/*        help="Default: #0c0c0c"*/}
-                        {/*    />*/}
-
-                        {/*    <Field.ColorPicker*/}
-                        {/*        name="sidebarBackgroundColor"*/}
-                        {/*        label="Sidebar background color"*/}
-                        {/*    />*/}
-                        {/*</div>*/}
-
-                        <Field.Switch
-                            label="Expand sidebar on hover"
-                            name="expandSidebarOnHover"
-                        />
-
-                        <Separator />
-
-                        <h3>Main Pages</h3>
+                        <h3>Main</h3>
 
                         <div className="flex flex-col md:flex-row gap-3">
+                            {/*<div className="flex flex-col md:flex-row gap-4 w-full">*/}
+                            {/*    <Field.ColorPicker*/}
+                            {/*        name="backgroundColor"*/}
+                            {/*        label="Background color"*/}
+                            {/*        help="Default: #0c0c0c"*/}
+                            {/*    />*/}
+                            {/*</div>*/}
                             <Field.Text
                                 label="Background image path"
                                 name="libraryScreenCustomBackgroundImage"
@@ -134,6 +119,15 @@ export default function Page() {
                                 max={100}
                             />
                         </div>
+                        <h3>Sidebar</h3>
+
+                        <Field.Switch
+                            label="Expand sidebar on hover"
+                            name="expandSidebarOnHover"
+                        />
+
+                        <Separator />
+
 
                         <Separator />
 

@@ -3,6 +3,7 @@ import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diff
 import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -85,8 +86,8 @@ export default function Page() {
 
                 <Tabs
                     defaultValue="list"
-                    triggerClass="text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] hover:bg-gray-950 data-[state=active]:text-white dark:hover:text-white"
-                    listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
+                    triggerClass={tabsTriggerClass}
+                    listClass={tabsListClass}
                 >
                     <TabsList>
                         <TabsTrigger value="list">Lists</TabsTrigger>

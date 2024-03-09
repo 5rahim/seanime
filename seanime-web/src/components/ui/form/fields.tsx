@@ -205,8 +205,7 @@ const ColorPickerField = React.memo(withControlledInput(forwardRef<HTMLInputElem
             }
         }, [validColorRef.current, value])
 
-        return <div>
-            <TextInput
+        return <TextInput
                 {...props}
                 ref={ref}
                 value={value}
@@ -223,8 +222,8 @@ const ColorPickerField = React.memo(withControlledInput(forwardRef<HTMLInputElem
                         }}
                     />
                 </Popover>}
+                className="w-full"
             />
-        </div>
     },
 )))
 

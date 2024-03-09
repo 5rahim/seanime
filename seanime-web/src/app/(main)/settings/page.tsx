@@ -1,5 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
@@ -134,8 +135,8 @@ export default function Page() {
                 {/*<Card className="p-0 overflow-hidden">*/}
                     <Tabs
                         defaultValue="seanime"
-                        triggerClass="text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] hover:bg-gray-950 data-[state=active]:text-white dark:hover:text-white"
-                        listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
+                        triggerClass={tabsTriggerClass}
+                        listClass={tabsListClass}
                     >
                         <TabsList>
                             <TabsTrigger value="seanime">Seanime</TabsTrigger>

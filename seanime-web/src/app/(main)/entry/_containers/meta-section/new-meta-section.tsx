@@ -276,7 +276,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     />
                 </div>
                 <div
-                    className="w-full z-[2] absolute bottom-0 h-[5rem] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
+                    className="w-full z-[3] absolute bottom-0 h-[5rem] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
                 />
 
                 <Image
@@ -287,7 +287,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                     priority
                     sizes="100vw"
                     className={cn(
-                        "object-cover object-left z-[3] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-80",
+                        "object-cover object-left z-[2] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-80",
                     )}
                 />
 

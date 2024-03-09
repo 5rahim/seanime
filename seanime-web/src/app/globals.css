@@ -79,9 +79,10 @@
         --ring: theme('colors.brand.200');
 
         --muted: rgba(255, 255, 255, 0.45);
-        --muted-highlight: theme('colors.gray.300');
+        --muted-highlight: rgba(255, 255, 255, 0.65);
 
         --paper: theme('colors.gray.950');
+        --paper-highlighter: theme('colors.gray.950');
         --subtle: rgba(255, 255, 255, 0.06);
         --subtle-highlight: rgba(255, 255, 255, 0.08);
 

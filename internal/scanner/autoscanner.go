@@ -21,7 +21,7 @@ type (
 		mu                   sync.Mutex
 		scannedCh            chan struct{}
 		waitTime             time.Duration // Wait time to listen to additional changes before triggering a scan.
-		Enabled              bool
+		enabled              bool
 		AnilistClientWrapper *anilist.ClientWrapper
 		Logger               *zerolog.Logger
 		WSEventManager       events.IWSEventManager
@@ -51,7 +51,7 @@ func NewAutoScanner(opts *NewAutoScannerOptions) *AutoScanner {
 		waiting:              false,
 		missedAction:         false,
 		waitTime:             wt,
-		Enabled:              opts.Enabled,
+		enabled:              opts.Enabled,
 		AutoDownloader:       opts.AutoDownloader,
 		AnilistClientWrapper: opts.AnilistClientWrapper,
 		Logger:               opts.Logger,
@@ -79,7 +79,7 @@ func (as *AutoScanner) Notify() {
 		return
 	}
 
-	if as.Enabled {
+	if as.enabled {
 		go func() {
 			// Otherwise, we will send a signal to the fileActionCh.
 			as.fileActionCh <- struct{}{}
@@ -90,7 +90,7 @@ func (as *AutoScanner) Notify() {
 // Start starts the AutoScanner in a goroutine.
 func (as *AutoScanner) Start() {
 	go func() {
-		if as.Enabled {
+		if as.enabled {
 			as.Logger.Info().Msg("autoscanner: Module started")
 		}
 
@@ -103,7 +103,7 @@ func (as *AutoScanner) SetEnabled(enabled bool) {
 	as.mu.Lock()
 	defer as.mu.Unlock()
 
-	as.Enabled = enabled
+	as.enabled = enabled
 }
 
 // watch is used to watch for file actions and trigger a scan.

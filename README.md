@@ -59,16 +59,8 @@ support transcoding or streaming to other devices (yet).
 
 # Next releases
 
-- [ ] **v1.0.1**
+- [ ] **v1.1.0**
 - [x] **v1.0.0** - Saturday, 3/9/2024
-
-# Roadmap
-
-- [ ] Manga support
-- [ ] Offline support
-- [ ] Kitsu integration
-- [ ] Docker container
-- [ ] Transcoding and streaming
  
 ### Not planned
 

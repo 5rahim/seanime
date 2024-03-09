@@ -86,12 +86,13 @@ export function MainSidebar() {
         },
     })
 
-    // shelved
+    // shelved 0d1821
     // React.useEffect(() => {
-    //     let r = document.querySelector(':root');
-    //     if (pathname === "/" || pathname.includes("/entry") || pathname.includes("/schedule") || pathname.includes("/anilist") ||
-    // pathname.includes("/discover")) { //@ts-ignore r.style.setProperty('--background', ts.backgroundColor) } else { //@ts-ignore
-    // r.style.setProperty('--background', "#0c0c0c") } }, [ts.backgroundColor,pathname])
+    //     let r = document.querySelector(":root") as any
+    //
+    //     r.style.setProperty("--background", ts.backgroundColor)
+    //     r.style.setProperty("--paper", ts.backgroundColor !== "#0c0c0c" ? "rgba(0,0,0,0.2)" : "#101010")
+    // }, [ts.backgroundColor])
 
     return (
         <>

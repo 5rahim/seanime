@@ -83,23 +83,25 @@ func TestMpv_Multiple(t *testing.T) {
 
 	m := New(util.NewLogger(), "", "")
 
-	//sub := m.Subscribe("test")
-
 	err := m.OpenAndPlay(testFilePath, StartExecCommand)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	err = m.OpenAndPlay(testFilePath, StartExecCommand)
-	if assert.Error(t, err, "mpv instance should not be initialized twice") {
-		t.Log("mpv instance already initialized")
+	if !assert.NoError(t, err) {
+		t.Log("error opening mpv instance twice")
 	}
 
-	t.Log("Tried to open mpv instance twice")
+	sub := m.Subscribe("test")
 
-	time.Sleep(4 * time.Second)
+	select {
+	case v, _ := <-sub.Done():
+		t.Logf("mpv exited, %+v", v)
+		break
+	}
 
 	t.Log("Done")
 

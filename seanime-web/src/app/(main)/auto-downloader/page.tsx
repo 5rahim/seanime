@@ -3,6 +3,7 @@ import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
 import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_components/items"
 import { RuleForm } from "@/app/(main)/auto-downloader/_components/rule-form"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -75,8 +76,8 @@ export default function Page() {
 
             <Tabs
                 defaultValue="rules"
-                triggerClass="text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] hover:bg-gray-950 data-[state=active]:text-white dark:hover:text-white"
-                listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
+                triggerClass={tabsTriggerClass}
+                listClass={tabsListClass}
             >
                 <TabsList>
                     <TabsTrigger value="rules">Rules</TabsTrigger>
