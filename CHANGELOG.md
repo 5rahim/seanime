@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.0.0
+
+- 🎉 Updated UI
+  - Smoother navigation
+  - Completely refactored components
+  - Some layout changes
+- 🎉 New feature: Transmission v4 support (Experimental)
+- 🎉 New feature: UI Customization
+  - Customize the main pages to your liking in the new UI settings page
+  - Note: More customization options will be added in future releases
+- 🎉 New feature: Playlists (Experimental)
+  - Create a queue of episodes and play them in order, (almost) seamlessly
+- 🎉 New feature: Auto scan
+  - Automatically scan your library for new files when they are added or removed
+  - You don't need to manually refresh entries anymore
+- ⚡️ Refactored progress tracking
+  - Progress tracking is now completely server-side, making it more reliable
+- ⚡️ Improved MPV support
+  - MPV will now play a new file without opening a new instance
+- ⚡️ Added ability to remove active torrents
+- 🏗️ Updated config file options
+  - The logs directory has been moved to the config directory and is now configurable
+  - The web directory path is now configurable (though not recommended to change it)
+  - Usage of environment variables for paths is now supported
+- 🏗️ Updated terminal logs
+- 🏗️ Refactored torrent handlers
+- 🦺 "Download missing only" now works with AnimeTosho
+- 🦺 Fixed client-side crash caused by empty scan summary
+- 🦺 Various bug fixes and improvements
+- ⬆️ Updated dependencies
+
 ## 0.4.0
 
 - 🎉 Added support for **AnimeTosho**
