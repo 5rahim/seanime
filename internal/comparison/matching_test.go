@@ -2,69 +2,113 @@ package comparison
 
 import (
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestFindBestMatchWithLevenstein(t *testing.T) {
 
-	title := "jujutsu kaisen 2"
-	titles := []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"}
-	expected := "Jujutsu Kaisen 2"
+	tests := []struct {
+		title            string
+		comparisonTitles []string
+		expectedResult   string
+		expectedDistance int
+	}{
+		{
+			title:            "jujutsu kaisen 2",
+			comparisonTitles: []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"},
+			expectedResult:   "Jujutsu Kaisen 2",
+			expectedDistance: 0,
+		},
+	}
 
-	if res, ok := FindBestMatchWithLevenstein(&title, lo.ToSlicePtr(titles)); ok {
-		if *res.Value != expected {
-			t.Errorf("expected %s for %s, got %s", expected, title, *res.Value)
-		}
-		if res.Distance != 0 {
-			t.Errorf("expected a distance of 0, got %d", res.Distance)
-		}
-		t.Logf("value: %s, distance: %d", *res.Value, res.Distance)
-	} else {
-		t.Error("expected result, got nil")
+	for _, test := range tests {
+
+		t.Run(test.title, func(t *testing.T) {
+			res, ok := FindBestMatchWithLevenstein(&test.title, lo.ToSlicePtr(test.comparisonTitles))
+
+			if assert.True(t, ok) {
+				assert.Equal(t, test.expectedResult, *res.Value, "expected result does not match")
+				assert.Equal(t, test.expectedDistance, res.Distance, "expected distance does not match")
+				t.Logf("value: %s, distance: %d", *res.Value, res.Distance)
+			}
+
+		})
+
+	}
+
+}
+func TestFindBestMatchWithDice(t *testing.T) {
+
+	tests := []struct {
+		title            string
+		comparisonTitles []string
+		expectedResult   string
+		expectedRating   float64
+	}{
+		{
+			title:            "jujutsu kaisen 2",
+			comparisonTitles: []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"},
+			expectedResult:   "Jujutsu Kaisen 2",
+			expectedRating:   1,
+		},
+	}
+
+	for _, test := range tests {
+
+		t.Run(test.title, func(t *testing.T) {
+			res, ok := FindBestMatchWithSorensenDice(&test.title, lo.ToSlicePtr(test.comparisonTitles))
+
+			if assert.True(t, ok, "expected result, got nil") {
+				assert.Equal(t, test.expectedResult, *res.Value, "expected result does not match")
+				assert.Equal(t, test.expectedRating, res.Rating, "expected rating does not match")
+				t.Logf("value: %s, rating: %f", *res.Value, res.Rating)
+			}
+
+		})
+
 	}
 
 }
 
 func TestEliminateLestSimilarValue(t *testing.T) {
 
-	titles := []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"}
-
-	res := EliminateLeastSimilarValue(titles)
-
-	for _, n := range res {
-		if n == "JJK" {
-			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
-		}
+	tests := []struct {
+		title              string
+		comparisonTitles   []string
+		expectedEliminated string
+	}{
+		{
+			title:              "jujutsu kaisen 2",
+			comparisonTitles:   []string{"JJK", "Jujutsu Kaisen", "Jujutsu Kaisen 2"},
+			expectedEliminated: "JJK",
+		},
+		{
+			title:              "One Piece - Film Z",
+			comparisonTitles:   []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Gold"},
+			expectedEliminated: "One Piece Gold",
+		},
+		{
+			title:              "One Piece - Film Z",
+			comparisonTitles:   []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Z"},
+			expectedEliminated: "One Piece Z",
+		},
+		{
+			title:              "Mononogatari",
+			comparisonTitles:   []string{"Mononogatari", "Mononogatari Cour 2", "Nekomonogatari"},
+			expectedEliminated: "Nekomonogatari",
+		},
 	}
 
-	titles = []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Gold"}
-
-	res = EliminateLeastSimilarValue(titles)
-
-	for _, n := range res {
-		if n == "One Piece Gold" {
-			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
-		}
-	}
-
-	titles = []string{"One Piece - Film Z", "One Piece Film Z", "One Piece Z"}
-
-	res = EliminateLeastSimilarValue(titles)
-
-	for _, n := range res {
-		if n == "One Piece Z" {
-			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
-		}
-	}
-
-	titles = []string{"Mononogatari", "Mononogatari Cour 2", "Nekomonogatari"}
-
-	res = EliminateLeastSimilarValue(titles)
-
-	for _, n := range res {
-		if n == "Nekomonogatari" {
-			t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
-		}
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			res := EliminateLeastSimilarValue(test.comparisonTitles)
+			for _, n := range res {
+				if n == test.expectedEliminated {
+					t.Fatalf("expected \"%s\" to be eliminated from %v", n, res)
+				}
+			}
+		})
 	}
 
 }

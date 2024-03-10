@@ -13,7 +13,7 @@ func TestAutoScanner(t *testing.T) {
 	doneCh := make(chan struct{})
 
 	logger := util.NewLogger()
-	_, anilistClientWrapper, _ := anilist.MockAnilistClientWrappers()
+	anilistClientWrapper, _ := anilist.TestGetAnilistClientWrapperAndInfo()
 
 	as := NewAutoScanner(&NewAutoScannerOptions{
 		Database:             nil,

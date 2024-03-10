@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,7 +14,7 @@ import (
 
 func TestNewMediaFetcher(t *testing.T) {
 
-	anilistClientWrapper, _, data := anilist.MockAnilistClientWrappers()
+	acw := anilist.TestGetAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -21,13 +22,10 @@ func TestNewMediaFetcher(t *testing.T) {
 	dir := "E:/Anime"
 
 	tests := []struct {
-		name                 string
-		paths                []string
-		enhanced             bool
-		username             string
-		jwt                  string
-		anilistClientWrapper *anilist.ClientWrapper
-		useAnilistCollection bool
+		name                     string
+		paths                    []string
+		enhanced                 bool
+		disableAnilistCollection bool
 	}{
 		{
 			name: "86 - Eighty Six Part 1 & 2",
@@ -37,11 +35,8 @@ func TestNewMediaFetcher(t *testing.T) {
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
 			},
-			enhanced:             false,
-			username:             data.Username,
-			jwt:                  data.JWT,
-			anilistClientWrapper: anilistClientWrapper,
-			useAnilistCollection: true,
+			enhanced:                 false,
+			disableAnilistCollection: false,
 		},
 		{
 			name: "86 - Eighty Six Part 1 & 2",
@@ -51,11 +46,8 @@ func TestNewMediaFetcher(t *testing.T) {
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
 			},
-			enhanced:             true,
-			username:             data.Username,
-			jwt:                  data.JWT,
-			anilistClientWrapper: anilistClientWrapper,
-			useAnilistCollection: false,
+			enhanced:                 true,
+			disableAnilistCollection: true,
 		},
 	}
 
@@ -83,16 +75,16 @@ func TestNewMediaFetcher(t *testing.T) {
 			// +---------------------+
 
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
-				Enhanced:             tt.enhanced,
-				Username:             tt.username,
-				AnilistClientWrapper: tt.anilistClientWrapper,
-				LocalFiles:           lfs,
-				BaseMediaCache:       baseMediaCache,
-				AnizipCache:          anizipCache,
-				Logger:               util.NewLogger(),
-				AnilistRateLimiter:   anilistRateLimiter,
-				ScanLogger:           scanLogger,
-				UseAnilistCollection: tt.useAnilistCollection,
+				Enhanced:                 tt.enhanced,
+				Username:                 test_utils.ConfigData.Provider.AnilistUsername,
+				AnilistClientWrapper:     acw,
+				LocalFiles:               lfs,
+				BaseMediaCache:           baseMediaCache,
+				AnizipCache:              anizipCache,
+				Logger:                   util.NewLogger(),
+				AnilistRateLimiter:       anilistRateLimiter,
+				ScanLogger:               scanLogger,
+				DisableAnilistCollection: tt.disableAnilistCollection,
 			})
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
@@ -115,7 +107,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
-	anilistClientWrapper, _, _ := anilist.MockAnilistClientWrappers()
+	anilistClientWrapper, _ := anilist.TestGetAnilistClientWrapperAndInfo()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -194,7 +186,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	anilistClientWrapper := anilist.MockAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()

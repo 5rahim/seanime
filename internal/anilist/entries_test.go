@@ -2,27 +2,21 @@ package anilist
 
 import (
 	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestAddMediaToPlanning(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.AnilistMutation())
 
-	t.Skip()
-
-	_, anilistClientWrapper, _ := MockAnilistClientWrappers()
-
-	if anilistClientWrapper == nil {
-		t.Skip("no mock data")
-	}
+	anilistClientWrapper := TestGetAnilistClientWrapper()
 
 	err := anilistClientWrapper.Client.AddMediaToPlanning(
 		[]int{131586},
 		limiter.NewAnilistLimiter(),
 		util.NewLogger(),
 	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	assert.NoError(t, err)
 }

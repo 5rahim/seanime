@@ -12,8 +12,11 @@ out/
 assets/
 
 test/sample
-test/jwt.json
+test/providers.json
 test/db.json
+test/providers.json
+test/config.json
+test/config.toml
 whats-new.md
 
 */mock_data.json

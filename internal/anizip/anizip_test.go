@@ -1,17 +1,37 @@
 package anizip
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestFetchAniZipMedia(t *testing.T) {
 
-	media, err := FetchAniZipMedia("anilist", 1)
+	tests := []struct {
+		name          string
+		provider      string
+		id            int
+		expectedTitle string
+	}{
+		{
+			name:          "Cowboy Bebop",
+			provider:      "anilist",
+			id:            1,
+			expectedTitle: "Cowboy Bebop",
+		},
+	}
 
-	if assert.NoError(t, err) {
-		t.Log(spew.Sdump(media))
+	for _, test := range tests {
+
+		t.Run(test.name, func(t *testing.T) {
+			media, err := FetchAniZipMedia(test.provider, test.id)
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, media) {
+					assert.Equal(t, media.GetTitle(), test.expectedTitle)
+				}
+			}
+		})
+
 	}
 
 }

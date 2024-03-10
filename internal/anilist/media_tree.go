@@ -28,102 +28,45 @@ func NewBaseMediaRelationTree() *BaseMediaRelationTree {
 	return &BaseMediaRelationTree{result.NewResultMap[int, *BaseMedia]()}
 }
 
-func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClientWrapper *ClientWrapper, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
-	rateLimiter.Wait()
-	res, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &m.ID)
+func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, acw *ClientWrapper, rl *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
+	rl.Wait()
+	res, err := acw.Client.BaseMediaByID(context.Background(), &m.ID)
 	if err != nil {
 		return err
 	}
-	return res.GetMedia().FetchMediaTree(rel, anilistClientWrapper, rateLimiter, tree, cache)
+	return res.GetMedia().FetchMediaTree(rel, acw, rl, tree, cache)
 }
 
 // FetchMediaTree populates the BaseMediaRelationTree with the given media's sequels and prequels.
 // It also takes a BaseMediaCache to store the fetched media in and avoid duplicate fetches.
 // It also takes a limiter.Limiter to limit the number of requests made to the AniList API.
-func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClientWrapper *ClientWrapper, rateLimiter *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
-
-	// If the media is in the result cache, skip
+func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, acw *ClientWrapper, rl *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) error {
 	if tree.Has(m.ID) {
 		cache.Set(m.ID, m)
 		return nil
-	} else {
-		cache.Set(m.ID, m)
-		// Add the media to the result tree
-		tree.Set(m.ID, m)
 	}
+	cache.Set(m.ID, m)
+	tree.Set(m.ID, m)
 
-	// If the media does not have relations, skip
 	if m.Relations == nil {
 		return nil
 	}
 
+	// Get all edges
 	edges := m.GetRelations().GetEdges()
-
-	// Filter out edges that are not sequels or prequels, not released yet, not specific format, or already in the tree
+	// Filter edges
 	edges = lo.Filter(edges, func(_edge *BaseMedia_Relations_Edges, _ int) bool {
-		if *_edge.RelationType != MediaRelationSequel && *_edge.RelationType != MediaRelationPrequel {
-			return false
-		}
-		if *_edge.GetNode().Status == MediaStatusNotYetReleased {
-			return false
-		}
-		if !_edge.IsBroadRelationFormat() || tree.Has(_edge.GetNode().ID) {
-			return false
-		}
-		return true
+		return (*_edge.RelationType == MediaRelationSequel || *_edge.RelationType == MediaRelationPrequel) &&
+			*_edge.GetNode().Status != MediaStatusNotYetReleased &&
+			_edge.IsBroadRelationFormat() && !tree.Has(_edge.GetNode().ID)
 	})
 
-	// If there are no edges left, skip
 	if len(edges) == 0 {
 		return nil
 	}
 
-	// Create a channel to wait for all goroutines to finish
 	doneCh := make(chan struct{})
-
-	// For each edge, fetch the media and add it to the tree
-	lop.ForEach(edges, func(edge *BaseMedia_Relations_Edges, _ int) {
-		edgeRel := rel
-		// If the relation is "all", but the edge is a prequel, fetch the edge's prequels
-		if rel == "all" && *edge.RelationType == MediaRelationPrequel {
-			edgeRel = FetchMediaTreePrequels
-		}
-		// If the relation is "all", but the edge is a sequel, fetch the edge's sequels
-		if rel == "all" && *edge.RelationType == MediaRelationSequel {
-			edgeRel = FetchMediaTreeSequels
-		}
-
-		// Find the edge in the cache
-		cacheV, ok := cache.Get(edge.GetNode().ID)
-
-		edgeBaseMedia := cacheV
-		cont := false
-
-		// If the edge is not in the cache, fetch it
-		if !ok {
-			// Wait for the rate limiter
-			rateLimiter.Wait()
-			res, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &edge.GetNode().ID)
-			if err == nil {
-				edgeBaseMedia = res.GetMedia()
-				cache.Set(edgeBaseMedia.ID, edgeBaseMedia)
-				cont = true
-			}
-
-		} else {
-			cont = true
-		}
-
-		if cont {
-			// Fetch the edge's relations
-			edgeBaseMedia.FetchMediaTree(edgeRel, anilistClientWrapper, rateLimiter, tree, cache)
-		}
-
-	})
-
-	go func() {
-		close(doneCh)
-	}()
+	processEdges(edges, rel, acw, rl, tree, cache, doneCh)
 
 	for {
 		select {
@@ -132,7 +75,52 @@ func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, anilistClientWrap
 		default:
 		}
 	}
-
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+// processEdges fetches the next node(s) for each edge in parallel.
+func processEdges(edges []*BaseMedia_Relations_Edges, rel FetchMediaTreeRelation, acw *ClientWrapper, rl *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache, doneCh chan struct{}) {
+	lop.ForEach(edges, func(edge *BaseMedia_Relations_Edges, _ int) {
+		processEdge(edge, rel, acw, rl, tree, cache)
+	})
+	go func() {
+		close(doneCh)
+	}()
+}
+
+func processEdge(edge *BaseMedia_Relations_Edges, rel FetchMediaTreeRelation, acw *ClientWrapper, rl *limiter.Limiter, tree *BaseMediaRelationTree, cache *BaseMediaCache) {
+	cacheV, ok := cache.Get(edge.GetNode().ID)
+	edgeBaseMedia := cacheV
+	if !ok {
+		rl.Wait()
+		// Fetch the next node
+		res, err := acw.Client.BaseMediaByID(context.Background(), &edge.GetNode().ID)
+		if err == nil {
+			edgeBaseMedia = res.GetMedia()
+			cache.Set(edgeBaseMedia.ID, edgeBaseMedia)
+		}
+	}
+	// Get the relation type to fetch for the next node
+	edgeRel := getEdgeRelation(edge, rel)
+	// Fetch the next node(s)
+	err := edgeBaseMedia.FetchMediaTree(edgeRel, acw, rl, tree, cache)
+	if err != nil {
+		return
+	}
+}
+
+// getEdgeRelation returns the relation to fetch for the next node based on the current edge and the relation to fetch.
+// If the relation to fetch is FetchMediaTreeAll, it will return FetchMediaTreePrequels for prequels and FetchMediaTreeSequels for sequels.
+//
+// For example, if the current node is a sequel and the relation to fetch is FetchMediaTreeAll, it will return FetchMediaTreeSequels so that
+// only sequels are fetched for the next node.
+func getEdgeRelation(edge *BaseMedia_Relations_Edges, rel FetchMediaTreeRelation) FetchMediaTreeRelation {
+	if rel == FetchMediaTreeAll {
+		if *edge.RelationType == MediaRelationPrequel {
+			return FetchMediaTreePrequels
+		}
+		if *edge.RelationType == MediaRelationSequel {
+			return FetchMediaTreeSequels
+		}
+	}
+	return rel
+}

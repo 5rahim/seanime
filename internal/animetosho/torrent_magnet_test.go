@@ -1,6 +1,9 @@
 package animetosho
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestMagnet(t *testing.T) {
 
@@ -8,16 +11,11 @@ func TestMagnet(t *testing.T) {
 
 	magnet, err := TorrentMagnet(url)
 
-	if err != nil {
-		t.Fatal(err)
+	if assert.NoError(t, err) {
+		if assert.NotEmptyf(t, magnet, "magnet link not found") {
+			t.Log(magnet)
+		}
 	}
-
-	if magnet == "" {
-		t.Fatal("magnet link not found")
-	}
-
-	t.Log(magnet)
-
 }
 
 func TestTorrentFile(t *testing.T) {
@@ -26,14 +24,9 @@ func TestTorrentFile(t *testing.T) {
 
 	magnet, err := TorrentFile(url)
 
-	if err != nil {
-		t.Fatal(err)
+	if assert.NoError(t, err) {
+		if assert.NotEmptyf(t, magnet, "download link not found") {
+			t.Log(magnet)
+		}
 	}
-
-	if magnet == "" {
-		t.Fatal("download link not found")
-	}
-
-	t.Log(magnet)
-
 }

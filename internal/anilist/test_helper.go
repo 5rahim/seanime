@@ -1,87 +1,16 @@
 package anilist
 
 import (
-	"github.com/goccy/go-json"
-	"io"
-	"log"
-	"os"
-	"path/filepath"
+	"github.com/seanime-app/seanime/internal/test_utils"
 )
 
-func MockAnilistClientWrapper() *ClientWrapper {
+// This file contains helper functions for testing the anilist package
 
-	path, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Open the JSON file
-	file, err := os.Open(filepath.Join(path, "../../test/jwt.json"))
-	if err != nil {
-		println("Error opening file:", err.Error())
-		return nil
-	}
-	defer file.Close()
-
-	jsonData, err := io.ReadAll(file)
-	if err != nil {
-		println("Error reading file:", err.Error())
-		return nil
-	}
-
-	var data *struct {
-		JWT      string `json:"jwt"`
-		Username string `json:"username"`
-	}
-	if err := json.Unmarshal(jsonData, &data); err != nil {
-		println("Error unmarshaling JSON:", err.Error())
-		return nil
-	}
-
-	return NewClientWrapper(data.JWT)
-
+func TestGetAnilistClientWrapper() *ClientWrapper {
+	return NewClientWrapper(test_utils.ConfigData.Provider.AnilistJwt)
 }
 
-func MockAnilistClientWrappers() (*ClientWrapper, *ClientWrapper, *struct {
-	JWT       string `json:"jwt"`
-	Username  string `json:"username"`
-	JWT2      string `json:"jwt2"`
-	Username2 string `json:"username2"`
-	MALJwt    string `json:"mal_jwt"`
-}) {
-
-	path, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Open the JSON file
-	file, err := os.Open(filepath.Join(path, "../../test/jwt.json"))
-	if err != nil {
-		println("Error opening file:", err.Error())
-		return nil, nil, nil
-	}
-	defer file.Close()
-
-	jsonData, err := io.ReadAll(file)
-	if err != nil {
-		println("Error reading file:", err.Error())
-		return nil, nil, nil
-	}
-
-	var data *struct {
-		JWT       string `json:"jwt"`
-		Username  string `json:"username"`
-		JWT2      string `json:"jwt2"`
-		Username2 string `json:"username2"`
-		MALJwt    string `json:"mal_jwt"`
-	}
-	if err := json.Unmarshal(jsonData, &data); err != nil {
-		println("Error unmarshaling JSON:", err.Error())
-		return nil, nil, nil
-	}
-
-	cw := NewClientWrapper(data.JWT)
-	cw2 := NewClientWrapper(data.JWT2)
-
-	return cw, cw2, data
-
+func TestGetAnilistClientWrapperAndInfo() (*ClientWrapper, *test_utils.Config) {
+	cw := NewClientWrapper(test_utils.ConfigData.Provider.AnilistJwt)
+	return cw, test_utils.ConfigData
 }

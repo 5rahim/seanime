@@ -4,25 +4,27 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/internal/limiter"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestBaseMedia_FetchMediaTree(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := MockAnilistClientWrapper()
+	acw := TestGetAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
 	tests := []struct {
 		name    string
 		mediaId int
-		treeIds []int
+		edgeIds []int
 	}{
 		{
 			name:    "Bungo Stray Dogs",
 			mediaId: 103223,
-			treeIds: []int{
+			edgeIds: []int{
 				21311,  // BSD1
 				21679,  // BSD2
 				103223, // BSD3
@@ -36,30 +38,33 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &tt.mediaId)
-			if err != nil {
-				t.Fatalf("error while fetching media, %v", err)
-			}
-			media := mediaF.GetMedia()
-
-			tree := NewBaseMediaRelationTree()
-
-			err = media.FetchMediaTree(
-				FetchMediaTreeAll,
-				anilistClientWrapper,
-				lim,
-				tree,
-				baseMediaCache,
-			)
+			mediaF, err := acw.Client.BaseMediaByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
-				for _, treeId := range tt.treeIds {
-					_, found := tree.Get(treeId)
-					assert.Truef(t, found, "expected tree to contain %d", treeId)
-				}
-			}
+				media := mediaF.GetMedia()
 
+				tree := NewBaseMediaRelationTree()
+
+				err = media.FetchMediaTree(
+					FetchMediaTreeAll,
+					acw,
+					lim,
+					tree,
+					baseMediaCache,
+				)
+
+				if assert.NoError(t, err) {
+
+					for _, treeId := range tt.edgeIds {
+						a, found := tree.Get(treeId)
+						assert.Truef(t, found, "expected tree to contain %d", treeId)
+						spew.Dump(a.GetTitleSafe())
+					}
+
+				}
+
+			}
 		})
 
 	}
@@ -68,19 +73,19 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
-	anilistClientWrapper := MockAnilistClientWrapper()
+	acw := TestGetAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
 	tests := []struct {
 		name    string
 		mediaId int
-		treeIds []int
+		edgeIds []int
 	}{
 		{
 			name:    "Bungo Stray Dogs",
 			mediaId: 103223,
-			treeIds: []int{
+			edgeIds: []int{
 				21311,  // BSD1
 				21679,  // BSD2
 				103223, // BSD3
@@ -94,29 +99,31 @@ func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.Client.BasicMediaByID(context.Background(), &tt.mediaId)
-			if err != nil {
-				t.Fatalf("error while fetching media, %v", err)
-			}
-			media := mediaF.GetMedia()
-
-			tree := NewBaseMediaRelationTree()
-
-			err = media.FetchMediaTree(
-				FetchMediaTreeAll,
-				anilistClientWrapper,
-				lim,
-				tree,
-				baseMediaCache,
-			)
+			mediaF, err := acw.Client.BasicMediaByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
-				for _, treeId := range tt.treeIds {
-					a, found := tree.Get(treeId)
-					assert.Truef(t, found, "expected tree to contain %d", treeId)
-					spew.Dump(a.GetTitleSafe())
+				media := mediaF.GetMedia()
+
+				tree := NewBaseMediaRelationTree()
+
+				err = media.FetchMediaTree(
+					FetchMediaTreeAll,
+					acw,
+					lim,
+					tree,
+					baseMediaCache,
+				)
+
+				if assert.NoError(t, err) {
+
+					for _, treeId := range tt.edgeIds {
+						a, found := tree.Get(treeId)
+						assert.Truef(t, found, "expected tree to contain %d", treeId)
+						spew.Dump(a.GetTitleSafe())
+					}
 				}
+
 			}
 
 		})

@@ -16,7 +16,7 @@ import (
 
 func TestScanner_Scan(t *testing.T) {
 
-	anilistClientWrapper, _, data := anilist.MockAnilistClientWrappers()
+	anilistClientWrapper, data := anilist.TestGetAnilistClientWrapperAndInfo()
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 

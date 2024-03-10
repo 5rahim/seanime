@@ -15,7 +15,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	anilistClientWrapper := anilist.MockAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 

@@ -86,10 +86,7 @@ func (f *LocalFile) IsInDir(dirPath string) bool {
 // IsAtRootOf returns true if the LocalFile is at the root of the given directory.
 func (f *LocalFile) IsAtRootOf(dirPath string) bool {
 	dirPath = strings.TrimSuffix(strings.ToLower(filepath.ToSlash(dirPath)), "/")
-	if !filepath.IsAbs(dirPath) {
-		return false
-	}
-	return strings.HasPrefix(f.GetNormalizedPath(), dirPath) && strings.Count(f.GetNormalizedPath(), "/") == strings.Count(dirPath, "/")
+	return filepath.ToSlash(filepath.Dir(f.GetNormalizedPath())) == dirPath
 }
 
 func (f *LocalFile) Equals(lf *LocalFile) bool {

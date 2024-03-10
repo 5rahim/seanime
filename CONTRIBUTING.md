@@ -28,42 +28,7 @@ go mod tidy
 
 #### Tests
 
-You should run tests individually.
-
-
-Some tests require some setup before running.
-- Create a dummy AniList account and grab the JWT associated with your session.
-- Rename `test/jwt.json.example` to `test/jwt.json`
-- If you wish to use more than one account for tests, fill both pairs (`jwt` and `username`) in the file with different data. 
-Otherwise, if you want to use a single account, fill both pairs with the same data.
-- Create a dummy MyAnimeList account and grab the JWT associated with your session.
-
-```json
-{
-  "jwt": "your-jwt",
-  "username": "your-username",
-  "jwt2": "your-jwt",
-  "username2": "your-username",
-  "mal_jwt": "your-mal-jwt"
-}
-```
-
-In some tests, you will see the use of `anilist.MockAnilistClientWrappers()`.
-This is used to create an authenticated AniList client by using the data `test/jwt.json`.
-
-```go
-func Test(t *testing.T) {
-	anilistClientWrapper1, anilistClientWrapper2, data := anilist.MockAnilistClientWrappers()
-	// anilistClientWrapper1 -> Client from jwt, username
-	// anilistClientWrapper2 -> Client from jwt2, username2
-	// data -> test/jwt.json
-}
-```
-
-
-Some tests related to media players require you to have those installed on your system.
-They also require you to have a media file.
-
+`WIP`
 
 ### Web
 

@@ -31,7 +31,7 @@ func TestSearch(t *testing.T) {
 func TestBuildSearchQuery(t *testing.T) {
 
 	anilistLimiter := limiter.NewAnilistLimiter()
-	anilistClientWrapper := anilist.MockAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 
 	tests := []struct {
 		name           string

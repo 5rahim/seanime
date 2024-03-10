@@ -2,23 +2,32 @@ package anilist
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/seanime-app/seanime/internal/test_utils"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestClientCustomDo(t *testing.T) {
+func TestGetBaseMediaById(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	// Get Anilist client
-	anilistClientWrapper := MockAnilistClientWrapper()
+	acw := TestGetAnilistClientWrapper()
 
-	id := 1
-
-	res, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &id)
-	if err != nil {
-		t.Fatal(err)
+	tests := []struct {
+		name    string
+		mediaId int
+	}{
+		{
+			name:    "Cowboy Bebop",
+			mediaId: 1,
+		},
 	}
 
-	t.Log("Success!")
-	spew.Dump(res)
-
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			res, err := acw.Client.BaseMediaByID(context.Background(), &test.mediaId)
+			assert.NoError(t, err)
+			assert.NotNil(t, res)
+		})
+	}
 }

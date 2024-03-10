@@ -1,17 +1,26 @@
 package anizip
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestOffsetEpisode(t *testing.T) {
 
-	inputStrings := []string{"S1", "OP1", "1", "OP"}
+	cases := []struct {
+		input    string
+		expected string
+	}{
+		{"S1", "S2"},
+		{"OP1", "OP2"},
+		{"1", "2"},
+		{"OP", "OP"},
+	}
 
-	for _, s := range inputStrings {
-		modifiedStr := OffsetEpisode(s, 1)
-		fmt.Printf("%s -> %s\n", s, modifiedStr)
+	for _, c := range cases {
+		actual := OffsetEpisode(c.input, 1)
+		if actual != c.expected {
+			t.Errorf("OffsetEpisode(%s, 1) == %s, expected %s", c.input, actual, c.expected)
+		}
 	}
 
 }

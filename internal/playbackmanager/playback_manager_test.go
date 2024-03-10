@@ -17,9 +17,9 @@ func getPlaybackManager() (*playbackmanager.PlaybackManager, *anilist.ClientWrap
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	_, anilistClientWrapper, userData := anilist.MockAnilistClientWrappers()
+	anilistClientWrapper, data := anilist.TestGetAnilistClientWrapperAndInfo()
 
-	anilistCollection, err := anilistClientWrapper.Client.AnimeCollection(context.Background(), &userData.Username2)
+	anilistCollection, err := anilistClientWrapper.Client.AnimeCollection(context.Background(), &data.AnilistUsername)
 	if err != nil {
 		return nil, nil, nil, err
 	}

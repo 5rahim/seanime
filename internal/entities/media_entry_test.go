@@ -30,7 +30,7 @@ func TestNewMediaEntry(t *testing.T) {
 			LocalFiles:           lfs,
 			AnizipCache:          anizip.NewCache(),
 			AnilistCollection:    anilistCollection,
-			AnilistClientWrapper: anilist.MockAnilistClientWrapper(),
+			AnilistClientWrapper: anilist.TestGetAnilistClientWrapper(),
 		})
 
 		if assert.NoError(t, err) {
@@ -93,7 +93,7 @@ func TestNewMediaEntry2(t *testing.T) {
 			LocalFiles:           lfs,
 			AnizipCache:          anizip.NewCache(),
 			AnilistCollection:    anilistCollection,
-			AnilistClientWrapper: anilist.MockAnilistClientWrapper(),
+			AnilistClientWrapper: anilist.TestGetAnilistClientWrapper(),
 		})
 
 		if assert.NoError(t, err) {

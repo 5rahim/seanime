@@ -4,12 +4,15 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/test_utils"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestSearchQuery(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	_, anilistClientWrapper, _ := anilist.MockAnilistClientWrappers()
+	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 
 	tests := []struct {
 		name           string
@@ -48,28 +51,27 @@ func TestSearchQuery(t *testing.T) {
 	for _, test := range tests {
 
 		t.Run(test.name, func(t *testing.T) {
+
 			mediaRes, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &test.mId)
-			if err != nil {
-				t.Fatal(err)
+
+			if assert.NoError(t, err) {
+
+				torrents, err := SearchQuery(&BuildSearchQueryOptions{
+					Media:          mediaRes.GetMedia(),
+					Batch:          &test.batch,
+					EpisodeNumber:  &test.episodeNumber,
+					AbsoluteOffset: &test.absoluteOffset,
+					Resolution:     &test.resolution,
+					Cache:          NewSearchCache(),
+				})
+
+				if assert.NoError(t, err) {
+					assert.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
+					spew.Dump(torrents)
+				}
+
 			}
 
-			torrents, err := SearchQuery(&BuildSearchQueryOptions{
-				Media:          mediaRes.GetMedia(),
-				Batch:          &test.batch,
-				EpisodeNumber:  &test.episodeNumber,
-				AbsoluteOffset: &test.absoluteOffset,
-				Resolution:     &test.resolution,
-				Cache:          NewSearchCache(),
-			})
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			if len(torrents) == 0 {
-				t.Fatal("no torrents found")
-			}
-
-			spew.Dump(torrents)
 		})
 
 	}
@@ -77,9 +79,7 @@ func TestSearchQuery(t *testing.T) {
 
 func TestSearch2(t *testing.T) {
 	torrents, err := Search("Kusuriya no Hitorigoto 05")
-	if err != nil {
-		t.Fatal(err)
+	if assert.NoError(t, err) {
+		assert.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
 	}
-
-	spew.Dump(torrents)
 }

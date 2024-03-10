@@ -3,9 +3,9 @@ package entities
 type (
 	// LocalFileWrapper takes a slice of LocalFiles and provides helper methods.
 	LocalFileWrapper struct {
-		LocalFiles          []*LocalFile             `json:"localFiles"`
-		LocalEntries        []*LocalFileWrapperEntry `json:"mediaEntries"`
-		UnmatchedLocalFiles []*LocalFile             `json:"unmatchedLocalFiles"`
+		localFiles          []*LocalFile
+		localEntries        []*LocalFileWrapperEntry
+		unmatchedLocalFiles []*LocalFile
 	}
 
 	LocalFileWrapperEntry struct {
@@ -17,19 +17,19 @@ type (
 // NewLocalFileWrapper creates and returns a reference to a new LocalFileWrapper
 func NewLocalFileWrapper(lfs []*LocalFile) *LocalFileWrapper {
 	lfw := &LocalFileWrapper{
-		LocalFiles:          lfs,
-		LocalEntries:        make([]*LocalFileWrapperEntry, 0),
-		UnmatchedLocalFiles: make([]*LocalFile, 0),
+		localFiles:          lfs,
+		localEntries:        make([]*LocalFileWrapperEntry, 0),
+		unmatchedLocalFiles: make([]*LocalFile, 0),
 	}
 
 	// Group local files by media id
 	groupedLfs := GroupLocalFilesByMediaID(lfs)
 	for mId, gLfs := range groupedLfs {
 		if mId == 0 {
-			lfw.UnmatchedLocalFiles = gLfs
+			lfw.unmatchedLocalFiles = gLfs
 			continue
 		}
-		lfw.LocalEntries = append(lfw.LocalEntries, &LocalFileWrapperEntry{
+		lfw.localEntries = append(lfw.localEntries, &LocalFileWrapperEntry{
 			MediaId:    mId,
 			LocalFiles: gLfs,
 		})
@@ -39,7 +39,7 @@ func NewLocalFileWrapper(lfs []*LocalFile) *LocalFileWrapper {
 }
 
 func (lfw *LocalFileWrapper) GetLocalEntryById(mId int) (*LocalFileWrapperEntry, bool) {
-	for _, me := range lfw.LocalEntries {
+	for _, me := range lfw.localEntries {
 		if me.MediaId == mId {
 			return me, true
 		}
@@ -115,4 +115,12 @@ func (e *LocalFileWrapperEntry) FindNextEpisode(lf *LocalFile) (*LocalFile, bool
 		}
 	}
 	return next, true
+}
+
+func (lfw *LocalFileWrapper) GetUnmatchedLocalFiles() []*LocalFile {
+	return lfw.unmatchedLocalFiles
+}
+
+func (lfw *LocalFileWrapper) GetLocalEntries() []*LocalFileWrapperEntry {
+	return lfw.localEntries
 }
