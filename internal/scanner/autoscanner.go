@@ -22,7 +22,7 @@ type (
 		scannedCh            chan struct{}
 		waitTime             time.Duration // Wait time to listen to additional changes before triggering a scan.
 		enabled              bool
-		AnilistClientWrapper *anilist.ClientWrapper
+		AnilistClientWrapper anilist.ClientWrapperInterface
 		Logger               *zerolog.Logger
 		WSEventManager       events.IWSEventManager
 		Database             *db.Database                   // Database instance is required to update the local files.
@@ -30,7 +30,7 @@ type (
 	}
 	NewAutoScannerOptions struct {
 		Database             *db.Database
-		AnilistClientWrapper *anilist.ClientWrapper
+		AnilistClientWrapper anilist.ClientWrapperInterface
 		Logger               *zerolog.Logger
 		WSEventManager       events.IWSEventManager
 		Enabled              bool

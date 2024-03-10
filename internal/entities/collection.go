@@ -71,7 +71,7 @@ type (
 		AnilistCollection    *anilist.AnimeCollection
 		LocalFiles           []*LocalFile
 		AnizipCache          *anizip.Cache
-		AnilistClientWrapper *anilist.ClientWrapper
+		AnilistClientWrapper anilist.ClientWrapperInterface
 	}
 )
 
@@ -258,7 +258,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	anilistCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
-	anilistClientWrapper *anilist.ClientWrapper,
+	anilistClientWrapper anilist.ClientWrapperInterface,
 ) {
 
 	// Get currently watching list

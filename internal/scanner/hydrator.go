@@ -24,7 +24,7 @@ type FileHydrator struct {
 	AllMedia             []*entities.NormalizedMedia // All media used to hydrate local files
 	BaseMediaCache       *anilist.BaseMediaCache
 	AnizipCache          *anizip.Cache
-	AnilistClientWrapper *anilist.ClientWrapper
+	AnilistClientWrapper anilist.ClientWrapperInterface
 	AnilistRateLimiter   *limiter.Limiter
 	Logger               *zerolog.Logger
 	ScanLogger           *ScanLogger                // optional

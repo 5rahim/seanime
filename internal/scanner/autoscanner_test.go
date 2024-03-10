@@ -3,17 +3,19 @@ package scanner
 import (
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"testing"
 	"time"
 )
 
 func TestAutoScanner(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	doneCh := make(chan struct{})
 
 	logger := util.NewLogger()
-	anilistClientWrapper, _ := anilist.TestGetAnilistClientWrapperAndInfo()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	as := NewAutoScanner(&NewAutoScannerOptions{
 		Database:             nil,

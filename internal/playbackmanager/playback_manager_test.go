@@ -6,20 +6,27 @@ import (
 	"github.com/seanime-app/seanime/internal/db"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/playbackmanager"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
+	"testing"
 )
 
-func getPlaybackManager() (*playbackmanager.PlaybackManager, *anilist.ClientWrapper, *anilist.AnimeCollection, error) {
-	logger := util.NewLogger()
-	wsEventManager := events.NewMockWSEventManager(logger)
-	databaseInfo := db.GetTestDatabaseInfo()
-	database, err := db.NewDatabase(databaseInfo.DataDir, databaseInfo.Name, logger)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	anilistClientWrapper, data := anilist.TestGetAnilistClientWrapperAndInfo()
+func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist.ClientWrapperInterface, *anilist.AnimeCollection, error) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistCollection, err := anilistClientWrapper.Client.AnimeCollection(context.Background(), &data.AnilistUsername)
+	logger := util.NewLogger()
+
+	wsEventManager := events.NewMockWSEventManager(logger)
+
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+
+	if err != nil {
+		t.Fatalf("error while creating database, %v", err)
+	}
+
+	acw := anilist.TestGetAnilistClientWrapper()
+
+	anilistCollection, err := acw.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -27,11 +34,11 @@ func getPlaybackManager() (*playbackmanager.PlaybackManager, *anilist.ClientWrap
 	return playbackmanager.New(&playbackmanager.NewProgressManagerOptions{
 		Logger:               logger,
 		WSEventManager:       wsEventManager,
-		AnilistClientWrapper: anilistClientWrapper,
+		AnilistClientWrapper: acw,
 		Database:             database,
 		AnilistCollection:    anilistCollection,
 		RefreshAnilistCollectionFunc: func() {
 			// Do nothing
 		},
-	}), anilistClientWrapper, anilistCollection, nil
+	}), acw, anilistCollection, nil
 }

@@ -21,7 +21,7 @@ var localFilePaths = []string{
 var mediaId = 153518
 
 func TestPlaylists(t *testing.T) {
-	playbackManager, anilistClientWrapper, anilistCollection, err := getPlaybackManager()
+	playbackManager, anilistClientWrapper, anilistCollection, err := getPlaybackManager(t)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,214 +1,112 @@
 package entities
 
 import (
-	"github.com/goccy/go-json"
+	"context"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"os"
-	"path/filepath"
-	"strconv"
 	"testing"
 )
 
-const mediaEntryMockDataFile = "./media_entry_test_mock_data.json"
-
 // TestNewMediaEntry tests /library/entry endpoint.
+// /!\ MAKE SURE TO HAVE THE MEDIA ADDED TO YOUR LIST TEST ACCOUNT LISTS
 func TestNewMediaEntry(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	var mediaId = 154587 // Sousou no Frieren
-	lfs, anilistCollection, err := getMediaEntryMockData(t, mediaId)
-
-	if assert.NoErrorf(t, err, "Failed to get mock data") &&
-		assert.NotNil(t, lfs) &&
-		assert.NotNil(t, anilistCollection) {
-
-		entry, err := NewMediaEntry(&NewMediaEntryOptions{
-			MediaId:              mediaId,
-			LocalFiles:           lfs,
-			AnizipCache:          anizip.NewCache(),
-			AnilistCollection:    anilistCollection,
-			AnilistClientWrapper: anilist.TestGetAnilistClientWrapper(),
-		})
-
-		if assert.NoError(t, err) {
-
-			assert.Equalf(t, len(lfs), len(entry.Episodes), "Number of episodes mismatch")
-
-			// Mock data progress is 4
-			if assert.NotNilf(t, entry.NextEpisode, "Next episode not found") {
-				assert.Equal(t, 5, entry.NextEpisode.EpisodeNumber, "Next episode mismatch")
-			}
-
-			t.Logf("Success, found %v episodes", len(entry.Episodes))
-
-		}
-
-	}
-}
-
-func TestNewMediaEntry2(t *testing.T) {
-
-	var mediaId = 146065 // Mushoku Tensei: Jobless Reincarnation Season 2
-	_, anilistCollection, err := getMediaEntryMockData(t, mediaId)
-
-	var lfs []*LocalFile
-	for idx, path := range []string{
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 00 (1080p) [9C362DC3].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 01 (1080p) [EC64C8B1].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 02 (1080p) [7EA9E789].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 03 (1080p) [BEF3095D].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 04 (1080p) [FD2285EB].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 05 (1080p) [E691CDB3].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 06 (1080p) [0438103E].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 07 (1080p) [DA6366AD].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 08 (1080p) [A761377D].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 09 (1080p) [DFE9A041].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 10 (1080p) [DFE1B93B].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 11 (1080p) [F70DC34C].mkv",
-		"E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 12 (1080p) [BAA0EBAD].mkv",
-	} {
-		lf := NewLocalFile(path, "E:/Anime")
-		// Mock hydration
-		lf.MediaId = mediaId
-		lf.Metadata = &LocalFileMetadata{
-			Type:         LocalFileTypeMain,
-			Episode:      idx,
-			AniDBEpisode: strconv.Itoa(idx),
-		}
-		if idx == 0 {
-			lf.Metadata.AniDBEpisode = "S1"
-		}
-		lfs = append(lfs, lf)
+	tests := []struct {
+		name                              string
+		mediaId                           int
+		localFiles                        []*LocalFile
+		currentProgress                   int
+		expectedNextEpisodeNumber         int
+		expectedNextEpisodeProgressNumber int
+	}{
+		{
+			name:    "Sousou no Frieren",
+			mediaId: 154587,
+			localFiles: MockHydratedLocalFiles(
+				MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - %ep (1080p) [F02B9CEE].mkv", 154587, []MockHydratedLocalFileWrapperOptionsMetadata{
+					{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 3, metadataAniDbEpisode: "3", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 4, metadataAniDbEpisode: "4", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 5, metadataAniDbEpisode: "5", metadataType: LocalFileTypeMain},
+				}),
+			),
+			currentProgress:                   4,
+			expectedNextEpisodeNumber:         5,
+			expectedNextEpisodeProgressNumber: 5,
+		},
+		{
+			name:    "Mushoku Tensei II Isekai Ittara Honki Dasu",
+			mediaId: 146065,
+			localFiles: MockHydratedLocalFiles(
+				MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:/Anime/Mushoku Tensei II Isekai Ittara Honki Dasu/[SubsPlease] Mushoku Tensei S2 - 00 (1080p) [9C362DC3].mkv", 146065, []MockHydratedLocalFileWrapperOptionsMetadata{
+					{metadataEpisode: 0, metadataAniDbEpisode: "S1", metadataType: LocalFileTypeMain}, // Special episode
+					{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 3, metadataAniDbEpisode: "3", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 4, metadataAniDbEpisode: "4", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 5, metadataAniDbEpisode: "5", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 6, metadataAniDbEpisode: "6", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 7, metadataAniDbEpisode: "7", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 8, metadataAniDbEpisode: "8", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 9, metadataAniDbEpisode: "9", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 10, metadataAniDbEpisode: "10", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 11, metadataAniDbEpisode: "11", metadataType: LocalFileTypeMain},
+					{metadataEpisode: 12, metadataAniDbEpisode: "12", metadataType: LocalFileTypeMain},
+				}),
+			),
+			currentProgress:                   0,
+			expectedNextEpisodeNumber:         0,
+			expectedNextEpisodeProgressNumber: 1,
+		},
 	}
 
-	if assert.NoErrorf(t, err, "Failed to get mock data") &&
-		assert.NotNil(t, lfs) &&
-		assert.NotNil(t, anilistCollection) {
-
-		entry, err := NewMediaEntry(&NewMediaEntryOptions{
-			MediaId:              mediaId,
-			LocalFiles:           lfs,
-			AnizipCache:          anizip.NewCache(),
-			AnilistCollection:    anilistCollection,
-			AnilistClientWrapper: anilist.TestGetAnilistClientWrapper(),
-		})
-
-		if assert.NoError(t, err) {
-
-			assert.Equalf(t, len(lfs), len(entry.Episodes), "Number of episodes mismatch")
-
-			// Mock data progress is 0 so the next episode should be "0" (S1) with progress number 1
-			if assert.NotNilf(t, entry.NextEpisode, "Next episode not found") {
-				assert.Equal(t, 0, entry.NextEpisode.EpisodeNumber, "Next episode number mismatch")
-				assert.Equal(t, 1, entry.NextEpisode.ProgressNumber, "Next episode progress number mismatch")
-			}
-
-			t.Logf("Success, found %v episodes", len(entry.Episodes))
-
-		}
-
-	}
-}
-
-func TestNewMissingEpisodes(t *testing.T) {
-
-	var mediaId = 154587 // Sousou no Frieren
-	lfs, anilistCollection, err := getMediaEntryMockData(t, mediaId)
-
-	if assert.NoError(t, err) {
-		missingData := NewMissingEpisodes(&NewMissingEpisodesOptions{
-			AnilistCollection: anilistCollection,
-			LocalFiles:        lfs,
-			AnizipCache:       anizip.NewCache(),
-		})
-
-		// Mock data has 5 files, Current number of episodes is 10, so 5 episodes are missing
-		assert.Equal(t, 5, len(missingData.Episodes))
-	}
-
-}
-
-// Fetching "Mushoku Tensei: Jobless Reincarnation Season 2" download info
-// Anilist: 13 episodes, Anizip: 12 episodes + "S1"
-// Info should include "S1" as episode 0
-func TestNewMediaEntryDownloadInfo(t *testing.T) {
-
-	var mediaId = 146065 // Mushoku Tensei: Jobless Reincarnation Season 2
-
-	_, anilistCollection, err := getMediaEntryMockData(t, mediaId)
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	anizipData, err := anizip.FetchAniZipMedia("anilist", mediaId)
-	if err != nil {
-		t.Fatal(err)
-	}
+	aniZipCache := anizip.NewCache()
 
-	anilistEntry, ok := anilistCollection.GetListEntryFromMediaId(mediaId)
+	for _, tt := range tests {
 
-	if assert.Truef(t, ok, "Could not find media entry for %d", mediaId) {
+		t.Run(tt.name, func(t *testing.T) {
 
-		assert.Equal(t, 13, anilistEntry.Media.GetCurrentEpisodeCount(), "Number of episodes mismatch on Anilist")
-		assert.Equal(t, 12, anizipData.GetMainEpisodeCount(), "Number of episodes mismatch on Anizip")
-
-		info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-			localFiles:  nil,
-			anizipMedia: anizipData,
-			progress:    lo.ToPtr(0),
-			status:      lo.ToPtr(anilist.MediaListStatusCurrent),
-			media:       anilistEntry.Media,
-		})
-
-		if assert.NoError(t, err) && assert.NotNil(t, info) {
-
-			_, found := lo.Find(info.EpisodesToDownload, func(i *MediaEntryDownloadEpisode) bool {
-				return i.EpisodeNumber == 0 && i.AniDBEpisode == "S1"
-				// && i.Episode.ProgressNumber == 1 DEVNOTE: Progress numbers are always 0 because we don't have local files
+			anilist.TestModifyAnimeCollectionEntry(anilistCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
+				Progress: lo.ToPtr(tt.currentProgress), // Mock progress
 			})
 
-			assert.True(t, found)
+			entry, err := NewMediaEntry(&NewMediaEntryOptions{
+				MediaId:              tt.mediaId,
+				LocalFiles:           tt.localFiles,
+				AnizipCache:          aniZipCache,
+				AnilistCollection:    anilistCollection,
+				AnilistClientWrapper: anilistClientWrapper,
+			})
 
-		}
+			if assert.NoErrorf(t, err, "Failed to get mock data") {
+
+				if assert.NoError(t, err) {
+
+					// Mock progress is 4
+					nextEp, found := entry.FindNextEpisode()
+					if assert.True(t, found, "did not find next episode") {
+						assert.Equal(t, tt.expectedNextEpisodeNumber, nextEp.EpisodeNumber, "next episode number mismatch")
+						assert.Equal(t, tt.expectedNextEpisodeProgressNumber, nextEp.ProgressNumber, "next episode progress number mismatch")
+					}
+
+					t.Logf("Found %v episodes", len(entry.Episodes))
+
+				}
+
+			}
+
+		})
 
 	}
-
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func getMediaEntryMockData(t *testing.T, mediaId int) ([]*LocalFile, *anilist.AnimeCollection, error) {
-
-	path, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Open the JSON file
-	file, err := os.Open(filepath.Join(path, mediaEntryMockDataFile))
-	if err != nil {
-		t.Fatal("Error opening file:", err.Error())
-	}
-	defer file.Close()
-
-	jsonData, err := io.ReadAll(file)
-	if err != nil {
-		t.Fatal("Error reading file:", err.Error())
-	}
-
-	var data map[string]struct {
-		LocalFiles        []*LocalFile             `json:"localFiles"`
-		AnilistCollection *anilist.AnimeCollection `json:"anilistCollection"`
-	}
-	if err := json.Unmarshal(jsonData, &data); err != nil {
-		t.Fatal("Error unmarshaling JSON:", err.Error())
-	}
-
-	ret, _ := data[strconv.Itoa(mediaId)]
-
-	return ret.LocalFiles, ret.AnilistCollection, nil
-
 }

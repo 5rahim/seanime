@@ -10,8 +10,8 @@ import (
 func TestGetBaseMediaById(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	// Get Anilist client
-	acw := TestGetAnilistClientWrapper()
+	//acw := TestGetAnilistClientWrapper()
+	acw := TestGetMockAnilistClientWrapper() // MockClientWrapper
 
 	tests := []struct {
 		name    string
@@ -25,7 +25,7 @@ func TestGetBaseMediaById(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := acw.Client.BaseMediaByID(context.Background(), &test.mediaId)
+			res, err := acw.BaseMediaByID(context.Background(), &test.mediaId)
 			assert.NoError(t, err)
 			assert.NotNil(t, res)
 		})

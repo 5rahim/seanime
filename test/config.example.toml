@@ -1,0 +1,16 @@
+[flags]
+enable_anilist_tests = true
+enable_anilist_mutation_tests = false
+enable_mal_tests = true
+enable_mal_mutation_tests = false
+
+[provider]
+anilist_jwt = ''
+anilist_username = ''
+mal_jwt = ''
+
+[path]
+dataDir = ''
+
+[database]
+name = 'seanime-test'

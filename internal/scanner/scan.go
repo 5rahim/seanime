@@ -19,7 +19,7 @@ type Scanner struct {
 	DirPath              string
 	Username             string
 	Enhanced             bool
-	AnilistClientWrapper *anilist.ClientWrapper
+	AnilistClientWrapper anilist.ClientWrapperInterface
 	Logger               *zerolog.Logger
 	WSEventManager       events.IWSEventManager
 	ExistingLocalFiles   []*entities.LocalFile
@@ -230,7 +230,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 	if len(mf.UnknownMediaIds) < 5 {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Adding missing media to AniList...")
 
-		if err = scn.AnilistClientWrapper.Client.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
+		if err = scn.AnilistClientWrapper.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
 			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 		}
 	}

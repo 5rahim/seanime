@@ -40,7 +40,7 @@ type (
 		LocalFiles           []*LocalFile // All local files
 		AnizipCache          *anizip.Cache
 		AnilistCollection    *anilist.AnimeCollection
-		AnilistClientWrapper *anilist.ClientWrapper
+		AnilistClientWrapper anilist.ClientWrapperInterface
 	}
 )
 
@@ -82,7 +82,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 		anilistEntry = &anilist.MediaListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClientWrapper.Client, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClientWrapper, opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}

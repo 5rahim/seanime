@@ -112,7 +112,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &tt.mediaId)
+			media, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatal("expected media, got error:", err.Error())
 			}

@@ -11,6 +11,7 @@ web/
 out/
 assets/
 
+test/testdata/**/*.json
 test/sample
 test/providers.json
 test/db.json

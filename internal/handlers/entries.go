@@ -297,7 +297,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 				return media
 			}
 			// Otherwise, fetch the media
-			mediaRes, err := c.App.AnilistClientWrapper.Client.BasicMediaByMalID(context.Background(), &s.ID)
+			mediaRes, err := c.App.AnilistClientWrapper.BasicMediaByMalID(context.Background(), &s.ID)
 			if err != nil {
 				return nil
 			}
@@ -365,7 +365,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	})
 
 	// Get the media
-	mediaRes, err := c.App.AnilistClientWrapper.Client.BaseMediaByID(context.Background(), &b.MediaId)
+	mediaRes, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -464,7 +464,7 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 	}
 
 	// Add non-added media entries to AniList collection
-	if err := c.App.AnilistClientWrapper.Client.AddMediaToPlanning(b.MediaIds, limiter.NewAnilistLimiter(), c.App.Logger); err != nil {
+	if err := c.App.AnilistClientWrapper.AddMediaToPlanning(b.MediaIds, limiter.NewAnilistLimiter(), c.App.Logger); err != nil {
 		return c.RespondWithError(errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
 	}
 

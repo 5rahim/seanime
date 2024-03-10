@@ -1,14 +1,14 @@
 package test_utils
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestGetConfig(t *testing.T) {
+	assert.Empty(t, ConfigData)
 
-	assert.NotNil(t, ConfigData)
+	InitTestProvider(t)
 
-	spew.Dump(ConfigData)
+	assert.NotEmpty(t, ConfigData)
 }

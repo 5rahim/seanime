@@ -28,7 +28,7 @@ type (
 		MediaPlayerRepository        *mediaplayer.Repository           // MediaPlayerRepository is used to control the media player
 		mediaPlayerRepoSubscriber    *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager               events.IWSEventManager
-		anilistClientWrapper         *anilist.ClientWrapper
+		anilistClientWrapper         anilist.ClientWrapperInterface
 		anilistCollection            *anilist.AnimeCollection
 		refreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                           sync.Mutex
@@ -62,7 +62,7 @@ type (
 	NewProgressManagerOptions struct {
 		WSEventManager               events.IWSEventManager
 		Logger                       *zerolog.Logger
-		AnilistClientWrapper         *anilist.ClientWrapper
+		AnilistClientWrapper         anilist.ClientWrapperInterface
 		AnilistCollection            *anilist.AnimeCollection
 		Database                     *db.Database
 		RefreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
@@ -83,7 +83,7 @@ func New(opts *NewProgressManagerOptions) *PlaybackManager {
 	}
 }
 
-func (pm *PlaybackManager) SetAnilistClientWrapper(anilistClientWrapper *anilist.ClientWrapper) {
+func (pm *PlaybackManager) SetAnilistClientWrapper(anilistClientWrapper anilist.ClientWrapperInterface) {
 	pm.anilistClientWrapper = anilistClientWrapper
 }
 

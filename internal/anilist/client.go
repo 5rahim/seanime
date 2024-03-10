@@ -9,12 +9,33 @@ import (
 	"github.com/Yamashou/gqlgenc/graphqljson"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/limiter"
 	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 )
+
+type ClientWrapperInterface interface {
+	UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error)
+	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
+	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, totalEpisodes *int) error
+	UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error)
+	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
+	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
+	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
+	BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error)
+	BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error)
+	BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error)
+	MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error)
+	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
+	ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error)
+	ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error)
+	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
+	AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, logger *zerolog.Logger) error
+}
 
 type (
 	// ClientWrapper is a wrapper around the AniList API client.
@@ -45,6 +66,92 @@ func NewClientWrapper(token string) *ClientWrapper {
 	cw.Client.Client.CustomDo = cw.customDoFunc
 
 	return cw
+}
+
+func (cw *ClientWrapper) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, logger *zerolog.Logger) error {
+	if len(mIds) == 0 {
+		logger.Debug().Msg("anilist: no media added to planning list")
+		return nil
+	}
+	if rateLimiter == nil {
+		return errors.New("anilist: no rate limiter provided")
+	}
+
+	status := MediaListStatusPlanning
+
+	scoreRaw := 0
+	progress := 0
+
+	wg := sync.WaitGroup{}
+	for _, _id := range mIds {
+		wg.Add(1)
+		go func(id int) {
+			rateLimiter.Wait()
+			defer wg.Done()
+			_, err := cw.Client.UpdateMediaListEntry(
+				context.Background(),
+				&id,
+				&status,
+				&scoreRaw,
+				&progress,
+				nil,
+				nil,
+			)
+			if err != nil {
+				logger.Error().Msg("anilist: An error occurred while adding media to planning list: " + err.Error())
+			}
+		}(_id)
+	}
+	wg.Wait()
+
+	logger.Debug().Any("count", len(mIds)).Msg("anilist: Media added to planning list")
+
+	return nil
+}
+
+func (cw *ClientWrapper) UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error) {
+	return cw.Client.UpdateEntry(ctx, mediaID, status, score, progress, repeat, private, notes, hiddenFromStatusLists, startedAt, completedAt, interceptors...)
+}
+func (cw *ClientWrapper) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
+	return cw.Client.UpdateMediaListEntry(ctx, mediaID, status, scoreRaw, progress, startedAt, completedAt, interceptors...)
+}
+func (cw *ClientWrapper) UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error) {
+	return cw.Client.UpdateMediaListEntryStatus(ctx, mediaID, progress, status, scoreRaw, interceptors...)
+}
+func (cw *ClientWrapper) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
+	return cw.Client.DeleteEntry(ctx, mediaListEntryID, interceptors...)
+}
+func (cw *ClientWrapper) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+	cw.logger.Trace().Str("username", *userName).Msg("anilist: Fetching anime collection")
+	return cw.Client.AnimeCollection(ctx, userName, interceptors...)
+}
+func (cw *ClientWrapper) SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error) {
+	return cw.Client.SearchAnimeShortMedia(ctx, page, perPage, sort, search, status, interceptors...)
+}
+func (cw *ClientWrapper) BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error) {
+	return cw.Client.BasicMediaByMalID(ctx, id, interceptors...)
+}
+func (cw *ClientWrapper) BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error) {
+	return cw.Client.BasicMediaByID(ctx, id, interceptors...)
+}
+func (cw *ClientWrapper) BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error) {
+	cw.logger.Trace().Int("mediaId", *id).Msg("anilist: Fetching base media by ID")
+	return cw.Client.BaseMediaByID(ctx, id, interceptors...)
+}
+func (cw *ClientWrapper) MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error) {
+	return cw.Client.MediaDetailsByID(ctx, id, interceptors...)
+}
+func (cw *ClientWrapper) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
+	return cw.Client.CompleteMediaByID(ctx, id, interceptors...)
+}
+func (cw *ClientWrapper) ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error) {
+	return cw.Client.ListMedia(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, interceptors...)
+}
+func (cw *ClientWrapper) ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error) {
+	return cw.Client.ListRecentMedia(ctx, page, perPage, airingAtGreater, airingAtLesser, interceptors...)
+}
+func (cw *ClientWrapper) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
+	return cw.Client.GetViewer(ctx, interceptors...)
 }
 
 // customDoFunc is a custom request interceptor function that handles rate limiting and retries.

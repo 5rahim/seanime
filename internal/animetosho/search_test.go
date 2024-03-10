@@ -52,7 +52,7 @@ func TestSearchQuery(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.Client.BaseMediaByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClientWrapper.BaseMediaByID(context.Background(), &test.mId)
 
 			if assert.NoError(t, err) {
 

@@ -17,8 +17,8 @@ func NewBaseMediaCache() *BaseMediaCache {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func GetBaseMediaById(anilistClient *Client, id int) (*BaseMedia, error) {
-	res, err := anilistClient.BaseMediaByID(context.Background(), &id)
+func GetBaseMediaById(acw ClientWrapperInterface, id int) (*BaseMedia, error) {
+	res, err := acw.BaseMediaByID(context.Background(), &id)
 	if err != nil {
 		return nil, err
 	}

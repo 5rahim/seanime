@@ -13,7 +13,7 @@ func TestAddMediaToPlanning(t *testing.T) {
 
 	anilistClientWrapper := TestGetAnilistClientWrapper()
 
-	err := anilistClientWrapper.Client.AddMediaToPlanning(
+	err := anilistClientWrapper.AddMediaToPlanning(
 		[]int{131586},
 		limiter.NewAnilistLimiter(),
 		util.NewLogger(),

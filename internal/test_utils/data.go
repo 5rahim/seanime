@@ -9,6 +9,7 @@ import (
 )
 
 var ConfigData = &Config{}
+var TwoLevelDeepTestDataPath = "../../test/testdata"
 
 type (
 	Config struct {
@@ -65,7 +66,7 @@ func MyAnimeListMutation() FlagFunc {
 	}
 }
 
-// InitTestProvider initializes the ConfigData and skips the test if the given flags are not set
+// InitTestProvider populates the ConfigData and skips the test if the given flags are not set
 func InitTestProvider(t *testing.T, args ...FlagFunc) {
 	err := os.Setenv("TEST_CONFIG_PATH", "../../test")
 	ConfigData = getConfig()
@@ -78,10 +79,6 @@ func InitTestProvider(t *testing.T, args ...FlagFunc) {
 			break
 		}
 	}
-}
-
-func SetConfigPath(relPath string) {
-	os.Setenv("TEST_CONFIG_PATH", relPath)
 }
 
 func getConfig() *Config {

@@ -37,7 +37,7 @@ type (
 		TorrentClientRepository *torrent_client.Repository
 		Watcher                 *scanner.Watcher
 		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClientWrapper    *anilist.ClientWrapper
+		AnilistClientWrapper    anilist.ClientWrapperInterface
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
 		anilistCollection       *anilist.AnimeCollection

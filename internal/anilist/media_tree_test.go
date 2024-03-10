@@ -12,7 +12,7 @@ import (
 func TestBaseMedia_FetchMediaTree(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	acw := TestGetAnilistClientWrapper()
+	acw := TestGetMockAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
@@ -38,7 +38,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := acw.Client.BaseMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := acw.BaseMediaByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
@@ -99,7 +99,7 @@ func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := acw.Client.BasicMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := acw.BasicMediaByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 

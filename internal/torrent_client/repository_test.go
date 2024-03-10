@@ -65,7 +65,7 @@ func TestSmartSelect(t *testing.T) {
 			t.Log(tt.name, hash)
 
 			// get media
-			media, err := anilist.GetBaseMediaById(anilistClientWrapper.Client, tt.mediaId)
+			media, err := anilist.GetBaseMediaById(anilistClientWrapper, tt.mediaId)
 			if err != nil {
 				t.Fatalf("error getting media: %s", err.Error())
 			}

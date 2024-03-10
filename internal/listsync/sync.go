@@ -66,7 +66,7 @@ func BuildListSync(db *db.Database, logger *zerolog.Logger) (ls *ListSync, err e
 
 	// Get Anilist collection
 	anilistClientWrapper := anilist.NewClientWrapper(account.Token)
-	collection, err := anilistClientWrapper.Client.AnimeCollection(context.Background(), &account.Username)
+	collection, err := anilistClientWrapper.AnimeCollection(context.Background(), &account.Username)
 	if err != nil {
 		return nil, err
 	}
