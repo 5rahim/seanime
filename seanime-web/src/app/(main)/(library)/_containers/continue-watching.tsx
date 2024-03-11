@@ -93,7 +93,7 @@ export function ContinueWatching({ list, isLoading }: {
             {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>*/}
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <TextGenerateEffect
                 words={headerEpisode?.basicMedia?.title?.userPreferred || ""}
-                className="w-full text-xl lg:text-5xl lg:max-w-[50%] !mt-1 line-clamp-1 truncate hidden lg:block pb-1"
+                className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
             />}
             <Carousel
                 className="w-full max-w-full"

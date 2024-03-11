@@ -5,9 +5,11 @@ import React, { useEffect } from "react"
 export const TextGenerateEffect = ({
     words,
     className,
+    style,
 }: {
     words: string;
     className?: string;
+    style?: any
 }) => {
     const [scope, animate] = useAnimate()
     let wordsArray = words.split(" ")
@@ -43,7 +45,7 @@ export const TextGenerateEffect = ({
     }
 
     return (
-        <div className={cn("font-bold", className)}>
+        <div className={cn("font-bold", className)} style={style}>
             {renderWords()}
         </div>
     )
