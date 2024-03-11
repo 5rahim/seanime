@@ -4,7 +4,7 @@
 
 <h2 align="center"><b>Seanime</b></h2>
 
-<h4 align="center">Self-hosted and user-friendly interface for your local anime library.</h4>
+<h4 align="center">Simple, feature-packed media server for your local anime library.</h4>
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">
