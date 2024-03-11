@@ -12,6 +12,7 @@ var dest = "E:\\COLLECTION\\mediastream\\Dungeon Meshi\\04\\master.m3u8"
 var videopath = "E:\\COLLECTION\\Dungeon Meshi\\[EMBER] Dungeon Meshi - 04.mkv"
 
 func TestTrans(t *testing.T) {
+	t.Skip()
 
 	trans := new(transcoder.Transcoder)
 

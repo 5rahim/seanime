@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetAnimeDetails(t *testing.T) {
-	test_utils.InitTestProvider(t, test_utils.MyAnimeList(), test_utils.MyAnimeListMutation())
+	test_utils.InitTestProvider(t, test_utils.MyAnimeList())
 
 	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt)
 
@@ -23,6 +23,7 @@ func TestGetAnimeDetails(t *testing.T) {
 }
 
 func TestGetAnimeCollection(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MyAnimeList())
 
 	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt)
 

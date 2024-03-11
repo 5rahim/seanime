@@ -14,9 +14,13 @@ import (
 
 func TestMediaTreeAnalysis(t *testing.T) {
 
-	allMedia := getMockedAllMedia(t)
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	allMedia := anilistCollection.GetAllMedia()
 
-	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewBaseMediaRelationTree()
 
@@ -94,7 +98,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 
 func TestMediaTreeAnalysis2(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewBaseMediaRelationTree()
 

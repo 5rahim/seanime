@@ -7,6 +7,7 @@ import (
 )
 
 func TestGetLocalFilesFromDir(t *testing.T) {
+	t.Skip("Skipping test that requires local files")
 
 	var dir = "E:/Anime"
 

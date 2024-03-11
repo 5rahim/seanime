@@ -2,6 +2,7 @@ package mpv
 
 import (
 	"github.com/davecgh/go-spew/spew"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -11,6 +12,7 @@ import (
 var testFilePath = "E:\\ANIME\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv"
 
 func TestMpv_OpenAndPlay(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	m := New(util.NewLogger(), "", "")
 
@@ -32,6 +34,7 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 }
 
 func TestMpv_OpenAndPlayPath(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	m := New(util.NewLogger(), "", "C:\\Program Files\\mpv.net\\mpvnet.exe")
 
@@ -53,6 +56,7 @@ func TestMpv_OpenAndPlayPath(t *testing.T) {
 }
 
 func TestMpv_Playback(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	m := New(util.NewLogger(), "", "")
 
@@ -80,6 +84,7 @@ loop:
 }
 
 func TestMpv_Multiple(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	m := New(util.NewLogger(), "", "")
 

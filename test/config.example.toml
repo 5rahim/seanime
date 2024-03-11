@@ -3,6 +3,7 @@ enable_anilist_tests = true
 enable_anilist_mutation_tests = false
 enable_mal_tests = true
 enable_mal_mutation_tests = false
+enable_media_player_tests = true
 
 [provider]
 anilist_jwt = ''

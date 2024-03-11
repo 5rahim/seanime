@@ -15,7 +15,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,8 +55,8 @@ func TestNewMissingEpisodes(t *testing.T) {
 
 			// Mock Anilist collection
 			anilist.TestModifyAnimeCollectionEntry(anilistCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
-				Progress: lo.ToPtr(tt.currentProgress),    // Mock progress
-				Episodes: lo.ToPtr(tt.mediaAiredEpisodes), // Mock total episodes
+				Progress:      lo.ToPtr(tt.currentProgress), // Mock progress
+				AiredEpisodes: lo.ToPtr(tt.mediaAiredEpisodes),
 				NextAiringEpisode: &anilist.BaseMedia_NextAiringEpisode{
 					Episode: tt.mediaAiredEpisodes + 1,
 				},

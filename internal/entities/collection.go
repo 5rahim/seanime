@@ -66,6 +66,9 @@ type (
 		MediaId    int          `json:"mediaId"`
 		LocalFiles []*LocalFile `json:"localFiles"`
 	}
+)
+
+type (
 	// NewLibraryCollectionOptions is a struct that holds the data needed for creating a new LibraryCollection.
 	NewLibraryCollectionOptions struct {
 		AnilistCollection    *anilist.AnimeCollection

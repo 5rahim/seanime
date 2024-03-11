@@ -7,18 +7,6 @@ import (
 	"github.com/seanime-app/seanime/internal/filesystem"
 )
 
-type AugmentedLocalFile struct {
-	LocalFile  *entities.LocalFile
-	Media      any
-	AnimeTitle string
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-// LocalFile methods
-
-//----------------------------------------------------------------------------------------------------------------------
-
 // GetLocalFilesFromDir creates a new LocalFile for each video file
 func GetLocalFilesFromDir(dirPath string, logger *zerolog.Logger) ([]*entities.LocalFile, error) {
 	paths, err := filesystem.GetVideoFilePathsFromDir(dirPath)
@@ -38,7 +26,3 @@ func GetLocalFilesFromDir(dirPath string, logger *zerolog.Logger) ([]*entities.L
 
 	return localFiles, err
 }
-
-//----------------------------------------------------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------------------------------------------------

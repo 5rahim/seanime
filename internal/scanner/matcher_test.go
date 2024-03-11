@@ -1,6 +1,8 @@
 package scanner
 
 import (
+	"context"
+	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +14,12 @@ import (
 
 func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
-	allMedia := getMockedAllMedia(t)
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	allMedia := anilistCollection.GetAllMedia()
 
 	dir := "E:/Anime"
 

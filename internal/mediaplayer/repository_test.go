@@ -4,6 +4,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"github.com/stretchr/testify/assert"
@@ -11,17 +12,19 @@ import (
 )
 
 func TestRepository_StartTracking(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
+
 	logger := util.NewLogger()
 	WSEventManager := events.NewMockWSEventManager(logger)
 
-	vlc := &vlc.VLC{
+	_vlc := &vlc.VLC{
 		Host:     "localhost",
 		Port:     8080,
 		Password: "seanime",
 		Logger:   logger,
 	}
 
-	mpc := &mpchc.MpcHc{
+	_mpc := &mpchc.MpcHc{
 		Host:   "localhost",
 		Port:   13579,
 		Logger: logger,
@@ -30,8 +33,8 @@ func TestRepository_StartTracking(t *testing.T) {
 	repo := &Repository{
 		Logger:         logger,
 		Default:        "vlc",
-		VLC:            vlc,
-		MpcHc:          mpc,
+		VLC:            _vlc,
+		MpcHc:          _mpc,
 		Mpv:            mpv.New(logger, "", ""),
 		WSEventManager: WSEventManager,
 	}

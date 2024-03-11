@@ -14,11 +14,6 @@ import (
 
 // This file contains helper functions for testing the anilist package
 
-// TestGetAnilistClientWrapper TESTING PURPOSES ONLY
-func TestGetAnilistClientWrapper() ClientWrapperInterface {
-	return NewClientWrapper(test_utils.ConfigData.Provider.AnilistJwt)
-}
-
 func TestGetMockAnilistClientWrapper() ClientWrapperInterface {
 	return NewMockClientWrapper()
 }
@@ -208,7 +203,25 @@ func (c *MockClientWrapper) BaseMediaByID(ctx context.Context, id *int, intercep
 	return baseMedia, nil
 }
 
+// AnimeCollection
+//   - Set userName to nil to use the boilerplate AnimeCollection
+//   - Set userName to a specific username to fetch and cache
 func (c *MockClientWrapper) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+
+	if userName == nil {
+		file, err := os.Open(test_utils.GetDataPath("BoilerplateAnimeCollection"))
+		defer file.Close()
+
+		var ret *AnimeCollection
+		err = json.NewDecoder(file).Decode(&ret)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.logger.Trace().Msgf("MockClientWrapper: Using [BoilerplateAnimeCollection]")
+		return ret, nil
+	}
+
 	file, err := os.Open(test_utils.GetTestDataPath("AnimeCollection"))
 	defer file.Close()
 	if err != nil {
@@ -255,13 +268,14 @@ func (c *MockClientWrapper) AnimeCollection(ctx context.Context, userName *strin
 
 	c.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [AnimeCollection]: %s", *userName)
 	return ret, nil
+
 }
 
 type TestModifyAnimeCollectionEntryInput struct {
 	Status            *MediaListStatus
 	Progress          *int
 	Score             *float64
-	Episodes          *int
+	AiredEpisodes     *int
 	NextAiringEpisode *BaseMedia_NextAiringEpisode
 }
 
@@ -279,8 +293,15 @@ func TestModifyAnimeCollectionEntry(ac *AnimeCollection, mId int, input TestModi
 	removedFromList := false
 	var rEntry *AnimeCollection_MediaListCollection_Lists_Entries
 
+	// Move the entry to the correct list
 	if input.Status != nil {
 		for _, list := range lists {
+			if list.Status == nil {
+				continue
+			}
+			if list.Entries == nil {
+				continue
+			}
 			entries := list.GetEntries()
 			for idx, entry := range entries {
 				if entry.GetMedia().ID == mId {
@@ -295,8 +316,15 @@ func TestModifyAnimeCollectionEntry(ac *AnimeCollection, mId int, input TestModi
 		}
 		if removedFromList {
 			for _, list := range lists {
+				if list.Status == nil {
+					continue
+				}
 				if *list.Status == *input.Status {
+					if list.Entries == nil {
+						list.Entries = make([]*AnimeCollection_MediaListCollection_Lists_Entries, 0)
+					}
 					list.Entries = append(list.Entries, rEntry)
+					break
 				}
 			}
 		}
@@ -307,14 +335,17 @@ out:
 		entries := list.GetEntries()
 		for _, entry := range entries {
 			if entry.GetMedia().ID == mId {
+				if input.Status != nil {
+					entry.Status = input.Status
+				}
 				if input.Progress != nil {
 					entry.Progress = input.Progress
 				}
 				if input.Score != nil {
 					entry.Score = input.Score
 				}
-				if input.Episodes != nil {
-					entry.Media.Episodes = input.Episodes
+				if input.AiredEpisodes != nil {
+					entry.Media.Episodes = input.AiredEpisodes
 				}
 				if input.NextAiringEpisode != nil {
 					entry.Media.NextAiringEpisode = input.NextAiringEpisode

@@ -17,7 +17,7 @@ var testDefaultClient = TransmissionProvider
 
 func TestSmartSelect(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	// get repo
 	repo := getTestRepo(t)

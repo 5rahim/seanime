@@ -14,7 +14,7 @@ import (
 
 func TestNewMediaFetcher(t *testing.T) {
 
-	acw := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -77,7 +77,7 @@ func TestNewMediaFetcher(t *testing.T) {
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
 				Enhanced:                 tt.enhanced,
 				Username:                 test_utils.ConfigData.Provider.AnilistUsername,
-				AnilistClientWrapper:     acw,
+				AnilistClientWrapper:     anilistClientWrapper,
 				LocalFiles:               lfs,
 				BaseMediaCache:           baseMediaCache,
 				AnizipCache:              anizipCache,
@@ -107,7 +107,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
-	acw := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -157,7 +157,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
 				Enhanced:             tt.enhanced,
 				Username:             "-",
-				AnilistClientWrapper: acw,
+				AnilistClientWrapper: anilistClientWrapper,
 				LocalFiles:           lfs,
 				BaseMediaCache:       baseMediaCache,
 				AnizipCache:          anizipCache,
@@ -186,7 +186,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	acw := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -234,7 +234,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 			// +--------------------------+
 
 			media, ok := FetchMediaFromLocalFiles(
-				acw,
+				anilistClientWrapper,
 				lfs,
 				baseMediaCache,
 				anizipCache,

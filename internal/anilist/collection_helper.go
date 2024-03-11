@@ -35,7 +35,25 @@ func (ac *AnimeCollection) GetListEntryFromMediaId(id int) (*MediaListEntry, boo
 	}
 
 	return entry, true
+}
 
+func (ac *AnimeCollection) GetAllMedia() []*BaseMedia {
+
+	var ret []*BaseMedia
+	addedId := make(map[int]bool)
+	for _, l := range ac.MediaListCollection.Lists {
+		if l.Entries == nil || len(l.Entries) == 0 {
+			continue
+		}
+		for _, e := range l.Entries {
+			if _, ok := addedId[e.Media.ID]; !ok {
+				ret = append(ret, e.Media)
+				addedId[e.Media.ID] = true
+			}
+		}
+	}
+
+	return ret
 }
 
 func ToEntryStartDate(d *AnimeCollection_MediaListCollection_Lists_Entries_StartedAt) string {

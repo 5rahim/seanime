@@ -1,15 +1,11 @@
 package scanner
 
 import (
-	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
-	"io"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -18,7 +14,7 @@ import (
 func TestScanner_Scan(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	acw := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 
@@ -55,7 +51,7 @@ func TestScanner_Scan(t *testing.T) {
 				DirPath:              dir,
 				Username:             test_utils.ConfigData.Provider.AnilistUsername,
 				Enhanced:             false,
-				AnilistClientWrapper: acw,
+				AnilistClientWrapper: anilistClientWrapper,
 				Logger:               util.NewLogger(),
 				WSEventManager:       wsEventManager,
 				ExistingLocalFiles:   existingLfs,
@@ -78,32 +74,4 @@ func TestScanner_Scan(t *testing.T) {
 
 	}
 
-}
-
-func getMockedAllMedia(t *testing.T) []*anilist.BaseMedia {
-
-	path, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Open the JSON file
-	file, err := os.Open(filepath.Join(path, "./scanner_test_mock_data.json"))
-	if err != nil {
-		t.Fatal("Error opening file:", err.Error())
-	}
-	defer file.Close()
-
-	jsonData, err := io.ReadAll(file)
-	if err != nil {
-		t.Fatal("Error reading file:", err.Error())
-	}
-
-	var data struct {
-		AllMedia []*anilist.BaseMedia `json:"allMedia"`
-	}
-	if err := json.Unmarshal(jsonData, &data); err != nil {
-		t.Fatal("Error unmarshaling JSON:", err.Error())
-	}
-
-	return data.AllMedia
 }

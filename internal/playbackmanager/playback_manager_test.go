@@ -12,7 +12,6 @@ import (
 )
 
 func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist.ClientWrapperInterface, *anilist.AnimeCollection, error) {
-	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	logger := util.NewLogger()
 
@@ -24,9 +23,9 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 		t.Fatalf("error while creating database, %v", err)
 	}
 
-	acw := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
-	anilistCollection, err := acw.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -34,11 +33,11 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 	return playbackmanager.New(&playbackmanager.NewProgressManagerOptions{
 		Logger:               logger,
 		WSEventManager:       wsEventManager,
-		AnilistClientWrapper: acw,
+		AnilistClientWrapper: anilistClientWrapper,
 		Database:             database,
 		AnilistCollection:    anilistCollection,
 		RefreshAnilistCollectionFunc: func() {
 			// Do nothing
 		},
-	}), acw, anilistCollection, nil
+	}), anilistClientWrapper, anilistCollection, nil
 }

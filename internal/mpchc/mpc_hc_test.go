@@ -1,6 +1,7 @@
 package mpchc
 
 import (
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -8,6 +9,7 @@ import (
 )
 
 func TestMpcHc_Start(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
 		Host:   "localhost",
@@ -21,6 +23,7 @@ func TestMpcHc_Start(t *testing.T) {
 }
 
 func TestMpcHc_Play(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
 		Host:   "localhost",
@@ -39,6 +42,7 @@ func TestMpcHc_Play(t *testing.T) {
 }
 
 func TestMpcHc_GetVariables(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
 		Host:   "localhost",
@@ -59,6 +63,7 @@ func TestMpcHc_GetVariables(t *testing.T) {
 }
 
 func TestMpcHc_Seek(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
 		Host:   "localhost",

@@ -9,7 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/entities"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/util"
-	seanime_parser "github.com/seanime-app/seanime/seanime-parser"
+	"github.com/seanime-app/seanime/seanime-parser"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
 	"strconv"

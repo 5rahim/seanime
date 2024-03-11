@@ -9,10 +9,10 @@ import (
 	"testing"
 )
 
-func TestBaseMedia_FetchMediaTree(t *testing.T) {
+func TestBaseMedia_FetchMediaTree_BaseMedia(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	acw := TestGetMockAnilistClientWrapper()
+	anilistClientWrapper := TestGetMockAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
@@ -38,7 +38,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := acw.BaseMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
@@ -48,7 +48,7 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,
-					acw,
+					anilistClientWrapper,
 					lim,
 					tree,
 					baseMediaCache,
@@ -71,9 +71,9 @@ func TestBaseMedia_FetchMediaTree(t *testing.T) {
 
 }
 
-func TestBasicMedia_FetchMediaTree(t *testing.T) {
+func TestBasicMedia_FetchMediaTree_BasicMedia(t *testing.T) {
 
-	acw := TestGetAnilistClientWrapper()
+	anilistClientWrapper := TestGetMockAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
 	baseMediaCache := NewBaseMediaCache()
 
@@ -99,7 +99,7 @@ func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := acw.BasicMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.BasicMediaByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
@@ -109,7 +109,7 @@ func TestBasicMedia_FetchMediaTree(t *testing.T) {
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,
-					acw,
+					anilistClientWrapper,
 					lim,
 					tree,
 					baseMediaCache,

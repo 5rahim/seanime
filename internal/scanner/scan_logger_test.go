@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/entities"
@@ -11,11 +12,15 @@ import (
 
 func TestScanLogger(t *testing.T) {
 
-	allMedia := getMockedAllMedia(t)
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	allMedia := anilistCollection.GetAllMedia()
 
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 

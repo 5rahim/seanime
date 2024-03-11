@@ -12,7 +12,7 @@ import (
 func TestSearchQuery(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	tests := []struct {
 		name           string

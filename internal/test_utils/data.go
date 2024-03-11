@@ -10,6 +10,7 @@ import (
 
 var ConfigData = &Config{}
 var TwoLevelDeepTestDataPath = "../../test/testdata"
+var TwoLevelDeepDataPath = "../../test/data"
 
 type (
 	Config struct {
@@ -24,6 +25,7 @@ type (
 		EnableAnilistMutationTests bool `mapstructure:"enable_anilist_mutation_tests"`
 		EnableMalTests             bool `mapstructure:"enable_mal_tests"`
 		EnableMalMutationTests     bool `mapstructure:"enable_mal_mutation_tests"`
+		EnableMediaPlayerTests     bool `mapstructure:"enable_media_player_tests"`
 	}
 
 	ProviderConfig struct {
@@ -53,16 +55,19 @@ func AnilistMutation() FlagFunc {
 		return ConfigData.Flags.EnableAnilistMutationTests
 	}
 }
-
 func MyAnimeList() FlagFunc {
 	return func() bool {
 		return ConfigData.Flags.EnableMalTests
 	}
 }
-
 func MyAnimeListMutation() FlagFunc {
 	return func() bool {
 		return ConfigData.Flags.EnableMalMutationTests
+	}
+}
+func MediaPlayer() FlagFunc {
+	return func() bool {
+		return ConfigData.Flags.EnableMediaPlayerTests
 	}
 }
 

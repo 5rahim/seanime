@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mpchc"
 	"github.com/seanime-app/seanime/internal/mpv"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/vlc"
 	"strconv"
@@ -21,6 +22,8 @@ var localFilePaths = []string{
 var mediaId = 153518
 
 func TestPlaylists(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer())
+
 	playbackManager, anilistClientWrapper, anilistCollection, err := getPlaybackManager(t)
 	if err != nil {
 		t.Fatal(err)

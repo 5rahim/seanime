@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/anizip"
 	"github.com/seanime-app/seanime/internal/entities"
@@ -11,13 +12,18 @@ import (
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
-	allMedia := getMockedAllMedia(t)
-
 	baseMediaCache := anilist.NewBaseMediaCache()
 	anizipCache := anizip.NewCache()
-	anilistClientWrapper := anilist.TestGetAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
+
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	if err != nil {
+		t.Fatal("expected result, got error:", err.Error())
+	}
+
+	allMedia := anilistCollection.GetAllMedia()
 
 	tests := []struct {
 		name            string

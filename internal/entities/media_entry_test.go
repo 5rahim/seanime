@@ -66,7 +66,7 @@ func TestNewMediaEntry(t *testing.T) {
 	}
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
