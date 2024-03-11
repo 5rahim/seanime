@@ -4,6 +4,7 @@ import (
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/nyaa"
 	"github.com/seanime-app/seanime/internal/qbittorrent"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/torrent"
 	"github.com/seanime-app/seanime/internal/transmission"
 	"github.com/seanime-app/seanime/internal/util"
@@ -16,6 +17,7 @@ var destination = "E:/COLLECTION"
 var testDefaultClient = TransmissionProvider
 
 func TestSmartSelect(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.TorrentClient())
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
@@ -100,6 +102,7 @@ func TestSmartSelect(t *testing.T) {
 
 // Add and remove
 func TestAddAndRemove(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.TorrentClient())
 
 	const url = "https://animetosho.org/view/subsplease-sousou-no-frieren-24-480p-c467b289-mkv.1847941"
 
@@ -134,6 +137,7 @@ func TestAddAndRemove(t *testing.T) {
 
 // Clean up
 func TestRemoveTorrents(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.TorrentClient())
 
 	const url = "https://animetosho.org/view/subsplease-sousou-no-frieren-24-480p-c467b289-mkv.1847941"
 
@@ -156,6 +160,7 @@ func TestRemoveTorrents(t *testing.T) {
 //----------------------------------------------------------------------------------------------------------------------
 
 func getTestRepo(t *testing.T) *Repository {
+	test_utils.InitTestProvider(t, test_utils.TorrentClient())
 
 	logger := util.NewLogger()
 

@@ -9,6 +9,7 @@ import (
 var repoPath = "E:/SEANIME-REPO-TEST"
 
 func TestUpdater_DownloadLatestRelease(t *testing.T) {
+	t.Skip()
 
 	updater := New("0.2.0")
 

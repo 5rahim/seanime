@@ -1,12 +1,14 @@
 package qbittorrent
 
 import (
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestClient_Start(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.TorrentClient())
 
 	client := NewClient(&NewClientOptions{
 		Logger:   util.NewLogger(),
