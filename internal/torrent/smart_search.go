@@ -2,6 +2,7 @@ package torrent
 
 import (
 	"errors"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/animetosho"
@@ -16,6 +17,9 @@ import (
 	"strconv"
 )
 
+// Smart Search is a service that searches for torrents based on the media and the user's query.
+// It is implemented for Nyaa and AnimeTosho.
+
 type (
 	SmartSearchQueryOptions struct {
 		QuickSearch    *bool              `json:"quickSearch"`
@@ -29,10 +33,10 @@ type (
 	}
 	SmartSearchOptions struct {
 		SmartSearchQueryOptions
-		//
 		NyaaSearchCache       *nyaa.SearchCache
 		AnimeToshoSearchCache *animetosho.SearchCache
 		AnizipCache           *anizip.Cache
+		Logger                *zerolog.Logger
 	}
 	// Preview is used to preview a torrent à la entities.MediaEntryEpisode.
 	Preview struct {
@@ -142,6 +146,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 				AbsoluteOffset: opts.AbsoluteOffset,
 				Title:          opts.Query,
 				Cache:          opts.AnimeToshoSearchCache,
+				Logger:         opts.Logger,
 			})
 			if err != nil {
 				return nil, err

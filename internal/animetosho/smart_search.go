@@ -3,6 +3,7 @@ package animetosho
 import (
 	"bytes"
 	"fmt"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/comparison"
@@ -23,14 +24,179 @@ type (
 		AbsoluteOffset *int
 		Resolution     *string
 		Cache          *SearchCache
+		Logger         *zerolog.Logger
 	}
 )
 
 func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error) {
+	format := "?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-a"
+
+	isBatch := opts.Batch != nil && *opts.Batch
+	hasSingleEpisode := opts.Media.IsMovieOrSingleEpisode()
+
+	urlQuery := ""
+	finalQueryStr := "" // Final search query string, used for caching
+
+	switch hasSingleEpisode {
+	case true:
+
+		queryStr := ""
+
+		allTitles := opts.Media.GetAllTitles()
+		// 1. Build a query string
+		qTitles := "("
+		for _, title := range allTitles {
+			qTitles += fmt.Sprintf("%s | ", *title)
+		}
+		qTitles = qTitles[:len(qTitles)-3] + ")"
+
+		queryStr += qTitles
+
+		// 2. Add resolution
+		if opts.Resolution != nil {
+			queryStr += " " + *opts.Resolution
+		}
+
+		finalQueryStr = queryStr
+	case false:
+		switch isBatch {
+		// Single episode search
+		case false:
+
+			qTitles := opts.buildTitles()
+			qEpisodes := opts.buildEpisodes()
+
+			queryStr := ""
+			// 1. Add titles
+			queryStr += qTitles
+			// 2. Add episodes
+			if qEpisodes != "" {
+				queryStr += " " + qEpisodes
+			}
+			// 3. Add resolution
+			if opts.Resolution != nil {
+				queryStr += " " + *opts.Resolution
+			}
+
+			finalQueryStr = queryStr
+
+			// If we can also search for absolute episodes (there is an offset)
+			if opts.AbsoluteOffset != nil && *opts.AbsoluteOffset > 0 {
+				// Parse a good title
+				metadata := seanime_parser.Parse(opts.Media.GetRomajiTitleSafe())
+				// 1. Start building a new query string
+				absoluteQueryStr := metadata.Title
+				// 2. Add episodes
+				ep := *opts.EpisodeNumber + *opts.AbsoluteOffset
+				absoluteQueryStr += fmt.Sprintf(` ("%d"|"e%d"|"ep%d")`, ep, ep, ep)
+				// 3. Add resolution
+				if opts.Resolution != nil {
+					absoluteQueryStr += " " + *opts.Resolution
+				}
+				// Overwrite finalQueryStr by adding the absolute query string
+				finalQueryStr = fmt.Sprintf("(%s) | (%s)", absoluteQueryStr, queryStr)
+			}
+
+		case true:
+			// Batch search
+			// e.g. "Title [1080p][Batch]"
+			romTitle := opts.Media.GetRomajiTitleSafe()
+			engTitle := opts.Media.GetTitleSafe()
+			finalQueryStr = fmt.Sprintf(`(%s | %s)`, engTitle, romTitle)
+			finalQueryStr += " " + getBatchGroup(opts.Media)
+			if opts.Resolution != nil {
+				finalQueryStr += " " + *opts.Resolution
+			}
+		}
+	}
+
+	println(finalQueryStr)
+
+	cacheKey := finalQueryStr + map[bool]string{true: "+batch", false: ""}[*opts.Batch]
+
+	// Check cache
+	if opts.Cache != nil {
+		cacheRes, found := opts.Cache.Get(cacheKey)
+		if found {
+			opts.Logger.Debug().Str("query", finalQueryStr).Msgf("animetosho: Cache HIT")
+			return cacheRes, nil
+		}
+	}
+
+	opts.Logger.Debug().Str("query", finalQueryStr).Msgf("animetosho: Cache MISS")
+
+	urlQuery = fmt.Sprintf(format, url.QueryEscape(finalQueryStr))
+	torrents, err = fetchTorrents(urlQuery)
+	torrentMap := make(map[string]*Torrent)
+	for _, t := range torrents {
+		torrentMap[t.Title] = t
+	}
+
+	urlQuery = fmt.Sprintf(format, url.QueryEscape(finalQueryStr+" -S0"))
+	other, _ := fetchTorrents(urlQuery)
+	for _, t := range other {
+		if _, ok := torrentMap[t.Title]; !ok {
+			torrents = append(torrents, t)
+		}
+	}
+
+	opts.Logger.Debug().Msgf("animetosho: Fetched %d torrents", len(torrents))
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter torrents
+	p := pool.NewWithResults[*Torrent]()
+	for _, torrent := range torrents {
+		p.Go(func() *Torrent {
+			m := seanime_parser.Parse(torrent.Title)
+			// When we're looking for batches
+			// we only want to return torrents that are actually batches (more than 1 episode or contain batch keywords)
+			if isBatch {
+				if len(m.EpisodeNumber) < 2 && !comparison.ValueContainsBatchKeywords(torrent.Title) {
+					return nil
+				}
+			} else if opts.EpisodeNumber != nil { // We're looking for a single episode
+				// If more than one episode, skip it
+				if len(m.EpisodeNumber) > 1 || comparison.ValueContainsBatchKeywords(torrent.Title) {
+					return nil
+				}
+				if len(m.EpisodeNumber) == 1 {
+					// If the episode number is not the one we're looking for, skip it
+					ep, ok := util.StringToInt(m.EpisodeNumber[0])
+					if ok && ep != *opts.EpisodeNumber && ep != *opts.EpisodeNumber+*opts.AbsoluteOffset {
+						return nil
+					}
+				}
+			}
+			return torrent
+		})
+	}
+	res := p.Wait()
+	torrents = lo.Filter(res, func(i *Torrent, _ int) bool {
+		return i != nil
+	})
+
+	// Add to the cache
+	opts.Cache.SetT(cacheKey, torrents, time.Minute)
+
+	return
+}
+
+func (opts *BuildSearchQueryOptions) buildEpisodes() string {
+	episodeStr := ""
+	if opts.EpisodeNumber != nil {
+		pEp := zeropad(*opts.EpisodeNumber)
+
+		episodeStr = fmt.Sprintf(`("%s"|"e%d") -S0`, pEp, *opts.EpisodeNumber)
+	}
+	return episodeStr
+}
+
+func (opts *BuildSearchQueryOptions) buildTitles() string {
 
 	romTitle := opts.Media.GetRomajiTitleSafe()
 	engTitle := opts.Media.GetTitleSafe()
-	isBatch := opts.Batch != nil && *opts.Batch
 
 	season := 0
 
@@ -76,6 +242,10 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 	if len(split) > 1 && len(split[0]) > 8 {
 		titles = append(titles, split[0])
 	}
+	split = strings.Split(engTitle, ":")
+	if len(split) > 1 && len(split[0]) > 8 {
+		titles = append(titles, split[0])
+	}
 
 	// clean titles
 	for i, title := range titles {
@@ -109,16 +279,6 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 		seasonBuff.WriteString(fmt.Sprintf(`"%s %s%s"`, shortestTitle, "s", zeropad(season)))
 	}
 
-	//////////////////////// Episode
-	episodeStr := ""
-	if opts.EpisodeNumber != nil {
-		pEp := zeropad(*opts.EpisodeNumber)
-
-		episodeStr = fmt.Sprintf(`(%s|e%d)`, pEp, *opts.EpisodeNumber)
-	}
-
-	queryStr := ""
-
 	qTitles := "("
 	for idx, title := range titles {
 		qTitles += "\"" + title + "\"" + " | "
@@ -129,92 +289,7 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 	qTitles += seasonBuff.String()
 	qTitles += ")"
 
-	// 1. Add titles
-	queryStr += qTitles
-	// 2. Add episodes
-	if episodeStr != "" {
-		queryStr += " " + episodeStr
-	}
-	// 3. Add resolution
-	if opts.Resolution != nil {
-		queryStr += " " + *opts.Resolution
-	}
-
-	finalStr := queryStr
-
-	metadata := seanime_parser.Parse(opts.Media.GetRomajiTitleSafe())
-
-	// 1. Add title
-	absoluteEpStr := metadata.Title
-	if opts.AbsoluteOffset != nil {
-		// 2. Add episodes
-		ep := *opts.EpisodeNumber + *opts.AbsoluteOffset
-		absoluteEpStr += fmt.Sprintf(` (%d|e%d|ep%d)`, ep, ep, ep)
-		// 3. Add resolution
-		if opts.Resolution != nil {
-			absoluteEpStr += " " + *opts.Resolution
-		}
-		finalStr = fmt.Sprintf("(%s) | (%s)", absoluteEpStr, queryStr) // Override finalStr
-	}
-
-	format := "?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-a"
-	query := fmt.Sprintf(format, url.QueryEscape(finalStr))
-
-	if isBatch {
-		// Batch search
-		// e.g. "Title [1080p][Batch]"
-		finalStr = fmt.Sprintf(`("%s" | "%s")`, engTitle, romTitle)
-		finalStr += " " + getBatchGroup(opts.Media)
-		if opts.Resolution != nil {
-			finalStr += " " + *opts.Resolution
-		}
-		query = fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-d", url.QueryEscape(finalStr))
-	}
-
-	//check cache
-	if opts.Cache != nil {
-		cacheRes, found := opts.Cache.Get(finalStr)
-		if found {
-			return cacheRes, nil
-		}
-	}
-
-	torrents, err = fetchTorrents(query)
-	if err != nil {
-		return nil, err
-	}
-
-	// Filter torrents
-	p := pool.NewWithResults[*Torrent]()
-	for _, torrent := range torrents {
-		p.Go(func() *Torrent {
-			m := seanime_parser.Parse(torrent.Title)
-			if isBatch {
-				if len(m.EpisodeNumber) < 2 && !comparison.ValueContainsBatchKeywords(torrent.Title) {
-					return nil
-				}
-			} else if opts.EpisodeNumber != nil {
-				if len(m.EpisodeNumber) == 1 {
-					ep, _ := util.StringToInt(m.EpisodeNumber[0])
-					if ep != *opts.EpisodeNumber && ep != *opts.EpisodeNumber+*opts.AbsoluteOffset {
-						return nil
-					}
-				} else {
-					return nil
-				}
-			}
-			return torrent
-		})
-	}
-	res := p.Wait()
-	torrents = lo.Filter(res, func(i *Torrent, _ int) bool {
-		return i != nil
-	})
-
-	// Add to the cache
-	opts.Cache.SetT(finalStr, torrents, time.Minute)
-
-	return
+	return qTitles
 }
 
 func zeropad(v interface{}) string {

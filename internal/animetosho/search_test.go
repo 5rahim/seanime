@@ -2,9 +2,9 @@ package animetosho
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/internal/anilist"
 	"github.com/seanime-app/seanime/internal/test_utils"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -28,7 +28,7 @@ func TestSearchQuery(t *testing.T) {
 			batch:          false,
 			episodeNumber:  11,
 			absoluteOffset: 45,
-			resolution:     "1080p",
+			resolution:     "1080",
 		},
 		{
 			name:           "SPY×FAMILY Season 1 Part 2",
@@ -36,7 +36,7 @@ func TestSearchQuery(t *testing.T) {
 			batch:          false,
 			episodeNumber:  12,
 			absoluteOffset: 12,
-			resolution:     "1080p",
+			resolution:     "1080",
 		},
 		{
 			name:           "Jujutsu Kaisen Season 2",
@@ -45,6 +45,22 @@ func TestSearchQuery(t *testing.T) {
 			episodeNumber:  2,
 			absoluteOffset: 24,
 			resolution:     "",
+		},
+		{
+			name:           "Violet Evergarden The Movie",
+			mId:            103047,
+			batch:          false,
+			episodeNumber:  1,
+			absoluteOffset: 0,
+			resolution:     "",
+		},
+		{
+			name:           "Sousou no Frieren",
+			mId:            154587,
+			batch:          false,
+			episodeNumber:  10,
+			absoluteOffset: 0,
+			resolution:     "1080",
 		},
 	}
 
@@ -63,11 +79,14 @@ func TestSearchQuery(t *testing.T) {
 					AbsoluteOffset: &test.absoluteOffset,
 					Resolution:     &test.resolution,
 					Cache:          NewSearchCache(),
+					Logger:         util.NewLogger(),
 				})
 
 				if assert.NoError(t, err) {
 					assert.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
-					spew.Dump(torrents)
+					for _, torrent := range torrents {
+						t.Log(torrent.Title)
+					}
 				}
 
 			}

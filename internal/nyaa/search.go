@@ -219,6 +219,10 @@ func BuildSearchQuery(opts *BuildSearchQueryOptions) ([]string, bool) {
 	if len(split) > 1 && len(split[0]) > 8 {
 		titles = append(titles, split[0])
 	}
+	split = strings.Split(engTitle, ":")
+	if len(split) > 1 && len(split[0]) > 8 {
+		titles = append(titles, split[0])
+	}
 
 	// clean titles
 	for i, title := range titles {

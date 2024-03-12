@@ -85,7 +85,7 @@ func NewApp(options *AppOptions, version string) *App {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("app: Failed to get working directory")
 	}
-	logger.Debug().Msgf("app: Working directory: \"%s\"\n", pwd)
+	logger.Debug().Str("path", pwd).Msg("app: Working directory")
 
 	// Initialize the config
 	// If the config file does not exist, it will be created
@@ -94,7 +94,7 @@ func NewApp(options *AppOptions, version string) *App {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
 	}
 
-	logger.Debug().Msgf("app: Loaded config from \"%s\"", cfg.Data.AppDataDir)
+	logger.Debug().Str("path", cfg.Data.AppDataDir).Msg("app: Loaded config")
 
 	// Initialize the database
 	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
@@ -114,8 +114,6 @@ func NewApp(options *AppOptions, version string) *App {
 	db.CleanUpLocalFiles()
 	// Delete old scan summaries
 	db.CleanUpScanSummaries()
-
-	logger.Debug().Msgf("app: Connected to database \"%s.db\"", cfg.Database.Name)
 
 	// Get token from stored account or return empty string
 	anilistToken := db.GetAnilistToken()

@@ -38,6 +38,16 @@ func (m *BaseMedia) GetCoverImageSafe() string {
 	return *m.GetBannerImage()
 }
 
+func (m *BaseMedia) IsMovieOrSingleEpisode() bool {
+	if m == nil {
+		return false
+	}
+	if m.GetTotalEpisodeCount() == 1 {
+		return true
+	}
+	return false
+}
+
 func (m *BaseMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasEnglishTitle() {

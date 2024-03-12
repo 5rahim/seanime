@@ -23,7 +23,8 @@ export const __torrentSearch_selectedTorrentsAtom = atom<AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const serverStatus = useAtomValue(serverStatusAtom)
-    const downloadInfo = entry.downloadInfo
+    const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
+    const shouldLookForBatches = downloadInfo?.canBatch && downloadInfo?.episodesToDownload?.length > 1
 
     const hasEpisodesToDownload = !!downloadInfo?.episodesToDownload?.length
 
@@ -32,7 +33,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const [globalFilter, setGlobalFilter] = useState<string>(hasEpisodesToDownload ? "" : (entry.media?.title?.romaji || ""))
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     const [quickSearch, setQuickSearch] = useState(hasEpisodesToDownload)
-    const [quickSearchBatch, setQuickSearchBatch] = useState<boolean>(downloadInfo?.canBatch || false)
+    const [quickSearchBatch, setQuickSearchBatch] = useState<boolean>(shouldLookForBatches || false)
     const [quickSearchEpisode, setQuickSearchEpisode] = useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
     const [quickSearchResolution, setQuickSearchResolution] = useState("")
     const [dQuickSearchEpisode, setDQuickSearchEpisode] = useDebounceWithSet(quickSearchEpisode, 500)

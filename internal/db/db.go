@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/models"
@@ -51,7 +52,7 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 		return nil, err
 	}
 
-	logger.Info().Msg("db: Database instantiated")
+	logger.Info().Str("name", fmt.Sprintf("%s.db", dbName)).Msg("db: Database instantiated")
 
 	return &Database{
 		gormdb: db,
