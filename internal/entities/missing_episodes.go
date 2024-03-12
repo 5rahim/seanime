@@ -57,11 +57,11 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 			// Get download info
 			downloadInfo, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-				localFiles:  lfs,
-				anizipMedia: anizipMedia,
-				progress:    entry.Progress,
-				status:      entry.Status,
-				media:       entry.Media,
+				LocalFiles:  lfs,
+				AnizipMedia: anizipMedia,
+				Progress:    entry.Progress,
+				Status:      entry.Status,
+				Media:       entry.Media,
 			})
 			if err != nil {
 				return nil

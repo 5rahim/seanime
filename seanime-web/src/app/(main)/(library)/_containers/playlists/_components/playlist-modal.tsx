@@ -67,7 +67,7 @@ export function PlaylistModal(props: PlaylistModalProps) {
 
     return (
         <Modal
-            title={isUpdate ? "Edit playlist" : "Create playlist"}
+            title={isUpdate ? "Edit playlist" : "Create a playlist"}
             trigger={trigger}
             open={isOpen}
             onOpenChange={v => setIsOpen(v)}

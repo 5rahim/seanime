@@ -12,8 +12,8 @@ type (
 	}
 
 	NewMediaEntryLibraryDataOptions struct {
-		entryLocalFiles []*LocalFile
-		mediaId         int
+		EntryLocalFiles []*LocalFile
+		MediaId         int
 	}
 )
 
@@ -21,14 +21,14 @@ type (
 // It will return false if the list of local files is empty.
 func NewMediaEntryLibraryData(opts *NewMediaEntryLibraryDataOptions) (*MediaEntryLibraryData, bool) {
 
-	if opts.entryLocalFiles == nil || len(opts.entryLocalFiles) == 0 {
+	if opts.EntryLocalFiles == nil || len(opts.EntryLocalFiles) == 0 {
 		return nil, false
 	}
-	sharedPath := strings.Replace(opts.entryLocalFiles[0].Path, opts.entryLocalFiles[0].Name, "", 1)
+	sharedPath := strings.Replace(opts.EntryLocalFiles[0].Path, opts.EntryLocalFiles[0].Name, "", 1)
 	sharedPath = strings.TrimSuffix(strings.TrimSuffix(sharedPath, "\\"), "/")
 
 	return &MediaEntryLibraryData{
-		AllFilesLocked: lo.EveryBy(opts.entryLocalFiles, func(item *LocalFile) bool { return item.Locked }),
+		AllFilesLocked: lo.EveryBy(opts.EntryLocalFiles, func(item *LocalFile) bool { return item.Locked }),
 		SharedPath:     sharedPath,
 	}, true
 }

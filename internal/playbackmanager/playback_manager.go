@@ -11,11 +11,6 @@ import (
 	"sync"
 )
 
-const (
-	VideoPlaybackTracking  PlaybackStateType = "tracking"
-	VideoPlaybackCompleted PlaybackStateType = "completed"
-)
-
 type (
 	// PlaybackManager is used as an interface between the video playback and progress tracking.
 	// It can receive progress updates and dispatch appropriate events for:

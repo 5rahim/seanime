@@ -287,20 +287,20 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
     }
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 overflow-auto p-1">
             {data?.sort((a, b) => a.metadata.episode - b.metadata.episode)?.map(lf => {
                 return (
                     <div
                         key={lf.path}
                         className={cn(
-                            "px-2.5 py-2 bg-[#0c0c0c] rounded-md border cursor-pointer opacity-80",
+                            "px-2.5 py-2 bg-[#0c0c0c] rounded-md border cursor-pointer opacity-80 max-w-full",
                             selectedPaths.includes(lf.path) ? "bg-gray-800 opacity-100 text-white ring-1 ring-[--zinc]" : "hover:bg-[--subtle]",
                             "transition",
                         )}
                         onClick={() => handleSelect(lf.path)}
                     >
                         <p className="">{entry.media?.format !== "MOVIE" ? `Episode ${lf.metadata.episode}` : "Movie"}</p>
-                        <p className="text-sm text-[--muted] font-normal italic max-w-lg truncate">{lf.name}</p>
+                        <p className="text-sm text-[--muted] font-normal italic max-w-lg line-clamp-1">{lf.name}</p>
                     </div>
                 )
             })}

@@ -9,8 +9,8 @@ type (
 	}
 
 	LocalFileWrapperEntry struct {
-		MediaId    int          `json:"mediaId"`
-		LocalFiles []*LocalFile `json:"localFiles"`
+		mediaId    int
+		localFiles []*LocalFile
 	}
 )
 
@@ -30,8 +30,8 @@ func NewLocalFileWrapper(lfs []*LocalFile) *LocalFileWrapper {
 			continue
 		}
 		lfw.localEntries = append(lfw.localEntries, &LocalFileWrapperEntry{
-			MediaId:    mId,
-			LocalFiles: gLfs,
+			mediaId:    mId,
+			localFiles: gLfs,
 		})
 	}
 
@@ -40,7 +40,7 @@ func NewLocalFileWrapper(lfs []*LocalFile) *LocalFileWrapper {
 
 func (lfw *LocalFileWrapper) GetLocalEntryById(mId int) (*LocalFileWrapperEntry, bool) {
 	for _, me := range lfw.localEntries {
-		if me.MediaId == mId {
+		if me.mediaId == mId {
 			return me, true
 		}
 	}
@@ -50,7 +50,7 @@ func (lfw *LocalFileWrapper) GetLocalEntryById(mId int) (*LocalFileWrapperEntry,
 // GetMainLocalFiles returns the *main* local files.
 func (e *LocalFileWrapperEntry) GetMainLocalFiles() ([]*LocalFile, bool) {
 	lfs := make([]*LocalFile, 0)
-	for _, lf := range e.LocalFiles {
+	for _, lf := range e.localFiles {
 		if lf.IsMain() {
 			lfs = append(lfs, lf)
 		}
@@ -61,9 +61,36 @@ func (e *LocalFileWrapperEntry) GetMainLocalFiles() ([]*LocalFile, bool) {
 	return lfs, true
 }
 
+// GetUnwatchedLocalFiles returns the *main* local files that have not been watched.
+// It returns an empty slice if all local files have been watched.
+//
+// /!\ IF Episode 0 is present, progress will be decremented by 1. This is because we assume AniList includes the episode 0 in the total count.
+func (e *LocalFileWrapperEntry) GetUnwatchedLocalFiles(progress int) []*LocalFile {
+	ret := make([]*LocalFile, 0)
+	lfs, ok := e.GetMainLocalFiles()
+	if !ok {
+		return ret
+	}
+
+	for _, lf := range lfs {
+		if lf.GetEpisodeNumber() == 0 {
+			progress = progress - 1
+			break
+		}
+	}
+
+	for _, lf := range lfs {
+		if lf.GetEpisodeNumber() > progress {
+			ret = append(ret, lf)
+		}
+	}
+
+	return ret
+}
+
 // HasMainLocalFiles returns true if there are any *main* local files.
 func (e *LocalFileWrapperEntry) HasMainLocalFiles() bool {
-	for _, lf := range e.LocalFiles {
+	for _, lf := range e.localFiles {
 		if lf.IsMain() {
 			return true
 		}
@@ -73,7 +100,7 @@ func (e *LocalFileWrapperEntry) HasMainLocalFiles() bool {
 
 // FindLocalFileWithEpisodeNumber returns the *main* local file with the given episode number.
 func (e *LocalFileWrapperEntry) FindLocalFileWithEpisodeNumber(ep int) (*LocalFile, bool) {
-	for _, lf := range e.LocalFiles {
+	for _, lf := range e.localFiles {
 		if !lf.IsMain() {
 			continue
 		}
@@ -123,4 +150,16 @@ func (lfw *LocalFileWrapper) GetUnmatchedLocalFiles() []*LocalFile {
 
 func (lfw *LocalFileWrapper) GetLocalEntries() []*LocalFileWrapperEntry {
 	return lfw.localEntries
+}
+
+func (lfw *LocalFileWrapper) GetLocalFiles() []*LocalFile {
+	return lfw.localFiles
+}
+
+func (e *LocalFileWrapperEntry) GetLocalFiles() []*LocalFile {
+	return e.localFiles
+}
+
+func (e *LocalFileWrapperEntry) GetMediaId() int {
+	return e.mediaId
 }

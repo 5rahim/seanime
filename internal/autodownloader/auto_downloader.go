@@ -27,13 +27,13 @@ const (
 
 type (
 	AutoDownloader struct {
-		Logger                  *zerolog.Logger
-		TorrentClientRepository *torrent_client.Repository
-		Database                *db.Database
-		AnilistCollection       *anilist.AnimeCollection
-		WSEventManager          events.IWSEventManager
-		Settings                *models.AutoDownloaderSettings
-		AniZipCache             *anizip.Cache
+		logger                  *zerolog.Logger
+		torrentClientRepository *torrent_client.Repository
+		database                *db.Database
+		anilistCollection       *anilist.AnimeCollection
+		wsEventManager          events.IWSEventManager
+		settings                *models.AutoDownloaderSettings
+		anizipCache             *anizip.Cache
 		settingsUpdatedCh       chan struct{}
 		stopCh                  chan struct{}
 		startCh                 chan struct{}
@@ -58,13 +58,13 @@ type (
 
 func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
 	return &AutoDownloader{
-		Logger:                  opts.Logger,
-		TorrentClientRepository: opts.TorrentClientRepository,
-		Database:                opts.Database,
-		WSEventManager:          opts.WSEventManager,
-		AnilistCollection:       opts.AnilistCollection,
-		AniZipCache:             opts.AniZipCache,
-		Settings: &models.AutoDownloaderSettings{
+		logger:                  opts.Logger,
+		torrentClientRepository: opts.TorrentClientRepository,
+		database:                opts.Database,
+		wsEventManager:          opts.WSEventManager,
+		anilistCollection:       opts.AnilistCollection,
+		anizipCache:             opts.AniZipCache,
+		settings: &models.AutoDownloaderSettings{
 			Provider:              NyaaProvider, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
 			Enabled:               false,
@@ -88,25 +88,32 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, p
 	go func() {
 		ad.mu.Lock()
 		defer ad.mu.Unlock()
-		ad.Settings = settings
+		ad.settings = settings
 		// Update the provider if it's provided
 		if provider != "" {
-			ad.Settings.Provider = provider
+			ad.settings.Provider = provider
 		}
 		ad.settingsUpdatedCh <- struct{}{} // Notify that the settings have been updated
-		if ad.Settings.Enabled {
+		if ad.settings.Enabled {
 			ad.startCh <- struct{}{} // Start the auto downloader
-		} else if !ad.Settings.Enabled {
+		} else if !ad.settings.Enabled {
 			ad.stopCh <- struct{}{} // Stop the auto downloader
 		}
 	}()
+}
+
+func (ad *AutoDownloader) SetTorrentClientRepository(repo *torrent_client.Repository) {
+	if ad == nil {
+		return
+	}
+	ad.torrentClientRepository = repo
 }
 
 func (ad *AutoDownloader) SetAnilistCollection(collection *anilist.AnimeCollection) {
 	if ad == nil {
 		return
 	}
-	ad.AnilistCollection = collection
+	ad.anilistCollection = collection
 }
 
 // Start will start the auto downloader in a goroutine
@@ -116,10 +123,10 @@ func (ad *AutoDownloader) Start() {
 	}
 	go func() {
 		ad.mu.Lock()
-		if ad.Settings.Enabled {
-			started := ad.TorrentClientRepository.Start() // Start torrent client if it's not running
+		if ad.settings.Enabled {
+			started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
 			if !started {
-				ad.Logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running for the Auto Downloader to work.")
+				ad.logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running for the Auto Downloader to work.")
 				return
 			}
 		}
@@ -149,35 +156,35 @@ func (ad *AutoDownloader) CleanUpDownloadedItems() {
 	}
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
-	err := ad.Database.DeleteDownloadedAutoDownloaderItems()
+	err := ad.database.DeleteDownloadedAutoDownloaderItems()
 	if err != nil {
 		return
 	}
 }
 
 func (ad *AutoDownloader) start() {
-	if ad.Settings.Enabled {
-		ad.Logger.Info().Msg("autodownloader: Module started")
+	if ad.settings.Enabled {
+		ad.logger.Info().Msg("autodownloader: Module started")
 	}
 
 	for {
 		interval := 10
-		if ad.Settings != nil && ad.Settings.Interval > 0 {
-			interval = ad.Settings.Interval
+		if ad.settings != nil && ad.settings.Interval > 0 {
+			interval = ad.settings.Interval
 		}
 		ticker := time.NewTicker(time.Duration(interval) * time.Minute)
 		select {
 		case <-ad.settingsUpdatedCh:
 			break // Restart the loop
 		case <-ad.stopCh:
-			ad.Logger.Info().Msg("autodownloader: Auto Downloader stopped")
+			ad.logger.Info().Msg("autodownloader: Auto Downloader stopped")
 		case <-ad.startCh:
-			if ad.Settings.Enabled {
-				ad.Logger.Info().Msg("autodownloader: Auto Downloader started")
+			if ad.settings.Enabled {
+				ad.logger.Info().Msg("autodownloader: Auto Downloader started")
 				ad.checkForNewEpisodes()
 			}
 		case <-ticker.C:
-			if ad.Settings.Enabled {
+			if ad.settings.Enabled {
 				ad.checkForNewEpisodes()
 			}
 		}
@@ -188,7 +195,7 @@ func (ad *AutoDownloader) start() {
 
 func (ad *AutoDownloader) checkForNewEpisodes() {
 	ad.mu.Lock()
-	if ad == nil || !ad.Settings.Enabled {
+	if ad == nil || !ad.settings.Enabled {
 		return
 	}
 	ad.mu.Unlock()
@@ -196,32 +203,32 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	torrents := make([]*NormalizedTorrent, 0)
 
 	// Get rules from the database
-	rules, err := ad.Database.GetAutoDownloaderRules()
+	rules, err := ad.database.GetAutoDownloaderRules()
 	if err != nil {
-		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch rules from the database")
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch rules from the database")
 		return
 	}
 
 	// Get local files from the database
-	lfs, _, err := ad.Database.GetLocalFiles()
+	lfs, _, err := ad.database.GetLocalFiles()
 	if err != nil {
-		ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch local files from the database")
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch local files from the database")
 		return
 	}
 	// Create a LocalFileWrapper
 	lfWrapper := entities.NewLocalFileWrapper(lfs)
 
-	if ad.Settings.Provider == NyaaProvider {
+	if ad.settings.Provider == NyaaProvider {
 		nyaaTorrents, err := ad.getCurrentTorrentsFromNyaa()
 		if err != nil {
-			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from Nyaa")
+			ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from Nyaa")
 		} else {
 			torrents = nyaaTorrents
 		}
-	} else if ad.Settings.Provider == AnimeToshoProvider {
+	} else if ad.settings.Provider == AnimeToshoProvider {
 		toshoTorrents, err := ad.getCurrentTorrentsFromAnimeTosho()
 		if err != nil {
-			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from AnimeTosho")
+			ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from AnimeTosho")
 		} else {
 			torrents = toshoTorrents
 		}
@@ -229,8 +236,8 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 	// Get existing torrents
 	existingTorrents := make([]*torrent_client.Torrent, 0)
-	if ad.TorrentClientRepository != nil {
-		existingTorrents, err = ad.TorrentClientRepository.GetList()
+	if ad.torrentClientRepository != nil {
+		existingTorrents, err = ad.torrentClientRepository.GetList()
 		if err != nil {
 			existingTorrents = make([]*torrent_client.Torrent, 0)
 		}
@@ -357,19 +364,19 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
 
-	if ad.TorrentClientRepository == nil {
-		ad.Logger.Error().Msg("autodownloader: torrent client not found")
+	if ad.torrentClientRepository == nil {
+		ad.logger.Error().Msg("autodownloader: torrent client not found")
 		return
 	}
 
-	started := ad.TorrentClientRepository.Start() // Start torrent client if it's not running
+	started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
 	if !started {
-		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
+		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
 		return
 	}
 
 	// Return if the torrent is already added
-	torrentExists := ad.TorrentClientRepository.TorrentExists(t.Hash)
+	torrentExists := ad.torrentClientRepository.TorrentExists(t.Hash)
 	if torrentExists {
 		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
 		return
@@ -377,29 +384,29 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 
 	magnet, found := t.GetMagnet()
 	if !found {
-		ad.Logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
+		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
 		return
 	}
 
 	downloaded := false
 
 	// Pause the torrent when it's added
-	if ad.Settings.DownloadAutomatically {
+	if ad.settings.DownloadAutomatically {
 
-		ad.Logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
+		ad.logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
 
 		// Add the torrent to torrent client
-		err := ad.TorrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
+		err := ad.torrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
 		if err != nil {
-			ad.Logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
+			ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
 			return
 		}
 
 		downloaded = true
 	}
 
-	ad.Logger.Info().Str("name", t.Name).Msg("autodownloader: Added torrent")
-	ad.WSEventManager.SendEvent(events.AutoDownloaderItemAdded, t.Name)
+	ad.logger.Info().Str("name", t.Name).Msg("autodownloader: Added torrent")
+	ad.wsEventManager.SendEvent(events.AutoDownloaderItemAdded, t.Name)
 
 	// Add the torrent to the database
 	item := &models.AutoDownloaderItem{
@@ -412,7 +419,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 		Magnet:      magnet,
 		Downloaded:  downloaded,
 	}
-	_ = ad.Database.InsertAutoDownloaderItem(item)
+	_ = ad.database.InsertAutoDownloaderItem(item)
 
 }
 
@@ -525,7 +532,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	// +---------------------+
 	// |    Existing Item    |
 	// +---------------------+
-	items, err := ad.Database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
+	items, err := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
 	if err != nil {
 		items = make([]*models.AutoDownloaderItem, 0)
 	}
@@ -571,7 +578,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
 		// Fetch the AniZip media in order to normalize the episode number
 		ad.mu.Lock()
-		anizipMedia, err := anizip.FetchAniZipMediaC("anilist", listEntry.GetMedia().GetID(), ad.AniZipCache)
+		anizipMedia, err := anizip.FetchAniZipMediaC("anilist", listEntry.GetMedia().GetID(), ad.anizipCache)
 		// If the media is found and the offset is greater than 0
 		if err == nil && anizipMedia.GetOffset() > 0 {
 			episode = episode - anizipMedia.GetOffset()
@@ -620,11 +627,11 @@ func (ad *AutoDownloader) isEpisodeMatch(
 }
 
 func (ad *AutoDownloader) getRuleListEntry(rule *entities.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
-	if rule == nil || rule.MediaId == 0 || ad.AnilistCollection == nil {
+	if rule == nil || rule.MediaId == 0 || ad.anilistCollection == nil {
 		return nil, false
 	}
 
-	listEntry, found := ad.AnilistCollection.GetListEntryFromMediaId(rule.MediaId)
+	listEntry, found := ad.anilistCollection.GetListEntryFromMediaId(rule.MediaId)
 	if !found {
 		return nil, false
 	}

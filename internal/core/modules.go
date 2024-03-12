@@ -163,7 +163,7 @@ func (a *App) InitOrRefreshModules() {
 		})
 
 		// Set AutoDownloader qBittorrent client
-		a.AutoDownloader.TorrentClientRepository = a.TorrentClientRepository
+		a.AutoDownloader.SetTorrentClientRepository(a.TorrentClientRepository)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize qBittorrent module, no settings found")
 	}

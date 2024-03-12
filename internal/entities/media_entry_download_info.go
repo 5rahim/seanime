@@ -26,27 +26,29 @@ type (
 		AniDBEpisode  string             `json:"aniDBEpisode"`
 		Episode       *MediaEntryEpisode `json:"episode"`
 	}
+)
 
+type (
 	NewMediaEntryDownloadInfoOptions struct {
 		// Media's local files
-		localFiles  []*LocalFile
-		anizipMedia *anizip.Media
-		media       *anilist.BaseMedia
-		progress    *int
-		status      *anilist.MediaListStatus
+		LocalFiles  []*LocalFile
+		AnizipMedia *anizip.Media
+		Media       *anilist.BaseMedia
+		Progress    *int
+		Status      *anilist.MediaListStatus
 	}
 )
 
 // NewMediaEntryDownloadInfo creates a new MediaEntryDownloadInfo
 func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEntryDownloadInfo, error) {
 
-	if *opts.media.Status == anilist.MediaStatusNotYetReleased {
+	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
 		return &MediaEntryDownloadInfo{}, nil
 	}
-	if opts.anizipMedia == nil {
+	if opts.AnizipMedia == nil {
 		return nil, errors.New("could not get anizip media")
 	}
-	if opts.media.GetCurrentEpisodeCount() == -1 {
+	if opts.Media.GetCurrentEpisodeCount() == -1 {
 		return nil, errors.New("could not get current media episode count")
 	}
 
@@ -55,27 +57,27 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	// +---------------------+
 
 	// Whether AniList includes episode 0 as part of main episodes, but Anizip does not, however Anizip has "S1"
-	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(opts.localFiles, opts.media, opts.anizipMedia)
+	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(opts.LocalFiles, opts.Media, opts.AnizipMedia)
 
 	// I - Progress
 	// Get progress, if the media isn't in the user's list, progress is 0
 	// If the media is completed, set progress is 0
 	progress := 0
-	if opts.progress != nil {
-		progress = *opts.progress
+	if opts.Progress != nil {
+		progress = *opts.Progress
 	}
-	if opts.status != nil {
-		if *opts.status == anilist.MediaListStatusCompleted {
+	if opts.Status != nil {
+		if *opts.Status == anilist.MediaListStatusCompleted {
 			progress = 0
 		}
 	}
 
 	// II - Create episode number slices for Anilist and Anizip
 	// We assume that Episode 0 is 1 if it is included by AniList
-	mediaEpSlice := generateEpSlice(opts.media.GetCurrentEpisodeCount())                         // e.g, [1,2,3,4]
+	mediaEpSlice := generateEpSlice(opts.Media.GetCurrentEpisodeCount())                         // e.g, [1,2,3,4]
 	unwatchedEpSlice := lo.Filter(mediaEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
-	anizipEpSlice := generateEpSlice(opts.anizipMedia.GetMainEpisodeCount())                            // e.g, [1,2,3,4]
+	anizipEpSlice := generateEpSlice(opts.AnizipMedia.GetMainEpisodeCount())                            // e.g, [1,2,3,4]
 	unwatchedAnizipEpSlice := lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
 	// +---------------------+
@@ -84,8 +86,8 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 
 	// If Anizip has more episodes
 	// e.g, Anizip: 2, Anilist: 1
-	if opts.anizipMedia.GetMainEpisodeCount() > opts.media.GetCurrentEpisodeCount() {
-		diff := opts.anizipMedia.GetMainEpisodeCount() - opts.media.GetCurrentEpisodeCount()
+	if opts.AnizipMedia.GetMainEpisodeCount() > opts.Media.GetCurrentEpisodeCount() {
+		diff := opts.AnizipMedia.GetMainEpisodeCount() - opts.Media.GetCurrentEpisodeCount()
 		// Remove the extra episode number from the Anizip slice
 		anizipEpSlice = anizipEpSlice[:len(anizipEpSlice)-diff]                                            // e.g, [1,2] -> [1]
 		unwatchedAnizipEpSlice = lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, [1,2] -> [1]
@@ -108,20 +110,20 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	}
 
 	// Filter out episodes not aired from the slices
-	if opts.media.NextAiringEpisode != nil {
-		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i < opts.media.NextAiringEpisode.Episode })
+	if opts.Media.NextAiringEpisode != nil {
+		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i < opts.Media.NextAiringEpisode.Episode })
 		if hasDiscrepancy {
-			unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i < opts.media.NextAiringEpisode.Episode-1 })
+			unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i < opts.Media.NextAiringEpisode.Episode-1 })
 		} else {
-			unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i < opts.media.NextAiringEpisode.Episode })
+			unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i < opts.Media.NextAiringEpisode.Episode })
 		}
 	}
 
 	// Inaccurate schedule (hacky fix)
 	hasInaccurateSchedule := false
-	if opts.media.NextAiringEpisode == nil && *opts.media.Status == anilist.MediaStatusReleasing {
+	if opts.Media.NextAiringEpisode == nil && *opts.Media.Status == anilist.MediaStatusReleasing {
 		if !hasDiscrepancy {
-			if progress+1 < opts.anizipMedia.GetMainEpisodeCount() {
+			if progress+1 < opts.AnizipMedia.GetMainEpisodeCount() {
 				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
 				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
 			} else {
@@ -129,7 +131,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
 			}
 		} else {
-			if progress+1 < opts.anizipMedia.GetMainEpisodeCount() {
+			if progress+1 < opts.AnizipMedia.GetMainEpisodeCount() {
 				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
 				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
 			} else {
@@ -144,10 +146,10 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	// The source of truth is AniZip, but we will handle discrepancies
 	toDownloadSlice := make([]int, 0)
 	lfsEpSlice := make([]int, 0)
-	if opts.localFiles != nil {
+	if opts.LocalFiles != nil {
 
 		// Get all episode numbers of main local files
-		for _, lf := range opts.localFiles {
+		for _, lf := range opts.LocalFiles {
 			if lf.Metadata.Type == LocalFileTypeMain {
 				if !slices.Contains(lfsEpSlice, lf.GetEpisodeNumber()) {
 					lfsEpSlice = append(lfsEpSlice, lf.GetEpisodeNumber())
@@ -192,8 +194,8 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 			str.Episode = NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
 				LocalFile:            nil,
 				OptionalAniDBEpisode: str.AniDBEpisode,
-				AnizipMedia:          opts.anizipMedia,
-				Media:                opts.media,
+				AnizipMedia:          opts.AnizipMedia,
+				Media:                opts.Media,
 				ProgressOffset:       0,
 				IsDownloaded:         false,
 			})
@@ -205,7 +207,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	//--------------
 
 	canBatch := false
-	if *opts.media.GetStatus() == anilist.MediaStatusFinished && opts.media.GetTotalEpisodeCount() > 0 {
+	if *opts.Media.GetStatus() == anilist.MediaStatusFinished && opts.Media.GetTotalEpisodeCount() > 0 {
 		canBatch = true
 	}
 	batchAll := false
@@ -213,7 +215,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		batchAll = true
 	}
 	rewatch := false
-	if opts.status != nil && *opts.status == anilist.MediaListStatusCompleted {
+	if opts.Status != nil && *opts.Status == anilist.MediaListStatusCompleted {
 		rewatch = true
 	}
 
@@ -223,7 +225,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		BatchAll:              batchAll,
 		Rewatch:               rewatch,
 		HasInaccurateSchedule: hasInaccurateSchedule,
-		AbsoluteOffset:        opts.anizipMedia.GetOffset(),
+		AbsoluteOffset:        opts.AnizipMedia.GetOffset(),
 	}, nil
 }
 

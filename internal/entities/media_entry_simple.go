@@ -79,8 +79,8 @@ func NewSimpleMediaEntry(opts *NewSimpleMediaEntryOptions) (*SimpleMediaEntry, e
 	entry.LocalFiles = lfs // Returns empty slice if no local files are found
 
 	libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
-		entryLocalFiles: lfs,
-		mediaId:         entry.Media.ID,
+		EntryLocalFiles: lfs,
+		MediaId:         entry.Media.ID,
 	})
 	entry.MediaEntryLibraryData = libraryData
 

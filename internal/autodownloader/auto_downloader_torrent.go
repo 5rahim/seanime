@@ -23,7 +23,7 @@ type (
 )
 
 func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, error) {
-	ad.Logger.Trace().Msg("autodownloader: Checking for new episodes from Nyaa")
+	ad.logger.Trace().Msg("autodownloader: Checking for new episodes from Nyaa")
 
 	// Fetch the RSS feed
 	torrents, err := nyaa.GetTorrentList(nyaa.SearchOptions{
@@ -41,7 +41,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 	for _, t := range torrents {
 		parsedData := seanime_parser.Parse(t.Name)
 		if err != nil {
-			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
+			ad.logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
 			continue
 		}
 
@@ -66,7 +66,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 }
 
 func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorrent, error) {
-	ad.Logger.Trace().Msg("autodownloader: Checking for new episodes from AnimeTosho")
+	ad.logger.Trace().Msg("autodownloader: Checking for new episodes from AnimeTosho")
 	normalizedTs := make([]*NormalizedTorrent, 0)
 
 	// Fetch the latest torrents
@@ -78,7 +78,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorre
 	for _, t := range torrents {
 		parsedData := seanime_parser.Parse(t.Title)
 		if err != nil {
-			ad.Logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
+			ad.logger.Error().Err(err).Msg("autodownloader: Failed to parse torrent title")
 			continue
 		}
 

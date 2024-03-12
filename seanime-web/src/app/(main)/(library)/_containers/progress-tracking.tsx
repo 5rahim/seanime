@@ -1,7 +1,8 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
@@ -13,7 +14,8 @@ import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import Image from "next/image"
 import React, { useState } from "react"
-import { FaCirclePlay } from "react-icons/fa6"
+import { BiSolidSkipNextCircle } from "react-icons/bi"
+import { MdCancel } from "react-icons/md"
 import { PiPopcornFill } from "react-icons/pi"
 import { toast } from "sonner"
 
@@ -78,7 +80,7 @@ export function ProgressTracking() {
     useWebsocketMessageListener<string>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_METADATA_ERROR,
         onMessage: data => {
-
+            toast.error(data)
         },
     })
 
@@ -160,6 +162,26 @@ export function ProgressTracking() {
         },
     })
 
+    const confirmPlayNext = useConfirmationDialog({
+        title: "Play next episode",
+        description: "Are you sure you want to play the next episode?",
+        actionText: "Confirm",
+        actionIntent: "success",
+        onConfirm: () => {
+            if (!submittedPlaylistNext) playlistNext()
+        },
+    })
+
+    const confirmStopPlaylist = useConfirmationDialog({
+        title: "Play next",
+        actionText: "Confirm",
+        actionIntent: "alert",
+        description: "Are you sure you want to stop the playlist? It will be deleted.",
+        onConfirm: () => {
+            if (!submittedStopPlaylist) stopPlaylist()
+        },
+    })
+
 
     function handleUpdateProgress() {
         syncProgress()
@@ -182,7 +204,7 @@ export function ProgressTracking() {
                 onOpenChange={v => setShowModal(v)}
                 title="Progress"
                 titleClass="text-center"
-                contentClass="!space-y-2 relative"
+                contentClass="!space-y-2 relative max-w-2xl"
             >
                 {state && <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
                     <p className="text-[--muted]">Currently watching</p>
@@ -219,18 +241,22 @@ export function ProgressTracking() {
                     </Button>
                 </div>}
                 {!!playlistState?.next && (
-                    <div className="space-y-3">
-                        <h4 className="text-lg font-medium text-center">Playlist</h4>
+                    <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
                         <div className="space-y-3">
-                            <p className="text-center truncate line-clamp-1">Next: <span className="font-semibold">{playlistState?.next?.name}</span>
-                            </p>
+                            <div>
+                                <h4 className="text-lg font-medium text-center text-[--muted]">Playlist</h4>
+                                {!!playlistState.remaining &&
+                                    <p>{playlistState.remaining} more episode{playlistState.remaining > 1 ? "s" : ""} after this one</p>}
+                                <p className="text-center truncate line-clamp-1">Next: <span className="font-semibold">{playlistState?.next?.name}</span>
+                                </p>
+                            </div>
                             <div
                                 className={cn(
                                     "w-full rounded-md relative overflow-hidden",
-                                    submittedPlaylistNext ? "opacity-50" : "cursor-pointer",
+                                    submittedPlaylistNext ? "opacity-50 pointer-events-none" : "cursor-pointer",
                                 )}
                                 onClick={() => {
-                                    if (!submittedPlaylistNext) playlistNext()
+                                    if (!submittedPlaylistNext) confirmPlayNext.open()
                                 }}
                             >
                                 {(playlistState.next?.mediaImage) && <Image
@@ -241,25 +267,30 @@ export function ProgressTracking() {
                                     alt=""
                                     className="object-center object-cover z-[1]"
                                 />}
-                                <div className="inset-0 relative z-[2] bg-black bg-opacity-50 hover:bg-opacity-70 transition flex flex-col gap-2 items-center justify-center p-4">
-                                    <p className="flex gap-2 items-center"><FaCirclePlay className="block text-2xl" /> Play next</p>
+                                <div className="inset-0 relative z-[2] bg-black border bg-opacity-70 hover:bg-opacity-80 transition flex flex-col gap-2 items-center justify-center p-4">
+                                    <p className="flex gap-2 items-center"><BiSolidSkipNextCircle className="block text-2xl" /> Play next</p>
                                 </div>
                             </div>
+                            <div className="absolute -top-0.5 right-2">
+                                <IconButton
+                                    intent="alert-subtle"
+                                    onClick={() => {
+                                        if (!submittedStopPlaylist) confirmStopPlaylist.open()
+                                    }}
+                                    size="sm"
+                                    // className="w-full"
+                                    disabled={submittedPlaylistNext}
+                                    loading={submittedStopPlaylist}
+                                    icon={<MdCancel />}
+                                />
+                            </div>
                         </div>
-                        <Button
-                            intent="alert-subtle"
-                            onClick={() => {
-                                if (!submittedStopPlaylist) stopPlaylist()
-                            }}
-                            size="sm"
-                            className="w-full"
-                            loading={submittedStopPlaylist}
-                        >
-                            Stop playlist
-                        </Button>
                     </div>
                 )}
             </Modal>
+
+            <ConfirmationDialog {...confirmPlayNext} />
+            <ConfirmationDialog {...confirmStopPlaylist} />
         </>
     )
 

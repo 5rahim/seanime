@@ -5,7 +5,9 @@ import { Drawer } from "@/components/ui/drawer"
 import { UnknownGroup } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import Link from "next/link"
 import React, { useCallback } from "react"
+import { BiLinkExternal } from "react-icons/bi"
 
 export const _unknownMediaManagerIsOpen = atom(false)
 
@@ -45,9 +47,9 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
             title="Resolve hidden media"
 
         >
-            <AppLayoutStack>
+            <AppLayoutStack className="mt-4">
 
-                <p>
+                <p className="text-[--muted]">
                     Seanime found {unknownGroups.length} media in your local library that are absent from your AniList collection.<br />
                     Add them to be able to see them in your library.
                 </p>
@@ -60,8 +62,17 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
                         return (
                             <div className="pt-4">
-                                <h4 className="font-semibold mb-2">Media ID: {group.mediaId}</h4>
-                                <div className="bg-gray-800 p-2 px-4 rounded-md space-y-1 max-h-28 overflow-y-auto">
+                                <h4 className="font-semibold mb-2 flex gap-2 items-center">
+                                    Anilist ID:{" "}
+                                    <Link
+                                        href={`https://anilist.co/anime/${group.mediaId}`}
+                                        target="_blank"
+                                        className="underline text-brand-200 flex gap-1.5 items-center"
+                                    >
+                                        {group.mediaId} <BiLinkExternal />
+                                    </Link>
+                                </h4>
+                                <div className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 overflow-y-auto text-sm">
                                     {group.localFiles.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
                                         .map(lf => {
                                             return <p key={lf.path} className="text-[--muted] line-clamp-1">

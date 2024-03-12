@@ -35,7 +35,9 @@ type (
 		Summary  string `json:"summary,omitempty"`
 		Overview string `json:"overview,omitempty"`
 	}
+)
 
+type (
 	// NewMediaEntryEpisodeOptions hold data used to create a new MediaEntryEpisode.
 	NewMediaEntryEpisodeOptions struct {
 		LocalFile            *LocalFile

@@ -31,6 +31,18 @@ func (f *LocalFile) GetEpisodeNumber() int {
 	return f.Metadata.Episode
 }
 
+// HasBeenWatched returns whether the episode has been watched.
+// This only applies to main episodes.
+func (f *LocalFile) HasBeenWatched(progress int) bool {
+	if f.Metadata == nil {
+		return false
+	}
+	if f.GetEpisodeNumber() == 0 && progress == 0 {
+		return false
+	}
+	return progress >= f.GetEpisodeNumber()
+}
+
 // GetType returns the metadata type.
 // This requires the LocalFile to be hydrated.
 func (f *LocalFile) GetType() LocalFileType {
@@ -57,6 +69,7 @@ func (f *LocalFile) GetAniDBEpisode() string {
 func (f *LocalFile) IsLocked() bool {
 	return f.Locked
 }
+
 func (f *LocalFile) IsIgnored() bool {
 	return f.Ignored
 }
@@ -66,6 +79,7 @@ func (f *LocalFile) IsIgnored() bool {
 func (f *LocalFile) GetNormalizedPath() string {
 	return filepath.ToSlash(strings.ToLower(f.Path))
 }
+
 func (f *LocalFile) GetPath() string {
 	return f.Path
 }

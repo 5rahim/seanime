@@ -96,25 +96,11 @@ support transcoding or streaming to other devices (yet).
 </a>
 </h1>
 
-## Library
-
 <img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/my-library_04.png" alt="preview" width="100%"/>
-
-## Anime Entry
-
 <img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
-
-## Torrent search & download
-
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
-
-## Discover
-
 <img src="docs/images/v1/discover.png" alt="preview" width="100%"/>
-
-## Schedule
-
 <img src="docs/images/v1/schedule.png" alt="preview" width="100%"/>
 
 # Disclaimer

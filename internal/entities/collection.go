@@ -158,8 +158,8 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 
 						entryLfs, _ := groupedLfs[entry.Media.ID]
 						libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
-							entryLocalFiles: entryLfs,
-							mediaId:         entry.Media.ID,
+							EntryLocalFiles: entryLfs,
+							MediaId:         entry.Media.ID,
 						})
 
 						return &LibraryCollectionEntry{

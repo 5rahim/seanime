@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/entities"
 	"path/filepath"
 	"strings"
@@ -163,14 +162,7 @@ func HandleGetPlaylistEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("media entry not found"))
 	}
 
-	toWatch, found := group.GetMainLocalFiles()
-	if !found {
-		return c.RespondWithError(errors.New("no local files found"))
-	}
-
-	toWatch = lo.Filter(toWatch, func(lf *entities.LocalFile, i int) bool {
-		return lf.GetEpisodeNumber() > progress
-	})
+	toWatch := group.GetUnwatchedLocalFiles(progress)
 
 	return c.RespondWithData(toWatch)
 }

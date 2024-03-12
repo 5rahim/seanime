@@ -56,7 +56,7 @@ func TestLocalFileWrapperEntry(t *testing.T) {
 			entry, ok := lfw.GetLocalEntryById(tt.mediaId)
 			if assert.Truef(t, ok, "could not find entry for %s", tt.name) {
 
-				assert.Equalf(t, tt.mediaId, entry.MediaId, "media id does not match for %s", tt.name)
+				assert.Equalf(t, tt.mediaId, entry.GetMediaId(), "media id does not match for %s", tt.name)
 
 				// Can get main local files
 				mainLfs, ok := entry.GetMainLocalFiles()

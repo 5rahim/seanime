@@ -97,11 +97,11 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 			anilistEntry, _ := anilistCollection.GetListEntryFromMediaId(tt.mediaId)
 
 			info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-				localFiles:  tt.localFiles,
-				anizipMedia: anizipData,
-				progress:    &tt.currentProgress,
-				status:      &tt.status,
-				media:       anilistEntry.Media,
+				LocalFiles:  tt.localFiles,
+				AnizipMedia: anizipData,
+				Progress:    &tt.currentProgress,
+				Status:      &tt.status,
+				Media:       anilistEntry.Media,
 			})
 
 			if assert.NoError(t, err) && assert.NotNil(t, info) {

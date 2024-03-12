@@ -33,7 +33,9 @@ type (
 		StartedAt   string                   `json:"startedAt,omitempty"`
 		CompletedAt string                   `json:"completedAt,omitempty"`
 	}
+)
 
+type (
 	// NewMediaEntryOptions is a constructor for MediaEntry.
 	NewMediaEntryOptions struct {
 		MediaId              int
@@ -102,8 +104,8 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	entry.LocalFiles = lfs // Returns empty slice if no local files are found
 
 	libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
-		entryLocalFiles: lfs,
-		mediaId:         entry.Media.ID,
+		EntryLocalFiles: lfs,
+		MediaId:         entry.Media.ID,
 	})
 	entry.MediaEntryLibraryData = libraryData
 
@@ -236,11 +238,11 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	// +---------------------+
 
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		localFiles:  e.LocalFiles,
-		anizipMedia: anizipData,
-		progress:    anilistEntry.Progress,
-		status:      anilistEntry.Status,
-		media:       e.Media,
+		LocalFiles:  e.LocalFiles,
+		AnizipMedia: anizipData,
+		Progress:    anilistEntry.Progress,
+		Status:      anilistEntry.Status,
+		Media:       e.Media,
 	})
 	if err == nil {
 		e.MediaEntryDownloadInfo = info
