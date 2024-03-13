@@ -60,14 +60,14 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 
 	// Parse filename
 	fElements := seanime_parser.Parse(info.Filename)
-	parsedInfo := newLocalFileParsedData(info.Filename, fElements)
+	parsedInfo := NewLocalFileParsedData(info.Filename, fElements)
 
 	// Parse dir names
 	parsedFolderInfo := make([]*LocalFileParsedData, 0)
 	for _, dirname := range info.Dirnames {
 		if len(dirname) > 0 {
 			pElements := seanime_parser.Parse(dirname)
-			parsed := newLocalFileParsedData(dirname, pElements)
+			parsed := NewLocalFileParsedData(dirname, pElements)
 			parsedFolderInfo = append(parsedFolderInfo, parsed)
 		}
 	}
@@ -91,8 +91,8 @@ func NewLocalFile(opath, dirPath string) *LocalFile {
 
 }
 
-// newLocalFileParsedData Converts seanime_parser.Metadata into LocalFileParsedData, which is more suitable.
-func newLocalFileParsedData(original string, elements *seanime_parser.Metadata) *LocalFileParsedData {
+// NewLocalFileParsedData Converts seanime_parser.Metadata into LocalFileParsedData, which is more suitable.
+func NewLocalFileParsedData(original string, elements *seanime_parser.Metadata) *LocalFileParsedData {
 	i := new(LocalFileParsedData)
 	i.Original = original
 	i.Title = elements.FormattedTitle

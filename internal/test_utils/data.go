@@ -9,8 +9,19 @@ import (
 )
 
 var ConfigData = &Config{}
-var TwoLevelDeepTestDataPath = "../../test/testdata"
-var TwoLevelDeepDataPath = "../../test/data"
+
+const (
+	TwoLevelDeepTestConfigPath   = "../../test"
+	ThreeLevelDeepTestConfigPath = "../../../test"
+	TwoLevelDeepTestDataPath     = "../../test/testdata"
+	TwoLevelDeepDataPath         = "../../test/data"
+	ThreeLevelDeepDataPath       = "../../../test/data"
+	ThreeLevelDeepTestDataPath   = "../../../test/testdata"
+)
+
+var ConfigPath = TwoLevelDeepTestConfigPath
+var TestDataPath = TwoLevelDeepTestDataPath
+var DataPath = TwoLevelDeepDataPath
 
 type (
 	Config struct {
@@ -98,17 +109,32 @@ func TorrentClient() FlagFunc {
 
 // InitTestProvider populates the ConfigData and skips the test if the given flags are not set
 func InitTestProvider(t *testing.T, args ...FlagFunc) {
-	err := os.Setenv("TEST_CONFIG_PATH", "../../test")
-	ConfigData = getConfig()
-	if err != nil {
-		log.Fatalf("couldn't set TEST_CONFIG_PATH: %s", err)
+	if os.Getenv("TEST_CONFIG_PATH") == "" {
+		err := os.Setenv("TEST_CONFIG_PATH", ConfigPath)
+		if err != nil {
+			log.Fatalf("couldn't set TEST_CONFIG_PATH: %s", err)
+		}
 	}
+	ConfigData = getConfig()
+
 	for _, fn := range args {
 		if !fn() {
 			t.Skip()
 			break
 		}
 	}
+}
+
+func SetTestConfigPath(path string) {
+	err := os.Setenv("TEST_CONFIG_PATH", path)
+	if err != nil {
+		log.Fatalf("couldn't set TEST_CONFIG_PATH: %s", err)
+	}
+}
+func SetThreeLevelDeep() {
+	ConfigPath = ThreeLevelDeepTestConfigPath
+	TestDataPath = ThreeLevelDeepTestDataPath
+	DataPath = ThreeLevelDeepDataPath
 }
 
 func getConfig() *Config {

@@ -92,10 +92,10 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			}
 
 			// +---------------------+
-			// |   FileHydrator      |
+			// |    FileHydrator     |
 			// +---------------------+
 
-			fh := FileHydrator{
+			fh := &FileHydrator{
 				LocalFiles:           lfs,
 				AllMedia:             mc.NormalizedMedia,
 				BaseMediaCache:       baseMediaCache,

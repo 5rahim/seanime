@@ -29,6 +29,12 @@ func TestGetFiles(t *testing.T) {
 			mediaId:         145139,
 			expectedNbFiles: 11,
 		},
+		{
+			name:            "[Tenrai-Sensei] Kakegurui (Season 1-2 + OVAs)",
+			url:             "https://nyaa.si/view/1553978",
+			mediaId:         98314,
+			expectedNbFiles: 27,
+		},
 	}
 
 	trans, err := New(&NewTransmissionOptions{
@@ -59,7 +65,11 @@ func TestGetFiles(t *testing.T) {
 
 				if assert.NoError(t, err) {
 
-					time.Sleep(5 * time.Second)
+					time.Sleep(20 * time.Second)
+
+					// Get files
+					torrents, err := trans.Client.TorrentGetAllFor(context.Background(), []int64{*to.ID})
+					to = torrents[0]
 
 					spew.Dump(to.Files)
 

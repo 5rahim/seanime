@@ -67,12 +67,11 @@ func (c *Map[K, V]) Range(callback func(key K, value V) bool) {
 	})
 }
 
-// Values
-// Might be another way to do this
 func (c *Map[K, V]) Values() []V {
 	values := make([]V, 0)
 	c.store.Range(func(key, value interface{}) bool {
-		values = append(values, value.(V))
+		item := value.(*mapItem[K, V]) // Correct type assertion
+		values = append(values, item.value)
 		return true
 	})
 	return values
