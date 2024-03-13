@@ -1,6 +1,7 @@
 package vlc
 
 import (
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -8,11 +9,12 @@ import (
 )
 
 func TestVLC_Play(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	vlc := &VLC{
-		Host:     "localhost",
-		Port:     8080,
-		Password: "seanime",
+		Host:     test_utils.ConfigData.Provider.VlcPath,
+		Port:     test_utils.ConfigData.Provider.VlcPort,
+		Password: test_utils.ConfigData.Provider.VlcPassword,
 		Logger:   util.NewLogger(),
 	}
 
@@ -45,9 +47,9 @@ func TestVLC_Play(t *testing.T) {
 func TestVLC_Seek(t *testing.T) {
 
 	vlc := &VLC{
-		Host:     "localhost",
-		Port:     8080,
-		Password: "seanime",
+		Host:     test_utils.ConfigData.Provider.VlcPath,
+		Port:     test_utils.ConfigData.Provider.VlcPort,
+		Password: test_utils.ConfigData.Provider.VlcPassword,
 		Logger:   util.NewLogger(),
 	}
 

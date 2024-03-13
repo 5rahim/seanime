@@ -9,6 +9,22 @@ enable_media_player_tests = true
 anilist_jwt = ''
 anilist_username = ''
 mal_jwt = ''
+qbittorrent_username = ''
+qbittorrent_password = ''
+qbittorrent_host = '127.0.0.1'
+qbittorrent_port = 8081
+qbittorrent_path = 'C:\Program Files\qBittorrent\qbittorrent.exe'
+transmission_host = '127.0.0.1'
+transmission_port = 9091
+transmission_path = 'C:\Program Files\Transmission\transmission-qt.exe'
+transmission_username = ''
+transmission_password = ''
+mpc_host = '127.0.0.1'
+mpc_port = 13579
+mpc_path = 'C:\Program Files\MPC-HC\mpc-hc64.exe'
+vlc_host = '127.0.0.1'
+vlc_port = 8080
+vlc_path = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
 
 [path]
 dataDir = ''

@@ -13,11 +13,12 @@ import (
 	"time"
 )
 
-var destination = "E:/COLLECTION"
 var testDefaultClient = TransmissionProvider
 
 func TestSmartSelect(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.TorrentClient())
+
+	destination := t.TempDir()
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
@@ -104,6 +105,8 @@ func TestSmartSelect(t *testing.T) {
 func TestAddAndRemove(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.TorrentClient())
 
+	destination := t.TempDir()
+
 	const url = "https://animetosho.org/view/subsplease-sousou-no-frieren-24-480p-c467b289-mkv.1847941"
 
 	// get repo
@@ -115,7 +118,7 @@ func TestAddAndRemove(t *testing.T) {
 	}
 
 	// get magnet
-	magnet, err := torrent.GetTorrentMagnetFromUrl(url)
+	magnet, err := torrent.ScrapeMagnet(url)
 	assert.NoError(t, err)
 	// get hash
 	hash, ok := torrent.ExtractHashFromMagnet(magnet)
@@ -144,7 +147,7 @@ func TestRemoveTorrents(t *testing.T) {
 	// get repo
 	repo := getTestRepo(t)
 	// get magnet
-	magnet, err := torrent.GetTorrentMagnetFromUrl(url)
+	magnet, err := torrent.ScrapeMagnet(url)
 	assert.NoError(t, err)
 	// get hash
 	hash, ok := torrent.ExtractHashFromMagnet(magnet)
@@ -166,19 +169,20 @@ func getTestRepo(t *testing.T) *Repository {
 
 	qBittorrentClient := qbittorrent.NewClient(&qbittorrent.NewClientOptions{
 		Logger:   logger,
-		Username: "admin",
-		Password: "adminadmin",
-		Port:     8081,
-		Host:     "127.0.0.1",
-		Path:     "C:/Program Files/qBittorrent/qbittorrent.exe",
+		Username: test_utils.ConfigData.Provider.QbittorrentUsername,
+		Password: test_utils.ConfigData.Provider.QbittorrentPassword,
+		Port:     test_utils.ConfigData.Provider.QbittorrentPort,
+		Host:     test_utils.ConfigData.Provider.QbittorrentHost,
+		Path:     test_utils.ConfigData.Provider.QbittorrentPath,
 	})
 
 	trans, err := transmission.New(&transmission.NewTransmissionOptions{
 		Logger:   logger,
-		Username: "seanime",
-		Password: "seanime",
-		Port:     9091,
-		Path:     "C:/Program Files/Transmission/transmission-qt.exe",
+		Host:     test_utils.ConfigData.Provider.TransmissionHost,
+		Path:     test_utils.ConfigData.Provider.TransmissionPath,
+		Port:     test_utils.ConfigData.Provider.TransmissionPort,
+		Username: test_utils.ConfigData.Provider.TransmissionUsername,
+		Password: test_utils.ConfigData.Provider.TransmissionPassword,
 	})
 	if err != nil {
 		t.Fatal(err)

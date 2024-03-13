@@ -36,7 +36,7 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 func TestMpv_OpenAndPlayPath(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
-	m := New(util.NewLogger(), "", "C:\\Program Files\\mpv.net\\mpvnet.exe")
+	m := New(util.NewLogger(), "", test_utils.ConfigData.Provider.MpvPath)
 
 	err := m.OpenAndPlay(testFilePath, StartExec)
 	if err != nil {

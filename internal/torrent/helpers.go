@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-// GetTorrentMagnetFromUrl will return the magnet link of a torrent from its page URL.
+// ScrapeMagnet will return the magnet link of a torrent from its page URL.
 // It supports Nyaa and AnimeTosho.
-func GetTorrentMagnetFromUrl(viewUrl string) (string, error) {
+func ScrapeMagnet(viewUrl string) (string, error) {
 
 	str := strings.ToLower(viewUrl)
 

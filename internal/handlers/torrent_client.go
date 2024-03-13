@@ -111,7 +111,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	for _, url := range b.Urls {
 		p.Go(func() (string, error) {
-			return torrent.GetTorrentMagnetFromUrl(url)
+			return torrent.ScrapeMagnet(url)
 		})
 	}
 

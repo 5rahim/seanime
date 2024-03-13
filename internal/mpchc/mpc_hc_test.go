@@ -12,8 +12,9 @@ func TestMpcHc_Start(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
-		Host:   "localhost",
-		Port:   13579,
+		Host:   test_utils.ConfigData.Provider.MpcHost,
+		Path:   test_utils.ConfigData.Provider.MpcPath,
+		Port:   test_utils.ConfigData.Provider.MpcPort,
 		Logger: util.NewLogger(),
 	}
 
@@ -26,8 +27,9 @@ func TestMpcHc_Play(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
-		Host:   "localhost",
-		Port:   13579,
+		Host:   test_utils.ConfigData.Provider.MpcHost,
+		Path:   test_utils.ConfigData.Provider.MpcPath,
+		Port:   test_utils.ConfigData.Provider.MpcPort,
 		Logger: util.NewLogger(),
 	}
 
@@ -45,8 +47,9 @@ func TestMpcHc_GetVariables(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
-		Host:   "localhost",
-		Port:   13579,
+		Host:   test_utils.ConfigData.Provider.MpcHost,
+		Path:   test_utils.ConfigData.Provider.MpcPath,
+		Port:   test_utils.ConfigData.Provider.MpcPort,
 		Logger: util.NewLogger(),
 	}
 
@@ -66,8 +69,9 @@ func TestMpcHc_Seek(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	mpc := &MpcHc{
-		Host:   "localhost",
-		Port:   13579,
+		Host:   test_utils.ConfigData.Provider.MpcHost,
+		Path:   test_utils.ConfigData.Provider.MpcPath,
+		Port:   test_utils.ConfigData.Provider.MpcPort,
 		Logger: util.NewLogger(),
 	}
 

@@ -30,9 +30,28 @@ type (
 	}
 
 	ProviderConfig struct {
-		AnilistJwt      string `mapstructure:"anilist_jwt"`
-		AnilistUsername string `mapstructure:"anilist_username"`
-		MalJwt          string `mapstructure:"mal_jwt"`
+		AnilistJwt           string `mapstructure:"anilist_jwt"`
+		AnilistUsername      string `mapstructure:"anilist_username"`
+		MalJwt               string `mapstructure:"mal_jwt"`
+		QbittorrentHost      string `mapstructure:"qbittorrent_host"`
+		QbittorrentPort      int    `mapstructure:"qbittorrent_port"`
+		QbittorrentUsername  string `mapstructure:"qbittorrent_username"`
+		QbittorrentPassword  string `mapstructure:"qbittorrent_password"`
+		QbittorrentPath      string `mapstructure:"qbittorrent_path"`
+		TransmissionHost     string `mapstructure:"transmission_host"`
+		TransmissionPort     int    `mapstructure:"transmission_port"`
+		TransmissionPath     string `mapstructure:"transmission_path"`
+		TransmissionUsername string `mapstructure:"transmission_username"`
+		TransmissionPassword string `mapstructure:"transmission_password"`
+		MpcHost              string `mapstructure:"mpc_host"`
+		MpcPort              int    `mapstructure:"mpc_port"`
+		MpcPath              string `mapstructure:"mpc_path"`
+		VlcHost              string `mapstructure:"vlc_host"`
+		VlcPort              int    `mapstructure:"vlc_port"`
+		VlcPassword          string `mapstructure:"vlc_password"`
+		VlcPath              string `mapstructure:"vlc_path"`
+		MpvPath              string `mapstructure:"mpv_path"`
+		MpvSocket            string `mapstructure:"mpv_socket"`
 	}
 	PathConfig struct {
 		DataDir string `mapstructure:"dataDir"`

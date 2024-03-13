@@ -12,10 +12,11 @@ func TestClient_Start(t *testing.T) {
 
 	client := NewClient(&NewClientOptions{
 		Logger:   util.NewLogger(),
-		Username: "admin",
-		Password: "adminadmin",
-		Port:     8081,
-		Host:     "127.0.0.1",
+		Username: test_utils.ConfigData.Provider.QbittorrentUsername,
+		Password: test_utils.ConfigData.Provider.QbittorrentPassword,
+		Port:     test_utils.ConfigData.Provider.QbittorrentPort,
+		Host:     test_utils.ConfigData.Provider.QbittorrentHost,
+		Path:     test_utils.ConfigData.Provider.QbittorrentPath,
 	})
 
 	err := client.Start()
@@ -27,10 +28,11 @@ func TestClient_CheckStart(t *testing.T) {
 
 	client := NewClient(&NewClientOptions{
 		Logger:   util.NewLogger(),
-		Username: "admin",
-		Password: "adminadmin",
-		Port:     8081,
-		Host:     "127.0.0.1",
+		Username: test_utils.ConfigData.Provider.QbittorrentUsername,
+		Password: test_utils.ConfigData.Provider.QbittorrentPassword,
+		Port:     test_utils.ConfigData.Provider.QbittorrentPort,
+		Host:     test_utils.ConfigData.Provider.QbittorrentHost,
+		Path:     test_utils.ConfigData.Provider.QbittorrentPath,
 	})
 
 	started := client.CheckStart()
