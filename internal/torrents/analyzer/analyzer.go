@@ -1,7 +1,9 @@
 package torrent_analyzer
 
 import (
+	"errors"
 	"github.com/rs/zerolog"
+	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/library/entities"
@@ -16,10 +18,16 @@ type (
 	// i.e. torrent files instead of local files.
 	Analyzer struct {
 		files                []*File
-		selectedFiles        []*File // Hydrated after analyzeHydratedFiles is called
 		media                *anilist.BaseMedia
 		anilistClientWrapper anilist.ClientWrapperInterface
 		logger               *zerolog.Logger
+	}
+
+	// Analysis contains the results of the analysis.
+	Analysis struct {
+		files         []*File // Hydrated after scanFiles is called
+		selectedFiles []*File // Hydrated after findCorrespondingFiles is called
+		media         *anilist.BaseMedia
 	}
 
 	// File represents a torrent file and contains its metadata.
@@ -40,46 +48,115 @@ type (
 )
 
 func NewAnalyzer(opts *NewAnalyzerOptions) *Analyzer {
-	files := make([]*File, len(opts.Filepaths), len(opts.Filepaths))
-	for i, filename := range opts.Filepaths {
-		files[i] = newFile(i, filename)
-	}
+	files := lop.Map(opts.Filepaths, func(filepath string, idx int) *File {
+		return newFile(idx, filepath)
+	})
 	return &Analyzer{
 		files:                files,
-		selectedFiles:        make([]*File, 0),
 		media:                opts.Media,
 		anilistClientWrapper: opts.AnilistClientWrapper,
 		logger:               opts.Logger,
 	}
 }
 
-func (a *Analyzer) Analyze() error {
+// AnalyzeTorrentFiles scans the files and returns an Analysis struct containing methods to get the results.
+func (a *Analyzer) AnalyzeTorrentFiles() (*Analysis, error) {
+	if a.anilistClientWrapper == nil {
+		return nil, errors.New("anilist client wrapper is nil")
+	}
 
 	if err := a.scanFiles(); err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := a.analyzeHydratedFiles(); err != nil {
-		return err
+	analysis := &Analysis{
+		files: a.files,
+		media: a.media,
 	}
 
-	return nil
+	return analysis, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (a *Analyzer) analyzeHydratedFiles() error {
+func (a *Analysis) GetCorrespondingFiles() map[int]*File {
+	ret, _ := a.getCorrespondingFiles(func(f *File) bool {
+		return true
+	})
+	return ret
+}
 
-	keptFiles := make([]*File, 0)
+func (a *Analysis) GetCorrespondingMainFiles() map[int]*File {
+	ret, _ := a.getCorrespondingFiles(func(f *File) bool {
+		return f.localFile.IsMain()
+	})
+	return ret
+}
+
+func (a *Analysis) GetUnselectedFiles() map[int]*File {
+	_, uRet := a.getCorrespondingFiles(func(f *File) bool {
+		return true
+	})
+	return uRet
+}
+
+func (a *Analysis) getCorrespondingFiles(filter func(f *File) bool) (map[int]*File, map[int]*File) {
+	ret := make(map[int]*File)
+	uRet := make(map[int]*File)
 	for _, af := range a.files {
 		if af.localFile.MediaId == a.media.ID {
-			keptFiles = append(keptFiles, af)
+			if filter(af) {
+				ret[af.index] = af
+			} else {
+				uRet[af.index] = af
+			}
+		} else {
+			uRet[af.index] = af
 		}
 	}
-	a.selectedFiles = keptFiles
-
-	return nil
+	return ret, uRet
 }
+
+// GetIndices returns the indices of the files.
+//
+// Example:
+//
+//	selectedFilesMap := analysis.GetCorrespondingMainFiles()
+//	selectedIndices := analysis.GetIndices(selectedFilesMap)
+func (a *Analysis) GetIndices(files map[int]*File) []int {
+	indices := make([]int, 0)
+	for i := range files {
+		indices = append(indices, i)
+	}
+	return indices
+}
+
+func (a *Analysis) GetFiles() []*File {
+	return a.files
+}
+
+// GetUnselectedIndices takes a map of selected files and returns the indices of the unselected files.
+//
+// Example:
+//
+//	analysis, _ := analyzer.AnalyzeTorrentFiles()
+//	selectedFiles := analysis.GetCorrespondingMainFiles()
+//	indicesToRemove := analysis.GetUnselectedIndices(selectedFiles)
+func (a *Analysis) GetUnselectedIndices(files map[int]*File) []int {
+	indices := make([]int, 0)
+	for i := range a.files {
+		if _, ok := files[i]; !ok {
+			indices = append(indices, i)
+		}
+	}
+	return indices
+}
+
+func (f *File) GetLocalFile() *entities.LocalFile {
+	return f.localFile
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // scanFiles scans the files and matches them with the media.
 func (a *Analyzer) scanFiles() error {

@@ -90,7 +90,6 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		SmartSelect struct {
 			Enabled               bool  `json:"enabled"`
 			MissingEpisodeNumbers []int `json:"missingEpisodeNumbers"`
-			AbsoluteOffset        int   `json:"absoluteOffset"`
 		} `json:"smartSelect"`
 		Media *anilist.BaseMedia `json:"media"`
 	}
@@ -108,35 +107,40 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	// get magnets
 	p := pool.NewWithResults[string]().WithErrors()
-
 	for _, url := range b.Urls {
 		p.Go(func() (string, error) {
 			return torrent.ScrapeMagnet(url)
 		})
 	}
-
 	// if we couldn't get a magnet, return error
 	magnets, err := p.Wait()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	// try to add torrents to qbittorrent, on error return error
-	err = c.App.TorrentClientRepository.AddMagnets(magnets, b.Destination)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
+	if b.SmartSelect.Enabled {
+		if len(b.Urls) > 1 {
+			return c.RespondWithError(errors.New("smart select is not supported for multiple torrents"))
+		}
 
-	err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelect{
-		Magnets:               magnets,
-		Enabled:               b.SmartSelect.Enabled,
-		MissingEpisodeNumbers: b.SmartSelect.MissingEpisodeNumbers,
-		AbsoluteOffset:        b.SmartSelect.AbsoluteOffset,
-		Media:                 b.Media,
-		Destination:           b.Destination,
-	})
-	if err != nil {
-		return c.RespondWithError(err)
+		// smart select
+		err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelectParams{
+			Url:                  b.Urls[0],
+			EpisodeNumbers:       b.SmartSelect.MissingEpisodeNumbers,
+			Media:                b.Media,
+			Destination:          b.Destination,
+			AnilistClientWrapper: c.App.AnilistClientWrapper,
+			ShouldAddTorrent:     true,
+		})
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+	} else {
+		// try to add torrents to qbittorrent, on error return error
+		err = c.App.TorrentClientRepository.AddMagnets(magnets, b.Destination)
+		if err != nil {
+			return c.RespondWithError(err)
+		}
 	}
 
 	return c.RespondWithData(true)

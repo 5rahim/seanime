@@ -1,4 +1,4 @@
-package scanner
+package autoscanner
 
 import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
@@ -17,7 +17,7 @@ func TestAutoScanner(t *testing.T) {
 	logger := util.NewLogger()
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
-	as := NewAutoScanner(&NewAutoScannerOptions{
+	as := New(&NewAutoScannerOptions{
 		Database:             nil,
 		Enabled:              false,
 		AutoDownloader:       nil,

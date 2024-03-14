@@ -12,6 +12,7 @@ import (
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
+	"github.com/seanime-app/seanime/internal/library/autoscanner"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
@@ -54,7 +55,7 @@ type (
 		Version             string
 		Updater             *updater.Updater
 		Settings            *models.Settings
-		AutoScanner         *scanner.AutoScanner
+		AutoScanner         *autoscanner.AutoScanner
 		PlaybackManager     *playbackmanager.PlaybackManager
 		WD                  string // Working directory
 	}

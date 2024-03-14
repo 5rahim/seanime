@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
+	"github.com/seanime-app/seanime/internal/library/autoscanner"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
@@ -32,7 +33,7 @@ func (a *App) InitModulesOnce() {
 	})
 
 	// Auto downloader
-	a.AutoDownloader = autodownloader.NewAutoDownloader(&autodownloader.NewAutoDownloaderOptions{
+	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
 		Logger:                  a.Logger,
 		TorrentClientRepository: a.TorrentClientRepository,
 		AnilistCollection:       nil, // Will be set and refreshed in app.RefreshAnilistCollection
@@ -44,7 +45,7 @@ func (a *App) InitModulesOnce() {
 	a.AutoDownloader.Start()
 
 	// Auto scanner
-	a.AutoScanner = scanner.NewAutoScanner(&scanner.NewAutoScannerOptions{
+	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
 		Database:             a.Database,
 		Enabled:              false,
 		AutoDownloader:       a.AutoDownloader,

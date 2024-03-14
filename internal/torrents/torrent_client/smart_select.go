@@ -2,283 +2,151 @@ package torrent_client
 
 import (
 	"errors"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
+	"fmt"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
-	"github.com/seanime-app/seanime/internal/torrents/qbittorrent/model"
+	torrent_analyzer "github.com/seanime-app/seanime/internal/torrents/analyzer"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
-	"github.com/sourcegraph/conc/pool"
-	"math"
-	"slices"
-	"strconv"
 	"time"
 )
 
 type (
-	SmartSelect struct {
-		Magnets               []string
-		Enabled               bool
-		MissingEpisodeNumbers []int
-		AbsoluteOffset        int
-		Media                 *anilist.BaseMedia
-		Destination           string
-	}
-
-	tmpLocalFile struct {
-		torrentContent *qbittorrent_model.TorrentContent
-		localFile      *entities.LocalFile
-		index          int
+	SmartSelectParams struct {
+		Url                  string
+		EpisodeNumbers       []int
+		Media                *anilist.BaseMedia
+		Destination          string
+		ShouldAddTorrent     bool
+		AnilistClientWrapper anilist.ClientWrapperInterface
 	}
 )
 
-// SmartSelect will select only episodes that are missing.
-// It will return an error if SmartSelect.Magnets has more than one magnet link.
-// The torrent will be deleted when an error occurs.
-// SmartSelect will block until it is done.
-//
-// TODO: Add support for transmission
-func (r *Repository) SmartSelect(opts *SmartSelect) error {
-	if !opts.Enabled {
-		return nil
+// SmartSelect will automatically the provided episode files from the torrent.
+// If the torrent has not been added yet, set SmartSelect.ShouldAddTorrent to true.
+// The torrent will NOT be removed if the selection fails.
+func (r *Repository) SmartSelect(p *SmartSelectParams) error {
+	if p.Media == nil || p.AnilistClientWrapper == nil {
+		r.logger.Error().Msg("torrent client: media or anilist client wrapper is nil (smart select)")
+		return errors.New("media or anilist client wrapper is nil")
 	}
 
-	if len(opts.Magnets) != 1 {
-		return errors.New("incorrect number of magnets")
+	if p.Media.IsMovieOrSingleEpisode() {
+		return errors.New("smart select is not supported for movies or single-episode series")
 	}
 
-	if opts.Enabled && opts.Media == nil {
-		return errors.New("no media found")
+	if len(p.EpisodeNumbers) == 0 {
+		r.logger.Error().Msg("torrent client: no episode numbers provided (smart select)")
+		return errors.New("no episode numbers provided")
 	}
 
-	if r.Provider == TransmissionProvider {
-		return errors.New("automatic file selection not supported for transmission")
-	}
-
-	magnet := opts.Magnets[0]
-	// get hash
-	hash, ok := torrent.ExtractHashFromMagnet(magnet)
-	if !ok {
-		return errors.New("could not extract hash")
-	}
-
-	// ticker
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-
-	// Set a timeout of 1 minute
-	timeout := time.After(time.Minute)
-
-	// exit
-	done := make(chan struct{})
-
-	var err error
-
-	var contents []*qbittorrent_model.TorrentContent
-
-	contentsChan := make(chan []*qbittorrent_model.TorrentContent)
-
-	// get torrent contents when it's done loading
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				ret, _ := r.QbittorrentClient.Torrent.GetContents(hash)
-				if ret != nil && len(ret) > 0 {
-					contentsChan <- ret
-					return
-				}
-			case <-timeout:
-				return
-			}
+	if p.ShouldAddTorrent {
+		r.logger.Info().Msg("torrent client: adding torrent (smart select)")
+		// Get magnet
+		magnet, err := torrent.ScrapeMagnet(p.Url)
+		if err != nil {
+			return err
 		}
-	}()
-
-workDone:
-	for {
-		select {
-		case <-done:
-			break workDone
-		case <-timeout:
-			err = errors.New("timeout occurred: unable to retrieve torrent content")
-			_ = r.RemoveTorrents([]string{hash})
-			close(done)
-		case contents = <-contentsChan:
-			close(done)
+		// Add the torrent
+		err = r.AddMagnets([]string{magnet}, p.Destination)
+		if err != nil {
+			return err
 		}
 	}
 
+	// Get hash
+	hash, err := torrent.ScrapeHash(p.Url)
 	if err != nil {
-		_ = r.RemoveTorrents([]string{hash})
-		return err
+		r.logger.Err(err).Msg("torrent client: error scraping hash (smart select)")
+		return fmt.Errorf("error scraping hash: %w", err)
 	}
 
-	// pause the torrent
+	filepaths, err := r.GetFiles(hash)
+	if err != nil {
+		r.logger.Err(err).Msg("torrent client: error getting files (smart select)")
+		_ = r.RemoveTorrents([]string{hash})
+		return fmt.Errorf("error getting files, torrent still added: %w", err)
+	}
+
+	// Pause the torrent
 	err = r.PauseTorrents([]string{hash})
 	if err != nil {
+		r.logger.Err(err).Msg("torrent client: error while pausing torrent (smart select)")
 		_ = r.RemoveTorrents([]string{hash})
-		return err
+		return fmt.Errorf("error while selecting files: %w", err)
 	}
 
-	tmpLfs := r.getBestTempLocalFiles(contents, opts)
-
-	// filter out files that are not main and without episode numbers
-	tmpLfs = lo.Filter(tmpLfs, func(tmpLf *tmpLocalFile, _ int) bool {
-		// remove files that are not main
-		if comparison.ValueContainsSpecial(tmpLf.localFile.Name) || comparison.ValueContainsNC(tmpLf.localFile.Name) {
-			return false
-		}
-		// remove files that don't have an episode number
-		if tmpLf.localFile.ParsedData.Episode == "" {
-			return false
-		}
-		return true
+	// AnalyzeTorrentFiles the torrent files
+	analyzer := torrent_analyzer.NewAnalyzer(&torrent_analyzer.NewAnalyzerOptions{
+		Logger:               r.logger,
+		Filepaths:            filepaths,
+		Media:                p.Media,
+		AnilistClientWrapper: p.AnilistClientWrapper,
 	})
 
-	hasAtLeastOneAbsoluteEpisode := lo.SomeBy(tmpLfs, func(tmpLf *tmpLocalFile) bool {
-		episode, _ := util.StringToInt(tmpLf.localFile.ParsedData.Episode)
-		return episode > opts.Media.GetCurrentEpisodeCount()
-	})
+	r.logger.Debug().Msg("torrent client: analyzing torrent files (smart select)")
 
-	// detect absolute episode number
-	tmpLfs = lop.Map(tmpLfs, func(tmpLf *tmpLocalFile, _ int) *tmpLocalFile {
-		episode, ok := util.StringToInt(tmpLf.localFile.ParsedData.Episode)
-		if !ok {
-			return tmpLf
-		}
-		// remove absolute offset from episode number ONLY if one absolute episode number is found
-		if hasAtLeastOneAbsoluteEpisode {
-			episode = episode - opts.AbsoluteOffset
-		}
-		tmpLf.localFile.Metadata.Episode = episode
-		return tmpLf
-	})
+	analysis, err := analyzer.AnalyzeTorrentFiles()
+	if err != nil {
+		r.logger.Err(err).Msg("torrent client: error while analyzing torrent files (smart select)")
+		_ = r.RemoveTorrents([]string{hash})
+		return fmt.Errorf("error while analyzing torrent files: %w", err)
+	}
+
+	r.logger.Debug().Msg("torrent client: finished analyzing torrent files (smart select)")
+
+	mainFiles := analysis.GetCorrespondingMainFiles()
 
 	// find episode number duplicates
-	// if there are duplicate episode numbers (more than 3 duplicates), return error
-	// we choose 3 as the threshold because sometimes there might be 1or2 episodes with different versions
-	// this is used to prevent incorrect selections
-	duplicates := lo.FindDuplicatesBy(tmpLfs, func(item *tmpLocalFile) int {
-		return item.localFile.Metadata.Episode
-	})
-	if len(duplicates) > 2 {
-		return errors.New("automatic torrent file selection not supported")
+	dup := make(map[int]int) // map[episodeNumber]count
+	for _, f := range mainFiles {
+		if _, ok := dup[f.GetLocalFile().GetEpisodeNumber()]; ok {
+			dup[f.GetLocalFile().GetEpisodeNumber()]++
+		} else {
+			dup[f.GetLocalFile().GetEpisodeNumber()] = 1
+		}
 	}
-
-	// remove files whose episode number is not in the missing episode numbers list
-	toRemove := lo.Filter(tmpLfs, func(tmpLf *tmpLocalFile, _ int) bool {
-		return !slices.Contains(opts.MissingEpisodeNumbers, tmpLf.localFile.Metadata.Episode)
-	})
-
-	// get the indices of the files that we will deselect
-	toRemoveIndices := lop.Map(toRemove, func(tmpLf *tmpLocalFile, _ int) string {
-		return strconv.Itoa(tmpLf.index)
-	})
-
-	// set priority to 0 for files that are not in the missing episode numbers list
-	err = r.QbittorrentClient.Torrent.SetFilePriorities(hash, toRemoveIndices, 0)
-	if err != nil {
+	dupCount := 0
+	for _, count := range dup {
+		if count > 1 {
+			dupCount++
+		}
+	}
+	if dupCount > 2 {
 		_ = r.RemoveTorrents([]string{hash})
-		return err
+		return errors.New("failed to select files, can't tell seasons apart")
 	}
 
-	// pause the torrent
-	err = r.ResumeTorrents([]string{hash})
-	if err != nil {
-		_ = r.RemoveTorrents([]string{hash})
-		return err
+	selectedFiles := make(map[int]*torrent_analyzer.File)
+	selectedCount := 0
+	for idx, f := range mainFiles {
+		for _, ep := range p.EpisodeNumbers {
+			if f.GetLocalFile().GetEpisodeNumber() == ep {
+				selectedCount++
+				selectedFiles[idx] = f
+			}
+		}
 	}
+
+	if selectedCount == 0 || selectedCount < len(p.EpisodeNumbers) {
+		_ = r.RemoveTorrents([]string{hash})
+		return errors.New("failed to select files, could not find the right season files")
+	}
+
+	indicesToRemove := analysis.GetUnselectedIndices(selectedFiles)
+
+	if len(indicesToRemove) > 0 {
+		// Deselect files
+		err = r.DeselectFiles(hash, indicesToRemove)
+		if err != nil {
+			r.logger.Err(err).Msg("torrent client: error while deselecting files (smart select)")
+			_ = r.RemoveTorrents([]string{hash})
+			return fmt.Errorf("error while deselecting files: %w", err)
+		}
+	}
+
+	time.Sleep(1 * time.Second)
+
+	// Resume the torrent
+	_ = r.ResumeTorrents([]string{hash})
 
 	return nil
-}
-
-// getBestTempLocalFiles returns the best local files that match the media
-func (r *Repository) getBestTempLocalFiles(contents []*qbittorrent_model.TorrentContent, opts *SmartSelect) []*tmpLocalFile {
-
-	// get local files from contents
-	tmpLfs := lop.Map(contents, func(content *qbittorrent_model.TorrentContent, idx int) *tmpLocalFile {
-		return &tmpLocalFile{
-			torrentContent: content,
-			localFile:      entities.NewLocalFile(content.Name, opts.Destination),
-			index:          idx,
-		}
-	})
-
-	type comparisonRes struct {
-		tmpLocalFile *tmpLocalFile
-		rating       float64
-	}
-
-	titles := opts.Media.GetAllTitles()
-
-	// compare each local file title variations with the media titles and synonyms
-	p := pool.NewWithResults[*comparisonRes]()
-	for _, tmpLf := range tmpLfs {
-		p.Go(func() *comparisonRes {
-			comparisons := lop.Map(titles, func(title *string, _ int) *comparison.SorensenDiceResult {
-
-				titleVariations := tmpLf.localFile.GetTitleVariations()
-
-				comps := make([]*comparison.SorensenDiceResult, 0)
-				if eng, found := comparison.FindBestMatchWithSorensenDice(title, titleVariations); found {
-					comps = append(comps, eng)
-				}
-				if rom, found := comparison.FindBestMatchWithSorensenDice(title, titleVariations); found {
-					comps = append(comps, rom)
-				}
-				if syn, found := comparison.FindBestMatchWithSorensenDice(title, titleVariations); found {
-					comps = append(comps, syn)
-				}
-				var res *comparison.SorensenDiceResult
-				if len(comps) > 1 {
-					res = lo.Reduce(comps, func(prev *comparison.SorensenDiceResult, curr *comparison.SorensenDiceResult, _ int) *comparison.SorensenDiceResult {
-						if prev.Rating > curr.Rating {
-							return prev
-						} else {
-							return curr
-						}
-					}, comps[0])
-				} else if len(comps) == 1 {
-					return comps[0]
-				}
-				return res
-			})
-
-			// Retrieve the best result from all the title variations results
-			bestRes := lo.Reduce(comparisons, func(prev *comparison.SorensenDiceResult, curr *comparison.SorensenDiceResult, _ int) *comparison.SorensenDiceResult {
-				if prev.Rating > curr.Rating {
-					return prev
-				} else {
-					return curr
-				}
-			}, comparisons[0])
-
-			return &comparisonRes{
-				tmpLocalFile: tmpLf,
-				rating:       bestRes.Rating,
-			}
-		})
-	}
-	compLfs := p.Wait()
-
-	highestRating := lo.Reduce(compLfs, func(prev float64, curr *comparisonRes, _ int) float64 {
-		if prev > curr.rating {
-			return prev
-		} else {
-			return curr.rating
-		}
-	}, 0.0)
-
-	usedComps := lo.Filter(compLfs, func(item *comparisonRes, index int) bool {
-		return item.rating == highestRating || math.Abs(item.rating-highestRating) < 0.2
-	})
-
-	usedTmpLfs := lop.Map(usedComps, func(item *comparisonRes, index int) *tmpLocalFile {
-		return item.tmpLocalFile
-	})
-
-	return usedTmpLfs
-
 }

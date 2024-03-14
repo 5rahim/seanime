@@ -26,7 +26,6 @@ type TorrentDownloadProps = {
     smartSelect: {
         enabled: boolean
         missingEpisodeNumbers: number[]
-        absoluteOffset: number
     }
     media?: BaseMediaFragment
 }
@@ -64,11 +63,9 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     /**
      * If the user can auto-select the missing episodes
-     * - TODO: Add support for Transmission
      */
     const canSmartSelect = useMemo(() => {
-        return serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" &&
-            selectedTorrents.length === 1
+        return selectedTorrents.length === 1
             && selectedTorrents[0].isBatch
             && media.format !== "MOVIE"
             && media.status === "FINISHED"
@@ -125,7 +122,6 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 smartSelect: {
                     enabled: true,
                     missingEpisodeNumbers: entry.downloadInfo?.episodesToDownload?.map(n => n.episodeNumber) || [],
-                    absoluteOffset: entry.downloadInfo?.absoluteOffset || 0,
                 },
                 media,
             })
@@ -136,7 +132,6 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 smartSelect: {
                     enabled: false,
                     missingEpisodeNumbers: [],
-                    absoluteOffset: 0,
                 },
                 media,
             })
@@ -157,7 +152,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         <Modal
             open={isOpen}
             onOpenChange={() => setIsOpen(false)}
-            contentClass="max-w-2xl"
+            contentClass="max-w-3xl"
             title="Choose the destination"
         >
             <div className="pb-0">

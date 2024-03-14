@@ -73,15 +73,12 @@ func TestAnalyzerFile(t *testing.T) {
 				AnilistClientWrapper: anilistClientWrapper,
 			})
 
-			// Analyze
-			err = analyzer.Analyze()
+			// AnalyzeTorrentFiles
+			analysis, err := analyzer.AnalyzeTorrentFiles()
 			if assert.NoError(t, err) {
 
-				// selected indices
-				selectedIndices := make([]int, 0)
-				for _, file := range analyzer.selectedFiles {
-					selectedIndices = append(selectedIndices, file.index)
-				}
+				selectedFilesMap := analysis.GetCorrespondingMainFiles()
+				selectedIndices := analysis.GetIndices(selectedFilesMap)
 
 				// Check selected files
 				assert.ElementsMatch(t, tt.expectedIndices, selectedIndices)

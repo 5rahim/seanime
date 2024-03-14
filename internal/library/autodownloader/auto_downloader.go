@@ -56,7 +56,7 @@ type (
 	}
 )
 
-func NewAutoDownloader(opts *NewAutoDownloaderOptions) *AutoDownloader {
+func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 	return &AutoDownloader{
 		logger:                  opts.Logger,
 		torrentClientRepository: opts.TorrentClientRepository,

@@ -1,4 +1,4 @@
-package scanner
+package autoscanner
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
+	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/library/summary"
 	"github.com/seanime-app/seanime/internal/util"
 	"sync"
@@ -39,7 +40,7 @@ type (
 	}
 )
 
-func NewAutoScanner(opts *NewAutoScannerOptions) *AutoScanner {
+func New(opts *NewAutoScannerOptions) *AutoScanner {
 	wt := time.Second * 15 // Default wait time is 15 seconds.
 	if opts.WaitTime > 0 {
 		wt = opts.WaitTime
@@ -193,7 +194,7 @@ func (as *AutoScanner) scan() {
 	}
 
 	// Create a new scanner
-	sc := Scanner{
+	sc := scanner.Scanner{
 		DirPath:              settings.Library.LibraryPath,
 		Username:             acc.Username,
 		Enhanced:             false, // Do not use enhanced mode for auto scanner.
@@ -208,7 +209,7 @@ func (as *AutoScanner) scan() {
 
 	allLfs, err := sc.Scan()
 	if err != nil {
-		if errors.Is(err, ErrNoLocalFiles) {
+		if errors.Is(err, scanner.ErrNoLocalFiles) {
 			return
 		} else {
 			as.Logger.Error().Err(err).Msg("autoscanner: failed to scan library")

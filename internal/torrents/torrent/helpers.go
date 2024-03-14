@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"regexp"
 	"strings"
 )
 
@@ -23,12 +22,11 @@ func ScrapeMagnet(viewUrl string) (string, error) {
 	return "", errors.New("could not determine the torrent provider from the URL")
 }
 
-func ExtractHashFromMagnet(magnetLink string) (string, bool) {
-	re := regexp.MustCompile(`magnet:\?xt=urn:btih:([^&]+)`)
-	match := re.FindStringSubmatch(magnetLink)
-	if len(match) > 1 {
-		return match[1], true
-	} else {
-		return "", false // Magnet link format not recognized or no hash found
+func ScrapeHash(viewUrl string) (string, error) {
+	if strings.Contains(viewUrl, "nyaa.si") {
+		return nyaa.TorrentHash(viewUrl)
+	} else if strings.Contains(viewUrl, "animetosho.org") {
+		return animetosho.TorrentHash(viewUrl)
 	}
+	return "", errors.New("could not determine the torrent provider from the URL")
 }
