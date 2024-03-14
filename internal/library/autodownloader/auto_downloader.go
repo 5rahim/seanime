@@ -177,7 +177,7 @@ func (ad *AutoDownloader) start() {
 		case <-ad.settingsUpdatedCh:
 			break // Restart the loop
 		case <-ad.stopCh:
-			ad.logger.Info().Msg("autodownloader: Auto Downloader stopped")
+
 		case <-ad.startCh:
 			if ad.settings.Enabled {
 				ad.logger.Info().Msg("autodownloader: Auto Downloader started")

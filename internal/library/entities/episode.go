@@ -175,7 +175,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		// Set episode metadata
 		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
 
-	} else if len(opts.OptionalAniDBEpisode) > 0 {
+	} else if len(opts.OptionalAniDBEpisode) > 0 && opts.AnizipMedia != nil {
 		// No LocalFile, but AniDB episode is provided
 
 		// Get the AniZip episode
