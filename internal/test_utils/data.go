@@ -12,16 +12,16 @@ var ConfigData = &Config{}
 
 const (
 	TwoLevelDeepTestConfigPath   = "../../test"
-	ThreeLevelDeepTestConfigPath = "../../../test"
-	TwoLevelDeepTestDataPath     = "../../test/testdata"
 	TwoLevelDeepDataPath         = "../../test/data"
+	TwoLevelDeepTestDataPath     = "../../test/testdata"
+	ThreeLevelDeepTestConfigPath = "../../../test"
 	ThreeLevelDeepDataPath       = "../../../test/data"
 	ThreeLevelDeepTestDataPath   = "../../../test/testdata"
 )
 
-var ConfigPath = TwoLevelDeepTestConfigPath
-var TestDataPath = TwoLevelDeepTestDataPath
-var DataPath = TwoLevelDeepDataPath
+var ConfigPath = ThreeLevelDeepTestConfigPath
+var TestDataPath = ThreeLevelDeepTestDataPath
+var DataPath = ThreeLevelDeepDataPath
 
 type (
 	Config struct {

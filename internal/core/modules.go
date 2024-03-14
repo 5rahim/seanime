@@ -1,17 +1,17 @@
 package core
 
 import (
-	"github.com/seanime-app/seanime/internal/anilist"
-	"github.com/seanime-app/seanime/internal/autodownloader"
-	"github.com/seanime-app/seanime/internal/mediaplayer"
-	"github.com/seanime-app/seanime/internal/mpchc"
-	"github.com/seanime-app/seanime/internal/mpv"
-	"github.com/seanime-app/seanime/internal/playbackmanager"
-	"github.com/seanime-app/seanime/internal/qbittorrent"
-	"github.com/seanime-app/seanime/internal/scanner"
-	"github.com/seanime-app/seanime/internal/torrent_client"
-	"github.com/seanime-app/seanime/internal/transmission"
-	"github.com/seanime-app/seanime/internal/vlc"
+	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/library/autodownloader"
+	"github.com/seanime-app/seanime/internal/library/playbackmanager"
+	"github.com/seanime-app/seanime/internal/library/scanner"
+	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
+	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
+	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
+	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
+	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
+	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
+	"github.com/seanime-app/seanime/internal/torrents/transmission"
 )
 
 // InitModulesOnce will initialize modules that need to persist.

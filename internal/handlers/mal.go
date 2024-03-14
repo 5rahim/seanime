@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime/internal/api/mal"
 	"github.com/seanime-app/seanime/internal/constants"
-	"github.com/seanime-app/seanime/internal/mal"
-	"github.com/seanime-app/seanime/internal/models"
+	"github.com/seanime-app/seanime/internal/database/models"
 	"net/http"
 	"net/url"
 	"strconv"

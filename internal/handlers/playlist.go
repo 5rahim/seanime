@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/entities"
+	"github.com/seanime-app/seanime/internal/library/entities"
 	"path/filepath"
 	"strings"
 )

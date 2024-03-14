@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime/internal/entities"
+import "github.com/seanime-app/seanime/internal/library/entities"
 
 // HandleGetLibraryCollection generates and returns the library collection.
 //

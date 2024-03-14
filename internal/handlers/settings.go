@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/models"
+	"github.com/seanime-app/seanime/internal/database/models"
 	"runtime"
 	"time"
 )

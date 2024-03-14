@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/anilist"
+	"github.com/seanime-app/seanime/internal/api/anilist"
 	"strconv"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/models"
+	"github.com/seanime-app/seanime/internal/database/models"
 	"time"
 )
 

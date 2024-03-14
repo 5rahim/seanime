@@ -3,8 +3,8 @@ package handlers
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/entities"
-	"github.com/seanime-app/seanime/internal/filesystem"
+	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/filesystem"
 	"github.com/sourcegraph/conc/pool"
 	"os"
 )

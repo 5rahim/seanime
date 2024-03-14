@@ -81,7 +81,7 @@ package test
 import (
 	"testing"
 	"internal/test_utils"
-	"internal/anilist"
+	"internal/api/anilist"
 )
 
 func Test(t *testing.T) {

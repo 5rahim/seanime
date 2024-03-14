@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/scanner"
-	"github.com/seanime-app/seanime/internal/summary"
+	"github.com/seanime-app/seanime/internal/library/scanner"
+	"github.com/seanime-app/seanime/internal/library/summary"
 )
 
 type scanRequestBody struct {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/anilist"
-	"github.com/seanime-app/seanime/internal/models"
+	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/database/models"
 )
 
 // GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/anilist"
-	"github.com/seanime-app/seanime/internal/torrent"
-	"github.com/seanime-app/seanime/internal/torrent_client"
+	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/torrents/torrent"
+	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/sourcegraph/conc/pool"
 )
 

@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime/internal/models"
+import "github.com/seanime-app/seanime/internal/database/models"
 
 // HandleGetTheme returns the theme settings.
 func HandleGetTheme(c *RouteCtx) error {

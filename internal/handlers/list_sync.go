@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/listsync"
+	"github.com/seanime-app/seanime/internal/api/listsync"
 	"time"
 )
 

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/entities"
-	"github.com/seanime-app/seanime/internal/models"
+	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/library/entities"
 	"runtime"
 )
 
