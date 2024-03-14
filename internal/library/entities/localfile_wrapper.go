@@ -141,6 +141,9 @@ func (e *LocalFileWrapperEntry) FindNextEpisode(lf *LocalFile) (*LocalFile, bool
 			break
 		}
 	}
+	if next == nil {
+		return nil, false
+	}
 	return next, true
 }
 

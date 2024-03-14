@@ -2,6 +2,7 @@ package playbackmanager
 
 import (
 	"context"
+	"errors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/db"
@@ -91,10 +92,27 @@ func (pm *PlaybackManager) SetAnilistCollection(anilistCollection *anilist.Anime
 }
 
 // PlayNextEpisode plays the next episode of the media that has been watched
-// - This method is called when the user clicks on the "Next" button in the client
+//   - Called when the user clicks on the "Next" button in the client
+//   - Should not be called when the user is watching a playlist
+//   - Should not be called when no next episode is available
 func (pm *PlaybackManager) PlayNextEpisode() error {
-	panic("not implemented")
-	// devnote: make sure not to relaunch the media player
+	if pm.currentLocalFile == nil || pm.currentMediaListEntry == nil || pm.currentLocalFileWrapperEntry == nil {
+		return errors.New("could not play next episode")
+	}
+
+	nextLf, found := pm.currentLocalFileWrapperEntry.FindNextEpisode(pm.currentLocalFile)
+	if !found {
+		return errors.New("could not play next episode")
+	}
+
+	err := pm.MediaPlayerRepository.Play(nextLf.Path)
+	if err != nil {
+		return err
+	}
+	// Start tracking the video
+	pm.MediaPlayerRepository.StartTracking()
+
+	return nil
 }
 
 // SetMediaPlayerRepository sets the media player repository and starts listening to media player events

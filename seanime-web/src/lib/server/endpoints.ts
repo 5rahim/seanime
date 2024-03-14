@@ -75,6 +75,7 @@ export const enum SeaEndpoints {
     PLAYBACK_MANAGER_START_PLAYLIST = "/playback-manager/start-playlist", // (POST)
     PLAYBACK_MANAGER_CANCEL_PLAYLIST = "/playback-manager/cancel-playlist", // (POST)
     PLAYBACK_MANAGER_PLAYLIST_NEXT = "/playback-manager/playlist-next", // (GET)
+    PLAYBACK_MANAGER_NEXT_EPISODE = "/playback-manager/next-episode", // (POST)
     /**
      * Playlist
      */

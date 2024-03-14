@@ -162,6 +162,15 @@ export function ProgressTracking() {
         },
     })
 
+    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = useSeaMutation({
+        endpoint: SeaEndpoints.PLAYBACK_MANAGER_NEXT_EPISODE,
+        method: "post",
+        mutationKey: ["playback-next-episode", state?.filename],
+        onSuccess: async () => {
+
+        },
+    })
+
     const confirmPlayNext = useConfirmationDialog({
         title: "Play next episode",
         description: "Are you sure you want to play the next episode?",
@@ -169,6 +178,16 @@ export function ProgressTracking() {
         actionIntent: "success",
         onConfirm: () => {
             if (!submittedPlaylistNext) playlistNext()
+        },
+    })
+
+    const confirmNextEpisode = useConfirmationDialog({
+        title: "Play next episode",
+        description: "Are you sure you want to play the next episode?",
+        actionText: "Confirm",
+        actionIntent: "success",
+        onConfirm: () => {
+            if (!submittedNextEpisode) nextEpisode()
         },
     })
 
@@ -240,6 +259,23 @@ export function ProgressTracking() {
                         Update progress now
                     </Button>
                 </div>}
+                {(
+                    !!state?.completionPercentage
+                    && state?.completionPercentage > 0.7
+                    && state?.canPlayNext
+                    && !playlistState
+                ) && <div className="flex gap-2 justify-center items-center">
+                    <Button
+                        intent="white"
+                        onClick={() => confirmNextEpisode.open()}
+                        className="w-full"
+                        disabled={submittedNextEpisode}
+                        loading={submittingNextEpisode}
+                        leftIcon={<BiSolidSkipNextCircle className="text-2xl" />}
+                    >
+                        Play next episode
+                    </Button>
+                </div>}
                 {!!playlistState?.next && (
                     <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
                         <div className="space-y-3">
@@ -291,6 +327,7 @@ export function ProgressTracking() {
 
             <ConfirmationDialog {...confirmPlayNext} />
             <ConfirmationDialog {...confirmStopPlaylist} />
+            <ConfirmationDialog {...confirmNextEpisode} />
         </>
     )
 

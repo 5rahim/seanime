@@ -240,6 +240,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playback-manager/start-playlist", makeHandler(app, HandlePlaybackStartPlaylist))
 	v1.Post("/playback-manager/playlist-next", makeHandler(app, HandlePlaybackPlaylistNext))
 	v1.Post("/playback-manager/cancel-playlist", makeHandler(app, HandlePlaybackCancelCurrentPlaylist))
+	v1.Post("/playback-manager/next-episode", makeHandler(app, HandlePlaybackPlayNextEpisode))
 
 	//
 	// Playlists
