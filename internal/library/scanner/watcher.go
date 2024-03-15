@@ -67,7 +67,7 @@ func (w *Watcher) InitLibraryFileWatcher(opts *WatchLibraryFilesOptions) error {
 }
 
 func (w *Watcher) StartWatching(
-	onVideoFileAction func(),
+	onFileAction func(),
 ) {
 	// Start a goroutine to handle file system events
 	go func() {
@@ -82,16 +82,12 @@ func (w *Watcher) StartWatching(
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					w.Logger.Debug().Msgf("File created: %s", event.Name)
 					w.WSEventManager.SendEvent(events.LibraryWatcherFileAdded, event.Name)
-					if filepath.Ext(event.Name) == ".mp4" || filepath.Ext(event.Name) == ".mkv" {
-						onVideoFileAction()
-					}
+					onFileAction()
 				}
 				if event.Op&fsnotify.Remove == fsnotify.Remove {
 					w.Logger.Debug().Msgf("File removed: %s", event.Name)
 					w.WSEventManager.SendEvent(events.LibraryWatcherFileRemoved, event.Name)
-					if filepath.Ext(event.Name) == ".mp4" || filepath.Ext(event.Name) == ".mkv" {
-						onVideoFileAction()
-					}
+					onFileAction()
 				}
 
 			case err, ok := <-w.Watcher.Errors:
