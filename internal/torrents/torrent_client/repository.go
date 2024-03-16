@@ -195,7 +195,7 @@ func (r *Repository) ResumeTorrents(hashes []string) error {
 	var err error
 	switch r.provider {
 	case QbittorrentClient:
-		err = r.qBittorrentClient.Torrent.StopTorrents(hashes)
+		err = r.qBittorrentClient.Torrent.ResumeTorrents(hashes)
 	case TransmissionClient:
 		err = r.transmission.Client.TorrentStartHashes(context.Background(), hashes)
 	}
