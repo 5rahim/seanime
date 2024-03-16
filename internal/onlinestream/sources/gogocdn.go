@@ -1,4 +1,4 @@
-package onlinestream_extractors
+package onlinestream_sources
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gocolly/colly"
+	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"log"
 	"net/http"
@@ -123,7 +124,7 @@ func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
 
 	// Check if source is found
 	if !ok {
-		return nil, ErrNoEpisodeSourceFound
+		return nil, ErrNoVideoSourceFound
 	}
 
 	var results []*VideoSource
@@ -155,11 +156,9 @@ func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
 }
 
 func (g *GogoCDN) urlToVideoSource(url string, source []interface{}, sourceBK []interface{}) (vs []*VideoSource, ok bool) {
-	defer func() {
-		if r := recover(); r != nil {
-			ok = false
-		}
-	}()
+	defer util.HandlePanicInModuleThen("onlinestream/sources/gogocdn/urlToVideoSource", func() {
+		ok = false
+	})
 	ret := make([]*VideoSource, 0)
 	if strings.Contains(url, ".m3u8") {
 		resResult, err := http.Get(url)
@@ -180,23 +179,23 @@ func (g *GogoCDN) urlToVideoSource(url string, source []interface{}, sourceBK []
 		for _, res := range resolutions {
 			quality := strings.Split(strings.Split(res[2], "x")[1], ",")[0]
 			url := fmt.Sprintf("%s/%s", baseURL, strings.TrimSpace(res[4]))
-			ret = append(ret, &VideoSource{URL: url, IsM3U8: true, Quality: quality + "p"})
+			ret = append(ret, &VideoSource{URL: url, Type: VideoSourceM3U8, Quality: quality + "p"})
 		}
 
-		ret = append(ret, &VideoSource{URL: url, IsM3U8: true, Quality: "default"})
+		ret = append(ret, &VideoSource{URL: url, Type: VideoSourceM3U8, Quality: "default"})
 	} else {
 		for _, src := range source {
 			s := src.(map[string]interface{})
 			if s["file"].(string) == url {
 				quality := strings.Split(s["label"].(string), " ")[0] + "p"
-				ret = append(ret, &VideoSource{URL: url, IsM3U8: false, Quality: quality})
+				ret = append(ret, &VideoSource{URL: url, Type: VideoSourceMP4, Quality: quality})
 			}
 		}
 		if sourceBK != nil {
 			for _, src := range sourceBK {
 				s := src.(map[string]interface{})
 				if s["file"].(string) == url {
-					ret = append(ret, &VideoSource{URL: url, IsM3U8: false, Quality: "backup"})
+					ret = append(ret, &VideoSource{URL: url, Type: VideoSourceMP4, Quality: "backup"})
 				}
 			}
 		}
@@ -244,7 +243,7 @@ func (g *GogoCDN) decryptAjaxData(encryptedData string) (map[string]interface{},
 		return nil, err
 	}
 
-	block, err := aes.NewCipher([]byte(g.keys.secondKey))
+	block, err := aes.NewCipher(g.keys.secondKey)
 	if err != nil {
 		return nil, err
 	}

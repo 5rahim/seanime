@@ -2,36 +2,36 @@ package onlinestream
 
 import (
 	"errors"
-	onlinestream "github.com/seanime-app/seanime/internal/onlinestream/extractors"
+	"github.com/seanime-app/seanime/internal/onlinestream/sources"
 )
 
 var (
-	ErrSourceNotFound = errors.New("source not found")
+	ErrSourceNotFound = errors.New("video source not found")
 )
 
 type AnimeProvider interface {
-	Search(query string, dubbed bool) ([]*AnimeResult, error)
-	FetchAnimeEpisodes(id string) ([]*AnimeEpisode, error)
-	FetchEpisodeSources(episode *AnimeEpisode, server Server) (*AnimeSource, error)
+	Search(query string, dub bool) ([]*AnimeResult, error)
+	FindAnimeEpisodes(id string) ([]*AnimeEpisode, error)
+	FindVideoSources(episode *AnimeEpisode, server Server) (*onlinestream_sources.VideoSource, error)
 }
 
 type AnimeResult struct {
-	ID    string
-	Title string
-	URL   string
-	IsDub bool
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	URL   string `json:"url"`
+	IsDub bool   `json:"isDub"`
 }
 
 type AnimeEpisode struct {
-	ID     string
-	Number int
-	URL    string
+	ID     string `json:"id"`
+	Number int    `json:"number"`
+	URL    string `json:"url"`
 }
 
 type AnimeSource struct {
-	Headers  map[string]string
-	Sources  []*onlinestream.VideoSource
-	Download string
+	Headers  map[string]string                   `json:"headers"`
+	Sources  []*onlinestream_sources.VideoSource `json:"sources"`
+	Download string                              `json:"download"`
 }
 
 type Server int

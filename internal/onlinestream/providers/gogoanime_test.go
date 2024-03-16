@@ -71,7 +71,7 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := gogo.FetchAnimeEpisodes(tt.id)
+			episodes, err := gogo.FindAnimeEpisodes(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -134,7 +134,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 			gogo := NewGogoanime(util.NewLogger())
 
-			sources, err := gogo.FetchEpisodeSources(tt.episode, tt.server)
+			sources, err := gogo.FindAnimeSources(tt.episode, tt.server)
 			if err != nil {
 				if !errors.Is(err, ErrSourceNotFound) {
 					t.Fatal(err)

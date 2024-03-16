@@ -1,4 +1,4 @@
-package onlinestream_extractors
+package onlinestream_sources
 
 import (
 	"encoding/hex"
@@ -68,7 +68,7 @@ func (s *StreamSB) Extract(uri string) (vs []*VideoSource, err error) {
 
 	streamData, ok := jsonResponse["stream_data"].(map[string]interface{})
 	if !ok {
-		return nil, ErrNoEpisodeSourceFound
+		return nil, ErrNoVideoSourceFound
 	}
 
 	m3u8Urls, err := client.Get(streamData["file"].(string))
@@ -95,14 +95,14 @@ func (s *StreamSB) Extract(uri string) (vs []*VideoSource, err error) {
 		results = append(results, &VideoSource{
 			URL:     url,
 			Quality: quality + "p",
-			IsM3U8:  true,
+			Type:    VideoSourceM3U8,
 		})
 	}
 
 	results = append(results, &VideoSource{
 		URL:     streamData["file"].(string),
 		Quality: "auto",
-		IsM3U8:  strings.Contains(streamData["file"].(string), ".m3u8"),
+		Type:    map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(streamData["file"].(string), ".m3u8")],
 	})
 
 	return results, nil

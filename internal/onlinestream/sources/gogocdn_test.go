@@ -1,4 +1,4 @@
-package onlinestream_extractors
+package onlinestream_sources
 
 import (
 	"github.com/davecgh/go-spew/spew"

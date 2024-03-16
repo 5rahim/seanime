@@ -5,7 +5,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/onlinestream/extractors"
+	"github.com/seanime-app/seanime/internal/onlinestream/sources"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -68,7 +68,7 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*AnimeResult, error) {
 	return results, nil
 }
 
-func (g *Gogoanime) FetchAnimeEpisodes(id string) ([]*AnimeEpisode, error) {
+func (g *Gogoanime) FindAnimeEpisodes(id string) ([]*AnimeEpisode, error) {
 	var episodes []*AnimeEpisode
 
 	if !strings.Contains(id, "gogoanime") {
@@ -145,7 +145,7 @@ func (g *Gogoanime) FetchAnimeEpisodes(id string) ([]*AnimeEpisode, error) {
 	return episodes, nil
 }
 
-func (g *Gogoanime) FetchEpisodeSources(episode *AnimeEpisode, server Server) (*AnimeSource, error) {
+func (g *Gogoanime) FindAnimeSources(episode *AnimeEpisode, server Server) (*AnimeSource, error) {
 	var source *AnimeSource
 
 	c := colly.NewCollector()
@@ -158,7 +158,7 @@ func (g *Gogoanime) FetchEpisodeSources(episode *AnimeEpisode, server Server) (*
 			if err != nil {
 				return
 			}
-			gogocdn := onlinestream_extractors.NewGogoCDN()
+			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
 				source = &AnimeSource{
@@ -177,7 +177,7 @@ func (g *Gogoanime) FetchEpisodeSources(episode *AnimeEpisode, server Server) (*
 			if err != nil {
 				return
 			}
-			gogocdn := onlinestream_extractors.NewGogoCDN()
+			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
 				source = &AnimeSource{
@@ -196,7 +196,7 @@ func (g *Gogoanime) FetchEpisodeSources(episode *AnimeEpisode, server Server) (*
 			if err != nil {
 				return
 			}
-			streamsb := onlinestream_extractors.NewStreamSB()
+			streamsb := onlinestream_sources.NewStreamSB()
 			videoSources, err := streamsb.Extract(src)
 			if err == nil {
 				source = &AnimeSource{
