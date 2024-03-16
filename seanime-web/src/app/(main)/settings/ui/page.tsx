@@ -65,7 +65,7 @@ export default function Page() {
             </div>
 
             <p>
-                Images should be in a directory whose location is configurable in your <code>config.toml</code> file.
+                Images should be in a directory configurable in your <code>config.toml</code> file.
             </p>
 
             <Separator />

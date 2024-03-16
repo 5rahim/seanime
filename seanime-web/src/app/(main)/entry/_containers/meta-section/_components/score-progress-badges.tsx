@@ -11,7 +11,7 @@ export function ScoreProgressBadges({ score, progress, episodes }: {
 
     const scoreColor = score ? (
         score < 5 ? "bg-red-500" :
-            score < 7 ? "bg-orange-500" :
+            score < 7 ? "bg-gray-500" :
                 score < 9 ? "bg-green-500" :
                     "bg-brand-500 text-white"
     ) : ""
