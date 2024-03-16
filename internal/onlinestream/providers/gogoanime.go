@@ -1,4 +1,4 @@
-package onlinestream
+package onlinestream_providers
 
 import (
 	"fmt"
@@ -30,8 +30,8 @@ func NewGogoanime(logger *zerolog.Logger) *Gogoanime {
 	}
 }
 
-func (g *Gogoanime) Search(query string, dubbed bool) ([]*AnimeResult, error) {
-	var results []*AnimeResult
+func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
+	var results []*SearchResult
 
 	c := colly.NewCollector()
 
@@ -43,15 +43,15 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*AnimeResult, error) {
 		}
 		title := e.ChildText("p.name > a")
 		url := g.BaseURL + e.ChildAttr("p.name > a", "href")
-		isDub := false
+		subOrDub := Sub
 		if strings.Contains(strings.ToLower(e.ChildText("p.name > a")), "dub") {
-			isDub = true
+			subOrDub = Dub
 		}
-		results = append(results, &AnimeResult{
-			ID:    id,
-			Title: title,
-			URL:   url,
-			IsDub: isDub,
+		results = append(results, &SearchResult{
+			ID:       id,
+			Title:    title,
+			URL:      url,
+			SubOrDub: subOrDub,
 		})
 	})
 
@@ -68,8 +68,8 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*AnimeResult, error) {
 	return results, nil
 }
 
-func (g *Gogoanime) FindAnimeEpisodes(id string) ([]*AnimeEpisode, error) {
-	var episodes []*AnimeEpisode
+func (g *Gogoanime) FindAnimeEpisodes(id string) ([]*ProviderEpisode, error) {
+	var episodes []*ProviderEpisode
 
 	if !strings.Contains(id, "gogoanime") {
 		id = fmt.Sprintf("%s/category/%s", g.BaseURL, id)
@@ -119,7 +119,7 @@ func (g *Gogoanime) FindAnimeEpisodes(id string) ([]*AnimeEpisode, error) {
 			return
 		}
 		spew.Dump(episodeID)
-		episodes = append(episodes, &AnimeEpisode{
+		episodes = append(episodes, &ProviderEpisode{
 			ID:     episodeID,
 			Number: episodeNumber,
 			URL:    g.BaseURL + "/" + episodeID,
@@ -145,8 +145,8 @@ func (g *Gogoanime) FindAnimeEpisodes(id string) ([]*AnimeEpisode, error) {
 	return episodes, nil
 }
 
-func (g *Gogoanime) FindAnimeSources(episode *AnimeEpisode, server Server) (*AnimeSource, error) {
-	var source *AnimeSource
+func (g *Gogoanime) FindEpisodeSources(episode *ProviderEpisode, server Server) (*ProviderEpisodeSource, error) {
+	var source *ProviderEpisodeSource
 
 	c := colly.NewCollector()
 
@@ -154,59 +154,44 @@ func (g *Gogoanime) FindAnimeSources(episode *AnimeEpisode, server Server) (*Ani
 	case VidstreamingServer:
 		c.OnHTML(".anime_muti_link > ul > li.vidcdn > a", func(e *colly.HTMLElement) {
 			src := e.Attr("data-video")
-			uri, err := url.Parse(src)
-			if err != nil {
-				return
-			}
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &AnimeSource{
+				source = &ProviderEpisodeSource{
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episode.ID,
 					},
-					Sources:  videoSources,
-					Download: "https://gogohd.net/download?" + uri.Query().Encode(),
+					Sources: videoSources,
 				}
 			}
 		})
-	case GogocdnServer, 0:
+	case GogocdnServer, "":
 		c.OnHTML("#load_anime > div > div > iframe", func(e *colly.HTMLElement) {
 			src := e.Attr("src")
-			uri, err := url.Parse(src)
-			if err != nil {
-				return
-			}
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &AnimeSource{
+				source = &ProviderEpisodeSource{
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episode.ID,
 					},
-					Sources:  videoSources,
-					Download: "https://gogohd.net/download?" + uri.Query().Encode(),
+					Sources: videoSources,
 				}
 			}
 		})
 	case StreamSBServer:
 		c.OnHTML(".anime_muti_link > ul > li.streamsb > a", func(e *colly.HTMLElement) {
 			src := e.Attr("data-video")
-			u, err := url.Parse(src)
-			if err != nil {
-				return
-			}
 			streamsb := onlinestream_sources.NewStreamSB()
 			videoSources, err := streamsb.Extract(src)
 			if err == nil {
-				source = &AnimeSource{
+				source = &ProviderEpisodeSource{
 					Headers: map[string]string{
 						"Referer":    g.BaseURL + "/" + episode.ID,
 						"watchsb":    "streamsb",
 						"User-Agent": g.UserAgent,
 					},
-					Sources:  videoSources,
-					Download: "https://gogohd.net/download?" + u.Query().Encode(),
+					Sources: videoSources,
 				}
 			}
 		})

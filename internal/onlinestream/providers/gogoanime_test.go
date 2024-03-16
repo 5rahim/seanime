@@ -1,4 +1,4 @@
-package onlinestream
+package onlinestream_providers
 
 import (
 	"errors"
@@ -96,12 +96,12 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		episode *AnimeEpisode
+		episode *ProviderEpisode
 		server  Server
 	}{
 		{
 			name: "One Piece",
-			episode: &AnimeEpisode{
+			episode: &ProviderEpisode{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -110,7 +110,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &AnimeEpisode{
+			episode: &ProviderEpisode{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -119,7 +119,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &AnimeEpisode{
+			episode: &ProviderEpisode{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -134,7 +134,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 			gogo := NewGogoanime(util.NewLogger())
 
-			sources, err := gogo.FindAnimeSources(tt.episode, tt.server)
+			sources, err := gogo.FindEpisodeSources(tt.episode, tt.server)
 			if err != nil {
 				if !errors.Is(err, ErrSourceNotFound) {
 					t.Fatal(err)

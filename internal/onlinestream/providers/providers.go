@@ -1,4 +1,4 @@
-package onlinestream
+package onlinestream_providers
 
 import (
 	"errors"
@@ -9,35 +9,45 @@ var (
 	ErrSourceNotFound = errors.New("video source not found")
 )
 
-type AnimeProvider interface {
-	Search(query string, dub bool) ([]*AnimeResult, error)
-	FindAnimeEpisodes(id string) ([]*AnimeEpisode, error)
-	FindVideoSources(episode *AnimeEpisode, server Server) (*onlinestream_sources.VideoSource, error)
-}
+type (
+	AnimeProvider interface {
+		Search(query string, dub bool) ([]*SearchResult, error)
+		FindAnimeEpisodes(id string) ([]*ProviderEpisode, error)
+		FindEpisodeSources(episode *ProviderEpisode, server Server) (*ProviderEpisodeSource, error)
+	}
 
-type AnimeResult struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	URL   string `json:"url"`
-	IsDub bool   `json:"isDub"`
-}
+	SearchResult struct {
+		ID       string   `json:"id"`       // Anime slug
+		Title    string   `json:"title"`    // Anime title
+		URL      string   `json:"url"`      // Anime page URL
+		SubOrDub SubOrDub `json:"subOrDub"` // Sub or Dub
+	}
 
-type AnimeEpisode struct {
-	ID     string `json:"id"`
-	Number int    `json:"number"`
-	URL    string `json:"url"`
-}
+	ProviderEpisode struct {
+		ID     string `json:"id"`     // Episode slug
+		Number int    `json:"number"` // Episode number
+		URL    string `json:"url"`    // Watch URL
+	}
 
-type AnimeSource struct {
-	Headers  map[string]string                   `json:"headers"`
-	Sources  []*onlinestream_sources.VideoSource `json:"sources"`
-	Download string                              `json:"download"`
-}
+	ProviderEpisodeSource struct {
+		Headers   map[string]string                     `json:"headers"`
+		Sources   []*onlinestream_sources.VideoSource   `json:"sources"`
+		Subtitles []*onlinestream_sources.VideoSubtitle `json:"subtitles"`
+	}
 
-type Server int
+	Server string
+
+	SubOrDub string
+)
 
 const (
-	VidstreamingServer Server = iota + 1
-	StreamSBServer
-	GogocdnServer
+	Sub       SubOrDub = "sub"
+	Dub       SubOrDub = "dub"
+	SubAndDub SubOrDub = "subAndDub"
+)
+
+const (
+	VidstreamingServer Server = "vidstreaming"
+	StreamSBServer     Server = "streamsb"
+	GogocdnServer      Server = "gogocdn"
 )
