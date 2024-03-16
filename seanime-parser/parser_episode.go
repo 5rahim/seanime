@@ -8,7 +8,7 @@ import (
 
 func (p *parser) parseEpisode() {
 
-	// Check alt episode number or range //TODO
+	// Check alt episode number or range
 	// e.g. 01 (12)
 	if found := p.parseKnownEpisodeAltNumber(); found {
 		return // Stop if an episode number is found (even if the alt number is not found)

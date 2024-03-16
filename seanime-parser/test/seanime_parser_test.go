@@ -66,7 +66,7 @@ func TestSeanimeParserIsolated(t *testing.T) {
 	data := getData()
 	assert.NotNil(t, data)
 
-	filename := "One Piece Movie 11 - Film Z [BD][1080p][x264][JPN][SUB]-df68.mkv"
+	filename := "Saiki Kusuo no Psi Nan 1x10.mkv"
 
 	for _, tt := range data {
 

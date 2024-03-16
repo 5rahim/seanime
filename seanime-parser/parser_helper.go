@@ -23,10 +23,13 @@ func extractSeasonAndEpisode(input string) (season string, separator string, epi
 	// Make sure numbers are zero-padded to avoid capturing strings like "1x3"
 	if strings.ToLower(separator) == "x" {
 		//nSeason, _ := strconv.Atoi(season)
-		nEpisode, _ := strconv.Atoi(season)
+		nEpisode, _ := strconv.Atoi(episode)
 		//if nSeason < 10 && !strings.HasPrefix(season, "0") {
 		//	return "", "", "", false
 		//}
+		if season == "0" && nEpisode > 500 { // avoid 0x539
+			return "", "", "", false
+		}
 		if nEpisode < 10 && !strings.HasPrefix(episode, "0") {
 			return "", "", "", false
 		}

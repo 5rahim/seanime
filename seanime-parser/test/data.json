@@ -2996,7 +2996,7 @@
       "Dual-Audio"
     ],
     "file_name": "Hyouka (2012) [Season 1+OVA] [BD 1080p HEVC OPUS] [Dual-Audio]",
-    "formatted_title": "Hyouka (2012) OVA",
+    "formatted_title": "Hyouka (2012)",
     "season_number": [
       "1"
     ],
@@ -3118,6 +3118,42 @@
     "video_resolution": "1080p",
     "video_term": [
       "Hi10P"
+    ],
+    "file_extension": "mkv"
+  },
+  {
+    "file_name": "Saiki Kusuo no Psi Nan 1x09.mkv",
+    "title": "Saiki Kusuo no Psi Nan",
+    "formatted_title": "Saiki Kusuo no Psi Nan",
+    "season_number": [
+      "1"
+    ],
+    "episode_number": [
+      "09"
+    ],
+    "file_extension": "mkv"
+  },
+  {
+    "file_name": "Saiki Kusuo no Psi Nan 1x10.mkv",
+    "title": "Saiki Kusuo no Psi Nan",
+    "formatted_title": "Saiki Kusuo no Psi Nan",
+    "season_number": [
+      "1"
+    ],
+    "episode_number": [
+      "10"
+    ],
+    "file_extension": "mkv"
+  },
+  {
+    "file_name": "Saiki Kusuo no Psi Nan 2x15.mkv",
+    "title": "Saiki Kusuo no Psi Nan",
+    "formatted_title": "Saiki Kusuo no Psi Nan",
+    "season_number": [
+      "2"
+    ],
+    "episode_number": [
+      "15"
     ],
     "file_extension": "mkv"
   }
