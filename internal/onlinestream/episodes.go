@@ -4,9 +4,16 @@ import (
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 )
 
+const (
+	ProviderGogoanime Provider = "gogoanime"
+	ProviderZoro      Provider = "zoro"
+)
+
 type (
+	Provider string
+
 	ProviderEpisodes struct {
-		Provider string
+		Provider Provider
 		Episodes []*Episode
 	}
 

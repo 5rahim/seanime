@@ -46,11 +46,9 @@ func NewGogoCDN() *GogoCDN {
 // Extract fetches and extracts video sources from the provided URI.
 func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
 
-	defer func() {
-		if r := recover(); r != nil {
-			err = ErrVideoSourceExtraction
-		}
-	}()
+	defer util.HandlePanicInModuleThen("onlinestream/sources/gogocdn/Extract", func() {
+		err = ErrVideoSourceExtraction
+	})
 
 	// Instantiate a new collector
 	c := colly.NewCollector(

@@ -2,10 +2,11 @@ package onlinestream_sources
 
 // VideoSource represents a video source.
 type VideoSource struct {
-	URL     string          `json:"url"`
-	Type    VideoSourceType `json:"type"`
-	Quality string          `json:"quality"`
-	Size    float64         `json:"size"`
+	URL       string           `json:"url"`
+	Type      VideoSourceType  `json:"type"`
+	Quality   string           `json:"quality"`
+	Size      float64          `json:"size"`
+	Subtitles []*VideoSubtitle `json:"subtitles"`
 }
 
 type VideoSourceType int
@@ -18,7 +19,7 @@ const (
 
 type VideoSubtitle struct {
 	URL       string `json:"url"`
-	Id        string `json:"id"`
+	ID        string `json:"id"`
 	Language  string `json:"language"`
 	IsDefault bool   `json:"isDefault"`
 }

@@ -3,14 +3,13 @@ package onlinestream_providers
 import (
 	"errors"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestGogoanime_Search(t *testing.T) {
+func TestZoro_Search(t *testing.T) {
 
-	gogo := NewGogoanime(util.NewLogger())
+	zoro := NewZoro()
 
 	tests := []struct {
 		name   string
@@ -28,7 +27,7 @@ func TestGogoanime_Search(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			results, err := gogo.Search(tt.query, tt.dubbed)
+			results, err := zoro.Search(tt.query, tt.dubbed)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -49,7 +48,7 @@ func TestGogoanime_Search(t *testing.T) {
 
 }
 
-func TestGogoanime_FetchEpisodes(t *testing.T) {
+func TestZoro_FetchEpisodes(t *testing.T) {
 
 	tests := []struct {
 		name string
@@ -57,21 +56,17 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 	}{
 		{
 			name: "One Piece",
-			id:   "one-piece",
-		},
-		{
-			name: "One Piece (Dub)",
-			id:   "one-piece-dub",
+			id:   "one-piece-100",
 		},
 	}
 
-	gogo := NewGogoanime(util.NewLogger())
+	zoro := NewZoro()
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := gogo.FindEpisodes(tt.id)
+			episodes, err := zoro.FetchEpisodes(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -92,7 +87,7 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 
 }
 
-func TestGogoanime_FetchSources(t *testing.T) {
+func TestZoro_FetchSources(t *testing.T) {
 
 	tests := []struct {
 		name    string
@@ -102,29 +97,38 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		{
 			name: "One Piece",
 			episode: &ProviderEpisode{
-				ID:     "one-piece-episode-1075",
-				Number: 1075,
-				URL:    "https://anitaku.to/one-piece-episode-1075",
+				ID:     "one-piece-100$episode$120118$both",
+				Number: 1095,
+				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
+			},
+			server: VidcloudServer,
+		},
+		{
+			name: "One Piece",
+			episode: &ProviderEpisode{
+				ID:     "one-piece-100$episode$120118$both",
+				Number: 1095,
+				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
 			},
 			server: VidstreamingServer,
 		},
 		{
 			name: "One Piece",
 			episode: &ProviderEpisode{
-				ID:     "one-piece-episode-1075",
-				Number: 1075,
-				URL:    "https://anitaku.to/one-piece-episode-1075",
+				ID:     "one-piece-100$episode$120118$both",
+				Number: 1095,
+				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
 			},
-			server: StreamSBServer,
+			server: StreamtapeServer,
 		},
 		{
 			name: "One Piece",
 			episode: &ProviderEpisode{
-				ID:     "one-piece-episode-1075",
-				Number: 1075,
-				URL:    "https://anitaku.to/one-piece-episode-1075",
+				ID:     "one-piece-100$episode$120118$both",
+				Number: 1095,
+				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
 			},
-			server: GogocdnServer,
+			server: StreamSBServer,
 		},
 	}
 
@@ -132,17 +136,17 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			gogo := NewGogoanime(util.NewLogger())
+			zoro := NewZoro()
 
-			sources, err := gogo.FindEpisodeSources(tt.episode, tt.server)
+			sources, err := zoro.FetchEpisodeSources(tt.episode, tt.server)
 			if err != nil {
-				if !errors.Is(err, ErrSourceNotFound) {
+				if !errors.Is(err, ErrSourceNotFound) && !errors.Is(err, ErrServerNotFound) {
 					t.Fatal(err)
 				}
 			}
 
 			if err != nil {
-				t.Skip("Source not found")
+				t.Skip(err.Error())
 			}
 
 			assert.NotEmpty(t, sources)

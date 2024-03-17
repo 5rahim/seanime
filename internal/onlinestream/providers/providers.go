@@ -7,12 +7,13 @@ import (
 
 var (
 	ErrSourceNotFound = errors.New("video source not found")
+	ErrServerNotFound = errors.New("server not found")
 )
 
 type (
-	AnimeProvider interface {
+	Provider interface {
 		Search(query string, dub bool) ([]*SearchResult, error)
-		FindAnimeEpisodes(id string) ([]*ProviderEpisode, error)
+		FindEpisodes(id string) ([]*ProviderEpisode, error)
 		FindEpisodeSources(episode *ProviderEpisode, server Server) (*ProviderEpisodeSource, error)
 	}
 
@@ -27,12 +28,12 @@ type (
 		ID     string `json:"id"`     // Episode slug
 		Number int    `json:"number"` // Episode number
 		URL    string `json:"url"`    // Watch URL
+		Title  string `json:"title"`  // Episode title
 	}
 
 	ProviderEpisodeSource struct {
-		Headers   map[string]string                     `json:"headers"`
-		Sources   []*onlinestream_sources.VideoSource   `json:"sources"`
-		Subtitles []*onlinestream_sources.VideoSubtitle `json:"subtitles"`
+		Headers map[string]string                   `json:"headers"`
+		Sources []*onlinestream_sources.VideoSource `json:"sources"`
 	}
 
 	Server string
@@ -43,11 +44,14 @@ type (
 const (
 	Sub       SubOrDub = "sub"
 	Dub       SubOrDub = "dub"
-	SubAndDub SubOrDub = "subAndDub"
+	SubAndDub SubOrDub = "both"
 )
 
 const (
+	DefaultServer      Server = "default"
 	VidstreamingServer Server = "vidstreaming"
 	StreamSBServer     Server = "streamsb"
 	GogocdnServer      Server = "gogocdn"
+	StreamtapeServer   Server = "streamtape"
+	VidcloudServer     Server = "vidcloud"
 )

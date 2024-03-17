@@ -68,7 +68,7 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (g *Gogoanime) FindAnimeEpisodes(id string) ([]*ProviderEpisode, error) {
+func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 	var episodes []*ProviderEpisode
 
 	if !strings.Contains(id, "gogoanime") {

@@ -31,11 +31,11 @@ func (s *StreamSB) Payload(hex string) string {
 
 func (s *StreamSB) Extract(uri string) (vs []*VideoSource, err error) {
 
-	defer util.HandlePanicInModuleThen("onlinestream/extractors/streamsb/Extract", func() {
+	defer util.HandlePanicInModuleThen("onlinestream/sources/streamsb/Extract", func() {
 		err = ErrVideoSourceExtraction
 	})
 
-	var results []*VideoSource
+	var ret []*VideoSource
 
 	id := strings.Split(uri, "/e/")[1]
 	if strings.Contains(id, "html") {
@@ -92,18 +92,18 @@ func (s *StreamSB) Extract(uri string) (vs []*VideoSource, err error) {
 		quality := strings.Split(strings.Split(video, "RESOLUTION=")[1], ",")[0]
 		quality = strings.Split(quality, "x")[1]
 
-		results = append(results, &VideoSource{
+		ret = append(ret, &VideoSource{
 			URL:     url,
 			Quality: quality + "p",
 			Type:    VideoSourceM3U8,
 		})
 	}
 
-	results = append(results, &VideoSource{
+	ret = append(ret, &VideoSource{
 		URL:     streamData["file"].(string),
 		Quality: "auto",
 		Type:    map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(streamData["file"].(string), ".m3u8")],
 	})
 
-	return results, nil
+	return ret, nil
 }
