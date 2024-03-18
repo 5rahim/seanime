@@ -1,6 +1,7 @@
 import { websocketAtom, WebSocketContext } from "@/atoms/websocket"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import React, { useState } from "react"
+import React from "react"
 import { LuLoader } from "react-icons/lu"
 import { useEffectOnce } from "react-use"
 
@@ -12,10 +13,11 @@ function uuidv4(): string {
     )
 }
 
+export const websocketConnectedAtom = atom(false)
 
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
-    const [isConnected, setIsConnected] = useState(false)
+    const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
 
     useEffectOnce(() => {
 

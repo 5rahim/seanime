@@ -1,11 +1,12 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { websocketConnectedAtom } from "@/components/application/websocket-provider"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { ServerStatus } from "@/lib/server/types"
 import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
-import { useAtom } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -13,6 +14,8 @@ import { toast } from "sonner"
 export default function CallbackPage() {
     const router = useRouter()
     const [status, setServerStatus] = useAtom(serverStatusAtom)
+    const isConnected = useAtomValue(websocketConnectedAtom)
+
 
     const [token, setToken] = React.useState<string | null>(null)
 
@@ -33,25 +36,28 @@ export default function CallbackPage() {
             const t = setTimeout(() => {
                 toast.success("Successfully authenticated")
                 router.push("/")
-            }, 1000)
+            }, 200)
         },
         onError: (error) => {
             toast.error(error.message)
         },
     })
 
+    const called = React.useRef(false)
+
     React.useEffect(() => {
-        if (typeof window !== "undefined") {
+        if (typeof window !== "undefined" && isConnected) {
             const _token = window?.location?.hash?.replace("#access_token=", "")?.replace(/&.*/, "")
             setToken(_token)
-            if (!!_token) {
+            if (!!_token && !called.current) {
                 login({ token: _token })
+                called.current = true
             } else {
                 toast.error("Invalid token")
                 router.push("/")
             }
         }
-    }, [])
+    }, [isConnected])
 
     React.useEffect(() => {
         if (!!status?.user) {

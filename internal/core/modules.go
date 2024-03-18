@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
@@ -64,6 +65,17 @@ func (a *App) InitModulesOnce() {
 //   - After App.Database is initialized
 //   - After settings are updated.
 func (a *App) InitOrRefreshModules() {
+	if a.cancelContext != nil {
+		a.Logger.Debug().Msg("app: Avoided concurrent refresh")
+		return
+	}
+
+	var ctx context.Context
+	ctx, a.cancelContext = context.WithCancel(context.Background())
+	defer func() {
+		ctx.Done()
+		a.cancelContext = nil
+	}()
 
 	// Stop watching if already watching
 	if a.Watcher != nil {

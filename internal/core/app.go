@@ -62,6 +62,7 @@ type (
 		FileCacher          *filecache.Cacher
 		Onlinestream        *onlinestream.OnlineStream
 		WD                  string // Working directory
+		cancelContext       func()
 	}
 
 	AppOptions struct {

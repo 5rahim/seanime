@@ -3,6 +3,7 @@ package events
 import (
 	"github.com/gofiber/contrib/websocket"
 	"github.com/rs/zerolog"
+	"sync"
 )
 
 type IWSEventManager interface {
@@ -16,6 +17,7 @@ type (
 		//Conn   *websocket.Conn // DEPRECATED
 		Conns  []*WSConn
 		Logger *zerolog.Logger
+		mu     sync.Mutex
 	}
 
 	WSConn struct {
@@ -55,6 +57,8 @@ func (m *WSEventManager) RemoveConn(id string) {
 
 // SendEvent sends a websocket event to the client.
 func (m *WSEventManager) SendEvent(t string, payload interface{}) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	// If there's no connection, do nothing
 	//if m.Conn == nil {
 	//	return
