@@ -71,8 +71,8 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
-	var episodes []*ProviderEpisode
+func (g *Gogoanime) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) {
+	var episodes []*ProviderEpisodeInfo
 
 	g.logger.Debug().Str("id", id).Msg("gogoanime: Fetching episodes")
 
@@ -123,7 +123,7 @@ func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 			g.logger.Error().Err(err).Str("episodeID", episodeID).Msg("failed to parse episode number")
 			return
 		}
-		episodes = append(episodes, &ProviderEpisode{
+		episodes = append(episodes, &ProviderEpisodeInfo{
 			ID:     episodeID,
 			Number: episodeNumber,
 			URL:    g.BaseURL + "/" + episodeID,
@@ -151,13 +151,13 @@ func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 	return episodes, nil
 }
 
-func (g *Gogoanime) FindEpisodeServerSources(episode *ProviderEpisode, server Server) (*ProviderServerSources, error) {
+func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server Server) (*ProviderServerSources, error) {
 	var source *ProviderServerSources
 
 	if server == DefaultServer {
 		server = GogocdnServer
 	}
-	g.logger.Debug().Str("server", string(server)).Str("episodeID", episode.ID).Msg("gogoanime: Fetching server sources")
+	g.logger.Debug().Str("server", string(server)).Str("episodeID", episodeInfo.ID).Msg("gogoanime: Fetching server sources")
 
 	c := colly.NewCollector()
 
@@ -171,7 +171,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episode *ProviderEpisode, server Se
 				source = &ProviderServerSources{
 					Server: server,
 					Headers: map[string]string{
-						"Referer": g.BaseURL + "/" + episode.ID,
+						"Referer": g.BaseURL + "/" + episodeInfo.ID,
 					},
 					Sources: videoSources,
 				}
@@ -186,7 +186,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episode *ProviderEpisode, server Se
 				source = &ProviderServerSources{
 					Server: server,
 					Headers: map[string]string{
-						"Referer": g.BaseURL + "/" + episode.ID,
+						"Referer": g.BaseURL + "/" + episodeInfo.ID,
 					},
 					Sources: videoSources,
 				}
@@ -201,7 +201,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episode *ProviderEpisode, server Se
 				source = &ProviderServerSources{
 					Server: server,
 					Headers: map[string]string{
-						"Referer":    g.BaseURL + "/" + episode.ID,
+						"Referer":    g.BaseURL + "/" + episodeInfo.ID,
 						"watchsb":    "streamsb",
 						"User-Agent": g.UserAgent,
 					},
@@ -211,7 +211,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episode *ProviderEpisode, server Se
 		})
 	}
 
-	err := c.Visit(g.BaseURL + "/" + episode.ID)
+	err := c.Visit(g.BaseURL + "/" + episodeInfo.ID)
 	if err != nil {
 		return nil, err
 	}

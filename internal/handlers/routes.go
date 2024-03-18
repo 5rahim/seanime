@@ -253,6 +253,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/playlist/episodes/:id/:progress", makeHandler(app, HandleGetPlaylistEpisodes))
 
 	//
+	// Onlinestream
+	//
+
+	v1.Post("/onlinestream/episode", makeHandler(app, HandleGetOnlineStreamEpisode))
+	v1.Post("/onlinestream/episodes", makeHandler(app, HandleGetOnlineStreamEpisodes))
+
+	//
 	// Websocket
 	//
 

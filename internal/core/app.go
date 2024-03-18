@@ -134,7 +134,7 @@ func NewApp(options *AppOptions, version string) *App {
 	anizipCache := anizip.NewCache()
 
 	// File Cacher
-	fileCacher := filecache.NewCacher(&filecache.NewCacherOptions{Dir: cfg.Cache.Dir})
+	fileCacher, _ := filecache.NewCacher(cfg.Cache.Dir)
 
 	// Online Stream
 	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{

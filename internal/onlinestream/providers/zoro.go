@@ -84,8 +84,8 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (z *Zoro) FindEpisodes(id string) ([]*ProviderEpisode, error) {
-	var episodes []*ProviderEpisode
+func (z *Zoro) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) {
+	var episodes []*ProviderEpisodeInfo
 
 	z.logger.Debug().Str("id", id).Msg("zoro: Fetching episodes")
 
@@ -153,7 +153,7 @@ func (z *Zoro) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 			epNumber, _ := strconv.Atoi(s.AttrOr("data-number", ""))
 			url := z.BaseURL + s.AttrOr("href", "")
 			title := s.AttrOr("title", "")
-			episodes = append(episodes, &ProviderEpisode{
+			episodes = append(episodes, &ProviderEpisodeInfo{
 				ID:     id,
 				Number: epNumber,
 				URL:    url,
@@ -173,15 +173,15 @@ func (z *Zoro) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 	return episodes, nil
 }
 
-func (z *Zoro) FindEpisodeServerSources(episode *ProviderEpisode, server Server) (*ProviderServerSources, error) {
+func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server Server) (*ProviderServerSources, error) {
 	var source *ProviderServerSources
 
 	if server == DefaultServer {
 		server = VidcloudServer
 	}
-	z.logger.Debug().Str("server", string(server)).Str("episodeID", episode.ID).Msg("zoro: Fetching server sources")
+	z.logger.Debug().Str("server", string(server)).Str("episodeID", episodeInfo.ID).Msg("zoro: Fetching server sources")
 
-	episodeParts := strings.Split(episode.ID, "$")
+	episodeParts := strings.Split(episodeInfo.ID, "$")
 
 	if len(episodeParts) < 3 {
 		return nil, errors.New("invalid episode id")

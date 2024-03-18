@@ -1,216 +1,165 @@
 package filecache
 
 import (
-	"errors"
 	"github.com/goccy/go-json"
-	bolt "go.etcd.io/bbolt"
+	"os"
+	"path/filepath"
+	"sync"
 	"time"
 )
 
-// Reference: https://github.com/metafates/mangal/blob/v5/cache/bbolt/bbolt.go
-
-const ttlBucketName = "ttl"
-
-type Store struct {
-	db            *bolt.DB
-	ttl           time.Duration
-	ttlBucketName string
-	bucketName    string
+// CacheStore represents a single-process, file-based, key/value cache store.
+type CacheStore struct {
+	filePath string
+	mu       sync.Mutex
+	data     map[string]*cacheItem
 }
 
-// Set stores the given value for the given key.
-// Values are automatically marshalled to JSON or gob (depending on the configuration).
-// The key must not be "" and the value must not be nil.
-func (s Store) Set(k string, v interface{}) error {
-	if err := checkKeyAndValue(k, v); err != nil {
-		return err
-	}
+// Bucket represents a cache bucket with a name and TTL.
+type Bucket struct {
+	name string
+	ttl  time.Duration
+}
 
-	// First turn the passed object into something that bbolt can handle
-	data, err := json.Marshal(v)
+func NewBucket(name string, ttl time.Duration) Bucket {
+	return Bucket{name: name, ttl: ttl}
+}
+
+// Cacher represents a single-process, file-based, key/value cache.
+type Cacher struct {
+	dir    string
+	stores map[string]*CacheStore
+	mu     sync.Mutex
+}
+
+type cacheItem struct {
+	Value      interface{} `json:"value"`
+	Expiration time.Time   `json:"expiration"`
+}
+
+// NewCacher creates a new instance of Cacher.
+func NewCacher(dir string) (*Cacher, error) {
+	// Check if the directory exists
+	_, err := os.Stat(dir)
 	if err != nil {
-		return err
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
+	return &Cacher{
+		stores: make(map[string]*CacheStore),
+		dir:    dir,
+	}, nil
+}
 
-	err = s.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(s.bucketName))
-		if err := b.Put([]byte(k), data); err != nil {
+// Close closes all the cache stores.
+func (c *Cacher) Close() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for _, store := range c.stores {
+		if err := store.saveToFile(); err != nil {
 			return err
 		}
-
-		bTTL := tx.Bucket([]byte(s.ttlBucketName))
-		return bTTL.Put([]byte(k), []byte(time.Now().UTC().Format(time.RFC3339Nano)))
-	})
-	if err != nil {
-		return err
 	}
 	return nil
 }
 
-// Get retrieves the stored value for the given key.
-// If no value is found it returns (false, nil).
-// The key must not be "" and the pointer must not be nil.
-func (s Store) Get(k string, v interface{}) (found bool, err error) {
-	if err := checkKeyAndValue(k, v); err != nil {
+// getStore returns a cache store for the given bucket name and TTL.
+func (c *Cacher) getStore(name string) (*CacheStore, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	store, ok := c.stores[name]
+	if !ok {
+		store = &CacheStore{
+			filePath: filepath.Join(c.dir, name+".cache"),
+			data:     make(map[string]*cacheItem),
+		}
+		if err := store.loadFromFile(); err != nil {
+			return nil, err
+		}
+		c.stores[name] = store
+	}
+	return store, nil
+}
+
+// Set sets the value for the given key in the given bucket.
+func (c *Cacher) Set(bucket Bucket, key string, value interface{}) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	store.data[key] = &cacheItem{Value: value, Expiration: time.Now().Add(bucket.ttl)}
+	return store.saveToFile()
+}
+
+// Get retrieves the value for the given key from the given bucket.
+func (c *Cacher) Get(bucket Bucket, key string, out interface{}) (bool, error) {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
 		return false, err
 	}
-
-	var data []byte
-	err = s.db.View(func(tx *bolt.Tx) error {
-		bTTL := tx.Bucket([]byte(s.ttlBucketName))
-		// Get the TTL for the key
-		ttlData := bTTL.Get([]byte(k))
-		if ttlData != nil {
-			ttl, err := time.Parse(time.RFC3339Nano, string(ttlData))
-			if err != nil {
-				return err
-			}
-			if time.Now().UTC().After(ttl.Add(s.ttl)) {
-				return nil
-			}
-		}
-
-		b := tx.Bucket([]byte(s.bucketName))
-		txData := b.Get([]byte(k))
-		// txData is only valid during the transaction.
-		// Its value must be copied to make it valid outside of the tx.
-		// TODO: Benchmark if it's faster to copy + close tx,
-		// or to keep the tx open until unmarshalling is done.
-		if txData != nil {
-			// `data = append([]byte{}, txData...)` would also work, but the following is more explicit
-			data = make([]byte, len(txData))
-			copy(data, txData)
-		}
-		return nil
-	})
-	if err != nil {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	item, ok := store.data[key]
+	if !ok {
 		return false, nil
 	}
-
-	// If no value was found return false
-	if data == nil {
+	if time.Now().After(item.Expiration) {
+		delete(store.data, key)
+		_ = store.saveToFile() // Ignore errors here
 		return false, nil
 	}
-
-	return true, json.Unmarshal(data, v)
+	data, err := json.Marshal(item.Value)
+	if err != nil {
+		return false, err
+	}
+	return true, json.Unmarshal(data, out)
 }
 
-// Delete deletes the stored value for the given key.
-// Deleting a non-existing key-value pair does NOT lead to an error.
-// The key must not be "".
-func (s Store) Delete(k string) error {
-	if err := checkKey(k); err != nil {
+// Delete deletes the value for the given key from the given bucket.
+func (c *Cacher) Delete(bucket Bucket, key string) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
 		return err
 	}
-
-	return s.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(s.bucketName))
-		if err := b.Delete([]byte(k)); err != nil {
-			return err
-		}
-
-		bTTL := tx.Bucket([]byte(s.ttlBucketName))
-		return bTTL.Delete([]byte(k))
-	})
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	delete(store.data, key)
+	return store.saveToFile()
 }
 
-// Close closes the store.
-// It must be called to make sure that all open transactions finish and to release all DB resources.
-func (s Store) Close() error {
-	return s.db.Close()
-}
-
-// Options are the options for the bbolt store.
-type Options struct {
-	TTL time.Duration
-	// Bucket name for storing the key-value pairs.
-	// Optional ("default" by default).
-	BucketName string
-	// Path of the DB file.
-	// Optional ("bbolt.db" by default).
-	Path string
-	// Encoding format.
-	// Optional (encoding.JSON by default).
-}
-
-// DefaultOptions is an Options object with default values.
-var DefaultOptions = Options{
-	TTL:        time.Hour * 24 * 7,
-	BucketName: "default",
-	Path:       "cache.db",
-}
-
-// NewStore creates a new bbolt store.
-// Note: bbolt uses an exclusive write lock on the database file, so it cannot be shared by multiple processes.
-// So when creating multiple clients you should always use a new database file (by setting a different Path in the options).
-//
-// You must call the Close() method on the store when you're done working with it.
-func NewStore(options Options) (*Store, error) {
-	result := Store{}
-
-	// Set default values
-	if options.BucketName == "" {
-		options.BucketName = DefaultOptions.BucketName
-	}
-	if options.Path == "" {
-		options.Path = DefaultOptions.Path
-	}
-	if options.TTL == 0 {
-		options.TTL = DefaultOptions.TTL
-	}
-
-	// Open DB
-	db, err := bolt.Open(options.Path, 0600, nil)
+func (cs *CacheStore) loadFromFile() error {
+	file, err := os.Open(cs.filePath)
 	if err != nil {
-		return &result, err
-	}
-
-	// Create a bucket if it doesn't exist yet.
-	// In bbolt key/value pairs are stored to and read from buckets.
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(options.BucketName))
-		if err != nil {
-			return err
+		if os.IsNotExist(err) {
+			return nil // File does not exist, so nothing to load
 		}
-
-		_, err = tx.CreateBucketIfNotExists([]byte(ttlBucketName))
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return &result, err
-	}
-
-	result.ttl = options.TTL
-	result.db = db
-	result.ttlBucketName = ttlBucketName
-	result.bucketName = options.BucketName
-
-	return &result, nil
-}
-
-// checkKeyAndValue returns an error if k == "" or if v == nil
-func checkKeyAndValue(k string, v any) error {
-	if err := checkKey(k); err != nil {
 		return err
 	}
-	return checkVal(v)
-}
+	defer file.Close()
 
-// checkKey returns an error if k == ""
-func checkKey(k string) error {
-	if k == "" {
-		return errors.New("the passed key is an empty string, which is invalid")
+	if err := json.NewDecoder(file).Decode(&cs.data); err != nil {
+		return err
 	}
 	return nil
 }
 
-// checkVal returns an error if v == nil
-func checkVal(v any) error {
-	if v == nil {
-		return errors.New("the passed value is nil, which is not allowed")
+func (cs *CacheStore) saveToFile() error {
+	file, err := os.Create(cs.filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if err := json.NewEncoder(file).Encode(cs.data); err != nil {
+		return err
 	}
 	return nil
 }

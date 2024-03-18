@@ -4,19 +4,17 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 	"github.com/seanime-app/seanime/internal/util/filecache"
-	"github.com/seanime-app/seanime/internal/util/result"
 	"time"
 )
 
 type (
 	OnlineStream struct {
-		logger                *zerolog.Logger
-		episodeCache          *EpisodeCache
-		providerEpisodesCache *ProviderEpisodesCache
-		gogo                  *onlinestream_providers.Gogoanime
-		zoro                  *onlinestream_providers.Zoro
-		fileCacher            *filecache.Cacher
-		fcEpisodeBucket       filecache.Bucket
+		logger                       *zerolog.Logger
+		gogo                         *onlinestream_providers.Gogoanime
+		zoro                         *onlinestream_providers.Zoro
+		fileCacher                   *filecache.Cacher
+		fcEpisodeBucket              filecache.Bucket
+		fcProviderEpisodesInfoBucket filecache.Bucket
 	}
 )
 
@@ -29,17 +27,12 @@ type (
 
 func New(opts *NewOnlineStreamOptions) *OnlineStream {
 	return &OnlineStream{
-		logger: opts.Logger,
-		episodeCache: &EpisodeCache{
-			Cache: result.NewCache[string, *Episode](),
-		},
-		providerEpisodesCache: &ProviderEpisodesCache{
-			Cache: result.NewCache[int, []*onlinestream_providers.ProviderEpisode](),
-		},
-		gogo:            onlinestream_providers.NewGogoanime(opts.Logger),
-		zoro:            onlinestream_providers.NewZoro(opts.Logger),
-		fileCacher:      opts.FileCacher,
-		fcEpisodeBucket: filecache.NewBucket("onlinestream-episodes", 24*time.Hour*7), // Cache episodes for 7 days
+		logger:                       opts.Logger,
+		gogo:                         onlinestream_providers.NewGogoanime(opts.Logger),
+		zoro:                         onlinestream_providers.NewZoro(opts.Logger),
+		fileCacher:                   opts.FileCacher,
+		fcEpisodeBucket:              filecache.NewBucket("onlinestream-episodes", 24*time.Hour*7),            // Cache episodes for 7 days
+		fcProviderEpisodesInfoBucket: filecache.NewBucket("onlinestream-provider-episodes-info", 1*time.Hour), // Cache provider episodes for 1 hour
 	}
 }
 

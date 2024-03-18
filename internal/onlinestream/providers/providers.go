@@ -13,8 +13,8 @@ var (
 type (
 	Provider interface {
 		Search(query string, dub bool) ([]*SearchResult, error)
-		FindEpisodes(id string) ([]*ProviderEpisode, error)
-		FindEpisodeServerSources(episode *ProviderEpisode, server Server) (*ProviderServerSources, error)
+		FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error)
+		FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server Server) (*ProviderServerSources, error)
 	}
 
 	SearchResult struct {
@@ -24,7 +24,7 @@ type (
 		SubOrDub SubOrDub `json:"subOrDub"` // Sub or Dub
 	}
 
-	ProviderEpisode struct {
+	ProviderEpisodeInfo struct {
 		ID     string `json:"id"`     // Episode slug
 		Number int    `json:"number"` // Episode number
 		URL    string `json:"url"`    // Watch URL

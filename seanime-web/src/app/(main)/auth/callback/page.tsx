@@ -16,10 +16,9 @@ export default function CallbackPage() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
     const isConnected = useAtomValue(websocketConnectedAtom)
 
-
     const [token, setToken] = React.useState<string | null>(null)
 
-    const { mutate: login, error } = useMutation<ServerStatus, any, { token: string }>({
+    const { mutate: login } = useMutation<ServerStatus, any, { token: string }>({
         mutationKey: ["login", token],
         mutationFn: async (variables) => {
             const res = await axios(typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development"
@@ -33,13 +32,12 @@ export default function CallbackPage() {
         onSuccess: (data) => {
             console.log(data)
             setServerStatus(data)
-            const t = setTimeout(() => {
-                toast.success("Successfully authenticated")
-                router.push("/")
-            }, 200)
+            toast.success("Successfully authenticated")
+            router.push("/")
         },
         onError: (error) => {
             toast.error(error.message)
+            router.push("/")
         },
     })
 
@@ -58,12 +56,6 @@ export default function CallbackPage() {
             }
         }
     }, [isConnected])
-
-    React.useEffect(() => {
-        if (!!status?.user) {
-            router.push("/")
-        }
-    }, [status])
 
     return (
         <div>

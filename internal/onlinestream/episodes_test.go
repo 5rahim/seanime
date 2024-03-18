@@ -5,6 +5,8 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/filecache"
+	"path/filepath"
 	"testing"
 )
 
@@ -14,8 +16,11 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
+	fileCacher, _ := filecache.NewCacher(filepath.Join(test_utils.ConfigData.Path.DataDir, "cache"))
+
 	os := New(&NewOnlineStreamOptions{
-		Logger: util.NewLogger(),
+		Logger:     util.NewLogger(),
+		FileCacher: fileCacher,
 	})
 
 	tests := []struct {
