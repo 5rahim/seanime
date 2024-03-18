@@ -51,7 +51,7 @@ export function AuthWrapper(props: AuthWrapperProps) {
         return <GettingStarted status={serverStatus} />
     }
 
-    if (!serverStatus?.user) {
+    if (!serverStatus?.user && window?.location?.host === "127.0.0.1:43211") {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>
