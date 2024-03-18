@@ -157,7 +157,14 @@ export default function Page() {
                                 <Field.Switch
                                     name="autoScan"
                                     label="Automatically refresh library"
-                                    help="If enabled, your library will be refreshed in the background when new files are added/deleted. Make sure to lock your files regularly."
+                                    help={<div>
+                                        <p>If enabled, your library will be refreshed in the background when new files are added/deleted. Make sure to
+                                           lock your files regularly.</p>
+                                        <p>
+                                            <em>Note:</em> This works best when single files are added/deleted. If you are adding a batch, it's
+                                                           recommended to manually refresh your library after it's downloaded.
+                                        </p>
+                                    </div>}
                                 />
                                 <Separator />
                                 <Field.Switch
