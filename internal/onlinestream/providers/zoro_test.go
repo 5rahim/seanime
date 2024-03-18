@@ -3,13 +3,15 @@ package onlinestream_providers
 import (
 	"errors"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestZoro_Search(t *testing.T) {
 
-	zoro := NewZoro()
+	logger := util.NewLogger()
+	zoro := NewZoro(logger)
 
 	tests := []struct {
 		name   string
@@ -49,6 +51,7 @@ func TestZoro_Search(t *testing.T) {
 }
 
 func TestZoro_FetchEpisodes(t *testing.T) {
+	logger := util.NewLogger()
 
 	tests := []struct {
 		name string
@@ -60,13 +63,13 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 		},
 	}
 
-	zoro := NewZoro()
+	zoro := NewZoro(logger)
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := zoro.FetchEpisodes(tt.id)
+			episodes, err := zoro.FindEpisodes(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -88,6 +91,7 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 }
 
 func TestZoro_FetchSources(t *testing.T) {
+	logger := util.NewLogger()
 
 	tests := []struct {
 		name    string
@@ -131,14 +135,13 @@ func TestZoro_FetchSources(t *testing.T) {
 			server: StreamSBServer,
 		},
 	}
+	zoro := NewZoro(logger)
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			zoro := NewZoro()
-
-			sources, err := zoro.FetchEpisodeSources(tt.episode, tt.server)
+			serverSources, err := zoro.FindEpisodeServerSources(tt.episode, tt.server)
 			if err != nil {
 				if !errors.Is(err, ErrSourceNotFound) && !errors.Is(err, ErrServerNotFound) {
 					t.Fatal(err)
@@ -149,13 +152,13 @@ func TestZoro_FetchSources(t *testing.T) {
 				t.Skip(err.Error())
 			}
 
-			assert.NotEmpty(t, sources)
+			assert.NotEmpty(t, serverSources)
 
-			for _, s := range sources.Sources {
+			for _, s := range serverSources.Sources {
 				assert.NotEmpty(t, s, "Source is empty")
 			}
 
-			spew.Dump(sources)
+			spew.Dump(serverSources)
 
 		})
 

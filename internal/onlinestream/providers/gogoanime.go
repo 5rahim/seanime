@@ -2,7 +2,6 @@ package onlinestream_providers
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/onlinestream/sources"
@@ -32,6 +31,8 @@ func NewGogoanime(logger *zerolog.Logger) *Gogoanime {
 
 func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	var results []*SearchResult
+
+	g.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("gogoanime: Searching anime")
 
 	c := colly.NewCollector()
 
@@ -65,11 +66,15 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 		return nil, err
 	}
 
+	g.logger.Debug().Int("count", len(results)).Msg("gogoanime: Fetched anime")
+
 	return results, nil
 }
 
 func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 	var episodes []*ProviderEpisode
+
+	g.logger.Debug().Str("id", id).Msg("gogoanime: Fetching episodes")
 
 	if !strings.Contains(id, "gogoanime") {
 		id = fmt.Sprintf("%s/category/%s", g.BaseURL, id)
@@ -98,7 +103,7 @@ func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 
 	err := c.Visit(id)
 	if err != nil {
-		g.logger.Error().Err(err).Msg("failed to fetch episodes")
+		g.logger.Error().Err(err).Msg("gogoanime: Failed to fetch episodes")
 		return nil, err
 	}
 
@@ -118,7 +123,6 @@ func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 			g.logger.Error().Err(err).Str("episodeID", episodeID).Msg("failed to parse episode number")
 			return
 		}
-		spew.Dump(episodeID)
 		episodes = append(episodes, &ProviderEpisode{
 			ID:     episodeID,
 			Number: episodeNumber,
@@ -138,15 +142,22 @@ func (g *Gogoanime) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 
 	err = c2.Visit(ajaxURLWithParams)
 	if err != nil {
-		g.logger.Error().Err(err).Msg("failed to fetch episodes")
+		g.logger.Error().Err(err).Msg("gogoanime: Failed to fetch episodes")
 		return nil, err
 	}
+
+	g.logger.Debug().Int("count", len(episodes)).Msg("gogoanime: Fetched episodes")
 
 	return episodes, nil
 }
 
-func (g *Gogoanime) FindEpisodeSources(episode *ProviderEpisode, server Server) (*ProviderEpisodeSource, error) {
-	var source *ProviderEpisodeSource
+func (g *Gogoanime) FindEpisodeServerSources(episode *ProviderEpisode, server Server) (*ProviderServerSources, error) {
+	var source *ProviderServerSources
+
+	if server == DefaultServer {
+		server = GogocdnServer
+	}
+	g.logger.Debug().Str("server", string(server)).Str("episodeID", episode.ID).Msg("gogoanime: Fetching server sources")
 
 	c := colly.NewCollector()
 
@@ -157,7 +168,8 @@ func (g *Gogoanime) FindEpisodeSources(episode *ProviderEpisode, server Server) 
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &ProviderEpisodeSource{
+				source = &ProviderServerSources{
+					Server: server,
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episode.ID,
 					},
@@ -171,7 +183,8 @@ func (g *Gogoanime) FindEpisodeSources(episode *ProviderEpisode, server Server) 
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &ProviderEpisodeSource{
+				source = &ProviderServerSources{
+					Server: server,
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episode.ID,
 					},
@@ -185,7 +198,8 @@ func (g *Gogoanime) FindEpisodeSources(episode *ProviderEpisode, server Server) 
 			streamsb := onlinestream_sources.NewStreamSB()
 			videoSources, err := streamsb.Extract(src)
 			if err == nil {
-				source = &ProviderEpisodeSource{
+				source = &ProviderServerSources{
+					Server: server,
 					Headers: map[string]string{
 						"Referer":    g.BaseURL + "/" + episode.ID,
 						"watchsb":    "streamsb",
@@ -203,8 +217,11 @@ func (g *Gogoanime) FindEpisodeSources(episode *ProviderEpisode, server Server) 
 	}
 
 	if source == nil {
+		g.logger.Warn().Str("server", string(server)).Msg("gogoanime: No sources found")
 		return nil, ErrSourceNotFound
 	}
+
+	g.logger.Debug().Str("server", string(server)).Int("sources", len(source.Sources)).Msg("gogoanime: Fetched server sources")
 
 	return source, nil
 

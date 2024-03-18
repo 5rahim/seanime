@@ -86,6 +86,7 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 						URL:       e["file"].(string),
 						Type:      map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(e["file"].(string), ".m3u8")],
 						Subtitles: subtitles,
+						Quality:   QualityAuto,
 					})
 				}
 				if len(videoSources) == 0 {
@@ -132,6 +133,7 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 					URL:       e["file"].(string),
 					Type:      map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(e["file"].(string), ".m3u8")],
 					Subtitles: subtitles,
+					Quality:   QualityAuto,
 				})
 			}
 

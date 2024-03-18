@@ -127,14 +127,13 @@ func TestGogoanime_FetchSources(t *testing.T) {
 			server: GogocdnServer,
 		},
 	}
+	gogo := NewGogoanime(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			gogo := NewGogoanime(util.NewLogger())
-
-			sources, err := gogo.FindEpisodeSources(tt.episode, tt.server)
+			sources, err := gogo.FindEpisodeServerSources(tt.episode, tt.server)
 			if err != nil {
 				if !errors.Is(err, ErrSourceNotFound) {
 					t.Fatal(err)

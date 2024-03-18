@@ -50,11 +50,11 @@ func (m *BaseMedia) IsMovieOrSingleEpisode() bool {
 
 func (m *BaseMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
-	if m.HasEnglishTitle() {
-		titles = append(titles, m.Title.English)
-	}
 	if m.HasRomajiTitle() {
 		titles = append(titles, m.Title.Romaji)
+	}
+	if m.HasEnglishTitle() {
+		titles = append(titles, m.Title.English)
 	}
 	if m.HasSynonyms() && len(m.Synonyms) > 1 {
 		titles = append(titles, lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })...)
@@ -132,11 +132,11 @@ func (m *BasicMedia) GetPreferredTitle() string {
 
 func (m *BasicMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
-	if m.HasEnglishTitle() {
-		titles = append(titles, m.Title.English)
-	}
 	if m.HasRomajiTitle() {
 		titles = append(titles, m.Title.Romaji)
+	}
+	if m.HasEnglishTitle() {
+		titles = append(titles, m.Title.English)
 	}
 	if m.HasSynonyms() && len(m.Synonyms) > 1 {
 		titles = append(titles, lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })...)

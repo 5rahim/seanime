@@ -131,10 +131,10 @@ func SetTestConfigPath(path string) {
 		log.Fatalf("couldn't set TEST_CONFIG_PATH: %s", err)
 	}
 }
-func SetThreeLevelDeep() {
-	ConfigPath = ThreeLevelDeepTestConfigPath
-	TestDataPath = ThreeLevelDeepTestDataPath
-	DataPath = ThreeLevelDeepDataPath
+func SetTwoLevelDeep() {
+	ConfigPath = TwoLevelDeepTestConfigPath
+	TestDataPath = TwoLevelDeepTestDataPath
+	DataPath = TwoLevelDeepDataPath
 }
 
 func getConfig() *Config {

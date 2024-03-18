@@ -14,7 +14,7 @@ type (
 	Provider interface {
 		Search(query string, dub bool) ([]*SearchResult, error)
 		FindEpisodes(id string) ([]*ProviderEpisode, error)
-		FindEpisodeSources(episode *ProviderEpisode, server Server) (*ProviderEpisodeSource, error)
+		FindEpisodeServerSources(episode *ProviderEpisode, server Server) (*ProviderServerSources, error)
 	}
 
 	SearchResult struct {
@@ -31,7 +31,8 @@ type (
 		Title  string `json:"title"`  // Episode title
 	}
 
-	ProviderEpisodeSource struct {
+	ProviderServerSources struct {
+		Server  Server                              `json:"server"`
 		Headers map[string]string                   `json:"headers"`
 		Sources []*onlinestream_sources.VideoSource `json:"sources"`
 	}

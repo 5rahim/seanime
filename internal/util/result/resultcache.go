@@ -57,7 +57,6 @@ func (c *Cache[K, V]) Has(key K) bool {
 func (c *Cache[K, V]) GetOrSet(key K, createFunc func() (V, error)) (V, error) {
 	value, ok := c.Get(key)
 	if ok {
-		println("cache HIT")
 		return value, nil
 	}
 

@@ -53,8 +53,9 @@ func (s *Streamtape) Extract(uri string) (vs []*VideoSource, err error) {
 	url := "https:" + fh + sh
 
 	ret = append(ret, &VideoSource{
-		URL:  url,
-		Type: map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(url, ".m3u8")],
+		URL:     url,
+		Type:    map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(url, ".m3u8")],
+		Quality: QualityAuto,
 	})
 
 	return ret, nil

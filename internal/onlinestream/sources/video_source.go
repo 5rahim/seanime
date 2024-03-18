@@ -5,7 +5,6 @@ type VideoSource struct {
 	URL       string           `json:"url"`
 	Type      VideoSourceType  `json:"type"`
 	Quality   string           `json:"quality"`
-	Size      float64          `json:"size"`
 	Subtitles []*VideoSubtitle `json:"subtitles"`
 }
 
@@ -16,6 +15,8 @@ const (
 	VideoSourceM3U8
 	VideoSourceDash
 )
+
+var QualityAuto = "auto"
 
 type VideoSubtitle struct {
 	URL       string `json:"url"`

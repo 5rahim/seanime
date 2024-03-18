@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/onlinestream/sources"
 	"net/http"
@@ -20,19 +20,23 @@ type Zoro struct {
 	Logo      string
 	Client    *http.Client
 	UserAgent string
+	logger    *zerolog.Logger
 }
 
-func NewZoro() *Zoro {
+func NewZoro(logger *zerolog.Logger) *Zoro {
 	return &Zoro{
 		BaseURL:   "https://hianime.to",
 		Logo:      "https://is3-ssl.mzstatic.com/image/thumb/Purple112/v4/7e/91/00/7e9100ee-2b62-0942-4cdc-e9b93252ce1c/source/512x512bb.jpg",
 		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
 		Client:    &http.Client{},
+		logger:    logger,
 	}
 }
 
 func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	var results []*SearchResult
+
+	z.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("zoro: Searching anime")
 
 	c := colly.NewCollector()
 
@@ -75,11 +79,15 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 		})
 	}
 
+	z.logger.Debug().Int("count", len(results)).Msg("zoro: Fetched anime")
+
 	return results, nil
 }
 
-func (z *Zoro) FetchEpisodes(id string) ([]*ProviderEpisode, error) {
+func (z *Zoro) FindEpisodes(id string) ([]*ProviderEpisode, error) {
 	var episodes []*ProviderEpisode
+
+	z.logger.Debug().Str("id", id).Msg("zoro: Fetching episodes")
 
 	c := colly.NewCollector()
 
@@ -99,6 +107,7 @@ func (z *Zoro) FetchEpisodes(id string) ([]*ProviderEpisode, error) {
 	watchUrl := fmt.Sprintf("%s/watch/%s", z.BaseURL, id)
 	err := c.Visit(watchUrl)
 	if err != nil {
+		z.logger.Error().Err(err).Msg("zoro: Failed to fetch episodes")
 		return nil, err
 	}
 
@@ -107,7 +116,6 @@ func (z *Zoro) FetchEpisodes(id string) ([]*ProviderEpisode, error) {
 	splitId := strings.Split(id, "-")
 	idNum := splitId[len(splitId)-1]
 	ajaxUrl := fmt.Sprintf("%s/ajax/v2/episode/list/%s", z.BaseURL, idNum)
-	spew.Dump(ajaxUrl)
 
 	c2 := colly.NewCollector(
 		colly.UserAgent(z.UserAgent),
@@ -156,18 +164,22 @@ func (z *Zoro) FetchEpisodes(id string) ([]*ProviderEpisode, error) {
 
 	err = c2.Visit(ajaxUrl)
 	if err != nil {
+		z.logger.Error().Err(err).Msg("zoro: Failed to fetch episodes")
 		return nil, err
 	}
+
+	z.logger.Debug().Int("count", len(episodes)).Msg("zoro: Fetched episodes")
 
 	return episodes, nil
 }
 
-func (z *Zoro) FetchEpisodeSources(episode *ProviderEpisode, server Server) (*ProviderEpisodeSource, error) {
-	var source *ProviderEpisodeSource
+func (z *Zoro) FindEpisodeServerSources(episode *ProviderEpisode, server Server) (*ProviderServerSources, error) {
+	var source *ProviderServerSources
 
 	if server == DefaultServer {
 		server = VidcloudServer
 	}
+	z.logger.Debug().Str("server", string(server)).Str("episodeID", episode.ID).Msg("zoro: Fetching server sources")
 
 	episodeParts := strings.Split(episode.ID, "$")
 
@@ -247,7 +259,8 @@ func (z *Zoro) FetchEpisodeSources(episode *ProviderEpisode, server Server) (*Pr
 			if err != nil {
 				return
 			}
-			source = &ProviderEpisodeSource{
+			source = &ProviderServerSources{
+				Server:  server,
 				Headers: map[string]string{},
 				Sources: sources,
 			}
@@ -257,7 +270,8 @@ func (z *Zoro) FetchEpisodeSources(episode *ProviderEpisode, server Server) (*Pr
 			if err != nil {
 				return
 			}
-			source = &ProviderEpisodeSource{
+			source = &ProviderServerSources{
+				Server: server,
 				Headers: map[string]string{
 					"Referer":    jsonResponse["link"].(string),
 					"User-Agent": z.UserAgent,
@@ -270,7 +284,8 @@ func (z *Zoro) FetchEpisodeSources(episode *ProviderEpisode, server Server) (*Pr
 			if err != nil {
 				return
 			}
-			source = &ProviderEpisodeSource{
+			source = &ProviderServerSources{
+				Server: server,
 				Headers: map[string]string{
 					"Referer":    jsonResponse["link"].(string),
 					"watchsb":    "streamsb",
@@ -288,8 +303,11 @@ func (z *Zoro) FetchEpisodeSources(episode *ProviderEpisode, server Server) (*Pr
 	}
 
 	if source == nil {
+		z.logger.Warn().Str("server", string(server)).Msg("zoro: No sources found")
 		return nil, ErrSourceNotFound
 	}
+
+	z.logger.Debug().Str("server", string(server)).Int("sources", len(source.Sources)).Msg("zoro: Fetched server sources")
 
 	return source, nil
 }

@@ -8,8 +8,9 @@ import (
 
 // LevenshteinResult is a struct that holds a string and its Levenshtein distance compared to another string.
 type LevenshteinResult struct {
-	Value    *string
-	Distance int
+	OriginalValue *string
+	Value         *string
+	Distance      int
 }
 
 // CompareWithLevenstein compares a string to a slice of strings and returns a slice of LevenshteinResult containing the Levenshtein distance for each string.
@@ -22,8 +23,9 @@ func CompareWithLevenstein(v *string, vals []*string) []*LevenshteinResult {
 
 	for _, val := range vals {
 		res = append(res, &LevenshteinResult{
-			Value:    val,
-			Distance: lev.Distance(*v, *val),
+			OriginalValue: v,
+			Value:         val,
+			Distance:      lev.Distance(*v, *val),
 		})
 	}
 
@@ -56,8 +58,9 @@ func FindBestMatchWithLevenstein(v *string, vals []*string) (*LevenshteinResult,
 //----------------------------------------------------------------------------------------------------------------------
 
 type SorensenDiceResult struct {
-	Value  *string
-	Rating float64
+	OriginalValue *string
+	Value         *string
+	Rating        float64
 }
 
 func CompareWithSorensenDice(v *string, vals []*string) []*SorensenDiceResult {
@@ -69,8 +72,9 @@ func CompareWithSorensenDice(v *string, vals []*string) []*SorensenDiceResult {
 
 	for _, val := range vals {
 		res = append(res, &SorensenDiceResult{
-			Value:  val,
-			Rating: lev.Compare(*v, *val),
+			OriginalValue: v,
+			Value:         val,
+			Rating:        lev.Compare(*v, *val),
 		})
 	}
 
