@@ -20,11 +20,13 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
+	"github.com/seanime-app/seanime/internal/onlinestream"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/filecache"
 	"log"
 	"os"
 	"strings"
@@ -57,6 +59,8 @@ type (
 		Settings            *models.Settings
 		AutoScanner         *autoscanner.AutoScanner
 		PlaybackManager     *playbackmanager.PlaybackManager
+		FileCacher          *filecache.Cacher
+		Onlinestream        *onlinestream.OnlineStream
 		WD                  string // Working directory
 	}
 
@@ -128,6 +132,15 @@ func NewApp(options *AppOptions, version string) *App {
 	// AniZip Cache
 	anizipCache := anizip.NewCache()
 
+	// File Cacher
+	fileCacher := filecache.NewCacher(&filecache.NewCacherOptions{Dir: cfg.Cache.Dir})
+
+	// Online Stream
+	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{
+		Logger:     logger,
+		FileCacher: fileCacher,
+	})
+
 	app := &App{
 		Config:                  cfg,
 		Database:                db,
@@ -140,6 +153,8 @@ func NewApp(options *AppOptions, version string) *App {
 		Logger:                  logger,
 		Version:                 version,
 		Updater:                 updater.New(version),
+		FileCacher:              fileCacher,
+		Onlinestream:            onlineStream,
 		PlaybackManager:         nil, // Initialized in App.InitModulesOnce
 		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
 		AutoScanner:             nil, // Initialized in App.InitModulesOnce

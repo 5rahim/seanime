@@ -25,6 +25,9 @@ type Config struct {
 	Logs struct {
 		Dir string
 	}
+	Cache struct {
+		Dir string
+	}
 	Data struct { // Hydrated after config is loaded
 		AppDataDir string
 	}
@@ -50,6 +53,11 @@ var defaultConfigValues = Config{
 	}{
 		Dir:      "$SEANIME_WORKING_DIR/web",
 		AssetDir: "$SEANIME_DATA_DIR/assets",
+	},
+	Cache: struct {
+		Dir string
+	}{
+		Dir: "$SEANIME_DATA_DIR/cache",
 	},
 	Logs: struct {
 		Dir string
@@ -103,6 +111,7 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	viper.SetDefault("database.name", defaultConfigValues.Database.Name)
 	viper.SetDefault("web.dir", defaultConfigValues.Web.Dir)
 	viper.SetDefault("web.assetDir", defaultConfigValues.Web.AssetDir)
+	viper.SetDefault("cache.dir", defaultConfigValues.Cache.Dir)
 	viper.SetDefault("logs.dir", defaultConfigValues.Logs.Dir)
 
 	// Check if the config file exists, and generate a default one if not
@@ -167,6 +176,9 @@ func validateConfig(cfg *Config) error {
 	if cfg.Web.AssetDir == "" {
 		return errInvalidConfigValue("web.assetDir", "cannot be empty")
 	}
+	if cfg.Cache.Dir == "" {
+		return errInvalidConfigValue("cache.dir", "cannot be empty")
+	}
 	if cfg.Logs.Dir == "" {
 		return errInvalidConfigValue("logs.dir", "cannot be empty")
 	}
@@ -198,6 +210,7 @@ func hydrateValues(cfg *Config) {
 	}()
 	cfg.Web.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Web.AssetDir))
 	cfg.Web.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Web.Dir))
+	cfg.Cache.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.Dir))
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
 }
 
@@ -209,6 +222,7 @@ func (cfg *Config) saveConfigToFile() error {
 	viper.Set("database.name", cfg.Database.Name)
 	viper.Set("web.dir", cfg.Web.Dir)
 	viper.Set("web.assetDir", cfg.Web.AssetDir)
+	viper.Set("cache.dir", cfg.Cache.Dir)
 	viper.Set("logs.dir", cfg.Logs.Dir)
 
 	if err := viper.WriteConfig(); err != nil {
