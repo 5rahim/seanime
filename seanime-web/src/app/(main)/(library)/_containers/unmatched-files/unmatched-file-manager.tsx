@@ -14,7 +14,7 @@ import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
 import React, { useCallback, useEffect, useState } from "react"
-import { BiLeftArrow, BiRightArrow } from "react-icons/bi"
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
 import { FiSearch } from "react-icons/fi"
 import { toast } from "sonner"
@@ -119,7 +119,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 <div className={cn("flex w-full justify-between", { "hidden": unmatchedGroups.length <= 1 })}>
                     <Button
                         intent="gray-subtle"
-                        leftIcon={<BiLeftArrow/>}
+                        leftIcon={<FaArrowLeft />}
                         disabled={page === 0}
                         onClick={() => {
                             setPage(p => p - 1)
@@ -128,7 +128,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     >Previous</Button>
                     <Button
                         intent="gray-subtle"
-                        rightIcon={<BiRightArrow/>}
+                        rightIcon={<FaArrowRight />}
                         disabled={page >= maxPage}
                         onClick={() => {
                             setPage(p => p + 1)
@@ -141,13 +141,13 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     className="bg-gray-800 border  p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer(currentGroup.dir)}
                 >
-                    <FcFolder className="text-2xl"/>
+                    <FcFolder className="text-2xl" />
                     {currentGroup.dir}
                 </div>
 
-                <ul className="list-disc pl-8 bg-[--background] p-2 px-4 rounded-md space-y-1 max-h-60 overflow-y-auto">
+                <ul className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 overflow-y-auto text-sm">
                     {currentGroup.localFiles.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0)))).map(lf => {
-                        return <li key={lf.path} className="text-sm">
+                        return <li key={lf.path} className="text-sm tracking-wide line-clamp-1">
                             {lf.path}
                         </li>
                     })}
@@ -157,7 +157,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                 <div className="flex gap-2 items-center">
                     <p className="flex-none text-lg mr-2 font-semibold">Anilist ID</p>
-                    <AnilistIdInput/>
+                    <AnilistIdInput />
                     <Button
                         intent="primary-outline"
                         onClick={handleManuallyMatchEntry}
@@ -168,14 +168,14 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 <Separator />
 
                 <Button
-                    leftIcon={<FiSearch/>}
+                    leftIcon={<FiSearch />}
                     intent="success-subtle"
                     onClick={handleFetchSuggestions}
                 >
                     Fetch suggestions
                 </Button>
 
-                {suggestionsLoading && <LoadingSpinner/>}
+                {suggestionsLoading && <LoadingSpinner />}
 
                 {(!suggestionsLoading && suggestions.length > 0) && <RadioGroup
                     defaultValue="1"

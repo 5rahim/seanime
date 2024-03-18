@@ -43,6 +43,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vidstack/react": "^1.10.9",
     "@zag-js/number-input": "^0.37.3",
     "@zag-js/react": "^0.37.3",
     "artplayer": "^5.1.1",
