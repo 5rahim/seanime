@@ -40,7 +40,7 @@ func (a *App) InitModulesOnce() {
 		AnilistCollection:       nil, // Will be set and refreshed in app.RefreshAnilistCollection
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
-		AniZipCache:             a.AnizipCache,
+		AnizipCache:             a.AnizipCache,
 	})
 
 	a.AutoDownloader.Start()

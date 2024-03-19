@@ -146,7 +146,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 			assert.NotEmpty(t, sources)
 
-			for _, s := range sources.Sources {
+			for _, s := range sources.VideoSources {
 				assert.NotEmpty(t, s, "Source is empty")
 			}
 

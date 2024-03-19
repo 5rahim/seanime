@@ -24,22 +24,39 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 	})
 
 	tests := []struct {
-		name    string
-		mediaId int
-		from    int
-		to      int
+		name     string
+		mediaId  int
+		from     int
+		to       int
+		provider Provider
 	}{
 		{
-			name:    "Cowboy Bebop",
-			mediaId: 1,
-			from:    1,
-			to:      2,
+			name:     "Cowboy Bebop",
+			mediaId:  1,
+			from:     1,
+			to:       2,
+			provider: ProviderGogoanime,
 		},
 		{
-			name:    "One Piece",
-			mediaId: 21,
-			from:    1075,
-			to:      1076,
+			name:     "Cowboy Bebop",
+			mediaId:  1,
+			from:     1,
+			to:       2,
+			provider: ProviderGogoanime,
+		},
+		{
+			name:     "One Piece",
+			mediaId:  21,
+			from:     1075,
+			to:       1076,
+			provider: ProviderZoro,
+		},
+		{
+			name:     "Dungeon Meshi",
+			mediaId:  153518,
+			from:     1,
+			to:       1,
+			provider: ProviderZoro,
 		},
 	}
 
@@ -53,17 +70,20 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 			}
 			media := mediaF.GetMedia()
 
-			res, found := os.GetEpisodes(tt.mediaId, media.GetAllTitles(), tt.from, tt.to, false)
+			res, found := os.getEpisodeContainer(tt.provider, tt.mediaId, media.GetAllTitles(), tt.from, tt.to, false)
 			if !found {
 				t.Fatalf("couldn't find episodes for %+v", tt.mediaId)
 			}
 
 			for _, e := range res.ProviderEpisodes {
-				t.Logf("Provider: %s, found %d episodes", e.Provider, len(e.Episodes))
-				for _, ep := range e.Episodes {
+				t.Logf("Provider: %s, found %d episodes", e.Provider, len(e.ExtractedEpisodes))
+				for _, ep := range e.ExtractedEpisodes {
 					t.Logf("\t\tEpisode %d has %d server sources", ep.Number, len(ep.ServerSources))
 					for _, ss := range ep.ServerSources {
-						t.Logf("\t\t\tServer: %s, Quality: %s", ss.Server, ss.Quality)
+						t.Logf("\t\t\tServer: %s", ss.Server)
+						for _, vs := range ss.VideoSources {
+							t.Logf("\t\t\t\tVideo Source: %s, Type: %s", vs.Quality, vs.Type)
+						}
 					}
 				}
 			}

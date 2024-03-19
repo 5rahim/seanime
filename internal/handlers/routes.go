@@ -256,7 +256,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Onlinestream
 	//
 
-	v1.Post("/onlinestream/episode", makeHandler(app, HandleGetOnlineStreamEpisode))
+	v1.Post("/onlinestream/episode-sources", makeHandler(app, HandleGetOnlineStreamEpisodeSources))
 	v1.Post("/onlinestream/episodes", makeHandler(app, HandleGetOnlineStreamEpisodes))
 
 	//

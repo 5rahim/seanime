@@ -179,6 +179,7 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 	if server == DefaultServer {
 		server = VidcloudServer
 	}
+
 	z.logger.Debug().Str("server", string(server)).Str("episodeID", episodeInfo.ID).Msg("zoro: Fetching server sources")
 
 	episodeParts := strings.Split(episodeInfo.ID, "$")
@@ -260,9 +261,9 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 				return
 			}
 			source = &ProviderServerSources{
-				Server:  server,
-				Headers: map[string]string{},
-				Sources: sources,
+				Server:       server,
+				Headers:      map[string]string{},
+				VideoSources: sources,
 			}
 		case StreamtapeServer:
 			streamtape := onlinestream_sources.NewStreamtape()
@@ -276,7 +277,7 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 					"Referer":    jsonResponse["link"].(string),
 					"User-Agent": z.UserAgent,
 				},
-				Sources: sources,
+				VideoSources: sources,
 			}
 		case StreamSBServer:
 			streamsb := onlinestream_sources.NewStreamSB()
@@ -291,7 +292,7 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 					"watchsb":    "streamsb",
 					"User-Agent": z.UserAgent,
 				},
-				Sources: sources,
+				VideoSources: sources,
 			}
 		}
 	})
@@ -307,7 +308,7 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 		return nil, ErrSourceNotFound
 	}
 
-	z.logger.Debug().Str("server", string(server)).Int("sources", len(source.Sources)).Msg("zoro: Fetched server sources")
+	z.logger.Debug().Str("server", string(server)).Int("videoSources", len(source.VideoSources)).Msg("zoro: Fetched server sources")
 
 	return source, nil
 }

@@ -173,7 +173,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episodeInfo.ID,
 					},
-					Sources: videoSources,
+					VideoSources: videoSources,
 				}
 			}
 		})
@@ -188,7 +188,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episodeInfo.ID,
 					},
-					Sources: videoSources,
+					VideoSources: videoSources,
 				}
 			}
 		})
@@ -205,7 +205,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 						"watchsb":    "streamsb",
 						"User-Agent": g.UserAgent,
 					},
-					Sources: videoSources,
+					VideoSources: videoSources,
 				}
 			}
 		})
@@ -221,7 +221,7 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 		return nil, ErrSourceNotFound
 	}
 
-	g.logger.Debug().Str("server", string(server)).Int("sources", len(source.Sources)).Msg("gogoanime: Fetched server sources")
+	g.logger.Debug().Str("server", string(server)).Int("videoSources", len(source.VideoSources)).Msg("gogoanime: Fetched server sources")
 
 	return source, nil
 

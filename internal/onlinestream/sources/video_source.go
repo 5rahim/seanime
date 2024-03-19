@@ -8,12 +8,12 @@ type VideoSource struct {
 	Subtitles []*VideoSubtitle `json:"subtitles"`
 }
 
-type VideoSourceType int
+type VideoSourceType string
 
 const (
-	VideoSourceMP4 VideoSourceType = iota + 1
-	VideoSourceM3U8
-	VideoSourceDash
+	VideoSourceMP4  VideoSourceType = "mp4"
+	VideoSourceM3U8 VideoSourceType = "m3u8"
+	VideoSourceDash VideoSourceType = "dash"
 )
 
 var QualityAuto = "auto"

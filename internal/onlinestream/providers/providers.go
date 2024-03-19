@@ -32,9 +32,9 @@ type (
 	}
 
 	ProviderServerSources struct {
-		Server  Server                              `json:"server"`
-		Headers map[string]string                   `json:"headers"`
-		Sources []*onlinestream_sources.VideoSource `json:"sources"`
+		Server       Server                              `json:"server"`
+		Headers      map[string]string                   `json:"headers"`
+		VideoSources []*onlinestream_sources.VideoSource `json:"videoSources"`
 	}
 
 	Server string

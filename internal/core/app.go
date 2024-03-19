@@ -138,8 +138,10 @@ func NewApp(options *AppOptions, version string) *App {
 
 	// Online Stream
 	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{
-		Logger:     logger,
-		FileCacher: fileCacher,
+		Logger:               logger,
+		FileCacher:           fileCacher,
+		AnizipCache:          anizipCache,
+		AnilistClientWrapper: anilistCW,
 	})
 
 	app := &App{

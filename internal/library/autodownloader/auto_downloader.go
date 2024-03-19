@@ -47,7 +47,7 @@ type (
 		WSEventManager          events.IWSEventManager
 		Database                *db.Database
 		AnilistCollection       *anilist.AnimeCollection
-		AniZipCache             *anizip.Cache
+		AnizipCache             *anizip.Cache
 	}
 
 	tmpTorrentToDownload struct {
@@ -63,7 +63,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		database:                opts.Database,
 		wsEventManager:          opts.WSEventManager,
 		anilistCollection:       opts.AnilistCollection,
-		anizipCache:             opts.AniZipCache,
+		anizipCache:             opts.AnizipCache,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              NyaaProvider, // Default provider, will be updated after the settings are fetched
 			Interval:              10,

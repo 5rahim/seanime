@@ -83,6 +83,11 @@ export const enum SeaEndpoints {
     PLAYLIST = "/playlist", // (POST, PATCH, DELETE)
     PLAYLIST_EPISODES = "/playlist/episodes/{id}/{progress}", // (POST)
     /**
+     * OnlineStream
+     */
+    ONLINESTREAM_EPISODES = "/onlinestream/episodes", // (POST)
+    ONLINESTREAM_EPISODE_SOURCES = "/onlinestream/episode-sources", // (POST)
+    /**
      * Theme
      */
     THEME = "/theme", // (GET, PATCH)

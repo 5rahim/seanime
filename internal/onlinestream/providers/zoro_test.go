@@ -23,6 +23,11 @@ func TestZoro_Search(t *testing.T) {
 			query:  "One Piece",
 			dubbed: false,
 		},
+		{
+			name:   "Dungeon Meshi",
+			query:  "Dungeon Meshi",
+			dubbed: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -154,7 +159,7 @@ func TestZoro_FetchSources(t *testing.T) {
 
 			assert.NotEmpty(t, serverSources)
 
-			for _, s := range serverSources.Sources {
+			for _, s := range serverSources.VideoSources {
 				assert.NotEmpty(t, s, "Source is empty")
 			}
 

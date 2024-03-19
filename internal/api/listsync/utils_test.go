@@ -8,29 +8,29 @@ import (
 func TestAnimeEntry_FindMetadataDiffs(t *testing.T) {
 
 	originEntry := &AnimeEntry{
-		Source:       SourceAniList,
-		SourceID:     1,
-		MalID:        1,
-		DisplayTitle: "Title",
-		Url:          "",
-		TotalEpisode: 12,
-		Image:        "",
-		Status:       AnimeStatusWatching,
-		Progress:     6,
-		Score:        8,
+		Source:        SourceAniList,
+		SourceID:      1,
+		MalID:         1,
+		DisplayTitle:  "Title",
+		Url:           "",
+		TotalEpisodes: 12,
+		Image:         "",
+		Status:        AnimeStatusWatching,
+		Progress:      6,
+		Score:         8,
 	}
 
 	otherEntry := &AnimeEntry{
-		Source:       SourceMAL,
-		SourceID:     1,
-		MalID:        1,
-		DisplayTitle: "Title",
-		Url:          "",
-		TotalEpisode: 12,
-		Image:        "",
-		Status:       AnimeStatusPlanning,
-		Progress:     0,
-		Score:        0,
+		Source:        SourceMAL,
+		SourceID:      1,
+		MalID:         1,
+		DisplayTitle:  "Title",
+		Url:           "",
+		TotalEpisodes: 12,
+		Image:         "",
+		Status:        AnimeStatusPlanning,
+		Progress:      0,
+		Score:         0,
 	}
 
 	diffs, found := originEntry.FindMetadataDiffs(otherEntry)
