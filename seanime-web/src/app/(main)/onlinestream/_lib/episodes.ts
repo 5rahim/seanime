@@ -6,25 +6,25 @@ import { useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
 
-type OnlinestreamEpisode = {
+export type OnlinestreamEpisode = {
     number: number
     title?: string
     description?: string
     image?: string
 }
 
-type OnlinestreamEpisodeListResponse = {
+export type OnlinestreamEpisodeListResponse = {
     episodes: OnlinestreamEpisode[]
     media: BaseMediaFragment
 }
 
-type OnlinestreamEpisodeSource = {
+export type OnlinestreamEpisodeSource = {
     number: number
     videoSources: OnlinestreamVideoSource[]
     subtitles: OnlinestreamVideoSubtitles[] | undefined
 }
 
-type OnlinestreamVideoSource = {
+export type OnlinestreamVideoSource = {
     headers: Record<string, string>
     server: string
     url: string
@@ -41,8 +41,13 @@ const enum Provider {
     ZORO = "zoro",
 }
 
+export const onlinestream_providers = [
+    { value: "gogoanime", label: "Gogoanime" },
+    { value: "zoro", label: "Hianime" },
+]
+
 export const __onlinestream_mediaIdAtom = atom<string | null>(null)
-export const __onlinestream_selectedProviderAtom = atom<Provider>(Provider.ZORO)
+export const __onlinestream_selectedProviderAtom = atomWithStorage<string>("sea-onlinestream-provider", Provider.GOGOANIME)
 export const __onlinestream_selectedDubbedAtom = atom<boolean>(false)
 export const __onlinestream_selectedEpisodeNumberAtom = atom<number | undefined>(1)
 
@@ -73,7 +78,7 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
 }
 
 
-export function useOnlinestreamEpisodeSources(mId: string | null) {
+export function useOnlinestreamEpisodeSource(mId: string | null) {
 
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
@@ -87,7 +92,7 @@ export function useOnlinestreamEpisodeSources(mId: string | null) {
     }>({
         endpoint: SeaEndpoints.ONLINESTREAM_EPISODE_SOURCE,
         method: "post",
-        queryKey: ["onlinestream-episode-source", mId, episodeNumber, dubbed],
+        queryKey: ["onlinestream-episode-source", mId, provider, episodeNumber, dubbed],
         data: {
             mediaId: Number(mId),
             episodeNumber: episodeNumber!,
@@ -105,7 +110,7 @@ export function useOnlinestreamEpisodeSources(mId: string | null) {
 }
 
 
-export const __onlinestream_selectedServerAtom = atom<string | undefined>(undefined)
+export const __onlinestream_selectedServerAtom = atomWithStorage<string | undefined>("sea-onlinestream-server", undefined)
 export const __onlinestream_qualityAtom = atomWithStorage<string | undefined>("sea-onlinestream-quality", undefined)
 export const onlinestream_qualityOptions = ["360p", "480p", "720p", "1080p", "auto"]
 
