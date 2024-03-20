@@ -71,7 +71,7 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := gogo.FindEpisodesInfo(tt.id)
+			episodes, err := gogo.FindEpisodeDetails(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -96,12 +96,12 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		episode *ProviderEpisodeInfo
+		episode *EpisodeDetails
 		server  Server
 	}{
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -110,7 +110,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -119,7 +119,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -133,7 +133,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			sources, err := gogo.FindEpisodeServerSources(tt.episode, tt.server)
+			sources, err := gogo.FindEpisodeServer(tt.episode, tt.server)
 			if err != nil {
 				if !errors.Is(err, ErrSourceNotFound) {
 					t.Fatal(err)

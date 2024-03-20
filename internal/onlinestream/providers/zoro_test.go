@@ -74,7 +74,7 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := zoro.FindEpisodesInfo(tt.id)
+			episodes, err := zoro.FindEpisodeDetails(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -100,12 +100,12 @@ func TestZoro_FetchSources(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		episode *ProviderEpisodeInfo
+		episode *EpisodeDetails
 		server  Server
 	}{
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -114,7 +114,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -123,7 +123,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -132,7 +132,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &ProviderEpisodeInfo{
+			episode: &EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -146,7 +146,7 @@ func TestZoro_FetchSources(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			serverSources, err := zoro.FindEpisodeServerSources(tt.episode, tt.server)
+			serverSources, err := zoro.FindEpisodeServer(tt.episode, tt.server)
 			if err != nil {
 				if !errors.Is(err, ErrSourceNotFound) && !errors.Is(err, ErrServerNotFound) {
 					t.Fatal(err)

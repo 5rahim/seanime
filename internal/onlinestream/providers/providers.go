@@ -10,11 +10,16 @@ var (
 	ErrServerNotFound = errors.New("server not found")
 )
 
+const (
+	GogoanimeProvider Provider = "gogoanime"
+	ZoroProvider      Provider = "zoro"
+)
+
 type (
-	Provider interface {
+	AnimeProvider interface {
 		Search(query string, dub bool) ([]*SearchResult, error)
-		FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error)
-		FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server Server) (*ProviderServerSources, error)
+		FindEpisodeDetails(id string) ([]*EpisodeDetails, error)
+		FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*EpisodeServer, error)
 	}
 
 	SearchResult struct {
@@ -24,14 +29,19 @@ type (
 		SubOrDub SubOrDub `json:"subOrDub"` // Sub or Dub
 	}
 
-	ProviderEpisodeInfo struct {
-		ID     string `json:"id"`     // Episode slug
-		Number int    `json:"number"` // Episode number
-		URL    string `json:"url"`    // Watch URL
-		Title  string `json:"title"`  // Episode title
+	// EpisodeDetails contains the episode information from a provider.
+	// It is obtained by scraping the list of episodes.
+	EpisodeDetails struct {
+		Provider Provider `json:"provider"`
+		ID       string   `json:"id"`              // Episode slug
+		Number   int      `json:"number"`          // Episode number
+		URL      string   `json:"url"`             // Watch URL
+		Title    string   `json:"title,omitempty"` // Episode title
 	}
 
-	ProviderServerSources struct {
+	// EpisodeServer contains the server, headers and video sources for an episode.
+	EpisodeServer struct {
+		Provider     Provider                            `json:"provider"`
 		Server       Server                              `json:"server"`
 		Headers      map[string]string                   `json:"headers"`
 		VideoSources []*onlinestream_sources.VideoSource `json:"videoSources"`
@@ -56,3 +66,5 @@ const (
 	StreamtapeServer   Server = "streamtape"
 	VidcloudServer     Server = "vidcloud"
 )
+
+type Provider string

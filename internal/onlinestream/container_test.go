@@ -3,6 +3,7 @@ package onlinestream
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
@@ -28,35 +29,40 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 		mediaId  int
 		from     int
 		to       int
-		provider Provider
+		provider onlinestream_providers.Provider
+		dubbed   bool
 	}{
 		{
 			name:     "Cowboy Bebop",
 			mediaId:  1,
 			from:     1,
 			to:       2,
-			provider: ProviderGogoanime,
+			provider: onlinestream_providers.GogoanimeProvider,
+			dubbed:   false,
 		},
 		{
 			name:     "Cowboy Bebop",
 			mediaId:  1,
 			from:     1,
 			to:       2,
-			provider: ProviderGogoanime,
+			provider: onlinestream_providers.ZoroProvider,
+			dubbed:   false,
 		},
 		{
 			name:     "One Piece",
 			mediaId:  21,
 			from:     1075,
 			to:       1076,
-			provider: ProviderZoro,
+			provider: onlinestream_providers.ZoroProvider,
+			dubbed:   false,
 		},
 		{
 			name:     "Dungeon Meshi",
 			mediaId:  153518,
 			from:     1,
 			to:       1,
-			provider: ProviderZoro,
+			provider: onlinestream_providers.ZoroProvider,
+			dubbed:   false,
 		},
 	}
 
@@ -70,20 +76,19 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 			}
 			media := mediaF.GetMedia()
 
-			res, found := os.getEpisodeContainer(tt.provider, tt.mediaId, media.GetAllTitles(), tt.from, tt.to, false)
-			if !found {
-				t.Fatalf("couldn't find episodes for %+v", tt.mediaId)
+			ec, err := os.getEpisodeContainer(tt.provider, tt.mediaId, media.GetAllTitles(), tt.from, tt.to, tt.dubbed)
+			if err != nil {
+				t.Fatalf("couldn't find episodes, %s", err)
 			}
 
-			for _, e := range res.ProviderEpisodes {
-				t.Logf("Provider: %s, found %d episodes", e.Provider, len(e.ExtractedEpisodes))
-				for _, ep := range e.ExtractedEpisodes {
-					t.Logf("\t\tEpisode %d has %d server sources", ep.Number, len(ep.ServerSources))
-					for _, ss := range ep.ServerSources {
-						t.Logf("\t\t\tServer: %s", ss.Server)
-						for _, vs := range ss.VideoSources {
-							t.Logf("\t\t\t\tVideo Source: %s, Type: %s", vs.Quality, vs.Type)
-						}
+			t.Logf("Provider: %s, found %d episodes for the anime", ec.Provider, len(ec.ProviderEpisodeList))
+			// Episode Data
+			for _, ep := range ec.Episodes {
+				t.Logf("\t\tEpisode %d has %d servers", ep.Number, len(ep.Servers))
+				for _, s := range ep.Servers {
+					t.Logf("\t\t\tServer: %s", s.Server)
+					for _, vs := range s.VideoSources {
+						t.Logf("\t\t\t\tVideo Source: %s, Type: %s", vs.Quality, vs.Type)
 					}
 				}
 			}

@@ -2,6 +2,7 @@ package onlinestream
 
 import (
 	"context"
+	"errors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
@@ -15,16 +16,20 @@ import (
 
 type (
 	OnlineStream struct {
-		logger                       *zerolog.Logger
-		gogo                         *onlinestream_providers.Gogoanime
-		zoro                         *onlinestream_providers.Zoro
-		fileCacher                   *filecache.Cacher
-		fcEpisodeBucket              filecache.Bucket
-		fcProviderEpisodesInfoBucket filecache.Bucket
-		anizipCache                  *anizip.Cache
-		anilistClientWrapper         anilist.ClientWrapperInterface
-		anilistBaseMediaCache        *anilist.BaseMediaCache
+		logger                      *zerolog.Logger
+		gogo                        *onlinestream_providers.Gogoanime
+		zoro                        *onlinestream_providers.Zoro
+		fileCacher                  *filecache.Cacher
+		fcEpisodeDataBucket         filecache.Bucket
+		fcProviderEpisodeListBucket filecache.Bucket
+		anizipCache                 *anizip.Cache
+		anilistClientWrapper        anilist.ClientWrapperInterface
+		anilistBaseMediaCache       *anilist.BaseMediaCache
 	}
+)
+
+var (
+	ErrNoVideoSourceFound = errors.New("no video source found")
 )
 
 type (
@@ -36,14 +41,16 @@ type (
 	}
 
 	EpisodeSource struct {
-		Number    int         `json:"number"`
-		Sources   []*Source   `json:"sources"`
-		Subtitles []*Subtitle `json:"subtitles,omitempty"`
+		Number       int            `json:"number"`
+		VideoSources []*VideoSource `json:"videoSources"`
+		Subtitles    []*Subtitle    `json:"subtitles,omitempty"`
 	}
 
-	Source struct {
-		URL     string `json:"url"`
-		Quality string `json:"quality"`
+	VideoSource struct {
+		Server  string            `json:"server"`
+		Headers map[string]string `json:"headers,omitempty"`
+		URL     string            `json:"url"`
+		Quality string            `json:"quality"`
 	}
 
 	Subtitle struct {
@@ -63,20 +70,19 @@ type (
 
 func New(opts *NewOnlineStreamOptions) *OnlineStream {
 	return &OnlineStream{
-		logger:                       opts.Logger,
-		anizipCache:                  opts.AnizipCache,
-		fileCacher:                   opts.FileCacher,
-		gogo:                         onlinestream_providers.NewGogoanime(opts.Logger),
-		zoro:                         onlinestream_providers.NewZoro(opts.Logger),
-		fcEpisodeBucket:              filecache.NewBucket("onlinestream-episodes", 24*time.Hour*7),            // Cache episodes for 7 days
-		fcProviderEpisodesInfoBucket: filecache.NewBucket("onlinestream-provider-episodes-info", 1*time.Hour), // Cache provider episodes for 1 hour
-		anilistBaseMediaCache:        anilist.NewBaseMediaCache(),
-		anilistClientWrapper:         opts.AnilistClientWrapper,
+		logger:                      opts.Logger,
+		anizipCache:                 opts.AnizipCache,
+		fileCacher:                  opts.FileCacher,
+		gogo:                        onlinestream_providers.NewGogoanime(opts.Logger),
+		zoro:                        onlinestream_providers.NewZoro(opts.Logger),
+		fcEpisodeDataBucket:         filecache.NewBucket("onlinestream-episode-data", 24*time.Hour*7),       // Cache episodes for 7 days
+		fcProviderEpisodeListBucket: filecache.NewBucket("onlinestream-provider-episode-list", 1*time.Hour), // Cache provider episodes for 1 hour
+		anilistBaseMediaCache:       anilist.NewBaseMediaCache(),
+		anilistClientWrapper:        opts.AnilistClientWrapper,
 	}
 }
 
-func (os *OnlineStream) GetMediaEpisodes(provider string, mId int, dubbed bool) ([]*Episode, error) {
-
+func (os *OnlineStream) getMedia(mId int) (*anilist.BaseMedia, error) {
 	media, err := os.anilistBaseMediaCache.GetOrSet(mId, func() (*anilist.BaseMedia, error) {
 		mediaF, err := os.anilistClientWrapper.BaseMediaByID(context.Background(), &mId)
 		if err != nil {
@@ -88,44 +94,50 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, mId int, dubbed bool) 
 	if err != nil {
 		return nil, err
 	}
+	return media, nil
+}
+
+func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseMedia, error) {
+	return os.getMedia(mId)
+}
+
+func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMedia, dubbed bool) ([]*Episode, error) {
+
+	mId := media.GetID()
+
+	// +---------------------+
+	// |       Anizip        |
+	// +---------------------+
 
 	anizipMedia, err := anizip.FetchAniZipMediaC("anilist", mId, os.anizipCache)
 	foundAnizipMedia := err == nil && anizipMedia != nil
 
-	var providerEpisodesInfo []*onlinestream_providers.ProviderEpisodeInfo
+	// +---------------------+
+	// |    Episode list     |
+	// +---------------------+
 
-	providerEpisodesInfoKey := strconv.Itoa(mId) + "$" + provider
-
-	if found, _ := os.fileCacher.Get(os.fcProviderEpisodesInfoBucket, providerEpisodesInfoKey, &providerEpisodesInfo); !found {
-		providerEpisodesInfo, err = os.getProviderEpisodes(Provider(provider), media.GetAllTitles(), dubbed)
-		if err != nil {
-			os.logger.Error().Err(err).Str("provider", provider).Msg("onlinestream: failed to get provider episodes")
-			return nil, err
-		}
-		_ = os.fileCacher.Set(os.fcProviderEpisodesInfoBucket, providerEpisodesInfoKey, providerEpisodesInfo)
-	}
-
-	if providerEpisodesInfo == nil {
-		return nil, ErrNoAnimeFound
+	// Only fetch the episode list from the provider without episode servers
+	ec, err := os.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), 0, 0, dubbed)
+	if err != nil {
+		return nil, err
 	}
 
 	episodes := make([]*Episode, 0)
 
 	wg := sync.WaitGroup{}
-
-	for _, _providerEpisodeInfo := range providerEpisodesInfo {
+	for _, _episodeDetails := range ec.ProviderEpisodeList {
 		wg.Add(1)
-		go func(providerEpisodeInfo *onlinestream_providers.ProviderEpisodeInfo) {
+		go func(episodeDetails *onlinestream_providers.EpisodeDetails) {
 			defer wg.Done()
 			if foundAnizipMedia {
-				anizipEpisode, found := anizipMedia.Episodes[strconv.Itoa(providerEpisodeInfo.Number)]
+				anizipEpisode, found := anizipMedia.Episodes[strconv.Itoa(episodeDetails.Number)]
 				if found {
 					img := anizipEpisode.Image
 					if img == "" {
 						img = media.GetCoverImageSafe()
 					}
 					episodes = append(episodes, &Episode{
-						Number:      providerEpisodeInfo.Number,
+						Number:      episodeDetails.Number,
 						Title:       anizipEpisode.GetTitle(),
 						Image:       img,
 						Description: anizipEpisode.Summary,
@@ -133,12 +145,12 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, mId int, dubbed bool) 
 				}
 			} else {
 				episodes = append(episodes, &Episode{
-					Number: providerEpisodeInfo.Number,
-					Title:  providerEpisodeInfo.Title,
+					Number: episodeDetails.Number,
+					Title:  episodeDetails.Title,
 					Image:  media.GetCoverImageSafe(),
 				})
 			}
-		}(_providerEpisodeInfo)
+		}(_episodeDetails)
 	}
 
 	wg.Wait()
@@ -150,53 +162,62 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, mId int, dubbed bool) 
 	return episodes, nil
 }
 
-func (os *OnlineStream) GetEpisodeSources(provider string, mId int, number int, dubbed bool) ([]*EpisodeSource, error) {
+func (os *OnlineStream) GetEpisodeSources(provider string, mId int, number int, dubbed bool) (*EpisodeSource, error) {
 
-	media, err := os.anilistBaseMediaCache.GetOrSet(mId, func() (*anilist.BaseMedia, error) {
-		mediaF, err := os.anilistClientWrapper.BaseMediaByID(context.Background(), &mId)
-		if err != nil {
-			return nil, err
-		}
-		media := mediaF.GetMedia()
-		return media, nil
-	})
+	// +---------------------+
+	// |        Media        |
+	// +---------------------+
+
+	media, err := os.getMedia(mId)
 	if err != nil {
 		return nil, err
 	}
 
-	res, found := os.getEpisodeContainer(Provider(provider), mId, media.GetAllTitles(), number, number, dubbed)
-	if !found {
-		return nil, ErrNoAnimeFound
+	// +---------------------+
+	// |   Episode servers   |
+	// +---------------------+
+
+	ec, err := os.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), number, number, dubbed)
+	if err != nil {
+		return nil, err
 	}
 
-	sources := make([]*EpisodeSource, 0)
+	var sources *EpisodeSource
+	for _, ep := range ec.Episodes {
+		if ep.Number == number {
+			s := &EpisodeSource{
+				Number:       ep.Number,
+				VideoSources: make([]*VideoSource, 0),
+			}
+			for _, ss := range ep.Servers {
 
-	for _, e := range res.ProviderEpisodes {
-		for _, ep := range e.ExtractedEpisodes {
-			if ep.Number == number {
-				s := &EpisodeSource{
-					Number: ep.Number,
-				}
-				for _, ss := range ep.ServerSources {
-					for _, vs := range ss.VideoSources {
-						s.Sources = append(s.Sources, &Source{
-							URL:     vs.URL,
-							Quality: vs.Quality,
-						})
-						if len(vs.Subtitles) > 0 && s.Subtitles == nil {
-							s.Subtitles = make([]*Subtitle, 0, len(vs.Subtitles))
-							for _, sub := range vs.Subtitles {
-								s.Subtitles = append(s.Subtitles, &Subtitle{
-									URL:      sub.URL,
-									Language: sub.Language,
-								})
-							}
+				for _, vs := range ss.VideoSources {
+					s.VideoSources = append(s.VideoSources, &VideoSource{
+						Server:  string(ss.Server),
+						Headers: ss.Headers,
+						URL:     vs.URL,
+						Quality: vs.Quality,
+					})
+					// Add subtitles if available
+					// Subtitles are stored in each video source, but they are the same, so only add them once.
+					if len(vs.Subtitles) > 0 && s.Subtitles == nil {
+						s.Subtitles = make([]*Subtitle, 0, len(vs.Subtitles))
+						for _, sub := range vs.Subtitles {
+							s.Subtitles = append(s.Subtitles, &Subtitle{
+								URL:      sub.URL,
+								Language: sub.Language,
+							})
 						}
 					}
 				}
-				sources = append(sources, s)
 			}
+			sources = s
+			break
 		}
+	}
+
+	if sources == nil {
+		return nil, ErrNoVideoSourceFound
 	}
 
 	return sources, nil

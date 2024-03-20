@@ -71,8 +71,8 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (g *Gogoanime) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) {
-	var episodes []*ProviderEpisodeInfo
+func (g *Gogoanime) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
+	var episodes []*EpisodeDetails
 
 	g.logger.Debug().Str("id", id).Msg("gogoanime: Fetching episodes")
 
@@ -123,10 +123,11 @@ func (g *Gogoanime) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) 
 			g.logger.Error().Err(err).Str("episodeID", episodeID).Msg("failed to parse episode number")
 			return
 		}
-		episodes = append(episodes, &ProviderEpisodeInfo{
-			ID:     episodeID,
-			Number: episodeNumber,
-			URL:    g.BaseURL + "/" + episodeID,
+		episodes = append(episodes, &EpisodeDetails{
+			Provider: GogoanimeProvider,
+			ID:       episodeID,
+			Number:   episodeNumber,
+			URL:      g.BaseURL + "/" + episodeID,
 		})
 	})
 
@@ -151,8 +152,8 @@ func (g *Gogoanime) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) 
 	return episodes, nil
 }
 
-func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server Server) (*ProviderServerSources, error) {
-	var source *ProviderServerSources
+func (g *Gogoanime) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*EpisodeServer, error) {
+	var source *EpisodeServer
 
 	if server == DefaultServer {
 		server = GogocdnServer
@@ -168,8 +169,9 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &ProviderServerSources{
-					Server: server,
+				source = &EpisodeServer{
+					Provider: GogoanimeProvider,
+					Server:   server,
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episodeInfo.ID,
 					},
@@ -183,8 +185,9 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &ProviderServerSources{
-					Server: server,
+				source = &EpisodeServer{
+					Provider: GogoanimeProvider,
+					Server:   server,
 					Headers: map[string]string{
 						"Referer": g.BaseURL + "/" + episodeInfo.ID,
 					},
@@ -198,8 +201,9 @@ func (g *Gogoanime) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, s
 			streamsb := onlinestream_sources.NewStreamSB()
 			videoSources, err := streamsb.Extract(src)
 			if err == nil {
-				source = &ProviderServerSources{
-					Server: server,
+				source = &EpisodeServer{
+					Provider: GogoanimeProvider,
+					Server:   server,
 					Headers: map[string]string{
 						"Referer":    g.BaseURL + "/" + episodeInfo.ID,
 						"watchsb":    "streamsb",

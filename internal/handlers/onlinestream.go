@@ -1,15 +1,21 @@
 package handlers
 
-// HandleGetOnlineStreamEpisodes returns the episodes.
+import (
+	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/onlinestream"
+)
+
+// HandleGetOnlineStreamEpisodeList returns the episodes.
 // It returns the best available episodes from the online stream providers.
 //
-//	POST /v1/onlinestream/episodes
-func HandleGetOnlineStreamEpisodes(c *RouteCtx) error {
+//	POST /v1/onlinestream/episode-list
+func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 	type body struct {
-		MediaId  int    `json:"mediaId"`
-		Dubbed   bool   `json:"dubbed"`
-		Provider string `json:"provider"`
+		MediaId     int    `json:"mediaId"`
+		Dubbed      bool   `json:"dubbed"`
+		Provider    string `json:"provider"`
+		BypassCache bool   `json:"bypassCache"` // TODO get fresh list
 	}
 
 	var b body
@@ -17,18 +23,35 @@ func HandleGetOnlineStreamEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	episodes, err := c.App.Onlinestream.GetMediaEpisodes(b.Provider, b.MediaId, b.Dubbed)
+	// Get media
+	// This is cached
+	media, err := c.App.Onlinestream.GetMedia(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	return c.RespondWithData(episodes)
+	// Get episode list
+	// This is cached using file cache
+	episodes, err := c.App.Onlinestream.GetMediaEpisodes(b.Provider, media, b.Dubbed)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret := struct {
+		Episodes []*onlinestream.Episode `json:"episodes"`
+		Media    *anilist.BaseMedia      `json:"media"`
+	}{
+		Episodes: episodes,
+		Media:    media,
+	}
+
+	return c.RespondWithData(ret)
 }
 
-// HandleGetOnlineStreamEpisodeSources
+// HandleGetOnlineStreamEpisodeSource
 //
 //	POST /v1/onlinestream/episode-sources
-func HandleGetOnlineStreamEpisodeSources(c *RouteCtx) error {
+func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 
 	type body struct {
 		EpisodeNumber int    `json:"episodeNumber"`

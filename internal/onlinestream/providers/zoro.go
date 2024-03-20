@@ -84,8 +84,8 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (z *Zoro) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) {
-	var episodes []*ProviderEpisodeInfo
+func (z *Zoro) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
+	var episodes []*EpisodeDetails
 
 	z.logger.Debug().Str("id", id).Msg("zoro: Fetching episodes")
 
@@ -153,11 +153,12 @@ func (z *Zoro) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) {
 			epNumber, _ := strconv.Atoi(s.AttrOr("data-number", ""))
 			url := z.BaseURL + s.AttrOr("href", "")
 			title := s.AttrOr("title", "")
-			episodes = append(episodes, &ProviderEpisodeInfo{
-				ID:     id,
-				Number: epNumber,
-				URL:    url,
-				Title:  title,
+			episodes = append(episodes, &EpisodeDetails{
+				Provider: ZoroProvider,
+				ID:       id,
+				Number:   epNumber,
+				URL:      url,
+				Title:    title,
 			})
 		})
 	})
@@ -173,8 +174,8 @@ func (z *Zoro) FindEpisodesInfo(id string) ([]*ProviderEpisodeInfo, error) {
 	return episodes, nil
 }
 
-func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server Server) (*ProviderServerSources, error) {
-	var source *ProviderServerSources
+func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*EpisodeServer, error) {
+	var source *EpisodeServer
 
 	if server == DefaultServer {
 		server = VidcloudServer
@@ -260,7 +261,8 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 			if err != nil {
 				return
 			}
-			source = &ProviderServerSources{
+			source = &EpisodeServer{
+				Provider:     ZoroProvider,
 				Server:       server,
 				Headers:      map[string]string{},
 				VideoSources: sources,
@@ -271,8 +273,9 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 			if err != nil {
 				return
 			}
-			source = &ProviderServerSources{
-				Server: server,
+			source = &EpisodeServer{
+				Provider: ZoroProvider,
+				Server:   server,
 				Headers: map[string]string{
 					"Referer":    jsonResponse["link"].(string),
 					"User-Agent": z.UserAgent,
@@ -285,8 +288,9 @@ func (z *Zoro) FindEpisodeServerSources(episodeInfo *ProviderEpisodeInfo, server
 			if err != nil {
 				return
 			}
-			source = &ProviderServerSources{
-				Server: server,
+			source = &EpisodeServer{
+				Provider: ZoroProvider,
+				Server:   server,
 				Headers: map[string]string{
 					"Referer":    jsonResponse["link"].(string),
 					"watchsb":    "streamsb",
