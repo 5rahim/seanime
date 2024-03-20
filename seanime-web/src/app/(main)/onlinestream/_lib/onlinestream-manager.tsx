@@ -1,4 +1,5 @@
 import {
+    __onlinestream_autoPlayAtom,
     __onlinestream_qualityAtom,
     __onlinestream_selectedEpisodeNumberAtom,
     __onlinestream_selectedProviderAtom,
@@ -10,7 +11,7 @@ import {
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
-import { useAtom, useSetAtom } from "jotai/react"
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
 import React from "react"
 import { toast } from "sonner"
@@ -31,6 +32,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
     const setEpisodeNumber = useSetAtom(__onlinestream_selectedEpisodeNumberAtom)
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
+    const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
     const currentProviderRef = React.useRef<string | null>(null)
 
@@ -126,7 +128,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
                 previousCurrentTimeRef.current = 0
             }
         }
-    }, [provider, videoSource])
+    }, [provider, videoSource, autoPlay])
 
 
     // Quality
@@ -175,7 +177,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         media: media as BaseMediaFragment,
         episodeSource,
         loadPage: !isFetching && !isLoading,
-        episodeNumber: episodeSource?.number ?? 0,
+        currentEpisodeNumber: episodeSource?.number ?? 0,
         handleChangeEpisodeNumber,
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
         opts: {

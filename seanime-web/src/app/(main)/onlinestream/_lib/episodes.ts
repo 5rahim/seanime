@@ -49,7 +49,10 @@ export const onlinestream_providers = [
 export const __onlinestream_mediaIdAtom = atom<string | null>(null)
 export const __onlinestream_selectedProviderAtom = atomWithStorage<string>("sea-onlinestream-provider", Provider.GOGOANIME)
 export const __onlinestream_selectedDubbedAtom = atom<boolean>(false)
-export const __onlinestream_selectedEpisodeNumberAtom = atom<number | undefined>(1)
+export const __onlinestream_selectedEpisodeNumberAtom = atom<number | undefined>(undefined)
+
+export const __onlinestream_autoPlayAtom = atomWithStorage("sea-onlinestream-autoplay", false)
+export const __onlinestream_autoNextAtom = atomWithStorage("sea-onlinestream-autonext", false)
 
 
 export function useOnlinestreamEpisodeList(mId: string | null) {

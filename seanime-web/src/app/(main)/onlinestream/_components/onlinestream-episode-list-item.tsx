@@ -58,7 +58,7 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
                     "border-zinc-500 bg-gray-900 hover:bg-gray-900": isSelected,
                     "border-red-700": isInvalid,
                     "opacity-50 pointer-events-none": disabled,
-                    // "opacity-50": isWatched && !isSelected,
+                    "opacity-50": isWatched && !isSelected,
                 }, className,
             )}
             {...rest}

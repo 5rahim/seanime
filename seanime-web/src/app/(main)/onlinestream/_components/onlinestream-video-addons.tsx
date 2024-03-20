@@ -1,18 +1,21 @@
 import {
+    __onlinestream_autoNextAtom,
+    __onlinestream_autoPlayAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
     onlinestream_providers,
 } from "@/app/(main)/onlinestream/_lib/episodes"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
 import { Menu, Tooltip, useCaptionOptions, usePlaybackRateOptions, useVideoQualityOptions } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { AiOutlineCloudServer } from "react-icons/ai"
+import { AiFillPlayCircle, AiOutlineCloudServer } from "react-icons/ai"
 import { FaClosedCaptioning } from "react-icons/fa"
 import { IoMdSettings } from "react-icons/io"
-import { MdHighQuality, MdVideoSettings } from "react-icons/md"
+import { MdHighQuality, MdPlaylistPlay, MdVideoSettings } from "react-icons/md"
 import { SlSpeedometer } from "react-icons/sl"
 
 type OnlinestreamServerButtonProps = {
@@ -57,6 +60,7 @@ export function OnlinestreamSettingsButton(props: OnlinestreamServerButtonProps)
                 <SpeedSubmenu />
                 <CaptionSubmenu />
                 {hasCustomQualities ? <VideoQualitySubmenu /> : <NativeVideoQualitySubmenu />}
+                <PlaybackSubmenu />
             </Menu.Content>
         </Menu.Root>
     )
@@ -162,6 +166,49 @@ function SpeedSubmenu() {
                 </Menu.RadioGroup>
             </Menu.Content>
         </Menu.Root>
+    )
+}
+
+function PlaybackSubmenu() {
+
+    const [autoPlay, setAutoPlay] = useAtom(__onlinestream_autoPlayAtom)
+    const [autoNext, setAutoNext] = useAtom(__onlinestream_autoNextAtom)
+
+    return (
+        <>
+            <Menu.Root>
+                <SubmenuButton
+                    label={`Auto Play`}
+                    hint={""}
+                    disabled={false}
+                    icon={AiFillPlayCircle}
+                />
+                <Menu.Content className={submenuClass}>
+                    <Switch
+                        label="Auto play"
+                        fieldClass="py-2"
+                        value={autoPlay}
+                        onValueChange={setAutoPlay}
+                    />
+                </Menu.Content>
+            </Menu.Root>
+            <Menu.Root>
+                <SubmenuButton
+                    label={`Play Next`}
+                    hint={""}
+                    disabled={false}
+                    icon={MdPlaylistPlay}
+                />
+                <Menu.Content className={submenuClass}>
+                    <Switch
+                        label="Auto play next"
+                        fieldClass="py-2"
+                        value={autoNext}
+                        onValueChange={setAutoNext}
+                    />
+                </Menu.Content>
+            </Menu.Root>
+        </>
     )
 }
 

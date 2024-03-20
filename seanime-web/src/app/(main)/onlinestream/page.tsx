@@ -9,6 +9,11 @@ import {
     OnlinestreamServerButton,
     OnlinestreamSettingsButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
+import {
+    __onlinestream_autoNextAtom,
+    __onlinestream_autoPlayAtom,
+    __onlinestream_selectedEpisodeNumberAtom,
+} from "@/app/(main)/onlinestream/_lib/episodes"
 import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
@@ -30,7 +35,7 @@ import {
 } from "@vidstack/react"
 import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import HLS from "hls.js"
-import { useAtom } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
@@ -46,12 +51,21 @@ export default function Page() {
 
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
+    const urlEpNumber = searchParams.get("episode")
     const { mediaEntry, mediaEntryLoading } = useMediaEntry(mediaId)
     const { mediaDetails } = useMediaDetails(mediaId)
 
     const ref = React.useRef<MediaPlayerInstance>(null)
 
     const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
+    const _episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
+
+    const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
+    const autoNext = useAtomValue(__onlinestream_autoNextAtom)
+
+    const progress = React.useMemo(() => {
+        return mediaEntry?.listData?.progress ?? 0
+    }, [mediaEntry?.listData?.progress])
 
     const {
         episodes,
@@ -64,7 +78,7 @@ export default function Page() {
         loadPage,
         media,
         episodeSource,
-        episodeNumber,
+        currentEpisodeNumber,
         handleChangeEpisodeNumber,
         episodeLoading,
     } = useOnlinestreamManager({
@@ -72,8 +86,11 @@ export default function Page() {
         ref,
     })
 
+    const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
+
+
     /** AniSkip **/
-    const { data: aniSkipData } = useSkipData(media?.idMal, episodeNumber)
+    const { data: aniSkipData } = useSkipData(media?.idMal, currentEpisodeNumber)
 
     const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
@@ -82,9 +99,27 @@ export default function Page() {
         Object.assign(ref.current ?? {}, { currentTime: time })
     }, [])
 
+    /**
+     * Set episode number
+     */
+    const firstRenderRef = React.useRef(true)
     React.useEffect(() => {
-        console.log(aniSkipData)
-    }, [aniSkipData])
+        if (firstRenderRef.current && !!mediaEntry) {
+            console.log(mediaEntry)
+            const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
+            const progress = mediaEntry?.listData?.progress ?? 0
+            const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
+            console.log(nextProgressNumber, progress)
+            if (_episodeNumber === undefined) {
+                handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
+            }
+            firstRenderRef.current = false
+        }
+    }, [mediaEntry])
+
+    function goToNextEpisode() {
+        handleChangeEpisodeNumber(currentEpisodeNumber + 1 < maxEp ? currentEpisodeNumber + 1 : currentEpisodeNumber)
+    }
 
     function onProviderChange(
         provider: MediaProviderAdapter | null,
@@ -119,7 +154,7 @@ export default function Page() {
     /** Scroll to selected episode element when the episode list changes (on mount) **/
     React.useEffect(() => {
         React.startTransition(() => {
-            const element = document.getElementById(`episode-${episodeNumber}`)
+            const element = document.getElementById(`episode-${currentEpisodeNumber}`)
             if (element) {
                 element.scrollIntoView()
                 React.startTransition(() => {
@@ -127,7 +162,7 @@ export default function Page() {
                 })
             }
         })
-    }, [episodes, episodeNumber])
+    }, [episodes, currentEpisodeNumber])
 
 
     if (!loadPage || !episodes || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
@@ -153,20 +188,27 @@ export default function Page() {
                     opts={opts}
                 >
 
-                    <div className="flex gap-4 items-center relative">
-                        <Link href={`/entry?id=${media?.id}`}>
-                            <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
-                        </Link>
-                        <h3>{media.title?.userPreferred}</h3>
+                    <div className="flex w-full justify-between">
+                        <div className="flex gap-4 items-center relative">
+                            <Link href={`/entry?id=${media?.id}`}>
+                                <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
+                            </Link>
+                            <h3>{media.title?.userPreferred}</h3>
 
-                        {/*<IconButton*/}
-                        {/*    icon={!theaterMode ? <GiTheater /> : <TbResize />}*/}
-                        {/*    onClick={() => setTheaterMode(p => !p)}*/}
-                        {/*    intent="gray-basic"*/}
-                        {/*    size="lg"*/}
-                        {/*/>*/}
+                            {/*<IconButton*/}
+                            {/*    icon={!theaterMode ? <GiTheater /> : <TbResize />}*/}
+                            {/*    onClick={() => setTheaterMode(p => !p)}*/}
+                            {/*    intent="gray-basic"*/}
+                            {/*    size="lg"*/}
+                            {/*/>*/}
 
+                        </div>
+
+                        <div>
+                            <Button>Update progress</Button>
+                        </div>
                     </div>
+
                     <div
                         className={cn(
                             "grid gap-4 xl:gap-4",
@@ -207,6 +249,16 @@ export default function Page() {
                                             setShowSkipEndingButton(true)
                                         } else {
                                             setShowSkipEndingButton(false)
+                                        }
+                                    }}
+                                    onEnded={(e) => {
+                                        if (autoNext) {
+                                            goToNextEpisode()
+                                        }
+                                    }}
+                                    onCanPlay={(e) => {
+                                        if (autoPlay) {
+                                            ref.current?.play()
                                         }
                                     }}
                                 >
@@ -360,9 +412,9 @@ export default function Page() {
                                                 description={episode.description ?? undefined}
                                                 image={episode.image}
                                                 media={media}
-                                                isSelected={episode.number === episodeNumber}
+                                                isSelected={episode.number === currentEpisodeNumber}
                                                 disabled={episodeLoading}
-                                                // isWatched={progress ? episode.number <= progress : undefined}
+                                                isWatched={progress ? episode.number <= progress : undefined}
                                             />
                                         </div>
                                     )
