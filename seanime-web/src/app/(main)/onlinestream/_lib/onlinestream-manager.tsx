@@ -10,7 +10,7 @@ import {
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
-import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
 import React from "react"
 import { toast } from "sonner"
@@ -28,10 +28,10 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
 
     const { episodeSource, isLoading: isLoadingEpisodeSource, isFetching: isFetchingEpisodeSource } = useOnlinestreamEpisodeSource(mediaId)
 
-    const [episodeNumber, setEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
-    const [selectedServer, setServer] = useAtom(__onlinestream_selectedServerAtom)
+    const setEpisodeNumber = useSetAtom(__onlinestream_selectedEpisodeNumberAtom)
+    const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
-    const provider = useAtomValue(__onlinestream_selectedProviderAtom)
+    const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
     const currentProviderRef = React.useRef<string | null>(null)
 
     // Get current episode details when [episodes] or [episodeSource] changes
@@ -137,6 +137,18 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         setQuality(quality)
     }, [videoSource])
 
+    // Provider
+    const changeProvider = React.useCallback((provider: string) => {
+        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+        setProvider(provider)
+    }, [videoSource])
+
+    // Server
+    const changeServer = React.useCallback((server: string) => {
+        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+        setServer(server)
+    }, [videoSource])
+
     // Episode
     const handleChangeEpisodeNumber = React.useCallback((epNumber: number) => {
         setEpisodeNumber(epNumber)
@@ -164,6 +176,8 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
             customQualities,
             hasCustomQualities,
             changeQuality,
+            changeProvider,
+            changeServer,
         },
     }
 

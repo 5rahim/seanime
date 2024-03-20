@@ -174,9 +174,9 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
         ...rest
     } = props
 
-    const { servers } = useOnlinestreamManagerContext()
+    const { servers, changeProvider } = useOnlinestreamManagerContext()
 
-    const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
+    const [provider] = useAtom(__onlinestream_selectedProviderAtom)
 
     if (!servers.length || !provider) return null
 
@@ -197,7 +197,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
                     value={provider}
                     options={onlinestream_providers}
                     onValueChange={(v) => {
-                        setProvider(v)
+                        changeProvider(v)
                     }}
                     itemContainerClass={radioGroupItemContainerClass}
                 />
@@ -213,9 +213,9 @@ export function OnlinestreamServerButton(props: OnlinestreamServerButtonProps) {
         ...rest
     } = props
 
-    const { servers } = useOnlinestreamManagerContext()
+    const { servers, changeServer } = useOnlinestreamManagerContext()
 
-    const [selectedServer, setServer] = useAtom(__onlinestream_selectedServerAtom)
+    const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
     if (!servers.length || !selectedServer) return null
 
@@ -236,7 +236,7 @@ export function OnlinestreamServerButton(props: OnlinestreamServerButtonProps) {
                     value={selectedServer}
                     options={servers.map((server) => ({ label: server, value: server }))}
                     onValueChange={(v) => {
-                        setServer(v)
+                        changeServer(v)
                     }}
                     itemContainerClass={radioGroupItemContainerClass}
                 />

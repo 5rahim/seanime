@@ -9,12 +9,12 @@ import {
     OnlinestreamServerButton,
     OnlinestreamSettingsButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
-import { __onlinestream_selectedServerAtom } from "@/app/(main)/onlinestream/_lib/episodes"
 import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -26,12 +26,12 @@ import {
     MediaProviderAdapter,
     MediaProviderChangeEvent,
     MediaProviderSetupEvent,
-    Poster,
     Track,
 } from "@vidstack/react"
 import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import HLS from "hls.js"
 import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import Link from "next/link"
@@ -39,6 +39,8 @@ import { useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCalendarAlt } from "react-icons/bi"
+
+const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
 
 export default function Page() {
 
@@ -49,7 +51,7 @@ export default function Page() {
 
     const ref = React.useRef<MediaPlayerInstance>(null)
 
-    const [selectedServer, setSelectedServer] = useAtom(__onlinestream_selectedServerAtom)
+    const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
 
     const {
         episodes,
@@ -114,6 +116,17 @@ export default function Page() {
         }
     }
 
+    /** Scroll to selected episode element when the episode list changes (on mount) **/
+    React.useEffect(() => {
+        React.startTransition(() => {
+            const element = document.getElementById(`episode-${episodeNumber}`)
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" })
+                window.scrollTo({ top: 0 })
+            }
+        })
+    }, [episodes, episodeNumber])
+
 
     if (!loadPage || !episodes || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -143,12 +156,28 @@ export default function Page() {
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
                         </Link>
                         <h3>{media.title?.userPreferred}</h3>
+
+                        {/*<IconButton*/}
+                        {/*    icon={!theaterMode ? <GiTheater /> : <TbResize />}*/}
+                        {/*    onClick={() => setTheaterMode(p => !p)}*/}
+                        {/*    intent="gray-basic"*/}
+                        {/*    size="lg"*/}
+                        {/*/>*/}
+
                     </div>
                     <div
-                        className="grid xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
+                        className={cn(
+                            "grid gap-4 xl:gap-4",
+                            !theaterMode && "xl:grid-cols-[1fr,500px]",
+                        )}
                     >
                         <div className="space-y-4">
-                            <div className="aspect-video relative">
+                            <div
+                                className={cn(
+                                    "aspect-video relative",
+                                    !theaterMode ? "aspect-video" : "max-h-[75dvh] w-full",
+                                )}
+                            >
                                 {!!url ? <MediaPlayer
                                     ref={ref}
                                     crossOrigin="anonymous"
@@ -156,9 +185,11 @@ export default function Page() {
                                         src: url || "",
                                         type: "application/x-mpegurl",
                                     }}
+                                    poster={currentEpisodeDetails?.image || media.coverImage?.extraLarge || ""}
+                                    // aspectRatio="16/9"
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
-                                    className="w-full h-full absolute"
+                                    // className="max-h-[75dvh] aspect-video"
                                     onTimeUpdate={(e) => {
                                         if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
                                             setShowSkipIntroButton(true)
@@ -178,10 +209,6 @@ export default function Page() {
                                     }}
                                 >
                                     <MediaProvider>
-                                        <Poster
-                                            src={currentEpisodeDetails?.image || media.coverImage?.extraLarge || ""}
-                                            alt="Episode"
-                                        />
                                         {episodeSource?.subtitles?.map((sub) => {
                                             return <Track
                                                 key={sub.url}

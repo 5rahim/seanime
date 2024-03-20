@@ -72,9 +72,10 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
             >
                 <div
                     className={cn(
-                        "size-20 flex-none rounded-md object-cover object-center relative overflow-hidden cursor-pointer",
+                        "size-20 flex-none rounded-md object-cover object-center relative overflow-hidden",
                         "group/ep-item-img-container",
-                        { "pointer-events-none": disabled },
+                        !disabled && "cursor-pointer",
+                        disabled && "pointer-events-none",
                         imageContainerClassName,
                     )}
                     onClick={onClick}
