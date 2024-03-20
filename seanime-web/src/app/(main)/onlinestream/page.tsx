@@ -121,8 +121,10 @@ export default function Page() {
         React.startTransition(() => {
             const element = document.getElementById(`episode-${episodeNumber}`)
             if (element) {
-                element.scrollIntoView({ behavior: "smooth" })
-                window.scrollTo({ top: 0 })
+                element.scrollIntoView()
+                React.startTransition(() => {
+                    window.scrollTo({ top: 0 })
+                })
             }
         })
     }, [episodes, episodeNumber])
