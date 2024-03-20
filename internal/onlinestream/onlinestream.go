@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
@@ -34,7 +35,7 @@ var (
 
 type (
 	Episode struct {
-		Number      int    `json:"number"`
+		Number      int    `json:"number,omitempty"`
 		Title       string `json:"title,omitempty"`
 		Image       string `json:"image,omitempty"`
 		Description string `json:"description,omitempty"`
@@ -156,7 +157,14 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMed
 	wg.Wait()
 
 	sort.Slice(episodes, func(i, j int) bool {
+		if episodes[i] == nil || episodes[j] == nil {
+			return true
+		}
 		return episodes[i].Number < episodes[j].Number
+	})
+
+	episodes = lo.Filter(episodes, func(item *Episode, index int) bool {
+		return item != nil
 	})
 
 	return episodes, nil

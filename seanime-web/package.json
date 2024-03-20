@@ -81,6 +81,7 @@
     "js-cookies": "^1.0.4",
     "js-levenshtein": "^1.1.6",
     "libphonenumber-js": "^1.10.57",
+    "media-icons": "^0.10.0",
     "memory-cache": "^0.2.0",
     "needle": "^3.3.1",
     "next": "^14.1.1-canary.82",
