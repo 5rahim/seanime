@@ -118,6 +118,11 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
             // Restore time if set
             if (previousCurrentTimeRef.current > 0) {
                 Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
+                setTimeout(() => {
+                    if (previousIsPlayingRef.current) {
+                        playerRef.current?.play()
+                    }
+                }, 500)
                 previousCurrentTimeRef.current = 0
             }
         }
@@ -132,20 +137,24 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         [episodeSource])
     //--
     const previousCurrentTimeRef = React.useRef(0)
+    const previousIsPlayingRef = React.useRef(false)
     const changeQuality = React.useCallback((quality: string) => {
         previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+        previousIsPlayingRef.current = playerRef.current?.paused === false
         setQuality(quality)
     }, [videoSource])
 
     // Provider
     const changeProvider = React.useCallback((provider: string) => {
         previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+        previousIsPlayingRef.current = playerRef.current?.paused === false
         setProvider(provider)
     }, [videoSource])
 
     // Server
     const changeServer = React.useCallback((server: string) => {
         previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+        previousIsPlayingRef.current = playerRef.current?.paused === false
         setServer(server)
     }, [videoSource])
 
