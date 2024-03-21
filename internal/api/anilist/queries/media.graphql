@@ -69,6 +69,11 @@ query MediaDetailsById ($id: Int) {
         popularity
         meanScore
         description
+      trailer {
+        id
+        site
+        thumbnail
+      }
         startDate {
             year
             month

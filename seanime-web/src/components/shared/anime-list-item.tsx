@@ -3,6 +3,7 @@ import { getAtomicLibraryEntryAtom } from "@/app/(main)/_loaders/library-collect
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { AnimeListItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { TrailerModal } from "@/components/shared/trailer-modal"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -10,12 +11,13 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { MediaEntryLibraryData, MediaEntryListData } from "@/lib/server/types"
 import { addSeconds, formatDistanceToNow } from "date-fns"
-import { useAtom } from "jotai"
+import { atom, useAtom } from "jotai"
+import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React, { memo, useEffect, useLayoutEffect, useState } from "react"
 import { BiCalendarAlt, BiLockOpenAlt, BiPlay, BiStar } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -32,17 +34,20 @@ type AnimeListItemProps = {
     containerClassName?: string
 }
 
+const actionPopupHoverAtom = atom<number | undefined>(undefined)
+
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const { media, listData: _listData, libraryData: _libraryData, overlay } = props
 
     const [listData, setListData] = useState(_listData)
     const [libraryData, setLibraryData] = useState(_libraryData)
+    const setActionPopupHover = useSetAtom(actionPopupHoverAtom)
 
     const [__atomicLibraryCollection, getAtomicLibraryEntry] = useAtom(getAtomicLibraryEntryAtom)
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
-    const showProgressBar = (!!listData?.progress && media?.episodes && listData?.status !== "COMPLETED")
+    const showProgressBar = (!!listData?.progress && !!media?.episodes && listData?.status !== "COMPLETED")
 
     // For pages where listData or libraryData is not accessible (where LibraryCollection is not fetched),
     // use cached LibraryCollection
@@ -108,45 +113,15 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
                     "hidden lg:block", // Hide on small screens
                 )} tabIndex={0}
+                onMouseEnter={() => setActionPopupHover(media.id)}
+                onMouseLeave={() => setActionPopupHover(undefined)}
             >
                 <div className="p-2 h-full w-full flex flex-col justify-between">
                     {/*METADATA SECTION*/}
                     <div className="space-y-1">
-                        <Link
-                            href={`/entry?id=${media.id}`}
-                            className="w-full relative"
-                        >
-                            <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2">
-                                {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
-                                    <div
-                                        className={cn(
-                                            "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                                            {
-                                                "bg-brand-400": listData?.status === "CURRENT",
-                                                "bg-gray-400": listData?.status !== "CURRENT",
-                                            },
-                                        )}
-                                        style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
-                                    ></div>
-                                </div>}
 
-                                {(!!media.bannerImage || !!media.coverImage?.large) ? <Image
-                                    src={media.bannerImage || media.coverImage?.large || ""}
-                                    alt={""}
-                                    fill
-                                    placeholder={imageShimmer(700, 475)}
-                                    quality={100}
-                                    sizes="20rem"
-                                    className="object-cover object-center transition"
-                                /> : <div
-                                    className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
-                                ></div>}
+                        <ActionPopupImage media={media} listData={listData} showProgressBar={showProgressBar} />
 
-                            </div>
-                            <div
-                                className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-gray-950 to-transparent z-[2]"
-                            />
-                        </Link>
                         <div>
                             {/*<Tooltip trigger={*/}
                             {/*    <p className="text-center font-medium text-sm min-[2000px]:text-lg px-4 line-clamp-1">{media.title?.userPreferred}</p>*/}
@@ -285,6 +260,83 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
         </div>
     )
 })
+
+const ActionPopupImage = ({ media, showProgressBar, listData }: {
+    media: BaseMediaFragment,
+    listData: MediaEntryListData | undefined,
+    showProgressBar: boolean
+}) => {
+
+    const router = useRouter()
+    const [trailerLoaded, setTrailerLoaded] = React.useState(false)
+    const [actionPopupHoverId] = useAtom(actionPopupHoverAtom)
+    const actionPopupHover = actionPopupHoverId === media.id
+
+    function onClick() {
+        if (!(media as any)?.trailer?.id && !trailerLoaded) {
+            router.push(`/entry?id=${media.id}`)
+        }
+    }
+
+    const Content = (
+        <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2 cursor-pointer" onClick={onClick}>
+            {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                <div
+                    className={cn(
+                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                        {
+                            "bg-brand-400": listData?.status === "CURRENT",
+                            "bg-gray-400": listData?.status !== "CURRENT",
+                        },
+                    )}
+                    style={{ width: `${String(Math.ceil(((listData?.progress || 0) / (media.episodes || 1)) * 100))}%` }}
+                ></div>
+            </div>}
+
+            {(!!media.bannerImage || !!media.coverImage?.large) ? <Image
+                src={media.bannerImage || media.coverImage?.large || ""}
+                alt={""}
+                fill
+                placeholder={imageShimmer(700, 475)}
+                quality={100}
+                sizes="20rem"
+                className={cn(
+                    "object-cover object-center transition",
+                    trailerLoaded && "hidden",
+                )}
+            /> : <div
+                className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
+            ></div>}
+
+            {(!!(media as any)?.trailer?.id && actionPopupHover) && <video
+                src={`https://y0u.tube/latest_version?id=${(media as any)?.trailer?.id}&itag=18`}
+                className={cn(
+                    "aspect-video w-full absolute left-0",
+                    !trailerLoaded && "hidden",
+                )}
+                playsInline
+                preload="none"
+                loop
+                autoPlay
+                muted
+                onLoadedData={() => setTrailerLoaded(true)}
+            />}
+
+            <div
+                className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-gray-950 to-transparent z-[2]"
+            />
+        </div>
+    )
+
+    if (!(media as any)?.trailer?.id) return Content
+    else return (
+        <TrailerModal
+            mediaId={media.id}
+            trigger={Content}
+        />
+    )
+
+}
 
 const MainActionButton = (props: { media: BaseMediaFragment, listData?: MediaEntryListData }) => {
     const progress = props.listData?.progress

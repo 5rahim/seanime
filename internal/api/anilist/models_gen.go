@@ -1177,6 +1177,9 @@ type ModAction struct {
 	CreatedAt  int            `json:"createdAt"`
 }
 
+type Mutation struct {
+}
+
 // Notification option
 type NotificationOption struct {
 	// The type of notification
@@ -1234,6 +1237,9 @@ type PageInfo struct {
 type ParsedMarkdown struct {
 	// The parsed markdown as html
 	HTML *string `json:"html,omitempty"`
+}
+
+type Query struct {
 }
 
 // Media recommendation

@@ -10,6 +10,7 @@ import { getMediaDetailsStats } from "@/app/(main)/entry/_containers/meta-sectio
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
+import { TrailerModal } from "@/components/shared/trailer-modal"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -229,7 +230,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                         <NextAiringEpisode media={entry.media} />
 
                         <div className="w-full flex justify-between items-center">
-                            <div className="w-full flex gap-4 items-center">
+                            <div className="w-full flex gap-4 flex-wrap items-center">
 
                                 <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                                     <Button intent="gray-link" className="px-0">
@@ -238,6 +239,14 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                                 </Link>
 
                                 <EntryOnlinestreamButton entry={entry} />
+
+                                <TrailerModal
+                                    mediaId={entry.mediaId} trigger={
+                                    <Button intent="white-subtle">
+                                        Watch Trailer
+                                    </Button>
+                                }
+                                />
                             </div>
                             {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
                                 <MediaEntrySilenceToggle mediaId={entry.mediaId} />

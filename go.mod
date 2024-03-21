@@ -3,8 +3,8 @@ module github.com/seanime-app/seanime
 go 1.22
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/Yamashou/gqlgenc v0.18.0
+	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/Yamashou/gqlgenc v0.19.3
 	github.com/adrg/strutil v0.3.1
 	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -27,14 +27,13 @@ require (
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xfrr/goffmpeg v1.0.0
-	go.etcd.io/bbolt v1.3.9
-	golang.org/x/net v0.20.0
+	golang.org/x/net v0.21.0
 	golang.org/x/text v0.14.0
 	gorm.io/gorm v1.25.7
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.39 // indirect
+	github.com/99designs/gqlgen v0.17.44 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
@@ -82,13 +81,13 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.10 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.11 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/tools v0.17.0 // indirect
+	golang.org/x/tools v0.18.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

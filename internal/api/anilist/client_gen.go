@@ -35,67 +35,6 @@ func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, inte
 	return &Client{Client: clientv2.NewClient(cli, baseURL, options, interceptors...)}
 }
 
-type Query struct {
-	Page                         *Page                "json:\"Page,omitempty\" graphql:\"Page\""
-	Media                        *Media               "json:\"Media,omitempty\" graphql:\"Media\""
-	MediaTrend                   *MediaTrend          "json:\"MediaTrend,omitempty\" graphql:\"MediaTrend\""
-	AiringSchedule               *AiringSchedule      "json:\"AiringSchedule,omitempty\" graphql:\"AiringSchedule\""
-	Character                    *Character           "json:\"Character,omitempty\" graphql:\"Character\""
-	Staff                        *Staff               "json:\"Staff,omitempty\" graphql:\"Staff\""
-	MediaList                    *MediaList           "json:\"MediaList,omitempty\" graphql:\"MediaList\""
-	MediaListCollection          *MediaListCollection "json:\"MediaListCollection,omitempty\" graphql:\"MediaListCollection\""
-	GenreCollection              []*string            "json:\"GenreCollection,omitempty\" graphql:\"GenreCollection\""
-	MediaTagCollection           []*MediaTag          "json:\"MediaTagCollection,omitempty\" graphql:\"MediaTagCollection\""
-	User                         *User                "json:\"User,omitempty\" graphql:\"User\""
-	Viewer                       *User                "json:\"Viewer,omitempty\" graphql:\"Viewer\""
-	Notification                 NotificationUnion    "json:\"Notification,omitempty\" graphql:\"Notification\""
-	Studio                       *Studio              "json:\"Studio,omitempty\" graphql:\"Studio\""
-	Review                       *Review              "json:\"Review,omitempty\" graphql:\"Review\""
-	Activity                     ActivityUnion        "json:\"Activity,omitempty\" graphql:\"Activity\""
-	ActivityReply                *ActivityReply       "json:\"ActivityReply,omitempty\" graphql:\"ActivityReply\""
-	Following                    *User                "json:\"Following,omitempty\" graphql:\"Following\""
-	Follower                     *User                "json:\"Follower,omitempty\" graphql:\"Follower\""
-	Thread                       *Thread              "json:\"Thread,omitempty\" graphql:\"Thread\""
-	ThreadComment                []*ThreadComment     "json:\"ThreadComment,omitempty\" graphql:\"ThreadComment\""
-	Recommendation               *Recommendation      "json:\"Recommendation,omitempty\" graphql:\"Recommendation\""
-	Like                         *User                "json:\"Like,omitempty\" graphql:\"Like\""
-	Markdown                     *ParsedMarkdown      "json:\"Markdown,omitempty\" graphql:\"Markdown\""
-	AniChartUser                 *AniChartUser        "json:\"AniChartUser,omitempty\" graphql:\"AniChartUser\""
-	SiteStatistics               *SiteStatistics      "json:\"SiteStatistics,omitempty\" graphql:\"SiteStatistics\""
-	ExternalLinkSourceCollection []*MediaExternalLink "json:\"ExternalLinkSourceCollection,omitempty\" graphql:\"ExternalLinkSourceCollection\""
-}
-
-type Mutation struct {
-	UpdateUser                 *User            "json:\"UpdateUser,omitempty\" graphql:\"UpdateUser\""
-	SaveMediaListEntry         *MediaList       "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
-	UpdateMediaListEntries     []*MediaList     "json:\"UpdateMediaListEntries,omitempty\" graphql:\"UpdateMediaListEntries\""
-	DeleteMediaListEntry       *Deleted         "json:\"DeleteMediaListEntry,omitempty\" graphql:\"DeleteMediaListEntry\""
-	DeleteCustomList           *Deleted         "json:\"DeleteCustomList,omitempty\" graphql:\"DeleteCustomList\""
-	SaveTextActivity           *TextActivity    "json:\"SaveTextActivity,omitempty\" graphql:\"SaveTextActivity\""
-	SaveMessageActivity        *MessageActivity "json:\"SaveMessageActivity,omitempty\" graphql:\"SaveMessageActivity\""
-	SaveListActivity           *ListActivity    "json:\"SaveListActivity,omitempty\" graphql:\"SaveListActivity\""
-	DeleteActivity             *Deleted         "json:\"DeleteActivity,omitempty\" graphql:\"DeleteActivity\""
-	ToggleActivityPin          ActivityUnion    "json:\"ToggleActivityPin,omitempty\" graphql:\"ToggleActivityPin\""
-	ToggleActivitySubscription ActivityUnion    "json:\"ToggleActivitySubscription,omitempty\" graphql:\"ToggleActivitySubscription\""
-	SaveActivityReply          *ActivityReply   "json:\"SaveActivityReply,omitempty\" graphql:\"SaveActivityReply\""
-	DeleteActivityReply        *Deleted         "json:\"DeleteActivityReply,omitempty\" graphql:\"DeleteActivityReply\""
-	ToggleLike                 []*User          "json:\"ToggleLike,omitempty\" graphql:\"ToggleLike\""
-	ToggleLikeV2               LikeableUnion    "json:\"ToggleLikeV2,omitempty\" graphql:\"ToggleLikeV2\""
-	ToggleFollow               *User            "json:\"ToggleFollow,omitempty\" graphql:\"ToggleFollow\""
-	ToggleFavourite            *Favourites      "json:\"ToggleFavourite,omitempty\" graphql:\"ToggleFavourite\""
-	UpdateFavouriteOrder       *Favourites      "json:\"UpdateFavouriteOrder,omitempty\" graphql:\"UpdateFavouriteOrder\""
-	SaveReview                 *Review          "json:\"SaveReview,omitempty\" graphql:\"SaveReview\""
-	DeleteReview               *Deleted         "json:\"DeleteReview,omitempty\" graphql:\"DeleteReview\""
-	RateReview                 *Review          "json:\"RateReview,omitempty\" graphql:\"RateReview\""
-	SaveRecommendation         *Recommendation  "json:\"SaveRecommendation,omitempty\" graphql:\"SaveRecommendation\""
-	SaveThread                 *Thread          "json:\"SaveThread,omitempty\" graphql:\"SaveThread\""
-	DeleteThread               *Deleted         "json:\"DeleteThread,omitempty\" graphql:\"DeleteThread\""
-	ToggleThreadSubscription   *Thread          "json:\"ToggleThreadSubscription,omitempty\" graphql:\"ToggleThreadSubscription\""
-	SaveThreadComment          *ThreadComment   "json:\"SaveThreadComment,omitempty\" graphql:\"SaveThreadComment\""
-	DeleteThreadComment        *Deleted         "json:\"DeleteThreadComment,omitempty\" graphql:\"DeleteThreadComment\""
-	UpdateAniChartSettings     *string          "json:\"UpdateAniChartSettings,omitempty\" graphql:\"UpdateAniChartSettings\""
-	UpdateAniChartHighlights   *string          "json:\"UpdateAniChartHighlights,omitempty\" graphql:\"UpdateAniChartHighlights\""
-}
 type BasicMedia struct {
 	ID                int                           "json:\"id\" graphql:\"id\""
 	IDMal             *int                          "json:\"idMal,omitempty\" graphql:\"idMal\""
@@ -2535,6 +2474,31 @@ func (t *BaseMediaById_Media_BaseMedia_Relations) GetEdges() []*BaseMediaById_Me
 	return t.Edges
 }
 
+type MediaDetailsById_Media_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *MediaDetailsById_Media_Trailer) GetID() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Trailer{}
+	}
+	return t.ID
+}
+func (t *MediaDetailsById_Media_Trailer) GetSite() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Trailer{}
+	}
+	return t.Site
+}
+func (t *MediaDetailsById_Media_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Trailer{}
+	}
+	return t.Thumbnail
+}
+
 type MediaDetailsById_Media_StartDate struct {
 	Year  *int "json:\"year,omitempty\" graphql:\"year\""
 	Month *int "json:\"month,omitempty\" graphql:\"month\""
@@ -2798,6 +2762,7 @@ type MediaDetailsById_Media struct {
 	Popularity      *int                                    "json:\"popularity,omitempty\" graphql:\"popularity\""
 	MeanScore       *int                                    "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description     *string                                 "json:\"description,omitempty\" graphql:\"description\""
+	Trailer         *MediaDetailsById_Media_Trailer         "json:\"trailer,omitempty\" graphql:\"trailer\""
 	StartDate       *MediaDetailsById_Media_StartDate       "json:\"startDate,omitempty\" graphql:\"startDate\""
 	EndDate         *MediaDetailsById_Media_EndDate         "json:\"endDate,omitempty\" graphql:\"endDate\""
 	Studios         *MediaDetailsById_Media_Studios         "json:\"studios,omitempty\" graphql:\"studios\""
@@ -2852,6 +2817,12 @@ func (t *MediaDetailsById_Media) GetDescription() *string {
 		t = &MediaDetailsById_Media{}
 	}
 	return t.Description
+}
+func (t *MediaDetailsById_Media) GetTrailer() *MediaDetailsById_Media_Trailer {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Trailer
 }
 func (t *MediaDetailsById_Media) GetStartDate() *MediaDetailsById_Media_StartDate {
 	if t == nil {
@@ -4474,6 +4445,11 @@ const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
 		popularity
 		meanScore
 		description
+		trailer {
+			id
+			site
+			thumbnail
+		}
 		startDate {
 			year
 			month

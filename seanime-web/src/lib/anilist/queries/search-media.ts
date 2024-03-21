@@ -80,6 +80,11 @@ export async function searchAnilistMediaList(options: SearchAnilistMediaListOpti
       isAdult
       countryOfOrigin
       description
+      trailer {
+        id
+        site
+        thumbnail
+      }
       title {
         userPreferred
         romaji
@@ -128,7 +133,8 @@ export async function searchAnilistMediaList(options: SearchAnilistMediaListOpti
                 },
             })
         return response.data?.data
-    } catch (error) {
+    }
+    catch (error) {
         console.error(error)
         return undefined
 

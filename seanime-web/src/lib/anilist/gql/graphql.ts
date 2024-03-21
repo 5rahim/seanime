@@ -4792,6 +4792,7 @@ export type BaseMediaByIdQuery = {
             english?: string | null,
             native?: string | null
         } | null,
+        trailer?: { id?: string | null, site?: string | null, thumbnail?: string | null } | null,
         coverImage?: {
             extraLarge?: string | null,
             large?: string | null,
@@ -4865,6 +4866,7 @@ export type MediaDetailsByIdQuery = {
             allTime?: boolean | null,
             season?: MediaSeason | null
         } | null> | null,
+        trailer?: { id?: string | null, site?: string | null, thumbnail?: string | null } | null,
         recommendations?: {
             edges?: Array<{
                 node?: {
