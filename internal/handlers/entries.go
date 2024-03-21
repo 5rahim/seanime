@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/mal"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/util/limiter"
@@ -451,7 +452,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 // HandleAddUnknownMedia will add the given media ids to the user's AniList planning collection.
 //
-//	POST /v1/library/unknown-media
+//	POST /v1/library/media-entry/unknown-media
 func HandleAddUnknownMedia(c *RouteCtx) error {
 
 	type body struct {
@@ -476,4 +477,54 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 
 	return c.RespondWithData(anilistCollection)
 
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+// HandleUpdateProgress will update the progress of the given media entry.
+//
+// This route will update the progress on AniList and MyAnimeList (if an account is linked).
+//
+//	POST /v1/library/media-entry/update-progress
+func HandleUpdateProgress(c *RouteCtx) error {
+
+	type body struct {
+		MediaId       int `json:"mediaId"`
+		EpisodeNumber int `json:"episodeNumber"`
+		TotalEpisodes int `json:"totalEpisodes"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Update the progress on AniList
+	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
+		context.Background(),
+		&b.MediaId,
+		&b.EpisodeNumber,
+		&b.TotalEpisodes,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	_, _ = c.App.RefreshAnilistCollection() // Refresh the AniList collection
+
+	go func() {
+		// Update the progress on MAL if an account is linked
+		malInfo, _ := c.App.Database.GetMalInfo()
+		if malInfo != nil && malInfo.AccessToken != "" {
+			client := mal.NewWrapper(malInfo.AccessToken)
+			err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
+				NumEpisodesWatched: &b.EpisodeNumber,
+			}, b.MediaId)
+			if err != nil {
+				c.App.WSEventManager.SendEvent(events.PlaybackManagerNotifyError, "Failed to update progress on MyAnimeList")
+			}
+		}
+	}()
+
+	return c.RespondWithData(true)
 }

@@ -193,6 +193,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// POST /v1/library/unknown-media
 	v1Library.Post("/media-entry/unknown-media", makeHandler(app, HandleAddUnknownMedia))
 
+	v1Library.Post("/media-entry/update-progress", makeHandler(app, HandleUpdateProgress))
+
 	v1Library.Get("/media-entry/silence/:id", makeHandler(app, HandleGetMediaEntrySilenceStatus))
 	v1Library.Post("/media-entry/silence", makeHandler(app, HandleToggleMediaEntrySilenceStatus))
 

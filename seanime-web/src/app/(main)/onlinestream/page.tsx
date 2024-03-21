@@ -23,6 +23,9 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
+import { useQueryClient } from "@tanstack/react-query"
 import {
     isHLSProvider,
     MediaPlayer,
@@ -35,6 +38,7 @@ import {
 } from "@vidstack/react"
 import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import HLS from "hls.js"
+import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import capitalize from "lodash/capitalize"
@@ -44,11 +48,17 @@ import { useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCalendarAlt } from "react-icons/bi"
+import { toast } from "sonner"
 
 const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
+type ProgressItem = {
+    episodeNumber: number
+}
+const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 
 export default function Page() {
 
+    const qc = useQueryClient()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const urlEpNumber = searchParams.get("episode")
@@ -62,8 +72,12 @@ export default function Page() {
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
+    const [progressItem, setProgressItem] = useAtom(progressItemAtom)
+
+    const [currentProgress, setCurrentProgress] = React.useState(mediaEntry?.listData?.progress ?? 0)
 
     const progress = React.useMemo(() => {
+        setCurrentProgress(mediaEntry?.listData?.progress ?? 0)
         return mediaEntry?.listData?.progress ?? 0
     }, [mediaEntry?.listData?.progress])
 
@@ -94,6 +108,7 @@ export default function Page() {
 
     const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
+    const [duration, setDuration] = React.useState(0)
 
     const seekTo = React.useCallback((time: number) => {
         Object.assign(ref.current ?? {}, { currentTime: time })
@@ -164,6 +179,46 @@ export default function Page() {
         })
     }, [episodes, currentEpisodeNumber])
 
+    const cues = React.useMemo(() => {
+        const introStart = aniSkipData?.op?.interval?.startTime ?? 0
+        const introEnd = aniSkipData?.op?.interval?.endTime ?? 0
+        const outroStart = aniSkipData?.ed?.interval?.startTime ?? 0
+        const outroEnd = aniSkipData?.ed?.interval?.endTime ?? 0
+        const ret = []
+        if (introEnd > introStart) {
+            ret.push({
+                startTime: introStart,
+                endTime: introEnd,
+                text: "Intro",
+            })
+        }
+        if (outroEnd > outroStart) {
+            ret.push({
+                startTime: outroStart,
+                endTime: outroEnd,
+                text: "Outro",
+            })
+        }
+        return ret
+    }, [])
+
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useSeaMutation<boolean, {
+        episodeNumber: number,
+        mediaId: number,
+        totalEpisodes: number
+    }>({
+        endpoint: SeaEndpoints.UPDATE_PROGRESS,
+        mutationKey: ["update-progress", currentEpisodeNumber],
+        method: "post",
+        onSuccess: () => {
+            qc.refetchQueries({ queryKey: ["get-media-entry", Number(mediaId)] })
+            qc.refetchQueries({ queryKey: ["get-library-collection"] })
+            qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            toast.success("Progress updated")
+            setProgressItem(undefined)
+        },
+    })
+
 
     if (!loadPage || !episodes || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -205,7 +260,19 @@ export default function Page() {
                         </div>
 
                         <div>
-                            <Button>Update progress</Button>
+                            {(!!progressItem && !!media.episodes) && <Button
+                                className="animate-pulse"
+                                loading={isUpdatingProgress}
+                                disabled={hasUpdatedProgress}
+                                onClick={() => {
+                                    updateProgress({
+                                        episodeNumber: progressItem.episodeNumber,
+                                        mediaId: media.id,
+                                        totalEpisodes: media.episodes!,
+                                    })
+                                    setCurrentProgress(progressItem.episodeNumber)
+                                }}
+                            >Update progress</Button>}
                         </div>
                     </div>
 
@@ -250,6 +317,19 @@ export default function Page() {
                                         } else {
                                             setShowSkipEndingButton(false)
                                         }
+
+                                        if (currentEpisodeNumber > 0 &&
+                                            duration > 0 &&
+                                            e?.currentTime &&
+                                            ((e.currentTime / duration) * 100) >= 0.8 &&
+                                            currentEpisodeNumber > currentProgress
+                                        ) {
+                                            if (!progressItem) {
+                                                setProgressItem({
+                                                    episodeNumber: currentEpisodeNumber,
+                                                })
+                                            }
+                                        }
                                     }}
                                     onEnded={(e) => {
                                         if (autoNext) {
@@ -257,6 +337,11 @@ export default function Page() {
                                         }
                                     }}
                                     onCanPlay={(e) => {
+                                        if (e.duration && e.duration > 0) {
+                                            setDuration(e.duration)
+                                        } else {
+                                            setDuration(0)
+                                        }
                                         if (autoPlay) {
                                             ref.current?.play()
                                         }
@@ -275,6 +360,22 @@ export default function Page() {
                                                     default: sub.language
                                                         ? sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us"
                                                         : sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us",
+                                                }}
+                                            />
+                                        })}
+                                        {cues?.map((cue) => {
+                                            return <Track
+                                                key={cue.text}
+                                                {...{
+                                                    id: cue.text,
+                                                    label: cue.text,
+                                                    kind: "chapters",
+                                                    src: "",
+                                                    language: "",
+                                                    default: false,
+                                                    srcLang: "",
+                                                    startTime: cue.startTime,
+                                                    endTime: cue.endTime,
                                                 }}
                                             />
                                         })}

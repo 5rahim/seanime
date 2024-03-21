@@ -43,6 +43,7 @@ export const enum SeaEndpoints {
     OPEN_MEDIA_ENTRY_IN_EXPLORER = "/library/media-entry/open-in-explorer", // (POST)
     MEDIA_ENTRY_UNKNOWN_MEDIA = "/library/media-entry/unknown-media", // (POST)
     MEDIA_ENTRY_SILENCE_STATUS = "/library/media-entry/silence/{id}", // (GET)
+    UPDATE_PROGRESS = "/library/media-entry/update-progress", // (POST)
     MEDIA_ENTRY_SILENCE = "/library/media-entry/silence", // (POST)
     SCAN_SUMMARIES = "/library/scan-summaries", // (GET)
     /**
