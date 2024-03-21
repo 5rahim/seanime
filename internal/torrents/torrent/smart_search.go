@@ -160,6 +160,8 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 			// Search by EID
 			if anizipMedia != nil && !*opts.Batch {
 
+				opts.Logger.Debug().Int("eid", anizipMedia.Mappings.AnidbID).Msg("smartsearch: Searching by EID (AnimeTosho)")
+
 				episode, foundEp := anizipMedia.FindEpisode(strconv.Itoa(*opts.EpisodeNumber))
 
 				if foundEp && episode.AnidbEid > 0 {
@@ -170,6 +172,8 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 
 			// Could not find by EID, search by query
 			if err != nil || len(animetoshoTorrents) == 0 {
+
+				opts.Logger.Debug().Str("query", *opts.Query).Msg("smartsearch: Searching by query (AnimeTosho)")
 
 				animetoshoTorrents, err = animetosho.SearchQuery(&animetosho.BuildSearchQueryOptions{
 					Media:          opts.Media,
@@ -183,10 +187,24 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 				})
 
 				// If we still have no torrents, and the user wants to batch search, we will search by AID
-				if anizipMedia != nil && (err != nil || len(animetoshoTorrents) == 0) {
-					if *opts.Batch {
-						animetoshoTorrents, err = animetosho.SearchByAIDLikelyBatch(anizipMedia.Mappings.AnidbID, *opts.Resolution)
+				if anizipMedia != nil && *opts.Batch && (err != nil || len(animetoshoTorrents) == 0) {
+
+					opts.Logger.Debug().Int("aid", anizipMedia.Mappings.AnidbID).Msg("smartsearch: Searching by AID (AnimeTosho)")
+
+					animetoshoTorrents, err = animetosho.SearchByAIDLikelyBatch(anizipMedia.Mappings.AnidbID, *opts.Resolution)
+					// Filter if found
+					if err == nil && len(animetoshoTorrents) > 0 {
+						newAT := make([]*animetosho.Torrent, 0)
+						for _, t := range animetoshoTorrents {
+							m := seanime_parser.Parse(t.Title)
+							if len(m.EpisodeNumber) < 2 && !comparison.ValueContainsBatchKeywords(t.Title) {
+								continue
+							}
+							newAT = append(newAT, t)
+						}
+						animetoshoTorrents = newAT
 					}
+
 				}
 			}
 

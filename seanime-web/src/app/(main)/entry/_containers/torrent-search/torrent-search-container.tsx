@@ -35,7 +35,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const [quickSearch, setQuickSearch] = useState(true)
     const [quickSearchBatch, setQuickSearchBatch] = useState<boolean>(shouldLookForBatches || false)
     const [quickSearchEpisode, setQuickSearchEpisode] = useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
-    const [quickSearchResolution, setQuickSearchResolution] = useState("")
+    const [quickSearchResolution, setQuickSearchResolution] = useState("1080")
     const [dQuickSearchEpisode, setDQuickSearchEpisode] = useDebounceWithSet(quickSearchEpisode, 500)
 
     useLayoutEffect(() => {
