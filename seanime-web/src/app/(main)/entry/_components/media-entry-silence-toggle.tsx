@@ -6,12 +6,14 @@ import { LuBellOff, LuBellRing } from "react-icons/lu"
 
 type MediaEntrySilenceToggleProps = {
     mediaId: number
+    size?: "sm" | "md" | "lg"
 }
 
 export function MediaEntrySilenceToggle(props: MediaEntrySilenceToggleProps) {
 
     const {
         mediaId,
+        size = "lg",
         ...rest
     } = props
 
@@ -30,7 +32,7 @@ export function MediaEntrySilenceToggle(props: MediaEntrySilenceToggleProps) {
                     onClick={toggleSilenceStatus}
                     loading={silenceStatusIsLoading || silenceStatusIsUpdating}
                     intent={isSilenced ? "warning-subtle" : "primary-subtle"}
-                    size="lg"
+                    size={size}
                     {...rest}
                 />}
             >

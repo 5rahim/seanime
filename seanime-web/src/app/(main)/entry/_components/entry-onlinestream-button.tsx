@@ -24,7 +24,7 @@ export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {
             <Link href={`/onlinestream?id=${entry?.mediaId}`}>
                 <Button
                     intent="primary-subtle"
-                    leftIcon={<FiPlayCircle />}
+                    leftIcon={<FiPlayCircle className="text-xl" />}
                 >
                     Stream online
                 </Button>

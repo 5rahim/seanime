@@ -1,4 +1,5 @@
 "use client"
+import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
@@ -7,7 +8,9 @@ import { getMediaDetailsStats } from "@/app/(main)/entry/_containers/meta-sectio
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
+import { TrailerModal } from "@/components/shared/trailer-modal"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
@@ -171,9 +174,21 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
 
                     <NextAiringEpisode media={entry.media} />
 
-                    <div className="w-full flex justify-between items-center">
-                        {!!entry.libraryData ? <MediaEntrySilenceToggle mediaId={entry.mediaId} /> : <div></div>}
+                    <div className="w-full flex gap-4 flex-wrap items-center">
                         <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">Open on AniList</Link>
+
+                        <div className="flex flex-1"></div>
+
+                        <EntryOnlinestreamButton entry={entry} />
+
+                        <TrailerModal
+                            mediaId={entry.mediaId} trigger={
+                            <Button intent="white-subtle">
+                                Watch Trailer
+                            </Button>
+                        }
+                        />
+                        {!!entry.libraryData ? <MediaEntrySilenceToggle size="md" mediaId={entry.mediaId} /> : <div></div>}
                     </div>
 
                     {(!entry.aniDBId || entry.aniDBId === 0) && (

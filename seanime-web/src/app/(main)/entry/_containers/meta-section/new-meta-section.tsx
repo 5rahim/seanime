@@ -229,8 +229,7 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
 
                         <NextAiringEpisode media={entry.media} />
 
-                        <div className="w-full flex justify-between items-center">
-                            <div className="w-full flex gap-4 flex-wrap items-center">
+                        <div className="w-full flex justify-between flex-wrap gap-4 items-center">
 
                                 <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                                     <Button intent="gray-link" className="px-0">
@@ -247,12 +246,14 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                                     </Button>
                                 }
                                 />
-                            </div>
-                            {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
+
+                            <div className="flex flex-1"></div>
+
+                            {!!entry.libraryData && <>
                                 <MediaEntrySilenceToggle mediaId={entry.mediaId} />
                                 <BulkToggleLockButton entry={entry} />
                                 <EpisodeSectionDropdownMenu entry={entry} />
-                            </div>}
+                            </>}
                         </div>
 
                         {(!entry.aniDBId || entry.aniDBId === 0) && (
