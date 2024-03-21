@@ -224,8 +224,6 @@ export function OnlinestreamParametersButton() {
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
-    if (!servers.length || !provider) return null
-
     return (
         <Modal trigger={<IconButton intent="gray-basic" icon={<MdVideoSettings />} />}>
             <Select
@@ -236,14 +234,14 @@ export function OnlinestreamParametersButton() {
                     changeProvider(v)
                 }}
             />
-            <Select
+            {!!servers.length && <Select
                 label="Server"
                 value={selectedServer}
                 options={servers.map((server) => ({ label: server, value: server }))}
                 onValueChange={(v) => {
                     changeServer(v)
                 }}
-            />
+            />}
         </Modal>
     )
 }

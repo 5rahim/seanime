@@ -48,6 +48,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCalendarAlt } from "react-icons/bi"
+import { useUpdateEffect } from "react-use"
 import { toast } from "sonner"
 
 const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
@@ -69,8 +70,10 @@ export default function Page() {
 
     const ref = React.useRef<MediaPlayerInstance>(null)
 
+    const mediaIdRef = React.useRef(mediaId)
+
     const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
-    const _episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
+    const [_episodeNumber, _setEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
@@ -119,20 +122,16 @@ export default function Page() {
     /**
      * Set episode number
      */
-    const firstRenderRef = React.useRef(true)
-    React.useEffect(() => {
-        if (firstRenderRef.current && !!mediaEntry) {
-            console.log(mediaEntry)
+    useUpdateEffect(() => {
+        if (!!mediaEntry && !!media) {
+            const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = mediaEntry?.listData?.progress ?? 0
             const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
             console.log(nextProgressNumber, progress)
-            if (_episodeNumber === undefined) {
-                handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
-            }
-            firstRenderRef.current = false
+            handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
         }
-    }, [mediaEntry])
+    }, [mediaEntry, media])
 
     React.useEffect(() => {
         const t = setTimeout(() => {
@@ -217,7 +216,7 @@ export default function Page() {
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useSeaMutation<boolean, {
         episodeNumber: number,
         mediaId: number,
-        totalEpisodes: number
+        totalEpisodes: number,
     }>({
         endpoint: SeaEndpoints.UPDATE_PROGRESS,
         mutationKey: ["update-progress", currentEpisodeNumber],

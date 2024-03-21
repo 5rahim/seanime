@@ -1,6 +1,7 @@
 package onlinestream
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
@@ -9,7 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 	"github.com/seanime-app/seanime/internal/util/filecache"
-	"sort"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -143,6 +144,12 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMed
 						Image:       img,
 						Description: anizipEpisode.Summary,
 					})
+				} else {
+					episodes = append(episodes, &Episode{
+						Number: episodeDetails.Number,
+						Title:  episodeDetails.Title,
+						Image:  media.GetCoverImageSafe(),
+					})
 				}
 			} else {
 				episodes = append(episodes, &Episode{
@@ -156,11 +163,11 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMed
 
 	wg.Wait()
 
-	sort.Slice(episodes, func(i, j int) bool {
-		if episodes[i] == nil || episodes[j] == nil {
-			return true
+	slices.SortFunc(episodes, func(i, j *Episode) int {
+		if i == nil || j == nil {
+			return 0
 		}
-		return episodes[i].Number < episodes[j].Number
+		return cmp.Compare(i.Number, j.Number)
 	})
 
 	episodes = lo.Filter(episodes, func(item *Episode, index int) bool {
