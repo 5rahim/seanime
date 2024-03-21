@@ -32,7 +32,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
     const [globalFilter, setGlobalFilter] = useState<string>(hasEpisodesToDownload ? "" : (entry.media?.title?.romaji || ""))
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
-    const [quickSearch, setQuickSearch] = useState(hasEpisodesToDownload)
+    const [quickSearch, setQuickSearch] = useState(true)
     const [quickSearchBatch, setQuickSearchBatch] = useState<boolean>(shouldLookForBatches || false)
     const [quickSearchEpisode, setQuickSearchEpisode] = useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
     const [quickSearchResolution, setQuickSearchResolution] = useState("")
@@ -91,6 +91,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
         return <NumberInput
             label="Episode number"
             value={quickSearchEpisode}
+            disabled={entry?.media?.format === "MOVIE"}
             onValueChange={(value) => {
                 startTransition(() => {
                     setQuickSearchEpisode(value)

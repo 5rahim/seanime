@@ -69,6 +69,22 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 	retTorrents := make([]*AnimeTorrent, 0)
 
 	// +---------------------+
+	// |    Anizip Cache     |
+	// +---------------------+
+
+	// Verify that cache has the AniZip media
+	// Note: It should because it is fetched when the user accesses the media entry page
+	anizipMedia, found := opts.AnizipCache.Get(anizip.GetCacheKey("anilist", opts.Media.ID))
+	if !found {
+		var err error
+		anizipMedia, err = anizip.FetchAniZipMediaC("anilist", opts.Media.ID, opts.AnizipCache)
+		if err != nil {
+			// No AniZip media found
+			// We will just return the torrent previews without AniZip metadata
+		}
+	}
+
+	// +---------------------+
 	// |        Nyaa         |
 	// +---------------------+
 
@@ -138,24 +154,52 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 
 		if *opts.QuickSearch || len(*opts.Query) == 0 {
 
-			res, err := animetosho.SearchQuery(&animetosho.BuildSearchQueryOptions{
-				Media:          opts.Media,
-				Batch:          opts.Batch,
-				EpisodeNumber:  opts.EpisodeNumber,
-				Resolution:     opts.Resolution,
-				AbsoluteOffset: opts.AbsoluteOffset,
-				Title:          opts.Query,
-				Cache:          opts.AnimeToshoSearchCache,
-				Logger:         opts.Logger,
-			})
+			animetoshoTorrents := make([]*animetosho.Torrent, 0)
+			var err error
+
+			// Search by EID
+			if anizipMedia != nil && !*opts.Batch {
+
+				episode, foundEp := anizipMedia.FindEpisode(strconv.Itoa(*opts.EpisodeNumber))
+
+				if foundEp && episode.AnidbEid > 0 {
+					animetoshoTorrents, err = animetosho.SearchByEID(episode.AnidbEid, *opts.Resolution)
+				}
+
+			}
+
+			// Could not find by EID, search by query
+			if err != nil || len(animetoshoTorrents) == 0 {
+
+				animetoshoTorrents, err = animetosho.SearchQuery(&animetosho.BuildSearchQueryOptions{
+					Media:          opts.Media,
+					Batch:          opts.Batch,
+					EpisodeNumber:  opts.EpisodeNumber,
+					Resolution:     opts.Resolution,
+					AbsoluteOffset: opts.AbsoluteOffset,
+					Title:          opts.Query,
+					Cache:          opts.AnimeToshoSearchCache,
+					Logger:         opts.Logger,
+				})
+
+				// If we still have no torrents, and the user wants to batch search, we will search by AID
+				if anizipMedia != nil && (err != nil || len(animetoshoTorrents) == 0) {
+					if *opts.Batch {
+						animetoshoTorrents, err = animetosho.SearchByAIDLikelyBatch(anizipMedia.Mappings.AnidbID, *opts.Resolution)
+					}
+				}
+			}
+
 			if err != nil {
 				return nil, err
 			}
 
-			for _, torrent := range res {
+			for _, torrent := range animetoshoTorrents {
 				retTorrents = append(retTorrents, NewAnimeTorrentFromAnimeTosho(torrent))
 			}
+
 		} else {
+
 			res, err := animetosho.Search(*opts.Query)
 			if err != nil {
 				return nil, err
@@ -163,23 +207,9 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 			for _, torrent := range res {
 				retTorrents = append(retTorrents, NewAnimeTorrentFromAnimeTosho(torrent))
 			}
+
 		}
 
-	}
-
-	// +---------------------+
-	// |    Anizip Cache     |
-	// +---------------------+
-
-	// Verify that cache has the AniZip media
-	// Note: It should because it is fetched when the user accesses the media entry page
-	_, ok := opts.AnizipCache.Get(anizip.GetCacheKey("anilist", opts.Media.ID))
-	if !ok {
-		_, err := anizip.FetchAniZipMediaC("anilist", opts.Media.ID, opts.AnizipCache)
-		if err != nil {
-			// No AniZip media found
-			// We will just return the torrent previews without AniZip metadata
-		}
 	}
 
 	// +---------------------+

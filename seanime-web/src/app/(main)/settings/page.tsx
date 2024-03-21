@@ -187,8 +187,8 @@ export default function Page() {
                                 <Separator />
                                 <Field.RadioGroup
                                     options={[
+                                        { label: "AnimeTosho (recommended)", value: "animetosho" },
                                         { label: "Nyaa", value: "nyaa" },
-                                        { label: "AnimeTosho", value: "animetosho" },
                                     ]}
                                     name="torrentProvider"
                                     label="Torrent provider"

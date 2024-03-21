@@ -522,7 +522,7 @@ export default function Page() {
                                         >
                                             <OnlinestreamEpisodeListItem
                                                 title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
-                                                episodeTitle={`${episode.title}`}
+                                                episodeTitle={episode.title}
                                                 description={episode.description ?? undefined}
                                                 image={episode.image}
                                                 media={media}
