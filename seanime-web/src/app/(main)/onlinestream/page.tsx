@@ -18,7 +18,6 @@ import {
 import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -45,7 +44,7 @@ import { atomWithStorage } from "jotai/utils"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCalendarAlt } from "react-icons/bi"
@@ -59,6 +58,8 @@ const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 
 export default function Page() {
 
+    const router = useRouter()
+    const pathname = usePathname()
     const qc = useQueryClient()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
@@ -132,6 +133,16 @@ export default function Page() {
             firstRenderRef.current = false
         }
     }, [mediaEntry])
+
+    React.useEffect(() => {
+        const t = setTimeout(() => {
+            if (urlEpNumber) {
+                router.replace(pathname + `?id=${mediaId}`)
+            }
+        }, 500)
+
+        return () => clearTimeout(t)
+    }, [mediaId])
 
     function goToNextEpisode() {
         handleChangeEpisodeNumber(currentEpisodeNumber + 1 < maxEp ? currentEpisodeNumber + 1 : currentEpisodeNumber)
@@ -239,7 +250,7 @@ export default function Page() {
 
     return (
         <>
-            <PageWrapper className="p-4 sm:p-8 space-y-4">
+            <div className="relative z-[5] p-4 sm:p-8 space-y-4">
                 <OnlinestreamManagerProvider
                     opts={opts}
                 >
@@ -324,7 +335,7 @@ export default function Page() {
                                         if (currentEpisodeNumber > 0 &&
                                             duration > 0 &&
                                             e?.currentTime &&
-                                            ((e.currentTime / duration) * 100) >= 0.8 &&
+                                            ((e.currentTime / duration)) >= 0.8 &&
                                             currentEpisodeNumber > currentProgress
                                         ) {
                                             if (!progressItem) {
@@ -420,9 +431,9 @@ export default function Page() {
 
                             {currentEpisodeDetails && (
                                 <div className="space-y-4">
-                                    <h3 className="line-clamp-1">{currentEpisodeDetails?.title}</h3>
+                                    <h3 className="line-clamp-1">{currentEpisodeDetails?.title?.replaceAll("`", "'")}</h3>
                                     {currentEpisodeDetails?.description && <p className="text-gray-400">
-                                        {currentEpisodeDetails?.description}
+                                        {currentEpisodeDetails?.description?.replaceAll("`", "'")}
                                     </p>}
                                 </div>
                             )}
@@ -532,7 +543,7 @@ export default function Page() {
                     </div>
                 </OnlinestreamManagerProvider>
 
-            </PageWrapper>
+            </div>
 
             <div
                 className="h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"

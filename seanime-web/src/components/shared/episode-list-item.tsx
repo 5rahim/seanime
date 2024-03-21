@@ -118,9 +118,9 @@ export const EpisodeListItem: React.FC<EpisodeListItemProps & React.ComponentPro
                             "font-medium transition line-clamp-2",
                             // { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched },
                         )}
-                    >{title}</h4>
+                    >{title?.replaceAll("`", "'")}</h4>
 
-                    {!!episodeTitle && <p className={cn("text-md text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
+                    {!!episodeTitle && <p className={cn("text-md text-[--muted] line-clamp-2")}>{episodeTitle?.replaceAll("`", "'")}</p>}
 
                     {!!fileName && <p className="text-sm text-gray-600 line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-gray-500 line-clamp-2">{description}</p>}

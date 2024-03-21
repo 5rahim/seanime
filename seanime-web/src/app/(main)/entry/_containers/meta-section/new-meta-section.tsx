@@ -1,4 +1,5 @@
 "use client"
+import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
 import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-dropdown-menu"
@@ -235,6 +236,8 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                                         Open on AniList
                                     </Button>
                                 </Link>
+
+                                <EntryOnlinestreamButton entry={entry} />
                             </div>
                             {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
                                 <MediaEntrySilenceToggle mediaId={entry.mediaId} />

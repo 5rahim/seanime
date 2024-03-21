@@ -124,9 +124,9 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
                             { "text-[--muted]": !isSelected },
                             // { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched },
                         )}
-                    >{title}</p>
+                    >{title?.replaceAll("`", "'")}</p>
 
-                    {!!episodeTitle && <p className={cn("text-sm text-[--muted] line-clamp-2")}>{episodeTitle}</p>}
+                    {!!episodeTitle && <p className={cn("text-sm text-[--muted] line-clamp-2")}>{episodeTitle?.replaceAll("`", "'")}</p>}
 
                     {!!fileName && <p className="text-sm text-gray-600 line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-gray-500 line-clamp-1 italic">{description}</p>}
