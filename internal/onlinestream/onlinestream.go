@@ -1,7 +1,6 @@
 package onlinestream
 
 import (
-	"cmp"
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
@@ -10,9 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 	"github.com/seanime-app/seanime/internal/util/filecache"
-	"slices"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -103,6 +100,12 @@ func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseMedia, error) {
 	return os.getMedia(mId)
 }
 
+func (os *OnlineStream) EmptyCache() error {
+	_ = os.fileCacher.DeleteAll(os.fcEpisodeDataBucket)
+	_ = os.fileCacher.DeleteAll(os.fcProviderEpisodeListBucket)
+	return nil
+}
+
 func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMedia, dubbed bool) ([]*Episode, error) {
 
 	mId := media.GetID()
@@ -126,31 +129,20 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMed
 
 	episodes := make([]*Episode, 0)
 
-	wg := sync.WaitGroup{}
-	for _, _episodeDetails := range ec.ProviderEpisodeList {
-		wg.Add(1)
-		go func(episodeDetails *onlinestream_providers.EpisodeDetails) {
-			defer wg.Done()
-			if foundAnizipMedia {
-				anizipEpisode, found := anizipMedia.Episodes[strconv.Itoa(episodeDetails.Number)]
-				if found {
-					img := anizipEpisode.Image
-					if img == "" {
-						img = media.GetCoverImageSafe()
-					}
-					episodes = append(episodes, &Episode{
-						Number:      episodeDetails.Number,
-						Title:       anizipEpisode.GetTitle(),
-						Image:       img,
-						Description: anizipEpisode.Summary,
-					})
-				} else {
-					episodes = append(episodes, &Episode{
-						Number: episodeDetails.Number,
-						Title:  episodeDetails.Title,
-						Image:  media.GetCoverImageSafe(),
-					})
+	for _, episodeDetails := range ec.ProviderEpisodeList {
+		if foundAnizipMedia {
+			anizipEpisode, found := anizipMedia.Episodes[strconv.Itoa(episodeDetails.Number)]
+			if found {
+				img := anizipEpisode.Image
+				if img == "" {
+					img = media.GetCoverImageSafe()
 				}
+				episodes = append(episodes, &Episode{
+					Number:      episodeDetails.Number,
+					Title:       anizipEpisode.GetTitle(),
+					Image:       img,
+					Description: anizipEpisode.Summary,
+				})
 			} else {
 				episodes = append(episodes, &Episode{
 					Number: episodeDetails.Number,
@@ -158,17 +150,14 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMed
 					Image:  media.GetCoverImageSafe(),
 				})
 			}
-		}(_episodeDetails)
-	}
-
-	wg.Wait()
-
-	slices.SortFunc(episodes, func(i, j *Episode) int {
-		if i == nil || j == nil {
-			return 0
+		} else {
+			episodes = append(episodes, &Episode{
+				Number: episodeDetails.Number,
+				Title:  episodeDetails.Title,
+				Image:  media.GetCoverImageSafe(),
+			})
 		}
-		return cmp.Compare(i.Number, j.Number)
-	})
+	}
 
 	episodes = lo.Filter(episodes, func(item *Episode, index int) bool {
 		return item != nil

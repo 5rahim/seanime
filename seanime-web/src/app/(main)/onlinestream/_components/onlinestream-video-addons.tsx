@@ -6,11 +6,16 @@ import {
     onlinestream_providers,
 } from "@/app/(main)/onlinestream/_lib/episodes"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
-import { IconButton } from "@/components/ui/button"
+import { Alert } from "@/components/ui/alert"
+import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
+import { useQueryClient } from "@tanstack/react-query"
 import { Menu, Tooltip, useCaptionOptions, usePlaybackRateOptions, useVideoQualityOptions } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
@@ -20,6 +25,7 @@ import { FaClosedCaptioning } from "react-icons/fa"
 import { IoMdSettings } from "react-icons/io"
 import { MdHighQuality, MdPlaylistPlay, MdVideoSettings } from "react-icons/md"
 import { SlSpeedometer } from "react-icons/sl"
+import { toast } from "sonner"
 
 type OnlinestreamServerButtonProps = {
     children?: React.ReactNode
@@ -224,8 +230,28 @@ export function OnlinestreamParametersButton() {
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
+    const qc = useQueryClient()
+    const { mutate: emptyCache, isPending } = useSeaMutation({
+        endpoint: SeaEndpoints.ONLINESTREAM_CACHE,
+        mutationKey: ["onlinestream-empty-cache"],
+        method: "delete",
+        onSuccess: async () => {
+            await qc.refetchQueries({
+                queryKey: ["onlinestream-episode-list"],
+            })
+            toast.info("Stream cache emptied")
+        },
+    })
+
     return (
-        <Modal trigger={<IconButton intent="gray-basic" icon={<MdVideoSettings />} />}>
+        <Modal
+            title="Stream Parameters"
+            trigger={<IconButton intent="gray-basic" icon={<MdVideoSettings />} />}
+        >
+            <Alert
+                intent="info-basic"
+                description="Empty the cache if you are experiencing issues with the stream."
+            />
             <Select
                 label="Provider"
                 value={provider}
@@ -242,6 +268,17 @@ export function OnlinestreamParametersButton() {
                     changeServer(v)
                 }}
             />}
+
+            <Separator />
+
+            <Button
+                size="sm"
+                intent="alert-subtle"
+                onClick={() => emptyCache()}
+                loading={isPending}
+            >
+                Empty stream cache
+            </Button>
         </Modal>
     )
 }

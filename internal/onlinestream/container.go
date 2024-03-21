@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 	"github.com/seanime-app/seanime/internal/util/comparison"
+	"strings"
 )
 
 var (
@@ -194,18 +195,18 @@ func (os *OnlineStream) getProviderEpisodeServers(provider onlinestream_provider
 // It returns ErrNoAnimeFound if the anime is not found or ErrNoEpisodes if no episodes are found.
 func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_providers.Provider, titles []*string, dubbed bool) ([]*onlinestream_providers.EpisodeDetails, error) {
 	var ret []*onlinestream_providers.EpisodeDetails
-	romajiTitle := titles[0]
+	romajiTitle := strings.ReplaceAll(*titles[0], ":", "")
 
 	// Get search results.
 	var searchResults []*onlinestream_providers.SearchResult
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
-		res, err := os.gogo.Search(*romajiTitle, dubbed)
+		res, err := os.gogo.Search(romajiTitle, dubbed)
 		if err == nil {
 			searchResults = res
 		}
 	case onlinestream_providers.ZoroProvider:
-		res, err := os.zoro.Search(*romajiTitle, dubbed)
+		res, err := os.zoro.Search(romajiTitle, dubbed)
 		if err == nil {
 			searchResults = res
 		}
@@ -216,17 +217,17 @@ func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_p
 
 	// Filter results to get the best match.
 
-	compBestResults := make([]*comparison.SorensenDiceResult, 0, len(searchResults))
+	compBestResults := make([]*comparison.LevenshteinResult, 0, len(searchResults))
 	for _, r := range searchResults {
 		// Compare search result title with all titles.
-		compBestResult, found := comparison.FindBestMatchWithSorensenDice(&r.Title, titles)
+		compBestResult, found := comparison.FindBestMatchWithLevenstein(&r.Title, titles)
 		if found {
 			compBestResults = append(compBestResults, compBestResult)
 		}
 	}
 	compBestResult := compBestResults[0]
 	for _, r := range compBestResults {
-		if r.Rating > compBestResult.Rating {
+		if r.Distance < compBestResult.Distance {
 			compBestResult = r
 		}
 	}

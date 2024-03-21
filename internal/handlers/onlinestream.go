@@ -77,3 +77,16 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 
 	return c.RespondWithData(sources)
 }
+
+// HandleOnlineStreamEmptyCache
+//
+//	DELETE /v1/onlinestream/cache
+func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
+
+	err := c.App.Onlinestream.EmptyCache()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}

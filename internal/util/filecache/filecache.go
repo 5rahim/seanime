@@ -135,6 +135,17 @@ func (c *Cacher) Delete(bucket Bucket, key string) error {
 	return store.saveToFile()
 }
 
+func (c *Cacher) DeleteAll(bucket Bucket) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	store.data = make(map[string]*cacheItem)
+	return store.saveToFile()
+}
+
 func (cs *CacheStore) loadFromFile() error {
 	file, err := os.Open(cs.filePath)
 	if err != nil {

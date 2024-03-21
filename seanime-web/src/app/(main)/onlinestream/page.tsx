@@ -123,7 +123,7 @@ export default function Page() {
      * Set episode number
      */
     useUpdateEffect(() => {
-        if (!!mediaEntry && !!media) {
+        if (!!media) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = mediaEntry?.listData?.progress ?? 0
@@ -131,7 +131,7 @@ export default function Page() {
             console.log(nextProgressNumber, progress)
             handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
         }
-    }, [mediaEntry, media])
+    }, [media])
 
     React.useEffect(() => {
         const t = setTimeout(() => {
@@ -233,7 +233,7 @@ export default function Page() {
 
     if (!loadPage || !episodes || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
         <div className="flex gap-4 items-center relative">
-            <Skeleton className="h-16" />
+            <Skeleton className="h-12" />
         </div>
         <div
             className="grid xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
@@ -512,7 +512,7 @@ export default function Page() {
 
                         <ScrollArea className="relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
                             <div className="space-y-4">
-                                {episodes?.map((episode, idx) => {
+                                {episodes.sort((a, b) => a.number - b.number)?.map((episode, idx) => {
                                     return (
                                         <div
                                             key={idx + (episode.title || "") + episode.number}

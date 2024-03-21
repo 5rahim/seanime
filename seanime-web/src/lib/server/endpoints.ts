@@ -88,6 +88,7 @@ export const enum SeaEndpoints {
      */
     ONLINESTREAM_EPISODE_LIST = "/onlinestream/episode-list", // (POST)
     ONLINESTREAM_EPISODE_SOURCE = "/onlinestream/episode-source", // (POST)
+    ONLINESTREAM_CACHE = "/onlinestream/cache", // (DELETE)
     /**
      * Theme
      */
