@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/onlinestream"
 )
@@ -28,6 +29,10 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 	media, err := c.App.Onlinestream.GetMedia(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if media.Status == nil || *media.Status == anilist.MediaStatusNotYetReleased {
+		return c.RespondWithError(errors.New("unavailable"))
 	}
 
 	// Get episode list

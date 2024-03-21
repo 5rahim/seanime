@@ -25,9 +25,9 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
 
     const { mediaId, ref: playerRef } = props
 
-    const { episodes, media, isFetching, isLoading } = useOnlinestreamEpisodeList(mediaId)
+    const { episodes, media, isFetching, isLoading, isSuccess } = useOnlinestreamEpisodeList(mediaId)
 
-    const { episodeSource, isLoading: isLoadingEpisodeSource, isFetching: isFetchingEpisodeSource } = useOnlinestreamEpisodeSource(mediaId)
+    const { episodeSource, isLoading: isLoadingEpisodeSource, isFetching: isFetchingEpisodeSource } = useOnlinestreamEpisodeSource(mediaId, isSuccess)
 
     const setEpisodeNumber = useSetAtom(__onlinestream_selectedEpisodeNumberAtom)
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
@@ -107,7 +107,10 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
                 if (videoSource?.server) {
                     const otherServers = servers.filter((server) => server !== videoSource?.server && !erroredServers.includes(server))
                     if (otherServers.length > 0) {
+                        setErroredServers((prev) => [...prev, videoSource?.server])
                         setServer(otherServers[0])
+                    } else {
+                        setProvider((prev) => (prev === "gogoanime" ? "zoro" : "gogoanime"))
                     }
                 }
             }, 500)

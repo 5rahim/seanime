@@ -5,6 +5,7 @@ import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section
 import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
 import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
 import {
+    OnlinestreamParametersButton,
     OnlinestreamProviderButton,
     OnlinestreamServerButton,
     OnlinestreamSettingsButton,
@@ -259,7 +260,7 @@ export default function Page() {
 
                         </div>
 
-                        <div>
+                        <div className="flex gap-2 items-center">
                             {(!!progressItem && !!media.episodes) && <Button
                                 className="animate-pulse"
                                 loading={isUpdatingProgress}
@@ -273,6 +274,8 @@ export default function Page() {
                                     setCurrentProgress(progressItem.episodeNumber)
                                 }}
                             >Update progress</Button>}
+
+                            <OnlinestreamParametersButton />
                         </div>
                     </div>
 

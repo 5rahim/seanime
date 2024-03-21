@@ -4,6 +4,7 @@ import { useSeaQuery } from "@/lib/server/query"
 import { atom } from "jotai"
 import { useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import { useRouter } from "next/navigation"
 import React from "react"
 
 export type OnlinestreamEpisode = {
@@ -56,11 +57,15 @@ export const __onlinestream_autoNextAtom = atomWithStorage("sea-onlinestream-aut
 
 
 export function useOnlinestreamEpisodeList(mId: string | null) {
-
+    const router = useRouter()
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const dubbed = useAtomValue(__onlinestream_selectedDubbedAtom)
 
-    const { data, isLoading, isFetching } = useSeaQuery<OnlinestreamEpisodeListResponse, { mediaId: number, provider: string, dubbed: boolean }>({
+    const { data, isLoading, isFetching, isSuccess, isError } = useSeaQuery<OnlinestreamEpisodeListResponse, {
+        mediaId: number,
+        provider: string,
+        dubbed: boolean
+    }>({
         endpoint: SeaEndpoints.ONLINESTREAM_EPISODE_LIST,
         method: "post",
         queryKey: ["onlinestream-episode-list", mId, provider, dubbed],
@@ -72,16 +77,23 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
         enabled: !!mId,
     })
 
+    React.useEffect(() => {
+        if (isError) {
+            router.push("/")
+        }
+    }, [isError])
+
     return {
         media: data?.media,
         episodes: data?.episodes,
         isLoading,
         isFetching,
+        isSuccess,
     }
 }
 
 
-export function useOnlinestreamEpisodeSource(mId: string | null) {
+export function useOnlinestreamEpisodeSource(mId: string | null, isSuccess: boolean) {
 
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
@@ -102,7 +114,7 @@ export function useOnlinestreamEpisodeSource(mId: string | null) {
             dubbed,
             provider: provider,
         },
-        enabled: !!mId && episodeNumber !== undefined,
+        enabled: !!mId && episodeNumber !== undefined && isSuccess,
     })
 
     return {

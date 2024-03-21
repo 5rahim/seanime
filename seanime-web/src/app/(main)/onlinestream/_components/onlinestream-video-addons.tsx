@@ -6,7 +6,10 @@ import {
     onlinestream_providers,
 } from "@/app/(main)/onlinestream/_lib/episodes"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
+import { IconButton } from "@/components/ui/button"
+import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Menu, Tooltip, useCaptionOptions, usePlaybackRateOptions, useVideoQualityOptions } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
@@ -214,6 +217,37 @@ function PlaybackSubmenu() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+export function OnlinestreamParametersButton() {
+
+    const { servers, changeProvider, changeServer } = useOnlinestreamManagerContext()
+
+    const [provider] = useAtom(__onlinestream_selectedProviderAtom)
+    const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
+
+    if (!servers.length || !provider) return null
+
+    return (
+        <Modal trigger={<IconButton intent="gray-basic" icon={<MdVideoSettings />} />}>
+            <Select
+                label="Provider"
+                value={provider}
+                options={onlinestream_providers}
+                onValueChange={(v) => {
+                    changeProvider(v)
+                }}
+            />
+            <Select
+                label="Server"
+                value={selectedServer}
+                options={servers.map((server) => ({ label: server, value: server }))}
+                onValueChange={(v) => {
+                    changeServer(v)
+                }}
+            />
+        </Modal>
+    )
+}
+
 export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps) {
 
     const {
@@ -224,6 +258,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
     const { servers, changeProvider } = useOnlinestreamManagerContext()
 
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
+
 
     if (!servers.length || !provider) return null
 
