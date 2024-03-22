@@ -84,6 +84,8 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 		}
 	}
 
+	var episodesFoundByID bool
+
 	// +---------------------+
 	// |        Nyaa         |
 	// +---------------------+
@@ -166,6 +168,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 
 				if foundEp && episode.AnidbEid > 0 {
 					animetoshoTorrents, err = animetosho.SearchByEID(episode.AnidbEid, *opts.Resolution)
+					episodesFoundByID = true
 				}
 
 			}
@@ -203,6 +206,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 							newAT = append(newAT, t)
 						}
 						animetoshoTorrents = newAT
+						episodesFoundByID = true
 					}
 
 				}
@@ -239,7 +243,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 	for _, torrent := range retTorrents {
 		torrent := torrent
 		p.Go(func() *Preview {
-			tp, ok := createTorrentPreview(opts.Media, opts.AnizipCache, torrent, *opts.AbsoluteOffset)
+			tp, ok := createTorrentPreview(opts.Media, opts.AnizipCache, torrent, *opts.AbsoluteOffset, episodesFoundByID, *opts.EpisodeNumber)
 			if !ok {
 				return nil
 			}
@@ -278,6 +282,8 @@ func createTorrentPreview(
 	anizipCache *anizip.Cache,
 	torrent *AnimeTorrent,
 	absoluteOffset int,
+	foundByID bool,
+	searchEpNumber int,
 ) (*Preview, bool) {
 
 	anizipMedia, _ := anizipCache.Get(anizip.GetCacheKey("anilist", media.ID)) // can be nil
@@ -291,25 +297,28 @@ func createTorrentPreview(
 	// -2 = batch
 	torrent.EpisodeNumber = -1
 
-	if len(elements.EpisodeNumber) == 1 {
-		asInt, ok := util.StringToInt(elements.EpisodeNumber[0])
-		if ok {
-			torrent.EpisodeNumber = asInt
-		}
-	} else if len(elements.EpisodeNumber) > 1 {
-		torrent.EpisodeNumber = -2
-	}
-
 	// Check if the torrent is a batch, if we still have no episode number
-	if torrent.EpisodeNumber < 0 {
-		if comparison.ValueContainsBatchKeywords(torrent.Name) {
+	if comparison.ValueContainsBatchKeywords(torrent.Name) {
+		torrent.EpisodeNumber = -2
+	} else if foundByID {
+		// If we found the episode number by ID, we don't need to parse the title
+		torrent.EpisodeNumber = searchEpNumber
+
+	} else if !foundByID {
+		// Torrent isn't a batch, but we couldn't find the torrent by ID, so we need to parse the title
+		if len(elements.EpisodeNumber) == 1 {
+			asInt, ok := util.StringToInt(elements.EpisodeNumber[0])
+			if ok {
+				torrent.EpisodeNumber = asInt
+			}
+		} else if len(elements.EpisodeNumber) > 1 {
 			torrent.EpisodeNumber = -2
 		}
-	}
 
-	// normalize episode number
-	if torrent.EpisodeNumber >= 0 && torrent.EpisodeNumber > media.GetCurrentEpisodeCount() {
-		torrent.EpisodeNumber = torrent.EpisodeNumber - absoluteOffset
+		// normalize episode number
+		if torrent.EpisodeNumber >= 0 && torrent.EpisodeNumber > media.GetCurrentEpisodeCount() {
+			torrent.EpisodeNumber = torrent.EpisodeNumber - absoluteOffset
+		}
 	}
 
 	if *media.GetFormat() == anilist.MediaFormatMovie {
