@@ -259,9 +259,9 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 			// If the media is not releasing AND has more than one episode, skip the rule
 			// This is to avoid skipping movies and single-episode OVAs
-			if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {
-				return // Skip rule
-			}
+			//if *listEntry.GetMedia().GetStatus() != anilist.MediaStatusReleasing && listEntry.GetMedia().GetCurrentEpisodeCount() > 1 {
+			//	return // Skip rule
+			//}
 
 			localEntry, _ := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
 
