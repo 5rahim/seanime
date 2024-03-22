@@ -1,5 +1,7 @@
+import { serverStatusAtom } from "@/atoms/server-status"
 import { Button } from "@/components/ui/button"
 import { MediaEntry } from "@/lib/server/types"
+import { useAtomValue } from "jotai/react"
 import Link from "next/link"
 import React from "react"
 import { FiPlayCircle } from "react-icons/fi"
@@ -17,7 +19,9 @@ export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {
         ...rest
     } = props
 
-    if (!entry || entry.media?.status === "NOT_YET_RELEASED") return null
+    const status = useAtomValue(serverStatusAtom)
+
+    if (!entry || entry.media?.status === "NOT_YET_RELEASED" || !status?.settings?.library?.enableOnlinestream) return null
 
     return (
         <>

@@ -18,6 +18,7 @@ import {
 import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
+import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -100,6 +101,7 @@ export default function Page() {
         currentEpisodeNumber,
         handleChangeEpisodeNumber,
         episodeLoading,
+        isErrorEpisodeSource,
     } = useOnlinestreamManager({
         mediaId,
         ref,
@@ -422,9 +424,20 @@ export default function Page() {
                                         }}
                                     />
                                 </MediaPlayer> : (
-                                    <Skeleton className="h-full w-full absolute">
+                                    !isErrorEpisodeSource ? <Skeleton className="h-full w-full absolute">
                                         <LoadingSpinner containerClass="h-full absolute" />
-                                    </Skeleton>
+                                    </Skeleton> : <div>
+                                        <LuffyError
+                                            title="Error"
+                                        >
+                                            <p>
+                                                Failed to load episode
+                                            </p>
+                                            <p>
+                                                Try changing the provider or refresh the page
+                                            </p>
+                                        </LuffyError>
+                                    </div>
                                 )}
                             </div>
 

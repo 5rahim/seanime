@@ -85,4 +85,6 @@ export const settingsSchema = z.object({
     hideAudienceScore: z.boolean().optional().default(false),
     autoUpdateProgress: z.boolean().optional().default(false),
     disableUpdateCheck: z.boolean().optional().default(false),
+    enableOnlinestream: z.boolean().optional().default(false),
+    disableAnimeCardTrailers: z.boolean().optional().default(false),
 })

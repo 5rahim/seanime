@@ -1,5 +1,6 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_loaders/library-collection"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { AnimeListItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
@@ -12,7 +13,7 @@ import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { MediaEntryLibraryData, MediaEntryListData } from "@/lib/server/types"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { atom, useAtom } from "jotai"
-import { useSetAtom } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import Image from "next/image"
@@ -267,13 +268,14 @@ const ActionPopupImage = ({ media, showProgressBar, listData }: {
     showProgressBar: boolean
 }) => {
 
+    const status = useAtomValue(serverStatusAtom)
     const router = useRouter()
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
     const [actionPopupHoverId] = useAtom(actionPopupHoverAtom)
     const actionPopupHover = actionPopupHoverId === media.id
 
     function onClick() {
-        if (!(media as any)?.trailer?.id && !trailerLoaded) {
+        if ((!(media as any)?.trailer?.id && !trailerLoaded) || status?.settings?.library?.disableAnimeCardTrailers || !trailerLoaded) {
             router.push(`/entry?id=${media.id}`)
         }
     }
@@ -308,7 +310,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData }: {
                 className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
             ></div>}
 
-            {(!!(media as any)?.trailer?.id && actionPopupHover) && <video
+            {(!!(media as any)?.trailer?.id && actionPopupHover && !status?.settings?.library?.disableAnimeCardTrailers) && <video
                 src={`https://y0u.tube/latest_version?id=${(media as any)?.trailer?.id}&itag=18`}
                 className={cn(
                     "aspect-video w-full absolute left-0",
@@ -328,7 +330,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData }: {
         </div>
     )
 
-    if (!(media as any)?.trailer?.id) return Content
+    if (!(media as any)?.trailer?.id || status?.settings?.library?.disableAnimeCardTrailers) return Content
     else return (
         <TrailerModal
             mediaId={media.id}

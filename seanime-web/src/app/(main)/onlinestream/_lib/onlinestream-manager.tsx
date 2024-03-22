@@ -27,7 +27,12 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
 
     const { episodes, media, isFetching, isLoading, isSuccess } = useOnlinestreamEpisodeList(mediaId)
 
-    const { episodeSource, isLoading: isLoadingEpisodeSource, isFetching: isFetchingEpisodeSource } = useOnlinestreamEpisodeSource(mediaId, isSuccess)
+    const {
+        episodeSource,
+        isLoading: isLoadingEpisodeSource,
+        isFetching: isFetchingEpisodeSource,
+        isError: isErrorEpisodeSource,
+    } = useOnlinestreamEpisodeSource(mediaId, isSuccess)
 
     const setEpisodeNumber = useSetAtom(__onlinestream_selectedEpisodeNumberAtom)
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
@@ -183,6 +188,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         currentEpisodeNumber: episodeSource?.number ?? 0,
         handleChangeEpisodeNumber,
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
+        isErrorEpisodeSource,
         opts: {
             currentEpisodeDetails: episodeDetails,
             servers,

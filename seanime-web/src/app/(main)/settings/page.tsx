@@ -69,6 +69,8 @@ export default function Page() {
                             disableUpdateCheck: data.disableUpdateCheck,
                             torrentProvider: data.torrentProvider,
                             autoScan: data.autoScan,
+                            enableOnlinestream: data.enableOnlinestream,
+                            disableAnimeCardTrailers: data.disableAnimeCardTrailers,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -128,6 +130,8 @@ export default function Page() {
                     hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
                     autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                     disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
+                    enableOnlinestream: status?.settings?.library?.enableOnlinestream ?? false,
+                    disableAnimeCardTrailers: status?.settings?.library?.disableAnimeCardTrailers ?? false,
                 }}
                 stackClass="space-y-4"
             >
@@ -161,8 +165,9 @@ export default function Page() {
                                         <p>If enabled, your library will be refreshed in the background when new files are added/deleted. Make sure to
                                            lock your files regularly.</p>
                                         <p>
-                                            <em>Note:</em> This works best when single files are added/deleted. If you are adding a batch, it's
-                                                           recommended to manually refresh your library after it's downloaded.
+                                            <em>Note:</em> This works best when single files are added/deleted. If you are adding a batch, not all
+                                                           files
+                                                           are guaranteed to be picked up.
                                         </p>
                                     </div>}
                                 />
@@ -183,6 +188,18 @@ export default function Page() {
                                     name="hideAudienceScore"
                                     label="Hide audience score"
                                     help="If enabled, the audience score will be hidden on the media entry page."
+                                />
+                                <Separator />
+                                <Field.Switch
+                                    name="enableOnlinestream"
+                                    label="Enable online streaming"
+                                    help=""
+                                />
+                                <Separator />
+                                <Field.Switch
+                                    name="disableAnimeCardTrailers"
+                                    label="Disable anime card trailers"
+                                    help=""
                                 />
                                 <Separator />
                                 <Field.RadioGroup

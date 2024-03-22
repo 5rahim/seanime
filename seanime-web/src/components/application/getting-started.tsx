@@ -66,6 +66,8 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         disableUpdateCheck: false,
                                         torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
                                         autoScan: false,
+                                        enableOnlinestream: false,
+                                        disableAnimeCardTrailers: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

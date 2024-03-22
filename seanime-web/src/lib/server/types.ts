@@ -72,6 +72,8 @@ export type LibrarySettings = {
     disableUpdateCheck: boolean
     torrentProvider: string
     autoScan: boolean
+    enableOnlinestream: boolean
+    disableAnimeCardTrailers: boolean
 }
 
 export const DEFAULT_TORRENT_PROVIDER = "animetosho"

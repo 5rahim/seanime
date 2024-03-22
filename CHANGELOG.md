@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.0
+
+- 🎉 New feature: Online streaming
+    - Stream (most) anime from online sources without any additional configuration
+- ✨ Added “Play next episode” button in progress modal
+- ✨ Added trailers
+- ⚡️Improved torrent search for AnimeTosho
+- ⚡️Improved auto file section for torrent downloads
+    - Seanime can now select the right episode files in multi-season batches, and will only fail when it can’t tell seasons apart
+    - Feature now available for Transmission v4
+- ⚡️ Custom background images are now visible on all pages
+- ⚡️ Added ability to un-match in unknown media resolver
+- 🦺 Fixed authentication #26
+- 🦺 Fixed torrent name parsing edge case #24
+- 🦺 Fixed ‘resume torrent’ button for qBittorrent client #23
+- 🦺 Fixed files with episode number ‘0’ not appearing in Playlist creation
+- 🦺 Fixed panic caused by torrent search for anime with no AniDB metadata
+- 🦺 Fixed incorrect in-app settings documentation for assets #21
+- 🦺 Fixed anime title text clipping #22
+- 🦺 Fixed frontend Playlist UI issues
+- 🦺 Added in-app note for auto scan
+- 🏗️ Playlists are now stable
+- 🏗️ Refactored old/unstable code
+- 🏗️ Refactored all tests
+
 ## v1.0.0
 
 - 🎉 Updated UI

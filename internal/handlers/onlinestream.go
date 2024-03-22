@@ -13,15 +13,18 @@ import (
 func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 	type body struct {
-		MediaId     int    `json:"mediaId"`
-		Dubbed      bool   `json:"dubbed"`
-		Provider    string `json:"provider"`
-		BypassCache bool   `json:"bypassCache"` // TODO get fresh list
+		MediaId  int    `json:"mediaId"`
+		Dubbed   bool   `json:"dubbed"`
+		Provider string `json:"provider"`
 	}
 
 	var b body
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if !c.App.Settings.Library.EnableOnlinestream {
+		return c.RespondWithError(errors.New("enable online streaming in the settings"))
 	}
 
 	// Get media

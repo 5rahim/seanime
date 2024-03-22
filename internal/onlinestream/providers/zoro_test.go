@@ -28,6 +28,11 @@ func TestZoro_Search(t *testing.T) {
 			query:  "Dungeon Meshi",
 			dubbed: false,
 		},
+		{
+			name:   "Omoi, Omoware, Furi, Furare",
+			query:  "Omoi, Omoware, Furi, Furare",
+			dubbed: false,
+		},
 	}
 
 	for _, tt := range tests {

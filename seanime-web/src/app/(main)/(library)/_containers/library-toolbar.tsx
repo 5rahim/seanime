@@ -43,83 +43,80 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const { openInExplorer } = useOpenInExplorer()
 
     return (
-        <div className="flex w-full justify-end gap-2 p-4 relative z-[4]">
-            <div className="flex gap-2">
-                {(!!status?.settings?.library?.libraryPath && hasScanned) && <Button
-                    intent={"white-subtle"}
-                    leftIcon={<FiPlayCircle className="text-2xl" />}
-                    onClick={() => setPlaylistsModalOpen(true)}
+        <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[4]">
+            <div className="flex flex-1"></div>
+            {(!!status?.settings?.library?.libraryPath && hasScanned) && <Button
+                intent={"white-subtle"}
+                leftIcon={<FiPlayCircle className="text-2xl" />}
+                onClick={() => setPlaylistsModalOpen(true)}
+            >
+                Playlists
+            </Button>}
+            {!!status?.settings?.library?.libraryPath && hasScanned && <Button
+                intent={hasScanned ? "primary-subtle" : "primary"}
+                leftIcon={<FiSearch className="text-xl" />}
+                onClick={() => setScannerModalOpen(true)}
+            >
+                {hasScanned ? "Refresh entries" : "Scan your library"}
+            </Button>}
+            {(unmatchedLocalFiles.length > 0) && <Button
+                intent="alert"
+                leftIcon={<IoLibrarySharp />}
+                className=""
+                onClick={() => setUnmatchedFileManagerOpen(true)}
+            >
+                Resolve unmatched ({unmatchedLocalFiles.length})
+            </Button>}
+            {(unknownGroups.length > 0) && <Button
+                intent="warning"
+                leftIcon={<IoLibrarySharp />}
+                className=""
+                onClick={() => setUnknownMediaManagerOpen(true)}
+            >
+                Resolve hidden media ({unknownGroups.length})
+            </Button>}
+            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+                <DropdownMenuItem
+                    disabled={!status?.settings?.library?.libraryPath}
+                    className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
+                    onClick={() => {
+                        openInExplorer(status?.settings?.library?.libraryPath ?? "")
+                    }}
                 >
-                    Playlists
-                </Button>}
-                {!!status?.settings?.library?.libraryPath && hasScanned && <Button
-                    intent={hasScanned ? "primary-subtle" : "primary"}
-                    leftIcon={<FiSearch className="text-xl" />}
-                    onClick={() => setScannerModalOpen(true)}
-                >
-                    {hasScanned ? "Refresh entries" : "Scan your library"}
-                </Button>}
-                {(unmatchedLocalFiles.length > 0) && <Button
-                    intent="alert"
-                    leftIcon={<IoLibrarySharp />}
-                    className=""
-                    onClick={() => setUnmatchedFileManagerOpen(true)}
-                >
-                    Resolve unmatched ({unmatchedLocalFiles.length})
-                </Button>}
-                {(unknownGroups.length > 0) && <Button
-                    intent="warning"
-                    leftIcon={<IoLibrarySharp />}
-                    className=""
-                    onClick={() => setUnknownMediaManagerOpen(true)}
-                >
-                    Resolve hidden media ({unknownGroups.length})
-                </Button>}
-            </div>
-            <div className="flex gap-2">
-                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
-                    <DropdownMenuItem
-                        disabled={!status?.settings?.library?.libraryPath}
-                        className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
-                        onClick={() => {
-                            openInExplorer(status?.settings?.library?.libraryPath ?? "")
-                        }}
-                    >
-                        <BiFolder />
-                        <span>Open folder</span>
-                    </DropdownMenuItem>
+                    <BiFolder />
+                    <span>Open folder</span>
+                </DropdownMenuItem>
 
-                    {/*<DropdownMenu.Item*/}
-                    {/*    onClick={() => {*/}
-                    {/*    }}*/}
-                    {/*    disabled={ignoredLocalFiles.length === 0}*/}
-                    {/*    className={cn({ "!text-[--muted]": ignoredLocalFiles.length === 0 })}*/}
-                    {/*>*/}
-                    {/*    <GoDiffIgnored/>*/}
-                    {/*    <span>Manage ignored files</span>*/}
-                    {/*</DropdownMenu.Item>*/}
+                {/*<DropdownMenu.Item*/}
+                {/*    onClick={() => {*/}
+                {/*    }}*/}
+                {/*    disabled={ignoredLocalFiles.length === 0}*/}
+                {/*    className={cn({ "!text-[--muted]": ignoredLocalFiles.length === 0 })}*/}
+                {/*>*/}
+                {/*    <GoDiffIgnored/>*/}
+                {/*    <span>Manage ignored files</span>*/}
+                {/*</DropdownMenu.Item>*/}
 
+                <DropdownMenuItem
+                    onClick={() => setBulkActionIsOpen(true)}
+                    disabled={!hasScanned}
+                    className={cn({ "!text-[--muted]": !hasScanned })}
+                >
+                    <BiCollection />
+                    <span>Bulk actions</span>
+                </DropdownMenuItem>
+
+                <Link href="/scan-summaries">
                     <DropdownMenuItem
-                        onClick={() => setBulkActionIsOpen(true)}
-                        disabled={!hasScanned}
+
                         className={cn({ "!text-[--muted]": !hasScanned })}
                     >
-                        <BiCollection />
-                        <span>Bulk actions</span>
+                        <PiClockCounterClockwiseFill />
+                        <span>Scan summaries</span>
                     </DropdownMenuItem>
+                </Link>
+            </DropdownMenu>
 
-                    <Link href="/scan-summaries">
-                        <DropdownMenuItem
-
-                            className={cn({ "!text-[--muted]": !hasScanned })}
-                        >
-                            <PiClockCounterClockwiseFill />
-                            <span>Scan summaries</span>
-                        </DropdownMenuItem>
-                    </Link>
-                </DropdownMenu>
-
-            </div>
         </div>
     )
 

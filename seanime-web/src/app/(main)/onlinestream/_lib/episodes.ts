@@ -99,7 +99,7 @@ export function useOnlinestreamEpisodeSource(mId: string | null, isSuccess: bool
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
     const dubbed = useAtomValue(__onlinestream_selectedDubbedAtom)
 
-    const { data, isLoading, isFetching } = useSeaQuery<OnlinestreamEpisodeSource, {
+    const { data, isLoading, isFetching, isError } = useSeaQuery<OnlinestreamEpisodeSource, {
         mediaId: number,
         episodeNumber: number,
         provider: string,
@@ -121,6 +121,7 @@ export function useOnlinestreamEpisodeSource(mId: string | null, isSuccess: bool
         episodeSource: data,
         isLoading,
         isFetching,
+        isError,
     }
 }
 

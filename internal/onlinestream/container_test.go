@@ -15,9 +15,12 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
+	tempDir := t.TempDir()
+
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
-	fileCacher, _ := filecache.NewCacher(filepath.Join(test_utils.ConfigData.Path.DataDir, "cache"))
+	//fileCacher, _ := filecache.NewCacher(filepath.Join(test_utils.ConfigData.Path.DataDir, "cache"))
+	fileCacher, _ := filecache.NewCacher(filepath.Join(tempDir, "cache"))
 
 	os := New(&NewOnlineStreamOptions{
 		Logger:     util.NewLogger(),
@@ -59,6 +62,14 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 		{
 			name:     "Dungeon Meshi",
 			mediaId:  153518,
+			from:     1,
+			to:       1,
+			provider: onlinestream_providers.ZoroProvider,
+			dubbed:   false,
+		},
+		{
+			name:     "Omoi, Omoware, Furi, Furare",
+			mediaId:  109125,
 			from:     1,
 			to:       1,
 			provider: onlinestream_providers.ZoroProvider,
