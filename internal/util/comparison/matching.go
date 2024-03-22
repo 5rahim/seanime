@@ -65,8 +65,8 @@ type SorensenDiceResult struct {
 
 func CompareWithSorensenDice(v *string, vals []*string) []*SorensenDiceResult {
 
-	lev := metrics.NewSorensenDice()
-	lev.CaseSensitive = false
+	dice := metrics.NewSorensenDice()
+	dice.CaseSensitive = false
 
 	res := make([]*SorensenDiceResult, len(vals))
 
@@ -74,7 +74,7 @@ func CompareWithSorensenDice(v *string, vals []*string) []*SorensenDiceResult {
 		res = append(res, &SorensenDiceResult{
 			OriginalValue: v,
 			Value:         val,
-			Rating:        lev.Compare(*v, *val),
+			Rating:        dice.Compare(*v, *val),
 		})
 	}
 

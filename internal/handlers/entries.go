@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/adrg/strutil/metrics"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
@@ -20,6 +21,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -286,6 +288,39 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 	// Cache the results (10 minutes)
 	malCache.Set(title, malSuggestions)
+
+	dice := metrics.NewSorensenDice()
+	dice.CaseSensitive = false
+	// Sort by top 4 suggestions
+	malRatings := lo.Map(malSuggestions, func(item *mal.SearchResultAnime, _ int) struct {
+		OriginalValue string
+		Rating        float64
+	} {
+		return struct {
+			OriginalValue string
+			Rating        float64
+		}{
+			OriginalValue: item.Name,
+			Rating:        dice.Compare(title, item.Name),
+		}
+	})
+	// Sort by top 4 suggestions
+	sort.SliceStable(malRatings, func(i, j int) bool {
+		return malRatings[i].Rating > malRatings[j].Rating
+	})
+
+	_malSuggestions := make([]*mal.SearchResultAnime, 0)
+	for idx, item := range malRatings {
+		if idx < 4 {
+			s, ok := lo.Find(malSuggestions, func(i *mal.SearchResultAnime) bool {
+				return i.Name == item.OriginalValue
+			})
+			if ok {
+				_malSuggestions = append(_malSuggestions, s)
+			}
+		}
+	}
+	malSuggestions = _malSuggestions
 
 	anilistRateLimit := limiter.NewAnilistLimiter()
 	p2 := pool.NewWithResults[*anilist.BasicMedia]()

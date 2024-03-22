@@ -24,6 +24,7 @@ export function useDiscoverTrendingAnime() {
             const hasNext = lastPage?.Page?.pageInfo?.hasNextPage
             return (!!curr && hasNext && curr < 4) ? pages.length + 1 : undefined
         },
+        gcTime: 1000 * 60 * 60,
     })
 
 }
@@ -39,6 +40,7 @@ export function useDiscoverUpcomingAnime() {
                 status: ["NOT_YET_RELEASED"],
             })
         },
+        gcTime: 1000 * 60 * 60,
     })
 }
 
@@ -52,6 +54,7 @@ export function useDiscoverPopularAnime() {
                 sort: ["POPULARITY_DESC"],
             })
         },
+        gcTime: 1000 * 60 * 60,
     })
 }
 
@@ -66,5 +69,6 @@ export function useDiscoverTrendingMovies() {
                 sort: ["TRENDING_DESC"],
             })
         },
+        gcTime: 1000 * 60 * 60,
     })
 }
