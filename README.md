@@ -37,6 +37,8 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - **MyAnimeList integration**
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
+- **Online streaming**
+  - Stream episodes from online sources directly from the web interface, without any additional setup
 - **No data collection**
 
 
@@ -59,6 +61,7 @@ support transcoding or streaming to other devices (yet).
 
 # Next releases
 
+- [ ] **v1.2.0**
 - [x] **v1.1.0** - Thursday, 3/21/2024
 - [x] **v1.0.0** - Saturday, 3/9/2024
  
@@ -97,23 +100,19 @@ support transcoding or streaming to other devices (yet).
 </h1>
 
 <img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/my-library_04.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/my-library_05.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
-<img src="docs/images/v1/discover.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/online-stream.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/schedule.png" alt="preview" width="100%"/>
 
 # Disclaimer
 
 - Seanime relies exclusively on the content stored by individual users on their personal devices. 
-The acquisition and legitimacy of this content are external to our control.
-  Seanime is not responsible for the actions of its users and does not condone the illegal use of copyrighted material.
+The acquisition and legitimacy of this content are external to the developer's control.
 - Seanime and its developer do not host, store, or distribute any content found within the application. All anime
   information, as well as images, are sourced from publicly available APIs such as AniList and MyAnimeList.
-- Seanime may, at its discretion, provide links to external websites or applications related to torrents on the
-  Internet. These external torrent websites are independently maintained by third parties, and Seanime has no control
-  over the legitimacy of their content or operations. The inclusion of these links should not be interpreted as an endorsement of any
-  third party, their torrent websites, or any information, products, or services offered through them.
-- By choosing to use Seanime, you acknowledge that the developer of the app is not responsible for the content displayed
-  within it. You are solely responsible for any legal or ethical implications that may arise from the use of this application.
+- Seanime may, at its discretion, provide links or an interface to external websites or applications. These external websites are independently maintained by third parties, and Seanime has no control
+  over the legitimacy of their content or operations. Please contact the website's owners for any concerns.
 - Seanime does not collect any kind of personal data or information from its users. You are responsible for maintaining the privacy and security of the third-party authentication tokens stored within your device.
