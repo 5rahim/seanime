@@ -175,19 +175,25 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     <NextAiringEpisode media={entry.media} />
 
                     <div className="w-full flex gap-4 flex-wrap items-center">
-                        <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">Open on AniList</Link>
+
+                        <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
+                            <Button intent="gray-link" className="px-0">
+                                Open on AniList
+                            </Button>
+                        </Link>
+
+                        <TrailerModal
+                            mediaId={entry.mediaId} trigger={
+                            <Button intent="gray-link" className="px-0">
+                                Watch Trailer
+                            </Button>
+                        }
+                        />
 
                         <div className="flex flex-1"></div>
 
                         <EntryOnlinestreamButton entry={entry} />
 
-                        <TrailerModal
-                            mediaId={entry.mediaId} trigger={
-                            <Button intent="white-subtle">
-                                Watch Trailer
-                            </Button>
-                        }
-                        />
                         {!!entry.libraryData ? <MediaEntrySilenceToggle size="md" mediaId={entry.mediaId} /> : <div></div>}
                     </div>
 

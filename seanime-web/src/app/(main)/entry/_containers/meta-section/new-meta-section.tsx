@@ -237,15 +237,16 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                                     </Button>
                                 </Link>
 
+                            <TrailerModal
+                                mediaId={entry.mediaId} trigger={
+                                <Button intent="gray-link" className="px-0">
+                                    Watch Trailer
+                                </Button>
+                            }
+                            />
+
                                 <EntryOnlinestreamButton entry={entry} />
 
-                                <TrailerModal
-                                    mediaId={entry.mediaId} trigger={
-                                    <Button intent="white-subtle">
-                                        Watch Trailer
-                                    </Button>
-                                }
-                                />
 
                             <div className="flex flex-1"></div>
 

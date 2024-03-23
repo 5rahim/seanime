@@ -311,7 +311,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData }: {
             ></div>}
 
             {(!!(media as any)?.trailer?.id && actionPopupHover && !status?.settings?.library?.disableAnimeCardTrailers) && <video
-                src={`https://y0u.tube/latest_version?id=${(media as any)?.trailer?.id}&itag=18`}
+                src={`https://yewtu.be/latest_version?id=${(media as any)?.trailer?.id}&itag=18`}
                 className={cn(
                     "aspect-video w-full absolute left-0",
                     !trailerLoaded && "hidden",

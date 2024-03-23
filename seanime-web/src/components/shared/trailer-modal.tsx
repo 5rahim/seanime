@@ -78,7 +78,7 @@ export function Content(props: ContentProps) {
                 )}
             >
                 <video
-                    src={`https://y0u.tube/latest_version?id=${mediaDetails?.trailer?.id}&itag=18`}
+                    src={`https://yewtu.be/latest_version?id=${mediaDetails?.trailer?.id}&itag=18`}
                     className={cn(
                         "w-full h-full absolute left-0",
                     )}
