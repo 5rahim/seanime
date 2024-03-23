@@ -2,22 +2,26 @@ import { useTVDBMetadata } from "@/app/(main)/entry/_lib/media-entry"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
+import { MediaEntry } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
+import { IoReloadCircle } from "react-icons/io5"
 
 type MetadataManagerProps = {
-    mediaId: number
+    entry: MediaEntry
 }
 
 export const __metadataManager_isOpenAtom = atom(false)
 
 export function MetadataManager(props: MetadataManagerProps) {
 
-    const { mediaId } = props
+    const { entry } = props
 
     const [isOpen, setOpen] = useAtom(__metadataManager_isOpenAtom)
-    const { populate, empty, isPopulating, isEmptying } = useTVDBMetadata(mediaId)
+    const { populate, empty, isPopulating, isEmptying } = useTVDBMetadata(entry.mediaId)
+
+    const cannotAddMetadata = entry.media?.format !== "TV"
 
     return (
         <Modal
@@ -28,7 +32,7 @@ export function MetadataManager(props: MetadataManagerProps) {
             titleClass=""
         >
             <p className="text-[--muted]">
-                You can add alternative metadata for this media entry. This can be useful if some images are missing.
+                Having issues with missing images? Try fetching metadata from other sources.
             </p>
 
             <Separator />
@@ -38,17 +42,18 @@ export function MetadataManager(props: MetadataManagerProps) {
                 intent="success-subtle"
                 onClick={() => populate()}
                 loading={isPopulating}
-                disabled={isPopulating || isEmptying}
+                disabled={isPopulating || isEmptying || cannotAddMetadata}
+                leftIcon={<IoReloadCircle className="text-xl" />}
             >
-                {isPopulating ? "Populating..." : "Fetch metadata"}
+                {isPopulating ? "Populating..." : "Fetch / Reload TVDB metadata"}
             </Button>
             <Button
                 intent="gray-subtle"
                 onClick={() => empty()}
                 loading={isEmptying}
-                disabled={isPopulating || isEmptying}
+                disabled={isPopulating || isEmptying || cannotAddMetadata}
             >
-                {isEmptying ? "Emptying..." : "Delete metadata"}
+                {isEmptying ? "Emptying..." : "Remove TVDB metadata"}
             </Button>
         </Modal>
     )

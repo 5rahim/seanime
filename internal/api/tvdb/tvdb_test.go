@@ -1,6 +1,8 @@
 package tvdb
 
 import (
+	"context"
+	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
@@ -9,6 +11,8 @@ import (
 
 func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t)
+
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	tests := []struct {
 		name          string
@@ -26,6 +30,13 @@ func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
+			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			if err != nil {
+				t.Fatalf("could not media")
+			}
+
+			media := mediaF.GetMedia()
+
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not fetch anizip media for %s", tt.name)
@@ -42,7 +53,12 @@ func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 				Logger: util.NewLogger(),
 			})
 
-			episodes, err := tvdb.FetchSeriesEpisodes(tvdbId)
+			episodes, err := tvdb.FetchSeriesEpisodes(tvdbId, FilterEpisodeMediaInfo{
+				Year:           media.GetStartDate().GetYear(),
+				Month:          media.GetStartDate().GetMonth(),
+				TotalEp:        anizipMedia.GetMainEpisodeCount(),
+				AbsoluteOffset: anizipMedia.GetOffset(),
+			})
 			if err != nil {
 				t.Fatalf("could not fetch episodes for %s: %s", tt.name, err)
 			}
@@ -78,6 +94,14 @@ func TestTVDB_FetchSeasons(t *testing.T) {
 		{
 			name:      "Boku no Kokoro no Yabai Yatsu 2nd Season",
 			anilistId: 166216,
+		},
+		{
+			name:      "Horiyima Piece",
+			anilistId: 163132,
+		},
+		{
+			name:      "Spy x Family Part 2",
+			anilistId: 142838,
 		},
 	}
 
@@ -118,8 +142,9 @@ func TestTVDB_FetchSeasons(t *testing.T) {
 				t.Log("Season ID:", season.ID)
 				t.Log("\t Name:", season.Type.Name)
 				t.Log("\t Number:", season.Number)
-				t.Log("\t Number:", season.Type.Type)
+				t.Log("\t Type:", season.Type.Type)
 				t.Log("\t LastUpdated:", season.LastUpdated)
+				t.Log("\t Year:", season.Year)
 				t.Log("")
 
 			}
@@ -132,6 +157,8 @@ func TestTVDB_FetchSeasons(t *testing.T) {
 
 func TestTVDB_fetchEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t)
+
+	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	tests := []struct {
 		name          string
@@ -147,11 +174,30 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 			name:      "Boku no Kokoro no Yabai Yatsu 2nd Season",
 			anilistId: 166216,
 		},
+		{
+			name:      "Horiyima Piece",
+			anilistId: 163132,
+		},
+		{
+			name:      "Spy x Family Part 2",
+			anilistId: 142838,
+		},
+		{
+			name:      "Kusuriya no Hitorigoto",
+			anilistId: 161645,
+		},
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
+
+			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			if err != nil {
+				t.Fatalf("could not media")
+			}
+
+			media := mediaF.GetMedia()
 
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", tt.anilistId)
 			if err != nil {
@@ -187,15 +233,22 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 				t.Fatalf("could not fetch episode metadata for %s: %s", tt.name, err)
 			}
 
+			res = tvdb.filterEpisodes(res, FilterEpisodeMediaInfo{
+				Year:           media.GetStartDate().GetYear(),
+				Month:          media.GetStartDate().GetMonth(),
+				TotalEp:        anizipMedia.GetMainEpisodeCount(),
+				AbsoluteOffset: anizipMedia.GetOffset(),
+			})
+
 			for _, episode := range res {
 
 				t.Log("Episode ID:", episode.ID)
 				t.Log("\t Number:", episode.Number)
 				t.Log("\t Episode Number:", episode.Number)
 				t.Log("\t Image:", episode.Image)
-				t.Log("\t Name:", episode.Name)
 				t.Log("\t Season Number:", episode.SeasonNumber)
-				t.Log("\t Season Name:", episode.SeasonName)
+				t.Log("\t Year:", episode.Year)
+				t.Log("\t Aired:", episode.Aired)
 
 				t.Log("")
 

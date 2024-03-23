@@ -52,13 +52,12 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
                     Start video player
                 </DropdownMenuItem>}
 
-                {/*FIXME SHELVED*/}
-                {/*<DropdownMenuSeparator />*/}
-                {/*<DropdownMenuItem*/}
-                {/*    onClick={() => setIsMetadataManagerOpen(p => !p)}*/}
-                {/*>*/}
-                {/*    Metadata*/}
-                {/*</DropdownMenuItem>*/}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                    onClick={() => setIsMetadataManagerOpen(p => !p)}
+                >
+                    Metadata
+                </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
@@ -78,7 +77,7 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
                 </DropdownMenuItem>
             </DropdownMenu>
 
-            <MetadataManager mediaId={entry.mediaId} />
+            <MetadataManager entry={entry} />
             <ConfirmationDialog {...confirmDeleteFiles} />
             <BulkDeleteFilesModal entry={entry} />
         </>

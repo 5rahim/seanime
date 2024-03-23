@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,6 +24,13 @@ type (
 		ApiKey string
 		Logger *zerolog.Logger
 	}
+
+	FilterEpisodeMediaInfo struct {
+		Year           *int
+		Month          *int
+		TotalEp        int // form anizip
+		AbsoluteOffset int // from anizip
+	}
 )
 
 func NewTVDB(opts *NewTVDBOptions) *TVDB {
@@ -33,7 +41,7 @@ func NewTVDB(opts *NewTVDBOptions) *TVDB {
 	}
 }
 
-func (tvdb *TVDB) FetchSeriesEpisodes(id int) (res []*Episode, err error) {
+func (tvdb *TVDB) FetchSeriesEpisodes(id int, filter FilterEpisodeMediaInfo) (res []*Episode, err error) {
 	// Get token
 	_, err = tvdb.getTokenWithTries()
 	if err != nil {
@@ -51,6 +59,9 @@ func (tvdb *TVDB) FetchSeriesEpisodes(id int) (res []*Episode, err error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Filter episodes
+	episodesF = tvdb.filterEpisodes(episodesF, filter)
 
 	// Convert episodes
 	res = make([]*Episode, len(episodesF), len(episodesF))
@@ -145,16 +156,45 @@ func (tvdb *TVDB) fetchEpisodes(seasons []*ExtendedSeriesResponse_Season) (res [
 	}
 	wg.Wait()
 
-	// For all episodes, if more than one episode has the same number, keep the one with an image
+	res = _episodes
+
+	return res, nil
+}
+
+func (tvdb *TVDB) filterEpisodes(episodes []*ExtendedSeasonsResponse_Episode, mediaInfo FilterEpisodeMediaInfo) (res []*ExtendedSeasonsResponse_Episode) {
+	// The media doesn't have a year, just return a dedup list of episodes :shrug:
 	episodeMap := make(map[int64]*ExtendedSeasonsResponse_Episode)
-	for _, episode := range _episodes {
-		if e, ok := episodeMap[episode.Number]; ok {
-			if e.Image == "" && episode.Image != "" {
+
+	if mediaInfo.Year == nil || *mediaInfo.Year == 0 {
+		for _, episode := range episodes {
+			if e, ok := episodeMap[episode.Number]; ok {
+				if e.Image == "" && episode.Image != "" {
+					episodeMap[episode.Number] = episode
+				}
+			} else {
 				episodeMap[episode.Number] = episode
 			}
-		} else {
-			episodeMap[episode.Number] = episode
 		}
+
+	} else {
+
+		// The media has a year, we need to filter episodes based on the year
+		for _, episode := range episodes {
+			if episode.Year == "" {
+				continue
+			}
+			episodeYear, _ := strconv.Atoi(episode.Year)
+			if episodeYear >= *mediaInfo.Year {
+				if e, ok := episodeMap[episode.Number]; ok {
+					if e.Image == "" && episode.Image != "" {
+						episodeMap[episode.Number] = episode
+					}
+				} else {
+					episodeMap[episode.Number] = episode
+				}
+			}
+		}
+
 	}
 
 	// Convert map to slice
@@ -163,7 +203,53 @@ func (tvdb *TVDB) fetchEpisodes(seasons []*ExtendedSeriesResponse_Season) (res [
 		res = append(res, episode)
 	}
 
-	return res, nil
+	// If we find episodes that are over the total episode count, we need to apply the offset
+	if mediaInfo.TotalEp > 0 {
+
+		// If the media has a month, we don't need to apply the offset
+		// just filter the episodes based on the month
+		if mediaInfo.Month != nil && *mediaInfo.Month > 0 {
+
+			// Filter episodes
+			filteredEpisodes := make([]*ExtendedSeasonsResponse_Episode, 0)
+			for _, episode := range res {
+				if episode.Aired == "" || episode.Year == "" {
+					continue
+				}
+				airedParts := strings.Split(episode.Aired, "-")
+				episodeMonth, _ := strconv.Atoi(airedParts[1])
+				episodeYear, _ := strconv.Atoi(episode.Year)
+				// If the episode aired AFTER the month/year, we can include it
+				if episodeYear > *mediaInfo.Year || (episodeYear == *mediaInfo.Year && episodeMonth >= *mediaInfo.Month) {
+					filteredEpisodes = append(filteredEpisodes, episode)
+				}
+			}
+
+			if len(filteredEpisodes) > 0 {
+				res = filteredEpisodes
+			}
+
+		}
+
+		// Get the offset
+		offset := mediaInfo.AbsoluteOffset
+
+		// Filter episodes
+		filteredEpisodes := make([]*ExtendedSeasonsResponse_Episode, 0)
+		for _, episode := range res {
+			if episode.Number > int64(offset) && episode.Number <= int64(mediaInfo.TotalEp+offset) {
+				episode.Number = episode.Number - int64(offset)
+				filteredEpisodes = append(filteredEpisodes, episode)
+			}
+		}
+
+		if len(filteredEpisodes) > 0 {
+			res = filteredEpisodes
+		}
+
+	}
+
+	return res
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

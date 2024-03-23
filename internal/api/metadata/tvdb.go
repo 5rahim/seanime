@@ -46,7 +46,12 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 			Logger: mw.logger,
 		})
 
-		episodes, err = tv.FetchSeriesEpisodes(tvdbId)
+		episodes, err = tv.FetchSeriesEpisodes(tvdbId, tvdb.FilterEpisodeMediaInfo{
+			Year:           mw.baseMedia.GetStartDate().GetYear(),
+			Month:          mw.baseMedia.GetStartDate().GetMonth(),
+			TotalEp:        mw.anizipMedia.GetMainEpisodeCount(),
+			AbsoluteOffset: mw.anizipMedia.GetOffset(),
+		})
 		if err != nil {
 			return nil, err
 		}

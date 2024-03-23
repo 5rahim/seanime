@@ -51,11 +51,10 @@ func (p *Provider) NewMediaWrapper(media *anilist.BasicMedia, anizipMedia *anizi
 		tvdbEpisodes: make([]*tvdb.Episode, 0),
 	}
 
-	// FIXME SHELVED
-	//episodes, err := mw.GetTVDBEpisodes(false)
-	//if err == nil {
-	//	mw.tvdbEpisodes = episodes
-	//}
+	episodes, err := mw.GetTVDBEpisodes(false)
+	if err == nil {
+		mw.tvdbEpisodes = episodes
+	}
 
 	return mw
 }
