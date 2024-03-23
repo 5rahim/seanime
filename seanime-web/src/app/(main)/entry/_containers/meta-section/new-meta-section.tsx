@@ -101,28 +101,23 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
                                         className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center md:text-left text-pretty text-3xl lg:text-5xl"
                                         words={entry.media.title?.userPreferred || ""}
                                     />
-                                    {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase() &&
+                                    {(!!entry.media.title?.english && entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase()) &&
                                         <h4 className="text-gray-400 line-clamp-2 text-center md:text-left">{entry.media.title?.english}</h4>}
-                                    {entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.romaji?.toLowerCase() &&
+                                    {(!!entry.media.title?.romaji && entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.romaji?.toLowerCase()) &&
                                         <h4 className="text-gray-400 line-clamp-2 text-center md:text-left">{entry.media.title?.romaji}</h4>}
                                 </div>
 
                                 {/*SEASON*/}
-                                {!!entry.media.season ? (
+                                {!!entry.media.startDate?.year && (
                                         <div>
                                             <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
                                                 <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                                 year: "numeric",
                                                 month: "short",
                                             }).format(new Date(entry.media.startDate?.year || 0,
-                                                entry.media.startDate?.month || 0))} - {capitalize(entry.media.season ?? "")}
+                                                entry.media.startDate?.month || 0))} - {!!entry.media.season ? capitalize(entry.media.season) : "TBD"}
                                             </p>
                                         </div>
-                                    ) :
-                                    (
-                                        <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
-
-                                        </p>
                                     )}
 
                                 {/*PROGRESS*/}

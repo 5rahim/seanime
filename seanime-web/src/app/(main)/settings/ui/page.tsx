@@ -128,9 +128,6 @@ export default function Page() {
 
                         <Separator />
 
-
-                        <Separator />
-
                         <h3>Library page</h3>
 
                         <h5>Continue Watching</h5>

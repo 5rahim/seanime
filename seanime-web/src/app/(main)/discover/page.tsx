@@ -23,15 +23,15 @@ export default function Page() {
                     <h2>Popular this season</h2>
                     <DiscoverTrending />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 z-[5] relative">
                     <h2>Upcoming</h2>
                     <DiscoverUpcoming />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 z-[5] relative">
                     <h2>Trending movies</h2>
                     <DiscoverTrendingMovies />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 z-[5] relative">
                     <h2>Popular shows</h2>
                     <DiscoverPopular />
                 </div>

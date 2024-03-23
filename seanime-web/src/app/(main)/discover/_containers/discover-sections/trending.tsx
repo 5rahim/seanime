@@ -3,7 +3,7 @@ import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/discover/_containers/
 import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_containers/discover-sections/header"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
-import { Carousel, CarouselContent, CarouselDotButtons, CarouselMasks } from "@/components/ui/carousel"
+import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { StaticTabs } from "@/components/ui/tabs"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
@@ -53,9 +53,9 @@ export function DiscoverTrending() {
             autoScroll
         >
             <GenreSelector />
-            <CarouselMasks />
+            {/*<CarouselMasks />*/}
             <CarouselDotButtons />
-            <CarouselContent className="md:px-10">
+            <CarouselContent className="px-6">
                 {!isLoading ? data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).map(media => {
                     return (
 
