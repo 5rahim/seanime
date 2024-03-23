@@ -1,6 +1,7 @@
 "use client"
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
+import { __metadataManager_isOpenAtom, MetadataManager } from "@/app/(main)/entry/_containers/metadata-manager/metadata-manager"
 import { useOpenDefaultMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
@@ -16,9 +17,11 @@ import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     const serverStatus = useAtomValue(serverStatusAtom)
+    const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
 
     const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
     const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
+    // const { populateTVDBImages } = useTVDBMetadata()
 
     const { unmatchAll, isPending } = useMediaEntryBulkAction(entry.mediaId)
 
@@ -42,11 +45,21 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
                 >
                     Open folder
                 </DropdownMenuItem>
+
                 {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
                     onClick={startDefaultMediaPlayer}
                 >
                     Start video player
                 </DropdownMenuItem>}
+
+                {/*FIXME SHELVED*/}
+                {/*<DropdownMenuSeparator />*/}
+                {/*<DropdownMenuItem*/}
+                {/*    onClick={() => setIsMetadataManagerOpen(p => !p)}*/}
+                {/*>*/}
+                {/*    Metadata*/}
+                {/*</DropdownMenuItem>*/}
+
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
                 <DropdownMenuItem
@@ -64,6 +77,8 @@ export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
                     <span>Delete some files</span> <BiRightArrowAlt />
                 </DropdownMenuItem>
             </DropdownMenu>
+
+            <MetadataManager mediaId={entry.mediaId} />
             <ConfirmationDialog {...confirmDeleteFiles} />
             <BulkDeleteFilesModal entry={entry} />
         </>

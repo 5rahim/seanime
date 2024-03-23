@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,6 +15,8 @@ import (
 // /!\ MAKE SURE TO HAVE THE MEDIA ADDED TO YOUR LIST TEST ACCOUNT LISTS
 func TestNewMediaEntry(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	metadataProvider := metadata.TestGetMockProvider(t)
 
 	tests := []struct {
 		name                              string
@@ -87,6 +90,7 @@ func TestNewMediaEntry(t *testing.T) {
 				AnizipCache:          aniZipCache,
 				AnilistCollection:    anilistCollection,
 				AnilistClientWrapper: anilistClientWrapper,
+				MetadataProvider:     metadataProvider,
 			})
 
 			if assert.NoErrorf(t, err, "Failed to get mock data") {

@@ -65,7 +65,6 @@ func SearchByAIDLikelyBatch(aid int, quality string) (torrents []*Torrent, err e
 func SearchByEID(eid int, quality string) (torrents []*Torrent, err error) {
 	q := url.QueryEscape(formatCommonQuery(quality))
 	query := fmt.Sprintf(`?qx=1&eid=%d&q=%s`, eid, q)
-	println(query)
 	return fetchTorrents(query)
 }
 

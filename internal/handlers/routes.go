@@ -263,6 +263,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Delete("/onlinestream/cache", makeHandler(app, HandleOnlineStreamEmptyCache))
 
 	//
+	// Metadata Provider
+	//
+
+	v1.Post("/metadata-provider/tvdb-episodes", makeHandler(app, HandlePopulateTVDBEpisodes))
+	v1.Delete("/metadata-provider/tvdb-episodes", makeHandler(app, HandleEmptyTVDBEpisodes))
+
+	//
 	// Websocket
 	//
 

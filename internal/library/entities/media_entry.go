@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
 )
@@ -43,6 +44,7 @@ type (
 		AnizipCache          *anizip.Cache
 		AnilistCollection    *anilist.AnimeCollection
 		AnilistClientWrapper anilist.ClientWrapperInterface
+		MetadataProvider     *metadata.Provider
 	}
 )
 
@@ -167,7 +169,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// +---------------------+
 
 	// Create episode entities
-	entry.hydrateEntryEpisodeData(anilistEntry, anizipData)
+	entry.hydrateEntryEpisodeData(anilistEntry, anizipData, opts.MetadataProvider)
 
 	return entry, nil
 
@@ -180,6 +182,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 func (e *MediaEntry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.MediaListEntry,
 	anizipData *anizip.Media,
+	metadataProvider *metadata.Provider,
 ) {
 
 	if anizipData.Episodes == nil && len(anizipData.Episodes) == 0 {
@@ -223,6 +226,7 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 				Media:                e.Media,
 				ProgressOffset:       progressOffset,
 				IsDownloaded:         true,
+				MetadataProvider:     metadataProvider,
 			})
 		})
 	}
@@ -238,11 +242,12 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 	// +---------------------+
 
 	info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-		LocalFiles:  e.LocalFiles,
-		AnizipMedia: anizipData,
-		Progress:    anilistEntry.Progress,
-		Status:      anilistEntry.Status,
-		Media:       e.Media,
+		LocalFiles:       e.LocalFiles,
+		AnizipMedia:      anizipData,
+		Progress:         anilistEntry.Progress,
+		Status:           anilistEntry.Status,
+		Media:            e.Media,
+		MetadataProvider: metadataProvider,
 	})
 	if err == nil {
 		e.MediaEntryDownloadInfo = info

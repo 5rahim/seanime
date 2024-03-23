@@ -26,6 +26,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		AnizipCache:          c.App.AnizipCache,
 		LocalFiles:           lfs,
+		MetadataProvider:     c.App.MetadataProvider,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

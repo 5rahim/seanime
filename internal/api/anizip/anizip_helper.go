@@ -22,11 +22,11 @@ func (m *Media) GetMappings() *Mappings {
 	return m.Mappings
 }
 
-func (m *Media) FindEpisode(id string) (*Episode, bool) {
+func (m *Media) FindEpisode(ep string) (*Episode, bool) {
 	if m.Episodes == nil {
 		return nil, false
 	}
-	episode, found := m.Episodes[id]
+	episode, found := m.Episodes[ep]
 	if !found {
 		return nil, false
 	}

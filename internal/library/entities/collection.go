@@ -5,6 +5,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
@@ -75,6 +76,7 @@ type (
 		LocalFiles           []*LocalFile
 		AnizipCache          *anizip.Cache
 		AnilistClientWrapper anilist.ClientWrapperInterface
+		MetadataProvider     *metadata.Provider
 	}
 )
 
@@ -100,6 +102,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 		opts.AnilistCollection,
 		opts.AnizipCache,
 		opts.AnilistClientWrapper,
+		opts.MetadataProvider,
 	)
 
 	lc.UnmatchedLocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, index int) bool {
@@ -262,6 +265,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	anilistCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
 	anilistClientWrapper anilist.ClientWrapperInterface,
+	metadataProvider *metadata.Provider,
 ) {
 
 	// Get currently watching list
@@ -290,6 +294,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 				AnilistCollection:    anilistCollection,
 				AnizipCache:          anizipCache,
 				AnilistClientWrapper: anilistClientWrapper,
+				MetadataProvider:     metadataProvider,
 			})
 			return me
 		})

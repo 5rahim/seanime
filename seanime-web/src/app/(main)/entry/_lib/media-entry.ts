@@ -2,6 +2,7 @@ import { BasicMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/gra
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { MediaEntry } from "@/lib/server/types"
+import { useQueryClient } from "@tanstack/react-query"
 
 /**
  * @description
@@ -67,6 +68,40 @@ export function useFetchMediaEntrySuggestions() {
         suggestions: data ?? [],
         isPending,
         resetSuggestions: reset,
+    }
+
+}
+
+
+export function useTVDBMetadata(mId: number) {
+
+    const qc = useQueryClient()
+
+    const { mutate: populate, isPending: isPopulating } = useSeaMutation<any, { mediaId: number }>({
+        endpoint: SeaEndpoints.METADATA_PROVIDER_TVDB_EPISODES,
+        mutationKey: ["metadata-provider-tvdb-episodes", mId],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-media-entry", mId] })
+        },
+    })
+    const { mutate: empty, isPending: isEmptying } = useSeaMutation<any, { mediaId: number }>({
+        endpoint: SeaEndpoints.METADATA_PROVIDER_TVDB_EPISODES,
+        mutationKey: ["metadata-provider-tvdb-episodes", mId],
+        method: "delete",
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-media-entry", mId] })
+        },
+    })
+
+    return {
+        populate: () => populate({
+            mediaId: mId,
+        }),
+        empty: () => empty({
+            mediaId: mId,
+        }),
+        isPopulating,
+        isEmptying,
     }
 
 }

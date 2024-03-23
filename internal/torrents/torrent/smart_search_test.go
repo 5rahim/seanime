@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
@@ -16,6 +17,8 @@ func TestSmartTest(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+
+	metadataProvider := metadata.TestGetMockProvider(t)
 
 	tests := []struct {
 		quickSearch    bool
@@ -64,6 +67,7 @@ func TestSmartTest(t *testing.T) {
 				AnimeToshoSearchCache: animetosho.NewSearchCache(),
 				AnizipCache:           anizip.NewCache(),
 				Logger:                util.NewLogger(),
+				MetadataProvider:      metadataProvider,
 			})
 			if err != nil {
 				t.Errorf("NewSmartSearch() failed: %v", err)

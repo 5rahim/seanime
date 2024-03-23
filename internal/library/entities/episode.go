@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"strconv"
 	"strings"
 )
@@ -47,8 +48,9 @@ type (
 		// ProgressOffset will offset the ProgressNumber for a specific MAIN file
 		// This is used when there is a discrepancy between AniList and AniDB
 		// When this is -1, it means that a re-mapping of AniDB Episode is needed
-		ProgressOffset int
-		IsDownloaded   bool
+		ProgressOffset   int
+		IsDownloaded     bool
+		MetadataProvider *metadata.Provider // optional
 	}
 
 	// NewSimpleMediaEntryEpisodeOptions hold data used to create a new MediaEntryEpisode.
@@ -173,7 +175,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 		}
 
 		// Set episode metadata
-		entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
+		entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.AnizipMedia, anizipEpisode, opts.Media, opts.MetadataProvider)
 
 	} else if len(opts.OptionalAniDBEpisode) > 0 && opts.AnizipMedia != nil {
 		// No LocalFile, but AniDB episode is provided
@@ -216,7 +218,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 			}
 
 			// Set episode metadata
-			entryEp.EpisodeMetadata = NewEpisodeMetadata(anizipEpisode, opts.Media)
+			entryEp.EpisodeMetadata = NewEpisodeMetadata(opts.AnizipMedia, anizipEpisode, opts.Media, opts.MetadataProvider)
 		} else {
 			// No Local file, no AniZip data
 			// DEVNOTE: Non-downloaded, without any AniDB data. Don't handle this case.
@@ -240,7 +242,12 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 
 // NewEpisodeMetadata creates a new MediaEntryEpisodeMetadata from an AniZip episode and AniList media.
 // If the AniZip episode is nil, it will just set the image from the media.
-func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *MediaEntryEpisodeMetadata {
+func NewEpisodeMetadata(
+	anizipMedia *anizip.Media,
+	episode *anizip.Episode,
+	media *anilist.BaseMedia,
+	metadataProvider *metadata.Provider,
+) *MediaEntryEpisodeMetadata {
 	md := new(MediaEntryEpisodeMetadata)
 
 	// No AniZip data
@@ -248,23 +255,18 @@ func NewEpisodeMetadata(episode *anizip.Episode, media *anilist.BaseMedia) *Medi
 		md.Image = *media.GetCoverImage().GetLarge()
 		return md
 	}
+	epInt, err := strconv.Atoi(episode.Episode)
 
-	md.AniDBId = episode.AnidbEid
-
-	md.Image = episode.Image
-	if len(episode.Image) == 0 && media.GetBannerImage() != nil {
-		md.Image = *media.GetBannerImage()
+	if err == nil {
+		mw := metadataProvider.NewMediaWrapper(media.ToBasicMedia(), anizipMedia)
+		epMetadata := mw.GetEpisodeMetadata(epInt)
+		md.AniDBId = epMetadata.AniDBId
+		md.Image = epMetadata.Image
+		md.AirDate = epMetadata.AirDate
+		md.Length = epMetadata.Length
+		md.Summary = epMetadata.Summary
+		md.Overview = epMetadata.Overview
 	}
-	if len(md.Image) == 0 && media.GetCoverImage().GetLarge() != nil {
-		md.Image = *media.GetCoverImage().GetLarge()
-	}
-	md.AirDate = episode.Airdate
-	md.Length = episode.Length
-	if episode.Runtime > 0 {
-		md.Length = episode.Runtime
-	}
-	md.Summary = episode.Summary
-	md.Overview = episode.Overview
 
 	return md
 }

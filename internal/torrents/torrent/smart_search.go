@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
@@ -37,6 +38,7 @@ type (
 		AnimeToshoSearchCache *animetosho.SearchCache
 		AnizipCache           *anizip.Cache
 		Logger                *zerolog.Logger
+		MetadataProvider      *metadata.Provider
 	}
 	// Preview is used to preview a torrent à la entities.MediaEntryEpisode.
 	Preview struct {
@@ -58,6 +60,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 		opts.EpisodeNumber == nil ||
 		opts.AbsoluteOffset == nil ||
 		opts.Resolution == nil ||
+		opts.MetadataProvider == nil ||
 		opts.Query == nil {
 		return nil, errors.New("missing arguments")
 	}
@@ -243,7 +246,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 	for _, torrent := range retTorrents {
 		torrent := torrent
 		p.Go(func() *Preview {
-			tp, ok := createTorrentPreview(opts.Media, opts.AnizipCache, torrent, *opts.AbsoluteOffset, episodesFoundByID, *opts.EpisodeNumber)
+			tp, ok := createTorrentPreview(opts.Media, opts.MetadataProvider, opts.AnizipCache, torrent, *opts.AbsoluteOffset, episodesFoundByID, *opts.EpisodeNumber)
 			if !ok {
 				return nil
 			}
@@ -279,6 +282,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 // It also uses the AniZip cache and the media to create the preview.
 func createTorrentPreview(
 	media *anilist.BaseMedia,
+	metadataProvider *metadata.Provider,
 	anizipCache *anizip.Cache,
 	torrent *AnimeTorrent,
 	absoluteOffset int,
@@ -338,6 +342,7 @@ func createTorrentPreview(
 			Media:                media,
 			ProgressOffset:       0,
 			IsDownloaded:         false,
+			MetadataProvider:     metadataProvider,
 		})
 		if ret.Episode.IsInvalid { // remove invalid episodes
 			return nil, false

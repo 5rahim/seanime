@@ -8,6 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/listsync"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	_db "github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
@@ -61,6 +62,7 @@ type (
 		PlaybackManager     *playbackmanager.PlaybackManager
 		FileCacher          *filecache.Cacher
 		Onlinestream        *onlinestream.OnlineStream
+		MetadataProvider    *metadata.Provider
 		WD                  string // Working directory
 		cancelContext       func()
 	}
@@ -144,6 +146,12 @@ func NewApp(options *AppOptions, version string) *App {
 		AnilistClientWrapper: anilistCW,
 	})
 
+	// Metadata Provider
+	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
+		Logger:     logger,
+		FileCacher: fileCacher,
+	})
+
 	app := &App{
 		Config:                  cfg,
 		Database:                db,
@@ -158,6 +166,7 @@ func NewApp(options *AppOptions, version string) *App {
 		Updater:                 updater.New(version),
 		FileCacher:              fileCacher,
 		Onlinestream:            onlineStream,
+		MetadataProvider:        metadataProvider,
 		PlaybackManager:         nil, // Initialized in App.InitModulesOnce
 		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
 		AutoScanner:             nil, // Initialized in App.InitModulesOnce

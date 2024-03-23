@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/sourcegraph/conc/pool"
 	"slices"
 	"strconv"
@@ -31,11 +32,12 @@ type (
 type (
 	NewMediaEntryDownloadInfoOptions struct {
 		// Media's local files
-		LocalFiles  []*LocalFile
-		AnizipMedia *anizip.Media
-		Media       *anilist.BaseMedia
-		Progress    *int
-		Status      *anilist.MediaListStatus
+		LocalFiles       []*LocalFile
+		AnizipMedia      *anizip.Media
+		Media            *anilist.BaseMedia
+		Progress         *int
+		Status           *anilist.MediaListStatus
+		MetadataProvider *metadata.Provider
 	}
 )
 
@@ -198,6 +200,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 				Media:                opts.Media,
 				ProgressOffset:       0,
 				IsDownloaded:         false,
+				MetadataProvider:     opts.MetadataProvider,
 			})
 			return str
 		})

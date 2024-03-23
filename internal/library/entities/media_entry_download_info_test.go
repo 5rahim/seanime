@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -11,6 +12,8 @@ import (
 
 func TestNewMediaEntryDownloadInfo(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	metadataProvider := metadata.TestGetMockProvider(t)
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
@@ -97,11 +100,12 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 			anilistEntry, _ := anilistCollection.GetListEntryFromMediaId(tt.mediaId)
 
 			info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-				LocalFiles:  tt.localFiles,
-				AnizipMedia: anizipData,
-				Progress:    &tt.currentProgress,
-				Status:      &tt.status,
-				Media:       anilistEntry.Media,
+				LocalFiles:       tt.localFiles,
+				AnizipMedia:      anizipData,
+				Progress:         &tt.currentProgress,
+				Status:           &tt.status,
+				Media:            anilistEntry.Media,
+				MetadataProvider: metadataProvider,
 			})
 
 			if assert.NoError(t, err) && assert.NotNil(t, info) {

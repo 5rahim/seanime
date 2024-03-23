@@ -55,44 +55,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 		AnizipCache:          c.App.AnizipCache,
 		AnilistCollection:    anilistCollection,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
-	})
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	return c.RespondWithData(entry)
-}
-
-// HandleGetSimpleMediaEntry will return the simple media entry (entities.SimpleMediaEntry) with the given media id.
-//
-//	GET /v1/simple-media-entry/:id
-//
-// DEPRECATED: Use HandleGetMediaEntry instead.
-func HandleGetSimpleMediaEntry(c *RouteCtx) error {
-
-	mId, err := strconv.Atoi(c.Fiber.Params("id"))
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	// Get all the local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	// Get the user's anilist collection
-	anilistCollection, err := c.App.GetAnilistCollection(false)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	// Create a new media entry
-	entry, err := entities.NewSimpleMediaEntry(&entities.NewSimpleMediaEntryOptions{
-		MediaId:              mId,
-		LocalFiles:           lfs,
-		AnilistCollection:    anilistCollection,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
+		MetadataProvider:     c.App.MetadataProvider,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -230,8 +193,8 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 var (
-	malCache     = result.NewCache[string, []*mal.SearchResultAnime]()
-	anilistCache = result.NewCache[int, *anilist.BasicMedia]()
+	entriesMalCache               = result.NewCache[string, []*mal.SearchResultAnime]()
+	entriesAnilistBasicMediaCache = result.NewCache[int, *anilist.BasicMedia]()
 )
 
 // HandleFindProspectiveMediaEntrySuggestions will return a list of media suggestions for files in the given directory.
@@ -278,16 +241,21 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 	title := selectedLfs[0].GetParsedTitle()
 
 	// Fetch 8 suggestions from MAL
-	malSuggestions, err := mal.SearchWithMAL(title, 8)
+	malSuggestions, err := entriesMalCache.GetOrSet(title, func() ([]*mal.SearchResultAnime, error) {
+		malSuggestions, err := mal.SearchWithMAL(title, 8)
+		if err != nil {
+			return nil, err
+		}
+		// Cache the results
+		entriesMalCache.Set(title, malSuggestions)
+		return malSuggestions, nil
+	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 	if len(malSuggestions) == 0 {
 		return c.RespondWithData([]*anilist.BasicMedia{})
 	}
-
-	// Cache the results (10 minutes)
-	malCache.Set(title, malSuggestions)
 
 	dice := metrics.NewSorensenDice()
 	dice.CaseSensitive = false
@@ -328,7 +296,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 		p2.Go(func() *anilist.BasicMedia {
 			anilistRateLimit.Wait()
 			// Check if the media has already been fetched
-			media, found := anilistCache.Get(s.ID)
+			media, found := entriesAnilistBasicMediaCache.Get(s.ID)
 			if found {
 				return media
 			}
@@ -339,7 +307,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 			}
 			media = mediaRes.GetMedia()
 			// Cache the media
-			anilistCache.Set(s.ID, media)
+			entriesAnilistBasicMediaCache.Set(s.ID, media)
 			return media
 		})
 	}
@@ -477,6 +445,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		LocalFiles:        lfs,
 		AnizipCache:       c.App.AnizipCache,
 		SilencedMediaIds:  silencedMediaIds,
+		MetadataProvider:  c.App.MetadataProvider,
 	})
 
 	return c.RespondWithData(missingEps)

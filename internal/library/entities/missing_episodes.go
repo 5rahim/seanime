@@ -5,6 +5,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
@@ -22,6 +23,7 @@ type (
 		LocalFiles        []*LocalFile
 		AnizipCache       *anizip.Cache
 		SilencedMediaIds  []int
+		MetadataProvider  *metadata.Provider
 	}
 )
 
@@ -57,11 +59,12 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 			// Get download info
 			downloadInfo, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
-				LocalFiles:  lfs,
-				AnizipMedia: anizipMedia,
-				Progress:    entry.Progress,
-				Status:      entry.Status,
-				Media:       entry.Media,
+				LocalFiles:       lfs,
+				AnizipMedia:      anizipMedia,
+				Progress:         entry.Progress,
+				Status:           entry.Status,
+				Media:            entry.Media,
+				MetadataProvider: opts.MetadataProvider,
 			})
 			if err != nil {
 				return nil

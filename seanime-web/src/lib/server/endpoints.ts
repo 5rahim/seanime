@@ -90,6 +90,10 @@ export const enum SeaEndpoints {
     ONLINESTREAM_EPISODE_SOURCE = "/onlinestream/episode-source", // (POST)
     ONLINESTREAM_CACHE = "/onlinestream/cache", // (DELETE)
     /**
+     * Metadata Provider
+     */
+    METADATA_PROVIDER_TVDB_EPISODES = "/metadata-provider/tvdb-episodes", // (POST, DELETE)
+    /**
      * Theme
      */
     THEME = "/theme", // (GET, PATCH)

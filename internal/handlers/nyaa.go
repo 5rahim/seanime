@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/util"
@@ -142,7 +143,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	for _, torrent := range ret {
 		torrent := torrent
 		p.Go(func() *TorrentPreview {
-			tp, ok := createTorrentPreview(b.Media, c.App.AnizipCache, torrent, *b.AbsoluteOffset)
+			tp, ok := createTorrentPreview(c.App.MetadataProvider, b.Media, c.App.AnizipCache, torrent, *b.AbsoluteOffset)
 			if !ok {
 				return nil
 			}
@@ -182,6 +183,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 // createTorrentPreview creates a TorrentPreview from a Nyaa torrent.
 // It also uses the AniZip cache and the media to create the preview.
 func createTorrentPreview(
+	metadataProvider *metadata.Provider,
 	media *anilist.BaseMedia,
 	anizipCache *anizip.Cache,
 	torrent *nyaa.DetailedTorrent,
@@ -240,6 +242,7 @@ func createTorrentPreview(
 			Media:                media,
 			ProgressOffset:       0,
 			IsDownloaded:         false,
+			MetadataProvider:     metadataProvider,
 		})
 		if ret.Episode.IsInvalid { // remove invalid episodes
 			return nil, false
