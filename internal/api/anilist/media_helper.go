@@ -130,6 +130,25 @@ func (m *BasicMedia) GetPreferredTitle() string {
 	return m.GetTitleSafe()
 }
 
+func (m *BasicMedia) GetCoverImageSafe() string {
+	if m.GetCoverImage().GetExtraLarge() != nil {
+		return *m.GetCoverImage().GetExtraLarge()
+	}
+	if m.GetCoverImage().GetLarge() != nil {
+		return *m.GetCoverImage().GetLarge()
+	}
+	if m.GetBannerImage() != nil {
+		return *m.GetBannerImage()
+	}
+	return ""
+}
+func (m *BasicMedia) GetBannerImageSafe() string {
+	if m.GetBannerImage() != nil {
+		return *m.GetBannerImage()
+	}
+	return m.GetCoverImageSafe()
+}
+
 func (m *BasicMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasRomajiTitle() {

@@ -68,7 +68,7 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 	hasTVDBMetadata := mw.tvdbEpisodes != nil && len(mw.tvdbEpisodes) > 0
 
 	if !hasAnizipMetadata {
-		meta.Image = *mw.baseMedia.GetBannerImage()
+		meta.Image = mw.baseMedia.GetBannerImageSafe()
 	}
 
 	anizipEpisode, found := mw.anizipMedia.FindEpisode(strconv.Itoa(epNum))
@@ -94,7 +94,7 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 			meta.Image = anizipEpisode.Image
 		} else {
 			// If AniZip image is not set, use the base media image
-			meta.Image = *mw.baseMedia.GetBannerImage()
+			meta.Image = mw.baseMedia.GetBannerImageSafe()
 		}
 	}
 
