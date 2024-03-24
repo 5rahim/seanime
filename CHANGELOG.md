@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.1
+
+- ✨ Added support for TVDB images
+    - Fix missing episode images by fetching complementary TVDB metadata for specific media
+- ⚡️ Improved smart search results for AnimeTosho
+- ⚡️ Unresolved file manager sends fewer requests
+- 🚑️ Fixed runtime error caused by Auto Downloader
+- 🦺 Fixed Auto Downloader skipping last episodes
+- 🦺 Fixed smart search torrent previews
+- 🦺 Fixed trailers
+- 🏗️ Refactored episode metadata code
+
 ## v1.1.0
 
 - 🎉 New feature: Online streaming

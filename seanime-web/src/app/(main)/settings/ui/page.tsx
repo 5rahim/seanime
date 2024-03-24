@@ -107,7 +107,7 @@ export default function Page() {
                             <Field.Text
                                 label="Background image path"
                                 name="libraryScreenCustomBackgroundImage"
-                                placeholder="e.g., /path/to/image.jpg"
+                                placeholder="e.g., image.png"
                                 help="This will be used as the background image for the library page."
                             />
 
@@ -170,7 +170,7 @@ export default function Page() {
                                 <Field.Text
                                     label="Custom banner image path"
                                     name="libraryScreenCustomBannerImage"
-                                    placeholder="e.g., /path/to/image.jpg"
+                                    placeholder="e.g., image.gif"
                                 />
                                 <Field.Text
                                     label="Custom banner position"

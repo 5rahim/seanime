@@ -62,7 +62,7 @@ support transcoding or streaming to other devices (yet).
 # Next releases
 
 - [ ] **v1.2.0**
-- [ ] **v1.1.1**
+- [x] **v1.1.1** - Sunday, 3/24/2024
 - [x] **v1.1.0** - Thursday, 3/21/2024
 - [x] **v1.0.0** - Saturday, 3/9/2024
  
@@ -75,16 +75,17 @@ support transcoding or streaming to other devices (yet).
 
 ## Resources
 
-- AniList API
-- MAL API
-- [Chalk UI](https://chalk.rahim.app)
-- [Fiber](https://gofiber.io/)
-- [GORM](https://gorm.io/)
-- [gqlgenc](https://github.com/Yamashou/gqlgenc)
-- [Next.js](https://nextjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [React Query](https://react-query.tanstack.com/)
-- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser)
+- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs)
+- [MAL API](https://myanimelist.net/apiconfig/references/api/v2)
+- [Chalk UI](https://chalk.rahim.app) - UI library
+- [Fiber](https://gofiber.io/) - Web framework
+- [GORM](https://gorm.io/) - ORM
+- [gqlgenc](https://github.com/Yamashou/gqlgenc) - GraphQL codegen
+- [Next.js](https://nextjs.org/) - React framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [React Query](https://react-query.tanstack.com/) - Data fetching library
+- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Parser for anime files
+- [ani.zip](https://api.ani.zip/mappings?anilist_id=124080) - Mappings and episode data
 
 ## Acknowledgements
 
