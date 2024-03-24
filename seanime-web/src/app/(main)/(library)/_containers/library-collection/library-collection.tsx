@@ -104,6 +104,7 @@ export const LibraryCollectionEntryItem = memo(({ entry }: { entry: LibraryColle
             media={entry.media!}
             listData={entry.listData}
             libraryData={entry.libraryData}
+            showListDataButton
         />
     )
 })

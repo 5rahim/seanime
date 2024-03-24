@@ -140,9 +140,16 @@ const WatchList = React.memo(({ list }: { list: AnilistCollectionList | null | u
                         progress: entry.progress!,
                         score: entry.score!,
                         status: entry.status!,
+                        startedAt: entry.startedAt?.year ? new Date(entry.startedAt.year,
+                            (entry.startedAt.month || 1) - 1,
+                            entry.startedAt.day || 1).toISOString() : undefined,
+                        completedAt: entry.completedAt?.year ? new Date(entry.completedAt.year,
+                            (entry.completedAt.month || 1) - 1,
+                            entry.completedAt.day || 1).toISOString() : undefined,
                     }}
                     showLibraryBadge
                     media={entry.media!}
+                    showListDataButton
                 />
             ))}
         </div>

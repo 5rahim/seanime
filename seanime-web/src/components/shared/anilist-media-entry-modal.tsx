@@ -22,6 +22,7 @@ interface AnilistMediaEntryModalProps {
     children?: React.ReactNode
     listData?: MediaEntryListData
     media?: BaseMediaFragment
+    hideButton?: boolean
 }
 
 const entrySchema = defineSchema(({ z, presets }) => z.object({
@@ -44,7 +45,7 @@ const entrySchema = defineSchema(({ z, presets }) => z.object({
 export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (props) => {
     const [open, toggle] = useToggle(false)
 
-    const { children, media, listData, ...rest } = props
+    const { children, media, listData, hideButton, ...rest } = props
 
     const user = useAtomValue(userAtom)
 
@@ -78,29 +79,31 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     return (
         <>
-            {!!listData && <IconButton
-                intent="gray-subtle"
-                icon={<AiFillEdit />}
-                rounded
-                size="sm"
-                onClick={toggle}
-            />}
+            {!hideButton && <>
+                {!!listData && <IconButton
+                    intent="gray-subtle"
+                    icon={<AiFillEdit />}
+                    rounded
+                    size="sm"
+                    onClick={toggle}
+                />}
 
-            {(!listData) && <IconButton
-                intent="primary-subtle"
-                icon={<BiPlus />}
-                rounded
-                size="sm"
-                className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
-                onClick={() => mutate({
-                    mediaId: media?.id || 0,
-                    status: "PLANNING",
-                    score: 0,
-                    progress: 0,
-                    startedAt: null,
-                    completedAt: null,
-                })}
-            />}
+                {(!listData) && <IconButton
+                    intent="primary-subtle"
+                    icon={<BiPlus />}
+                    rounded
+                    size="sm"
+                    className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
+                    onClick={() => mutate({
+                        mediaId: media?.id || 0,
+                        status: "PLANNING",
+                        score: 0,
+                        progress: 0,
+                        startedAt: null,
+                        completedAt: null,
+                    })}
+                />}
+            </>}
 
             <Modal
                 open={open}

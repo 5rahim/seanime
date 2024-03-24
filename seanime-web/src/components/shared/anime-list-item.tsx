@@ -31,6 +31,7 @@ type AnimeListItemProps = {
     libraryData?: MediaEntryLibraryData
     showLibraryBadge?: boolean
     overlay?: React.ReactNode
+    showListDataButton?: boolean
 } & {
     containerClassName?: string
 }
@@ -39,7 +40,7 @@ const actionPopupHoverAtom = atom<number | undefined>(undefined)
 
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
-    const { media, listData: _listData, libraryData: _libraryData, overlay } = props
+    const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton } = props
 
     const [listData, setListData] = useState(_listData)
     const [libraryData, setLibraryData] = useState(_libraryData)
@@ -169,7 +170,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                     <div className="flex gap-2">
                         {!!libraryData &&
                             <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
-                        <AnilistMediaEntryModal listData={listData} media={media} />
+                        {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} />}
                     </div>
                 </div>
             </div>

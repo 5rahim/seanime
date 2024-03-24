@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## v1.1.2
 
 - 🚑️ Fixed bug introduced in v1.1.1 making some pages inaccessible
+- 🦺 Removed ambiguous "add to collection" button
+- 🦺 Fixed start and completion dates not showing when modifying AniList entries on "My Lists" pages
 
 ## v1.1.1
 
