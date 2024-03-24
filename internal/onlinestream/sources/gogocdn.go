@@ -11,7 +11,6 @@ import (
 	"github.com/gocolly/colly"
 	"github.com/seanime-app/seanime/internal/util"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -69,11 +68,6 @@ func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
 	c.OnHTML("script[data-name='episode']", func(e *colly.HTMLElement) {
 		scriptValue = e.Attr("data-value")
 
-	})
-
-	// Error handling
-	c.OnError(func(r *colly.Response, err error) {
-		log.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
 	// Start scraping
