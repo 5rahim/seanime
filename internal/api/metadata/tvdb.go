@@ -13,6 +13,7 @@ var (
 )
 
 func (mw *MediaWrapper) EmptyTVDBEpisodesBucket() error {
+	key := mw.baseMedia.GetID()
 
 	// Get TVDB ID
 	tvdbId := mw.anizipMedia.Mappings.ThetvdbID
@@ -20,10 +21,11 @@ func (mw *MediaWrapper) EmptyTVDBEpisodesBucket() error {
 		return errors.New("metadata: could not find tvdb id")
 	}
 
-	return mw.fileCacher.Delete(fcTVDBEpisodesBucket, strconv.Itoa(tvdbId))
+	return mw.fileCacher.Delete(fcTVDBEpisodesBucket, strconv.Itoa(key))
 }
 
 func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
+	key := mw.baseMedia.GetID()
 
 	// Get TVDB ID
 	tvdbId := mw.anizipMedia.Mappings.ThetvdbID
@@ -33,7 +35,7 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 
 	// Find episodes in cache
 	var episodes []*tvdb.Episode
-	found, _ := mw.fileCacher.Get(fcTVDBEpisodesBucket, strconv.Itoa(tvdbId), &episodes)
+	found, _ := mw.fileCacher.Get(fcTVDBEpisodesBucket, strconv.Itoa(key), &episodes)
 	if found && episodes != nil {
 		return episodes, nil
 	}
@@ -56,8 +58,7 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 			return nil, err
 		}
 
-		key := strconv.Itoa(tvdbId)
-		err = mw.fileCacher.Set(fcTVDBEpisodesBucket, key, episodes)
+		err = mw.fileCacher.Set(fcTVDBEpisodesBucket, strconv.Itoa(key), episodes)
 
 		if err != nil {
 			return nil, err

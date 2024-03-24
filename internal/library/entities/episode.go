@@ -266,6 +266,8 @@ func NewEpisodeMetadata(
 		md.Length = epMetadata.Length
 		md.Summary = epMetadata.Summary
 		md.Overview = epMetadata.Overview
+	} else {
+		md.Image = *media.GetBannerImage()
 	}
 
 	return md

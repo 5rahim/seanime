@@ -21,7 +21,7 @@ export function MetadataManager(props: MetadataManagerProps) {
     const [isOpen, setOpen] = useAtom(__metadataManager_isOpenAtom)
     const { populate, empty, isPopulating, isEmptying } = useTVDBMetadata(entry.mediaId)
 
-    const cannotAddMetadata = entry.media?.format !== "TV"
+    const cannotAddMetadata = entry.media?.format !== "TV" && entry.media?.format !== "TV_SHORT"
 
     return (
         <Modal

@@ -361,7 +361,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 }
 
 func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.AutoDownloaderRule, episode int) {
-	util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {
+	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {
 
 	})
 
@@ -430,7 +430,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *entities.AutoDownloaderRule) (ok bool) {
-	util.HandlePanicInModuleThen("autodownloader/isReleaseGroupMatch", func() {
+	defer util.HandlePanicInModuleThen("autodownloader/isReleaseGroupMatch", func() {
 		ok = false
 	})
 
@@ -448,7 +448,7 @@ func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *entitie
 // isResolutionMatch
 // DEVOTE: Improve this
 func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoDownloaderRule) (ok bool) {
-	util.HandlePanicInModuleThen("autodownloader/isResolutionMatch", func() {
+	defer util.HandlePanicInModuleThen("autodownloader/isResolutionMatch", func() {
 		ok = false
 	})
 
@@ -472,7 +472,7 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoD
 }
 
 func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoDownloaderRule, listEntry *anilist.MediaListEntry) (ok bool) {
-	util.HandlePanicInModuleThen("autodownloader/isTitleMatch", func() {
+	defer util.HandlePanicInModuleThen("autodownloader/isTitleMatch", func() {
 		ok = false
 	})
 
@@ -541,7 +541,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	listEntry *anilist.MediaListEntry,
 	localEntry *entities.LocalFileWrapperEntry,
 ) (a int, b bool) {
-	util.HandlePanicInModuleThen("autodownloader/isEpisodeMatch", func() {
+	defer util.HandlePanicInModuleThen("autodownloader/isEpisodeMatch", func() {
 		b = false
 	})
 

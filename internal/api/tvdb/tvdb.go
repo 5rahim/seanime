@@ -1,10 +1,14 @@
 package tvdb
 
 import (
+	"errors"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/seanime-app/seanime/internal/util"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -55,13 +59,16 @@ func (tvdb *TVDB) FetchSeriesEpisodes(id int, filter FilterEpisodeMediaInfo) (re
 	}
 
 	// Fetch episodes
-	episodesF, err := tvdb.fetchEpisodes(seasons)
+	episodesF, err := tvdb.fetchEpisodes(seasons, true)
 	if err != nil {
 		return nil, err
 	}
 
 	// Filter episodes
-	episodesF = tvdb.filterEpisodes(episodesF, filter)
+	episodesF, err = tvdb.filterEpisodes(episodesF, filter, true)
+	if err != nil {
+		return nil, err
+	}
 
 	// Convert episodes
 	res = make([]*Episode, len(episodesF), len(episodesF))
@@ -113,16 +120,31 @@ func (tvdb *TVDB) fetchSeasons(id int) (res []*ExtendedSeriesResponse_Season, er
 }
 
 // fetchEpisodes returns a list of episodes based on a list of seasons.
-func (tvdb *TVDB) fetchEpisodes(seasons []*ExtendedSeriesResponse_Season) (res []*ExtendedSeasonsResponse_Episode, err error) {
+func (tvdb *TVDB) fetchEpisodes(seasons []*ExtendedSeriesResponse_Season, absoluteOnly bool) (res []*ExtendedSeasonsResponse_Episode, err error) {
 
 	tvdb.logger.Debug().Msg("tvdb: Fetching all possible episodes")
 
 	_episodes := make([]*ExtendedSeasonsResponse_Episode, 0)
 
+	if absoluteOnly {
+		absoluteSeason, found := lo.Find(seasons, func(season *ExtendedSeriesResponse_Season) bool {
+			return season.Type.Type == "absolute" && season.Number == 1
+		})
+		if !found {
+			return nil, errors.New("could not find absolute season")
+		}
+		seasons = []*ExtendedSeriesResponse_Season{absoluteSeason}
+	}
+
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 	wg.Add(len(seasons))
 	for _, _season := range seasons {
+
+		if _season.Number == 0 {
+			wg.Done()
+			continue
+		}
 
 		go func(season *ExtendedSeriesResponse_Season) {
 			defer wg.Done()
@@ -161,46 +183,58 @@ func (tvdb *TVDB) fetchEpisodes(seasons []*ExtendedSeriesResponse_Season) (res [
 	return res, nil
 }
 
-func (tvdb *TVDB) filterEpisodes(episodes []*ExtendedSeasonsResponse_Episode, mediaInfo FilterEpisodeMediaInfo) (res []*ExtendedSeasonsResponse_Episode) {
-	// The media doesn't have a year, just return a dedup list of episodes :shrug:
-	episodeMap := make(map[int64]*ExtendedSeasonsResponse_Episode)
+func (tvdb *TVDB) filterEpisodes(
+	episodes []*ExtendedSeasonsResponse_Episode,
+	mediaInfo FilterEpisodeMediaInfo,
+	isAbsolute bool,
+) (res []*ExtendedSeasonsResponse_Episode, err error) {
 
-	if mediaInfo.Year == nil || *mediaInfo.Year == 0 {
+	defer util.HandlePanicInModuleThen("api/tvdb/filterEpisodes", func() {
+		err = errors.New("could not filter episodes")
+	})
+
+	res = episodes
+
+	if isAbsolute {
+
+		minEpNum := int64(mediaInfo.AbsoluteOffset + 1)
+		maxEpNum := int64(mediaInfo.AbsoluteOffset + mediaInfo.TotalEp)
+
+		filteredEpisodes := make([]*ExtendedSeasonsResponse_Episode, 0)
 		for _, episode := range episodes {
-			if e, ok := episodeMap[episode.Number]; ok {
-				if e.Image == "" && episode.Image != "" {
-					episodeMap[episode.Number] = episode
-				}
-			} else {
-				episodeMap[episode.Number] = episode
+			if episode.Number >= minEpNum && episode.Number <= maxEpNum {
+				filteredEpisodes = append(filteredEpisodes, episode)
 			}
 		}
 
-	} else {
+		if len(filteredEpisodes) == 0 {
+			return nil, errors.New("no episodes found")
+		}
 
-		// The media has a year, we need to filter episodes based on the year
-		for _, episode := range episodes {
-			if episode.Year == "" {
-				continue
+		if mediaInfo.AbsoluteOffset > 0 {
+			allAbsolute := true
+			for _, e := range filteredEpisodes {
+				if e.Number < int64(mediaInfo.TotalEp) {
+					allAbsolute = false
+					break
+				}
 			}
-			episodeYear, _ := strconv.Atoi(episode.Year)
-			if episodeYear >= *mediaInfo.Year {
-				if e, ok := episodeMap[episode.Number]; ok {
-					if e.Image == "" && episode.Image != "" {
-						episodeMap[episode.Number] = episode
-					}
-				} else {
-					episodeMap[episode.Number] = episode
+
+			// Normalize the episodes
+			if allAbsolute {
+				for i, e := range filteredEpisodes {
+					filteredEpisodes[i].Number = e.Number - int64(mediaInfo.AbsoluteOffset)
 				}
 			}
 		}
 
+		res = filteredEpisodes
+		return res, nil
 	}
 
-	// Convert map to slice
-	res = make([]*ExtendedSeasonsResponse_Episode, 0)
-	for _, episode := range episodeMap {
-		res = append(res, episode)
+	type kEpisode struct {
+		episode *ExtendedSeasonsResponse_Episode
+		factor  float64
 	}
 
 	// If we find episodes that are over the total episode count, we need to apply the offset
@@ -210,46 +244,109 @@ func (tvdb *TVDB) filterEpisodes(episodes []*ExtendedSeasonsResponse_Episode, me
 		// just filter the episodes based on the month
 		if mediaInfo.Month != nil && *mediaInfo.Month > 0 {
 
+			mediaFactor := float64(*mediaInfo.Year) + (float64(*mediaInfo.Month) / 100) // e.g. 2021.05, 2021.12
+
 			// Filter episodes
-			filteredEpisodes := make([]*ExtendedSeasonsResponse_Episode, 0)
-			for _, episode := range res {
+			kEpisodes := make([]*kEpisode, 0)
+
+			for _, episode := range episodes {
 				if episode.Aired == "" || episode.Year == "" {
 					continue
 				}
 				airedParts := strings.Split(episode.Aired, "-")
 				episodeMonth, _ := strconv.Atoi(airedParts[1])
+				episodeDay, _ := strconv.Atoi(airedParts[2])
 				episodeYear, _ := strconv.Atoi(episode.Year)
+				episodeFactor := float64(episodeYear) + (float64(episodeMonth) / 100) + (float64(episodeDay) / 10000)
 				// If the episode aired AFTER the month/year, we can include it
+				//spew.Printf("(%d) %s %s %d %d %f %f\n", episode.Number, episode.Aired, episode.Year, *mediaInfo.Year, *mediaInfo.Month, episodeFactor, mediaFactor)
 				if episodeYear > *mediaInfo.Year || (episodeYear == *mediaInfo.Year && episodeMonth >= *mediaInfo.Month) {
-					filteredEpisodes = append(filteredEpisodes, episode)
+					kEpisodes = append(kEpisodes, &kEpisode{
+						episode: episode,
+						factor:  episodeFactor,
+					})
 				}
 			}
 
-			if len(filteredEpisodes) > 0 {
-				res = filteredEpisodes
+			// Sort episodes by factor (ascending)
+			for i := 0; i < len(kEpisodes); i++ {
+				for j := i + 1; j < len(kEpisodes); j++ {
+					if kEpisodes[i].factor > kEpisodes[j].factor {
+						kEpisodes[i], kEpisodes[j] = kEpisodes[j], kEpisodes[i]
+					}
+				}
 			}
 
-		}
+			//spew.Dump(mediaInfo)
+			//for _, kEpisode := range kEpisodes {
+			//	spew.Printf("(%d) %s %f %f\n", kEpisode.episode.Number, kEpisode.episode.Aired, kEpisode.factor, mediaFactor)
+			//}
 
-		// Get the offset
-		offset := mediaInfo.AbsoluteOffset
+			// Keep episodes that are after the media factor but whose number is less than the total episode count
+			filteredEpisodes := make([]*ExtendedSeasonsResponse_Episode, 0)
+			addedAiredDates := make(map[string]*kEpisode) // Aired date -> Episode
+			count := 0
+			for _, kEpisode := range kEpisodes {
+				if kEpisode.factor >= mediaFactor {
+					if count < mediaInfo.TotalEp {
 
-		// Filter episodes
-		filteredEpisodes := make([]*ExtendedSeasonsResponse_Episode, 0)
-		for _, episode := range res {
-			if episode.Number > int64(offset) && episode.Number <= int64(mediaInfo.TotalEp+offset) {
-				episode.Number = episode.Number - int64(offset)
-				filteredEpisodes = append(filteredEpisodes, episode)
+						prev, ok := addedAiredDates[kEpisode.episode.Aired]
+
+						// episodesAiredSameDay
+						if ok && prev.episode.Number != kEpisode.episode.Number {
+							diff := math.Abs(float64(prev.episode.Number) - float64(kEpisode.episode.Number))
+							if diff < 12 {
+								filteredEpisodes = append(filteredEpisodes, kEpisode.episode)
+								addedAiredDates[kEpisode.episode.Aired] = kEpisode
+								continue
+							}
+						}
+						if !ok || (ok && prev.episode.Image == "") {
+							filteredEpisodes = append(filteredEpisodes, kEpisode.episode)
+							addedAiredDates[kEpisode.episode.Aired] = kEpisode
+							count++
+						}
+					}
+				}
 			}
-		}
 
-		if len(filteredEpisodes) > 0 {
+			if mediaInfo.AbsoluteOffset > 0 {
+				allAbsolute := true
+				for _, e := range filteredEpisodes {
+					if e.Number < int64(mediaInfo.TotalEp) {
+						allAbsolute = false
+						break
+					}
+				}
+
+				// Normalize the episodes
+				if allAbsolute {
+					for i, e := range filteredEpisodes {
+						filteredEpisodes[i].Number = e.Number - int64(mediaInfo.AbsoluteOffset)
+					}
+				}
+			}
+
+			//println("----------------")
+			//
+			//for _, kEpisode := range filteredEpisodes {
+			//	spew.Printf("(%d) %s\n", kEpisode.Number, kEpisode.Aired)
+			//}
+
+			if len(filteredEpisodes) == 0 {
+				return nil, errors.New("no episodes found")
+			}
+
 			res = filteredEpisodes
 		}
 
+	} else {
+
+		return nil, errors.New("could not filter episodes")
+
 	}
 
-	return res
+	return res, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
