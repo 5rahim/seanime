@@ -109,16 +109,16 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
 
                                 {/*SEASON*/}
                                 {!!entry.media.startDate?.year && (
-                                        <div>
-                                            <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
-                                                <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
-                                                year: "numeric",
-                                                month: "short",
-                                            }).format(new Date(entry.media.startDate?.year || 0,
-                                                entry.media.startDate?.month || 0))} - {!!entry.media.season ? capitalize(entry.media.season) : "TBD"}
-                                            </p>
-                                        </div>
-                                    )}
+                                    <div>
+                                        <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
+                                            <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
+                                            year: "numeric",
+                                            month: "short",
+                                        }).format(new Date(entry.media.startDate?.year || 0,
+                                            entry.media.startDate?.month || 0))} - {!!entry.media.season ? capitalize(entry.media.season) : "TBD"}
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/*PROGRESS*/}
                                 <div className="flex gap-2 md:gap-4 items-center">
@@ -226,21 +226,21 @@ export function NewMetaSection(props: { entry: MediaEntry, details: MediaDetails
 
                         <div className="w-full flex justify-between flex-wrap gap-4 items-center">
 
-                                <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
-                                    <Button intent="gray-link" className="px-0">
-                                        Open on AniList
-                                    </Button>
-                                </Link>
+                            <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
+                                <Button intent="gray-link" className="px-0">
+                                    Open on AniList
+                                </Button>
+                            </Link>
 
-                            <TrailerModal
+                            {details?.trailer?.id && <TrailerModal
                                 mediaId={entry.mediaId} trigger={
                                 <Button intent="gray-link" className="px-0">
                                     Watch Trailer
                                 </Button>
                             }
-                            />
+                            />}
 
-                                <EntryOnlinestreamButton entry={entry} />
+                            <EntryOnlinestreamButton entry={entry} />
 
 
                             <div className="flex flex-1"></div>

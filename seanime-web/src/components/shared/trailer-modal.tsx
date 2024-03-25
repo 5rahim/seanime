@@ -1,12 +1,9 @@
 import { useMediaDetails } from "@/app/(main)/entry/_lib/media-entry"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import React from "react"
-import { FaVolumeMute } from "react-icons/fa"
-import { FaVolumeHigh } from "react-icons/fa6"
 
 type PlaylistsModalProps = {
     trigger?: React.ReactElement
@@ -61,7 +58,7 @@ export function Content(props: ContentProps) {
     } = props
 
     const { mediaDetails, mediaDetailsLoading } = useMediaDetails(mediaId)
-    const [loaded, setLoaded] = React.useState(false)
+    const [loaded, setLoaded] = React.useState(true)
     const [muted, setMuted] = React.useState(true)
 
     if (mediaDetailsLoading) return <LoadingSpinner className="" />
@@ -77,25 +74,31 @@ export function Content(props: ContentProps) {
                     !loaded && "hidden",
                 )}
             >
-                <video
-                    src={`https://yewtu.be/latest_version?id=${mediaDetails?.trailer?.id}&itag=18`}
-                    className={cn(
-                        "w-full h-full absolute left-0",
-                    )}
-                    playsInline
-                    preload="none"
-                    loop
-                    autoPlay
-                    muted={muted}
-                    onLoadedData={() => setLoaded(true)}
+                <iframe
+                    src={`https://www.youtube.com/embed/${mediaDetails?.trailer?.id}`}
+                    title="YouTube Video"
+                    className="w-full h-full"
+                    allowFullScreen
+                    loading="lazy" // Lazy load the iframe
                 />
-                {<IconButton
-                    intent="white-basic"
-                    className="absolute bottom-4 left-4"
-                    icon={muted ? <FaVolumeMute /> : <FaVolumeHigh />}
-                    onClick={() => setMuted(p => !p)}
-                />
-                }
+                {/*<video*/}
+                {/*    src={`https://yewtu.be/latest_version?id=${mediaDetails?.trailer?.id}&itag=18`}*/}
+                {/*    className={cn(*/}
+                {/*        "w-full h-full absolute left-0",*/}
+                {/*    )}*/}
+                {/*    playsInline*/}
+                {/*    preload="none"*/}
+                {/*    loop*/}
+                {/*    autoPlay*/}
+                {/*    muted={muted}*/}
+                {/*    onLoadedData={() => setLoaded(true)}*/}
+                {/*/>*/}
+                {/*{<IconButton*/}
+                {/*    intent="white-basic"*/}
+                {/*    className="absolute bottom-4 left-4"*/}
+                {/*    icon={muted ? <FaVolumeMute /> : <FaVolumeHigh />}*/}
+                {/*    onClick={() => setMuted(p => !p)}*/}
+                {/*/>}*/}
             </div>
         </>
     )

@@ -87,6 +87,8 @@ support transcoding or streaming to other devices (yet).
 - [React Query](https://react-query.tanstack.com/) - Data fetching library
 - [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Parser for anime files
 - [ani.zip](https://api.ani.zip/mappings?anilist_id=124080) - Mappings and episode data
+- [anime-lists](https://github.com/Fribb/anime-lists) - Mappings
+- [TheTVDB](https://www.thetvdb.com/) - Episode images
 
 ## Acknowledgements
 

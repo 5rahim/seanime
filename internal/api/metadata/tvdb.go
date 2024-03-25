@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"errors"
+	"github.com/seanime-app/seanime/internal/api/mappings"
 	"github.com/seanime-app/seanime/internal/api/tvdb"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"strconv"
@@ -12,11 +13,27 @@ var (
 	fcTVDBEpisodesBucket = filecache.NewBucket("tvdb_episodes", time.Hour*24*7*365) // Store TVDB episodes permanently
 )
 
+func getTvdbIDFromAnimeLists(anidbID int) (tvdbID int, ok bool) {
+	res, err := mappings.GetReducedAnimeLists()
+	if err != nil {
+		return 0, false
+	}
+	return res.FindTvdbIDFromAnidbID(anidbID)
+}
+
 func (mw *MediaWrapper) EmptyTVDBEpisodesBucket() error {
 	key := mw.baseMedia.GetID()
 
 	// Get TVDB ID
-	tvdbId := mw.anizipMedia.Mappings.ThetvdbID
+	var tvdbId int
+	tvdbId = mw.anizipMedia.Mappings.ThetvdbID
+	if tvdbId == 0 {
+		if mw.anizipMedia.Mappings.AnidbID > 0 {
+			// Try to get it from the mappings
+			tvdbId, _ = getTvdbIDFromAnimeLists(mw.anizipMedia.Mappings.AnidbID)
+		}
+	}
+
 	if tvdbId == 0 {
 		return errors.New("metadata: could not find tvdb id")
 	}
@@ -28,7 +45,15 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 	key := mw.baseMedia.GetID()
 
 	// Get TVDB ID
-	tvdbId := mw.anizipMedia.Mappings.ThetvdbID
+	var tvdbId int
+	tvdbId = mw.anizipMedia.Mappings.ThetvdbID
+	if tvdbId == 0 {
+		if mw.anizipMedia.Mappings.AnidbID > 0 {
+			// Try to get it from the mappings
+			tvdbId, _ = getTvdbIDFromAnimeLists(mw.anizipMedia.Mappings.AnidbID)
+		}
+	}
+
 	if tvdbId == 0 {
 		return nil, errors.New("metadata: could not find tvdb id")
 	}

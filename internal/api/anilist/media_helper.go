@@ -35,7 +35,13 @@ func (m *BaseMedia) GetCoverImageSafe() string {
 	if m.GetCoverImage().GetExtraLarge() != nil {
 		return *m.GetCoverImage().GetExtraLarge()
 	}
-	return *m.GetBannerImage()
+	if m.GetCoverImage().GetLarge() != nil {
+		return *m.GetCoverImage().GetLarge()
+	}
+	if m.GetBannerImage() != nil {
+		return *m.GetBannerImage()
+	}
+	return ""
 }
 
 func (m *BaseMedia) IsMovieOrSingleEpisode() bool {
