@@ -1,0 +1,82 @@
+name: Bug report
+description: Report a bug you encountered
+title: 'bug: '
+labels:
+  - bug
+body:
+  - type: checkboxes
+    id: '1'
+    attributes:
+      label: Checklist
+      description: Please follow the general troubleshooting steps first
+      options:
+        - label: >-
+            My version of the app is the latest available
+          required: true
+        - label: >-
+            I checked open and closed [issues](https://github.com/5rahim/seanime/issues).
+          required: true
+        - label: >-
+            I checked the [docs](https://seanime.rahim.app/docs/faq) for a fix
+          required: true
+  - type: dropdown
+    id: '2'
+    attributes:
+      label: Bug Severity
+      description: Select the severity of the bug. Anything below "Panic" means the app doesn't crash.
+      options:
+        - Panic / Crash
+        - Usability is affected
+        - Low
+    validations:
+      required: true
+  - type: dropdown
+    id: '3'
+    attributes:
+      label: Bug Area
+      description: Select the general area of the app or process during which the bug occurred.
+      options:
+        - Authentication
+        - Scanning
+        - Watching
+        - Browsing
+        - Settings
+        - Downloading
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: '4'
+    attributes:
+      label: Bug Description
+      description: Precisely describe the bug you encountered and the steps to reproduce it.
+    validations:
+      required: true
+  - type: textarea
+    id: '5'
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+  - type: input
+    id: '6'
+    attributes:
+      label: App Version
+      description: Enter the version of Seanime you are using.
+      placeholder: v2.0.1
+    validations:
+      required: true
+  - type: dropdown
+    id: '7'
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - Linux
+        - MacOS
+    validations:
+      required: true
+  - type: textarea
+    id: '8'
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots of the bug, terminal output, logs or stack traces.

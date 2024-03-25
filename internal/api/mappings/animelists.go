@@ -7,15 +7,17 @@ import (
 )
 
 type (
-	ReducedAnimeListItem struct {
-		TheTvdbID interface{} `json:"thetvdb_id,omitempty"`
-		AnidbID   int         `json:"anidb_id,omitempty"`
-	}
 
+	// ReducedAnimeListResponse is the response from the reduced anime list API.
+	// It does not contain AniList ids for example.
 	ReducedAnimeListResponse struct {
 		items          []*ReducedAnimeListItem
 		itemsByAnidbID map[int]*ReducedAnimeListItem
 		Count          int
+	}
+	ReducedAnimeListItem struct {
+		TheTvdbID interface{} `json:"thetvdb_id,omitempty"`
+		AnidbID   int         `json:"anidb_id,omitempty"`
 	}
 )
 
