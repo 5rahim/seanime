@@ -1,21 +1,23 @@
 "use client"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
-import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/episode-section/_components/relations-recommendations-section"
+import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-actions/anime-entry-dropdown-menu"
+import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-toggle-lock-button"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
+import { Separator } from "@/components/ui/separator"
 import { MediaEntry } from "@/lib/server/types"
 import React, { useMemo } from "react"
+import { FiPlayCircle } from "react-icons/fi"
 import { IoLibrarySharp } from "react-icons/io5"
 
-
-export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
-    const { entry, details } = props
+export function LegacyEpisodeSection(props: { entry: MediaEntry }) {
+    const { entry } = props
     const media = entry.media
 
     const { playVideo } = useMediaPlayer()
@@ -67,7 +69,6 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
                     downloadInfo={entry.downloadInfo}
                     media={media}
                 />
-                <RelationsRecommendationsSection entry={entry} details={details} />
             </div>
         </div>
     }
@@ -75,6 +76,30 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
     return (
         <>
             <AppLayoutStack spacing="lg">
+
+                <div className="mb-8 mt-8 flex flex-col md:flex-row md:items-center justify-between">
+
+                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+                        <h2>{media.format === "MOVIE" ? "Movie" : "Episodes"}</h2>
+                        {!!entry.nextEpisode && <>
+                            <Button
+                                size="lg"
+                                intent="white"
+                                rightIcon={<FiPlayCircle />}
+                                iconClass="text-2xl"
+                                onClick={() => playVideo({ path: entry.nextEpisode?.localFile?.path ?? "" })}
+                            >
+                                {media.format === "MOVIE" ? "Watch" : "Play next episode"}
+                            </Button>
+                        </>}
+                    </div>
+
+                    {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
+                        <BulkToggleLockButton entry={entry} />
+                        <AnimeEntryDropdownMenu entry={entry} />
+                    </div>}
+
+                </div>
 
                 {hasInvalidEpisodes && <Alert
                     intent="alert"
@@ -85,18 +110,18 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
                 {episodesToWatch.length > 0 && (
                     <>
                         <Carousel
-                            className="w-full max-w-full"
+                            className="w-full max-w-full pt-4 relative"
                             gap="md"
                             opts={{
                                 align: "start",
                             }}
                         >
-                            <CarouselDotButtons />
+                            <CarouselDotButtons className="-top-3" />
                             <CarouselContent>
                                 {episodesToWatch.map((episode, idx) => (
                                     <CarouselItem
                                         key={episode?.localFile?.path || idx}
-                                        className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
+                                        className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/2 min-[2000px]:basis-1/3"
                                     >
                                         <SliderEpisodeItem
                                             key={episode.localFile?.path || ""}
@@ -130,7 +155,8 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
                     />
 
                     {specialEpisodes.length > 0 && <>
-                        <h2>Specials</h2>
+                        <Separator />
+                        <h3>Specials</h3>
                         <EpisodeListGrid>
                             {specialEpisodes.map(episode => (
                                 <EpisodeItem
@@ -144,7 +170,8 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
                     </>}
 
                     {ncEpisodes.length > 0 && <>
-                        <h2>Others</h2>
+                        <Separator />
+                        <h3>Others</h3>
                         <EpisodeListGrid>
                             {ncEpisodes.map(episode => (
                                 <EpisodeItem
@@ -156,8 +183,6 @@ export function NewEpisodeSection(props: { entry: MediaEntry, details: MediaDeta
                             ))}
                         </EpisodeListGrid>
                     </>}
-
-                    <RelationsRecommendationsSection entry={entry} details={details} />
 
                 </div>
             </AppLayoutStack>

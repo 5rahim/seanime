@@ -1,6 +1,6 @@
 "use client"
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
-import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/episode-section/bulk-delete-files-modal"
+import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-delete-files-modal"
 import { __metadataManager_isOpenAtom, MetadataManager } from "@/app/(main)/entry/_containers/metadata-manager/metadata-manager"
 import { useOpenDefaultMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
 import { serverStatusAtom } from "@/atoms/server-status"
@@ -14,14 +14,13 @@ import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 
-export function EpisodeSectionDropdownMenu({ entry }: { entry: MediaEntry }) {
+export function AnimeEntryDropdownMenu({ entry }: { entry: MediaEntry }) {
 
     const serverStatus = useAtomValue(serverStatusAtom)
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
 
     const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
     const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
-    // const { populateTVDBImages } = useTVDBMetadata()
 
     const { unmatchAll, isPending } = useMediaEntryBulkAction(entry.mediaId)
 

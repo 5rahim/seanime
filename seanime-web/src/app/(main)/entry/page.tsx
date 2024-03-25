@@ -3,10 +3,10 @@
 import { EntryHeaderBackground } from "@/app/(main)/entry/_components/entry-header-background"
 import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-section/episode-section"
-import { NewEpisodeSection } from "@/app/(main)/entry/_containers/episode-section/new-episode-section"
+import { LegacyEpisodeSection } from "@/app/(main)/entry/_containers/episode-section/legacy-episode-section"
 import { RelationsRecommendationsAccordion } from "@/app/(main)/entry/_containers/meta-section/_components/relations-recommendations-accordion"
+import { LegacyMetaSection } from "@/app/(main)/entry/_containers/meta-section/legacy-meta-section"
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
-import { NewMetaSection } from "@/app/(main)/entry/_containers/meta-section/new-meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
 import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
@@ -46,7 +46,7 @@ export default function Page() {
             {/*[CUSTOM UI]*/}
             <CustomBackgroundImage />
 
-            <NewMetaSection entry={mediaEntry} details={mediaDetails} />
+            <MetaSection entry={mediaEntry} details={mediaDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">
 
@@ -65,7 +65,7 @@ export default function Page() {
                     }}
                 >
                     <EpisodeListGridProvider container="expanded">
-                        <NewEpisodeSection entry={mediaEntry} details={mediaDetails} />
+                        <EpisodeSection entry={mediaEntry} details={mediaDetails} />
                     </EpisodeListGridProvider>
                 </PageWrapper>
             </div>
@@ -101,7 +101,7 @@ export default function Page() {
 
                 <div className="-mt-[18rem] h-[fit-content] 2xl:sticky top-[5rem] space-y-8">
                     <div className="backdrop-blur-xl rounded-xl">
-                        <MetaSection entry={mediaEntry} details={mediaDetails} />
+                        <LegacyMetaSection entry={mediaEntry} details={mediaDetails} />
                     </div>
                     <RelationsRecommendationsAccordion
                         entry={mediaEntry}
@@ -109,7 +109,7 @@ export default function Page() {
                     />
                 </div>
                 <PageWrapper className="relative 2xl:order-first pb-10 z-[1]">
-                    <EpisodeSection entry={mediaEntry} />
+                    <LegacyEpisodeSection entry={mediaEntry} />
                 </PageWrapper>
             </div>
             <TorrentSearchDrawer entry={mediaEntry} />

@@ -171,6 +171,9 @@ type BaseMedia struct {
 	Synonyms          []*string                    "json:\"synonyms,omitempty\" graphql:\"synonyms\""
 	IsAdult           *bool                        "json:\"isAdult,omitempty\" graphql:\"isAdult\""
 	CountryOfOrigin   *string                      "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
+	MeanScore         *int                         "json:\"meanScore,omitempty\" graphql:\"meanScore\""
+	Description       *string                      "json:\"description,omitempty\" graphql:\"description\""
+	Trailer           *BaseMedia_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *BaseMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BaseMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate         *BaseMedia_StartDate         "json:\"startDate,omitempty\" graphql:\"startDate\""
@@ -250,6 +253,24 @@ func (t *BaseMedia) GetCountryOfOrigin() *string {
 		t = &BaseMedia{}
 	}
 	return t.CountryOfOrigin
+}
+func (t *BaseMedia) GetMeanScore() *int {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.MeanScore
+}
+func (t *BaseMedia) GetDescription() *string {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.Description
+}
+func (t *BaseMedia) GetTrailer() *BaseMedia_Trailer {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.Trailer
 }
 func (t *BaseMedia) GetTitle() *BaseMedia_Title {
 	if t == nil {
@@ -590,6 +611,31 @@ func (t *BasicMedia_NextAiringEpisode) GetEpisode() int {
 		t = &BasicMedia_NextAiringEpisode{}
 	}
 	return t.Episode
+}
+
+type BaseMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *BaseMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &BaseMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *BaseMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &BaseMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *BaseMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &BaseMedia_Trailer{}
+	}
+	return t.Thumbnail
 }
 
 type BaseMedia_Title struct {
@@ -1309,6 +1355,31 @@ func (t *AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt) GetDay()
 		t = &AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt{}
 	}
 	return t.Day
+}
+
+type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Trailer{}
+	}
+	return t.Thumbnail
 }
 
 type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Title struct {
@@ -2165,6 +2236,31 @@ func (t *BasicMediaById_Media_BasicMedia_NextAiringEpisode) GetEpisode() int {
 		t = &BasicMediaById_Media_BasicMedia_NextAiringEpisode{}
 	}
 	return t.Episode
+}
+
+type BaseMediaById_Media_BaseMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *BaseMediaById_Media_BaseMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *BaseMediaById_Media_BaseMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *BaseMediaById_Media_BaseMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &BaseMediaById_Media_BaseMedia_Trailer{}
+	}
+	return t.Thumbnail
 }
 
 type BaseMediaById_Media_BaseMedia_Title struct {
@@ -4021,6 +4117,13 @@ fragment baseMedia on Media {
 	synonyms
 	isAdult
 	countryOfOrigin
+	meanScore
+	description
+	trailer {
+		id
+		site
+		thumbnail
+	}
 	title {
 		userPreferred
 		romaji
@@ -4339,6 +4442,13 @@ fragment baseMedia on Media {
 	synonyms
 	isAdult
 	countryOfOrigin
+	meanScore
+	description
+	trailer {
+		id
+		site
+		thumbnail
+	}
 	title {
 		userPreferred
 		romaji

@@ -1,23 +1,21 @@
 "use client"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
-import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/episode-section/bulk-toggle-lock-button"
+import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/episode-section/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
-import { EpisodeSectionDropdownMenu } from "@/app/(main)/entry/_containers/episode-section/episode-section-dropdown-menu"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { Separator } from "@/components/ui/separator"
+import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
 import React, { useMemo } from "react"
-import { FiPlayCircle } from "react-icons/fi"
 import { IoLibrarySharp } from "react-icons/io5"
 
-export function EpisodeSection(props: { entry: MediaEntry }) {
-    const { entry } = props
+
+export function EpisodeSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
+    const { entry, details } = props
     const media = entry.media
 
     const { playVideo } = useMediaPlayer()
@@ -69,6 +67,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     downloadInfo={entry.downloadInfo}
                     media={media}
                 />
+                <RelationsRecommendationsSection entry={entry} details={details} />
             </div>
         </div>
     }
@@ -76,30 +75,6 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
     return (
         <>
             <AppLayoutStack spacing="lg">
-
-                <div className="mb-8 mt-8 flex flex-col md:flex-row md:items-center justify-between">
-
-                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-                        <h2>{media.format === "MOVIE" ? "Movie" : "Episodes"}</h2>
-                        {!!entry.nextEpisode && <>
-                            <Button
-                                size="lg"
-                                intent="white"
-                                rightIcon={<FiPlayCircle/>}
-                                iconClass="text-2xl"
-                                onClick={() => playVideo({ path: entry.nextEpisode?.localFile?.path ?? "" })}
-                            >
-                                {media.format === "MOVIE" ? "Watch" : "Play next episode"}
-                            </Button>
-                        </>}
-                    </div>
-
-                    {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
-                        <BulkToggleLockButton entry={entry}/>
-                        <EpisodeSectionDropdownMenu entry={entry} />
-                    </div>}
-
-                </div>
 
                 {hasInvalidEpisodes && <Alert
                     intent="alert"
@@ -110,18 +85,18 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                 {episodesToWatch.length > 0 && (
                     <>
                         <Carousel
-                            className="w-full max-w-full pt-4 relative"
+                            className="w-full max-w-full"
                             gap="md"
                             opts={{
                                 align: "start",
                             }}
                         >
-                            <CarouselDotButtons className="-top-3" />
+                            <CarouselDotButtons />
                             <CarouselContent>
                                 {episodesToWatch.map((episode, idx) => (
                                     <CarouselItem
                                         key={episode?.localFile?.path || idx}
-                                        className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/2 min-[2000px]:basis-1/3"
+                                        className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
                                     >
                                         <SliderEpisodeItem
                                             key={episode.localFile?.path || ""}
@@ -155,8 +130,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     />
 
                     {specialEpisodes.length > 0 && <>
-                        <Separator />
-                        <h3>Specials</h3>
+                        <h2>Specials</h2>
                         <EpisodeListGrid>
                             {specialEpisodes.map(episode => (
                                 <EpisodeItem
@@ -170,8 +144,7 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                     </>}
 
                     {ncEpisodes.length > 0 && <>
-                        <Separator />
-                        <h3>Others</h3>
+                        <h2>Others</h2>
                         <EpisodeListGrid>
                             {ncEpisodes.map(episode => (
                                 <EpisodeItem
@@ -183,6 +156,8 @@ export function EpisodeSection(props: { entry: MediaEntry }) {
                             ))}
                         </EpisodeListGrid>
                     </>}
+
+                    <RelationsRecommendationsSection entry={entry} details={details} />
 
                 </div>
             </AppLayoutStack>

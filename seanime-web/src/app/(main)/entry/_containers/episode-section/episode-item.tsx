@@ -102,7 +102,7 @@ const metadataSchema = defineSchema(({ z }) => z.object({
     type: z.string().min(0),
 }))
 
-export function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
+function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
@@ -182,7 +182,7 @@ function EpisodeItemInfoModalButton() {
     />
 }
 
-export function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
+function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
 
     const {
         episode,

@@ -4,11 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## v1.1.2
 
+- ✨ Added support for TVDB images
+    - Fix missing episode images by fetching complementary TVDB metadata for specific media
+- ⚡️ Improved smart search results for AnimeTosho
+- ⚡️ Unresolved file manager sends fewer requests
+- 🚑️ Fixed runtime error caused by Auto Downloader
 - 🚑️ Fixed bug introduced in v1.1.1 making some pages inaccessible
 - 🦺 Removed ambiguous "add to collection" button
 - 🦺 Fixed start and completion dates not showing when modifying AniList entries on "My Lists" pages
+- 🦺 Fixed Auto Downloader skipping last episodes
+- 🦺 Fixed smart search torrent previews
+- 🦺 Fixed trailers
+- 🏗️ Refactored episode metadata code
 
 ## v1.1.1
+
+This release introduced a major bug, skip to v1.1.2+
 
 - ✨ Added support for TVDB images
     - Fix missing episode images by fetching complementary TVDB metadata for specific media
