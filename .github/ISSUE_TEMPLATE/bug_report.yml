@@ -14,7 +14,7 @@ body:
             My version of the app is the latest available
           required: true
         - label: >-
-            I checked open and closed [issues](https://github.com/5rahim/seanime/issues).
+            I checked open and closed [issues](https://github.com/5rahim/seanime/issues)
           required: true
         - label: >-
             I checked the [docs](https://seanime.rahim.app/docs/faq) for a fix
@@ -25,6 +25,7 @@ body:
       label: Bug Severity
       description: Select the severity of the bug. Anything below "Panic" means the app doesn't crash.
       options:
+        - Not sure
         - Panic / Crash
         - Usability is affected
         - Low
@@ -36,13 +37,13 @@ body:
       label: Bug Area
       description: Select the general area of the app or process during which the bug occurred.
       options:
+        - Not sure
         - Authentication
         - Scanning
         - Watching
         - Browsing
         - Settings
         - Downloading
-        - Other
     validations:
       required: true
   - type: textarea
@@ -62,7 +63,7 @@ body:
     attributes:
       label: App Version
       description: Enter the version of Seanime you are using.
-      placeholder: v2.0.1
+      placeholder: v1.0.0
     validations:
       required: true
   - type: dropdown
