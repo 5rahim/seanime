@@ -1,6 +1,6 @@
 "use client"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_containers/discover-sections/header"
-import { DiscoverPopular } from "@/app/(main)/discover/_containers/discover-sections/popular"
+import { DiscoverPastSeason, DiscoverPopular } from "@/app/(main)/discover/_containers/discover-sections/popular"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-sections/trending-movies"
 import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-sections/upcoming"
@@ -22,6 +22,10 @@ export default function Page() {
                 <div className="space-y-2 z-[5] relative">
                     <h2>Popular this season</h2>
                     <DiscoverTrending />
+                </div>
+                <div className="space-y-2 z-[5] relative">
+                    <h2>Highest rated last season</h2>
+                    <DiscoverPastSeason />
                 </div>
                 <div className="space-y-2 z-[5] relative">
                     <h2>Upcoming</h2>

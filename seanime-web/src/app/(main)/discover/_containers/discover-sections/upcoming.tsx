@@ -6,7 +6,8 @@ import React from "react"
 
 export function DiscoverUpcoming() {
 
-    const { data, isLoading } = useDiscoverUpcomingAnime()
+    const ref = React.useRef<HTMLDivElement>(null)
+    const { data, isLoading } = useDiscoverUpcomingAnime(ref)
 
     return (
         <Carousel
@@ -19,7 +20,7 @@ export function DiscoverUpcoming() {
         >
             {/*<CarouselMasks />*/}
             <CarouselDotButtons />
-            <CarouselContent className="px-6">
+            <CarouselContent className="px-6" ref={ref}>
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
 

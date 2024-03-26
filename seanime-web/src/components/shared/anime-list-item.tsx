@@ -1,5 +1,6 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_loaders/library-collection"
+import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { AnimeListItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
@@ -41,7 +42,9 @@ const actionPopupHoverAtom = atom<number | undefined>(undefined)
 
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
+    const status = useAtomValue(serverStatusAtom)
     const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton, showTrailer } = props
+
 
     const [listData, setListData] = useState(_listData)
     const [libraryData, setLibraryData] = useState(_libraryData)
@@ -177,6 +180,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         {!!libraryData &&
                             <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
                         {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} />}
+                        <AnimeEntryAudienceScore meanScore={media.meanScore} hideAudienceScore={status?.settings?.anilist?.hideAudienceScore} />
                     </div>
                 </div>
             </div>
@@ -246,7 +250,6 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         fill
                         placeholder={imageShimmer(700, 475)}
                         quality={100}
-                        priority
                         sizes="20rem"
                         className="object-cover object-center group-hover/anime-list-item:scale-125 transition"
                     />

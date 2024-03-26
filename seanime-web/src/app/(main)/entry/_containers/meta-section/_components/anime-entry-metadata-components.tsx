@@ -54,7 +54,7 @@ export function AnimeEntryAudienceScore(props: AnimeEntryAudienceScoreProps) {
         <Badge
             className=""
             size="lg"
-            intent={meanScore >= 70 ? meanScore >= 85 ? "primary" : "success" : "gray"}
+            intent={meanScore >= 70 ? meanScore >= 82 ? "primary" : "success" : "gray"}
             leftIcon={<BiHeart />}
         >{meanScore / 10}</Badge>
     )
