@@ -39,9 +39,19 @@ export function DiscoverTrending() {
         return () => clearInterval(t)
     }, [isHoveringHeader])
 
-    useEffect(() => {
-        setRandomTrendingAtom(data?.Page?.media?.filter(Boolean)[randomNumber])
+    const firedRef = React.useRef(false)
+    React.useEffect(() => {
+        if (!firedRef.current && data) {
+            setRandomTrendingAtom(data?.Page?.media?.filter(Boolean)[randomNumber])
+            firedRef.current = true
+        }
     }, [data, randomNumber])
+
+    React.useEffect(() => {
+        if (firedRef.current) {
+            setRandomTrendingAtom(data?.Page?.media?.filter(Boolean)[randomNumber])
+        }
+    }, [randomNumber])
 
     return (
         <Carousel

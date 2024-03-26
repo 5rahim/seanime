@@ -18,11 +18,10 @@ export function DiscoverPopular() {
             autoScroll
         >
             {/*<CarouselMasks />*/}
-            <CarouselDotButtons />
+            <CarouselDotButtons flag={data?.Page?.media} />
             <CarouselContent className="px-6">
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-
                         <AnimeListItem
                             key={media.id}
                             media={media}

@@ -2,9 +2,9 @@
 
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { cva } from "class-variance-authority"
-import { EmblaCarouselType, EmblaOptionsType, EmblaPluginType } from "embla-carousel"
+import { EmblaCarouselType } from "embla-carousel"
 import AutoScroll from "embla-carousel-autoplay"
-import useEmblaCarousel from "embla-carousel-react"
+import useEmblaCarousel, { UseEmblaCarouselType } from "embla-carousel-react"
 import * as React from "react"
 import { Button, ButtonProps, IconButton } from "../button"
 import { cn, defineStyleAnatomy } from "../core/styling"
@@ -103,9 +103,15 @@ function useCarousel() {
     return context
 }
 
+export type CarouselApi = UseEmblaCarouselType[1]
+export type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
+export type CarouselOptions = UseCarouselParameters[0]
+export type CarouselPlugin = UseCarouselParameters[1]
+
+
 export type CarouselProps = {
-    opts?: EmblaOptionsType
-    plugins?: EmblaPluginType[]
+    opts?: CarouselOptions
+    plugins?: CarouselPlugin
     orientation?: "horizontal" | "vertical"
     gap?: "none" | "sm" | "md" | "lg" | "xl"
     setApi?: (api: EmblaCarouselType) => void
@@ -347,6 +353,7 @@ type UseDotButtonType = {
     onDotButtonClick: (index: number) => void
 }
 
+
 export const useDotButton = (): UseDotButtonType => {
     const { api: emblaApi } = useCarousel()
     const [selectedIndex, setSelectedIndex] = React.useState(0)
@@ -403,9 +410,13 @@ const DotButton = (props: ButtonProps) => {
 }
 
 
-export const CarouselDotButtons = (props: { className?: string }) => {
+export const CarouselDotButtons = (props: { className?: string, flag?: any }) => {
 
     const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton()
+
+    React.useEffect(() => {
+        onDotButtonClick(0)
+    }, [onDotButtonClick, scrollSnaps, props.flag])
 
     if (scrollSnaps.length > 30) return null
 

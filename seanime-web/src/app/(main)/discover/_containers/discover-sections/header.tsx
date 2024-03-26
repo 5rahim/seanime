@@ -4,7 +4,7 @@ import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import Image from "next/image"
@@ -15,6 +15,8 @@ import { FiSearch } from "react-icons/fi"
 import { RiSignalTowerLine } from "react-icons/ri"
 
 export const __discover_hoveringHeaderAtom = atom(false)
+
+const MotionImage = motion(Image)
 
 export function DiscoverPageHeader() {
 
@@ -32,31 +34,35 @@ export function DiscoverPageHeader() {
             <div
                 className="CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[48rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-75% to-transparent via"
             />
-            <motion.div
-                {...{
-                    initial: { opacity: 0 },
-                    animate: { opacity: 1 },
-                    exit: { opacity: 0 },
-                    transition: { delay: 0.2, duration: 0.5 },
-                }}
+            <div
+
                 className="lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
             >
                 <div
                     className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
-                {(!!randomTrending?.bannerImage || !!randomTrending?.coverImage?.extraLarge) && <Image
-                    src={randomTrending.bannerImage || randomTrending.coverImage?.extraLarge!}
-                    alt="banner image"
-                    fill
-                    quality={100}
-                    priority
-                    sizes="100vw"
-                    className={cn(
-                        "object-cover object-center z-[1] transition-opacity duration-1000",
-                        isTransitioning && "opacity-10",
-                        !isTransitioning && "opacity-100",
+                <AnimatePresence>
+                    {(!!randomTrending?.bannerImage || !!randomTrending?.coverImage?.extraLarge) && !isTransitioning && (
+                        <MotionImage
+                            src={randomTrending.bannerImage || randomTrending.coverImage?.extraLarge!}
+                            alt="banner image"
+                            fill
+                            quality={100}
+                            priority
+                            sizes="100vw"
+                            {...{
+                                initial: { opacity: 0.1 },
+                                animate: { opacity: 1 },
+                                exit: { opacity: 0 },
+                                transition: {
+                                    duration: 1.2,
+                                },
+                            }}
+                            className={cn(
+                                "object-cover object-center z-[1] transition-opacity duration-1000")}
+                        />
                     )}
-                />}
+                </AnimatePresence>
 
                 <Image
                     src={"/mask.png"}
@@ -70,76 +76,78 @@ export function DiscoverPageHeader() {
                     )}
                 />
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
-                {!!randomTrending && (
-                    <motion.div
-                        {...{
-                            initial: { opacity: 0, y: -40 },
-                            animate: { opacity: 1, y: 0 },
-                            exit: { opacity: 0, y: -40 },
-                            transition: {
-                                delay: 0.5,
-                                type: "spring",
-                                damping: 20,
-                                stiffness: 100,
-                            },
-                        }}
-                        className="absolute bottom-[8rem] right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block"
-                    >
-                        <div
-                            className="flex flex-row-reverse relative items-start gap-6 p-6 pr-3 w-fit overflow-hidden"
-                            onMouseEnter={() => setHoveringHeader(true)}
-                            onMouseLeave={() => setHoveringHeader(false)}
+                <AnimatePresence>
+                    {(!!randomTrending && !isTransitioning) && (
+                        <motion.div
+                            {...{
+                                initial: { opacity: 0, y: -40 },
+                                animate: { opacity: 1, y: 0 },
+                                exit: { opacity: 0, y: -40 },
+                                transition: {
+                                    type: "spring",
+                                    damping: 20,
+                                    stiffness: 100,
+                                },
+                            }}
+                            className="absolute bottom-[8rem] right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block"
                         >
-                            <div className="flex-none">
-                                {randomTrending.coverImage?.large && <div
-                                    className="w-[180px] h-[240px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
-                                >
-                                    <Image
-                                        src={randomTrending.coverImage.large}
-                                        alt="cover image"
-                                        fill
-                                        priority
-                                        className={cn(
-                                            "object-cover object-center transition-opacity duration-1000",
-                                            isTransitioning && "opacity-30",
-                                            !isTransitioning && "opacity-100",
-                                        )}
-                                    />
-                                </div>}
-                            </div>
-                            <div className="flex-auto space-y-1 z-[1] text-center">
-                                <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
-                                <div className="flex items-center justify-center max-w-md gap-4">
-                                    {!!randomTrending?.nextAiringEpisode?.airingAt &&
-                                        <p className="text-lg text-brand-200 inline-flex items-center gap-1.5"><RiSignalTowerLine /> Airing now</p>}
-                                    {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
-                                        <p className="text-lg font-semibold">
-                                            {!!randomTrending.nextAiringEpisode?.episode ?
-                                                <span>{randomTrending.nextAiringEpisode.episode} episodes</span> :
-                                                <span>{randomTrending.episodes} episodes</span>}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="pt-2">
-                                    <ScrollArea className="max-w-md leading-6 h-[75px] mb-4">{(randomTrending as any)?.description?.replace(
-                                        /(<([^>]+)>)/ig,
-                                        "")}</ScrollArea>
-                                    <Link
-                                        href={`/entry?id=${randomTrending.id}`}
+                            <div
+                                className="flex flex-row-reverse relative items-start gap-6 p-6 pr-3 w-fit overflow-hidden"
+                                onMouseEnter={() => setHoveringHeader(true)}
+                                onMouseLeave={() => setHoveringHeader(false)}
+                            >
+                                <div className="flex-none">
+                                    {randomTrending.coverImage?.large && <div
+                                        className="w-[180px] h-[240px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
                                     >
-                                        <Button
-                                            intent="primary-outline"
-                                            size="md"
-                                            className="text-md w-[14rem] border-opacity-50 text-sm"
+                                        <Image
+                                            src={randomTrending.coverImage.large}
+                                            alt="cover image"
+                                            fill
+                                            priority
+                                            className={cn(
+                                                "object-cover object-center transition-opacity duration-1000",
+                                                isTransitioning && "opacity-30",
+                                                !isTransitioning && "opacity-100",
+                                            )}
+                                        />
+                                    </div>}
+                                </div>
+                                <div className="flex-auto space-y-1 z-[1] text-center">
+                                    <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
+                                    <div className="flex items-center justify-center max-w-md gap-4">
+                                        {!!randomTrending?.nextAiringEpisode?.airingAt &&
+                                            <p className="text-lg text-brand-200 inline-flex items-center gap-1.5"><RiSignalTowerLine /> Airing now
+                                            </p>}
+                                        {(!!randomTrending?.nextAiringEpisode || !!randomTrending.episodes) && (
+                                            <p className="text-lg font-semibold">
+                                                {!!randomTrending.nextAiringEpisode?.episode ?
+                                                    <span>{randomTrending.nextAiringEpisode.episode} episodes</span> :
+                                                    <span>{randomTrending.episodes} episodes</span>}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="pt-2">
+                                        <ScrollArea className="max-w-md leading-6 h-[75px] mb-4">{(randomTrending as any)?.description?.replace(
+                                            /(<([^>]+)>)/ig,
+                                            "")}</ScrollArea>
+                                        <Link
+                                            href={`/entry?id=${randomTrending.id}`}
                                         >
-                                            Watch now
-                                        </Button>
-                                    </Link>
+                                            <Button
+                                                intent="primary-outline"
+                                                size="md"
+                                                className="text-md w-[14rem] border-opacity-50 text-sm"
+                                            >
+                                                Watch now
+                                            </Button>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
-                )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
                 <div
                     className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                 />
@@ -168,7 +176,7 @@ export function DiscoverPageHeader() {
                         }}
                     />
                 </motion.div>
-            </motion.div>
+            </div>
         </motion.div>
     )
 
