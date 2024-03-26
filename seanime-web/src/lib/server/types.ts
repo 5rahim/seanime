@@ -550,18 +550,11 @@ export type AnilistCollectionEntry = {
         synonyms?: Array<string | null> | null,
         isAdult?: boolean | null,
         countryOfOrigin?: any | null,
-        title?: {
-            userPreferred?: string | null,
-            romaji?: string | null,
-            english?: string | null,
-            native?: string | null
-        } | null,
-        coverImage?: {
-            extraLarge?: string | null,
-            large?: string | null,
-            medium?: string | null,
-            color?: string | null
-        } | null,
+        meanScore?: number | null,
+        description?: string | null,
+        trailer?: { id?: string | null, site?: string | null, thumbnail?: string | null } | null,
+        title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
+        coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
         startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
         endDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
         nextAiringEpisode?: { airingAt: number, timeUntilAiring: number, episode: number } | null,
@@ -581,25 +574,14 @@ export type AnilistCollectionEntry = {
                     synonyms?: Array<string | null> | null,
                     isAdult?: boolean | null,
                     countryOfOrigin?: any | null,
-                    title?: {
-                        userPreferred?: string | null,
-                        romaji?: string | null,
-                        english?: string | null,
-                        native?: string | null
-                    } | null,
-                    coverImage?: {
-                        extraLarge?: string | null,
-                        large?: string | null,
-                        medium?: string | null,
-                        color?: string | null
-                    } | null,
+                    meanScore?: number | null,
+                    description?: string | null,
+                    trailer?: { id?: string | null, site?: string | null, thumbnail?: string | null } | null,
+                    title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
+                    coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
                     startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
                     endDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
-                    nextAiringEpisode?: {
-                        airingAt: number,
-                        timeUntilAiring: number,
-                        episode: number
-                    } | null
+                    nextAiringEpisode?: { airingAt: number, timeUntilAiring: number, episode: number } | null
                 } | null
             } | null> | null
         } | null

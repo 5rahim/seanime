@@ -12,15 +12,15 @@ export const enum SeaEndpoints {
      * AniList
      */
     ANILIST_LIST_ENTRY = "/anilist/list-entry", // (POST)
-    ANILIST_LIST_ENTRY_PROGRESS = "/anilist/list-entry/progress", // (POST)
     ANILIST_COLLECTION = "/anilist/collection", // (GET, POST)
     ANILIST_MEDIA_DETAILS = "/anilist/media-details/{id}", // (GET)
+    ANILIST_LIST_ANIME = "/anilist/list-anime", // (POST)
+    ANILIST_LIST_RECENT_ANIME = "/anilist/list-recent-anime", // (POST)
     /**
      * MAL
      */
     MAL_AUTH = "/mal/auth",
     MAL_LOGOUT = "/mal/logout",
-    MAL_LIST_ENTRY_PROGRESS = "/mal/list-entry/progress", // (POST)
     /**
      * List Sync
      */

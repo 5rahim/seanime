@@ -1,4 +1,3 @@
-import { useMediaDetails } from "@/app/(main)/entry/_lib/media-entry"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
@@ -7,7 +6,7 @@ import React from "react"
 
 type PlaylistsModalProps = {
     trigger?: React.ReactElement
-    mediaId: number
+    trailerId?: string | null
     isOpen?: boolean
     setIsOpen?: (v: boolean) => void
 }
@@ -16,7 +15,7 @@ export function TrailerModal(props: PlaylistsModalProps) {
 
     const {
         trigger,
-        mediaId,
+        trailerId,
         isOpen,
         setIsOpen,
         ...rest
@@ -40,30 +39,27 @@ export function TrailerModal(props: PlaylistsModalProps) {
                     />
                 </div>
 
-                <Content mediaId={mediaId} />
+                <Content trailerId={trailerId} />
             </Drawer>
         </>
     )
 }
 
 type ContentProps = {
-    mediaId: number
+    trailerId?: string | null
 }
 
 export function Content(props: ContentProps) {
 
     const {
-        mediaId,
+        trailerId,
         ...rest
     } = props
 
-    const { mediaDetails, mediaDetailsLoading } = useMediaDetails(mediaId)
     const [loaded, setLoaded] = React.useState(true)
     const [muted, setMuted] = React.useState(true)
 
-    if (mediaDetailsLoading) return <LoadingSpinner className="" />
-
-    if (!mediaDetails?.trailer) return <LuffyError title="No trailer found" />
+    if (!trailerId) return <LuffyError title="No trailer found" />
 
     return (
         <>
@@ -75,7 +71,7 @@ export function Content(props: ContentProps) {
                 )}
             >
                 <iframe
-                    src={`https://www.youtube.com/embed/${mediaDetails?.trailer?.id}`}
+                    src={`https://www.youtube.com/embed/${trailerId}`}
                     title="YouTube Video"
                     className="w-full h-full"
                     allowFullScreen

@@ -18,6 +18,7 @@ export function AdvancedSearchList() {
                     key={`${media.id}`}
                     media={media}
                     showLibraryBadge={true}
+                    showTrailer
                 />
             ))}
             {((data?.pages.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean) || []).length > 0 && hasNextPage) &&

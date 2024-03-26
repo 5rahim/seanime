@@ -16,7 +16,7 @@ export const __discover_headerIsTransitioningAtom = atom(false)
 
 export function DiscoverTrending() {
 
-    const { data, isLoading, fetchNextPage } = useDiscoverTrendingAnime()
+    const { data, isLoading } = useDiscoverTrendingAnime()
     const setRandomTrendingAtom = useSetAtom(__discover_randomTrendingAtom)
     const isHoveringHeader = useAtomValue(__discover_hoveringHeaderAtom)
     const setHeaderIsTransitioning = useSetAtom(__discover_headerIsTransitioningAtom)
@@ -40,7 +40,7 @@ export function DiscoverTrending() {
     }, [isHoveringHeader])
 
     useEffect(() => {
-        setRandomTrendingAtom(data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean)[randomNumber])
+        setRandomTrendingAtom(data?.Page?.media?.filter(Boolean)[randomNumber])
     }, [data, randomNumber])
 
     return (
@@ -56,7 +56,7 @@ export function DiscoverTrending() {
             {/*<CarouselMasks />*/}
             <CarouselDotButtons />
             <CarouselContent className="px-6">
-                {!isLoading ? data?.pages?.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean).map(media => {
+                {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
 
                         <AnimeListItem
@@ -64,6 +64,7 @@ export function DiscoverTrending() {
                             media={media}
                             showLibraryBadge
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                            showTrailer
                         />
                     )
                 }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}

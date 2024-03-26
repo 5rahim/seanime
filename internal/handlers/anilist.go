@@ -3,7 +3,9 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/util/result"
 	"strconv"
+	"time"
 )
 
 func HandleGetAnilistCollection(c *RouteCtx) error {
@@ -53,40 +55,6 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 	_, _ = c.App.RefreshAnilistCollection()
 
 	return c.RespondWithData(ret)
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-// HandleEditAnilistListEntryProgress
-// DEPRECATED
-func HandleEditAnilistListEntryProgress(c *RouteCtx) error {
-
-	type body struct {
-		MediaId  *int `json:"mediaId"`
-		Progress *int `json:"progress"`
-		Episodes *int `json:"episodes"`
-	}
-
-	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	// Update the progress
-	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
-		c.Fiber.Context(),
-		p.MediaId,
-		p.Progress,
-		p.Episodes,
-	)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	// Refresh the anilist collection
-	_, _ = c.App.RefreshAnilistCollection()
-
-	return c.RespondWithData(true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -147,6 +115,128 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 
 	// Refresh the anilist collection
 	_, _ = c.App.RefreshAnilistCollection()
+
+	return c.RespondWithData(ret)
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+var (
+	anilistListMediaCache       = result.NewCache[string, *anilist.ListMedia]()
+	anilistListRecentMediaCache = result.NewCache[string, *anilist.ListRecentMedia]() // holds 1 value
+)
+
+// HandleAnilistListAnime is used by the "Discover" page
+//
+//	POST /v1/anilist/list-anime
+func HandleAnilistListAnime(c *RouteCtx) error {
+
+	type body struct {
+		Page                *int                   `json:"page,omitempty"`
+		Search              *string                `json:"search,omitempty"`
+		PerPage             *int                   `json:"perPage,omitempty"`
+		Sort                []*anilist.MediaSort   `json:"sort,omitempty"`
+		Status              []*anilist.MediaStatus `json:"status,omitempty"`
+		Genres              []*string              `json:"genres,omitempty"`
+		AverageScoreGreater *int                   `json:"averageScoreGreater,omitempty"`
+		Season              *anilist.MediaSeason   `json:"season,omitempty"`
+		SeasonYear          *int                   `json:"seasonYear,omitempty"`
+		Format              *anilist.MediaFormat   `json:"format,omitempty"`
+	}
+
+	p := new(body)
+	if err := c.Fiber.BodyParser(p); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if p.Page == nil || p.PerPage == nil {
+		*p.Page = 1
+		*p.PerPage = 20
+	}
+
+	cacheKey := anilist.ListMediaCacheKey(
+		p.Page,
+		p.Search,
+		p.PerPage,
+		p.Sort,
+		p.Status,
+		p.Genres,
+		p.AverageScoreGreater,
+		p.Season,
+		p.SeasonYear,
+		p.Format,
+	)
+
+	cached, ok := anilistListMediaCache.Get(cacheKey)
+	if ok {
+		return c.RespondWithData(cached)
+	}
+
+	ret, err := anilist.ListMediaM(
+		p.Page,
+		p.Search,
+		p.PerPage,
+		p.Sort,
+		p.Status,
+		p.Genres,
+		p.AverageScoreGreater,
+		p.Season,
+		p.SeasonYear,
+		p.Format,
+		c.App.Logger,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	anilistListMediaCache.SetT(cacheKey, ret, time.Minute*10)
+
+	return c.RespondWithData(ret)
+}
+
+// HandleAnilistListRecentAiringAnime is used by the "Schedule" page
+//
+//	POST /v1/anilist/list-recent-anime
+func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
+
+	type body struct {
+		Page            *int    `json:"page,omitempty"`
+		Search          *string `json:"search,omitempty"`
+		PerPage         *int    `json:"perPage,omitempty"`
+		AiringAtGreater *int    `json:"airingAt_greater,omitempty"`
+		AiringAtLesser  *int    `json:"airingAt_lesser,omitempty"`
+	}
+
+	p := new(body)
+	if err := c.Fiber.BodyParser(p); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if p.Page == nil || p.PerPage == nil {
+		*p.Page = 1
+		*p.PerPage = 50
+	}
+
+	cacheKey := "recent_airing_anime"
+
+	cached, ok := anilistListRecentMediaCache.Get(cacheKey)
+	if ok {
+		return c.RespondWithData(cached)
+	}
+
+	ret, err := anilist.ListRecentAiringMediaM(
+		p.Page,
+		p.Search,
+		p.PerPage,
+		p.AiringAtGreater,
+		p.AiringAtLesser,
+		c.App.Logger,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	anilistListRecentMediaCache.SetT(cacheKey, ret, time.Minute*10)
 
 	return c.RespondWithData(ret)
 }

@@ -113,9 +113,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// POST /v1/anilist/list-entry
 	v1Anilist.Delete("/list-entry", makeHandler(app, HandleDeleteAnilistListEntry))
 
-	// Edit AniList List Entry's progress
-	// POST /v1/anilist/list-entry
-	v1Anilist.Post("/list-entry/progress", makeHandler(app, HandleEditAnilistListEntryProgress))
+	v1Anilist.Post("/list-anime", makeHandler(app, HandleAnilistListAnime))
+	v1Anilist.Post("/list-recent-anime", makeHandler(app, HandleAnilistListRecentAiringAnime))
 
 	//
 	// MAL

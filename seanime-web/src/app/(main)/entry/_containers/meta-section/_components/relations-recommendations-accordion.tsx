@@ -54,6 +54,8 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                             >{edge.node?.format === "MOVIE"
                                                 ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
                                                 : capitalize(edge.relationType || "").replace("_", " ")}</Badge>}
+                                            showLibraryBadge
+                                            showTrailer
                                         />
                                     </div>
                                 })}
@@ -71,6 +73,8 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                 return <div key={media.id} className="col-span-1">
                                     <AnimeListItem
                                         media={media!}
+                                        showLibraryBadge
+                                        showTrailer
                                     />
                                 </div>
                             })}

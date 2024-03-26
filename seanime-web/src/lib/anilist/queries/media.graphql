@@ -69,6 +69,11 @@ query MediaDetailsById ($id: Int) {
         popularity
         meanScore
         description
+        trailer {
+            id
+            site
+            thumbnail
+        }
         startDate {
             year
             month
@@ -98,6 +103,22 @@ query MediaDetailsById ($id: Int) {
                 node {
                     mediaRecommendation {
                         id
+                        season
+                        type
+                        format
+                        meanScore
+                        description
+                        episodes
+                        trailer {
+                            id
+                            site
+                            thumbnail
+                        }
+                        startDate {
+                            year
+                            month
+                            day
+                        }
                         coverImage {
                             extraLarge
                             large
@@ -176,6 +197,13 @@ fragment basicMedia on Media {
     synonyms
     isAdult
     countryOfOrigin
+    meanScore
+    description
+    trailer {
+        id
+        site
+        thumbnail
+    }
     title {
         userPreferred
         romaji
@@ -219,6 +247,13 @@ fragment baseMedia on Media {
     synonyms
     isAdult
     countryOfOrigin
+    meanScore
+    description
+    trailer {
+        id
+        site
+        thumbnail
+    }
     title {
         userPreferred
         romaji

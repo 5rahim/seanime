@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useDebounce } from "@/hooks/use-debounce"
-import { searchAnilistMediaList } from "@/lib/anilist/queries/search-media"
+import { ListMediaQuery } from "@/lib/anilist/gql/graphql"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { buildSeaQuery, useSeaQuery } from "@/lib/server/query"
 import { Combobox, Dialog, Transition } from "@headlessui/react"
-import { useQuery } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -33,15 +34,21 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
 
     const [open, setOpen] = useAtom(__globalSearch_isOpenAtom)
 
-    const { data: media, isLoading, isFetching, fetchStatus } = useQuery({
+    const { data: media, isLoading, isFetching, fetchStatus } = useSeaQuery({
         queryKey: ["global-search", query, query.length],
+        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
+        method: "post",
         queryFn: async () => {
-            const res = await searchAnilistMediaList({
-                search: query,
-                page: 1,
-                perPage: 10,
-                status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
-                sort: ["SEARCH_MATCH"],
+            const res = await buildSeaQuery<ListMediaQuery>({
+                endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
+                method: "post",
+                data: {
+                    search: query,
+                    page: 1,
+                    perPage: 10,
+                    status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
+                    sort: ["SEARCH_MATCH"],
+                },
             })
             return res?.Page?.media?.filter(Boolean) ?? []
         },
@@ -63,7 +70,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity backdrop-blur-sm"/>
+                        <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity backdrop-blur-sm" />
                     </Transition.Child>
 
                     <div className="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">
@@ -77,7 +84,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                             leaveTo="opacity-0 scale-95"
                         >
                             <Dialog.Panel
-                                className="mx-auto max-w-3xl transform overflow-hidden space-y-4 transition-all">
+                                className="mx-auto max-w-3xl transform overflow-hidden space-y-4 transition-all"
+                            >
                                 <Combobox>
                                     {({ activeOption }: any) => (
                                         <>
@@ -134,7 +142,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                                     {({ active }) => (
                                                                         <>
                                                                             <div
-                                                                                className="h-10 w-10 flex-none rounded-md object-cover object-center relative overflow-hidden">
+                                                                                className="h-10 w-10 flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                                                            >
                                                                                 {item.coverImage?.medium && <Image
                                                                                     src={item.coverImage?.medium}
                                                                                     alt={""}
@@ -146,7 +155,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                                                 />}
                                                                             </div>
                                                                             <span
-                                                                                className="ml-3 flex-auto truncate">{item.title?.userPreferred}</span>
+                                                                                className="ml-3 flex-auto truncate"
+                                                                            >{item.title?.userPreferred}</span>
                                                                             {active && (
                                                                                 <BiChevronRight
                                                                                     className="ml-3 h-7 w-7 flex-none text-gray-400"
@@ -162,10 +172,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
 
                                                     {activeOption && (
                                                         <div
-                                                            className="hidden min-h-96 w-1/2 flex-none flex-col overflow-y-auto sm:flex p-4">
+                                                            className="hidden min-h-96 w-1/2 flex-none flex-col overflow-y-auto sm:flex p-4"
+                                                        >
                                                             <div className="flex-none p-6 text-center">
                                                                 <div
-                                                                    className="h-40 w-32 mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden">
+                                                                    className="h-40 w-32 mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                                                >
                                                                     {activeOption.coverImage?.large && <Image
                                                                         src={activeOption.coverImage?.large}
                                                                         alt={""}
@@ -178,14 +190,19 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                                 </div>
                                                                 <h4 className="mt-3 font-semibold text-[--foreground] line-clamp-3">{activeOption.title?.userPreferred}</h4>
                                                                 <p className="text-sm leading-6 text-[--muted]">
-                                                                    {activeOption.format}{activeOption.season ? ` - ${capitalize(activeOption.season)} ` : " - "}{activeOption.startDate?.year
+                                                                    {activeOption.format}{activeOption.season
+                                                                    ? ` - ${capitalize(activeOption.season)} `
+                                                                    : " - "}{activeOption.startDate?.year
                                                                     ? new Intl.DateTimeFormat("en-US", { year: "numeric" })
-                                                                        .format(new Date(activeOption.startDate?.year || 0, activeOption.startDate?.month || 0))
+                                                                        .format(new Date(activeOption.startDate?.year || 0,
+                                                                            activeOption.startDate?.month || 0))
                                                                     : "-"}
                                                                 </p>
                                                             </div>
-                                                            <Link href={`/entry?id=${activeOption.id}`}
-                                                                  onClick={() => setOpen(false)}>
+                                                            <Link
+                                                                href={`/entry?id=${activeOption.id}`}
+                                                                onClick={() => setOpen(false)}
+                                                            >
                                                                 <Button
                                                                     type="button"
                                                                     className="w-full"
@@ -200,13 +217,14 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                             )}
 
                                             {(query !== "" && (!media || media.length === 0) && (isLoading || isFetching)) && (
-                                                <LoadingSpinner/>
+                                                <LoadingSpinner />
                                             )}
 
                                             {query !== "" && !isLoading && !isFetching && (!media || media.length === 0) && (
                                                 <div className="py-14 px-6 text-center text-sm sm:px-14">
                                                     {<div
-                                                        className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden">
+                                                        className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                                    >
                                                         <Image
                                                             src="/luffy-01.png"
                                                             alt={""}
@@ -218,7 +236,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                         />
                                                     </div>}
                                                     <h5 className="mt-4 font-semibold text-[--foreground]">Nothing
-                                                        found</h5>
+                                                                                                           found</h5>
                                                     <p className="mt-2 text-[--muted]">
                                                         We couldn't find anything with that name. Please try again.
                                                     </p>

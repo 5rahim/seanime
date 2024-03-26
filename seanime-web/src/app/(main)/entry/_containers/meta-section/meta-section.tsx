@@ -175,8 +175,8 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                 </Button>
                             </Link>
 
-                            {details?.trailer?.id && <TrailerModal
-                                mediaId={entry.mediaId} trigger={
+                            {!!entry?.media?.trailer?.id && <TrailerModal
+                                trailerId={entry?.media?.trailer?.id} trigger={
                                 <Button intent="gray-link" className="px-0">
                                     Watch Trailer
                                 </Button>

@@ -123,7 +123,7 @@ export function LegacyMetaSection(props: { entry: MediaEntry, details: MediaDeta
                         </Link>
 
                         <TrailerModal
-                            mediaId={entry.mediaId} trigger={
+                            trailerId={entry.media?.trailer?.id} trigger={
                             <Button intent="gray-link" className="px-0">
                                 Watch Trailer
                             </Button>

@@ -46,6 +46,8 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                                     >{edge.node?.format === "MOVIE"
                                         ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
                                         : capitalize(edge.relationType || "").replace("_", " ")}</Badge>}
+                                    showLibraryBadge
+                                    showTrailer
                                 />
                             </div>
                         })}
@@ -59,6 +61,8 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                         return <div key={media.id} className="col-span-1">
                             <AnimeListItem
                                 media={media!}
+                                showLibraryBadge
+                                showTrailer
                             />
                         </div>
                     })}

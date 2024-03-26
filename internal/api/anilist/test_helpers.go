@@ -390,7 +390,7 @@ func (c *MockClientWrapper) CompleteMediaByID(ctx context.Context, id *int, inte
 	panic("not implemented")
 }
 func (c *MockClientWrapper) ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error) {
-	panic("not implemented")
+	return c.realClientWrapper.ListMedia(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, interceptors...)
 }
 func (c *MockClientWrapper) ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error) {
 	panic("not implemented")

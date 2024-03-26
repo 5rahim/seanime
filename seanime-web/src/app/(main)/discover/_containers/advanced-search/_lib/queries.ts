@@ -1,11 +1,9 @@
+import { __advancedSearch_getValue, __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
+import { ListMediaQuery } from "@/lib/anilist/gql/graphql"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { buildSeaQuery } from "@/lib/server/query"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import {
-    __advancedSearch_getValue,
-    __advancedSearch_paramsAtom,
-} from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
 import { useAtomValue } from "jotai/react"
-
-import { searchAnilistMediaList } from "@/lib/anilist/queries/search-media"
 
 export function useAnilistAdvancedSearch() {
 
@@ -27,7 +25,12 @@ export function useAnilistAdvancedSearch() {
                 sort: (params.title?.length && params.title.length > 0) ? ["SEARCH_MATCH", ...(__advancedSearch_getValue(params.sorting) || ["SCORE_DESC"])] : (__advancedSearch_getValue(params.sorting) || ["SCORE_DESC"]),
                 status: params.sorting?.includes("START_DATE_DESC") ? (__advancedSearch_getValue(params.status)?.filter((n: string) => n !== "NOT_YET_RELEASED") || ["FINISHED", "RELEASING"]) : __advancedSearch_getValue(params.status),
             }
-            return searchAnilistMediaList(variables)
+
+            return buildSeaQuery<ListMediaQuery>({
+                endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
+                method: "post",
+                data: variables,
+            })
         },
         getNextPageParam: (lastPage, pages) => {
             const curr = lastPage?.Page?.pageInfo?.currentPage

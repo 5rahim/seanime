@@ -67,7 +67,6 @@ export function DiscoverPageHeader() {
                     sizes="100vw"
                     className={cn(
                         "object-cover object-right z-[2] transition-opacity duration-1000 opacity-60 hidden lg:block",
-                        "hover:opacity-80",
                     )}
                 />
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
