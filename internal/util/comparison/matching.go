@@ -3,7 +3,6 @@ package comparison
 
 import (
 	"github.com/adrg/strutil/metrics"
-	"github.com/samber/lo"
 )
 
 // LevenshteinResult is a struct that holds a string and its Levenshtein distance compared to another string.
@@ -37,22 +36,18 @@ func CompareWithLevenstein(v *string, vals []*string) []*LevenshteinResult {
 func FindBestMatchWithLevenstein(v *string, vals []*string) (*LevenshteinResult, bool) {
 	res := CompareWithLevenstein(v, vals)
 
-	n := lo.Reduce(res, func(prev *LevenshteinResult, curr *LevenshteinResult, index int) *LevenshteinResult {
-		if prev == nil || curr == nil {
-			return curr
-		}
-		if prev.Distance < curr.Distance {
-			return prev
-		} else {
-			return curr
-		}
-	}, &LevenshteinResult{})
-
-	if n == nil {
+	if len(res) == 0 {
 		return nil, false
 	}
 
-	return n, true
+	var bestResult *LevenshteinResult
+	for _, result := range res {
+		if bestResult == nil || result.Distance < bestResult.Distance {
+			bestResult = result
+		}
+	}
+
+	return bestResult, true
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -84,22 +79,18 @@ func CompareWithSorensenDice(v *string, vals []*string) []*SorensenDiceResult {
 func FindBestMatchWithSorensenDice(v *string, vals []*string) (*SorensenDiceResult, bool) {
 	res := CompareWithSorensenDice(v, vals)
 
-	n := lo.Reduce(res, func(prev *SorensenDiceResult, curr *SorensenDiceResult, index int) *SorensenDiceResult {
-		if prev == nil || curr == nil {
-			return curr
-		}
-		if prev.Rating > curr.Rating {
-			return prev
-		} else {
-			return curr
-		}
-	}, &SorensenDiceResult{})
-
-	if n == nil {
+	if len(res) == 0 {
 		return nil, false
 	}
 
-	return n, true
+	var bestResult *SorensenDiceResult
+	for _, result := range res {
+		if bestResult == nil || result.Rating > bestResult.Rating {
+			bestResult = result
+		}
+	}
+
+	return bestResult, true
 }
 
 func EliminateLeastSimilarValue(arr []string) []string {
