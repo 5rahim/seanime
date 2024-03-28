@@ -1,0 +1,167 @@
+query MangaCollection ($userName: String) {
+  MediaListCollection(userName: $userName, type: MANGA) {
+    lists {
+      status
+      entries {
+        id
+        score
+        progress
+        status
+        notes
+        repeat
+        private
+        startedAt {
+          year
+          month
+          day
+        }
+        completedAt {
+          year
+          month
+          day
+        }
+        media {
+          ...baseManga
+        }
+      }
+    }
+  }
+}
+
+
+query SearchBaseManga($page: Int, $perPage: Int, $sort: [MediaSort], $search: String, $status: [MediaStatus]){
+  Page(page: $page, perPage: $perPage){
+    pageInfo{
+      hasNextPage
+    },
+    media(type: MANGA, search: $search, sort: $sort, status_in: $status, format_not: MUSIC){
+      ...baseManga
+    }
+  }
+}
+
+query BaseMangaById ($id: Int) {
+  Media(id: $id, type: MANGA) {
+    ...baseManga
+  }
+}
+
+# For view (will be cached)
+query MangaDetailsById ($id: Int) {
+  Media(id: $id, type: MANGA) {
+    siteUrl
+    id
+    duration
+    genres
+    rankings {
+      context
+      type
+      rank
+      year
+      format
+      allTime
+      season
+    }
+    recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
+      edges {
+        node {
+          mediaRecommendation {
+            id
+            idMal
+            siteUrl
+            status(version: 2)
+            season
+            type
+            format
+            bannerImage
+            chapters
+            volumes
+            synonyms
+            isAdult
+            countryOfOrigin
+            meanScore
+            description
+            title {
+              userPreferred
+              romaji
+              english
+              native
+            }
+            coverImage {
+              extraLarge
+              large
+              medium
+              color
+            }
+            startDate {
+              year
+              month
+              day
+            }
+            endDate {
+              year
+              month
+              day
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+query ListManga($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat){
+  Page(page: $page, perPage: $perPage){
+    pageInfo{
+      hasNextPage
+      total
+      perPage
+      currentPage
+      lastPage
+    },
+    media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+      ...basicMedia
+    }
+  }
+}
+
+fragment baseManga on Media {
+  id
+  idMal
+  siteUrl
+  status(version: 2)
+  season
+  type
+  format
+  bannerImage
+  chapters
+  volumes
+  synonyms
+  isAdult
+  countryOfOrigin
+  meanScore
+  description
+  title {
+    userPreferred
+    romaji
+    english
+    native
+  }
+  coverImage {
+    extraLarge
+    large
+    medium
+    color
+  }
+  startDate {
+    year
+    month
+    day
+  }
+  endDate {
+    year
+    month
+    day
+  }
+}

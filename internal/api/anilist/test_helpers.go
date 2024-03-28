@@ -398,3 +398,18 @@ func (c *MockClientWrapper) ListRecentMedia(ctx context.Context, page *int, perP
 func (c *MockClientWrapper) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
 	panic("not implemented")
 }
+func (c *MockClientWrapper) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
+	return c.realClientWrapper.MangaCollection(ctx, userName, interceptors...)
+}
+func (c *MockClientWrapper) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
+	return c.realClientWrapper.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
+}
+func (c *MockClientWrapper) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
+	return c.realClientWrapper.BaseMangaByID(ctx, id, interceptors...)
+}
+func (c *MockClientWrapper) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
+	return c.realClientWrapper.MangaDetailsByID(ctx, id, interceptors...)
+}
+func (c *MockClientWrapper) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+	return c.realClientWrapper.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, interceptors...)
+}
