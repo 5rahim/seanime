@@ -7,8 +7,10 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -41,10 +43,12 @@ type (
 )
 
 func NewMangasee(logger *zerolog.Logger) *Mangasee {
+	c := &http.Client{}
+	c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &Mangasee{
 		Url:       "https://mangasee123.com",
-		Client:    &http.Client{},
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		Client:    c,
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }
@@ -52,12 +56,13 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	searchUrl := fmt.Sprintf("%s/_search.php", m.Url)
-	req, err := http.NewRequest("POST", searchUrl, nil)
+	req, err := http.NewRequest("GET", searchUrl, nil)
 	if err != nil {
 		m.logger.Error().Err(err).Msg("mangasee: failed to create request")
 		return nil, err
 	}
 	req.Header.Set("Referer", m.Url)
+	req.Header.Set("User-Agent", m.UserAgent)
 
 	res, err := m.Client.Do(req)
 	if err != nil {
@@ -129,17 +134,18 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 		return nil, errors.New("failed to find chapter data")
 	}
 
+	slices.Reverse(chapterData)
+
 	ret := make([]*ChapterDetails, len(chapterData))
 	for i, chapter := range chapterData {
-		intChapterNum, _ := strconv.Atoi(getChapterNumber(chapter.Chapter))
+		chStr := getChapterNumber(chapter.Chapter)
 		ret[i] = &ChapterDetails{
-			Provider:  MangaseeProvider,
-			Slug:      slug, // e.g. One-Piece
-			Title:     cmp.Or(chapter.ChapterName, fmt.Sprintf("Chapter %d", intChapterNum)),
-			URL:       fmt.Sprintf("%s/read-online/%s-chapter-%d-page-1.html", m.Url, slug, intChapterNum),
-			Number:    intChapterNum,
-			Rating:    0,
-			UpdatedAt: 0,
+			Provider: MangaseeProvider,
+			ID:       slug, // e.g. One-Piece
+			Title:    cmp.Or(chapter.ChapterName, fmt.Sprintf("Chapter %s", chStr)),
+			URL:      fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chStr),
+			Chapter:  chStr,
+			Index:    uint(i),
 		}
 	}
 
@@ -195,7 +201,7 @@ func (m *Mangasee) FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error
 
 		pages = append(pages, &ChapterPage{
 			Provider: MangaseeProvider,
-			Url:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, info.Slug, ch, pageNum),
+			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, info.ID, ch, pageNum),
 			Index:    i,
 			Headers:  map[string]string{"Referer": info.URL},
 		})

@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-func isMostlyLatinString(str string) bool {
+func IsMostlyLatinString(str string) bool {
 	if len(str) <= 0 {
 		return false
 	}

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMangasee_Search(t *testing.T) {
+func TestComicK_Search(t *testing.T) {
 
 	tests := []struct {
 		name  string
@@ -22,16 +22,16 @@ func TestMangasee_Search(t *testing.T) {
 		},
 	}
 
-	mangasee := NewMangasee(util.NewLogger())
+	comick := NewComicK(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			searchRes, err := mangasee.Search(SearchOptions{
+			searchRes, err := comick.Search(SearchOptions{
 				Query: tt.query,
 			})
-			if assert.NoError(t, err, "mangasee.Search() error") {
+			if assert.NoError(t, err, "comick.Search() error") {
 				assert.NotEmpty(t, searchRes, "search result is empty")
 
 				for _, res := range searchRes {
@@ -49,10 +49,9 @@ func TestMangasee_Search(t *testing.T) {
 		})
 
 	}
-
 }
 
-func TestMangasee_FindChapters(t *testing.T) {
+func TestComicK_FindChapters(t *testing.T) {
 
 	tests := []struct {
 		name    string
@@ -60,25 +59,20 @@ func TestMangasee_FindChapters(t *testing.T) {
 		atLeast int
 	}{
 		{
-			name:    "One Piece",
-			id:      "One-Piece",
-			atLeast: 1100,
-		},
-		{
 			name:    "Jujutsu Kaisen",
-			id:      "Jujutsu-Kaisen",
+			id:      "TA22I5O7",
 			atLeast: 250,
 		},
 	}
 
-	mangasee := NewMangasee(util.NewLogger())
+	comick := NewComicK(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			chapters, err := mangasee.FindChapters(tt.id)
-			if assert.NoError(t, err, "mangasee.FindChapters() error") {
+			chapters, err := comick.FindChapters(tt.id)
+			if assert.NoError(t, err, "comick.FindChapters() error") {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
@@ -101,7 +95,7 @@ func TestMangasee_FindChapters(t *testing.T) {
 
 }
 
-func TestMangasee_FindChapterPages(t *testing.T) {
+func TestComicK_FindChapterPages(t *testing.T) {
 
 	tests := []struct {
 		name  string
@@ -109,20 +103,20 @@ func TestMangasee_FindChapterPages(t *testing.T) {
 		index uint
 	}{
 		{
-			name:  "One Piece",
-			id:    "One-Piece",
-			index: 1110,
+			name:  "Jujutsu Kaisen",
+			id:    "TA22I5O7",
+			index: 258,
 		},
 	}
 
-	mangasee := NewMangasee(util.NewLogger())
+	comick := NewComicK(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			chapters, err := mangasee.FindChapters(tt.id)
-			if assert.NoError(t, err, "mangasee.FindChapters() error") {
+			chapters, err := comick.FindChapters(tt.id)
+			if assert.NoError(t, err, "comick.FindChapters() error") {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
@@ -135,8 +129,8 @@ func TestMangasee_FindChapterPages(t *testing.T) {
 				}
 
 				if assert.NotNil(t, chapterInfo, "chapter not found") {
-					pages, err := mangasee.FindChapterPages(chapterInfo)
-					if assert.NoError(t, err, "mangasee.FindChapterPages() error") {
+					pages, err := comick.FindChapterPages(chapterInfo)
+					if assert.NoError(t, err, "comick.FindChapterPages() error") {
 						assert.NotEmpty(t, pages, "pages is empty")
 
 						for _, page := range pages {

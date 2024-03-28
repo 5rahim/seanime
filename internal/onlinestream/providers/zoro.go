@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/onlinestream/sources"
+	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -17,7 +18,6 @@ import (
 
 type Zoro struct {
 	BaseURL   string
-	Logo      string
 	Client    *http.Client
 	UserAgent string
 	logger    *zerolog.Logger
@@ -26,8 +26,7 @@ type Zoro struct {
 func NewZoro(logger *zerolog.Logger) *Zoro {
 	return &Zoro{
 		BaseURL:   "https://hianime.to",
-		Logo:      "https://is3-ssl.mzstatic.com/image/thumb/Purple112/v4/7e/91/00/7e9100ee-2b62-0942-4cdc-e9b93252ce1c/source/512x512bb.jpg",
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		UserAgent: util.GetRandomUserAgent(),
 		Client:    &http.Client{},
 		logger:    logger,
 	}

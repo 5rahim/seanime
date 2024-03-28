@@ -3,6 +3,7 @@ module github.com/seanime-app/seanime
 go 1.22
 
 require (
+	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/Yamashou/gqlgenc v0.19.3
 	github.com/adrg/strutil v0.3.1

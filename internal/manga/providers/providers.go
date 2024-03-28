@@ -10,7 +10,7 @@ type (
 	Provider string
 
 	MangaProvider interface {
-		Search(query string) ([]*SearchResult, error)
+		Search(opts SearchOptions) ([]*SearchResult, error)
 		FindChapters(id string) ([]*ChapterDetails, error)
 		FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error)
 	}
@@ -32,17 +32,18 @@ type (
 
 	ChapterDetails struct {
 		Provider  Provider
-		Slug      string
+		ID        string
 		URL       string
 		Title     string
-		Number    int
+		Chapter   string // e.g., "1", "1.5", "2", "3"
+		Index     uint   // Index of the chapter in the manga
 		Rating    int
-		UpdatedAt int
+		UpdatedAt string
 	}
 
 	ChapterPage struct {
 		Provider Provider
-		Url      string
+		URL      string
 		Index    int
 		Headers  map[string]string
 	}

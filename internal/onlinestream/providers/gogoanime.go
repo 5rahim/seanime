@@ -5,6 +5,7 @@ import (
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/onlinestream/sources"
+	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -24,7 +25,7 @@ func NewGogoanime(logger *zerolog.Logger) *Gogoanime {
 		BaseURL:   "https://anitaku.to",
 		AjaxURL:   "https://ajax.gogocdn.net",
 		Client:    http.Client{},
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }
@@ -34,7 +35,9 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 
 	g.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("gogoanime: Searching anime")
 
-	c := colly.NewCollector()
+	c := colly.NewCollector(
+		colly.UserAgent(g.UserAgent),
+	)
 
 	c.OnHTML(".last_episodes > ul > li", func(e *colly.HTMLElement) {
 		id := ""
