@@ -258,9 +258,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                 </div>
                 {(!!media.season || !!media.startDate?.year) && <div>
                     <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
-                        <BiCalendarAlt />{capitalize(media.season ?? "")} {media.startDate?.year ? new Intl.DateTimeFormat("en-US", {
-                        year: "numeric",
-                    }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}
+                        <BiCalendarAlt />{capitalize(media.season ?? "")} {media.startDate?.year}
                     </p>
                 </div>}
             </div>
