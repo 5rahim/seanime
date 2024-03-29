@@ -68,6 +68,16 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
         })
     }, [readingMode, pageContainer?.pages?.length])
 
+    React.useLayoutEffect(() => {
+        if (!!pageContainer?.pages?.length && currentPages?.pages?.some((page) => page >= pageContainer?.pages?.length!)) {
+            setCurrentPages((draft) => {
+                if (draft && draft.pages.length === 2) {
+                    draft.pages = draft.pages.filter((page) => page < pageContainer?.pages?.length!)
+                }
+            })
+        }
+    }, [currentPages])
+
     React.useEffect(() => {
         logger("manga").info("currentPages: ", currentPages)
     }, [currentPages])
@@ -152,6 +162,9 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
         setCurrentPages((draft) => {
             if (draft && pageContainer?.pages?.length) {
                 const shouldDecrement = dir === "left" && readingDirection === ReadingDirection.LTR || dir === "right" && readingDirection === ReadingDirection.RTL
+                if (draft.pages.length === 0) {
+                    draft.pages = readingMode === ReadingMode.DOUBLE_PAGE ? [0, 1] : [0]
+                }
                 if (shouldDecrement && !draft?.pages.includes(0)) {
                     if (readingMode === ReadingMode.DOUBLE_PAGE) {
                         draft.pages = draft.pages.map((page) => page - 2)
@@ -171,7 +184,7 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
                     draft.pages.push(draft.pages[0] + 1)
                 }
 
-                draft.pages = draft.pages.filter((page) => page >= 0 && page < pageContainer?.pages?.length!)
+                draft.pages = draft.pages.filter((page) => page >= 0 && page <= pageContainer?.pages?.length!)
                 return
             }
         })
