@@ -1,4 +1,4 @@
-import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
+import { BaseMangaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 
 export const manga_providers_options = [
     { value: "mangasee", label: "MangaSee" },
@@ -30,7 +30,7 @@ export type MangaEntry = {
 export type MangaEntryListData = {
     progress?: number
     score?: number
-    status?: string
+    status?: MediaListStatus
     startedAt?: string
     completedAt?: string
 }

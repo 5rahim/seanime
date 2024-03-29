@@ -1,4 +1,5 @@
 import { MangaChapterContainer, MangaCollection, MangaEntry, MangaPageContainer } from "@/app/(main)/manga/_lib/types"
+import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
 import { useAtomValue } from "jotai/react"
@@ -25,7 +26,7 @@ export function useMangaCollection() {
 
 export function useMangaEntry(mediaId: string | undefined | null) {
     const { data, isLoading } = useSeaQuery<MangaEntry>({
-        endpoint: SeaEndpoints.MANGA_ENTRY,
+        endpoint: SeaEndpoints.MANGA_ENTRY.replace("{id}", mediaId ?? ""),
         queryKey: ["get-manga-entry", mediaId],
         enabled: !!mediaId,
     })
@@ -33,6 +34,19 @@ export function useMangaEntry(mediaId: string | undefined | null) {
     return {
         mangaEntry: data,
         mangaEntryLoading: isLoading,
+    }
+}
+
+export function useMangaEntryDetails(mediaId: string | undefined | null) {
+    const { data, isLoading } = useSeaQuery<MangaDetailsByIdQuery["Media"]>({
+        endpoint: SeaEndpoints.MANGA_ENTRY_DETAILS.replace("{id}", mediaId ?? ""),
+        queryKey: ["get-manga-entry-details", mediaId],
+        enabled: !!mediaId,
+    })
+
+    return {
+        mangaDetails: data,
+        mangaDetailsLoading: isLoading,
     }
 }
 

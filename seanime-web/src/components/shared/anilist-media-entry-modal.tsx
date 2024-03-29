@@ -1,4 +1,5 @@
 "use client"
+import { MangaEntryListData } from "@/app/(main)/manga/_lib/types"
 import { userAtom } from "@/atoms/user"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -20,9 +21,10 @@ import { Modal } from "../ui/modal"
 
 interface AnilistMediaEntryModalProps {
     children?: React.ReactNode
-    listData?: MediaEntryListData
+    listData?: MediaEntryListData | MangaEntryListData
     media?: BaseMediaFragment
     hideButton?: boolean
+    type?: "anime" | "manga"
 }
 
 const entrySchema = defineSchema(({ z, presets }) => z.object({
@@ -45,7 +47,7 @@ const entrySchema = defineSchema(({ z, presets }) => z.object({
 export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (props) => {
     const [open, toggle] = useToggle(false)
 
-    const { children, media, listData, hideButton, ...rest } = props
+    const { children, media, listData, hideButton, type = "anime", ...rest } = props
 
     const user = useAtomValue(userAtom)
 
@@ -165,7 +167,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                             options={[
                                 media?.status !== "NOT_YET_RELEASED" ? {
                                     value: "CURRENT",
-                                    label: "Watching",
+                                    label: type === "anime" ? "Watching" : "Reading",
                                 } : undefined,
                                 { value: "PLANNING", label: "Planning" },
                                 media?.status !== "NOT_YET_RELEASED" ? {

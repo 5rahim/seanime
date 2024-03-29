@@ -16,6 +16,7 @@ import (
 var (
 	ErrMangaFeatureDisabled = errors.New("manga feature is not enabled in your config")
 	baseMangaCache          = result.NewCache[int, *anilist.BaseManga]()
+	mangaDetailsCache       = result.NewCache[int, *anilist.MangaDetailsById_Media]()
 )
 
 func checkMangaFlag(a *core.App) error {
@@ -109,6 +110,34 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 	baseMangaCache.SetT(entry.MediaId, entry.Media, time.Hour)
 
 	return c.RespondWithData(entry)
+}
+
+// HandleGetMangaEntryDetails return additional details for a manga entry.
+//
+//	GET /api/v1/manga/entry/:id/details
+func HandleGetMangaEntryDetails(c *RouteCtx) error {
+
+	if err := checkMangaFlag(c.App); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	id, err := c.Fiber.ParamsInt("id")
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if detailsMedia, found := mangaDetailsCache.Get(id); found {
+		return c.RespondWithData(detailsMedia)
+	}
+
+	details, err := c.App.AnilistClientWrapper.MangaDetailsByID(context.Background(), &id)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	mangaDetailsCache.SetT(id, details.GetMedia(), time.Hour)
+
+	return c.RespondWithData(details.GetMedia())
 }
 
 // HandleGetMangaEntryChapters return the chapters for a manga entry based on the provider.
