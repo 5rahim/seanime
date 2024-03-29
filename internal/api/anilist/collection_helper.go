@@ -56,6 +56,19 @@ func (ac *AnimeCollection) GetAllMedia() []*BaseMedia {
 	return ret
 }
 
+type IFuzzyDate interface {
+	GetYear() *int
+	GetMonth() *int
+	GetDay() *int
+}
+
+func ToEntryDate(d IFuzzyDate) string {
+	if d == nil {
+		return ""
+	}
+	return toEntryDate(d.GetYear(), d.GetMonth(), d.GetDay())
+}
+
 func ToEntryStartDate(d *AnimeCollection_MediaListCollection_Lists_Entries_StartedAt) string {
 	if d == nil {
 		return ""

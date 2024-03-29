@@ -31,20 +31,20 @@ type (
 	}
 
 	ChapterDetails struct {
-		Provider  Provider
-		ID        string
-		URL       string
-		Title     string
-		Chapter   string // e.g., "1", "1.5", "2", "3"
-		Index     uint   // Index of the chapter in the manga
-		Rating    int
-		UpdatedAt string
+		Provider  Provider `json:"provider"`
+		ID        string   `json:"id"`
+		URL       string   `json:"url"`
+		Title     string   `json:"title"`
+		Chapter   string   `json:"chapter"` // e.g., "1", "1.5", "2", "3"
+		Index     uint     `json:"index"`   // Index of the chapter in the manga
+		Rating    int      `json:"rating"`
+		UpdatedAt string   `json:"updatedAt"`
 	}
 
 	ChapterPage struct {
-		Provider Provider
-		URL      string
-		Index    int
-		Headers  map[string]string
+		Provider Provider          `json:"provider"`
+		URL      string            `json:"url"`
+		Index    int               `json:"index"`
+		Headers  map[string]string `json:"headers"`
 	}
 )

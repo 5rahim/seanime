@@ -94,6 +94,16 @@ export const enum SeaEndpoints {
      */
     METADATA_PROVIDER_TVDB_EPISODES = "/metadata-provider/tvdb-episodes", // (POST, DELETE)
     /**
+     * Manga
+     */
+    MANGA_ANILIST_COLLECTION = "/manga/anilist/collection", // (POST)
+    MANGA_COLLECTION = "/manga/collection", // (GET)
+    MANGA_ANILIST_LIST_MANGA = "/manga/anilist/list-manga", // (POST)
+    MANGA_ENTRY = "/manga/entry/{id}", // (GET)
+    MANGA_CHAPTERS = "/manga/chapters", // (POST)
+    MANGA_PAGES = "/manga/pages", // (POST)
+
+    /**
      * Theme
      */
     THEME = "/theme", // (GET, PATCH)

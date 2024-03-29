@@ -269,6 +269,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Delete("/metadata-provider/tvdb-episodes", makeHandler(app, HandleEmptyTVDBEpisodes))
 
 	//
+	// Manga
+	//
+
+	v1Manga := v1.Group("/manga")
+	v1Manga.Post("/anilist/collection", makeHandler(app, HandleGetAnilistMangaCollection))
+	v1Manga.Post("/anilist/list", makeHandler(app, HandleAnilistListManga))
+	v1Manga.Get("/collection", makeHandler(app, HandleGetMangaCollection))
+	v1Manga.Get("/entry/:id", makeHandler(app, HandleGetMangaEntry))
+	v1Manga.Post("/chapters", makeHandler(app, HandleGetMangaEntryChapters))
+	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
+
+	//
 	// Websocket
 	//
 

@@ -17,6 +17,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
+	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
@@ -45,6 +46,7 @@ type (
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
 		anilistCollection       *anilist.AnimeCollection
+		mangaCollection         *anilist.MangaCollection
 		account                 *models.Account
 		WSEventManager          *events.WSEventManager
 		ListSyncCache           *listsync.Cache
@@ -62,6 +64,7 @@ type (
 		PlaybackManager     *playbackmanager.PlaybackManager
 		FileCacher          *filecache.Cacher
 		Onlinestream        *onlinestream.OnlineStream
+		MangaRepository     *manga.Repository
 		MetadataProvider    *metadata.Provider
 		WD                  string // Working directory
 		cancelContext       func()
@@ -152,6 +155,12 @@ func NewApp(options *AppOptions, version string) *App {
 		FileCacher: fileCacher,
 	})
 
+	// Manga Repository
+	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
+		Logger:     logger,
+		FileCacher: fileCacher,
+	})
+
 	app := &App{
 		Config:                  cfg,
 		Database:                db,
@@ -167,6 +176,7 @@ func NewApp(options *AppOptions, version string) *App {
 		FileCacher:              fileCacher,
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
+		MangaRepository:         mangaRepository,
 		PlaybackManager:         nil, // Initialized in App.InitModulesOnce
 		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
 		AutoScanner:             nil, // Initialized in App.InitModulesOnce

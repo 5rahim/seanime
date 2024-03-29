@@ -52,6 +52,8 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	return collection, nil
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func (a *App) GetAccount() (*models.Account, error) {
 
 	if a.account == nil {
@@ -68,4 +70,43 @@ func (a *App) GetAccount() (*models.Account, error) {
 
 	return a.account, nil
 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GetMangaCollection, same as GetAnilistCollection but for manga
+func (a *App) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+
+	// Get Anilist Collection from App if it exists
+	if !bypassCache && a.mangaCollection != nil {
+		return a.mangaCollection, nil
+	}
+
+	return a.RefreshMangaCollection()
+
+}
+
+// RefreshMangaCollection queries Anilist for the user's manga collection
+func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
+
+	// If the account is nil, return false
+	if a.account == nil {
+		return nil, errors.New("no account was found")
+	}
+
+	// Else, get the collection from Anilist
+	collection, err := a.AnilistClientWrapper.MangaCollection(context.Background(), &a.account.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	// Remove lists with no status
+	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.MangaList, _ int) bool {
+		return list.Status != nil
+	})
+
+	// Save the collection to App
+	a.mangaCollection = collection
+
+	return collection, nil
 }
