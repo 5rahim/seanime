@@ -203,10 +203,10 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	ret = append(ret, chapters...)
 	return ret, nil
 }
-func (c *ComicK) FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error) {
+func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	ret := make([]*ChapterPage, 0)
 
-	uri := fmt.Sprintf("%s/chapter/%s", c.Url, info.ID)
+	uri := fmt.Sprintf("%s/chapter/%s", c.Url, id)
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		c.logger.Error().Err(err).Msg("comick: failed to create request")

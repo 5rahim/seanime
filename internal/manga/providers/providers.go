@@ -12,7 +12,7 @@ type (
 	MangaProvider interface {
 		Search(opts SearchOptions) ([]*SearchResult, error)
 		FindChapters(id string) ([]*ChapterDetails, error)
-		FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error)
+		FindChapterPages(id string) ([]*ChapterPage, error)
 	}
 
 	SearchOptions struct {

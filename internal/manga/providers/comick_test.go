@@ -129,7 +129,7 @@ func TestComicK_FindChapterPages(t *testing.T) {
 				}
 
 				if assert.NotNil(t, chapterInfo, "chapter not found") {
-					pages, err := comick.FindChapterPages(chapterInfo)
+					pages, err := comick.FindChapterPages(chapterInfo.ID)
 					if assert.NoError(t, err, "comick.FindChapterPages() error") {
 						assert.NotEmpty(t, pages, "pages is empty")
 

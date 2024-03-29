@@ -189,9 +189,9 @@ func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, med
 
 	switch provider {
 	case manga_providers.ComickProvider:
-		pageList, err = r.comick.FindChapterPages(chapter)
+		pageList, err = r.comick.FindChapterPages(chapter.ID)
 	case manga_providers.MangaseeProvider:
-		pageList, err = r.mangasee.FindChapterPages(chapter)
+		pageList, err = r.mangasee.FindChapterPages(chapter.ID)
 	}
 
 	if err != nil {

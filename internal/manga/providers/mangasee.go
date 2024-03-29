@@ -1,7 +1,6 @@
 package manga_providers
 
 import (
-	"cmp"
 	"errors"
 	"fmt"
 	"github.com/goccy/go-json"
@@ -139,10 +138,16 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 	ret := make([]*ChapterDetails, len(chapterData))
 	for i, chapter := range chapterData {
 		chStr := getChapterNumber(chapter.Chapter)
+
+		unpaddedChStr := strings.TrimLeft(chStr, "0")
+		if unpaddedChStr == "" {
+			unpaddedChStr = "0"
+		}
+
 		ret[i] = &ChapterDetails{
 			Provider: MangaseeProvider,
-			ID:       slug, // e.g. One-Piece
-			Title:    cmp.Or(chapter.ChapterName, fmt.Sprintf("Chapter %s", chStr)),
+			ID:       slug + "$" + chStr, // e.g. One-Piece
+			Title:    fmt.Sprintf("Chapter %s", unpaddedChStr),
 			URL:      fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chStr),
 			Chapter:  chStr,
 			Index:    uint(i),
@@ -152,7 +157,20 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 	return ret, nil
 }
 
-func (m *Mangasee) FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error) {
+func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
+
+	if !strings.Contains(id, "$") {
+		return nil, errors.New("invalid chapter id")
+	}
+
+	info := strings.Split(id, "$")
+	if len(info) != 2 {
+		return nil, errors.New("invalid chapter id")
+	}
+
+	slug := info[0]
+	chapter := info[1]
+	uri := fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chapter)
 
 	pages := make([]*ChapterPage, 0)
 
@@ -174,7 +192,7 @@ func (m *Mangasee) FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error
 		m.getChapterData(e.Text, 2, &curPathname)
 	})
 
-	err := c.Visit(info.URL)
+	err := c.Visit(uri)
 	if err != nil {
 		m.logger.Error().Err(err).Msg("mangasee: failed to visit chapter url")
 		return nil, err
@@ -201,9 +219,9 @@ func (m *Mangasee) FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error
 
 		pages = append(pages, &ChapterPage{
 			Provider: MangaseeProvider,
-			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, info.ID, ch, pageNum),
+			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, id, ch, pageNum),
 			Index:    i,
-			Headers:  map[string]string{"Referer": info.URL},
+			Headers:  map[string]string{"Referer": uri},
 		})
 
 	}
