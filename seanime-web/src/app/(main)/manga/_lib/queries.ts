@@ -90,7 +90,7 @@ export function useMangaChapterContainer(mediaId: string | undefined | null) {
 export function useMangaPageContainer(mediaId: string | undefined | null, chapterId: string | undefined | null) {
     const provider = useAtomValue(__manga_selectedProviderAtom)
 
-    const { data, isLoading } = useSeaQuery<MangaPageContainer>({
+    const { data, isLoading, isError } = useSeaQuery<MangaPageContainer>({
         endpoint: SeaEndpoints.MANGA_PAGES,
         method: "post",
         data: {
@@ -105,5 +105,6 @@ export function useMangaPageContainer(mediaId: string | undefined | null, chapte
     return {
         pageContainer: data,
         pageContainerLoading: isLoading,
+        pageContainerError: isError,
     }
 }

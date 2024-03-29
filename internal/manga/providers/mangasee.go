@@ -219,7 +219,7 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 
 		pages = append(pages, &ChapterPage{
 			Provider: MangaseeProvider,
-			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, id, ch, pageNum),
+			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, slug, ch, pageNum),
 			Index:    i,
 			Headers:  map[string]string{"Referer": uri},
 		})

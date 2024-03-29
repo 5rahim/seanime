@@ -212,5 +212,5 @@ func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, med
 		r.logger.Warn().Err(err).Msg("manga: failed to set cache")
 	}
 
-	return nil, nil
+	return container, nil
 }
