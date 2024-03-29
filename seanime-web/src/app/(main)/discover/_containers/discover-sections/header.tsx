@@ -41,8 +41,14 @@ export function DiscoverPageHeader() {
                 <div
                     className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
+                <div
+                    className={cn(
+                        "opacity-0 duration-1000 bg-[#0c0c0c] w-full h-full absolute z-[2]",
+                        isTransitioning && "opacity-70",
+                    )}
+                />
                 <AnimatePresence>
-                    {(!!randomTrending?.bannerImage || !!randomTrending?.coverImage?.extraLarge) && !isTransitioning && (
+                    {(!!randomTrending?.bannerImage || !!randomTrending?.coverImage?.extraLarge) && (
                         <MotionImage
                             src={randomTrending.bannerImage || randomTrending.coverImage?.extraLarge!}
                             alt="banner image"
@@ -59,7 +65,8 @@ export function DiscoverPageHeader() {
                                 },
                             }}
                             className={cn(
-                                "object-cover object-center z-[1] transition-opacity duration-1000")}
+                                "object-cover object-center z-[1] transition-opacity duration-1000",
+                            )}
                         />
                     )}
                 </AnimatePresence>
