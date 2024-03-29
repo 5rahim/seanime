@@ -34,6 +34,7 @@ type AnimeListItemProps = {
     overlay?: React.ReactNode
     showListDataButton?: boolean
     showTrailer?: boolean
+    isManga?: boolean
 } & {
     containerClassName?: string
 }
@@ -43,7 +44,7 @@ const actionPopupHoverAtom = atom<number | undefined>(undefined)
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const status = useAtomValue(serverStatusAtom)
-    const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton, showTrailer } = props
+    const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton, showTrailer, isManga } = props
 
 
     const [listData, setListData] = useState(_listData)
@@ -54,6 +55,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
     const showProgressBar = (!!listData?.progress && !!media?.episodes && listData?.status !== "COMPLETED")
+
+    const link = !isManga ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
 
     // For pages where listData or libraryData is not accessible (where LibraryCollection is not fetched),
     // use cached LibraryCollection
@@ -131,6 +134,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                             listData={listData}
                             showProgressBar={showProgressBar}
                             showTrailer={showTrailer || false}
+                            link={link}
                         />
 
                         <div>
@@ -138,7 +142,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                             {/*    <p className="text-center font-medium text-sm min-[2000px]:text-lg px-4 line-clamp-1">{media.title?.userPreferred}</p>*/}
                             {/*}>{media.title?.userPreferred}</Tooltip>*/}
                             <Link
-                                href={`/entry?id=${media.id}`}
+                                href={link}
                                 className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
                             >
                                 {media.title?.userPreferred}
@@ -167,7 +171,19 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                             </div>
                         )}
 
-                        <MainActionButton media={media} listData={listData} />
+                        {!isManga && <MainActionButton media={media} listData={listData} />}
+                        {isManga && <Link
+                            href={`/manga/entry?id=${props.media.id}`}
+                        >
+                            <Button
+                                leftIcon={<IoLibrarySharp />}
+                                intent="white"
+                                size="md"
+                                className="w-full text-md mt-2"
+                            >
+                                Read
+                            </Button>
+                        </Link>}
 
                         {(listData?.status && props.showLibraryBadge === undefined) &&
                             <p className="text-center">{listData?.status === "CURRENT" ? "Watching" : capitalize(listData?.status ?? "")}</p>}
@@ -183,7 +199,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
             </div>
 
             <Link
-                href={`/entry?id=${media.id}`}
+                href={link}
                 className="w-full relative"
             >
                 <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden">
@@ -267,11 +283,12 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
     )
 })
 
-const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer }: {
+const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link }: {
     media: BaseMediaFragment,
     listData: MediaEntryListData | undefined,
     showProgressBar: boolean
     showTrailer: boolean
+    link: string
 }) => {
 
     const status = useAtomValue(serverStatusAtom)
@@ -280,13 +297,6 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer }: {
     const actionPopupHover = actionPopupHoverId === media.id
 
     const trailerEnabled = !!media?.trailer?.id && !status?.settings?.library?.disableAnimeCardTrailers && showTrailer
-
-    // const router = useRouter()
-    // function onClick() {
-    //     if ((!media?.trailer?.id && !trailerLoaded) || status?.settings?.library?.disableAnimeCardTrailers || !trailerLoaded) {
-    //         router.push(`/entry?id=${media.id}`)
-    //     }
-    // }
 
     const Content = (
         <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2 cursor-pointer">
@@ -339,7 +349,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer }: {
     )
 
     if (!trailerEnabled) {
-        return <Link href={`/entry?id=${media.id}`}>{Content}</Link>
+        return <Link href={link}>{Content}</Link>
     } else {
         return (
             <TrailerModal
@@ -362,7 +372,7 @@ const MainActionButton = (props: { media: BaseMediaFragment, listData?: MediaEnt
                         href={`/entry?id=${props.media.id}${(!!progress && (status !== "COMPLETED")) ? "&playNext=true" : ""}`}
                     >
                         <Button
-                            leftIcon={<BiPlay />}
+                            leftIcon={<BiPlay className="text-2xl" />}
                             intent="white"
                             size="md"
                             className="w-full text-md"

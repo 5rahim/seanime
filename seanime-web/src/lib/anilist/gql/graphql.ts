@@ -4596,7 +4596,43 @@ export type MangaCollectionQuery = {
                     title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
                     coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
                     startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
-                    endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+                    endDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+                    relations?: {
+                        edges?: Array<{
+                            relationType?: MediaRelation | null,
+                            node?: {
+                                id: number,
+                                idMal?: number | null,
+                                siteUrl?: string | null,
+                                status?: MediaStatus | null,
+                                season?: MediaSeason | null,
+                                type?: MediaType | null,
+                                format?: MediaFormat | null,
+                                bannerImage?: string | null,
+                                chapters?: number | null,
+                                volumes?: number | null,
+                                synonyms?: Array<string | null> | null,
+                                isAdult?: boolean | null,
+                                countryOfOrigin?: any | null,
+                                meanScore?: number | null,
+                                description?: string | null,
+                                title?: {
+                                    userPreferred?: string | null,
+                                    romaji?: string | null,
+                                    english?: string | null,
+                                    native?: string | null
+                                } | null,
+                                coverImage?: {
+                                    extraLarge?: string | null,
+                                    large?: string | null,
+                                    medium?: string | null,
+                                    color?: string | null
+                                } | null,
+                                startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+                                endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+                            } | null
+                        } | null> | null
+                    } | null
                 } | null
             } | null> | null
         } | null> | null
@@ -4614,8 +4650,7 @@ export type SearchBaseMangaQueryVariables = Exact<{
 
 export type SearchBaseMangaQuery = {
     Page?: {
-        pageInfo?: { hasNextPage?: boolean | null } | null,
-        media?: Array<{
+        pageInfo?: { hasNextPage?: boolean | null } | null, media?: Array<{
             id: number,
             idMal?: number | null,
             siteUrl?: string | null,
@@ -4634,7 +4669,33 @@ export type SearchBaseMangaQuery = {
             title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
             coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
             startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
-            endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+            endDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+            relations?: {
+                edges?: Array<{
+                    relationType?: MediaRelation | null,
+                    node?: {
+                        id: number,
+                        idMal?: number | null,
+                        siteUrl?: string | null,
+                        status?: MediaStatus | null,
+                        season?: MediaSeason | null,
+                        type?: MediaType | null,
+                        format?: MediaFormat | null,
+                        bannerImage?: string | null,
+                        chapters?: number | null,
+                        volumes?: number | null,
+                        synonyms?: Array<string | null> | null,
+                        isAdult?: boolean | null,
+                        countryOfOrigin?: any | null,
+                        meanScore?: number | null,
+                        description?: string | null,
+                        title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
+                        coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
+                        startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+                        endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+                    } | null
+                } | null> | null
+            } | null
         } | null> | null
     } | null
 };
@@ -4664,7 +4725,33 @@ export type BaseMangaByIdQuery = {
         title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
         coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
         startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
-        endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+        endDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+        relations?: {
+            edges?: Array<{
+                relationType?: MediaRelation | null,
+                node?: {
+                    id: number,
+                    idMal?: number | null,
+                    siteUrl?: string | null,
+                    status?: MediaStatus | null,
+                    season?: MediaSeason | null,
+                    type?: MediaType | null,
+                    format?: MediaFormat | null,
+                    bannerImage?: string | null,
+                    chapters?: number | null,
+                    volumes?: number | null,
+                    synonyms?: Array<string | null> | null,
+                    isAdult?: boolean | null,
+                    countryOfOrigin?: any | null,
+                    meanScore?: number | null,
+                    description?: string | null,
+                    title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
+                    coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
+                    startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+                    endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+                } | null
+            } | null> | null
+        } | null
     } | null
 };
 
@@ -4767,6 +4854,54 @@ export type ListMangaQuery = {
 };
 
 export type BaseMangaFragment = {
+    id: number,
+    idMal?: number | null,
+    siteUrl?: string | null,
+    status?: MediaStatus | null,
+    season?: MediaSeason | null,
+    type?: MediaType | null,
+    format?: MediaFormat | null,
+    bannerImage?: string | null,
+    chapters?: number | null,
+    volumes?: number | null,
+    synonyms?: Array<string | null> | null,
+    isAdult?: boolean | null,
+    countryOfOrigin?: any | null,
+    meanScore?: number | null,
+    description?: string | null,
+    title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
+    coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
+    startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+    endDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+    relations?: {
+        edges?: Array<{
+            relationType?: MediaRelation | null,
+            node?: {
+                id: number,
+                idMal?: number | null,
+                siteUrl?: string | null,
+                status?: MediaStatus | null,
+                season?: MediaSeason | null,
+                type?: MediaType | null,
+                format?: MediaFormat | null,
+                bannerImage?: string | null,
+                chapters?: number | null,
+                volumes?: number | null,
+                synonyms?: Array<string | null> | null,
+                isAdult?: boolean | null,
+                countryOfOrigin?: any | null,
+                meanScore?: number | null,
+                description?: string | null,
+                title?: { userPreferred?: string | null, romaji?: string | null, english?: string | null, native?: string | null } | null,
+                coverImage?: { extraLarge?: string | null, large?: string | null, medium?: string | null, color?: string | null } | null,
+                startDate?: { year?: number | null, month?: number | null, day?: number | null } | null,
+                endDate?: { year?: number | null, month?: number | null, day?: number | null } | null
+            } | null
+        } | null> | null
+    } | null
+};
+
+export type BasicMangaFragment = {
     id: number,
     idMal?: number | null,
     siteUrl?: string | null,
@@ -5367,10 +5502,172 @@ export type GetViewerQuery = {
     } | null
 };
 
+export const BasicMangaFragmentDoc = {
+    "kind": "Document", "definitions": [{
+        "kind": "FragmentDefinition",
+        "name": { "kind": "Name", "value": "basicManga" },
+        "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
+        "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "id" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "idMal" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "siteUrl" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "status" },
+                    "arguments": [{
+                        "kind": "Argument",
+                        "name": { "kind": "Name", "value": "version" },
+                        "value": { "kind": "IntValue", "value": "2" },
+                    }],
+                }, { "kind": "Field", "name": { "kind": "Name", "value": "season" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "type" } }, { "kind": "Field", "name": { "kind": "Name", "value": "format" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "bannerImage" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "chapters" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "volumes" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "synonyms" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "isAdult" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "countryOfOrigin" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "meanScore" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "description" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "title" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "userPreferred" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "romaji" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "english" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "native" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "coverImage" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "extraLarge" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "large" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "medium" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "color" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "startDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "endDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }],
+        },
+    }],
+} as unknown as DocumentNode<BasicMangaFragment, unknown>
 export const BaseMangaFragmentDoc = {
     "kind": "Document", "definitions": [{
         "kind": "FragmentDefinition",
         "name": { "kind": "Name", "value": "baseManga" },
+        "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
+        "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "id" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "idMal" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "siteUrl" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "status" },
+                    "arguments": [{
+                        "kind": "Argument",
+                        "name": { "kind": "Name", "value": "version" },
+                        "value": { "kind": "IntValue", "value": "2" },
+                    }],
+                }, { "kind": "Field", "name": { "kind": "Name", "value": "season" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "type" } }, { "kind": "Field", "name": { "kind": "Name", "value": "format" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "bannerImage" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "chapters" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "volumes" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "synonyms" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "isAdult" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "countryOfOrigin" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "meanScore" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "description" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "title" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "userPreferred" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "romaji" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "english" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "native" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "coverImage" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "extraLarge" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "large" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "medium" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "color" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "startDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "endDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "relations" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                            "kind": "Field",
+                            "name": { "kind": "Name", "value": "edges" },
+                            "selectionSet": {
+                                "kind": "SelectionSet",
+                                "selections": [{
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "relationType" },
+                                    "arguments": [{
+                                        "kind": "Argument",
+                                        "name": { "kind": "Name", "value": "version" },
+                                        "value": { "kind": "IntValue", "value": "2" },
+                                    }],
+                                }, {
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "node" },
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "selections": [{ "kind": "FragmentSpread", "name": { "kind": "Name", "value": "basicManga" } }],
+                                    },
+                                }],
+                            },
+                        }],
+                    },
+                }],
+        },
+    }, {
+        "kind": "FragmentDefinition",
+        "name": { "kind": "Name", "value": "basicManga" },
         "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
         "selectionSet": {
             "kind": "SelectionSet",
@@ -6128,6 +6425,71 @@ export const MangaCollectionDocument = {
         },
     }, {
         "kind": "FragmentDefinition",
+        "name": { "kind": "Name", "value": "basicManga" },
+        "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
+        "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "id" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "idMal" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "siteUrl" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "status" },
+                    "arguments": [{
+                        "kind": "Argument",
+                        "name": { "kind": "Name", "value": "version" },
+                        "value": { "kind": "IntValue", "value": "2" },
+                    }],
+                }, { "kind": "Field", "name": { "kind": "Name", "value": "season" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "type" } }, { "kind": "Field", "name": { "kind": "Name", "value": "format" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "bannerImage" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "chapters" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "volumes" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "synonyms" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "isAdult" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "countryOfOrigin" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "meanScore" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "description" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "title" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "userPreferred" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "romaji" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "english" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "native" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "coverImage" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "extraLarge" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "large" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "medium" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "color" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "startDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "endDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }],
+        },
+    }, {
+        "kind": "FragmentDefinition",
         "name": { "kind": "Name", "value": "baseManga" },
         "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
         "selectionSet": {
@@ -6188,6 +6550,35 @@ export const MangaCollectionDocument = {
                         "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
                             { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
                             { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "relations" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                            "kind": "Field",
+                            "name": { "kind": "Name", "value": "edges" },
+                            "selectionSet": {
+                                "kind": "SelectionSet",
+                                "selections": [{
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "relationType" },
+                                    "arguments": [{
+                                        "kind": "Argument",
+                                        "name": { "kind": "Name", "value": "version" },
+                                        "value": { "kind": "IntValue", "value": "2" },
+                                    }],
+                                }, {
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "node" },
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "selections": [{ "kind": "FragmentSpread", "name": { "kind": "Name", "value": "basicManga" } }],
+                                    },
+                                }],
+                            },
+                        }],
                     },
                 }],
         },
@@ -6275,7 +6666,7 @@ export const SearchBaseMangaDocument = {
         },
     }, {
         "kind": "FragmentDefinition",
-        "name": { "kind": "Name", "value": "baseManga" },
+        "name": { "kind": "Name", "value": "basicManga" },
         "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
         "selectionSet": {
             "kind": "SelectionSet",
@@ -6337,35 +6728,6 @@ export const SearchBaseMangaDocument = {
                             { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
                     },
                 }],
-        },
-    }],
-} as unknown as DocumentNode<SearchBaseMangaQuery, SearchBaseMangaQueryVariables>
-export const BaseMangaByIdDocument = {
-    "kind": "Document",
-    "definitions": [{
-        "kind": "OperationDefinition",
-        "operation": "query",
-        "name": { "kind": "Name", "value": "BaseMangaById" },
-        "variableDefinitions": [{
-            "kind": "VariableDefinition",
-            "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "id" } },
-            "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "Int" } },
-        }],
-        "selectionSet": {
-            "kind": "SelectionSet",
-            "selections": [{
-                "kind": "Field",
-                "name": { "kind": "Name", "value": "Media" },
-                "arguments": [{
-                    "kind": "Argument",
-                    "name": { "kind": "Name", "value": "id" },
-                    "value": { "kind": "Variable", "name": { "kind": "Name", "value": "id" } },
-                }, { "kind": "Argument", "name": { "kind": "Name", "value": "type" }, "value": { "kind": "EnumValue", "value": "MANGA" } }],
-                "selectionSet": {
-                    "kind": "SelectionSet",
-                    "selections": [{ "kind": "FragmentSpread", "name": { "kind": "Name", "value": "baseManga" } }],
-                },
-            }],
         },
     }, {
         "kind": "FragmentDefinition",
@@ -6429,6 +6791,223 @@ export const BaseMangaByIdDocument = {
                         "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
                             { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
                             { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "relations" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                            "kind": "Field",
+                            "name": { "kind": "Name", "value": "edges" },
+                            "selectionSet": {
+                                "kind": "SelectionSet",
+                                "selections": [{
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "relationType" },
+                                    "arguments": [{
+                                        "kind": "Argument",
+                                        "name": { "kind": "Name", "value": "version" },
+                                        "value": { "kind": "IntValue", "value": "2" },
+                                    }],
+                                }, {
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "node" },
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "selections": [{ "kind": "FragmentSpread", "name": { "kind": "Name", "value": "basicManga" } }],
+                                    },
+                                }],
+                            },
+                        }],
+                    },
+                }],
+        },
+    }],
+} as unknown as DocumentNode<SearchBaseMangaQuery, SearchBaseMangaQueryVariables>
+export const BaseMangaByIdDocument = {
+    "kind": "Document",
+    "definitions": [{
+        "kind": "OperationDefinition",
+        "operation": "query",
+        "name": { "kind": "Name", "value": "BaseMangaById" },
+        "variableDefinitions": [{
+            "kind": "VariableDefinition",
+            "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "id" } },
+            "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "Int" } },
+        }],
+        "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{
+                "kind": "Field",
+                "name": { "kind": "Name", "value": "Media" },
+                "arguments": [{
+                    "kind": "Argument",
+                    "name": { "kind": "Name", "value": "id" },
+                    "value": { "kind": "Variable", "name": { "kind": "Name", "value": "id" } },
+                }, { "kind": "Argument", "name": { "kind": "Name", "value": "type" }, "value": { "kind": "EnumValue", "value": "MANGA" } }],
+                "selectionSet": {
+                    "kind": "SelectionSet",
+                    "selections": [{ "kind": "FragmentSpread", "name": { "kind": "Name", "value": "baseManga" } }],
+                },
+            }],
+        },
+    }, {
+        "kind": "FragmentDefinition",
+        "name": { "kind": "Name", "value": "basicManga" },
+        "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
+        "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "id" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "idMal" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "siteUrl" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "status" },
+                    "arguments": [{
+                        "kind": "Argument",
+                        "name": { "kind": "Name", "value": "version" },
+                        "value": { "kind": "IntValue", "value": "2" },
+                    }],
+                }, { "kind": "Field", "name": { "kind": "Name", "value": "season" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "type" } }, { "kind": "Field", "name": { "kind": "Name", "value": "format" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "bannerImage" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "chapters" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "volumes" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "synonyms" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "isAdult" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "countryOfOrigin" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "meanScore" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "description" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "title" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "userPreferred" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "romaji" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "english" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "native" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "coverImage" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "extraLarge" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "large" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "medium" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "color" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "startDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "endDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }],
+        },
+    }, {
+        "kind": "FragmentDefinition",
+        "name": { "kind": "Name", "value": "baseManga" },
+        "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "Media" } },
+        "selectionSet": {
+            "kind": "SelectionSet",
+            "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "id" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "idMal" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "siteUrl" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "status" },
+                    "arguments": [{
+                        "kind": "Argument",
+                        "name": { "kind": "Name", "value": "version" },
+                        "value": { "kind": "IntValue", "value": "2" },
+                    }],
+                }, { "kind": "Field", "name": { "kind": "Name", "value": "season" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "type" } }, { "kind": "Field", "name": { "kind": "Name", "value": "format" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "bannerImage" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "chapters" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "volumes" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "synonyms" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "isAdult" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "countryOfOrigin" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "meanScore" } },
+                { "kind": "Field", "name": { "kind": "Name", "value": "description" } }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "title" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "userPreferred" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "romaji" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "english" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "native" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "coverImage" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "extraLarge" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "large" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "medium" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "color" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "startDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "endDate" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "year" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "month" } },
+                            { "kind": "Field", "name": { "kind": "Name", "value": "day" } }],
+                    },
+                }, {
+                    "kind": "Field",
+                    "name": { "kind": "Name", "value": "relations" },
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [{
+                            "kind": "Field",
+                            "name": { "kind": "Name", "value": "edges" },
+                            "selectionSet": {
+                                "kind": "SelectionSet",
+                                "selections": [{
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "relationType" },
+                                    "arguments": [{
+                                        "kind": "Argument",
+                                        "name": { "kind": "Name", "value": "version" },
+                                        "value": { "kind": "IntValue", "value": "2" },
+                                    }],
+                                }, {
+                                    "kind": "Field",
+                                    "name": { "kind": "Name", "value": "node" },
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "selections": [{ "kind": "FragmentSpread", "name": { "kind": "Name", "value": "basicManga" } }],
+                                    },
+                                }],
+                            },
+                        }],
                     },
                 }],
         },

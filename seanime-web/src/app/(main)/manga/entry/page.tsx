@@ -1,5 +1,7 @@
 "use client"
 import { useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/queries"
+import { MangaRecommendations } from "@/app/(main)/manga/entry/_components/manga-recommendations"
+import { ChaptersList } from "@/app/(main)/manga/entry/_containers/chapters-list"
 import { MetaSection } from "@/app/(main)/manga/entry/_containers/meta-section"
 import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
@@ -22,7 +24,7 @@ export default function Page() {
         }
     }, [mangaEntry, mangaEntryLoading])
 
-    if (mangaEntryLoading || mangaDetailsLoading) return <LoadingDisplay />
+    if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <LoadingDisplay />
 
     return (
         <div>
@@ -48,9 +50,21 @@ export default function Page() {
                     }}
                 >
 
+                    <div
+                        className="grid gap-4 xl:grid-cols-[1fr,650px]"
+                    >
+                        <div className="space-y-2">
+                            <ChaptersList entry={mangaEntry} mediaId={mediaId} details={mangaDetails} />
+                        </div>
+
+                        <div>
+                            <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
+                        </div>
+                    </div>
+
+
                 </PageWrapper>
             </div>
-
         </div>
     )
 }

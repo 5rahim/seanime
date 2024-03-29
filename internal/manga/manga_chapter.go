@@ -35,6 +35,12 @@ func (r *Repository) GetMangaChapters(provider manga_providers.Provider, mediaId
 
 	key := fmt.Sprintf("%s$%d", provider, mediaId)
 
+	r.logger.Debug().
+		Str("provider", string(provider)).
+		Int("mediaId", mediaId).
+		Str("key", key).
+		Msgf("manga: getting chapters")
+
 	var container *ChapterContainer
 
 	var bucket filecache.Bucket
@@ -47,6 +53,7 @@ func (r *Repository) GetMangaChapters(provider manga_providers.Provider, mediaId
 
 	// Check if the container is in the cache
 	if found, _ := r.fileCacher.Get(bucket, key, &container); found {
+		r.logger.Debug().Str("key", key).Msg("manga: Cache HIT")
 		return container, nil
 	}
 
@@ -124,6 +131,13 @@ func (r *Repository) GetMangaChapters(provider manga_providers.Provider, mediaId
 func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, mediaId int, chapterId string) (*PageContainer, error) {
 
 	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
+
+	r.logger.Debug().
+		Str("provider", string(provider)).
+		Int("mediaId", mediaId).
+		Str("key", key).
+		Str("chapterId", chapterId).
+		Msgf("manga: getting pages")
 
 	var container *PageContainer
 

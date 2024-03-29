@@ -5,16 +5,19 @@ import {
     AnimeEntryRanks,
 } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
-import { MangaEntry } from "@/app/(main)/manga/_lib/types"
+import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/queries"
+import { manga_providers_options, MangaEntry } from "@/app/(main)/manga/_lib/types"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select } from "@/components/ui/select"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { motion } from "framer-motion"
-import { useAtomValue } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import Link from "next/link"
@@ -28,6 +31,8 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
 
     const status = useAtomValue(serverStatusAtom)
     const hideAudienceScore = useMemo(() => status?.settings?.anilist?.hideAudienceScore ?? false, [status?.settings?.anilist?.hideAudienceScore])
+
+    const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
 
     if (!entry?.media) return null
 
@@ -97,14 +102,21 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
 
                                 {/*SEASON*/}
                                 {!!entry.media.startDate?.year && (
-                                    <div>
-                                        <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
+                                    <div className="flex gap-4 items-center flex-wrap">
+                                        <p className="text-lg text-gray-200 flex gap-1 items-center">
                                             <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                             year: "numeric",
                                             month: "short",
                                         }).format(new Date(entry.media.startDate?.year || 0,
                                             entry.media.startDate?.month || 0))}
                                         </p>
+
+                                        <Badge
+                                            size="lg"
+                                            intent={entry.media?.status === "RELEASING" ? "success-solid" : "gray"}
+                                        >
+                                            {capitalize(entry.media?.status || "")}
+                                        </Badge>
                                     </div>
                                 )}
 
@@ -149,6 +161,13 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
 
 
                             <div className="flex flex-1"></div>
+
+                            <Select
+                                fieldClass="w-fit"
+                                options={manga_providers_options}
+                                value={provider}
+                                onValueChange={setProvider}
+                            />
                         </div>
 
                     </motion.div>

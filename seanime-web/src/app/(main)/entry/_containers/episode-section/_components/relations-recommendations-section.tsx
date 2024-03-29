@@ -19,6 +19,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
         ...rest
     } = props
 
+    const sourceManga = entry?.media?.relations?.edges?.find(edge => edge?.relationType === "SOURCE" && edge?.node?.format === "MANGA")?.node
 
     const relations = (entry?.media?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)
@@ -35,6 +36,16 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                 <>
                     <h2>Relations</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4">
+                        {!!sourceManga && <div className="col-span-1">
+                            <AnimeListItem
+                                media={sourceManga!}
+                                overlay={<Badge
+                                    className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
+                                    intent="gray"
+                                    size="lg"
+                                >Source (Manga)</Badge>}
+                                isManga
+                            /></div>}
                         {relations.slice(0, 4).map(edge => {
                             return <div key={edge.node?.id} className="col-span-1">
                                 <AnimeListItem

@@ -66,7 +66,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
                     </div>
                 </div>
                 <div>
-                    <h3>Popular this season</h3>
+                    <h3>Trending this season</h3>
                     <DiscoverTrending />
                 </div>
             </PageWrapper>

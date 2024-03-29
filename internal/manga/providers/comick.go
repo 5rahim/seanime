@@ -160,7 +160,7 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 		if chapter.Chap == "" {
 			continue
 		}
-		title := "Chapter " + fmt.Sprintf("%03s", chapter.Chap) + " "
+		title := "Chapter " + chapter.Chap + " "
 
 		if title == "" {
 			if chapter.Title == "" {

@@ -164,4 +164,53 @@ fragment baseManga on Media {
     month
     day
   }
+  relations {
+    edges {
+      relationType(version: 2)
+      node {
+        ...basicManga
+      }
+    }
+  }
+}
+
+
+fragment basicManga on Media {
+  id
+  idMal
+  siteUrl
+  status(version: 2)
+  season
+  type
+  format
+  bannerImage
+  chapters
+  volumes
+  synonyms
+  isAdult
+  countryOfOrigin
+  meanScore
+  description
+  title {
+    userPreferred
+    romaji
+    english
+    native
+  }
+  coverImage {
+    extraLarge
+    large
+    medium
+    color
+  }
+  startDate {
+    year
+    month
+    day
+  }
+  endDate {
+    year
+    month
+    day
+  }
 }

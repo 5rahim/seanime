@@ -64,6 +64,7 @@ export function AnimeEntryAudienceScore(props: AnimeEntryAudienceScoreProps) {
             {hideAudienceScore ? <Disclosure type="single" collapsible>
                 <DisclosureItem value="item-1" className="flex items-center gap-1">
                     <Tooltip
+                        side="right"
                         trigger={<DisclosureTrigger>
                             <IconButton
                                 intent="gray-basic"

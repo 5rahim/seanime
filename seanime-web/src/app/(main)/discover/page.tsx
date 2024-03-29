@@ -20,7 +20,7 @@ export default function Page() {
                 className="p-4 mt-8 sm:p-8 space-y-10 pb-10 relative z-[4]"
             >
                 <div className="space-y-2 z-[5] relative">
-                    <h2>Popular this season</h2>
+                    <h2>Trending this season</h2>
                     <DiscoverTrending />
                 </div>
                 <div className="space-y-2 z-[5] relative">

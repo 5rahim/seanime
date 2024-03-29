@@ -60,6 +60,7 @@ type BaseManga struct {
 	CoverImage      *BaseManga_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate       *BaseManga_StartDate  "json:\"startDate,omitempty\" graphql:\"startDate\""
 	EndDate         *BaseManga_EndDate    "json:\"endDate,omitempty\" graphql:\"endDate\""
+	Relations       *BaseManga_Relations  "json:\"relations,omitempty\" graphql:\"relations\""
 }
 
 func (t *BaseManga) GetID() int {
@@ -173,6 +174,149 @@ func (t *BaseManga) GetStartDate() *BaseManga_StartDate {
 func (t *BaseManga) GetEndDate() *BaseManga_EndDate {
 	if t == nil {
 		t = &BaseManga{}
+	}
+	return t.EndDate
+}
+func (t *BaseManga) GetRelations() *BaseManga_Relations {
+	if t == nil {
+		t = &BaseManga{}
+	}
+	return t.Relations
+}
+
+type BasicManga struct {
+	ID              int                    "json:\"id\" graphql:\"id\""
+	IDMal           *int                   "json:\"idMal,omitempty\" graphql:\"idMal\""
+	SiteURL         *string                "json:\"siteUrl,omitempty\" graphql:\"siteUrl\""
+	Status          *MediaStatus           "json:\"status,omitempty\" graphql:\"status\""
+	Season          *MediaSeason           "json:\"season,omitempty\" graphql:\"season\""
+	Type            *MediaType             "json:\"type,omitempty\" graphql:\"type\""
+	Format          *MediaFormat           "json:\"format,omitempty\" graphql:\"format\""
+	BannerImage     *string                "json:\"bannerImage,omitempty\" graphql:\"bannerImage\""
+	Chapters        *int                   "json:\"chapters,omitempty\" graphql:\"chapters\""
+	Volumes         *int                   "json:\"volumes,omitempty\" graphql:\"volumes\""
+	Synonyms        []*string              "json:\"synonyms,omitempty\" graphql:\"synonyms\""
+	IsAdult         *bool                  "json:\"isAdult,omitempty\" graphql:\"isAdult\""
+	CountryOfOrigin *string                "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
+	MeanScore       *int                   "json:\"meanScore,omitempty\" graphql:\"meanScore\""
+	Description     *string                "json:\"description,omitempty\" graphql:\"description\""
+	Title           *BasicManga_Title      "json:\"title,omitempty\" graphql:\"title\""
+	CoverImage      *BasicManga_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
+	StartDate       *BasicManga_StartDate  "json:\"startDate,omitempty\" graphql:\"startDate\""
+	EndDate         *BasicManga_EndDate    "json:\"endDate,omitempty\" graphql:\"endDate\""
+}
+
+func (t *BasicManga) GetID() int {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.ID
+}
+func (t *BasicManga) GetIDMal() *int {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.IDMal
+}
+func (t *BasicManga) GetSiteURL() *string {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.SiteURL
+}
+func (t *BasicManga) GetStatus() *MediaStatus {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Status
+}
+func (t *BasicManga) GetSeason() *MediaSeason {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Season
+}
+func (t *BasicManga) GetType() *MediaType {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Type
+}
+func (t *BasicManga) GetFormat() *MediaFormat {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Format
+}
+func (t *BasicManga) GetBannerImage() *string {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.BannerImage
+}
+func (t *BasicManga) GetChapters() *int {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Chapters
+}
+func (t *BasicManga) GetVolumes() *int {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Volumes
+}
+func (t *BasicManga) GetSynonyms() []*string {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Synonyms
+}
+func (t *BasicManga) GetIsAdult() *bool {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.IsAdult
+}
+func (t *BasicManga) GetCountryOfOrigin() *string {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.CountryOfOrigin
+}
+func (t *BasicManga) GetMeanScore() *int {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.MeanScore
+}
+func (t *BasicManga) GetDescription() *string {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Description
+}
+func (t *BasicManga) GetTitle() *BasicManga_Title {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.Title
+}
+func (t *BasicManga) GetCoverImage() *BasicManga_CoverImage {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.CoverImage
+}
+func (t *BasicManga) GetStartDate() *BasicManga_StartDate {
+	if t == nil {
+		t = &BasicManga{}
+	}
+	return t.StartDate
+}
+func (t *BasicManga) GetEndDate() *BasicManga_EndDate {
+	if t == nil {
+		t = &BasicManga{}
 	}
 	return t.EndDate
 }
@@ -747,6 +891,263 @@ func (t *BaseManga_EndDate) GetMonth() *int {
 func (t *BaseManga_EndDate) GetDay() *int {
 	if t == nil {
 		t = &BaseManga_EndDate{}
+	}
+	return t.Day
+}
+
+type BaseManga_Relations_Edges_Node_BasicManga_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *BaseManga_Relations_Edges_Node_BasicManga_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_Title) GetRomaji() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Romaji
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_Title) GetEnglish() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.English
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_Title) GetNative() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Native
+}
+
+type BaseManga_Relations_Edges_Node_BasicManga_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Large
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Color
+}
+
+type BaseManga_Relations_Edges_Node_BasicManga_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetYear() *int {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Year
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Month
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetDay() *int {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Day
+}
+
+type BaseManga_Relations_Edges_Node_BasicManga_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Year
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Month
+}
+func (t *BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Day
+}
+
+type BaseManga_Relations_Edges struct {
+	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
+	Node         *BasicManga    "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *BaseManga_Relations_Edges) GetRelationType() *MediaRelation {
+	if t == nil {
+		t = &BaseManga_Relations_Edges{}
+	}
+	return t.RelationType
+}
+func (t *BaseManga_Relations_Edges) GetNode() *BasicManga {
+	if t == nil {
+		t = &BaseManga_Relations_Edges{}
+	}
+	return t.Node
+}
+
+type BaseManga_Relations struct {
+	Edges []*BaseManga_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *BaseManga_Relations) GetEdges() []*BaseManga_Relations_Edges {
+	if t == nil {
+		t = &BaseManga_Relations{}
+	}
+	return t.Edges
+}
+
+type BasicManga_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *BasicManga_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &BasicManga_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *BasicManga_Title) GetRomaji() *string {
+	if t == nil {
+		t = &BasicManga_Title{}
+	}
+	return t.Romaji
+}
+func (t *BasicManga_Title) GetEnglish() *string {
+	if t == nil {
+		t = &BasicManga_Title{}
+	}
+	return t.English
+}
+func (t *BasicManga_Title) GetNative() *string {
+	if t == nil {
+		t = &BasicManga_Title{}
+	}
+	return t.Native
+}
+
+type BasicManga_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *BasicManga_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &BasicManga_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *BasicManga_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &BasicManga_CoverImage{}
+	}
+	return t.Large
+}
+func (t *BasicManga_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &BasicManga_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *BasicManga_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &BasicManga_CoverImage{}
+	}
+	return t.Color
+}
+
+type BasicManga_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BasicManga_StartDate) GetYear() *int {
+	if t == nil {
+		t = &BasicManga_StartDate{}
+	}
+	return t.Year
+}
+func (t *BasicManga_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &BasicManga_StartDate{}
+	}
+	return t.Month
+}
+func (t *BasicManga_StartDate) GetDay() *int {
+	if t == nil {
+		t = &BasicManga_StartDate{}
+	}
+	return t.Day
+}
+
+type BasicManga_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BasicManga_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BasicManga_EndDate{}
+	}
+	return t.Year
+}
+func (t *BasicManga_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BasicManga_EndDate{}
+	}
+	return t.Month
+}
+func (t *BasicManga_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BasicManga_EndDate{}
 	}
 	return t.Day
 }
@@ -1823,6 +2224,149 @@ func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_EndDa
 	return t.Day
 }
 
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetRomaji() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Romaji
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetEnglish() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.English
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetNative() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Native
+}
+
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Large
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Color
+}
+
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetYear() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Year
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Month
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetDay() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Day
+}
+
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetYear() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Year
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Month
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetDay() *int {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Day
+}
+
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges struct {
+	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
+	Node         *BasicManga    "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges) GetRelationType() *MediaRelation {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges{}
+	}
+	return t.RelationType
+}
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges) GetNode() *BasicManga {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges{}
+	}
+	return t.Node
+}
+
+type MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations struct {
+	Edges []*MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations) GetEdges() []*MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations{}
+	}
+	return t.Edges
+}
+
 type MangaCollection_MediaListCollection_Lists_Entries struct {
 	ID          int                                                            "json:\"id\" graphql:\"id\""
 	Score       *float64                                                       "json:\"score,omitempty\" graphql:\"score\""
@@ -2051,6 +2595,149 @@ func (t *SearchBaseManga_Page_Media_BaseManga_EndDate) GetDay() *int {
 	return t.Day
 }
 
+type SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetRomaji() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Romaji
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetEnglish() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.English
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetNative() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Native
+}
+
+type SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Large
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Color
+}
+
+type SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetYear() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Year
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Month
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetDay() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Day
+}
+
+type SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetYear() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Year
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Month
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetDay() *int {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Day
+}
+
+type SearchBaseManga_Page_Media_BaseManga_Relations_Edges struct {
+	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
+	Node         *BasicManga    "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges) GetRelationType() *MediaRelation {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges{}
+	}
+	return t.RelationType
+}
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations_Edges) GetNode() *BasicManga {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations_Edges{}
+	}
+	return t.Node
+}
+
+type SearchBaseManga_Page_Media_BaseManga_Relations struct {
+	Edges []*SearchBaseManga_Page_Media_BaseManga_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *SearchBaseManga_Page_Media_BaseManga_Relations) GetEdges() []*SearchBaseManga_Page_Media_BaseManga_Relations_Edges {
+	if t == nil {
+		t = &SearchBaseManga_Page_Media_BaseManga_Relations{}
+	}
+	return t.Edges
+}
+
 type SearchBaseManga_Page struct {
 	PageInfo *SearchBaseManga_Page_PageInfo "json:\"pageInfo,omitempty\" graphql:\"pageInfo\""
 	Media    []*BaseManga                   "json:\"media,omitempty\" graphql:\"media\""
@@ -2181,6 +2868,149 @@ func (t *BaseMangaById_Media_BaseManga_EndDate) GetDay() *int {
 		t = &BaseMangaById_Media_BaseManga_EndDate{}
 	}
 	return t.Day
+}
+
+type BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetRomaji() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Romaji
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetEnglish() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.English
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title) GetNative() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title{}
+	}
+	return t.Native
+}
+
+type BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Large
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage{}
+	}
+	return t.Color
+}
+
+type BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetYear() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Year
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Month
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate) GetDay() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate{}
+	}
+	return t.Day
+}
+
+type BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetYear() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Year
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Month
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate) GetDay() *int {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate{}
+	}
+	return t.Day
+}
+
+type BaseMangaById_Media_BaseManga_Relations_Edges struct {
+	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
+	Node         *BasicManga    "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges) GetRelationType() *MediaRelation {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges{}
+	}
+	return t.RelationType
+}
+func (t *BaseMangaById_Media_BaseManga_Relations_Edges) GetNode() *BasicManga {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations_Edges{}
+	}
+	return t.Node
+}
+
+type BaseMangaById_Media_BaseManga_Relations struct {
+	Edges []*BaseMangaById_Media_BaseManga_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *BaseMangaById_Media_BaseManga_Relations) GetEdges() []*BaseMangaById_Media_BaseManga_Relations_Edges {
+	if t == nil {
+		t = &BaseMangaById_Media_BaseManga_Relations{}
+	}
+	return t.Edges
 }
 
 type MangaDetailsById_Media_Rankings struct {
@@ -5983,6 +6813,53 @@ fragment baseManga on Media {
 		month
 		day
 	}
+	relations {
+		edges {
+			relationType(version: 2)
+			node {
+				... basicManga
+			}
+		}
+	}
+}
+fragment basicManga on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	chapters
+	volumes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
 }
 `
 
@@ -6051,6 +6928,53 @@ fragment baseManga on Media {
 		month
 		day
 	}
+	relations {
+		edges {
+			relationType(version: 2)
+			node {
+				... basicManga
+			}
+		}
+	}
+}
+fragment basicManga on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	chapters
+	volumes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
 }
 `
 
@@ -6081,6 +7005,53 @@ const BaseMangaByIDDocument = `query BaseMangaById ($id: Int) {
 	}
 }
 fragment baseManga on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	chapters
+	volumes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
+	relations {
+		edges {
+			relationType(version: 2)
+			node {
+				... basicManga
+			}
+		}
+	}
+}
+fragment basicManga on Media {
 	id
 	idMal
 	siteUrl

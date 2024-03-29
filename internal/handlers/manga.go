@@ -140,6 +140,8 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 	return c.RespondWithData(details.GetMedia())
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // HandleGetMangaEntryChapters return the chapters for a manga entry based on the provider.
 //
 //	POST /api/v1/manga/entry/:id/chapters
