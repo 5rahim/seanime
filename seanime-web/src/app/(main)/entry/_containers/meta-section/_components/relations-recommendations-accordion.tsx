@@ -1,8 +1,10 @@
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
+import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
@@ -19,6 +21,11 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
         ...rest
     } = props
 
+    const serverStatus = useAtomValue(serverStatusAtom)
+
+    const sourceManga = serverStatus?.mangaEnabled
+        ? entry?.media?.relations?.edges?.find(edge => edge?.relationType === "SOURCE" && edge?.node?.format === "MANGA")?.node
+        : undefined
 
     const relations = (entry?.media?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)
@@ -43,6 +50,17 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                         </AccordionTrigger>
                         <AccordionContent className="pt-6 px-0">
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-3 min-[2000px]:grid-cols-4 gap-4">
+                                {sourceManga && <div className="col-span-1">
+                                    <AnimeListItem
+                                        media={sourceManga}
+                                        overlay={<Badge
+                                            className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
+                                            intent="gray"
+                                            size="lg"
+                                        >Source (Manga)</Badge>}
+                                        isManga
+                                    />
+                                </div>}
                                 {relations.slice(0, 4).map(edge => {
                                     return <div key={edge.node?.id} className="col-span-1">
                                         <AnimeListItem

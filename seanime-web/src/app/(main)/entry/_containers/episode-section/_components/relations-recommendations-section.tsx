@@ -1,8 +1,10 @@
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { MediaEntry } from "@/lib/server/types"
+import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
@@ -19,7 +21,11 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
         ...rest
     } = props
 
-    const sourceManga = entry?.media?.relations?.edges?.find(edge => edge?.relationType === "SOURCE" && edge?.node?.format === "MANGA")?.node
+    const serverStatus = useAtomValue(serverStatusAtom)
+
+    const sourceManga = serverStatus?.mangaEnabled
+        ? entry?.media?.relations?.edges?.find(edge => edge?.relationType === "SOURCE" && edge?.node?.format === "MANGA")?.node
+        : undefined
 
     const relations = (entry?.media?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)

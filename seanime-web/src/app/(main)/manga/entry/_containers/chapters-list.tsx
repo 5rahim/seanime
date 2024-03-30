@@ -2,6 +2,7 @@ import { useMangaChapterContainer } from "@/app/(main)/manga/_lib/queries"
 import { MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/types"
 import { __manga_selectedChapterAtom, ChapterDrawer } from "@/app/(main)/manga/entry/_containers/chapter-drawer"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -9,6 +10,7 @@ import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { useSetAtom } from "jotai/react"
 import React from "react"
 import { BiBookAlt } from "react-icons/bi"
+import { FaBookOpenReader } from "react-icons/fa6"
 
 type ChaptersListProps = {
     mediaId: string | null
@@ -91,12 +93,18 @@ export function ChapterItem(props: ChapterItemProps) {
             <Card
                 key={chapter.id}
                 className={cn(
-                    "p-3",
-                    "hover:bg-[--subtle] cursor-pointer",
+                    "p-3 flex w-full gap-2 items-center",
+                    "hover:bg-[--subtle]",
                 )}
-                onClick={() => setSelectedChapter(chapter)}
             >
-                {chapter.title}
+                <p>{chapter.title}</p>
+                <div className="flex flex-1"></div>
+                <IconButton
+                    intent="gray-basic"
+                    size="sm"
+                    onClick={() => setSelectedChapter(chapter)}
+                    icon={<FaBookOpenReader />}
+                />
             </Card>
         </>
     )

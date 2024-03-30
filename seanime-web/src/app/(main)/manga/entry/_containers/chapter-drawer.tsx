@@ -14,6 +14,7 @@ import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
 import { useMount } from "react-use"
+import { toast } from "sonner"
 
 type ChapterDrawerProps = {
     entry: MangaEntry
@@ -47,9 +48,10 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
     // the pageContainer doesn't have page dimensions, switch to paged mode
     React.useEffect(() => {
         if (readingMode === ReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && !pageContainer?.pageDimensions) {
+            toast.error("Could not efficiently get page dimensions from this provider. Switching to paged mode.")
             setReadingMode(ReadingMode.PAGED)
         }
-    }, [pageContainer, pageContainerLoading, pageContainerError])
+    }, [pageContainer, pageContainerLoading, pageContainerError, readingMode])
 
     return (
         <Drawer

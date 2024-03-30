@@ -34,6 +34,7 @@ export type ServerStatus = {
     mal: MalInfo | null
     version: string
     themeSettings?: ThemeSettings | null
+    mangaEnabled: boolean
 }
 
 /**

@@ -47,6 +47,7 @@ export type MangaPageContainer = {
     chapterId: string
     pages?: MangaChapterPage[]
     pageDimensions?: Record<number, { width: number, height: number }>
+    isDownloaded?: boolean
 }
 
 export type MangaChapterDetails = {

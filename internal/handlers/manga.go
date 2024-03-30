@@ -214,5 +214,7 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// TODO
+
 	return c.RespondWithData(true)
 }
