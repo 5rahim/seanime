@@ -58,9 +58,14 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         mutationKey: ["update-anilist-list-entry"],
         onSuccess: async () => {
             toast.success("Entry updated")
-            await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
-            await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            if (type === "anime") {
+                await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
+                await qc.refetchQueries({ queryKey: ["get-library-collection"] })
+                await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            } else if (type === "manga") {
+                await qc.refetchQueries({ queryKey: ["get-manga-entry", media?.id] })
+                await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
+            }
         },
     })
 
@@ -71,9 +76,14 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         onSuccess: async () => {
             toast.success("Entry removed")
             toggle(false)
-            await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
-            await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            if (type === "anime") {
+                await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
+                await qc.refetchQueries({ queryKey: ["get-library-collection"] })
+                await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            } else if (type === "manga") {
+                await qc.refetchQueries({ queryKey: ["get-manga-entry", media?.id] })
+                await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
+            }
         },
     })
 

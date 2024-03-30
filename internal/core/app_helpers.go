@@ -74,7 +74,7 @@ func (a *App) GetAccount() (*models.Account, error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// GetMangaCollection, same as GetAnilistCollection but for manga
+// GetMangaCollection is the same as GetAnilistCollection but for manga
 func (a *App) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
 
 	// Get Anilist Collection from App if it exists

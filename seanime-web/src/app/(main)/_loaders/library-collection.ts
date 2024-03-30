@@ -1,3 +1,4 @@
+import { MangaCollection } from "@/app/(main)/manga/_lib/types"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
 import { LibraryCollection } from "@/lib/server/types"
@@ -36,6 +37,28 @@ export function useLibraryCollectionLoader() {
             setter(data)
         }
     }, [data, status])
+
+    return null
+}
+
+/**
+ * @description
+ * - Top level hook for fetching the MangaCollection
+ */
+export function useMangaCollectionLoader() {
+
+    // const setter = useSetAtom(mangaCollectionAtom)
+
+    const { data, status } = useSeaQuery<MangaCollection>({
+        endpoint: SeaEndpoints.MANGA_COLLECTION,
+        queryKey: ["get-manga-collection"],
+    })
+
+    // useEffect(() => {
+    //     if (status === "success") {
+    //         setter(data)
+    //     }
+    // }, [data, status])
 
     return null
 }

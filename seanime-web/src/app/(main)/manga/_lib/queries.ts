@@ -1,8 +1,15 @@
-import { MangaChapterContainer, MangaCollection, MangaEntry, MangaPageContainer } from "@/app/(main)/manga/_lib/types"
+import {
+    MangaChapterContainer,
+    MangaChapterDetails,
+    MangaCollection,
+    MangaEntry,
+    MangaEntryBackups,
+    MangaPageContainer,
+} from "@/app/(main)/manga/_lib/types"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/utils"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
+import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
@@ -29,7 +36,7 @@ export function useMangaCollection() {
 export function useMangaEntry(mediaId: string | undefined | null) {
     const { data, isLoading } = useSeaQuery<MangaEntry>({
         endpoint: SeaEndpoints.MANGA_ENTRY.replace("{id}", mediaId ?? ""),
-        queryKey: ["get-manga-entry", mediaId],
+        queryKey: ["get-manga-entry", Number(mediaId)],
         enabled: !!mediaId,
     })
 
@@ -42,7 +49,7 @@ export function useMangaEntry(mediaId: string | undefined | null) {
 export function useMangaEntryDetails(mediaId: string | undefined | null) {
     const { data, isLoading } = useSeaQuery<MangaDetailsByIdQuery["Media"]>({
         endpoint: SeaEndpoints.MANGA_ENTRY_DETAILS.replace("{id}", mediaId ?? ""),
-        queryKey: ["get-manga-entry-details", mediaId],
+        queryKey: ["get-manga-entry-details", Number(mediaId)],
         enabled: !!mediaId,
     })
 
@@ -51,6 +58,67 @@ export function useMangaEntryDetails(mediaId: string | undefined | null) {
         mangaDetailsLoading: isLoading,
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Backups
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function useMangaEntryBackups(mediaId: string | undefined | null) {
+    // FIXME SHELVED
+    // const provider = useAtomValue(__manga_selectedProviderAtom)
+    //
+    // const { data, isLoading, isFetching } = useSeaQuery<MangaEntryBackups>({
+    //     endpoint: SeaEndpoints.MANGA_ENTRY_BACKUPS,
+    //     method: "post",
+    //     data: {
+    //         mediaId: Number(mediaId),
+    //         provider,
+    //     },
+    //     queryKey: ["get-manga-entry-backups", Number(mediaId), provider],
+    //     enabled: !!mediaId,
+    //     gcTime: 0,
+    // })
+    //
+    // return {
+    //     chapterBackups: data,
+    //     chapterBackupsLoading: isLoading || isFetching,
+    // }
+
+    return {
+        chapterBackups: {
+            mediaId: Number(mediaId),
+            provider: "comick",
+            chapterIds: {},
+        } as MangaEntryBackups,
+        chapterBackupsLoading: false,
+    }
+}
+
+export function useDownloadMangaChapter(mediaId: string | undefined | null) {
+    const provider = useAtomValue(__manga_selectedProviderAtom)
+
+    const { mutate, isPending } = useSeaMutation<void, { mediaId: number, provider: string, chapterId: string }>({
+        endpoint: SeaEndpoints.DOWNLOAD_MANGA_CHAPTER,
+        method: "post",
+        mutationKey: ["download-manga-chapter", Number(mediaId), provider],
+    })
+
+    return {
+        downloadChapter: (chapter: MangaChapterDetails) => {
+            mutate({
+                mediaId: Number(mediaId),
+                provider,
+                chapterId: chapter.id,
+            })
+        },
+        isSendingDownloadRequest: isPending,
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Chapters and Pages
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function useMangaChapterContainer(mediaId: string | undefined | null) {
     const provider = useAtomValue(__manga_selectedProviderAtom)
@@ -62,7 +130,7 @@ export function useMangaChapterContainer(mediaId: string | undefined | null) {
             mediaId: Number(mediaId),
             provider,
         },
-        queryKey: ["get-manga-chapters", mediaId, provider],
+        queryKey: ["get-manga-chapters", Number(mediaId), provider],
         enabled: !!mediaId,
         gcTime: 0,
     })
@@ -98,7 +166,7 @@ export function useMangaPageContainer(mediaId: string | undefined | null, chapte
             chapterId,
             provider,
         },
-        queryKey: ["get-manga-pages", mediaId, provider, chapterId],
+        queryKey: ["get-manga-pages", Number(mediaId), provider, chapterId],
         enabled: !!mediaId && !!chapterId,
     })
 

@@ -1,6 +1,7 @@
 package manga
 
 import (
+	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga/providers"
@@ -64,7 +65,9 @@ func TestDownloader(t *testing.T) {
 						// TEST
 						//
 
-						err := d.downloadImages(string(tt.providerName), tt.mediaId, chapterInfo.ID, pages, cacheDir)
+						ctx, cancel := context.WithCancel(context.Background())
+						defer cancel()
+						err := d.downloadImages(ctx, string(tt.providerName), tt.mediaId, chapterInfo.ID, pages, cacheDir)
 						assert.NoError(t, err, "downloadImages() error")
 
 						backupMap, err := d.getBackups(cacheDir)
@@ -73,7 +76,7 @@ func TestDownloader(t *testing.T) {
 						assert.NotEmpty(t, backupMap, "backupMap is empty")
 						spew.Dump(backupMap)
 
-						pageMap, err := d.getPageMap(string(tt.providerName), tt.mediaId, chapterInfo.ID, cacheDir)
+						pageMap, _, err := d.getPageMap(string(tt.providerName), tt.mediaId, chapterInfo.ID, cacheDir)
 						assert.NoError(t, err, "getPageMap() error")
 
 						assert.NotEmpty(t, pageMap, "pageMap is empty")

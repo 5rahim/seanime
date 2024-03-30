@@ -47,11 +47,13 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
     // If the reading mode is set to double page but
     // the pageContainer doesn't have page dimensions, switch to paged mode
     React.useEffect(() => {
-        if (readingMode === ReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && !pageContainer?.pageDimensions) {
-            toast.error("Could not efficiently get page dimensions from this provider. Switching to paged mode.")
-            setReadingMode(ReadingMode.PAGED)
+        if (selectedChapter) {
+            if (readingMode === ReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && !pageContainer?.pageDimensions) {
+                toast.error("Could not efficiently get page dimensions from this provider. Switching to paged mode.")
+                setReadingMode(ReadingMode.PAGED)
+            }
         }
-    }, [pageContainer, pageContainerLoading, pageContainerError, readingMode])
+    }, [selectedChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
 
     return (
         <Drawer
@@ -158,7 +160,6 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
             }
             mapI++
         }
-        console.log(map)
         return map
     }, [pageContainer?.pages, readingMode, selectedChapter, hydrated])
 
@@ -173,6 +174,16 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
             return draft
         })
     }, [paginationMap, readingDirection])
+
+    const getSrc = (url: string) => {
+        if (!pageContainer?.isDownloaded) {
+            return url
+        }
+
+        return process.env.NODE_ENV === "development"
+            ? `http://${window?.location?.hostname}:43211/manga-backups${url}`
+            : `http://${window?.location?.host}/manga-backups${url}`
+    }
 
     const currentPages = React.useMemo(() => paginationMap.get(currentMapIndex), [currentMapIndex, paginationMap])
     const twoDisplayed = readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.length === 2
@@ -207,7 +218,7 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
                     twoDisplayed && readingMode === ReadingMode.DOUBLE_PAGE && readingDirection === ReadingDirection.RTL && "flex-row-reverse",
                 )}
             >
-                {pageContainer?.pages?.map((page, index) => (
+                {pageContainer?.pages?.toSorted((a, b) => a.index - b.index)?.map((page, index) => (
                     <div
                         key={page.url}
                         className={cn(
@@ -221,7 +232,7 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
                         id={`page-${index}`}
                     >
                         <img
-                            src={page.url} alt={`Page ${index}`} className={cn(
+                            src={getSrc(page.url)} alt={`Page ${index}`} className={cn(
                             "w-full h-full inset-0 object-contain object-center select-none",
                             twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "[object-position:0%_50%] before:content-['']",
                             twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[1] === index && "[object-position:100%_50%]",

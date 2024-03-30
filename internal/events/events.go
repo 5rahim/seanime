@@ -4,6 +4,7 @@ const (
 	EventScanProgress                      = "scan-progress"                              // Progress of the scan
 	EventScanStatus                        = "scan-status"                                // Status text of the scan
 	RefreshedAnilistCollection             = "refreshed-anilist-collection"               // The anilist collection has been refreshed
+	RefreshedAnilistMangaCollection        = "refreshed-anilist-manga-collection"         // The manga collection has been refreshed
 	MediaPlayerTrackingStopped             = "media-player-tracking-stopped"              // DEPRECATED: The media player tracking has stopped
 	MediaPlayerTrackingStarted             = "media-player-tracking-started"              // DEPRECATED: The media player tracking has started
 	MediaPlayerVideoCompleted              = "media-player-video-completed"               // DEPRECATED: The video has been completed

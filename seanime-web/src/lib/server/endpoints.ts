@@ -103,6 +103,8 @@ export const enum SeaEndpoints {
     MANGA_ENTRY_DETAILS = "/manga/entry/{id}/details", // (GET)
     MANGA_CHAPTERS = "/manga/chapters", // (POST)
     MANGA_PAGES = "/manga/pages", // (POST)
+    MANGA_ENTRY_BACKUPS = "/manga/entry/backups", // (POST)
+    DOWNLOAD_MANGA_CHAPTER = "/manga/download-chapter", // (POST)
 
     /**
      * Theme
@@ -114,6 +116,7 @@ export const enum WSEvents {
     SCAN_PROGRESS = "scan-progress",
     SCAN_STATUS = "scan-status",
     REFRESHED_ANILIST_COLLECTION = "refreshed-anilist-collection",
+    REFRESHED_ANILIST_MANGA_COLLECTION = "refreshed-anilist-manga-collection",
     LIBRARY_WATCHER_FILE_ADDED = "library-watcher-file-added",
     LIBRARY_WATCHER_FILE_REMOVED = "library-watcher-file-removed",
     AUTO_DOWNLOADER_ITEM_ADDED = "auto-downloader-item-added",
@@ -130,4 +133,5 @@ export const enum WSEvents {
     PLAYBACK_MANAGER_NOTIFY_INFO = "playback-manager-notify-info",
     PLAYBACK_MANAGER_NOTIFY_ERROR = "playback-manager-notify-error",
     PLAYBACK_MANAGER_PLAYLIST_STATE = "playback-manager-playlist-state",
+    MANGA_DOWNLOADER_DOWNLOADING_PROGRESS = "manga-downloader-downloading-progress",
 }

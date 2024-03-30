@@ -1,6 +1,7 @@
 package manga
 
 import (
+	"context"
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
@@ -11,20 +12,23 @@ import (
 	_ "image/png"  // Register PNG format
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 )
 
 type (
 	Repository struct {
-		logger         *zerolog.Logger
-		fileCacher     *filecache.Cacher
-		comick         *manga_providers.ComicK
-		mangasee       *manga_providers.Mangasee
-		downloader     *downloader
-		backupDir      string
-		serverUri      string
-		backupMap      BackupMap
-		wsEventManager events.IWSEventManager
+		logger           *zerolog.Logger
+		fileCacher       *filecache.Cacher
+		comick           *manga_providers.ComicK
+		mangasee         *manga_providers.Mangasee
+		downloader       *downloader
+		backupDir        string
+		serverUri        string
+		backupMap        BackupMap
+		wsEventManager   events.IWSEventManager
+		mu               sync.Mutex
+		downloadContexts map[DownloadID]context.CancelFunc
 	}
 
 	NewRepositoryOptions struct {
@@ -38,42 +42,85 @@ type (
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:     opts.Logger,
-		fileCacher: opts.FileCacher,
-		comick:     manga_providers.NewComicK(opts.Logger),
-		mangasee:   manga_providers.NewMangasee(opts.Logger),
-		downloader: newDownloader(opts.Logger, opts.WsEventManager),
-		backupDir:  opts.BackupDir,
-		serverUri:  opts.ServerURI,
-		backupMap:  make(BackupMap),
+		logger:           opts.Logger,
+		fileCacher:       opts.FileCacher,
+		comick:           manga_providers.NewComicK(opts.Logger),
+		mangasee:         manga_providers.NewMangasee(opts.Logger),
+		downloader:       newDownloader(opts.Logger, opts.WsEventManager),
+		backupDir:        opts.BackupDir,
+		serverUri:        opts.ServerURI,
+		backupMap:        make(BackupMap),
+		downloadContexts: make(map[DownloadID]context.CancelFunc),
 	}
 
-	r.hydrateBackupMap()
+	//go r.hydrateBackupMap()
 
 	return r
 }
 
-// RefreshBackups is a client action.
-func (r *Repository) RefreshBackups() {
-	r.hydrateBackupMap()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Backups
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type EntryBackupContainer struct {
+	Provider   string          `json:"provider"`
+	MediaId    int             `json:"mediaId"`
+	ChapterIds map[string]bool `json:"chapterIds"` // Using map for O(1) lookup in the client
+}
+
+// GetMangaEntryBackups returns the backup chapters for the given manga entry.
+// Used by the client to display the downloaded chapters / allow user to download chapters.
+// Never returns nil.
+func (r *Repository) GetMangaEntryBackups(provider manga_providers.Provider, mediaId int) *EntryBackupContainer {
+
+	// Get the backup chapters for the given manga entry
+	backupContainer := &EntryBackupContainer{
+		ChapterIds: make(map[string]bool),
+		Provider:   string(provider),
+		MediaId:    mediaId,
+	}
+
+	return backupContainer
+
+	// DEVNOTE: SHELVED
+	//if r.backupMap == nil {
+	//	return backupContainer
+	//}
+	//
+	//storedChapterIds, found := r.backupMap[DownloadID{Provider: string(provider), MediaID: mediaId}]
+	//if !found {
+	//	return backupContainer
+	//}
+	//
+	//for _, chapterId := range storedChapterIds {
+	//	backupContainer.ChapterIds[chapterId] = true
+	//}
+	//
+	//return backupContainer
+}
+
+func (r *Repository) hydrateBackupMap() {
+	// Get the backup folders
+	backupMap, err := r.downloader.getBackups(r.backupDir)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: failed to hydrate backup map")
+		return
+	}
+
+	// Set the backup map
+	r.backupMap = backupMap
+}
+func (r *Repository) GetStoredChapterIdsFromBackup(c DownloadID) ([]string, bool, error) {
+	if r.backupMap == nil {
+		return nil, false, nil
+	}
+
+	storedChapterIds, found := r.backupMap[c]
+	return storedChapterIds, found, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) hydrateBackupMap() {
-	go func() {
-		// Get the backup folders
-		backupMap, err := r.downloader.getBackups(r.backupDir)
-		if err != nil {
-			//r.logger.Error().Err(err).Msg("manga: failed to hydrate backup map")
-			return
-		}
-
-		// Set the backup map
-		r.backupMap = backupMap
-	}()
-}
-
+// File Cache
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type bucketType string
@@ -90,9 +137,11 @@ func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, medi
 	return filecache.NewBucket("manga"+"_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func getImageNaturalSize(url string) (int, int, error) {
 	// Fetch the image
-	resp, err := http.Head(url) // FIXME Use HEAD to avoid downloading the entire image, this only works for ComicK
+	resp, err := http.Head(url) // DEVNOTE: Using HEAD to avoid downloading the entire image, this only works for ComicK
 	if err != nil {
 		return 0, 0, err
 	}

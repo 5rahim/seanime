@@ -11,5 +11,13 @@ func RefreshAnilistCollectionJob(c *JobCtx) {
 		return
 	}
 
+	if c.App.Config.Manga.Enabled {
+		mangaCollection, err := c.App.GetMangaCollection(true)
+		if err != nil {
+			return
+		}
+		c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, mangaCollection)
+	}
+
 	c.App.WSEventManager.SendEvent(events.RefreshedAnilistCollection, anilistCollection)
 }

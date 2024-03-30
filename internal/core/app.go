@@ -210,11 +210,12 @@ func NewFiberApp(app *App) *fiber.App {
 		Compress: true,
 	})
 
-	app.Logger.Debug().Msgf("app: Serving web assets from \"%s\"", app.Config.Web.AssetDir)
-	fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{
-		Index:    "index.html",
-		Compress: false,
-	})
+	// DEVNOTE: SHELVED
+	//app.Logger.Debug().Msgf("app: Serving web assets from \"%s\"", app.Config.Web.AssetDir)
+	//fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{
+	//	Index:    "index.html",
+	//	Compress: false,
+	//})
 
 	if app.Config.Manga.Enabled {
 		app.Logger.Debug().Msgf("app: Serving manga backups from \"%s\"", app.Config.Manga.BackupDir)

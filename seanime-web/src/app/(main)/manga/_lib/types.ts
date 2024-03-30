@@ -35,6 +35,12 @@ export type MangaEntryListData = {
     completedAt?: string
 }
 
+export type MangaEntryBackups = {
+    mediaId: number
+    provider: string
+    chapterIds: Record<string, boolean>
+}
+
 export type MangaChapterContainer = {
     mediaId: number
     provider: string
