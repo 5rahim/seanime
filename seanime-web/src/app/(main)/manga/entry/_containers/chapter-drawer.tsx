@@ -57,31 +57,6 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
         })
     }, [selectedChapter, pageContainer])
 
-    React.useEffect(() => {
-        setCurrentPages((draft) => {
-            if (!!pageContainer?.pages?.length && readingMode === ReadingMode.DOUBLE_PAGE && draft?.pages.length === 1) {
-                if (draft && draft.pages[0] + 1 < pageContainer?.pages?.length) {
-                    draft.pages.push(draft.pages[0] + 1)
-                }
-                return
-            }
-        })
-    }, [readingMode, pageContainer?.pages?.length])
-
-    React.useLayoutEffect(() => {
-        if (!!pageContainer?.pages?.length && currentPages?.pages?.some((page) => page >= pageContainer?.pages?.length!)) {
-            setCurrentPages((draft) => {
-                if (draft && draft.pages.length === 2) {
-                    draft.pages = draft.pages.filter((page) => page < pageContainer?.pages?.length!)
-                }
-            })
-        }
-    }, [currentPages])
-
-    React.useEffect(() => {
-        logger("manga").info("currentPages: ", currentPages)
-    }, [currentPages])
-
     return (
         <Drawer
             open={!!selectedChapter}
@@ -98,19 +73,6 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
                 <h4>
                     {entry?.media?.title?.userPreferred} - {selectedChapter?.title || ""}
                 </h4>
-                {!!currentPages?.pages?.length && (
-                    readingMode === ReadingMode.DOUBLE_PAGE ? (
-                        <p className="text-[--muted]">
-                            {currentPages?.pages?.length > 1
-                                ? `${currentPages?.pages[0] + 1}-${currentPages?.pages[1] + 1}`
-                                : currentPages?.pages[0] + 1} / {pageContainer?.pages?.length}
-                        </p>
-                    ) : (
-                        <p className="text-[--muted]">
-                            {currentPages?.pages[0] + 1} / {pageContainer?.pages?.length}
-                        </p>
-                    )
-                )}
                 <div className="flex flex-1"></div>
                 <p>
                     {readingModeOptions.find((option) => option.value === readingMode)?.label}, {readingDirectionOptions.find((option) => option.value === readingDirection)?.label}
@@ -154,49 +116,94 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
     const containerRef = React.useRef<HTMLDivElement>(null)
     const readingMode = useAtomValue(readingModeAtom)
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
-    const [currentPages, setCurrentPages] = useAtom(currentPagesAtom) // Used for PAGED and DOUBLE_PAGE reading modes
 
     const readingDirection = useAtomValue(readingDirectionAtom)
 
-    const onPaginate = (dir: "left" | "right") => {
-        setCurrentPages((draft) => {
-            if (draft && pageContainer?.pages?.length) {
-                const shouldDecrement = dir === "left" && readingDirection === ReadingDirection.LTR || dir === "right" && readingDirection === ReadingDirection.RTL
-                if (draft.pages.length === 0) {
-                    draft.pages = readingMode === ReadingMode.DOUBLE_PAGE ? [0, 1] : [0]
-                }
-                if (shouldDecrement && !draft?.pages.includes(0)) {
-                    if (readingMode === ReadingMode.DOUBLE_PAGE) {
-                        draft.pages = draft.pages.map((page) => page - 2)
-                    } else {
-                        draft.pages = draft.pages.map((page) => page - 1)
-                    }
-                }
-                if (!shouldDecrement && !draft?.pages.includes(pageContainer?.pages?.length - 1)) {
-                    if (readingMode === ReadingMode.DOUBLE_PAGE) {
-                        draft.pages = draft.pages.map((page) => page + 2)
-                    } else {
-                        draft.pages = draft.pages.map((page) => page + 1)
-                    }
-                }
+    const [currentMapIndex, setCurrentMapIndex] = React.useState<number>(0)
 
-                if (draft.pages.length === 1 && readingMode === ReadingMode.DOUBLE_PAGE) {
-                    draft.pages.push(draft.pages[0] + 1)
-                }
+    const paginationMap = React.useMemo(() => {
+        setCurrentMapIndex(0)
+        if (!pageContainer?.pages?.length) return new Map<number, number[]>()
 
-                draft.pages = draft.pages.filter((page) => page >= 0 && page <= pageContainer?.pages?.length!)
-                return
+        if (readingMode === ReadingMode.PAGED) {
+            let i = 0
+            const map = new Map<number, number[]>()
+            while (i < pageContainer?.pages?.length) {
+                map.set(i, [i])
+                i++
             }
-        })
-    }
+            return map
+        }
 
-    const twoDisplayed = readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.length === 2
+        const pageDivs = containerRef.current?.querySelectorAll(".page")
+        if (!pageDivs) return new Map<number, number[]>()
+
+        const pageObjects = [...pageDivs.values()].map((div) => {
+            const img = div.querySelector("img")
+            return { over: img && img.naturalWidth > 2000, idx: Number(div.id.split("-")[1]) }
+        })
+        // idx -> [a, b]
+        const map = new Map<number, number[]>()
+
+        // if page x is over 2000px, we display it alone, else we display pairs
+        // e.g. [[0, 1], [2, 3], [4, 5], [6], [7, 8], ...]
+        let i = 0
+        let mapI = 0
+        while (i < pageObjects.length) {
+            if (pageObjects[i].over) {
+                map.set(mapI, [pageObjects[i].idx])
+                i++
+            } else if (!!pageObjects[i + 1] && !pageObjects[i + 1].over) {
+                map.set(mapI, [pageObjects[i].idx, pageObjects[i + 1].idx])
+                i += 2
+            } else {
+                map.set(mapI, [pageObjects[i].idx])
+                i++
+            }
+            mapI++
+        }
+        console.log(map)
+        return map
+    }, [pageContainer?.pages, containerRef.current, readingMode, selectedChapter])
+
+    const onPaginate = React.useCallback((dir: "left" | "right") => {
+        const shouldDecrement = dir === "left" && readingDirection === ReadingDirection.LTR || dir === "right" && readingDirection === ReadingDirection.RTL
+
+        setCurrentMapIndex((draft) => {
+            const newIdx = shouldDecrement ? draft - 1 : draft + 1
+            if (paginationMap.has(newIdx)) {
+                return newIdx
+            }
+            return draft
+        })
+    }, [paginationMap, readingDirection])
+
+    const currentPages = React.useMemo(() => paginationMap.get(currentMapIndex), [currentMapIndex, paginationMap])
+
+    console.log(currentPages, currentMapIndex)
+
+    const twoDisplayed = readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.length === 2
 
     return (
         <div
             className="h-[calc(100dvh-60px)] overflow-y-hidden overflow-x-hidden w-full px-4 space-y-4 select-none relative"
             ref={containerRef}
         >
+            <div className="w-fit right-6 absolute z-[5] flex items-center bottom-2">
+                {!!currentPages?.length && (
+                    readingMode === ReadingMode.DOUBLE_PAGE ? (
+                        <p className="text-[--muted]">
+                            {currentPages?.length > 1
+                                ? `${currentPages[0] + 1}-${currentPages[1] + 1}`
+                                : currentPages[0] + 1} / {pageContainer?.pages?.length}
+                        </p>
+                    ) : (
+                        <p className="text-[--muted]">
+                            {currentPages[0] + 1} / {pageContainer?.pages?.length}
+                        </p>
+                    )
+                )}
+            </div>
             <div className="absolute w-full h-[calc(100dvh-60px)] flex z-[5]">
                 <div className="h-full w-full flex flex-1" onClick={() => onPaginate("left")} />
                 <div className="h-full w-full flex flex-1" onClick={() => onPaginate("right")} />
@@ -211,22 +218,22 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
                     <div
                         key={page.url}
                         className={cn(
-                            "w-full h-[calc(100dvh-60px)] scroll-div min-h-[200px] relative",
-                            !currentPages?.pages?.includes(index) && "hidden",
-                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[0] === index && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[1] === index && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[1] === index && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[0] === index && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
+                            "w-full h-[calc(100dvh-60px)] scroll-div min-h-[200px] relative page",
+                            !currentPages?.includes(index) ? "hidden" : "displayed",
+                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
+                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[1] === index && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
+                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[1] === index && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
+                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
                         )}
                         id={`page-${index}`}
                     >
                         <img
                             src={page.url} alt={`Page ${index}`} className={cn(
                             "w-full h-full inset-0 object-contain object-center select-none",
-                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[0] === index && "[object-position:0%_50%] before:content-['']",
-                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[1] === index && "[object-position:100%_50%]",
-                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[0] === index && "[object-position:100%_50%]",
-                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.pages?.[1] === index && "[object-position:0%_50%]",
+                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "[object-position:0%_50%] before:content-['']",
+                            twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[1] === index && "[object-position:100%_50%]",
+                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "[object-position:100%_50%]",
+                            twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[1] === index && "[object-position:0%_50%]",
                         )}
                         />
                     </div>
