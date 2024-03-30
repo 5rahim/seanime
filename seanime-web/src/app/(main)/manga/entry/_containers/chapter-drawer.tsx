@@ -140,8 +140,8 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
 
             <div className="fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[#0c0c0c]">
                 <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="xs" onClick={() => setSelectedChapter(undefined)} />
-                <h4>
-                    {entry?.media?.title?.userPreferred} - {selectedChapter?.title || ""}
+                <h4 className="flex gap-1 items-center">
+                    <span className="max-w-[180px] text-ellipsis truncate block">{entry?.media?.title?.userPreferred}</span> - {selectedChapter?.title || ""}
                 </h4>
                 <div className="flex flex-1"></div>
 
@@ -395,7 +395,7 @@ function VerticalReadingMode({ pageContainer }: VerticalReadingModeProps) {
             const scrollHeight = containerRef.current.scrollHeight
             const clientHeight = containerRef.current.clientHeight
 
-            if (scrollTop + clientHeight >= scrollHeight - 1500) {
+            if (scrollTop > 1000 && (scrollTop + clientHeight >= scrollHeight - 1500)) {
                 setIsLastPage(true)
             } else {
                 setIsLastPage(false)
