@@ -282,6 +282,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
 	v1Manga.Post("/entry/backups", makeHandler(app, HandleGetMangaEntryBackups))
 	v1Manga.Post("/download-chapter", makeHandler(app, HandleDownloadMangaChapter))
+	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
 	//
 	// Websocket

@@ -1,15 +1,12 @@
-import { useDownloadMangaChapter, useMangaChapterContainer, useMangaEntryBackups } from "@/app/(main)/manga/_lib/queries"
+import { useMangaChapterContainer, useMangaEntryBackups } from "@/app/(main)/manga/_lib/queries"
 import { MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/types"
 import { __manga_selectedChapterAtom, ChapterDrawer } from "@/app/(main)/manga/entry/_containers/chapter-drawer"
-import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
-import { WSEvents } from "@/lib/server/endpoints"
-import { useQueryClient } from "@tanstack/react-query"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
@@ -33,31 +30,31 @@ export function ChaptersList(props: ChaptersListProps) {
         ...rest
     } = props
 
-    const qc = useQueryClient()
 
     const { chapterContainer, chapterIdToNumbersMap, chapterContainerLoading } = useMangaChapterContainer(mediaId)
 
     const { chapterBackups, chapterBackupsLoading } = useMangaEntryBackups(mediaId)
-    const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
     const [downloadProgressMap, setDownloadProgressMap] = useAtom(downloadProgressMapAtom)
 
-    useWebsocketMessageListener<{ chapterId: string, number: number } | null>({
-        type: WSEvents.MANGA_DOWNLOADER_DOWNLOADING_PROGRESS,
-        onMessage: data => {
-            if (!data) return
-
-            if (data.number === 0) {
-                setDownloadProgressMap(draft => {
-                    delete draft[data.chapterId]
-                })
-                qc.refetchQueries({ queryKey: ["get-manga-entry-backups"] })
-            } else {
-                setDownloadProgressMap(draft => {
-                    draft[data.chapterId] = data.number
-                })
-            }
-        },
-    })
+    // const qc = useQueryClient()
+    // const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
+    // useWebsocketMessageListener<{ chapterId: string, number: number } | null>({
+    //     type: WSEvents.MANGA_DOWNLOADER_DOWNLOADING_PROGRESS,
+    //     onMessage: data => {
+    //         if (!data) return
+    //
+    //         if (data.number === 0) {
+    //             setDownloadProgressMap(draft => {
+    //                 delete draft[data.chapterId]
+    //             })
+    //             qc.refetchQueries({ queryKey: ["get-manga-entry-backups"] })
+    //         } else {
+    //             setDownloadProgressMap(draft => {
+    //                 draft[data.chapterId] = data.number
+    //             })
+    //         }
+    //     },
+    // })
 
     const retainUnreadChapters = React.useCallback((chapter: MangaChapterDetails) => {
         if (!entry.listData || !chapterIdToNumbersMap.has(chapter.id) || !entry.listData?.progress) return true
@@ -91,14 +88,14 @@ export function ChaptersList(props: ChaptersListProps) {
                         <h3 className="flex gap-2 items-center"><BiBookAlt className="text-gray-300" /> All chapters</h3>
                     </AccordionTrigger>
                     <AccordionContent className="p-0 py-4 space-y-2">
-                        {chapterContainer?.chapters?.toReversed()?.map((chapter, index) => (
+                        {chapterContainer?.chapters?.toReversed()?.map((chapter) => (
                             <ChapterItem
                                 chapter={chapter}
                                 key={chapter.id}
                                 chapterBackups={chapterBackups}
                                 handleDownloadChapter={handleDownloadChapter}
                                 downloadProgressMap={downloadProgressMap}
-                                isSendingDownloadRequest={isSendingDownloadRequest}
+                                isSendingDownloadRequest={false}
                             />
                         ))}
                     </AccordionContent>
@@ -107,18 +104,22 @@ export function ChaptersList(props: ChaptersListProps) {
 
 
             <h3>Unread chapters</h3>
-            {chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter, index) => (
+            {chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (
                 <ChapterItem
                     chapter={chapter}
                     key={chapter.id}
                     chapterBackups={chapterBackups}
                     handleDownloadChapter={handleDownloadChapter}
                     downloadProgressMap={downloadProgressMap}
-                    isSendingDownloadRequest={isSendingDownloadRequest}
+                    isSendingDownloadRequest={false}
                 />
             ))}
 
-            <ChapterDrawer entry={entry} chapterContainer={chapterContainer} />
+            <ChapterDrawer
+                entry={entry}
+                chapterContainer={chapterContainer}
+                chapterIdToNumbersMap={chapterIdToNumbersMap}
+            />
         </div>
     )
 }

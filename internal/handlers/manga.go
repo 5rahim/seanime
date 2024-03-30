@@ -304,3 +304,37 @@ func HandleAnilistListManga(c *RouteCtx) error {
 
 	return c.RespondWithData(true)
 }
+
+// HandleUpdateMangaProgress will update the progress of the given media entry.
+//
+// DEVOTE: MyAnimeList is not supported
+//
+//	POST /v1/manga/update-progress
+func HandleUpdateMangaProgress(c *RouteCtx) error {
+
+	type body struct {
+		MediaId       int `json:"mediaId"`
+		ChapterNumber int `json:"chapterNumber"`
+		TotalChapters int `json:"totalChapters"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Update the progress on AniList
+	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
+		context.Background(),
+		&b.MediaId,
+		&b.ChapterNumber,
+		&b.TotalChapters,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	_, _ = c.App.RefreshMangaCollection() // Refresh the AniList collection
+
+	return c.RespondWithData(true)
+}

@@ -1,17 +1,20 @@
 import { useMangaPageContainer } from "@/app/(main)/manga/_lib/queries"
 import { MangaChapterContainer, MangaChapterDetails, MangaEntry, MangaPageContainer } from "@/app/(main)/manga/_lib/types"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
+import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { logger } from "@/lib/helpers/debug"
-import { atomWithImmer } from "jotai-immer"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
+import { useQueryClient } from "@tanstack/react-query"
+import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
-import { AiOutlineArrowLeft } from "react-icons/ai"
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
 import { useMount } from "react-use"
 import { toast } from "sonner"
@@ -19,6 +22,7 @@ import { toast } from "sonner"
 type ChapterDrawerProps = {
     entry: MangaEntry
     chapterContainer: MangaChapterContainer
+    chapterIdToNumbersMap: Map<string, number>
 }
 
 // export const __manga_selectedChapterAtom = atom<MangaChapterDetails | undefined>(undefined)
@@ -27,20 +31,25 @@ export const __manga_selectedChapterAtom = atomWithStorage<MangaChapterDetails |
     undefined,
     { getOnInit: true })
 
-const currentPagesAtom = atomWithImmer<{ chapterId: string, pages: number[] } | undefined>(undefined)
+
+const isLastPageAtom = atom(false)
 
 export function ChapterDrawer(props: ChapterDrawerProps) {
 
     const {
         entry,
         chapterContainer,
+        chapterIdToNumbersMap,
         ...rest
     } = props
+
+    const qc = useQueryClient()
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
 
     const [readingMode, setReadingMode] = useAtom(readingModeAtom)
     const readingDirection = useAtomValue(readingDirectionAtom)
+    const isLastPage = useAtomValue(isLastPageAtom)
 
     const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"), selectedChapter?.id)
 
@@ -55,6 +64,38 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
         }
     }, [selectedChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
 
+    const { mutate: updateProgress, isPending: isUpdatingProgress } = useSeaMutation<boolean, {
+        chapterNumber: number,
+        mediaId: number,
+        totalChapters: number,
+    }>({
+        endpoint: SeaEndpoints.UPDATE_MANGA_PROGRESS,
+        mutationKey: ["update-manga-progress", entry.mediaId],
+        method: "post",
+        onSuccess: () => {
+            qc.refetchQueries({ queryKey: ["get-manga-entry", Number(entry.mediaId)] })
+            qc.refetchQueries({ queryKey: ["get-manga-collection"] })
+            toast.success("Progress updated")
+        },
+    })
+
+    const { previousChapter, nextChapter } = React.useMemo(() => {
+        if (!chapterContainer?.chapters) return { previousChapter: undefined, nextChapter: undefined }
+
+        const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === selectedChapter?.id)
+        return {
+            previousChapter: chapterContainer.chapters[idx - 1],
+            nextChapter: chapterContainer.chapters[idx + 1],
+        }
+    }, [chapterContainer?.chapters, selectedChapter])
+
+    const shouldUpdateProgress = React.useMemo(() => {
+        const currentChapterNumber = chapterIdToNumbersMap.get(selectedChapter?.id || "")
+        if (!currentChapterNumber) return false
+        if (!entry.listData?.progress) return true
+        return currentChapterNumber > entry.listData.progress
+    }, [chapterIdToNumbersMap, entry, selectedChapter])
+
     return (
         <Drawer
             open={!!selectedChapter}
@@ -66,11 +107,82 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
             closeButton={<></>}
         >
 
+            <div
+                className={cn(
+                    "fixed top-2 left-2 z-[6] hidden",
+                    (shouldUpdateProgress && isLastPage && !pageContainerLoading && !pageContainerError) && "block",
+                )}
+            >
+                <Card className="max-w-[800px]">
+                    <CardHeader>
+                        Update progress to {chapterIdToNumbersMap.get(selectedChapter?.id || "")} / {entry?.media?.chapters || "-"}
+                    </CardHeader>
+                    <CardFooter>
+                        <Button
+                            onClick={() => {
+                                updateProgress({
+                                    chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.id || "") || 0,
+                                    mediaId: entry.mediaId,
+                                    totalChapters: chapterContainer?.chapters?.length || 0,
+                                })
+                            }}
+                            className="w-full animate-pulse"
+                            size="sm"
+                            intent="success"
+                            loading={isUpdatingProgress}
+                            disabled={isUpdatingProgress}
+                        >
+                            Update progress
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+
             <div className="fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[#0c0c0c]">
                 <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="xs" onClick={() => setSelectedChapter(undefined)} />
                 <h4>
                     {entry?.media?.title?.userPreferred} - {selectedChapter?.title || ""}
                 </h4>
+                <div className="flex flex-1"></div>
+
+                <div className="flex gap-2 items-center">
+                    {(readingDirection === ReadingDirection.RTL && (readingMode === ReadingMode.PAGED || readingMode === ReadingMode.DOUBLE_PAGE)) ? (
+                        <>
+                            {!!nextChapter && <Button
+                                leftIcon={<AiOutlineArrowLeft />}
+                                rounded
+                                intent="white-outline"
+                                size="sm"
+                                onClick={() => setSelectedChapter(nextChapter)}
+                            >Next chapter</Button>}
+                            {!!previousChapter && <Button
+                                rightIcon={<AiOutlineArrowRight />}
+                                rounded
+                                intent="gray-outline"
+                                size="sm"
+                                onClick={() => setSelectedChapter(previousChapter)}
+                            >Previous chapter</Button>}
+                        </>
+                    ) : (
+                        <>
+                            {!!previousChapter && <Button
+                                leftIcon={<AiOutlineArrowLeft />}
+                                rounded
+                                intent="gray-outline"
+                                size="sm"
+                                onClick={() => setSelectedChapter(previousChapter)}
+                            >Previous chapter</Button>}
+                            {!!nextChapter && <Button
+                                rightIcon={<AiOutlineArrowRight />}
+                                rounded
+                                intent="white-outline"
+                                size="sm"
+                                onClick={() => setSelectedChapter(nextChapter)}
+                            >Next chapter</Button>}
+                        </>
+                    )}
+                </div>
+
                 <div className="flex flex-1"></div>
                 <p>
                     {readingModeOptions.find((option) => option.value === readingMode)?.label}, {readingDirectionOptions.find((option) => option.value === readingDirection)?.label}
@@ -114,13 +226,13 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
     const containerRef = React.useRef<HTMLDivElement>(null)
     const readingMode = useAtomValue(readingModeAtom)
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
+    const setIsLastPage = useSetAtom(isLastPageAtom)
 
     const readingDirection = useAtomValue(readingDirectionAtom)
 
     const [currentMapIndex, setCurrentMapIndex] = React.useState<number>(0)
 
     const [hydrated, setHydrated] = React.useState(false)
-
     useMount(() => {
         setHydrated(true)
     })
@@ -175,6 +287,10 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
         })
     }, [paginationMap, readingDirection])
 
+    React.useEffect(() => {
+        setIsLastPage(paginationMap.size > 0 && currentMapIndex === paginationMap.size - 1)
+    }, [currentMapIndex, paginationMap])
+
     const getSrc = (url: string) => {
         if (!pageContainer?.isDownloaded) {
             return url
@@ -208,14 +324,14 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
                     )
                 )}
             </div>
-            <div className="absolute w-full h-[calc(100dvh-60px)] flex z-[5]">
+            <div className="absolute w-full h-[calc(100dvh-60px)] flex z-[5] cursor-pointer">
                 <div className="h-full w-full flex flex-1" onClick={() => onPaginate("left")} />
                 <div className="h-full w-full flex flex-1" onClick={() => onPaginate("right")} />
             </div>
             <div
                 className={cn(
                     twoDisplayed && readingMode === ReadingMode.DOUBLE_PAGE && "flex space-x-2 transition-transform duration-300",
-                    twoDisplayed && readingMode === ReadingMode.DOUBLE_PAGE && readingDirection === ReadingDirection.RTL && "flex-row-reverse",
+                    // twoDisplayed && readingMode === ReadingMode.DOUBLE_PAGE && readingDirection === ReadingDirection.RTL && "flex-row-reverse",
                 )}
             >
                 {pageContainer?.pages?.toSorted((a, b) => a.index - b.index)?.map((page, index) => (
@@ -231,9 +347,10 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
                         )}
                         id={`page-${index}`}
                     >
+                        {/*<LoadingSpinner containerClass="h-full absolute inset-0 z-[1] w-24 mx-auto" />*/}
                         <img
                             src={getSrc(page.url)} alt={`Page ${index}`} className={cn(
-                            "w-full h-full inset-0 object-contain object-center select-none",
+                            "w-full h-full inset-0 object-contain object-center select-none z-[4] relative",
                             twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "[object-position:0%_50%] before:content-['']",
                             twoDisplayed && readingDirection === ReadingDirection.RTL && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[1] === index && "[object-position:100%_50%]",
                             twoDisplayed && readingDirection === ReadingDirection.LTR && readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.[0] === index && "[object-position:100%_50%]",
@@ -267,19 +384,33 @@ const isElementXPercentInViewport = function (el: any, percentVisible = 50) {
 
 function VerticalReadingMode({ pageContainer }: VerticalReadingModeProps) {
 
-    const setCurrentPages = useSetAtom(currentPagesAtom)
-    const [currentDivId, setCurrentDivId] = React.useState("")
     const containerRef = React.useRef<HTMLDivElement>(null)
+    const setIsLastPage = useSetAtom(isLastPageAtom)
 
-    const divs = React.useMemo(() => containerRef.current?.querySelectorAll(".scroll-div"), [containerRef.current])
+    // const divs = React.useMemo(() => containerRef.current?.querySelectorAll(".scroll-div"), [containerRef.current])
     // Function to handle scroll event
     const handleScroll = () => {
         if (!!containerRef.current) {
-            divs?.forEach((div) => {
-                if (isElementXPercentInViewport(div)) {
-                    setCurrentDivId(div.id)
-                }
-            })
+            const scrollTop = containerRef.current.scrollTop
+            const scrollHeight = containerRef.current.scrollHeight
+            const clientHeight = containerRef.current.clientHeight
+
+            if (scrollTop + clientHeight >= scrollHeight - 1500) {
+                setIsLastPage(true)
+            } else {
+                setIsLastPage(false)
+            }
+
+            // divs?.forEach((div) => {
+            //     if (isElementXPercentInViewport(div) && pageContainer?.pages?.length) {
+            //         const idx = Number(div.id.split("-")[1])
+            //         if (idx === pageContainer?.pages?.length - 1) {
+            //             setIsLastPage(true)
+            //         } else {
+            //             setIsLastPage(false)
+            //         }
+            //     }
+            // })
         }
     }
 
@@ -289,18 +420,6 @@ function VerticalReadingMode({ pageContainer }: VerticalReadingModeProps) {
         return () => containerRef.current?.removeEventListener("scroll", handleScroll)
     }, [containerRef.current])
 
-    React.useEffect(() => {
-        logger("manga").info("currentPageId: ", currentDivId)
-        if (currentDivId.length > 0 && currentDivId !== "page-0") {
-            const pageIndex = Number(currentDivId.split("-")[1])
-            setCurrentPages((draft) => {
-                if (draft) {
-                    draft.pages = [pageIndex]
-                }
-                return
-            })
-        }
-    }, [currentDivId])
 
     return (
         <div
@@ -311,8 +430,9 @@ function VerticalReadingMode({ pageContainer }: VerticalReadingModeProps) {
 
             </div>
             {pageContainer?.pages?.map((page, index) => (
-                <div key={page.url} className="w-full scroll-div min-h-[200px]" id={`page-${index}`}>
-                    <img src={page.url} alt={`Page ${index}`} className="max-w-full h-auto mx-auto select-none" />
+                <div key={page.url} className="w-full scroll-div min-h-[200px] relative" id={`page-${index}`}>
+                    <LoadingSpinner containerClass="h-full absolute inset-0 z-[1]" />
+                    <img src={page.url} alt={`Page ${index}`} className="max-w-full h-auto mx-auto select-none z-[4] relative" />
                 </div>
             ))}
 
