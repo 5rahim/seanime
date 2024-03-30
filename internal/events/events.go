@@ -25,4 +25,5 @@ const (
 	PlaybackManagerNotifyInfo              = "playback-manager-notify-info"
 	PlaybackManagerNotifyError             = "playback-manager-notify-error"
 	PlaybackManagerPlaylistState           = "playback-manager-playlist-state" // Dispatches the current playlist state
+	MangaDownloaderDownloadingProgress     = "manga-downloader-downloading-progress"
 )

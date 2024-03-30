@@ -29,7 +29,8 @@ type Config struct {
 		Dir string
 	}
 	Manga struct {
-		Enabled bool
+		Enabled   bool
+		BackupDir string
 	}
 	Data struct { // Hydrated after config is loaded
 		AppDataDir string
@@ -63,9 +64,11 @@ var defaultConfigValues = Config{
 		Dir: "$SEANIME_DATA_DIR/cache",
 	},
 	Manga: struct {
-		Enabled bool
+		Enabled   bool
+		BackupDir string
 	}{
-		Enabled: false,
+		Enabled:   false,
+		BackupDir: "$SEANIME_DATA_DIR/cache/manga",
 	},
 	Logs: struct {
 		Dir string
@@ -121,6 +124,7 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	viper.SetDefault("web.assetDir", defaultConfigValues.Web.AssetDir)
 	viper.SetDefault("cache.dir", defaultConfigValues.Cache.Dir)
 	viper.SetDefault("manga.enabled", defaultConfigValues.Manga.Enabled)
+	viper.SetDefault("manga.backupDir", defaultConfigValues.Manga.BackupDir)
 	viper.SetDefault("logs.dir", defaultConfigValues.Logs.Dir)
 
 	// Check if the config file exists, and generate a default one if not
@@ -169,6 +173,17 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (cfg *Config) GetServerURI(df ...string) string {
+	pAddr := fmt.Sprintf("http://%s:%d", cfg.Server.Host, cfg.Server.Port)
+	if cfg.Server.Host == "" {
+		pAddr = fmt.Sprintf(":%d", cfg.Server.Port)
+		if len(df) > 0 {
+			pAddr = fmt.Sprintf("http://%s:%d", df[0], cfg.Server.Port)
+		}
+	}
+	return pAddr
+}
+
 func validateConfig(cfg *Config) error {
 	if cfg.Server.Host == "" {
 		return errInvalidConfigValue("server.host", "cannot be empty")
@@ -190,6 +205,9 @@ func validateConfig(cfg *Config) error {
 	}
 	if cfg.Logs.Dir == "" {
 		return errInvalidConfigValue("logs.dir", "cannot be empty")
+	}
+	if cfg.Manga.BackupDir == "" {
+		return errInvalidConfigValue("manga.backupDir", "cannot be empty")
 	}
 
 	return nil
@@ -221,6 +239,7 @@ func hydrateValues(cfg *Config) {
 	cfg.Web.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Web.Dir))
 	cfg.Cache.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.Dir))
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
+	cfg.Manga.BackupDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.BackupDir))
 }
 
 // saveConfigToFile saves the config to the config file.
@@ -234,6 +253,7 @@ func (cfg *Config) saveConfigToFile() error {
 	viper.Set("cache.dir", cfg.Cache.Dir)
 	viper.Set("logs.dir", cfg.Logs.Dir)
 	viper.Set("manga.enabled", cfg.Manga.Enabled)
+	viper.Set("manga.backupDir", cfg.Manga.BackupDir)
 
 	if err := viper.WriteConfig(); err != nil {
 		return err

@@ -5,7 +5,7 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Select } from "@/components/ui/select"
+import { RadioGroup } from "@/components/ui/radio-group"
 import { logger } from "@/lib/helpers/debug"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
@@ -13,6 +13,7 @@ import { atomWithStorage } from "jotai/utils"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
+import { useMount } from "react-use"
 
 type ChapterDrawerProps = {
     entry: MangaEntry
@@ -37,25 +38,18 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
 
-    const readingMode = useAtomValue(readingModeAtom)
+    const [readingMode, setReadingMode] = useAtom(readingModeAtom)
     const readingDirection = useAtomValue(readingDirectionAtom)
 
     const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"), selectedChapter?.id)
 
-    const [currentPages, setCurrentPages] = useAtom(currentPagesAtom) // Used for PAGED and DOUBLE_PAGE reading modes
-
+    // If the reading mode is set to double page but
+    // the pageContainer doesn't have page dimensions, switch to paged mode
     React.useEffect(() => {
-        setCurrentPages((draft) => {
-            if (!!selectedChapter && (!draft || draft?.chapterId !== selectedChapter?.id)) {
-                return {
-                    chapterId: selectedChapter?.id || "",
-                    pages: readingMode === ReadingMode.PAGED ? [0] : readingMode === ReadingMode.DOUBLE_PAGE ? [0, 1] : [],
-                }
-            } else {
-                return draft
-            }
-        })
-    }, [selectedChapter, pageContainer])
+        if (readingMode === ReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && !pageContainer?.pageDimensions) {
+            setReadingMode(ReadingMode.PAGED)
+        }
+    }, [pageContainer, pageContainerLoading, pageContainerError])
 
     return (
         <Drawer
@@ -121,11 +115,17 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
 
     const [currentMapIndex, setCurrentMapIndex] = React.useState<number>(0)
 
+    const [hydrated, setHydrated] = React.useState(false)
+
+    useMount(() => {
+        setHydrated(true)
+    })
+
     const paginationMap = React.useMemo(() => {
         setCurrentMapIndex(0)
         if (!pageContainer?.pages?.length) return new Map<number, number[]>()
 
-        if (readingMode === ReadingMode.PAGED) {
+        if (readingMode === ReadingMode.PAGED || !pageContainer.pageDimensions) {
             let i = 0
             const map = new Map<number, number[]>()
             while (i < pageContainer?.pages?.length) {
@@ -135,13 +135,6 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
             return map
         }
 
-        const pageDivs = containerRef.current?.querySelectorAll(".page")
-        if (!pageDivs) return new Map<number, number[]>()
-
-        const pageObjects = [...pageDivs.values()].map((div) => {
-            const img = div.querySelector("img")
-            return { over: img && img.naturalWidth > 2000, idx: Number(div.id.split("-")[1]) }
-        })
         // idx -> [a, b]
         const map = new Map<number, number[]>()
 
@@ -149,22 +142,23 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
         // e.g. [[0, 1], [2, 3], [4, 5], [6], [7, 8], ...]
         let i = 0
         let mapI = 0
-        while (i < pageObjects.length) {
-            if (pageObjects[i].over) {
-                map.set(mapI, [pageObjects[i].idx])
+        while (i < pageContainer.pages.length) {
+            const width = pageContainer.pageDimensions?.[i]?.width || 0
+            if (width > 2000) {
+                map.set(mapI, [pageContainer.pages[i].index])
                 i++
-            } else if (!!pageObjects[i + 1] && !pageObjects[i + 1].over) {
-                map.set(mapI, [pageObjects[i].idx, pageObjects[i + 1].idx])
+            } else if (!!pageContainer.pages[i + 1] && !(!!pageContainer.pageDimensions?.[i + 1]?.width && pageContainer.pageDimensions?.[i + 1]?.width > 2000)) {
+                map.set(mapI, [pageContainer.pages[i].index, pageContainer.pages[i + 1].index])
                 i += 2
             } else {
-                map.set(mapI, [pageObjects[i].idx])
+                map.set(mapI, [pageContainer.pages[i].index])
                 i++
             }
             mapI++
         }
         console.log(map)
         return map
-    }, [pageContainer?.pages, containerRef.current, readingMode, selectedChapter])
+    }, [pageContainer?.pages, readingMode, selectedChapter, hydrated])
 
     const onPaginate = React.useCallback((dir: "left" | "right") => {
         const shouldDecrement = dir === "left" && readingDirection === ReadingDirection.LTR || dir === "right" && readingDirection === ReadingDirection.RTL
@@ -179,9 +173,6 @@ function HorizontalReadingMode({ pageContainer }: HorizontalReadingModeProps) {
     }, [paginationMap, readingDirection])
 
     const currentPages = React.useMemo(() => paginationMap.get(currentMapIndex), [currentMapIndex, paginationMap])
-
-    console.log(currentPages, currentMapIndex)
-
     const twoDisplayed = readingMode === ReadingMode.DOUBLE_PAGE && currentPages?.length === 2
 
     return (
@@ -373,18 +364,49 @@ export function ChapterReadingSettings(props: ChapterReadingSettingsProps) {
                 title="Settings"
             >
 
-                <div className="space-y-2 py-4">
+                <div className="space-y-4 py-4">
 
 
-                    <h4>Reading Mode</h4>
-
-                    <Select options={readingModeOptions} value={readingMode} onValueChange={(value) => setReadingMode(value as any)} />
+                    <RadioGroup
+                        itemClass={cn(
+                            "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
+                            "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
+                            "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
+                        )}
+                        itemIndicatorClass="hidden"
+                        itemLabelClass="font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+                        itemContainerClass={cn(
+                            "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-2 w-full",
+                            "hover:bg-[--subtle] dark:bg-gray-900",
+                            "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+                            "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+                            "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                        )}
+                        label="Reading mode"
+                        options={readingModeOptions}
+                        value={readingMode}
+                        onValueChange={(value) => setReadingMode(value as any)}
+                    />
 
                     {readingMode !== ReadingMode.LONG_STRIP && (
                         <>
-                            <h4>Reading direction</h4>
 
-                            <Select
+                            <RadioGroup
+                                itemClass={cn(
+                                    "border-transparent absolute top-2 right-2 bg-transparent dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
+                                    "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
+                                    "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
+                                )}
+                                itemIndicatorClass="hidden"
+                                itemLabelClass="font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+                                itemContainerClass={cn(
+                                    "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-2 w-full",
+                                    "hover:bg-[--subtle] dark:bg-gray-900",
+                                    "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+                                    "focus:ring-2 ring-transparent dark:ring-transparent outline-none ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+                                    "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                                )}
+                                label="Reading direction"
                                 options={readingDirectionOptions}
                                 value={readingDirection}
                                 onValueChange={(value) => setReadingDirection(value as any)}

@@ -6,7 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"sync"
 )
 
 var (
@@ -23,10 +23,17 @@ type (
 	}
 
 	PageContainer struct {
-		MediaId   int                            `json:"mediaId"`
-		Provider  string                         `json:"provider"`
-		ChapterId string                         `json:"chapterId"`
-		Pages     []*manga_providers.ChapterPage `json:"pages"`
+		MediaId        int                            `json:"mediaId"`
+		Provider       string                         `json:"provider"`
+		ChapterId      string                         `json:"chapterId"`
+		Pages          []*manga_providers.ChapterPage `json:"pages"`
+		PageDimensions map[int]PageDimension          `json:"pageDimensions"`
+		IsDownloaded   bool                           `json:"isDownloaded"` // TODO
+	}
+
+	PageDimension struct {
+		Width  int `json:"width"`
+		Height int `json:"height"`
 	}
 )
 
@@ -43,13 +50,7 @@ func (r *Repository) GetMangaChapters(provider manga_providers.Provider, mediaId
 
 	var container *ChapterContainer
 
-	var bucket filecache.Bucket
-	switch provider {
-	case manga_providers.ComickProvider:
-		bucket = r.fcComicKChapterContainerBucket
-	case manga_providers.MangaseeProvider:
-		bucket = r.fcMangaseeChapterContainerBucket
-	}
+	bucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
 
 	// Check if the container is in the cache
 	if found, _ := r.fileCacher.Get(bucket, key, &container); found {
@@ -127,8 +128,125 @@ func (r *Repository) GetMangaChapters(provider manga_providers.Provider, mediaId
 	return container, nil
 }
 
-// GetMangaChapterPages returns the pages for a manga chapter based on the provider.
-func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, mediaId int, chapterId string) (*PageContainer, error) {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (r *Repository) GetMangaPageContainer(
+	provider manga_providers.Provider,
+	mediaId int,
+	chapterId string,
+	backup bool, // Whether to download/retrieve downloaded pages
+) (*PageContainer, error) {
+
+	if backup {
+
+		r.RefreshBackups()
+
+		var container *PageContainer
+
+		foundDownloadedChapterId := false
+		storedChapterIds, found := r.backupMap[DownloadID{Provider: string(provider), MediaID: mediaId}]
+		if found {
+			for _, storedChapterId := range storedChapterIds {
+				if storedChapterId == chapterId {
+					foundDownloadedChapterId = true
+					break
+				}
+			}
+		}
+
+		pageList := make([]*manga_providers.ChapterPage, 0)
+
+		//
+		// Chapter is downloaded
+		//
+		if foundDownloadedChapterId {
+
+			// Get the downloaded pages
+			pageMap, err := r.downloader.getPageMap(string(provider), mediaId, chapterId, r.backupDir)
+			if err != nil {
+				r.logger.Error().Err(err).Msg("manga: failed to get downloaded pages")
+				return nil, err
+			}
+
+			for _, pageInfo := range *pageMap {
+				pageList = append(pageList, pageInfo.ToChapterPage())
+			}
+
+			pageDimensions := make(map[int]PageDimension)
+
+			for _, pageInfo := range *pageMap {
+				pageList = append(pageList, pageInfo.ToChapterPage())
+				pageDimensions[pageInfo.Index] = PageDimension{
+					Width:  pageInfo.Width,
+					Height: pageInfo.Height,
+				}
+			}
+
+			container = &PageContainer{
+				MediaId:        mediaId,
+				Provider:       string(provider),
+				ChapterId:      chapterId,
+				Pages:          pageList,
+				PageDimensions: pageDimensions,
+			}
+
+			return container, nil
+
+		} else {
+			//
+			// Chapter is not downloaded
+			//
+
+			// Get the chapter pages from the online source
+			pc, err := r.GetMangaChapterPagesFromOnline(provider, mediaId, chapterId)
+			if err != nil {
+				r.logger.Error().Err(err).Msg("manga: failed to get online pages")
+				return nil, err
+			}
+
+			// Download the images
+			err = r.downloader.downloadImages(string(provider), mediaId, chapterId, pc.Pages, r.backupDir)
+			if err != nil {
+				r.logger.Error().Err(err).Msg("manga: failed to download images")
+				return nil, err
+			}
+
+			// Get the downloaded pages
+			pageMap, err := r.downloader.getPageMap(string(provider), mediaId, chapterId, r.backupDir)
+			if err != nil {
+				r.logger.Error().Err(err).Msg("manga: failed to get downloaded pages")
+				return nil, err
+			}
+
+			pageDimensions := make(map[int]PageDimension)
+
+			for _, pageInfo := range *pageMap {
+				pageList = append(pageList, pageInfo.ToChapterPage())
+				pageDimensions[pageInfo.Index] = PageDimension{
+					Width:  pageInfo.Width,
+					Height: pageInfo.Height,
+				}
+			}
+
+			container = &PageContainer{
+				MediaId:        mediaId,
+				Provider:       string(provider),
+				ChapterId:      chapterId,
+				Pages:          pageList,
+				PageDimensions: pageDimensions,
+			}
+
+			return container, nil
+
+		}
+
+	}
+
+	return r.GetMangaChapterPagesFromOnline(provider, mediaId, chapterId)
+}
+
+// GetMangaChapterPagesFromOnline returns the pages for a manga chapter based on the provider.
+func (r *Repository) GetMangaChapterPagesFromOnline(provider manga_providers.Provider, mediaId int, chapterId string) (*PageContainer, error) {
 
 	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
 
@@ -141,13 +259,7 @@ func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, med
 
 	var container *PageContainer
 
-	var bucket filecache.Bucket
-	switch provider {
-	case manga_providers.ComickProvider:
-		bucket = r.fcComicKPageContainerBucket
-	case manga_providers.MangaseeProvider:
-		bucket = r.fcMangaseePageContainerBucket
-	}
+	bucket := r.getFcProviderBucket(provider, mediaId, bucketTypePage)
 
 	// Check if the container is in the cache
 	if found, _ := r.fileCacher.Get(bucket, key, &container); found {
@@ -155,13 +267,7 @@ func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, med
 	}
 
 	// Search for the chapter in the cache
-	var chapterBucket filecache.Bucket
-	switch provider {
-	case manga_providers.ComickProvider:
-		chapterBucket = r.fcComicKChapterContainerBucket
-	case manga_providers.MangaseeProvider:
-		chapterBucket = r.fcMangaseeChapterContainerBucket
-	}
+	chapterBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
 
 	var chapterContainer *ChapterContainer
 	if found, _ := r.fileCacher.Get(chapterBucket, fmt.Sprintf("%s$%d", provider, mediaId), &chapterContainer); !found {
@@ -199,11 +305,37 @@ func (r *Repository) GetMangaChapterPages(provider manga_providers.Provider, med
 		return nil, err
 	}
 
+	// Get the page dimensions
+	pageDimensions := make(map[int]PageDimension)
+	mu := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	for _, page := range pageList {
+		wg.Add(1)
+		go func(page *manga_providers.ChapterPage) {
+			defer wg.Done()
+			width, height, err := getImageNaturalSize(page.URL)
+			if err != nil {
+				// DEVNOTE: Fails for Mangasee
+				//r.logger.Warn().Err(err).Msg("manga: failed to get image size")
+				return
+			}
+
+			mu.Lock()
+			pageDimensions[page.Index] = PageDimension{
+				Width:  width,
+				Height: height,
+			}
+			mu.Unlock()
+		}(page)
+	}
+	wg.Wait()
+
 	container = &PageContainer{
-		MediaId:   mediaId,
-		Provider:  string(provider),
-		ChapterId: chapterId,
-		Pages:     pageList,
+		MediaId:        mediaId,
+		Provider:       string(provider),
+		ChapterId:      chapterId,
+		Pages:          pageList,
+		PageDimensions: nil,
 	}
 
 	// Set cache

@@ -157,8 +157,11 @@ func NewApp(options *AppOptions, version string) *App {
 
 	// Manga Repository
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
-		Logger:     logger,
-		FileCacher: fileCacher,
+		Logger:         logger,
+		FileCacher:     fileCacher,
+		BackupDir:      cfg.Manga.BackupDir,
+		ServerURI:      cfg.GetServerURI("0.0.0.0"),
+		WsEventManager: wsEventManager,
 	})
 
 	app := &App{
@@ -212,6 +215,14 @@ func NewFiberApp(app *App) *fiber.App {
 		Index:    "index.html",
 		Compress: false,
 	})
+
+	if app.Config.Manga.Enabled {
+		app.Logger.Debug().Msgf("app: Serving manga backups from \"%s\"", app.Config.Manga.BackupDir)
+		fiberApp.Static("/manga-backups", app.Config.Manga.BackupDir, fiber.Static{
+			Index:    "index.html",
+			Compress: false,
+		})
+	}
 
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
 		path := c.OriginalURL()

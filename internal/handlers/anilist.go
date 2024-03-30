@@ -53,6 +53,7 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 	// Refresh the anilist collection
 	_, _ = c.App.RefreshAnilistCollection()
+	_, _ = c.App.RefreshMangaCollection()
 
 	return c.RespondWithData(ret)
 }
@@ -115,6 +116,7 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 
 	// Refresh the anilist collection
 	_, _ = c.App.RefreshAnilistCollection()
+	_, _ = c.App.RefreshMangaCollection()
 
 	return c.RespondWithData(ret)
 }

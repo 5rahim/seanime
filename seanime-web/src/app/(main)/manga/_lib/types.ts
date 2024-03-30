@@ -46,6 +46,7 @@ export type MangaPageContainer = {
     provider: string
     chapterId: string
     pages?: MangaChapterPage[]
+    pageDimensions?: Record<number, { width: number, height: number }>
 }
 
 export type MangaChapterDetails = {
