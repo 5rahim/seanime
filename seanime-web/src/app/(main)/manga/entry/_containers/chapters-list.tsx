@@ -117,6 +117,11 @@ export function ChaptersList(props: ChaptersListProps) {
             {(chapterContainerLoading || isEmptyingMangaCache) ? <LoadingSpinner /> : (
                 chapterContainerError ? <LuffyError title="Oops!"><p>Failed to fetch chapters</p></LuffyError> : (
                     <>
+
+                        {chapterContainer?.chapters?.length === 0 && (
+                            <LuffyError title="No chapters found"><p>Try another source</p></LuffyError>
+                        )}
+
                         <Accordion
                             type="single"
                             className="!py-4"
