@@ -223,7 +223,7 @@ function PlaybackSubmenu() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export function OnlinestreamParametersButton() {
+export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
 
     const { servers, changeProvider, changeServer } = useOnlinestreamManagerContext()
 
@@ -231,7 +231,7 @@ export function OnlinestreamParametersButton() {
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
     const qc = useQueryClient()
-    const { mutate: emptyCache, isPending } = useSeaMutation({
+    const { mutate: emptyCache, isPending } = useSeaMutation<boolean, { mediaId: number }>({
         endpoint: SeaEndpoints.ONLINESTREAM_CACHE,
         mutationKey: ["onlinestream-empty-cache"],
         method: "delete",
@@ -274,7 +274,7 @@ export function OnlinestreamParametersButton() {
             <Button
                 size="sm"
                 intent="alert-subtle"
-                onClick={() => emptyCache()}
+                onClick={() => emptyCache({ mediaId })}
                 loading={isPending}
             >
                 Empty stream cache

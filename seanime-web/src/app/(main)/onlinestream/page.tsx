@@ -287,7 +287,7 @@ export default function Page() {
                                 }}
                             >Update progress</Button>}
 
-                            <OnlinestreamParametersButton />
+                            {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
                         </div>
                     </div>
 

@@ -11,8 +11,13 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Improved TVDB mappings for missing episode images
 - ⚡️ Added YouTube embeds for trailers
 - 🦺 Fixed TVDB metadata reloading
+  - You can now reload TVDB metadata without having to empty the cache first 
 - 🏗️ Improved Discover page
-- 🏗️ Partitions for cached TVDB metadata for faster reads
+  - Reduced number of requests to AniList with caching
+  - Faster loading times, lazy loading, more responsive actions
+- 🏗️ Improved file cacher (Manga/Online streaming/TVDB metadata)
+  - Faster I/O operations by leveraging partitioned buckets
+  - Less overhead and memory usage
 
 ## v1.1.2
 

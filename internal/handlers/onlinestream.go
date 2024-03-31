@@ -86,7 +86,16 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 //	DELETE /v1/onlinestream/cache
 func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
 
-	err := c.App.Onlinestream.EmptyCache()
+	type body struct {
+		MediaId int `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.Onlinestream.EmptyCache(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

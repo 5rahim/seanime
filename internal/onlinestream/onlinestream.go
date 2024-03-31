@@ -10,20 +10,21 @@ import (
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type (
 	OnlineStream struct {
-		logger                      *zerolog.Logger
-		gogo                        *onlinestream_providers.Gogoanime
-		zoro                        *onlinestream_providers.Zoro
-		fileCacher                  *filecache.Cacher
-		fcEpisodeDataBucket         filecache.Bucket
-		fcProviderEpisodeListBucket filecache.Bucket
-		anizipCache                 *anizip.Cache
-		anilistClientWrapper        anilist.ClientWrapperInterface
-		anilistBaseMediaCache       *anilist.BaseMediaCache
+		logger     *zerolog.Logger
+		gogo       *onlinestream_providers.Gogoanime
+		zoro       *onlinestream_providers.Zoro
+		fileCacher *filecache.Cacher
+		//fcEpisodeDataBucket         filecache.Bucket
+		//fcProviderEpisodeListBucket filecache.Bucket
+		anizipCache           *anizip.Cache
+		anilistClientWrapper  anilist.ClientWrapperInterface
+		anilistBaseMediaCache *anilist.BaseMediaCache
 	}
 )
 
@@ -69,17 +70,35 @@ type (
 
 func New(opts *NewOnlineStreamOptions) *OnlineStream {
 	return &OnlineStream{
-		logger:                      opts.Logger,
-		anizipCache:                 opts.AnizipCache,
-		fileCacher:                  opts.FileCacher,
-		gogo:                        onlinestream_providers.NewGogoanime(opts.Logger),
-		zoro:                        onlinestream_providers.NewZoro(opts.Logger),
-		fcEpisodeDataBucket:         filecache.NewBucket("onlinestream-episode-data", 24*time.Hour*7),       // Cache episodes for 7 days
-		fcProviderEpisodeListBucket: filecache.NewBucket("onlinestream-provider-episode-list", 1*time.Hour), // Cache provider episodes for 1 hour
-		anilistBaseMediaCache:       anilist.NewBaseMediaCache(),
-		anilistClientWrapper:        opts.AnilistClientWrapper,
+		logger:                opts.Logger,
+		anizipCache:           opts.AnizipCache,
+		fileCacher:            opts.FileCacher,
+		gogo:                  onlinestream_providers.NewGogoanime(opts.Logger),
+		zoro:                  onlinestream_providers.NewZoro(opts.Logger),
+		anilistBaseMediaCache: anilist.NewBaseMediaCache(),
+		anilistClientWrapper:  opts.AnilistClientWrapper,
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// getFcEpisodeDataBucket returns a episode data bucket for the provider and mediaId.
+// "Episode data" refers to the episodeData struct
+//
+//	e.g., onlinestream_zoro_episode-data_123
+func (os *OnlineStream) getFcEpisodeDataBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
+	return filecache.NewBucket("onlinestream_"+string(provider)+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
+}
+
+// getFcEpisodeListBucket returns a episode data bucket for the provider and mediaId.
+// "Episode list" refers to a slice of onlinestream_providers.EpisodeDetails
+//
+//	e.g., onlinestream_zoro_episode-list_123
+func (os *OnlineStream) getFcEpisodeListBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
+	return filecache.NewBucket("onlinestream_"+string(provider)+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (os *OnlineStream) getMedia(mId int) (*anilist.BaseMedia, error) {
 	media, err := os.anilistBaseMediaCache.GetOrSet(mId, func() (*anilist.BaseMedia, error) {
@@ -100,9 +119,10 @@ func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseMedia, error) {
 	return os.getMedia(mId)
 }
 
-func (os *OnlineStream) EmptyCache() error {
-	_ = os.fileCacher.Empty(os.fcEpisodeDataBucket)
-	_ = os.fileCacher.Empty(os.fcProviderEpisodeListBucket)
+func (os *OnlineStream) EmptyCache(mediaId int) error {
+	_ = os.fileCacher.RemoveAllBy(func(filename string) bool {
+		return strings.HasPrefix(filename, "onlinestream_") && strings.Contains(filename, strconv.Itoa(mediaId))
+	})
 	return nil
 }
 

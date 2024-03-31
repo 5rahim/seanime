@@ -65,15 +65,19 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 		Str("key", providerEpisodeListKey).
 		Msgf("onlinestream: Fetching %s episode list", provider)
 
+	// Bucket
+	fcEpisodeListBucket := os.getFcEpisodeListBucket(provider, mId)
+	fcEpisodeDataBucket := os.getFcEpisodeDataBucket(provider, mId)
+
 	var providerEpisodeList []*onlinestream_providers.EpisodeDetails
-	if found, _ := os.fileCacher.Get(os.fcProviderEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
+	if found, _ := os.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
 		var err error
 		providerEpisodeList, err = os.getProviderEpisodeListFromTitles(provider, titles, dubbed)
 		if err != nil {
 			os.logger.Error().Err(err).Msg("onlinestream: failed to get provider episodes")
 			return nil, err // ErrNoAnimeFound or ErrNoEpisodes
 		}
-		_ = os.fileCacher.Set(os.fcProviderEpisodeListBucket, providerEpisodeListKey, providerEpisodeList)
+		_ = os.fileCacher.Set(fcEpisodeListBucket, providerEpisodeListKey, providerEpisodeList)
 	} else {
 		os.logger.Debug().
 			Str("key", providerEpisodeListKey).
@@ -94,7 +98,7 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 				Msgf("onlinestream: Fetching episode '%d' servers", episodeDetails.Number)
 
 			var cached *episodeData
-			if found, _ := os.fileCacher.Get(os.fcEpisodeDataBucket, key, &cached); found {
+			if found, _ := os.fileCacher.Get(fcEpisodeDataBucket, key, &cached); found {
 				ec.Episodes = append(ec.Episodes, cached)
 
 				os.logger.Debug().
@@ -123,7 +127,7 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 				Str("key", key).
 				Msgf("onlinestream: Found %d servers for episode '%d'", len(servers), episodeDetails.Number)
 
-			_ = os.fileCacher.Set(os.fcEpisodeDataBucket, key, episode)
+			_ = os.fileCacher.Set(fcEpisodeDataBucket, key, episode)
 
 		}
 

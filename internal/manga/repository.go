@@ -84,7 +84,7 @@ const (
 //
 //	e.g., manga_comick_chapters_123, manga_mangasee_pages_456
 func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, mediaId int, bucketType bucketType) filecache.Bucket {
-	return filecache.NewBucket("manga"+"_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
+	return filecache.NewBucket("manga_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 // EmptyMangaCache deletes all manga buckets associated with the given mediaId.
