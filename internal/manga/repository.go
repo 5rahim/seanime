@@ -90,7 +90,7 @@ func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, medi
 // EmptyMangaCache deletes all manga buckets associated with the given mediaId.
 func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 	// Empty the manga cache
-	err = r.fileCacher.DeleteAllBy(func(filename string) bool {
+	err = r.fileCacher.RemoveAllBy(func(filename string) bool {
 		return strings.HasPrefix(filename, "manga_") && strings.Contains(filename, strconv.Itoa(mediaId))
 	})
 	return

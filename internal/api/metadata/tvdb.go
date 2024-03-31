@@ -2,15 +2,12 @@ package metadata
 
 import (
 	"errors"
+	"fmt"
 	"github.com/seanime-app/seanime/internal/api/mappings"
 	"github.com/seanime-app/seanime/internal/api/tvdb"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"strconv"
 	"time"
-)
-
-var (
-	fcTVDBEpisodesBucket = filecache.NewBucket("tvdb_episodes", time.Hour*24*7*365) // Store TVDB episodes permanently
 )
 
 func getTvdbIDFromAnimeLists(anidbID int) (tvdbID int, ok bool) {
@@ -21,8 +18,7 @@ func getTvdbIDFromAnimeLists(anidbID int) (tvdbID int, ok bool) {
 	return res.FindTvdbIDFromAnidbID(anidbID)
 }
 
-func (mw *MediaWrapper) EmptyTVDBEpisodesBucket() error {
-	key := mw.baseMedia.GetID()
+func (mw *MediaWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
 
 	// Get TVDB ID
 	var tvdbId int
@@ -38,7 +34,7 @@ func (mw *MediaWrapper) EmptyTVDBEpisodesBucket() error {
 		return errors.New("metadata: could not find tvdb id")
 	}
 
-	return mw.fileCacher.Delete(fcTVDBEpisodesBucket, strconv.Itoa(key))
+	return mw.fileCacher.Remove(fmt.Sprintf("tvdb_episodes_%d", mediaId))
 }
 
 func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
@@ -58,9 +54,11 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 		return nil, errors.New("metadata: could not find tvdb id")
 	}
 
+	bucket := filecache.NewBucket(fmt.Sprintf("tvdb_episodes_%d", mw.baseMedia.GetID()), time.Hour*24*7*365)
+
 	// Find episodes in cache
 	var episodes []*tvdb.Episode
-	found, _ := mw.fileCacher.Get(fcTVDBEpisodesBucket, strconv.Itoa(key), &episodes)
+	found, _ := mw.fileCacher.Get(bucket, strconv.Itoa(key), &episodes)
 	if !populate && found && episodes != nil {
 		return episodes, nil
 	}
@@ -83,7 +81,7 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 			return nil, err
 		}
 
-		err = mw.fileCacher.Set(fcTVDBEpisodesBucket, strconv.Itoa(key), episodes)
+		err = mw.fileCacher.Set(bucket, strconv.Itoa(key), episodes)
 
 		if err != nil {
 			return nil, err

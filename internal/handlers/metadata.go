@@ -64,7 +64,7 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 	mw := c.App.MetadataProvider.NewMediaWrapper(media, anizipMedia)
 
 	// Empty TVDB episodes bucket
-	err = mw.EmptyTVDBEpisodesBucket()
+	err = mw.EmptyTVDBEpisodesBucket(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

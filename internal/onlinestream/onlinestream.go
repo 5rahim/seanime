@@ -101,8 +101,8 @@ func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseMedia, error) {
 }
 
 func (os *OnlineStream) EmptyCache() error {
-	_ = os.fileCacher.DeleteAll(os.fcEpisodeDataBucket)
-	_ = os.fileCacher.DeleteAll(os.fcProviderEpisodeListBucket)
+	_ = os.fileCacher.Empty(os.fcEpisodeDataBucket)
+	_ = os.fileCacher.Empty(os.fcProviderEpisodeListBucket)
 	return nil
 }
 

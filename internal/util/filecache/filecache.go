@@ -135,7 +135,8 @@ func (c *Cacher) Delete(bucket Bucket, key string) error {
 	return store.saveToFile()
 }
 
-func (c *Cacher) DeleteAll(bucket Bucket) error {
+// Empty empties the given bucket.
+func (c *Cacher) Empty(bucket Bucket) error {
 	store, err := c.getStore(bucket.name)
 	if err != nil {
 		return err
@@ -144,6 +145,20 @@ func (c *Cacher) DeleteAll(bucket Bucket) error {
 	defer store.mu.Unlock()
 	store.data = make(map[string]*cacheItem)
 	return store.saveToFile()
+}
+
+// Remove removes the given bucket.
+func (c *Cacher) Remove(bucketName string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if _, ok := c.stores[bucketName]; ok {
+		delete(c.stores, bucketName)
+	}
+
+	_ = os.Remove(filepath.Join(c.dir, bucketName+".cache"))
+
+	return nil
 }
 
 func (cs *CacheStore) loadFromFile() error {
@@ -177,7 +192,8 @@ func (cs *CacheStore) saveToFile() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (c *Cacher) DeleteAllBy(filter func(filename string) bool) error {
+// RemoveAllBy removes all files in the cache directory that match the given filter.
+func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
