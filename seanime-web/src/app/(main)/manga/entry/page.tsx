@@ -48,7 +48,7 @@ export default function Page() {
                 >
 
                     <div
-                        className="grid gap-4 xl:grid-cols-[1fr,650px]"
+                        className="grid gap-4 xl:grid-cols-[1fr,380px] 2xl:grid-cols-[1fr,650px]"
                     >
                         <div className="space-y-2">
                             <ChaptersList entry={mangaEntry} mediaId={mediaId} details={mangaDetails} />
