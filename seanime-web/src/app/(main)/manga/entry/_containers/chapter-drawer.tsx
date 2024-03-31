@@ -125,6 +125,7 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
                                     mediaId: entry.mediaId,
                                     totalChapters: chapterContainer?.chapters?.length || 0,
                                 })
+                                !!nextChapter && setSelectedChapter(nextChapter)
                             }}
                             className="w-full animate-pulse"
                             size="sm"
@@ -395,7 +396,7 @@ function VerticalReadingMode({ pageContainer }: VerticalReadingModeProps) {
             const scrollHeight = containerRef.current.scrollHeight
             const clientHeight = containerRef.current.clientHeight
 
-            if (scrollTop > 1000 && (scrollTop + clientHeight >= scrollHeight - 1500)) {
+            if (scrollTop > 1000 && !!pageContainer?.pages?.length && (scrollTop + clientHeight >= scrollHeight - 1500)) {
                 setIsLastPage(true)
             } else {
                 setIsLastPage(false)
@@ -413,6 +414,10 @@ function VerticalReadingMode({ pageContainer }: VerticalReadingModeProps) {
             // })
         }
     }
+
+    React.useEffect(() => {
+        setIsLastPage(false)
+    }, [pageContainer?.pages])
 
     // Add scroll event listener when component mounts
     React.useEffect(() => {
