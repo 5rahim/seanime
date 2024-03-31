@@ -53,7 +53,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const qc = useQueryClient()
 
-    const { mutate, isPending, isSuccess } = useSeaMutation<any, InferType<typeof entrySchema> & { mediaId: number }>({
+    const { mutate, isPending, isSuccess } = useSeaMutation<any, InferType<typeof entrySchema> & { mediaId: number, type: "anime" | "manga" }>({
         endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
         mutationKey: ["update-anilist-list-entry"],
         onSuccess: async () => {
@@ -113,6 +113,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         progress: 0,
                         startedAt: null,
                         completedAt: null,
+                        type: type,
                     })}
                 />}
             </>}
@@ -152,6 +153,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                             progress: data.progress || 0,
                             startedAt: data.startedAt,
                             completedAt: data.completedAt,
+                            type: type,
                         })
                     }}
                     className={cn(

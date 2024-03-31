@@ -3435,173 +3435,123 @@ func (t *ListManga_Page_PageInfo) GetLastPage() *int {
 	return t.LastPage
 }
 
-type ListManga_Page_Media_BasicMedia_Trailer struct {
-	ID        *string "json:\"id,omitempty\" graphql:\"id\""
-	Site      *string "json:\"site,omitempty\" graphql:\"site\""
-	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
-}
-
-func (t *ListManga_Page_Media_BasicMedia_Trailer) GetID() *string {
-	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Trailer{}
-	}
-	return t.ID
-}
-func (t *ListManga_Page_Media_BasicMedia_Trailer) GetSite() *string {
-	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Trailer{}
-	}
-	return t.Site
-}
-func (t *ListManga_Page_Media_BasicMedia_Trailer) GetThumbnail() *string {
-	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Trailer{}
-	}
-	return t.Thumbnail
-}
-
-type ListManga_Page_Media_BasicMedia_Title struct {
+type ListManga_Page_Media_BasicManga_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
 	English       *string "json:\"english,omitempty\" graphql:\"english\""
 	Native        *string "json:\"native,omitempty\" graphql:\"native\""
 }
 
-func (t *ListManga_Page_Media_BasicMedia_Title) GetUserPreferred() *string {
+func (t *ListManga_Page_Media_BasicManga_Title) GetUserPreferred() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Title{}
+		t = &ListManga_Page_Media_BasicManga_Title{}
 	}
 	return t.UserPreferred
 }
-func (t *ListManga_Page_Media_BasicMedia_Title) GetRomaji() *string {
+func (t *ListManga_Page_Media_BasicManga_Title) GetRomaji() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Title{}
+		t = &ListManga_Page_Media_BasicManga_Title{}
 	}
 	return t.Romaji
 }
-func (t *ListManga_Page_Media_BasicMedia_Title) GetEnglish() *string {
+func (t *ListManga_Page_Media_BasicManga_Title) GetEnglish() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Title{}
+		t = &ListManga_Page_Media_BasicManga_Title{}
 	}
 	return t.English
 }
-func (t *ListManga_Page_Media_BasicMedia_Title) GetNative() *string {
+func (t *ListManga_Page_Media_BasicManga_Title) GetNative() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_Title{}
+		t = &ListManga_Page_Media_BasicManga_Title{}
 	}
 	return t.Native
 }
 
-type ListManga_Page_Media_BasicMedia_CoverImage struct {
+type ListManga_Page_Media_BasicManga_CoverImage struct {
 	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
 	Large      *string "json:\"large,omitempty\" graphql:\"large\""
 	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
 	Color      *string "json:\"color,omitempty\" graphql:\"color\""
 }
 
-func (t *ListManga_Page_Media_BasicMedia_CoverImage) GetExtraLarge() *string {
+func (t *ListManga_Page_Media_BasicManga_CoverImage) GetExtraLarge() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_CoverImage{}
+		t = &ListManga_Page_Media_BasicManga_CoverImage{}
 	}
 	return t.ExtraLarge
 }
-func (t *ListManga_Page_Media_BasicMedia_CoverImage) GetLarge() *string {
+func (t *ListManga_Page_Media_BasicManga_CoverImage) GetLarge() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_CoverImage{}
+		t = &ListManga_Page_Media_BasicManga_CoverImage{}
 	}
 	return t.Large
 }
-func (t *ListManga_Page_Media_BasicMedia_CoverImage) GetMedium() *string {
+func (t *ListManga_Page_Media_BasicManga_CoverImage) GetMedium() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_CoverImage{}
+		t = &ListManga_Page_Media_BasicManga_CoverImage{}
 	}
 	return t.Medium
 }
-func (t *ListManga_Page_Media_BasicMedia_CoverImage) GetColor() *string {
+func (t *ListManga_Page_Media_BasicManga_CoverImage) GetColor() *string {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_CoverImage{}
+		t = &ListManga_Page_Media_BasicManga_CoverImage{}
 	}
 	return t.Color
 }
 
-type ListManga_Page_Media_BasicMedia_StartDate struct {
+type ListManga_Page_Media_BasicManga_StartDate struct {
 	Year  *int "json:\"year,omitempty\" graphql:\"year\""
 	Month *int "json:\"month,omitempty\" graphql:\"month\""
 	Day   *int "json:\"day,omitempty\" graphql:\"day\""
 }
 
-func (t *ListManga_Page_Media_BasicMedia_StartDate) GetYear() *int {
+func (t *ListManga_Page_Media_BasicManga_StartDate) GetYear() *int {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_StartDate{}
+		t = &ListManga_Page_Media_BasicManga_StartDate{}
 	}
 	return t.Year
 }
-func (t *ListManga_Page_Media_BasicMedia_StartDate) GetMonth() *int {
+func (t *ListManga_Page_Media_BasicManga_StartDate) GetMonth() *int {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_StartDate{}
+		t = &ListManga_Page_Media_BasicManga_StartDate{}
 	}
 	return t.Month
 }
-func (t *ListManga_Page_Media_BasicMedia_StartDate) GetDay() *int {
+func (t *ListManga_Page_Media_BasicManga_StartDate) GetDay() *int {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_StartDate{}
+		t = &ListManga_Page_Media_BasicManga_StartDate{}
 	}
 	return t.Day
 }
 
-type ListManga_Page_Media_BasicMedia_EndDate struct {
+type ListManga_Page_Media_BasicManga_EndDate struct {
 	Year  *int "json:\"year,omitempty\" graphql:\"year\""
 	Month *int "json:\"month,omitempty\" graphql:\"month\""
 	Day   *int "json:\"day,omitempty\" graphql:\"day\""
 }
 
-func (t *ListManga_Page_Media_BasicMedia_EndDate) GetYear() *int {
+func (t *ListManga_Page_Media_BasicManga_EndDate) GetYear() *int {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_EndDate{}
+		t = &ListManga_Page_Media_BasicManga_EndDate{}
 	}
 	return t.Year
 }
-func (t *ListManga_Page_Media_BasicMedia_EndDate) GetMonth() *int {
+func (t *ListManga_Page_Media_BasicManga_EndDate) GetMonth() *int {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_EndDate{}
+		t = &ListManga_Page_Media_BasicManga_EndDate{}
 	}
 	return t.Month
 }
-func (t *ListManga_Page_Media_BasicMedia_EndDate) GetDay() *int {
+func (t *ListManga_Page_Media_BasicManga_EndDate) GetDay() *int {
 	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_EndDate{}
+		t = &ListManga_Page_Media_BasicManga_EndDate{}
 	}
 	return t.Day
-}
-
-type ListManga_Page_Media_BasicMedia_NextAiringEpisode struct {
-	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
-	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
-	Episode         int "json:\"episode\" graphql:\"episode\""
-}
-
-func (t *ListManga_Page_Media_BasicMedia_NextAiringEpisode) GetAiringAt() int {
-	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_NextAiringEpisode{}
-	}
-	return t.AiringAt
-}
-func (t *ListManga_Page_Media_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
-	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_NextAiringEpisode{}
-	}
-	return t.TimeUntilAiring
-}
-func (t *ListManga_Page_Media_BasicMedia_NextAiringEpisode) GetEpisode() int {
-	if t == nil {
-		t = &ListManga_Page_Media_BasicMedia_NextAiringEpisode{}
-	}
-	return t.Episode
 }
 
 type ListManga_Page struct {
 	PageInfo *ListManga_Page_PageInfo "json:\"pageInfo,omitempty\" graphql:\"pageInfo\""
-	Media    []*BasicMedia            "json:\"media,omitempty\" graphql:\"media\""
+	Media    []*BasicManga            "json:\"media,omitempty\" graphql:\"media\""
 }
 
 func (t *ListManga_Page) GetPageInfo() *ListManga_Page_PageInfo {
@@ -3610,7 +3560,7 @@ func (t *ListManga_Page) GetPageInfo() *ListManga_Page_PageInfo {
 	}
 	return t.PageInfo
 }
-func (t *ListManga_Page) GetMedia() []*BasicMedia {
+func (t *ListManga_Page) GetMedia() []*BasicManga {
 	if t == nil {
 		t = &ListManga_Page{}
 	}
@@ -7200,11 +7150,11 @@ const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPag
 			lastPage
 		}
 		media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC) {
-			... basicMedia
+			... basicManga
 		}
 	}
 }
-fragment basicMedia on Media {
+fragment basicManga on Media {
 	id
 	idMal
 	siteUrl
@@ -7213,17 +7163,13 @@ fragment basicMedia on Media {
 	type
 	format
 	bannerImage
-	episodes
+	chapters
+	volumes
 	synonyms
 	isAdult
 	countryOfOrigin
 	meanScore
 	description
-	trailer {
-		id
-		site
-		thumbnail
-	}
 	title {
 		userPreferred
 		romaji
@@ -7245,11 +7191,6 @@ fragment basicMedia on Media {
 		year
 		month
 		day
-	}
-	nextAiringEpisode {
-		airingAt
-		timeUntilAiring
-		episode
 	}
 }
 `

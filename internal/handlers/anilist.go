@@ -22,6 +22,9 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 
 }
 
+// HandleEditAnilistListEntry is used by the Anilist Media Entry Modal
+//
+// POST /v1/anilist/list-entry
 func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 	type body struct {
@@ -31,6 +34,7 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 		Progress  *int                     `json:"progress"`
 		StartDate *anilist.FuzzyDateInput  `json:"startedAt"`
 		EndDate   *anilist.FuzzyDateInput  `json:"completedAt"`
+		Type      string                   `json:"type"`
 	}
 
 	p := new(body)
@@ -51,9 +55,15 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Refresh the anilist collection
-	_, _ = c.App.RefreshAnilistCollection()
-	_, _ = c.App.RefreshMangaCollection()
+	switch p.Type {
+	case "anime":
+		_, _ = c.App.RefreshAnilistCollection()
+	case "manga":
+		_, _ = c.App.RefreshMangaCollection()
+	default:
+		_, _ = c.App.RefreshAnilistCollection()
+		_, _ = c.App.RefreshMangaCollection()
+	}
 
 	return c.RespondWithData(ret)
 }
@@ -137,9 +147,12 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Refresh the anilist collection
-	_, _ = c.App.RefreshAnilistCollection()
-	_, _ = c.App.RefreshMangaCollection()
+	switch *p.Type {
+	case "anime":
+		_, _ = c.App.RefreshAnilistCollection()
+	case "manga":
+		_, _ = c.App.RefreshMangaCollection()
+	}
 
 	return c.RespondWithData(ret)
 }

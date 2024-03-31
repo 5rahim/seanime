@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Added YouTube embeds for trailers
 - 🦺 Fixed TVDB metadata reloading
 - 🏗️ Improved Discover page
+- 🏗️ Partitions for cached TVDB metadata for faster reads
 
 ## v1.1.2
 
