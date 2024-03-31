@@ -21,11 +21,12 @@ import { useSeaMutation } from "@/lib/server/query"
 import { ServerStatus } from "@/lib/server/types"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
+import { useAtom } from "jotai/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { BiCalendarAlt, BiChart, BiCollection, BiDownload, BiLogOut } from "react-icons/bi"
-import { FaRssSquare } from "react-icons/fa"
+import { FaBookReader, FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
 import { LuLayoutDashboard } from "react-icons/lu"
@@ -46,7 +47,7 @@ export function MainSidebar() {
 
     const { user } = useCurrentUser()
     const pathname = usePathname()
-    const setServerStatus = useSetAtom(serverStatusAtom)
+    const [serverStatus, setServerStatus] = useAtom(serverStatusAtom)
 
     const missingEpisodeCount = useMissingEpisodeCount()
     const autoDownloaderQueueCount = useAutoDownloaderQueueCount()
@@ -136,6 +137,12 @@ export function MainSidebar() {
                                 href: "/anilist",
                                 isCurrent: pathname === "/anilist",
                             },
+                            ...[serverStatus?.mangaEnabled && {
+                                iconType: FaBookReader,
+                                name: "Manga",
+                                href: "/manga",
+                                isCurrent: pathname.startsWith("/manga"),
+                            }].filter(Boolean) as any,
                             {
                                 iconType: BiChart,
                                 name: "Discover",
@@ -175,7 +182,7 @@ export function MainSidebar() {
                                 name: "Search",
                                 onClick: () => setGlobalSearchIsOpen(true),
                             },
-                        ]}
+                        ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
                 </div>

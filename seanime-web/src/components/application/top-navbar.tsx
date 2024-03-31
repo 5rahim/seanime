@@ -1,7 +1,9 @@
 "use client"
 import { useMissingEpisodeCount } from "@/atoms/missing-episodes"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
+import { useAtomValue } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 
@@ -12,6 +14,8 @@ interface TopNavbarProps {
 export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
 
     const { children, ...rest } = props
+
+    const serverStatus = useAtomValue(serverStatusAtom)
 
     const pathname = usePathname()
 
@@ -48,8 +52,14 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
                 isCurrent: pathname.startsWith("/discover") || pathname.startsWith("/search"),
                 name: "Discover",
             },
-        ]
-    }, [pathname, missingEpisodeCount])
+            ...[serverStatus?.mangaEnabled && {
+                href: "/manga",
+                icon: null,
+                isCurrent: pathname.startsWith("/manga"),
+                name: "Manga",
+            }].filter(Boolean) as NavigationMenuProps["items"],
+        ].filter(Boolean)
+    }, [pathname, missingEpisodeCount, serverStatus?.mangaEnabled])
 
     return (
         <NavigationMenu
