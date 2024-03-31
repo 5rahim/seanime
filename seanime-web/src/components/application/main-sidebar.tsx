@@ -87,7 +87,7 @@ export function MainSidebar() {
         },
     })
 
-    // shelved 0d1821
+    // shelved
     // React.useEffect(() => {
     //     let r = document.querySelector(":root") as any
     //

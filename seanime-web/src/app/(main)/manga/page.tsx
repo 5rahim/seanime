@@ -1,4 +1,5 @@
 "use client"
+import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
 import { useMangaCollection } from "@/app/(main)/manga/_lib/queries"
@@ -13,6 +14,7 @@ import { ListMangaQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
 import { getMangaCollectionTitle } from "@/lib/server/utils"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import React, { memo } from "react"
@@ -20,12 +22,18 @@ import React, { memo } from "react"
 export default function Page() {
     const { mangaCollection, mangaCollectionLoading } = useMangaCollection()
 
+    const ts = useThemeSettings()
 
     if (!mangaCollection || mangaCollectionLoading) return <LoadingDisplay />
 
     return (
         <div>
-
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && (
+                <>
+                    <CustomLibraryBanner />
+                    <div className="h-32"></div>
+                </>
+            )}
 
             <div className="px-4 md:px-8 relative z-[8]">
 

@@ -12,6 +12,7 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import { useRouter } from "next/navigation"
 import React from "react"
 
 const enum MangaProvider {
@@ -22,10 +23,17 @@ const enum MangaProvider {
 export const __manga_selectedProviderAtom = atomWithStorage<string>("sea-manga-provider", MangaProvider.COMICK)
 
 export function useMangaCollection() {
-    const { data, isLoading } = useSeaQuery<MangaCollection>({
+    const router = useRouter()
+    const { data, isLoading, isError } = useSeaQuery<MangaCollection>({
         endpoint: SeaEndpoints.MANGA_COLLECTION,
         queryKey: ["get-manga-collection"],
     })
+
+    React.useEffect(() => {
+        if (isError) {
+            router.push("/")
+        }
+    }, [isError])
 
     return {
         mangaCollection: data,
@@ -34,11 +42,18 @@ export function useMangaCollection() {
 }
 
 export function useMangaEntry(mediaId: string | undefined | null) {
-    const { data, isLoading } = useSeaQuery<MangaEntry>({
+    const router = useRouter()
+    const { data, isLoading, isError } = useSeaQuery<MangaEntry>({
         endpoint: SeaEndpoints.MANGA_ENTRY.replace("{id}", mediaId ?? ""),
         queryKey: ["get-manga-entry", Number(mediaId)],
         enabled: !!mediaId,
     })
+
+    React.useEffect(() => {
+        if (isError) {
+            router.push("/")
+        }
+    }, [isError])
 
     return {
         mangaEntry: data,
