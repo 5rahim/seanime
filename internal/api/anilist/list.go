@@ -76,6 +76,76 @@ func ListMediaM(
 
 	return &listMediaF, nil
 }
+func ListMangaM(
+	Page *int,
+	Search *string,
+	PerPage *int,
+	Sort []*MediaSort,
+	Status []*MediaStatus,
+	Genres []*string,
+	AverageScoreGreater *int,
+	Season *MediaSeason,
+	SeasonYear *int,
+	Format *MediaFormat,
+	logger *zerolog.Logger,
+) (*ListManga, error) {
+
+	variables := map[string]interface{}{}
+	if Page != nil {
+		variables["page"] = *Page
+	}
+	if Search != nil {
+		variables["search"] = *Search
+	}
+	if PerPage != nil {
+		variables["perPage"] = *PerPage
+	}
+	if Sort != nil {
+		variables["sort"] = Sort
+	}
+	if Status != nil {
+		variables["status"] = Status
+	}
+	if Genres != nil {
+		variables["genres"] = Genres
+	}
+	if AverageScoreGreater != nil {
+		variables["averageScore_greater"] = *AverageScoreGreater
+	}
+	if Season != nil {
+		variables["season"] = *Season
+	}
+	if SeasonYear != nil {
+		variables["seasonYear"] = *SeasonYear
+	}
+	if Format != nil {
+		variables["format"] = *Format
+	}
+
+	requestBody, err := json.Marshal(map[string]interface{}{
+		"query":     ListMangaQuery,
+		"variables": variables,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := customQuery(requestBody, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	var listMediaF ListManga
+	m, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(m, &listMediaF); err != nil {
+		return nil, err
+	}
+
+	return &listMediaF, nil
+}
 
 func ListRecentAiringMediaM(
 	Page *int,
@@ -293,6 +363,71 @@ const ListMediaQuery = `query ListMedia(
         episode
       }
     }`
+
+const ListMangaQuery = `query ListManga(
+      $page: Int
+      $search: String
+      $perPage: Int
+      $sort: [MediaSort]
+      $status: [MediaStatus]
+      $genres: [String]
+      $averageScore_greater: Int
+      $season: MediaSeason
+      $seasonYear: Int
+      $format: MediaFormat
+    ) {
+        Page(page: $page, perPage: $perPage){
+		pageInfo{
+		  hasNextPage
+		  total
+		  perPage
+		  currentPage
+		  lastPage
+		},
+		media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+		  ...basicManga
+		}
+	  }
+    }
+    fragment basicManga on Media {
+  id
+  idMal
+  siteUrl
+  status(version: 2)
+  season
+  type
+  format
+  bannerImage
+  chapters
+  volumes
+  synonyms
+  isAdult
+  countryOfOrigin
+  meanScore
+  description
+  title {
+    userPreferred
+    romaji
+    english
+    native
+  }
+  coverImage {
+    extraLarge
+    large
+    medium
+    color
+  }
+  startDate {
+    year
+    month
+    day
+  }
+  endDate {
+    year
+    month
+    day
+  }
+}`
 
 const ListRecentAiringMediaQuery = `
     query ListRecentMedia($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){

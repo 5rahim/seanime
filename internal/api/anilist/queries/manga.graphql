@@ -121,7 +121,7 @@ query ListManga($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], 
       lastPage
     },
     media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
-      ...basicMedia
+      ...basicManga
     }
   }
 }

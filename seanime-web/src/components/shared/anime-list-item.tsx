@@ -54,7 +54,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
     const [__atomicLibraryCollection, getAtomicLibraryEntry] = useAtom(getAtomicLibraryEntryAtom)
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
-    const showProgressBar = (!!listData?.progress && !!media?.episodes && listData?.status !== "COMPLETED")
+    const showProgressBar = (!!listData?.progress && (isManga ? !!media?.episodes : !!(media as any)?.chapters) && listData?.status !== "COMPLETED")
 
     const link = !isManga ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
 
@@ -216,7 +216,11 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                                     "bg-gray-400": listData?.status !== "CURRENT",
                                 },
                             )}
-                            style={{ width: `${String(Math.ceil((listData.progress! / media.episodes!) * 100))}%` }}
+                            style={{
+                                width: `${String(Math.ceil((listData.progress! / (isManga
+                                    ? media?.episodes
+                                    : (media as any)?.chapters)!) * 100))}%`,
+                            }}
                         ></div>
                     </div>}
 
@@ -438,7 +442,7 @@ const ScoreBadge = (props: { listData?: MediaEntryListData }) => {
 const ProgressBadge = (props: { media: BaseMediaFragment, listData?: MediaEntryListData }) => {
 
     const progress = props.listData?.progress
-    const episodes = props.media.episodes
+    const episodes = props.media.episodes || (props.media as any)?.chapters
 
     if (!props.listData || !progress) return null
 

@@ -9,6 +9,15 @@ export function getLibraryCollectionTitle(type: string) {
     }
 }
 
+export function getMangaCollectionTitle(type: string) {
+    switch (type) {
+        case "current":
+            return "Currently reading"
+        default:
+            return capitalize(type)
+    }
+}
+
 export function getAniDBEpisodeInteger<T extends {
     metadata: { aniDBEpisode?: string }
 }>(props: T | null | undefined) {

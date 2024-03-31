@@ -3,7 +3,6 @@ import { useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/que
 import { MangaRecommendations } from "@/app/(main)/manga/entry/_components/manga-recommendations"
 import { ChaptersList } from "@/app/(main)/manga/entry/_containers/chapters-list"
 import { MetaSection } from "@/app/(main)/manga/entry/_containers/meta-section"
-import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -28,8 +27,6 @@ export default function Page() {
 
     return (
         <div>
-            {/*[CUSTOM UI]*/}
-            <CustomBackgroundImage />
 
             <MetaSection entry={mangaEntry} details={mangaDetails} />
 

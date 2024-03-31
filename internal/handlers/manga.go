@@ -294,15 +294,77 @@ func HandleGetMangaEntryBackups(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+var (
+	anilistListMangaCache = result.NewCache[string, *anilist.ListManga]()
+)
+
 func HandleAnilistListManga(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
 		return c.RespondWithError(err)
 	}
 
-	// TODO
+	type body struct {
+		Page                *int                   `json:"page,omitempty"`
+		Search              *string                `json:"search,omitempty"`
+		PerPage             *int                   `json:"perPage,omitempty"`
+		Sort                []*anilist.MediaSort   `json:"sort,omitempty"`
+		Status              []*anilist.MediaStatus `json:"status,omitempty"`
+		Genres              []*string              `json:"genres,omitempty"`
+		AverageScoreGreater *int                   `json:"averageScoreGreater,omitempty"`
+		Season              *anilist.MediaSeason   `json:"season,omitempty"`
+		SeasonYear          *int                   `json:"seasonYear,omitempty"`
+		Format              *anilist.MediaFormat   `json:"format,omitempty"`
+	}
 
-	return c.RespondWithData(true)
+	p := new(body)
+	if err := c.Fiber.BodyParser(p); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if p.Page == nil || p.PerPage == nil {
+		*p.Page = 1
+		*p.PerPage = 20
+	}
+
+	cacheKey := anilist.ListMediaCacheKey(
+		p.Page,
+		p.Search,
+		p.PerPage,
+		p.Sort,
+		p.Status,
+		p.Genres,
+		p.AverageScoreGreater,
+		p.Season,
+		p.SeasonYear,
+		p.Format,
+	)
+
+	cached, ok := anilistListMangaCache.Get(cacheKey)
+	if ok {
+		return c.RespondWithData(cached)
+	}
+
+	ret, err := anilist.ListMangaM(
+		p.Page,
+		p.Search,
+		p.PerPage,
+		p.Sort,
+		p.Status,
+		p.Genres,
+		p.AverageScoreGreater,
+		p.Season,
+		p.SeasonYear,
+		p.Format,
+		c.App.Logger,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	anilistListMangaCache.SetT(cacheKey, ret, time.Minute*10)
+
+	return c.RespondWithData(ret)
 }
 
 // HandleUpdateMangaProgress will update the progress of the given media entry.

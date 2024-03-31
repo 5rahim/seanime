@@ -98,7 +98,7 @@ export const enum SeaEndpoints {
      */
     MANGA_ANILIST_COLLECTION = "/manga/anilist/collection", // (POST)
     MANGA_COLLECTION = "/manga/collection", // (GET)
-    MANGA_ANILIST_LIST_MANGA = "/manga/anilist/list-manga", // (POST)
+    MANGA_ANILIST_LIST_MANGA = "/manga/anilist/list", // (POST)
     MANGA_ENTRY = "/manga/entry/{id}", // (GET)
     MANGA_ENTRY_DETAILS = "/manga/entry/{id}/details", // (GET)
     MANGA_CHAPTERS = "/manga/chapters", // (POST)
