@@ -29,7 +29,6 @@ type Config struct {
 		Dir string
 	}
 	Manga struct {
-		Enabled   bool
 		BackupDir string
 	}
 	Data struct { // Hydrated after config is loaded
@@ -64,10 +63,8 @@ var defaultConfigValues = Config{
 		Dir: "$SEANIME_DATA_DIR/cache",
 	},
 	Manga: struct {
-		Enabled   bool
 		BackupDir string
 	}{
-		Enabled:   false,
 		BackupDir: "$SEANIME_DATA_DIR/cache/manga",
 	},
 	Logs: struct {
@@ -123,7 +120,6 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	viper.SetDefault("web.dir", defaultConfigValues.Web.Dir)
 	viper.SetDefault("web.assetDir", defaultConfigValues.Web.AssetDir)
 	viper.SetDefault("cache.dir", defaultConfigValues.Cache.Dir)
-	viper.SetDefault("manga.enabled", defaultConfigValues.Manga.Enabled)
 	viper.SetDefault("manga.backupDir", defaultConfigValues.Manga.BackupDir)
 	viper.SetDefault("logs.dir", defaultConfigValues.Logs.Dir)
 
@@ -252,7 +248,6 @@ func (cfg *Config) saveConfigToFile() error {
 	viper.Set("web.assetDir", cfg.Web.AssetDir)
 	viper.Set("cache.dir", cfg.Cache.Dir)
 	viper.Set("logs.dir", cfg.Logs.Dir)
-	viper.Set("manga.enabled", cfg.Manga.Enabled)
 	viper.Set("manga.backupDir", cfg.Manga.BackupDir)
 
 	if err := viper.WriteConfig(); err != nil {

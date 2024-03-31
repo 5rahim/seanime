@@ -69,7 +69,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         },
     })
 
-    const { mutate: deleteEntry, isPending: isDeleting } = useSeaMutation<any, { mediaId: number }>({
+    const { mutate: deleteEntry, isPending: isDeleting } = useSeaMutation<any, { mediaId: number, type: "anime" | "manga" }>({
         endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
         mutationKey: ["delete-anilist-list-entry"],
         method: "delete",
@@ -258,6 +258,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                             loading={isDeleting}
                                             onClick={() => deleteEntry({
                                                 mediaId: media?.id!,
+                                                type: type,
                                             })}
                                         >Confirm</Button>
                                     </DisclosureContent>

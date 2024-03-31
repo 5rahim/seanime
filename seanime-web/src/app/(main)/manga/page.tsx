@@ -82,6 +82,7 @@ const CollectionListItem = memo(({ list }: { list: MangaCollectionList }) => {
                         key={entry.media.id}
                         media={entry.media!}
                         listData={entry.listData}
+                        showListDataButton
                         isManga
                     />
                 })}

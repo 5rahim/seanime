@@ -44,7 +44,7 @@ const actionPopupHoverAtom = atom<number | undefined>(undefined)
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const status = useAtomValue(serverStatusAtom)
-    const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton, showTrailer, isManga } = props
+    const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton, showTrailer: _showTrailer, isManga } = props
 
 
     const [listData, setListData] = useState(_listData)
@@ -55,6 +55,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
     const showProgressBar = (!!listData?.progress && (isManga ? !!media?.episodes : !!(media as any)?.chapters) && listData?.status !== "COMPLETED")
+    const showTrailer = _showTrailer && !libraryData // Show trailer only if libraryData is not available
 
     const link = !isManga ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
 
@@ -190,10 +191,13 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
                     </div>
                     <div className="flex gap-2">
-                        {!!libraryData &&
-                            <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
-                        {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} />}
+
+                        {!!libraryData && <LockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
+
+                        {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} type={!isManga ? "anime" : "manga"} />}
+
                         <AnimeEntryAudienceScore meanScore={media.meanScore} hideAudienceScore={status?.settings?.anilist?.hideAudienceScore} />
+
                     </div>
                 </div>
             </div>
@@ -299,8 +303,11 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link 
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
     const [actionPopupHoverId] = useAtom(actionPopupHoverAtom)
     const actionPopupHover = actionPopupHoverId === media.id
+    const [trailerEnabled, setTrailerEnabled] = useState(!!media?.trailer?.id && !status?.settings?.library?.disableAnimeCardTrailers && showTrailer)
 
-    const trailerEnabled = !!media?.trailer?.id && !status?.settings?.library?.disableAnimeCardTrailers && showTrailer
+    React.useEffect(() => {
+        setTrailerEnabled(!!media?.trailer?.id && !status?.settings?.library?.disableAnimeCardTrailers && showTrailer)
+    }, [!!media?.trailer?.id, !status?.settings?.library?.disableAnimeCardTrailers, showTrailer])
 
     const Content = (
         <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2 cursor-pointer">
@@ -344,6 +351,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link 
                 autoPlay
                 muted
                 onLoadedData={() => setTrailerLoaded(true)}
+                onError={() => setTrailerEnabled(false)}
             />}
 
             <div

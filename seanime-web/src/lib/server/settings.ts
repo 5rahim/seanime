@@ -87,4 +87,5 @@ export const settingsSchema = z.object({
     disableUpdateCheck: z.boolean().optional().default(false),
     enableOnlinestream: z.boolean().optional().default(false),
     disableAnimeCardTrailers: z.boolean().optional().default(false),
+    enableManga: z.boolean().optional().default(true),
 })

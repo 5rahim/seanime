@@ -61,7 +61,7 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 	// Find episodes in cache
 	var episodes []*tvdb.Episode
 	found, _ := mw.fileCacher.Get(fcTVDBEpisodesBucket, strconv.Itoa(key), &episodes)
-	if found && episodes != nil {
+	if !populate && found && episodes != nil {
 		return episodes, nil
 	}
 

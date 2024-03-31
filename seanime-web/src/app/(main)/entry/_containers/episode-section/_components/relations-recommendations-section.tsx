@@ -23,8 +23,8 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
 
     const serverStatus = useAtomValue(serverStatusAtom)
 
-    const sourceManga = serverStatus?.mangaEnabled
-        ? entry?.media?.relations?.edges?.find(edge => edge?.relationType === "SOURCE" && edge?.node?.format === "MANGA")?.node
+    const sourceManga = serverStatus?.settings?.library?.enableManga
+        ? entry?.media?.relations?.edges?.find(edge => (edge?.relationType === "SOURCE" || edge?.relationType === "ADAPTATION") && edge?.node?.format === "MANGA")?.node
         : undefined
 
     const relations = (entry?.media?.relations?.edges?.map(edge => edge) || [])
@@ -37,8 +37,8 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
 
     return (
         <>
-            {(relations.length > 0 || recommendations.length > 0) && <Separator />}
-            {relations.length > 0 && (
+            {(!!sourceManga || relations.length > 0 || recommendations.length > 0) && <Separator />}
+            {(!!sourceManga || relations.length > 0) && (
                 <>
                     <h2>Relations</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4">
@@ -49,7 +49,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                                     className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
                                     intent="gray"
                                     size="lg"
-                                >Source (Manga)</Badge>}
+                                >Manga</Badge>}
                                 isManga
                             /></div>}
                         {relations.slice(0, 4).map(edge => {

@@ -86,7 +86,8 @@ func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 
 	type body struct {
-		MediaId *int `json:"mediaId"`
+		MediaId *int    `json:"mediaId"`
+		Type    *string `json:"type"`
 	}
 
 	p := new(body)
@@ -94,21 +95,43 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Get the list entry ID
-	anilistCollection, err := c.App.GetAnilistCollection(false)
-	if err != nil {
-		return c.RespondWithError(err)
+	if p.Type == nil || p.MediaId == nil {
+		return c.RespondWithError(errors.New("missing parameters"))
 	}
-	listEntry, found := anilistCollection.GetListEntryFromMediaId(*p.MediaId)
-	if !found {
-		return c.RespondWithError(errors.New("list entry not found"))
 
+	var listEntryID int
+
+	switch *p.Type {
+	case "anime":
+		// Get the list entry ID
+		anilistCollection, err := c.App.GetAnilistCollection(false)
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+
+		listEntry, found := anilistCollection.GetListEntryFromMediaId(*p.MediaId)
+		if !found {
+			return c.RespondWithError(errors.New("list entry not found"))
+		}
+		listEntryID = listEntry.ID
+	case "manga":
+		// Get the list entry ID
+		mangaCollection, err := c.App.GetMangaCollection(false)
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+
+		listEntry, found := mangaCollection.GetListEntryFromMediaId(*p.MediaId)
+		if !found {
+			return c.RespondWithError(errors.New("list entry not found"))
+		}
+		listEntryID = listEntry.ID
 	}
 
 	// Delete the list entry
 	ret, err := c.App.AnilistClientWrapper.DeleteEntry(
 		c.Fiber.Context(),
-		&listEntry.ID,
+		&listEntryID,
 	)
 	if err != nil {
 		return c.RespondWithError(err)

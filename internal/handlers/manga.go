@@ -11,16 +11,14 @@ import (
 	"time"
 )
 
-// todo: refresh manga collection when entry updated on anilist
-
 var (
-	ErrMangaFeatureDisabled = errors.New("manga feature is not enabled in your config")
+	ErrMangaFeatureDisabled = errors.New("manga feature not enabled")
 	baseMangaCache          = result.NewCache[int, *anilist.BaseManga]()
 	mangaDetailsCache       = result.NewCache[int, *anilist.MangaDetailsById_Media]()
 )
 
 func checkMangaFlag(a *core.App) error {
-	if !a.Config.Manga.Enabled {
+	if !a.Settings.Library.EnableManga {
 		return ErrMangaFeatureDisabled
 	}
 

@@ -1,5 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { BetaBadge } from "@/components/application/beta-badge"
 import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -19,6 +20,7 @@ import { GoArrowRight } from "react-icons/go"
 import { HiPlay } from "react-icons/hi"
 import { ImDownload } from "react-icons/im"
 import { LuLayoutDashboard } from "react-icons/lu"
+import { RiFolderDownloadFill } from "react-icons/ri"
 import { toast } from "sonner"
 
 
@@ -45,7 +47,7 @@ export default function Page() {
             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
                 <div className="space-y-1">
                     <h2>Settings</h2>
-                    <p className="text-[--muted]">App version: {status?.version}</p>
+                    <p className="text-[--muted]">App version: {status?.version}-{status?.os}</p>
                 </div>
                 <div>
                     <Link href="/settings/ui">
@@ -71,6 +73,7 @@ export default function Page() {
                             autoScan: data.autoScan,
                             enableOnlinestream: data.enableOnlinestream,
                             disableAnimeCardTrailers: data.disableAnimeCardTrailers,
+                            enableManga: data.enableManga,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -132,6 +135,7 @@ export default function Page() {
                     disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
                     enableOnlinestream: status?.settings?.library?.enableOnlinestream ?? false,
                     disableAnimeCardTrailers: status?.settings?.library?.disableAnimeCardTrailers ?? false,
+                    enableManga: status?.settings?.library?.enableManga ?? false,
                 }}
                 stackClass="space-y-4"
             >
@@ -150,6 +154,9 @@ export default function Page() {
 
                         <div className="pt-4">
                             <TabsContent value="seanime" className="space-y-6">
+
+                                <h3>Library</h3>
+
                                 <Field.DirectorySelector
                                     name="libraryPath"
                                     label="Library folder"
@@ -173,43 +180,60 @@ export default function Page() {
                                 />
                                 <Separator />
                                 <Field.Switch
-                                    name="autoUpdateProgress"
-                                    label="Automatically update progress"
-                                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
-                                />
-                                <Separator />
-                                <Field.Switch
                                     name="disableUpdateCheck"
                                     label="Do not check for updates"
                                     help="If enabled, Seanime will not check for new releases."
                                 />
                                 <Separator />
+
+                                <h3>Watching</h3>
+
+                                <Field.Switch
+                                    name="autoUpdateProgress"
+                                    label="Automatically update progress"
+                                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
+                                />
+                                <Separator />
+
+                                <h3>AniList</h3>
+
                                 <Field.Switch
                                     name="hideAudienceScore"
                                     label="Hide audience score"
-                                    help="If enabled, the audience score will be hidden on the media entry page."
+                                    help="If enabled, the audience score will be hidden until you decide to view it."
                                 />
                                 <Separator />
+
+                                <h3>Features</h3>
+
+                                <Field.Switch
+                                    name="enableManga"
+                                    label={<span className="flex gap-1 items-center">Manga <BetaBadge /></span>}
+                                    help="Read manga chapters and track your progress."
+                                />
                                 <Field.Switch
                                     name="enableOnlinestream"
-                                    label="Enable online streaming"
-                                    help=""
+                                    label={<span className="flex gap-1 items-center">Online streaming <BetaBadge /></span>}
+                                    help="Watch anime episodes from online sources."
                                 />
-                                <Separator />
                                 <Field.Switch
                                     name="disableAnimeCardTrailers"
                                     label="Disable anime card trailers"
                                     help=""
                                 />
                                 <Separator />
-                                <Field.RadioGroup
+
+                                <h3>Torrent Indexer</h3>
+
+                                <Field.Select
+                                    name="torrentProvider"
+                                    // label="Torrent Provider"
+                                    help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results."
+                                    leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                     options={[
                                         { label: "AnimeTosho (recommended)", value: "animetosho" },
                                         { label: "Nyaa", value: "nyaa" },
                                     ]}
-                                    name="torrentProvider"
-                                    label="Torrent provider"
-                                    help="Provider to use for searching and downloading torrents."
                                 />
 
                             </TabsContent>

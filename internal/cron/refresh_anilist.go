@@ -5,13 +5,18 @@ import (
 )
 
 func RefreshAnilistCollectionJob(c *JobCtx) {
+
+	if c.App.Settings == nil {
+		return
+	}
+
 	// Refresh the Anilist Collection
 	anilistCollection, err := c.App.GetAnilistCollection(true)
 	if err != nil {
 		return
 	}
 
-	if c.App.Config.Manga.Enabled {
+	if c.App.Settings.Library.EnableManga {
 		mangaCollection, err := c.App.GetMangaCollection(true)
 		if err != nil {
 			return

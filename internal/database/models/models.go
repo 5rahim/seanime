@@ -70,8 +70,8 @@ type LibrarySettings struct {
 	AutoScan                 bool   `gorm:"column:auto_scan" json:"autoScan"`
 	EnableOnlinestream       bool   `gorm:"column:enable_onlinestream" json:"enableOnlinestream"`
 	DisableAnimeCardTrailers bool   `gorm:"column:disable_anime_card_trailers" json:"disableAnimeCardTrailers"`
+	EnableManga              bool   `gorm:"column:enable_manga" json:"enableManga"`
 }
-
 type TorrentSettings struct {
 	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
 	QBittorrentPath      string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`

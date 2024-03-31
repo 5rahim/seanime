@@ -1,4 +1,5 @@
 import { serverStatusAtom } from "@/atoms/server-status"
+import { BetaBadge } from "@/components/application/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -53,7 +54,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
             </div>
             <Card className="relative p-4">
                 <AppLayoutStack>
-                    <div className="space-y-4">
+                    <div className="space-y-4 p-1">
                         <h3>Getting started</h3>
                         <em className="text-[--muted]">These settings can be modified later.</em>
                         <Form
@@ -66,8 +67,9 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         disableUpdateCheck: false,
                                         torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
                                         autoScan: false,
-                                        enableOnlinestream: false,
                                         disableAnimeCardTrailers: false,
+                                        enableOnlinestream: data.enableOnlinestream,
+                                        enableManga: data.enableManga,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -112,6 +114,8 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 torrentProvider: DEFAULT_TORRENT_PROVIDER,
                                 mpvSocket: mpvSocketPath,
                                 autoScan: false,
+                                enableOnlinestream: false,
+                                enableManga: false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -122,7 +126,13 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 shouldExist
                             />
 
-                            <h4 className="text-center">Media Player</h4>
+                            <div>
+                                <h4 className="text-center">Media Player</h4>
+
+                                <p className="text-[--muted] text-center">
+                                    Software used to play media files and track your progress automatically.
+                                </p>
+                            </div>
 
                             <Field.Select
                                 name="defaultPlayer"
@@ -148,7 +158,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     <AccordionTrigger>
                                         <h4 className="flex gap-2 items-center"><HiPlay /> MPV</h4>
                                     </AccordionTrigger>
-                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                    <AccordionContent className="px-1 py-4 space-y-4">
                                         <div className="flex gap-4 flex-col md:flex-row">
                                             <Field.Text
                                                 name="mpvSocket"
@@ -161,7 +171,10 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     <AccordionTrigger>
                                         <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
                                     </AccordionTrigger>
-                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                    <AccordionContent className="px-1 py-4 space-y-4">
+                                        <p className="text-[--muted]">
+                                            Leave these fields if you don't want to use VLC.
+                                        </p>
                                         <div className="flex gap-4 flex-col md:flex-row">
                                             <Field.Text
                                                 name="mediaPlayerHost"
@@ -196,7 +209,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     <AccordionTrigger>
                                         <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
                                     </AccordionTrigger>
-                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                    <AccordionContent className="px-1 py-4 space-y-4">
                                         <p className="text-[--muted]">
                                             Leave these fields if you don't want to use MPC-HC.
                                         </p>
@@ -217,29 +230,42 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                             <Field.Text
                                                 name="vlcPath"
                                                 label="Executable"
+                                                help="Path to the MPC-HC executable, this is used to launch the application."
                                             />
                                         </div>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
 
-                            <h4 className="text-center">Torrent Provider</h4>
+                            <div>
+                                <h4 className="text-center">Torrent Indexer</h4>
+
+                                <p className="text-[--muted] text-center">
+                                    Torrent indexer used by the search engine and auto downloader. AnimeTosho is recommended for better results.
+                                </p>
+                            </div>
 
                             <Field.Select
                                 name="torrentProvider"
-                                label="Torrent Provider"
+                                // label="Torrent Provider"
                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                 options={[
-                                    { label: "AnimeTosho", value: "animetosho" },
+                                    { label: "AnimeTosho (recommended)", value: "animetosho" },
                                     { label: "Nyaa", value: "nyaa" },
                                 ]}
                             />
 
-                            <h4 className="text-center">Torrent Client</h4>
+                            <div>
+                                <h4 className="text-center">Torrent Client</h4>
+
+                                <p className="text-[--muted] text-center">
+                                    Torrent client used to download media.
+                                </p>
+                            </div>
 
                             <Field.Select
                                 name="defaultTorrentClient"
-                                label="Default torrent client"
+                                // label="Default torrent client"
                                 options={[
                                     { label: "qBittorrent", value: "qbittorrent" },
                                     { label: "Transmission", value: "transmission" },
@@ -258,7 +284,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     <AccordionTrigger>
                                         <h4 className="flex gap-2 items-center"><ImDownload className="text-blue-400" /> qBittorrent</h4>
                                     </AccordionTrigger>
-                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                    <AccordionContent className="px-1 py-4 space-y-4">
                                         <Field.Text
                                             name="qbittorrentHost"
                                             label="Host"
@@ -283,6 +309,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         <Field.Text
                                             name="qbittorrentPath"
                                             label="Executable"
+                                            help="Path to the qBittorrent executable, this is used to launch the application."
                                         />
                                     </AccordionContent>
                                 </AccordionItem>
@@ -290,7 +317,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                     <AccordionTrigger>
                                         <h4 className="flex gap-2 items-center"><ImDownload className="text-orange-200" /> Transmission</h4>
                                     </AccordionTrigger>
-                                    <AccordionContent className="p-0 py-4 space-y-4">
+                                    <AccordionContent className="px-1 py-4 space-y-4">
                                         <Field.Text
                                             name="transmissionHost"
                                             label="Host"
@@ -315,10 +342,34 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         <Field.Text
                                             name="transmissionPath"
                                             label="Executable"
+                                            help="Path to the Transmission executable, this is used to launch the application."
                                         />
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
+
+                            <div>
+                                <h4 className="text-center">Additional features</h4>
+
+                                <p className="text-[--muted] text-center">
+                                    Decide which additional features you want to use.
+                                </p>
+                            </div>
+
+                            <Field.Checkbox
+                                name="enableManga"
+                                label={<span>Manga <BetaBadge /></span>}
+                                help="Read manga chapters and track your progress."
+                                size="lg"
+                            />
+
+                            <Field.Checkbox
+                                name="enableOnlinestream"
+                                label={<span>Online streaming <BetaBadge /></span>}
+                                help="Stream anime episodes from online sources."
+                                size="lg"
+                            />
+
 
                             <Field.Submit
                                 className="w-full"

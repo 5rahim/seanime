@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.2.0
+
+- 🎉 New feature: Manga (Experimental)
+	- Read manga and sync your progress directly from Seanime
+    - Enable the feature in your config.toml file by setting `enabled = true` in the `[manga]` section and restarting the server
+- ⚡️ Improved TVDB mappings for missing episode images
+- ⚡️ Added YouTube embeds for trailers
+- 🦺 Fixed TVDB metadata reloading
+- 🏗️ Improved Discover page
+
 ## v1.1.2
 
 - ✨ Added support for TVDB images

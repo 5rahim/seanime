@@ -23,7 +23,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
 
     const serverStatus = useAtomValue(serverStatusAtom)
 
-    const sourceManga = serverStatus?.mangaEnabled
+    const sourceManga = serverStatus?.settings?.library?.enableManga
         ? entry?.media?.relations?.edges?.find(edge => edge?.relationType === "SOURCE" && edge?.node?.format === "MANGA")?.node
         : undefined
 
@@ -43,7 +43,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                 itemClass="border-none"
                 triggerClass="rounded-[--radius] bg-gray-900 bg-opacity-80 dark:bg-gray-900 dark:bg-opacity-80 hover:bg-gray-800 dark:hover:bg-gray-800 hover:bg-opacity-100 dark:hover:bg-opacity-100"
             >
-                {relations.length > 0 && (
+                {(!!sourceManga || relations.length > 0) && (
                     <AccordionItem value="relations">
                         <AccordionTrigger>
                             Relations

@@ -137,7 +137,7 @@ export function MainSidebar() {
                                 href: "/anilist",
                                 isCurrent: pathname === "/anilist",
                             },
-                            ...[serverStatus?.mangaEnabled && {
+                            ...[serverStatus?.settings?.library?.enableManga && {
                                 iconType: FaBookReader,
                                 name: "Manga",
                                 href: "/manga",

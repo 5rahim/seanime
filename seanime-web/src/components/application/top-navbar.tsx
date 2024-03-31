@@ -52,14 +52,14 @@ export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
                 isCurrent: pathname.startsWith("/discover") || pathname.startsWith("/search"),
                 name: "Discover",
             },
-            ...[serverStatus?.mangaEnabled && {
+            ...[serverStatus?.settings?.library?.enableManga && {
                 href: "/manga",
                 icon: null,
                 isCurrent: pathname.startsWith("/manga"),
                 name: "Manga",
             }].filter(Boolean) as NavigationMenuProps["items"],
         ].filter(Boolean)
-    }, [pathname, missingEpisodeCount, serverStatus?.mangaEnabled])
+    }, [pathname, missingEpisodeCount, serverStatus?.settings?.library?.enableManga])
 
     return (
         <NavigationMenu

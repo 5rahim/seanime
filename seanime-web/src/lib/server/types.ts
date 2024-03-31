@@ -34,7 +34,6 @@ export type ServerStatus = {
     mal: MalInfo | null
     version: string
     themeSettings?: ThemeSettings | null
-    mangaEnabled: boolean
 }
 
 /**
@@ -75,6 +74,7 @@ export type LibrarySettings = {
     autoScan: boolean
     enableOnlinestream: boolean
     disableAnimeCardTrailers: boolean
+    enableManga: boolean
 }
 
 export const DEFAULT_TORRENT_PROVIDER = "animetosho"
