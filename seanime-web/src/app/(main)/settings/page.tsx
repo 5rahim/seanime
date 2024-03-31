@@ -223,7 +223,7 @@ export default function Page() {
                                 />
                                 <Separator />
 
-                                <h3>Torrent Indexer</h3>
+                                <h3>Torrent Provider</h3>
 
                                 <Field.Select
                                     name="torrentProvider"

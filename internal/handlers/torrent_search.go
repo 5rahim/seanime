@@ -20,6 +20,7 @@ func HandleTorrentSearch(c *RouteCtx) error {
 		Media          *anilist.BaseMedia `json:"media"`
 		AbsoluteOffset *int               `json:"absoluteOffset"`
 		Resolution     *string            `json:"resolution"`
+		Best           *bool              `json:"best"`
 	}
 
 	var b body
@@ -47,6 +48,7 @@ func HandleTorrentSearch(c *RouteCtx) error {
 			AbsoluteOffset: b.AbsoluteOffset,
 			Resolution:     b.Resolution,
 			Provider:       c.App.Settings.Library.TorrentProvider,
+			Best:           b.Best,
 		},
 		NyaaSearchCache:       c.App.NyaaSearchCache,
 		AnimeToshoSearchCache: c.App.AnimeToshoSearchCache,

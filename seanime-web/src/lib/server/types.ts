@@ -368,6 +368,7 @@ export type AnimeTorrent = {
     episodeNumber?: number
     releaseGroup?: string
     provider: string
+    isBestRelease: boolean
 }
 
 export type TorrentPreview = {

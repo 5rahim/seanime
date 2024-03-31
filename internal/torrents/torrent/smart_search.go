@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
+	"github.com/seanime-app/seanime/internal/torrents/seadex"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
 	"github.com/seanime-app/seanime/seanime-parser"
@@ -30,6 +31,7 @@ type (
 		Media          *anilist.BaseMedia `json:"media"`
 		AbsoluteOffset *int               `json:"absoluteOffset"`
 		Resolution     *string            `json:"resolution"`
+		Best           *bool              `json:"best"`
 		Provider       string             `json:"provider"`
 	}
 	SmartSearchOptions struct {
@@ -61,12 +63,13 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 		opts.AbsoluteOffset == nil ||
 		opts.Resolution == nil ||
 		opts.MetadataProvider == nil ||
+		opts.Best == nil ||
 		opts.Query == nil {
 		return nil, errors.New("missing arguments")
 	}
 
 	if opts.Provider == "" {
-		opts.Provider = "nyaa"
+		opts.Provider = "animetosho"
 	}
 
 	retTorrents := make([]*AnimeTorrent, 0)
@@ -89,11 +92,21 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 
 	var episodesFoundByID bool
 
-	// +---------------------+
-	// |        Nyaa         |
-	// +---------------------+
+	if *opts.Best {
 
-	if opts.Provider == "nyaa" {
+		torrents, err := seadex.New(opts.Logger).FetchTorrents(opts.Media.ID, opts.Media.GetRomajiTitleSafe())
+		if err != nil {
+			return nil, err
+		}
+
+		for _, torrent := range torrents {
+			retTorrents = append(retTorrents, NewAnimeTorrentFromSeaDex(torrent))
+		}
+
+	} else if opts.Provider == "nyaa" {
+		// +---------------------+
+		// |        Nyaa         |
+		// +---------------------+
 
 		// Use quick search if the user turned it on OR has not specified a query
 		if *opts.QuickSearch || len(*opts.Query) == 0 {
@@ -244,9 +257,17 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 	// Create torrent previews in parallel
 	p := pool.NewWithResults[*Preview]()
 	for _, torrent := range retTorrents {
-		torrent := torrent
 		p.Go(func() *Preview {
-			tp, ok := createTorrentPreview(opts.Media, opts.MetadataProvider, opts.AnizipCache, torrent, *opts.AbsoluteOffset, episodesFoundByID, *opts.EpisodeNumber)
+			tp, ok := createTorrentPreview(
+				opts.Media,
+				opts.MetadataProvider,
+				opts.AnizipCache,
+				torrent,
+				*opts.AbsoluteOffset,
+				episodesFoundByID,
+				*opts.EpisodeNumber,
+				*opts.Best,
+			)
 			if !ok {
 				return nil
 			}
@@ -288,9 +309,31 @@ func createTorrentPreview(
 	absoluteOffset int,
 	foundByID bool,
 	searchEpNumber int,
+	isBestRelease bool,
 ) (*Preview, bool) {
 
 	anizipMedia, _ := anizipCache.Get(anizip.GetCacheKey("anilist", media.ID)) // can be nil
+
+	if isBestRelease && anizipMedia != nil {
+		ep := entities.NewMediaEntryEpisode(&entities.NewMediaEntryEpisodeOptions{
+			LocalFile:            nil,
+			OptionalAniDBEpisode: strconv.Itoa(torrent.EpisodeNumber),
+			AnizipMedia:          anizipMedia,
+			Media:                media,
+			ProgressOffset:       0,
+			IsDownloaded:         false,
+			MetadataProvider:     metadataProvider,
+		})
+		ep.DisplayTitle = media.GetRomajiTitleSafe()
+		ep.EpisodeMetadata = entities.NewEpisodeMetadata(anizipMedia, nil, media, metadataProvider)
+		ep.EpisodeTitle = media.GetRomajiTitleSafe()
+		return &Preview{
+			Torrent: torrent,
+			Episode: ep,
+		}, true
+	} else if isBestRelease {
+		return nil, false
+	}
 
 	elements := seanime_parser.Parse(torrent.Name)
 	if len(elements.Title) == 0 {

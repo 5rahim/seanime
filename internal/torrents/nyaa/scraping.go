@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/gocolly/colly"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 func TorrentFiles(viewURL string) ([]string, error) {
@@ -61,6 +63,75 @@ func TorrentMagnet(viewURL string) (string, error) {
 	}
 
 	return magnetLink, nil
+}
+
+func TorrentInfo(viewURL string) (title string, seeders int, leechers int, completed int, infoHash string, magnetLink string, err error) {
+
+	c := colly.NewCollector()
+
+	c.OnHTML("a.card-footer-item", func(e *colly.HTMLElement) {
+		magnetLink = e.Attr("href")
+	})
+
+	c.OnHTML(".panel-title", func(e *colly.HTMLElement) {
+		if title == "" {
+			title = strings.TrimSpace(e.Text)
+		}
+	})
+
+	// Find and extract information from the specified div elements
+	c.OnHTML(".panel-body", func(e *colly.HTMLElement) {
+
+		if seeders == 0 {
+			// Extract seeders
+			e.ForEach("div:contains('Seeders:') span", func(_ int, el *colly.HTMLElement) {
+				if el.Attr("style") == "color: green;" {
+					seeders, _ = strconv.Atoi(el.Text)
+				}
+			})
+		}
+
+		if leechers == 0 {
+			// Extract leechers
+			e.ForEach("div:contains('Leechers:') span", func(_ int, el *colly.HTMLElement) {
+				if el.Attr("style") == "color: red;" {
+					leechers, _ = strconv.Atoi(el.Text)
+				}
+			})
+		}
+
+		if completed == 0 {
+			// Extract completed
+			e.ForEach("div:contains('Completed:')", func(_ int, el *colly.HTMLElement) {
+				completed, _ = strconv.Atoi(el.DOM.Parent().Find("div").Next().Next().Next().Text())
+			})
+		}
+
+		if infoHash == "" {
+			// Extract info hash
+			e.ForEach("div:contains('Info hash:') kbd", func(_ int, el *colly.HTMLElement) {
+				infoHash = el.Text
+			})
+		}
+	})
+
+	var e error
+	c.OnError(func(r *colly.Response, err error) {
+		e = err
+	})
+	if e != nil {
+		err = e
+		return
+	}
+
+	c.Visit(viewURL)
+
+	if magnetLink == "" {
+		err = errors.New("magnet link not found")
+		return
+	}
+
+	return
 }
 
 func TorrentHash(viewURL string) (string, error) {

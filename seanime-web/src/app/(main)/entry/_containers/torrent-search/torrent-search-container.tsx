@@ -13,7 +13,7 @@ import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { useDebounceWithSet } from "@/hooks/use-debounce"
 import { SeaEndpoints } from "@/lib/server/endpoints"
-import { buildSeaQuery, useSeaQuery } from "@/lib/server/query"
+import { useSeaQuery } from "@/lib/server/query"
 import { AnimeTorrent, MediaEntry, TorrentSearchData } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -36,6 +36,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const [quickSearchBatch, setQuickSearchBatch] = useState<boolean>(shouldLookForBatches || false)
     const [quickSearchEpisode, setQuickSearchEpisode] = useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
     const [quickSearchResolution, setQuickSearchResolution] = useState("1080")
+    const [quickSearchBest, setQuickSearchBest] = useState(false)
     const [dQuickSearchEpisode, setDQuickSearchEpisode] = useDebounceWithSet(quickSearchEpisode, 500)
 
     useLayoutEffect(() => {
@@ -62,21 +63,18 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
     const { data, isLoading, isFetching } = useSeaQuery<TorrentSearchData | undefined>({
         endpoint: SeaEndpoints.TORRENT_SEARCH,
-        queryKey: ["nyaa-search", entry.mediaId, dQuickSearchEpisode, globalFilter, quickSearchBatch, quickSearchResolution, quickSearch, downloadInfo?.absoluteOffset],
-        queryFn: async () => {
-            return buildSeaQuery({
-                endpoint: SeaEndpoints.TORRENT_SEARCH,
-                method: "post",
-                data: {
-                    query: globalFilter,
-                    episodeNumber: dQuickSearchEpisode,
-                    batch: quickSearchBatch,
-                    media: entry.media,
-                    absoluteOffset: downloadInfo?.absoluteOffset || 0,
-                    resolution: quickSearchResolution,
-                    quickSearch: quickSearch,
-                },
-            })
+        queryKey: ["torrent-search", entry.mediaId, dQuickSearchEpisode, globalFilter, quickSearchBatch, quickSearchResolution, quickSearch,
+            downloadInfo?.absoluteOffset, quickSearchBest],
+        method: "post",
+        data: {
+            query: globalFilter,
+            episodeNumber: dQuickSearchEpisode,
+            batch: quickSearchBatch,
+            media: entry.media,
+            absoluteOffset: downloadInfo?.absoluteOffset || 0,
+            resolution: quickSearchResolution,
+            quickSearch: quickSearch,
+            best: quickSearch && quickSearchBest,
         },
         refetchOnWindowFocus: false,
         retry: 0,
@@ -91,7 +89,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
         return <NumberInput
             label="Episode number"
             value={quickSearchEpisode}
-            disabled={entry?.media?.format === "MOVIE"}
+            disabled={entry?.media?.format === "MOVIE" || quickSearchBest}
             onValueChange={(value) => {
                 startTransition(() => {
                     setQuickSearchEpisode(value)
@@ -116,7 +114,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
             }
             return [...prev, t]
         })
-    }, [setSelectedTorrents])
+    }, [setSelectedTorrents, quickSearchBest])
 
     return (
         <>
@@ -129,23 +127,14 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                         onValueChange={setQuickSearch}
                     />
 
-                    <TorrentConfirmationContinueButton/>
+                    <TorrentConfirmationContinueButton />
                 </div>
 
                 {quickSearch && <div>
                     <div className="space-y-2">
                         <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
-                            <Switch
-                                label="Batches"
-                                help={!downloadInfo?.canBatch ? "Cannot look for batches for this media" : undefined}
-                                value={quickSearchBatch}
-                                onValueChange={setQuickSearchBatch}
-                                fieldClass={cn(
-                                    { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
-                                )}
-                            />
 
-                            <EpisodeNumberInput/>
+                            <EpisodeNumberInput />
 
                             <Select
                                 label="Resolution"
@@ -157,14 +146,39 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                                     { value: "720", label: "720p" },
                                     { value: "480", label: "480p" },
                                 ]}
+                                disabled={quickSearchBest || !quickSearch}
                                 size="sm"
                                 fieldClass={cn(
-                                    "flex items-center md:justify-end gap-3 space-y-0",
-                                    { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch },
+                                    "flex items-center md:justify-center gap-3 space-y-0",
+                                    { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch || quickSearchBest },
                                 )}
                                 fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                 className="w-[6rem]"
                             />
+
+                            <Switch
+                                label="Best releases"
+                                help={!downloadInfo?.canBatch ? "Cannot look for best releases yet" : "Look for the best releases"}
+                                value={quickSearchBest}
+                                onValueChange={setQuickSearchBest}
+                                fieldClass={cn(
+                                    { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
+                                )}
+                                size="sm"
+                            />
+
+                            <Switch
+                                label="Batches"
+                                help={!downloadInfo?.canBatch ? "Cannot look for batches yet" : "Look for batches"}
+                                value={quickSearchBatch}
+                                onValueChange={setQuickSearchBatch}
+                                disabled={quickSearchBest || !downloadInfo?.canBatch}
+                                fieldClass={cn(
+                                    { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || quickSearchBest },
+                                )}
+                                size="sm"
+                            />
+
                         </div>
 
                         {serverStatus?.settings?.library?.torrentProvider != "animetosho" && <DataGridSearchInput
@@ -174,7 +188,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             fieldClass="md:max-w-full w-full"
                         />}
 
-                        <div className="pb-1"/>
+                        <div className="pb-1" />
 
                         <TorrentPreviewList
                             previews={previews}

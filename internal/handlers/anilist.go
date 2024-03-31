@@ -18,6 +18,12 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	go func() {
+		if c.App.Settings.Library.EnableManga {
+			_, _ = c.App.GetMangaCollection(bypassCache)
+		}
+	}()
+
 	return c.RespondWithData(anilistCollection)
 
 }

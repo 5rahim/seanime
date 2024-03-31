@@ -67,8 +67,8 @@ function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | und
                         <EpisodeListItem
                             key={item.episode + item.aniDBEpisode}
                             media={item.episode?.basicMedia as any}
-                            title={item.episode?.displayTitle || ""}
-                            image={item.episode?.episodeMetadata?.image}
+                            title={item.episode?.displayTitle || item.episode?.basicMedia?.title?.userPreferred || ""}
+                            image={item.episode?.episodeMetadata?.image || item.episode?.basicMedia?.coverImage?.large}
                             episodeTitle={item?.episode?.episodeTitle}
                             description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber
                                 ? `(Episode ${item?.episode?.absoluteEpisodeNumber})`

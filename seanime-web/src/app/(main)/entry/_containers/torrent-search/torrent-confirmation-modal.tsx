@@ -117,7 +117,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         }
         if (smartSelect) {
             mutate({
-                urls: selectedTorrents.map(n => n.link),
+                urls: selectedTorrents.map(n => n.provider === "seadex" ? n.infoHash : n.link),
                 destination,
                 smartSelect: {
                     enabled: true,
@@ -127,7 +127,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             })
         } else {
             mutate({
-                urls: selectedTorrents.map(n => n.link),
+                urls: selectedTorrents.map(n => n.provider === "seadex" ? n.infoHash : n.link),
                 destination,
                 smartSelect: {
                     enabled: false,
@@ -201,13 +201,13 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 ))}
                 <div className="!mt-4 flex w-full justify-between gap-2 items-center">
                     <div>
-                        <Button
+                        {!selectedTorrents?.some(t => t.provider === "seadex") && <Button
                             leftIcon={<BiDownload />}
                             intent="gray-outline"
                             onClick={() => handleDownloadFiles()}
                             disabled={isDisabled}
                             loading={isDownloadingFiles}
-                        >Download torrent files</Button>
+                        >Download torrent files</Button>}
                     </div>
 
                     <div className="flex w-full justify-end gap-2">

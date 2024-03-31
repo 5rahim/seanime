@@ -25,6 +25,10 @@ export function TorrentResolutionBadge({ resolution }: { resolution?: string }) 
 
 export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
 
+    if (seeders === 0) {
+        return null
+    }
+
     return (
         <Badge
             intent={(seeders) > 20 ? (seeders) > 200 ? "primary" : "success" : "gray"}

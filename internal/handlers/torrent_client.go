@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/sourcegraph/conc/pool"
+	"strings"
 )
 
 // HandleGetActiveTorrentList will return all active qBittorrent torrents. (i.e. downloading or seeding)
@@ -109,7 +111,11 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	p := pool.NewWithResults[string]().WithErrors()
 	for _, url := range b.Urls {
 		p.Go(func() (string, error) {
-			return torrent.ScrapeMagnet(url)
+			if strings.HasPrefix(url, "http") {
+				return torrent.ScrapeMagnet(url)
+			} else {
+				return fmt.Sprintf("magnet:?xt=urn:btih:%s", url), nil
+			}
 		})
 	}
 	// if we couldn't get a magnet, return error

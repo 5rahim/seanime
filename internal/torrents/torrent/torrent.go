@@ -1,11 +1,14 @@
 package torrent
 
 import (
+	"context"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
+	"github.com/seanime-app/seanime/internal/torrents/seadex"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
 	"github.com/seanime-app/seanime/seanime-parser"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -24,9 +27,10 @@ type (
 		InfoHash      string `json:"infoHash"`
 		Resolution    string `json:"resolution,omitempty"`
 		IsBatch       bool   `json:"isBatch"`
-		EpisodeNumber int    `json:"episodeNumber,omitempty"`
+		EpisodeNumber int    `json:"episodeNumber"`
 		ReleaseGroup  string `json:"releaseGroup,omitempty"`
 		Provider      string `json:"provider,omitempty"`
+		IsBestRelease bool   `json:"isBestRelease"`
 	}
 )
 
@@ -84,6 +88,60 @@ func NewAnimeTorrentFromAnimeTosho(torrent *animetosho.Torrent) *AnimeTorrent {
 	}
 
 	hydrateMetadata(t, metadata)
+
+	return t
+}
+
+func NewAnimeTorrentFromSeaDex(torrent *seadex.Torrent) *AnimeTorrent {
+
+	var seeders, leechers, downloads int
+	var downloadUrl, title string
+
+	t := &AnimeTorrent{
+		Name:          torrent.Name,
+		Date:          torrent.Date,
+		Size:          torrent.Size,
+		FormattedSize: util.ToHumanReadableSize(int(torrent.Size)),
+		Seeders:       seeders,
+		Leechers:      leechers,
+		DownloadCount: downloads,
+		Link:          torrent.Link,
+		DownloadUrl:   downloadUrl,
+		InfoHash:      torrent.InfoHash,
+		Provider:      "seadex",
+		Resolution:    "",
+		IsBatch:       true,
+		EpisodeNumber: 0,
+		ReleaseGroup:  torrent.ReleaseGroup,
+		IsBestRelease: true,
+	}
+
+	// Try scraping from Nyaa
+	// Since nyaa tends to be blocked, try for a few seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if torrent.Link != "" {
+		downloadUrl = torrent.Link
+
+		client := http.DefaultClient
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, torrent.Link, nil)
+		if err == nil {
+			resp, err := client.Do(req)
+			if err == nil {
+				defer resp.Body.Close()
+				title, seeders, leechers, downloads, _, _, err = nyaa.TorrentInfo(torrent.Link + "fail")
+				if err == nil && title != "" {
+					t.Name = title
+					t.Seeders = seeders
+					t.Leechers = leechers
+					t.DownloadCount = downloads
+					t.DownloadUrl = downloadUrl
+
+					hydrateMetadata(t, seanime_parser.Parse(title))
+				}
+			}
+		}
+	}
 
 	return t
 }

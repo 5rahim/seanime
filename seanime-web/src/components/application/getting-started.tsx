@@ -238,10 +238,10 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                             </Accordion>
 
                             <div>
-                                <h4 className="text-center">Torrent Indexer</h4>
+                                <h4 className="text-center">Torrent Provider</h4>
 
                                 <p className="text-[--muted] text-center">
-                                    Torrent indexer used by the search engine and auto downloader. AnimeTosho is recommended for better results.
+                                    Indexer used by the search engine and auto downloader. AnimeTosho is recommended for better results.
                                 </p>
                             </div>
 

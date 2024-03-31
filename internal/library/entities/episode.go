@@ -252,7 +252,7 @@ func NewEpisodeMetadata(
 
 	// No AniZip data
 	if episode == nil {
-		md.Image = *media.GetCoverImage().GetLarge()
+		md.Image = media.GetCoverImageSafe()
 		return md
 	}
 	epInt, err := strconv.Atoi(episode.Episode)
