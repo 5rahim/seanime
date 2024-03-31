@@ -10,10 +10,12 @@ import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/utils"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { toast } from "sonner"
 
 const enum MangaProvider {
     COMICK = "comick",
@@ -147,10 +149,28 @@ export function useDownloadMangaChapter(mediaId: string | undefined | null) {
 // Chapters and Pages
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+export function useEmptyMangaCache() {
+    const qc = useQueryClient()
+    const { mutate, isPending } = useSeaMutation<boolean, { mediaId: number }>({
+        endpoint: SeaEndpoints.MANGA_ENTRY_CACHE,
+        method: "delete",
+        mutationKey: ["delete-manga-cache"],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-chapters"] })
+            toast.success("Sources reloaded successfully")
+        },
+    })
+
+    return {
+        emptyMangaCache: mutate,
+        isEmptyingMangaCache: isPending,
+    }
+}
+
 export function useMangaChapterContainer(mediaId: string | undefined | null) {
     const provider = useAtomValue(__manga_selectedProviderAtom)
 
-    const { data, isLoading, isFetching } = useSeaQuery<MangaChapterContainer>({
+    const { data, isLoading, isError, isFetching } = useSeaQuery<MangaChapterContainer>({
         endpoint: SeaEndpoints.MANGA_CHAPTERS,
         method: "post",
         data: {
@@ -179,6 +199,7 @@ export function useMangaChapterContainer(mediaId: string | undefined | null) {
         chapterContainer: data,
         chapterIdToNumbersMap: chapterNumbersMap,
         chapterContainerLoading: isLoading || isFetching,
+        chapterContainerError: isError,
     }
 }
 

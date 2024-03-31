@@ -12,6 +12,7 @@ import (
 	_ "image/png"  // Register PNG format
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -68,6 +69,37 @@ type EntryBackupContainer struct {
 	ChapterIds map[string]bool `json:"chapterIds"` // Using map for O(1) lookup in the client
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// File Cache
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type bucketType string
+
+const (
+	bucketTypeChapter bucketType = "chapters"
+	bucketTypePage    bucketType = "pages"
+)
+
+// getFcProviderBucket returns a bucket for the provider and mediaId.
+//
+//	e.g., manga_comick_chapters_123, manga_mangasee_pages_456
+func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, mediaId int, bucketType bucketType) filecache.Bucket {
+	return filecache.NewBucket("manga"+"_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
+}
+
+// EmptyMangaCache deletes all manga buckets associated with the given mediaId.
+func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
+	// Empty the manga cache
+	err = r.fileCacher.DeleteAllBy(func(filename string) bool {
+		return strings.HasPrefix(filename, "manga_") && strings.Contains(filename, strconv.Itoa(mediaId))
+	})
+	return
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Backups
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // GetMangaEntryBackups returns the backup chapters for the given manga entry.
 // Used by the client to display the downloaded chapters / allow user to download chapters.
 // Never returns nil.
@@ -80,23 +112,20 @@ func (r *Repository) GetMangaEntryBackups(provider manga_providers.Provider, med
 		MediaId:    mediaId,
 	}
 
-	return backupContainer
+	if r.backupMap == nil {
+		return backupContainer
+	}
 
-	// DEVNOTE: SHELVED
-	//if r.backupMap == nil {
-	//	return backupContainer
-	//}
-	//
-	//storedChapterIds, found := r.backupMap[DownloadID{Provider: string(provider), MediaID: mediaId}]
-	//if !found {
-	//	return backupContainer
-	//}
-	//
-	//for _, chapterId := range storedChapterIds {
-	//	backupContainer.ChapterIds[chapterId] = true
-	//}
-	//
-	//return backupContainer
+	storedChapterIds, found := r.backupMap[DownloadID{Provider: string(provider), MediaID: mediaId}]
+	if !found {
+		return backupContainer
+	}
+
+	for _, chapterId := range storedChapterIds {
+		backupContainer.ChapterIds[chapterId] = true
+	}
+
+	return backupContainer
 }
 
 func (r *Repository) hydrateBackupMap() {
@@ -117,24 +146,6 @@ func (r *Repository) GetStoredChapterIdsFromBackup(c DownloadID) ([]string, bool
 
 	storedChapterIds, found := r.backupMap[c]
 	return storedChapterIds, found, nil
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// File Cache
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type bucketType string
-
-const (
-	bucketTypeChapter bucketType = "chapters"
-	bucketTypePage    bucketType = "pages"
-)
-
-// getFcProviderBucket returns a bucket for the provider and mediaId.
-//
-//	e.g., manga_comick_chapters_123, manga_mangasee_pages_456
-func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, mediaId int, bucketType bucketType) filecache.Bucket {
-	return filecache.NewBucket("manga"+"_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

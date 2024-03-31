@@ -278,6 +278,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Get("/collection", makeHandler(app, HandleGetMangaCollection))
 	v1Manga.Get("/entry/:id", makeHandler(app, HandleGetMangaEntry))
 	v1Manga.Get("/entry/:id/details", makeHandler(app, HandleGetMangaEntryDetails))
+	v1Manga.Delete("/entry/cache", makeHandler(app, HandleEmptyMangaEntryCache))
 	v1Manga.Post("/chapters", makeHandler(app, HandleGetMangaEntryChapters))
 	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
 	//v1Manga.Post("/entry/backups", makeHandler(app, HandleGetMangaEntryBackups))

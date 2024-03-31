@@ -174,3 +174,28 @@ func (cs *CacheStore) saveToFile() error {
 	}
 	return nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (c *Cacher) DeleteAllBy(filter func(filename string) bool) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	files, err := os.ReadDir(c.dir)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		if !filter(file.Name()) {
+			continue
+		}
+
+		if err := os.Remove(filepath.Join(c.dir, file.Name())); err != nil {
+			return err
+		}
+	}
+
+	c.stores = make(map[string]*CacheStore)
+	return nil
+}

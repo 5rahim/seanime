@@ -70,6 +70,9 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 }
 
 func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
+
+	c.logger.Debug().Str("query", opts.Query).Msg("comick: searching manga")
+
 	searchUrl := fmt.Sprintf("%s/v1.0/search?q=%s&limit=25&page=1", c.Url, url.QueryEscape(opts.Query))
 	if opts.Year != 0 {
 		searchUrl += fmt.Sprintf("&from=%d&to=%d", opts.Year, opts.Year)
@@ -125,6 +128,8 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 }
 func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	ret := make([]*ChapterDetails, 0)
+
+	c.logger.Debug().Str("mangaId", id).Msg("comick: fetching chapters")
 
 	uri := fmt.Sprintf("%s/comic/%s/chapters?lang=en&page=0&limit=1000000&chap-order=1", c.Url, id)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -201,10 +206,15 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	})
 
 	ret = append(ret, chapters...)
+
+	c.logger.Info().Int("count", len(ret)).Msg("comick: found chapters")
+
 	return ret, nil
 }
 func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	ret := make([]*ChapterPage, 0)
+
+	c.logger.Debug().Str("chapterId", id).Msg("comick: fetching chapter pages")
 
 	uri := fmt.Sprintf("%s/chapter/%s", c.Url, id)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -242,6 +252,8 @@ func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 			Headers:  make(map[string]string),
 		})
 	}
+
+	c.logger.Info().Int("count", len(ret)).Msg("comick: found pages")
 
 	return ret, nil
 

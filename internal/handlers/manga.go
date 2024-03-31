@@ -140,6 +140,33 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// HandleEmptyMangaEntryCache will empty the cache for a manga entry.
+// HandleGetMangaEntryChapters should be called after this to refresh the client.
+//
+//	DELETE /api/v1/manga/entry/cache
+func HandleEmptyMangaEntryCache(c *RouteCtx) error {
+
+	if err := checkMangaFlag(c.App); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	type body struct {
+		MediaId int `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.MangaRepository.EmptyMangaCache(b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
 // HandleGetMangaEntryChapters return the chapters for a manga entry based on the provider.
 //
 //	POST /api/v1/manga/entry/:id/chapters

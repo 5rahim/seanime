@@ -54,6 +54,8 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 
 func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 
+	m.logger.Debug().Str("query", opts.Query).Msg("mangasee: searching manga")
+
 	searchUrl := fmt.Sprintf("%s/_search.php", m.Url)
 	req, err := http.NewRequest("GET", searchUrl, nil)
 	if err != nil {
@@ -106,6 +108,9 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 }
 
 func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
+
+	m.logger.Debug().Str("mangaId", slug).Msg("mangasee: fetching chapters")
+
 	chapterUrl := fmt.Sprintf("%s/manga/%s", m.Url, slug)
 
 	c := colly.NewCollector(
@@ -153,6 +158,8 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 			Index:    uint(i),
 		}
 	}
+
+	m.logger.Info().Int("count", len(ret)).Msg("mangasee: found chapters")
 
 	return ret, nil
 }
@@ -225,6 +232,8 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 		})
 
 	}
+
+	m.logger.Info().Int("count", len(pages)).Msg("mangasee: found pages")
 
 	return pages, nil
 }
