@@ -1,4 +1,5 @@
 "use client"
+import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"
@@ -236,6 +237,12 @@ export default function Page() {
                                     ]}
                                 />
 
+                                <Separator />
+
+                                <h3>Cache</h3>
+
+                                <FilecacheSettings />
+
                             </TabsContent>
 
                             <TabsContent value="media-player" className="space-y-4">
@@ -429,7 +436,7 @@ export default function Page() {
 
                             </TabsContent>
 
-                            <div className="mt-4">
+                            <div className="mt-8">
                                 <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
                             </div>
                         </div>

@@ -109,7 +109,6 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     //     if (!pageContainer?.isDownloaded) {
     //         return url
     //     }
-    //
     //     return process.env.NODE_ENV === "development"
     //         ? `http://${window?.location?.hostname}:43211/manga-backups${url}`
     //         : `http://${window?.location?.host}/manga-backups${url}`

@@ -107,6 +107,11 @@ export const enum SeaEndpoints {
     MANGA_ENTRY_BACKUPS = "/manga/entry/backups", // (POST)
     DOWNLOAD_MANGA_CHAPTER = "/manga/download-chapter", // (POST)
     UPDATE_MANGA_PROGRESS = "/manga/update-progress", // (POST)
+    /**
+     * File Cache
+     */
+    FILECACHE_TOTAL_SIZE = "/filecache/total-size", // (GET)
+    FILECACHE_BUCKET = "/filecache/bucket", // (DELETE)
 
     /**
      * Theme

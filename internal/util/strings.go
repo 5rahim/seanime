@@ -48,7 +48,7 @@ func ToHumanReadableSpeed(bytesPerSecond int) string {
 }
 
 // ToHumanReadableSize converts total size in bytes to a human-readable string
-func ToHumanReadableSize(bytes int) string { // FIXME incorrect
+func ToHumanReadableSize(bytes int64) string { // FIXME incorrect
 	if bytes < 0 {
 		return "Invalid size"
 	}

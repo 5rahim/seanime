@@ -286,6 +286,14 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
 	//
+	// File Cache
+	//
+
+	v1FileCache := v1.Group("/filecache")
+	v1FileCache.Get("/total-size", makeHandler(app, HandleGetFileCacheTotalSize))
+	v1FileCache.Delete("/bucket", makeHandler(app, HandleRemoveFileCacheBucket))
+
+	//
 	// Websocket
 	//
 

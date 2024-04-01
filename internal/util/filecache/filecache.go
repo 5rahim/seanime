@@ -215,3 +215,30 @@ func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 	c.stores = make(map[string]*CacheStore)
 	return nil
 }
+
+// GetTotalSize returns the total size of all files in the cache directory that match the given filter.
+// The size is in bytes.
+func (c *Cacher) GetTotalSize(filter func(filename string) bool) (int64, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	files, err := os.ReadDir(c.dir)
+	if err != nil {
+		return 0, err
+	}
+
+	var totalSize int64
+	for _, file := range files {
+		if !filter(file.Name()) {
+			continue
+		}
+
+		fileInfo, err := os.Stat(filepath.Join(c.dir, file.Name()))
+		if err != nil {
+			return 0, err
+		}
+
+		totalSize += fileInfo.Size()
+	}
+	return totalSize, nil
+}

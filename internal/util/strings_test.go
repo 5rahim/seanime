@@ -16,7 +16,7 @@ func TestToHumanReadableSize(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := ToHumanReadableSize(int(test.size))
+		actual := ToHumanReadableSize(test.size)
 		if actual != test.expected {
 			t.Errorf("ToHumanReadableSize(%d): expected %s, actual %s", test.size, test.expected, actual)
 		}
