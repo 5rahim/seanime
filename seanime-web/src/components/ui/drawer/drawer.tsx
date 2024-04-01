@@ -21,6 +21,7 @@ export const DrawerAnatomy = defineStyleAnatomy({
         "UI-Drawer__content",
         "fixed z-50 w-full gap-4 bg-[--background] p-6 shadow-lg overflow-y-auto",
         "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
+        "focus:outline-none focus-visible:outline-none",
     ], {
         variants: {
             side: {
@@ -108,6 +109,10 @@ export type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimi
      * Whether to hide the close button
      */
     hideCloseButton?: boolean
+    /**
+     *  Portal container
+     */
+    portalContainer?: HTMLElement
 }
 
 export function Drawer(props: DrawerProps) {
@@ -136,6 +141,7 @@ export function Drawer(props: DrawerProps) {
         onEscapeKeyDown,
         onPointerDownCapture,
         onInteractOutside,
+        portalContainer,
         ...rest
     } = props
 
@@ -144,7 +150,7 @@ export function Drawer(props: DrawerProps) {
 
             {trigger && <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>}
 
-            <DialogPrimitive.Portal>
+            <DialogPrimitive.Portal container={portalContainer}>
 
                 <DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} />
 
@@ -155,6 +161,7 @@ export function Drawer(props: DrawerProps) {
                     onEscapeKeyDown={onEscapeKeyDown}
                     onPointerDownCapture={onPointerDownCapture}
                     onInteractOutside={onInteractOutside}
+                    tabIndex={-1}
                 >
 
                     {(title || description) && <div className={cn(DrawerAnatomy.header(), headerClass)}>
