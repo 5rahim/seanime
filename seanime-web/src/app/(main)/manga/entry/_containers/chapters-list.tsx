@@ -15,7 +15,7 @@ import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiBookAlt } from "react-icons/bi"
 import { FaRedo } from "react-icons/fa"
-import { FaBookOpenReader } from "react-icons/fa6"
+import { GiOpenBook } from "react-icons/gi"
 
 type ChaptersListProps = {
     mediaId: string | null
@@ -134,7 +134,7 @@ export function ChaptersList(props: ChaptersListProps) {
                                 <AccordionTrigger>
                                     <h3 className="flex gap-2 items-center"><BiBookAlt className="text-gray-300" /> All chapters</h3>
                                 </AccordionTrigger>
-                                <AccordionContent className="p-0 py-4 space-y-2">
+                                <AccordionContent className="p-0 space-y-2 max-h-[75dvh] overflow-y-auto">
                                     {chapterContainer?.chapters?.toReversed()?.map((chapter) => (
                                         <ChapterItem
                                             chapter={chapter}
@@ -151,16 +151,18 @@ export function ChaptersList(props: ChaptersListProps) {
 
 
                         <h3>Unread chapters</h3>
-                        {chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (
-                            <ChapterItem
-                                chapter={chapter}
-                                key={chapter.id}
-                                // chapterBackups={chapterBackups}
-                                // handleDownloadChapter={handleDownloadChapter}
-                                // downloadProgressMap={downloadProgressMap}
-                                // isSendingDownloadRequest={false}
-                            />
-                        ))}
+                        <div className="p-0 space-y-2 max-h-[75dvh] overflow-y-auto">
+                            {chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (
+                                <ChapterItem
+                                    chapter={chapter}
+                                    key={chapter.id}
+                                    // chapterBackups={chapterBackups}
+                                    // handleDownloadChapter={handleDownloadChapter}
+                                    // downloadProgressMap={downloadProgressMap}
+                                    // isSendingDownloadRequest={false}
+                                />
+                            ))}
+                        </div>
 
                         {chapterContainer && <ChapterDrawer
                             entry={entry}
@@ -203,7 +205,7 @@ export function ChapterItem(props: ChapterItemProps) {
             <Card
                 key={chapter.id}
                 className={cn(
-                    "p-3 flex w-full gap-2 items-center",
+                    "px-3 py-1.5 flex w-full gap-2 items-center",
                     "hover:bg-[--subtle]",
                 )}
             >
@@ -213,7 +215,7 @@ export function ChapterItem(props: ChapterItemProps) {
                     intent="gray-basic"
                     size="sm"
                     onClick={() => setSelectedChapter(chapter)}
-                    icon={<FaBookOpenReader />}
+                    icon={<GiOpenBook />}
                 />
                 {/*SHELVED*/}
                 {/*{!chapterBackups?.chapterIds[chapter.id] && <IconButton*/}
