@@ -104,6 +104,9 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		MangaCollection:      collection,
 	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
 	baseMangaCache.SetT(entry.MediaId, entry.Media, time.Hour)
 

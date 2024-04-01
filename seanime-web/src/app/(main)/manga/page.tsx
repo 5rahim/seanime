@@ -10,6 +10,8 @@ import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/c
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Skeleton } from "@/components/ui/skeleton"
 import { StaticTabs } from "@/components/ui/tabs"
+import { TextInput } from "@/components/ui/text-input"
+import { useDebounce } from "@/hooks/use-debounce"
 import { ListMangaQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
@@ -18,6 +20,7 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import React, { memo } from "react"
+import { FiSearch } from "react-icons/fi"
 
 export default function Page() {
     const { mangaCollection, mangaCollectionLoading } = useMangaCollection()
@@ -62,6 +65,8 @@ export default function Page() {
                         </h2>
 
                         <TrendingManga />
+
+                        <SearchManga />
                     </div>
 
                 </PageWrapper>
@@ -132,6 +137,62 @@ function TrendingManga() {
                 }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
             </CarouselContent>
         </Carousel>
+    )
+}
+
+const mangaSearchInputAtom = atom<string>("")
+
+function SearchManga() {
+    const [searchInput, setSearchInput] = useAtom(mangaSearchInputAtom)
+    const search = useDebounce(searchInput, 500)
+
+    const { data, isLoading, isFetching } = useSeaQuery<ListMangaQuery>({
+        queryKey: ["search-manga", search],
+        endpoint: SeaEndpoints.MANGA_ANILIST_LIST_MANGA,
+        method: "post",
+        data: {
+            page: 1,
+            perPage: 10,
+            search: search,
+        },
+    })
+
+    return (
+        <div className="space-y-4">
+            <div className="container">
+                <TextInput
+                    leftIcon={<FiSearch />}
+                    value={searchInput}
+                    onValueChange={v => {
+                        setSearchInput(v)
+                    }}
+                    className="rounded-full"
+                    placeholder="Search manga"
+                />
+            </div>
+
+            {!!search && <Carousel
+                className="w-full max-w-full"
+                gap="md"
+                opts={{
+                    align: "start",
+                }}
+                autoScroll
+            >
+                <CarouselContent className="px-6">
+                    {!(isLoading || isFetching) ? data?.Page?.media?.filter(Boolean).map(media => {
+                        return (
+                            <AnimeListItem
+                                key={media.id}
+                                media={media}
+                                containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                                isManga
+                            />
+                        )
+                    }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                </CarouselContent>
+            </Carousel>}
+        </div>
     )
 }
 

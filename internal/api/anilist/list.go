@@ -384,7 +384,7 @@ const ListMangaQuery = `query ListManga(
 		  currentPage
 		  lastPage
 		},
-		media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+		media(type: MANGA, isAdult: false, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
 		  ...basicManga
 		}
 	  }
