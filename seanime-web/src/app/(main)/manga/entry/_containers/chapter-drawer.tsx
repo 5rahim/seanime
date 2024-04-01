@@ -467,7 +467,7 @@ const enum ReadingMode {
 const readingModeOptions = [
     { value: ReadingMode.LONG_STRIP, label: "Long strip" },
     { value: ReadingMode.PAGED, label: "Paged" },
-    { value: ReadingMode.DOUBLE_PAGE, label: "Double page" },
+    // { value: ReadingMode.DOUBLE_PAGE, label: "Double page" },
 ]
 
 const readingDirectionAtom = atomWithStorage<ReadingDirection>("sea-manga-reading-direction", ReadingDirection.LTR)

@@ -16,7 +16,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
         ...rest
     } = props
 
-    const anime = entry?.media?.relations?.edges?.map(edge => edge?.node).find(node => node?.type === "ANIME")
+    const anime = entry?.media?.relations?.edges?.map(edge => edge?.node).find(node => node?.type === "ANIME" && node?.format === "TV")
 
     const recommendations = details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation)?.filter(Boolean)?.slice(0, 6) || []
 
