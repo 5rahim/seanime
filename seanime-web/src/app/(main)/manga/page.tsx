@@ -83,6 +83,7 @@ const CollectionListItem = memo(({ list }: { list: MangaCollectionList }) => {
                         media={entry.media!}
                         listData={entry.listData}
                         showListDataButton
+                        withAudienceScore={false}
                         isManga
                     />
                 })}

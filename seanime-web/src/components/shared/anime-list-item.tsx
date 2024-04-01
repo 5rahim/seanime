@@ -35,6 +35,7 @@ type AnimeListItemProps = {
     showListDataButton?: boolean
     showTrailer?: boolean
     isManga?: boolean
+    withAudienceScore?: boolean
 } & {
     containerClassName?: string
 }
@@ -44,8 +45,16 @@ const actionPopupHoverAtom = atom<number | undefined>(undefined)
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const status = useAtomValue(serverStatusAtom)
-    const { media, listData: _listData, libraryData: _libraryData, overlay, showListDataButton, showTrailer: _showTrailer, isManga } = props
-
+    const {
+        media,
+        listData: _listData,
+        libraryData: _libraryData,
+        overlay,
+        showListDataButton,
+        showTrailer: _showTrailer,
+        isManga,
+        withAudienceScore = true,
+    } = props
 
     const [listData, setListData] = useState(_listData)
     const [libraryData, setLibraryData] = useState(_libraryData)
@@ -187,7 +196,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         </Link>}
 
                         {(listData?.status && props.showLibraryBadge === undefined) &&
-                            <p className="text-center">{listData?.status === "CURRENT" ? "Watching" : capitalize(listData?.status ?? "")}</p>}
+                            <p className="text-center">{listData?.status === "CURRENT" ? "Current" : capitalize(listData?.status ?? "")}</p>}
 
                     </div>
                     <div className="flex gap-2">
@@ -196,7 +205,8 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
                         {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} type={!isManga ? "anime" : "manga"} />}
 
-                        <AnimeEntryAudienceScore meanScore={media.meanScore} hideAudienceScore={status?.settings?.anilist?.hideAudienceScore} />
+                        {withAudienceScore &&
+                            <AnimeEntryAudienceScore meanScore={media.meanScore} hideAudienceScore={status?.settings?.anilist?.hideAudienceScore} />}
 
                     </div>
                 </div>

@@ -14,7 +14,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { useRouter } from "next/navigation"
-import React from "react"
+import React, { useMemo } from "react"
 import { toast } from "sonner"
 
 const enum MangaProvider {
@@ -37,8 +37,22 @@ export function useMangaCollection() {
         }
     }, [isError])
 
+    const sortedCollection = useMemo(() => {
+        if (!data || !data.lists) return data
+        return {
+            ...data,
+            lists: [
+                data.lists.find(n => n.type === "current"),
+                data.lists.find(n => n.type === "paused"),
+                data.lists.find(n => n.type === "planned"),
+                data.lists.find(n => n.type === "completed"),
+                data.lists.find(n => n.type === "dropped"),
+            ].filter(Boolean),
+        } as MangaCollection
+    }, [data])
+
     return {
-        mangaCollection: data,
+        mangaCollection: sortedCollection,
         mangaCollectionLoading: isLoading,
     }
 }
