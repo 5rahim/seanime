@@ -34,11 +34,13 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - **Third-party media players**
   - Launch an episode from the web interface and Seanime will automatically update your progress on AniList (& MAL)
   - MPV, VLC, and MPC-HC are supported
+- **Manga**
+  - Manage your manga collection, read chapters and track your progress
+- **Online streaming**
+  - Stream episodes from online sources directly from the web interface, without any additional setup
 - **MyAnimeList integration**
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
-- **Online streaming**
-  - Stream episodes from online sources directly from the web interface, without any additional setup
 - **No data collection**
 
 
@@ -98,19 +100,16 @@ support transcoding or streaming to other devices (yet).
 
 # Screenshots
 
-<h1 align="center">
-<a href="https://seanime.rahim.app/">
 <img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
-</a>
-</h1>
-
 <img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/my-library_05.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
 <img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>
+
+<img src="docs/images/v1/manga-entry.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/manga-page_03.png" alt="preview" width="100%"/>
+
 <img src="docs/images/v1/online-stream.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/schedule.png" alt="preview" width="100%"/>
 
 # Disclaimer
 
