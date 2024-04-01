@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## v1.2.0
 
 - 🎉 New feature: Manga (Experimental)
-	- Read manga chapters and sync your progress directly from Seanime
+	- Read manga chapters and sync your progress
 - ✨ Added "Best releases" filter for Smart Search
   - Currently powered by SeaDex with limited results
 - ⚡️ Improved TVDB mappings for missing episode images
