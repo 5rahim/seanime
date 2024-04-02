@@ -1,11 +1,12 @@
 import { PlaylistManager } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-manager"
 import { useCreatePlaylist, useDeletePlaylist, useUpdatePlaylist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist-actions"
+
+import { Playlist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist.types"
 import { Button } from "@/components/ui/button"
 import { DangerZone } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { Playlist } from "@/lib/server/types"
 import React from "react"
 import { toast } from "sonner"
 

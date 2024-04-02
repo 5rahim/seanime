@@ -50,7 +50,6 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 ### Additional features
 
 - Customizable UI
-- Playlists for queueing episodes
 - Auto scan
 - Advanced anime search
 - Scan summaries

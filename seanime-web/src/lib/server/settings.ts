@@ -1,4 +1,4 @@
-import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER } from "@/lib/server/types"
+import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER } from "@/lib/types/settings.types"
 import { z } from "zod"
 
 export function useDefaultSettingsPaths() {

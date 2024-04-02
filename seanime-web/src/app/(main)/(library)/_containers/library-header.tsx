@@ -1,7 +1,7 @@
 "use client"
 import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/continue-watching"
+import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { cn } from "@/components/ui/core/styling"
-import { MediaEntryEpisode } from "@/lib/server/types"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { Transition } from "@headlessui/react"
 import { motion } from "framer-motion"

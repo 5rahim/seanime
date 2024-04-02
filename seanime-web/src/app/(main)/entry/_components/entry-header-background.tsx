@@ -1,6 +1,6 @@
 "use client"
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { Skeleton } from "@/components/ui/skeleton"
-import { MediaEntry } from "@/lib/server/types"
 import { motion } from "framer-motion"
 import Image from "next/image"
 

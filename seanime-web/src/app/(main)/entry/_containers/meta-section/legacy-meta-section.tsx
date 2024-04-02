@@ -1,4 +1,5 @@
 "use client"
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import {
@@ -17,7 +18,6 @@ import { TrailerModal } from "@/components/shared/trailer-modal"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
-import { MediaEntry } from "@/lib/server/types"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"

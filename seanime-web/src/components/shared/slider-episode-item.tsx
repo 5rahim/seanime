@@ -1,7 +1,7 @@
+import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { EpisodeItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { cn } from "@/components/ui/core/styling"
-import { MediaEntryEpisode } from "@/lib/server/types"
 import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"

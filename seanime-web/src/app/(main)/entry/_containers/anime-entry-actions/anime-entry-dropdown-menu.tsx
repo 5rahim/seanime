@@ -1,5 +1,7 @@
 "use client"
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
+
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-delete-files-modal"
 import { __metadataManager_isOpenAtom, MetadataManager } from "@/app/(main)/entry/_containers/metadata-manager/metadata-manager"
 import { useOpenDefaultMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
@@ -8,7 +10,6 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/applicat
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useOpenMediaEntryInExplorer } from "@/lib/server/hooks"
-import { MediaEntry } from "@/lib/server/types"
 import { useSetAtom } from "jotai"
 import { useAtomValue } from "jotai/react"
 import React from "react"

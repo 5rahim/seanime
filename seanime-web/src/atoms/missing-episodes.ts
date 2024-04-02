@@ -1,6 +1,6 @@
+import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
-import { MediaEntryEpisode } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"

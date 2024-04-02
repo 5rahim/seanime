@@ -10,12 +10,12 @@ import {
     OnlinestreamServerButton,
     OnlinestreamSettingsButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
+import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
     __onlinestream_selectedEpisodeNumberAtom,
-} from "@/app/(main)/onlinestream/_lib/episodes"
-import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
+} from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { LuffyError } from "@/components/shared/luffy-error"

@@ -1,6 +1,6 @@
+import { LocalFile } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
-import { LocalFile } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 

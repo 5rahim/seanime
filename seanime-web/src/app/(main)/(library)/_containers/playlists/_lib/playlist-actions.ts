@@ -1,6 +1,6 @@
+import { Playlist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist.types"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
-import { Playlist } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 

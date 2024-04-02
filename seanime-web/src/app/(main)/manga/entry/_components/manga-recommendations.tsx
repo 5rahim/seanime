@@ -1,4 +1,4 @@
-import { MangaEntry } from "@/app/(main)/manga/_lib/types"
+import { MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import React from "react"

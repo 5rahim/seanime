@@ -1,11 +1,11 @@
+import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
-    onlinestream_providers,
-} from "@/app/(main)/onlinestream/_lib/episodes"
-import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
+} from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
+import { ONLINESTREAM_PROVIDERS } from "@/app/(main)/onlinestream/_lib/onlinestream.hooks"
 import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -255,7 +255,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
             <Select
                 label="Provider"
                 value={provider}
-                options={onlinestream_providers}
+                options={ONLINESTREAM_PROVIDERS}
                 onValueChange={(v) => {
                     changeProvider(v)
                 }}
@@ -312,7 +312,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
             <Menu.Content className={menuClass} placement="top">
                 <RadioGroup
                     value={provider}
-                    options={onlinestream_providers}
+                    options={ONLINESTREAM_PROVIDERS}
                     onValueChange={(v) => {
                         changeProvider(v)
                     }}

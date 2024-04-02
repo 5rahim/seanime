@@ -1,7 +1,8 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
+
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { IconButton } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
-import { MediaEntry } from "@/lib/server/types"
 import React from "react"
 import { BiLockOpenAlt } from "react-icons/bi"
 import { VscVerified } from "react-icons/vsc"

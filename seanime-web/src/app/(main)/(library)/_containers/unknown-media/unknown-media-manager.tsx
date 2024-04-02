@@ -3,7 +3,8 @@ import { useAddUnknownMedia } from "@/app/(main)/(library)/_containers/unknown-m
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
-import { UnknownGroup } from "@/lib/server/types"
+
+import { UnknownGroup } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Link from "next/link"

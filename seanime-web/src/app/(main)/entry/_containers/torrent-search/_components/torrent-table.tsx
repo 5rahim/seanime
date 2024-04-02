@@ -4,7 +4,8 @@ import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
-import { AnimeTorrent } from "@/lib/server/types"
+
+import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import React, { memo, useMemo } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 

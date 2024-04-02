@@ -2,7 +2,8 @@ import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-gri
 import { torrentSearchDrawerEpisodeAtom, torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { MediaEntryDownloadInfo } from "@/lib/server/types"
+
+import { MediaEntryDownloadInfo } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"

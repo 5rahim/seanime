@@ -1,6 +1,6 @@
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
-import { LocalFile, LocalFileMetadata } from "@/lib/server/types"
+import { LocalFile, LocalFileMetadata } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { useQueryClient } from "@tanstack/react-query"
 
 type UpdateLocalFileVariables = {

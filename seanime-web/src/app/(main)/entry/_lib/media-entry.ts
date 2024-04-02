@@ -1,7 +1,7 @@
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { BasicMediaFragment, MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
-import { MediaEntry } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 
 /**

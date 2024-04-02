@@ -1,5 +1,5 @@
-import { __manga_selectedProviderAtom, useEmptyMangaCache, useMangaChapterContainer } from "@/app/(main)/manga/_lib/queries"
-import { manga_providers_options, MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/types"
+import { __manga_selectedProviderAtom, useEmptyMangaCache, useMangaChapterContainer } from "@/app/(main)/manga/_lib/manga.hooks"
+import { manga_providers_options, MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/manga.types"
 import { __manga_selectedChapterAtom, ChapterDrawer } from "@/app/(main)/manga/entry/_containers/chapter-drawer/chapter-drawer"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"

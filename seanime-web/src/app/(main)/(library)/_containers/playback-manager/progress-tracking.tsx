@@ -1,3 +1,7 @@
+import {
+    PlaybackManager_PlaybackState,
+    PlaybackManager_PlaylistState,
+} from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
@@ -8,7 +12,6 @@ import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
-import { PlaybackManagerPlaybackState, PlaybackManagerPlaylistState } from "@/lib/server/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -36,11 +39,11 @@ export function ProgressTracking() {
     // \/ This means that the modal should be displayed if the user is currently tracking the progress of a video or if the video has been completed
     const shouldBeDisplayed = isTracking || isCompleted
 
-    const [state, setState] = useState<PlaybackManagerPlaybackState | null>(null)
-    const [playlistState, setPlaylistState] = useState<PlaybackManagerPlaylistState | null>(null)
+    const [state, setState] = useState<PlaybackManager_PlaybackState | null>(null)
+    const [playlistState, setPlaylistState] = useState<PlaybackManager_PlaylistState | null>(null)
 
     // Tracking started
-    useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
+    useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED,
         onMessage: data => {
             setIsTracking(true)
@@ -50,7 +53,7 @@ export function ProgressTracking() {
     })
 
     // Video completed
-    useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
+    useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED,
         onMessage: data => {
             setIsCompleted(true)
@@ -93,7 +96,7 @@ export function ProgressTracking() {
     })
 
     // Playback state
-    useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
+    useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE,
         onMessage: data => {
             if (!isTracking) {
@@ -104,7 +107,7 @@ export function ProgressTracking() {
     })
 
     // Progress has been updated
-    useWebsocketMessageListener<PlaybackManagerPlaybackState | null>({
+    useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATED,
         onMessage: data => {
             if (data) {
@@ -126,7 +129,7 @@ export function ProgressTracking() {
         },
     })
 
-    useWebsocketMessageListener<PlaybackManagerPlaylistState | null>({
+    useWebsocketMessageListener<PlaybackManager_PlaylistState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PLAYLIST_STATE,
         onMessage: data => {
             setPlaylistState(data)

@@ -1,4 +1,5 @@
 "use client"
+import { TorrentClientTorrent, TorrentClientTorrentActionProps } from "@/app/(main)/torrent-list/_lib/torrent-client.types"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -10,7 +11,6 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
-import { SeaTorrent, SeaTorrentActionProps } from "@/lib/server/types"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
@@ -50,7 +50,7 @@ export default function Page() {
 function Content() {
     const [enabled, setEnabled] = React.useState(true)
 
-    const { data, isLoading, status, refetch } = useSeaQuery<SeaTorrent[]>({
+    const { data, isLoading, status, refetch } = useSeaQuery<TorrentClientTorrent[]>({
         endpoint: SeaEndpoints.TORRENT_CLIENT_LIST,
         queryKey: ["torrents"],
         refetchInterval: 2500,
@@ -60,7 +60,7 @@ function Content() {
         enabled: enabled,
     })
 
-    const { mutate, isPending } = useSeaMutation<boolean, SeaTorrentActionProps>({
+    const { mutate, isPending } = useSeaMutation<boolean, TorrentClientTorrentActionProps>({
         endpoint: SeaEndpoints.TORRENT_CLIENT_ACTION,
         mutationKey: ["torrent-action"],
         onSuccess: () => {
@@ -74,7 +74,7 @@ function Content() {
         }
     }, [status])
 
-    const handleTorrentAction = useCallback((props: SeaTorrentActionProps) => {
+    const handleTorrentAction = useCallback((props: TorrentClientTorrentActionProps) => {
         mutate(props)
     }, [mutate])
 
@@ -109,8 +109,8 @@ function Content() {
 
 
 type TorrentItemProps = {
-    torrent: SeaTorrent
-    onTorrentAction: (props: SeaTorrentActionProps) => void
+    torrent: TorrentClientTorrent
+    onTorrentAction: (props: TorrentClientTorrentActionProps) => void
     isPending?: boolean
 }
 

@@ -1,5 +1,6 @@
 import { WSEvents } from "@/lib/server/endpoints"
-import { SeaWebsocketEvent } from "@/lib/server/types"
+
+import { SeaWebsocketEvent } from "@/lib/types/queries.types"
 import { atom } from "jotai"
 import { createContext, useContext, useEffect } from "react"
 

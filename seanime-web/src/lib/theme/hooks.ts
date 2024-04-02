@@ -1,5 +1,6 @@
 import { serverStatusAtom } from "@/atoms/server-status"
-import { ThemeSettings } from "@/lib/server/types"
+
+import { ThemeSettings } from "@/lib/types/settings.types"
 import { useAtomValue } from "jotai/react"
 
 export const THEME_DEFAULT_VALUES: ThemeSettings = {

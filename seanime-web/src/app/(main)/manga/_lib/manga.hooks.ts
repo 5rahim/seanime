@@ -5,8 +5,8 @@ import {
     MangaEntry,
     MangaEntryBackups,
     MangaPageContainer,
-} from "@/app/(main)/manga/_lib/types"
-import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/utils"
+} from "@/app/(main)/manga/_lib/manga.types"
+import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"

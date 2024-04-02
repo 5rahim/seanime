@@ -1,5 +1,5 @@
 "use client"
-import { useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/queries"
+import { useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaRecommendations } from "@/app/(main)/manga/entry/_components/manga-recommendations"
 import { ChaptersList } from "@/app/(main)/manga/entry/_containers/chapters-list"
 import { MetaSection } from "@/app/(main)/manga/entry/_containers/meta-section"

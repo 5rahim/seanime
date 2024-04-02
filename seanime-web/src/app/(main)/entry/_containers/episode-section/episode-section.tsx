@@ -1,4 +1,5 @@
 "use client"
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/episode-section/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
@@ -9,7 +10,6 @@ import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
-import { MediaEntry } from "@/lib/server/types"
 import React, { useMemo } from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 

@@ -1,4 +1,4 @@
-import { MangaPageContainer } from "@/app/(main)/manga/_lib/types"
+import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-drawer/chapter-drawer"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"

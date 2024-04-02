@@ -9,8 +9,10 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/listsync"
 	"github.com/seanime-app/seanime/internal/api/metadata"
+	"github.com/seanime-app/seanime/internal/constants"
 	_db "github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/discordrpc"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
@@ -67,6 +69,7 @@ type (
 		MangaRepository     *manga.Repository
 		MetadataProvider    *metadata.Provider
 		WD                  string // Working directory
+		DiscordRPC          *discordrpc.Client
 		cancelContext       func()
 	}
 
@@ -164,6 +167,10 @@ func NewApp(options *AppOptions, version string) *App {
 		WsEventManager: wsEventManager,
 	})
 
+	// Discord RPC
+	discordRPC, _ := discordrpc.New(constants.DiscordApplicationId)
+	defer discordRPC.Close()
+
 	app := &App{
 		Config:                  cfg,
 		Database:                db,
@@ -185,6 +192,7 @@ func NewApp(options *AppOptions, version string) *App {
 		AutoScanner:             nil, // Initialized in App.InitModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayRepository:     nil, // Initialized in App.InitOrRefreshModules
+		DiscordRPC:              discordRPC,
 		WD:                      pwd,
 	}
 

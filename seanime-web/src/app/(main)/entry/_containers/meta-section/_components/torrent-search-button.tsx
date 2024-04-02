@@ -1,6 +1,6 @@
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { Button } from "@/components/ui/button"
-import { MediaEntry } from "@/lib/server/types"
 import { useSetAtom } from "jotai/react"
 import React, { useMemo } from "react"
 import { BiDownload } from "react-icons/bi"

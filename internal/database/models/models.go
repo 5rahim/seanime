@@ -43,6 +43,7 @@ type Settings struct {
 	Anilist        *AnilistSettings        `gorm:"embedded" json:"anilist"`
 	ListSync       *ListSyncSettings       `gorm:"embedded" json:"listSync"`
 	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
+	Discord        *DiscordSettings        `gorm:"embedded" json:"discord"`
 }
 
 type AnilistSettings struct {
@@ -89,6 +90,12 @@ type TorrentSettings struct {
 type ListSyncSettings struct {
 	Automatic bool   `gorm:"column:automatic_sync" json:"automatic"`
 	Origin    string `gorm:"column:sync_origin" json:"origin"`
+}
+
+type DiscordSettings struct {
+	EnableRichPresence      bool `gorm:"column:enable_rich_presence" json:"enableRichPresence"`
+	EnableAnimeRichPresence bool `gorm:"column:enable_anime_rich_presence" json:"enableAnimeRichPresence"`
+	EnableMangaRichPresence bool `gorm:"column:enable_manga_rich_presence" json:"enableMangaRichPresence"`
 }
 
 // +---------------------+

@@ -1,5 +1,5 @@
-import { useMangaPageContainer } from "@/app/(main)/manga/_lib/queries"
-import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/types"
+import { useMangaPageContainer } from "@/app/(main)/manga/_lib/manga.hooks"
+import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import {
     __manga_isLastPageAtom,
     __manga_readingDirectionAtom,

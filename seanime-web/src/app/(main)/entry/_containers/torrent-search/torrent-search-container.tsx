@@ -1,4 +1,6 @@
+import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
+import { AnimeTorrent, TorrentSearchData } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
@@ -14,7 +16,6 @@ import { Switch } from "@/components/ui/switch"
 import { useDebounceWithSet } from "@/hooks/use-debounce"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
-import { AnimeTorrent, MediaEntry, TorrentSearchData } from "@/lib/server/types"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"

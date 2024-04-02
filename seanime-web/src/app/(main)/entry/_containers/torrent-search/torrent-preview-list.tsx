@@ -1,10 +1,10 @@
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
+import { AnimeTorrent, TorrentPreview } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
-import { AnimeTorrent, TorrentPreview } from "@/lib/server/types"
 import React from "react"
 import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
