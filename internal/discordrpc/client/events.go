@@ -1,4 +1,4 @@
-package discordrpc
+package discordrpc_client
 
 import (
 	"encoding/json"

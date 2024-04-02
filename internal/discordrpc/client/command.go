@@ -1,9 +1,8 @@
-package discordrpc
+package discordrpc_client
 
 import (
-	"encoding/json"
 	"fmt"
-
+	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 )
 
@@ -90,7 +89,6 @@ func (c *Client) SendPayload(payload Payload) error {
 	if err != nil {
 		return err
 	}
-
 	// Send over the socket
 	r, err := c.Socket.Send(1, string(rb))
 	if err != nil {

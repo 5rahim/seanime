@@ -23,6 +23,7 @@ func main() {
 
 	// Create the app instance
 	app := core.NewApp(&core.DefaultAppOptions, constants.Version)
+	defer app.Cleanup()
 
 	// Create the fiber app instance
 	fiberApp := core.NewFiberApp(app)

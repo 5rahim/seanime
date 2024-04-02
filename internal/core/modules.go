@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
@@ -62,7 +63,6 @@ func (a *App) InitModulesOnce() {
 // InitOrRefreshModules will initialize or refresh modules that depend on settings.
 // This function is called:
 //   - After the App instance is created
-//   - After App.Database is initialized
 //   - After settings are updated.
 func (a *App) InitOrRefreshModules() {
 	if a.cancelContext != nil {
@@ -80,6 +80,11 @@ func (a *App) InitOrRefreshModules() {
 	// Stop watching if already watching
 	if a.Watcher != nil {
 		a.Watcher.StopWatching()
+	}
+
+	// If Discord presence is already initialized, close it
+	if a.DiscordPresence != nil {
+		a.DiscordPresence.Close()
 	}
 
 	// Get settings from database
@@ -105,10 +110,6 @@ func (a *App) InitOrRefreshModules() {
 	if settings.Library != nil && a.AutoScanner != nil {
 		a.AutoScanner.SetEnabled(settings.Library.AutoScan)
 	}
-
-	// +---------------------+
-	// |    Media Player     |
-	// +---------------------+
 
 	if settings.MediaPlayer != nil {
 		a.MediaPlayer.VLC = &vlc.VLC{
@@ -199,6 +200,18 @@ func (a *App) InitOrRefreshModules() {
 		a.initLibraryWatcher(settings.Library.LibraryPath)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
+	}
+
+	// +---------------------+
+	// |       Discord       |
+	// +---------------------+
+
+	if settings.Discord != nil {
+		// Initialize Discord RPC
+		a.DiscordPresence = discordrpc_presence.New(settings.Discord, a.Logger)
+		a.Cleanups = append(a.Cleanups, func() {
+			a.DiscordPresence.Close()
+		})
 	}
 
 	// +---------------------+

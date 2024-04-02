@@ -1,4 +1,4 @@
-package discordrpc
+package discordrpc_client
 
 import (
 	"os"
@@ -22,6 +22,7 @@ type Activity struct {
 	Buttons    []*Button   `json:"buttons,omitempty"`
 
 	Instance bool `json:"instance"`
+	Type     int  `json:"type"`
 }
 
 // Timestamps holds unix timestamps for start and/or end of the game

@@ -1,4 +1,4 @@
-package discordrpc
+package discordrpc_client
 
 type handshake struct {
 	V        string `json:"v"`

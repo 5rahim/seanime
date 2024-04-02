@@ -1,8 +1,8 @@
-package discordrpc
+package discordrpc_client
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/discordrpc/ipc"
 )
 
