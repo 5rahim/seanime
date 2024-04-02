@@ -4,7 +4,7 @@
 
 <h2 align="center"><b>Seanime</b></h2>
 
-<h4 align="center">Simple, feature-packed media server for your local anime library.</h4>
+<h4 align="center">Self-hosted, user-friendly, media server for anime and manga enthusiasts.</h4>
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">
@@ -17,27 +17,30 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 # Features
 
 - **User-friendly web interface**
-  - Set up Seanime with a few clicks
-  - Modern, simple, responsive UI
+  - Simple, intuitive design, easy to set up and use 
 - **Seamless integration with AniList**
-  - Manage your AniList collection (add, update, delete entries)
-  - Discover new anime, track your progress, see upcoming episodes, and get recommendations
-- **Powerful scanner**
+  - Manage your AniList collection (anime and manga)
+  - Discover new anime, browse entries, get recommendations
+- **Local anime library**
+  - Scan your local anime library effortlessly
   - No mandatory folder structure or naming convention
+  - Browse and manage your library with metadata
   - Support for torrents with absolute episode numbers
-- **Download new episodes automatically**
-  - Add rules (filters) that specify which torrent to download based on parameters such as release group, resolution, episode numbers
-  - Support for Nyaa and AnimeTosho
-  - Support for Transmission and qBittorrent
-- **Integrated torrent search engine**
-  - Manually search and download new episodes with a few clicks without leaving the web interface
-- **Third-party media players**
-  - Launch an episode from the web interface and Seanime will automatically update your progress on AniList (& MAL)
-  - MPV, VLC, and MPC-HC are supported
+  - **Download new episodes & movies**
+    - Smart search engine powered by AnimeTosho, Nyaa, SeaDex
+    - Integration with qBittorrent & Transmission
+    - **Automate** downloading new episodes by using custom filters
+  - **Media players**
+    - MPV, VLC, and MPC-HC support
+    - Sync progress to AniList (& MAL)
+    - Create **playlists** and queue episodes
 - **Manga**
-  - Manage your manga collection, read chapters and track your progress
+  - Browse and manage your manga collection
+  - Fetch manga chapters from online sources
+  - Read manga chapters from built-in reader
 - **Online streaming**
-  - Stream episodes from online sources directly from the web interface, without any additional setup
+  - Stream episodes from online sources using built-in player
+  - Support for multiple sources
 - **MyAnimeList integration**
   - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
@@ -63,6 +66,7 @@ support transcoding or streaming to other devices (yet).
 
 # Next releases
 
+- [ ] **v1.2.1**
 - [x] **v1.2.0** - Monday, 1/4/2024
 - [x] **v1.1.2** - Sunday, 3/24/2024
 - [x] **v1.1.1** - Sunday, 3/24/2024
