@@ -54,6 +54,17 @@ func (m *BaseMedia) IsMovieOrSingleEpisode() bool {
 	return false
 }
 
+func (m *BaseMedia) IsMovie() bool {
+	if m == nil {
+		return false
+	}
+	if m.Format == nil {
+		return false
+	}
+
+	return *m.Format == MediaFormatMovie
+}
+
 func (m *BaseMedia) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasRomajiTitle() {

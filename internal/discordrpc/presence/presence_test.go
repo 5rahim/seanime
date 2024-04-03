@@ -15,7 +15,9 @@ func TestPresence(t *testing.T) {
 		EnableMangaRichPresence: true,
 	}
 
-	presence := New(settings, util.NewLogger())
+	presence := New(nil, util.NewLogger())
+	presence.SetSettings(settings)
+	defer presence.Close()
 
 	presence.SetMangaActivity(&MangaActivity{
 		Title:         "Boku no Kokoro no Yabai Yatsu",
@@ -27,9 +29,6 @@ func TestPresence(t *testing.T) {
 
 	// Simulate settings being updated
 
-	if presence.client != nil {
-		presence.Close()
-	}
 	settings.EnableMangaRichPresence = false
 	presence.SetSettings(settings)
 
@@ -43,9 +42,6 @@ func TestPresence(t *testing.T) {
 
 	// Simulate settings being updated
 
-	if presence.client != nil {
-		presence.Close()
-	}
 	settings.EnableMangaRichPresence = true
 	presence.SetSettings(settings)
 

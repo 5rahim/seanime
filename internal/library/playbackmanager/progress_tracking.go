@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/mal"
+	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
@@ -59,6 +60,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// ------- Playlist ------- //
 				go pm.playlistHub.onVideoStart(pm.currentMediaListEntry, pm.currentLocalFile, pm.anilistCollection, _ps)
 
+				// ------- Discord ------- //
+				if pm.discordPresence != nil {
+					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+						Title:         pm.currentMediaListEntry.GetMedia().GetPreferredTitle(),
+						Image:         pm.currentMediaListEntry.GetMedia().GetCoverImageSafe(),
+						IsMovie:       pm.currentMediaListEntry.GetMedia().IsMovie(),
+						EpisodeNumber: pm.currentLocalFile.GetEpisodeNumber(),
+					})
+				}
+
 				pm.eventMu.Unlock()
 			case status := <-pm.mediaPlayerRepoSubscriber.VideoCompletedCh: // Video has been watched completely but still tracking
 				pm.eventMu.Lock()
@@ -92,6 +103,11 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				// ------- Playlist ------- //
 				go pm.playlistHub.onTrackingStopped()
+
+				// ------- Discord ------- //
+				if pm.discordPresence != nil {
+					go pm.discordPresence.Close()
+				}
 
 				pm.eventMu.Unlock()
 			case status := <-pm.mediaPlayerRepoSubscriber.PlaybackStatusCh: // Playback status has changed

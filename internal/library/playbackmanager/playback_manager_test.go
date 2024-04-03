@@ -30,7 +30,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 		return nil, nil, nil, err
 	}
 
-	return playbackmanager.New(&playbackmanager.NewProgressManagerOptions{
+	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		Logger:               logger,
 		WSEventManager:       wsEventManager,
 		AnilistClientWrapper: anilistClientWrapper,

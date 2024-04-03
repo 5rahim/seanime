@@ -6,6 +6,8 @@ import (
 	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/client"
+	"github.com/seanime-app/seanime/internal/util"
+	"sync"
 	"time"
 )
 
@@ -15,6 +17,7 @@ type Presence struct {
 	logger   *zerolog.Logger
 	lastSet  time.Time
 	hasSent  bool
+	mu       sync.Mutex
 }
 
 // New creates a new Presence instance.
@@ -22,8 +25,12 @@ type Presence struct {
 func New(settings *models.DiscordSettings, logger *zerolog.Logger) *Presence {
 	var client *discordrpc_client.Client
 
-	if settings.EnableRichPresence {
-		client, _ = discordrpc_client.New(constants.DiscordApplicationId)
+	if settings != nil && settings.EnableRichPresence {
+		var err error
+		client, err = discordrpc_client.New(constants.DiscordApplicationId)
+		if err != nil {
+			logger.Error().Err(err).Msg("discord rpc: rich presence enabled but failed to create discord rpc client")
+		}
 	}
 
 	return &Presence{
@@ -38,20 +45,30 @@ func New(settings *models.DiscordSettings, logger *zerolog.Logger) *Presence {
 // Close closes the discord rpc client.
 // If the client is nil, it does nothing.
 func (p *Presence) Close() {
+	defer util.HandlePanicInModuleThen("discordrpc/presence/Close", func() {})
+
 	if p.client == nil {
 		return
 	}
 	p.client.Close()
+	p.client = nil
 }
 
 func (p *Presence) SetSettings(settings *models.DiscordSettings) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	defer util.HandlePanicInModuleThen("discordrpc/presence/SetSettings", func() {})
+
 	// Close the current client
 	p.Close()
 
+	p.settings = settings
+
 	// Create a new client if rich presence is enabled
 	if settings.EnableRichPresence {
-		client, _ := discordrpc_client.New(constants.DiscordApplicationId)
-		p.client = client
+		p.logger.Debug().Msg("discord rpc: rich presence enabled")
+		p.setClient()
 	} else {
 		p.client = nil
 	}
@@ -59,16 +76,57 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// checkLastSet checks if the last set was less than 5 seconds ago.
-// If it was, it stops the function from setting the presence.
-func (p *Presence) checkLastSet() (proceed bool) {
+func (p *Presence) setClient() {
+	defer util.HandlePanicInModuleThen("discordrpc/presence/setClient", func() {})
+
+	if p.client == nil {
+		client, err := discordrpc_client.New(constants.DiscordApplicationId)
+		if err != nil {
+			p.logger.Error().Err(err).Msg("discord rpc: rich presence enabled but failed to create discord rpc client")
+			return
+		}
+		p.client = client
+	}
+}
+
+// check executes multiple checks to determine if the presence should be set.
+// It returns true if the presence should be set.
+func (p *Presence) check() (proceed bool) {
+	defer util.HandlePanicInModuleThen("discordrpc/presence/check", func() {
+		proceed = false
+	})
+
+	// If the client is nil, return false
+	if p.settings == nil {
+		return false
+	}
+
+	// If rich presence is disabled, return false
+	if !p.settings.EnableRichPresence {
+		return false
+	}
+
+	// If the client is nil, create a new client
+	if p.client == nil {
+		p.setClient()
+	}
+
+	// If the client is still nil, return false
+	if p.client == nil {
+		return false
+	}
+
+	// If this is the first time setting the presence, return true
 	if !p.hasSent {
 		p.hasSent = true
 		return true
 	}
+
+	// If the last set time is less than 5 seconds ago, return false
 	if time.Since(p.lastSet) < 5*time.Second {
 		return false
 	}
+
 	return true
 }
 
@@ -101,15 +159,16 @@ type AnimeActivity struct {
 
 // SetAnimeActivity sets the presence to watching anime.
 func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
-	if p.client == nil || !p.settings.EnableRichPresence {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	defer util.HandlePanicInModuleThen("discordrpc/presence/SetAnimeActivity", func() {})
+
+	if !p.check() {
 		return
 	}
 
 	if !p.settings.EnableAnimeRichPresence {
-		return
-	}
-
-	if !p.checkLastSet() {
 		return
 	}
 
@@ -138,15 +197,16 @@ type MangaActivity struct {
 
 // SetMangaActivity sets the presence to watching anime.
 func (p *Presence) SetMangaActivity(a *MangaActivity) {
-	if p.client == nil || !p.settings.EnableRichPresence {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	defer util.HandlePanicInModuleThen("discordrpc/presence/SetMangaActivity", func() {})
+
+	if !p.check() {
 		return
 	}
 
 	if !p.settings.EnableMangaRichPresence {
-		return
-	}
-
-	if !p.checkLastSet() {
 		return
 	}
 

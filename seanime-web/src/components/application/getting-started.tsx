@@ -84,6 +84,11 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         mpvSocket: data.mpvSocket || "",
                                         mpvPath: data.mpvPath || "",
                                     },
+                                    discord: {
+                                        enableRichPresence: false,
+                                        enableAnimeRichPresence: true,
+                                        enableMangaRichPresence: true,
+                                    },
                                     torrent: {
                                         defaultTorrentClient: data.defaultTorrentClient,
                                         qbittorrentPath: data.qbittorrentPath,

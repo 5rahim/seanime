@@ -12,6 +12,7 @@ type settingsBody struct {
 	MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
 	Torrent     models.TorrentSettings     `json:"torrent"`
 	Anilist     models.AnilistSettings     `json:"anilist"`
+	Discord     models.DiscordSettings     `json:"discord"`
 }
 
 // HandleGetSettings returns the app settings.
@@ -61,6 +62,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		MediaPlayer:    &body.MediaPlayer,
 		Torrent:        &body.Torrent,
 		Anilist:        &body.Anilist,
+		Discord:        &body.Discord,
 		ListSync:       listSyncSettings,
 		AutoDownloader: autoDownloaderSettings,
 	})
@@ -107,6 +109,7 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 		Torrent:        prevSettings.Torrent,
 		Anilist:        prevSettings.Anilist,
 		AutoDownloader: prevSettings.AutoDownloader,
+		Discord:        prevSettings.Discord,
 		ListSync: &models.ListSyncSettings{
 			Automatic: body.Automatic,
 			Origin:    body.Origin,
@@ -163,6 +166,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Torrent:        prevSettings.Torrent,
 		Anilist:        prevSettings.Anilist,
 		ListSync:       prevSettings.ListSync,
+		Discord:        prevSettings.Discord,
 		AutoDownloader: autoDownloaderSettings,
 	})
 	if err != nil {

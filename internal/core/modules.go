@@ -22,8 +22,15 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) InitModulesOnce() {
 
+	// Initialize Discord RPC
+	// Settings are set in InitOrRefreshModules
+	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
+	a.Cleanups = append(a.Cleanups, func() {
+		a.DiscordPresence.Close()
+	})
+
 	// Progress manager
-	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewProgressManagerOptions{
+	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		Logger:               a.Logger,
 		WSEventManager:       a.WSEventManager,
 		AnilistClientWrapper: a.AnilistClientWrapper,
@@ -32,6 +39,7 @@ func (a *App) InitModulesOnce() {
 		RefreshAnilistCollectionFunc: func() {
 			_, _ = a.RefreshAnilistCollection()
 		},
+		DiscordPresence: a.DiscordPresence,
 	})
 
 	// Auto downloader
@@ -206,12 +214,8 @@ func (a *App) InitOrRefreshModules() {
 	// |       Discord       |
 	// +---------------------+
 
-	if settings.Discord != nil {
-		// Initialize Discord RPC
-		a.DiscordPresence = discordrpc_presence.New(settings.Discord, a.Logger)
-		a.Cleanups = append(a.Cleanups, func() {
-			a.DiscordPresence.Close()
-		})
+	if settings.Discord != nil && a.DiscordPresence != nil {
+		a.DiscordPresence.SetSettings(settings.Discord)
 	}
 
 	// +---------------------+

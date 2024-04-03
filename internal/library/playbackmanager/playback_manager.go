@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/db"
+	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
@@ -22,6 +23,7 @@ type (
 		Logger                       *zerolog.Logger
 		Database                     *db.Database
 		MediaPlayerRepository        *mediaplayer.Repository           // MediaPlayerRepository is used to control the media player
+		discordPresence              *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
 		mediaPlayerRepoSubscriber    *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager               events.IWSEventManager
 		anilistClientWrapper         anilist.ClientWrapperInterface
@@ -55,20 +57,22 @@ type (
 		MediaId              int     `json:"mediaId"`              // The media ID
 	}
 
-	NewProgressManagerOptions struct {
+	NewPlaybackManagerOptions struct {
 		WSEventManager               events.IWSEventManager
 		Logger                       *zerolog.Logger
 		AnilistClientWrapper         anilist.ClientWrapperInterface
 		AnilistCollection            *anilist.AnimeCollection
 		Database                     *db.Database
 		RefreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
+		DiscordPresence              *discordrpc_presence.Presence
 	}
 )
 
-func New(opts *NewProgressManagerOptions) *PlaybackManager {
+func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	return &PlaybackManager{
 		Logger:                       opts.Logger,
 		Database:                     opts.Database,
+		discordPresence:              opts.DiscordPresence,
 		wsEventManager:               opts.WSEventManager,
 		anilistClientWrapper:         opts.AnilistClientWrapper,
 		anilistCollection:            opts.AnilistCollection,
