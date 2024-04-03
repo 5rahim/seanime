@@ -294,6 +294,14 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1FileCache.Delete("/bucket", makeHandler(app, HandleRemoveFileCacheBucket))
 
 	//
+	// Discord
+	//
+
+	v1Discord := v1.Group("/discord")
+	v1Discord.Post("/presence/manga", makeHandler(app, HandleSetDiscordMangaActivity))
+	v1Discord.Post("/presence/cancel", makeHandler(app, HandleCancelDiscordActivity))
+
+	//
 	// Websocket
 	//
 

@@ -137,7 +137,7 @@ var (
 		Assets: &discordrpc_client.Assets{
 			LargeImage: "",
 			LargeText:  "",
-			SmallImage: "logo",
+			SmallImage: "https://seanime.rahim.app/images/logo.png",
 			SmallText:  "Seanime",
 		},
 		Timestamps: &discordrpc_client.Timestamps{
@@ -190,9 +190,9 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 }
 
 type MangaActivity struct {
-	Title         string
-	Image         string
-	ChapterNumber int
+	Title   string
+	Image   string
+	Chapter string
 }
 
 // SetMangaActivity sets the presence to watching anime.
@@ -212,7 +212,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 
 	activity := defaultActivity
 	activity.Details = a.Title
-	activity.State = fmt.Sprintf("Reading Chapter %d", a.ChapterNumber)
+	activity.State = fmt.Sprintf("Reading Chapter %s", a.Chapter)
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()

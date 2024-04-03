@@ -1,3 +1,4 @@
+import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
 import { useMangaPageContainer } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import {
@@ -51,7 +52,11 @@ export function ChapterDrawer(props: ChapterDrawerProps) {
         ...rest
     } = props
 
+
     const qc = useQueryClient()
+
+    // Discord rich presence
+    useDiscordMangaPresence(entry)
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
 

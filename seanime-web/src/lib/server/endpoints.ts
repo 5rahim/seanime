@@ -112,7 +112,11 @@ export const enum SeaEndpoints {
      */
     FILECACHE_TOTAL_SIZE = "/filecache/total-size", // (GET)
     FILECACHE_BUCKET = "/filecache/bucket", // (DELETE)
-
+    /**
+     * Discord
+     */
+    DISCORD_PRESENCE_MANGA = "/discord/presence/manga", // (POST)
+    DISCORD_PRESENCE_CANCEL = "/discord/presence/cancel", // (POST)
     /**
      * Theme
      */

@@ -20,9 +20,9 @@ func TestPresence(t *testing.T) {
 	defer presence.Close()
 
 	presence.SetMangaActivity(&MangaActivity{
-		Title:         "Boku no Kokoro no Yabai Yatsu",
-		Image:         "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx101557-bEJu54cmVYxx.jpg",
-		ChapterNumber: 30,
+		Title:   "Boku no Kokoro no Yabai Yatsu",
+		Image:   "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx101557-bEJu54cmVYxx.jpg",
+		Chapter: "30",
 	})
 
 	time.Sleep(10 * time.Second)
@@ -35,9 +35,9 @@ func TestPresence(t *testing.T) {
 	time.Sleep(5 * time.Second)
 
 	presence.SetMangaActivity(&MangaActivity{
-		Title:         "Boku no Kokoro no Yabai Yatsu",
-		Image:         "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx101557-bEJu54cmVYxx.jpg",
-		ChapterNumber: 31,
+		Title:   "Boku no Kokoro no Yabai Yatsu",
+		Image:   "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx101557-bEJu54cmVYxx.jpg",
+		Chapter: "31",
 	})
 
 	// Simulate settings being updated
@@ -48,9 +48,9 @@ func TestPresence(t *testing.T) {
 	time.Sleep(5 * time.Second)
 
 	presence.SetMangaActivity(&MangaActivity{
-		Title:         "Boku no Kokoro no Yabai Yatsu",
-		Image:         "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx101557-bEJu54cmVYxx.jpg",
-		ChapterNumber: 31,
+		Title:   "Boku no Kokoro no Yabai Yatsu",
+		Image:   "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/bx101557-bEJu54cmVYxx.jpg",
+		Chapter: "31",
 	})
 
 	time.Sleep(10 * time.Second)
