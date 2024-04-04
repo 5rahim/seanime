@@ -7,7 +7,12 @@ import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
     __manga_isLastPageAtom,
+    __manga_kbsChapterLeft,
+    __manga_kbsChapterRight,
+    __manga_paginationMapAtom,
+    __manga_readingDirectionAtom,
     __manga_readingModeAtom,
+    MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { MangaReaderBar } from "@/app/(main)/manga/entry/_containers/chapter-reader/reader-bar/manga-reader-bar"
@@ -22,6 +27,7 @@ import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import mousetrap from "mousetrap"
 import React from "react"
 import { toast } from "sonner"
 
@@ -57,6 +63,10 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const setCurrentPaginationMapIndex = useSetAtom(__manga_currentPaginationMapIndexAtom)
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const isLastPage = useAtomValue(__manga_isLastPageAtom)
+    const kbsChapterLeft = useAtomValue(__manga_kbsChapterLeft)
+    const kbsChapterRight = useAtomValue(__manga_kbsChapterRight)
+    const paginationMap = useAtomValue(__manga_paginationMapAtom)
+    const readingDirection = useAtomValue(__manga_readingDirectionAtom)
 
     const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"), selectedChapter?.id)
 
@@ -112,6 +122,29 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         setCurrentPageIndex(0)
         setCurrentPaginationMapIndex(0)
     }, [pageContainer?.pages, chapterContainer?.chapters])
+
+    // Navigation
+    React.useEffect(() => {
+        mousetrap.bind(kbsChapterLeft, () => {
+            if (readingDirection === MangaReadingDirection.LTR) {
+                setSelectedChapter(previousChapter)
+            } else {
+                setSelectedChapter(nextChapter)
+            }
+        })
+        mousetrap.bind(kbsChapterRight, () => {
+            if (readingDirection === MangaReadingDirection.RTL) {
+                setSelectedChapter(previousChapter)
+            } else {
+                setSelectedChapter(nextChapter)
+            }
+        })
+
+        return () => {
+            mousetrap.unbind(kbsChapterLeft)
+            mousetrap.unbind(kbsChapterRight)
+        }
+    }, [kbsChapterLeft, kbsChapterRight, paginationMap, readingDirection])
 
     return (
         <Drawer

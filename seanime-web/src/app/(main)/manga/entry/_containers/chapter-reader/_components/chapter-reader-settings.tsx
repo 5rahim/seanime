@@ -175,7 +175,6 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                     [MANGA_KBS.kbsPageLeft]: kbsPageLeft,
                     [MANGA_KBS.kbsPageRight]: kbsPageRight,
                 }[key]
-                console.log(currentKey, key, otherValue, value)
                 if (otherValue === value) {
                     resetKeyDefault(key)
                 }
@@ -316,26 +315,33 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                             key: MANGA_KBS.kbsChapterLeft,
                             label: "Chapter Left",
                             value: kbsChapterLeft,
+                            help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
                         },
                         {
                             key: MANGA_KBS.kbsChapterRight,
                             label: "Chapter Right",
                             value: kbsChapterRight,
+                            help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
                         },
                         {
                             key: MANGA_KBS.kbsPageLeft,
                             label: "Page Left",
                             value: kbsPageLeft,
+                            help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
                         },
                         {
                             key: MANGA_KBS.kbsPageRight,
                             label: "Page Right",
                             value: kbsPageRight,
+                            help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
                         },
                     ].map(item => {
                         return (
                             <div className="flex gap-2 items-center" key={item.key}>
-                                <label className="text-[--gray]">{item.label}</label>
+                                <label className="text-[--gray]">
+                                    <span className="font-semibold">{item.label}</span>
+                                    <span className="ml-2 text-[--muted]">({item.help})</span>
+                                </label>
                                 <Button
                                     onKeyDownCapture={(e) => setKbs(e, item.key)}
                                     className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"

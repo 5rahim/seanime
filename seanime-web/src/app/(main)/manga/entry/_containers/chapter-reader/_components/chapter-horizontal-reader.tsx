@@ -117,10 +117,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         })
     }, [paginationMap, readingDirection])
 
-    // Arrow key navigation
-    // useKeyPressEvent("ArrowLeft", () => onPaginate("left"))
-    // useKeyPressEvent("ArrowRight", () => onPaginate("right"))
-
+    // Page navigation
     React.useEffect(() => {
         mousetrap.bind(kbsPageLeft, () => onPaginate("left"))
         mousetrap.bind(kbsPageRight, () => onPaginate("right"))
