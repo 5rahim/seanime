@@ -70,8 +70,8 @@ func TestDownloader(t *testing.T) {
 						err := d.downloadImages(ctx, string(tt.providerName), tt.mediaId, chapterInfo.ID, pages, cacheDir)
 						assert.NoError(t, err, "downloadImages() error")
 
-						backupMap, err := d.getBackups(cacheDir)
-						assert.NoError(t, err, "getBackups() error")
+						backupMap, err := d.getDownloads(cacheDir)
+						assert.NoError(t, err, "getDownloads() error")
 
 						assert.NotEmpty(t, backupMap, "backupMap is empty")
 						spew.Dump(backupMap)

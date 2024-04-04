@@ -201,7 +201,7 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 		titles = baseManga.GetAllTitles()
 	}
 
-	container, err := c.App.MangaRepository.GetMangaChapters(b.Provider, b.MediaId, titles)
+	container, err := c.App.MangaRepository.GetMangaChapterContainer(b.Provider, b.MediaId, titles)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -219,9 +219,10 @@ func HandleGetMangaEntryPages(c *RouteCtx) error {
 	}
 
 	type body struct {
-		MediaId   int                      `json:"mediaId"`
-		Provider  manga_providers.Provider `json:"provider"`
-		ChapterId string                   `json:"chapterId"`
+		MediaId    int                      `json:"mediaId"`
+		Provider   manga_providers.Provider `json:"provider"`
+		ChapterId  string                   `json:"chapterId"`
+		DoublePage bool                     `json:"doublePage"`
 	}
 
 	var b body
@@ -229,7 +230,7 @@ func HandleGetMangaEntryPages(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	container, err := c.App.MangaRepository.GetMangaChapterPagesFromOnline(b.Provider, b.MediaId, b.ChapterId)
+	container, err := c.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, b.DoublePage)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -252,6 +253,7 @@ func HandleGetMangaEntryPageContainer(c *RouteCtx) error {
 		Provider   manga_providers.Provider `json:"provider"`
 		ChapterId  string                   `json:"chapterId"`
 		Downloaded bool                     `json:"downloaded"`
+		DoublePage bool                     `json:"doublePage"`
 	}
 
 	var b body
@@ -259,9 +261,9 @@ func HandleGetMangaEntryPageContainer(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	container, err := c.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, true)
+	container, err := c.App.MangaRepository.SHELVEDGetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, true)
 	if err != nil {
-		container, err = c.App.MangaRepository.GetMangaChapterPagesFromOnline(b.Provider, b.MediaId, b.ChapterId)
+		container, err = c.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, b.DoublePage)
 		if err != nil {
 			return c.RespondWithError(err)
 		}

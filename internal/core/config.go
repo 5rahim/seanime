@@ -75,11 +75,13 @@ var defaultConfigValues = Config{
 }
 
 type ConfigOptions struct {
-	DataDirPath string // The path to the Seanime data directory, if any
+	DataDirPath     string // The path to the Seanime data directory, if any
+	OnVersionChange []func(oldVersion string, newVersion string)
 }
 
 var DefaultConfig = ConfigOptions{
-	DataDirPath: "",
+	DataDirPath:     "",
+	OnVersionChange: make([]func(oldVersion string, newVersion string), 0),
 }
 
 // NewConfig initializes the config, checks if the config file exists, and generates a default one if not.
@@ -147,7 +149,7 @@ func NewConfig(options *ConfigOptions) (*Config, error) {
 	}
 
 	// Update the config if the version has changed
-	updateVersion(cfg)
+	updateVersion(cfg, options)
 
 	// Save the values to the config file
 	if err := cfg.saveConfigToFile(); err != nil {
@@ -213,7 +215,7 @@ func errInvalidConfigValue(s string, s2 string) error {
 	return errors.New(fmt.Sprintf("invalid config value: \"%s\" %s", s, s2))
 }
 
-func updateVersion(cfg *Config) {
+func updateVersion(cfg *Config, opts *ConfigOptions) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Do nothing
@@ -221,6 +223,9 @@ func updateVersion(cfg *Config) {
 	}()
 
 	if cfg.Version != constants.Version {
+		for _, f := range opts.OnVersionChange {
+			f(cfg.Version, constants.Version)
+		}
 		cfg.Version = constants.Version
 	}
 }

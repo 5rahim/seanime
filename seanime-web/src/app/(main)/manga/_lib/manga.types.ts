@@ -1,9 +1,34 @@
 import { BaseMangaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 
-export const manga_providers_options = [
+export const MANGA_PROVIDER_OPTIONS = [
     { value: "mangasee", label: "MangaSee" },
     { value: "comick", label: "ComicK" },
 ]
+
+// +----------------------------------------------------------------+
+// Query
+// +----------------------------------------------------------------+
+
+export type MangaChapterContainer_QueryVariables = {
+    mediaId: number
+    provider: string
+}
+
+export type MangaPageContainer_QueryVariables = {
+    mediaId: number
+    provider: string
+    chapterId: string
+    doublePage: boolean
+}
+
+export type ClearMangaCache_QueryVariables = {
+    mediaId: number
+}
+
+
+// +----------------------------------------------------------------+
+// Return data
+// +----------------------------------------------------------------+
 
 export type MangaCollection = {
     lists: MangaCollectionList[]

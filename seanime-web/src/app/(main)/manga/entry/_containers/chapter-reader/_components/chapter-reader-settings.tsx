@@ -17,11 +17,11 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { BiCog, BiFile } from "react-icons/bi"
+import { BiCog } from "react-icons/bi"
 import { FaRegImage } from "react-icons/fa"
 import { GiResize } from "react-icons/gi"
-import { MdOutlinePhotoSizeSelectLarge } from "react-icons/md"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiScrollDuotone } from "react-icons/pi"
+import { MdMenuBook, MdOutlinePhotoSizeSelectLarge } from "react-icons/md"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiReadCvLogoLight, PiScrollDuotone } from "react-icons/pi"
 import { TbArrowAutofitHeight, TbArrowAutofitWidth } from "react-icons/tb"
 
 export type ChapterReaderSettingsProps = {
@@ -50,23 +50,26 @@ const radioGroupClasses = {
 export const MANGA_READING_MODE_OPTIONS = [
     {
         value: MangaReadingMode.LONG_STRIP,
-        label: <span className="flex gap-2 items-center"><PiScrollDuotone className="text-xl" /> <span>Long strip</span></span>,
+        label: <span className="flex gap-2 items-center"><PiScrollDuotone className="text-xl" /> <span>Long Strip</span></span>,
     },
     {
         value: MangaReadingMode.PAGED,
-        label: <span className="flex gap-2 items-center"><BiFile className="text-xl" /> <span>Singe page</span></span>,
+        label: <span className="flex gap-2 items-center"><PiReadCvLogoLight className="text-xl" /> <span>Singe Page</span></span>,
     },
-    // { value: ReadingMode.DOUBLE_PAGE, label: "Double page" },
+    {
+        value: MangaReadingMode.DOUBLE_PAGE,
+        label: <span className="flex gap-2 items-center"><MdMenuBook className="text-xl" /> <span>Double Page</span></span>,
+    },
 ]
 
 export const MANGA_READING_DIRECTION_OPTIONS = [
     {
         value: MangaReadingDirection.LTR,
-        label: <span className="flex gap-2 items-center"><span>Left to right</span> <PiArrowCircleRightDuotone className="text-2xl" /></span>,
+        label: <span className="flex gap-2 items-center"><span>Left to Right</span> <PiArrowCircleRightDuotone className="text-2xl" /></span>,
     },
     {
         value: MangaReadingDirection.RTL,
-        label: <span className="flex gap-2 items-center"><PiArrowCircleLeftDuotone className="text-2xl" /> <span>Right to left</span></span>,
+        label: <span className="flex gap-2 items-center"><PiArrowCircleLeftDuotone className="text-2xl" /> <span>Right to Left</span></span>,
     },
 ]
 
@@ -106,6 +109,10 @@ const defaultSettings = {
         pageStretch: MangaPageStretch.NONE,
     },
     [MangaReadingMode.PAGED]: {
+        pageFit: MangaPageFit.CONTAIN,
+        pageStretch: MangaPageStretch.NONE,
+    },
+    [MangaReadingMode.DOUBLE_PAGE]: {
         pageFit: MangaPageFit.CONTAIN,
         pageStretch: MangaPageStretch.NONE,
     },
@@ -209,7 +216,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                             setPageStretch(prev => defaultSettings[readingMode].pageStretch)
                         }}
                     >
-                        Reset to defaults
+                        Reset defaults
                         for <span className="w-2"></span> {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
                     </Button>
                 </div>

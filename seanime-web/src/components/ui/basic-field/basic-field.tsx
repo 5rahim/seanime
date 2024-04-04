@@ -175,9 +175,9 @@ export const BasicField = React.memo(React.forwardRef<HTMLDivElement, BasicField
             {(!!help || !!error) &&
                 <div className={cn(BasicFieldAnatomy.fieldDetails(), fieldDetailsClass)}>
                     {!!help &&
-                        <p className={cn(BasicFieldAnatomy.fieldHelpText(), fieldHelpTextClass)}>{help}</p>}
+                        <div className={cn(BasicFieldAnatomy.fieldHelpText(), fieldHelpTextClass)}>{help}</div>}
                     {!!error &&
-                        <p className={cn(BasicFieldAnatomy.fieldErrorText(), fieldErrorTextClass)}>{error}</p>}
+                        <div className={cn(BasicFieldAnatomy.fieldErrorText(), fieldErrorTextClass)}>{error}</div>}
                 </div>
             }
         </div>

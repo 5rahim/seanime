@@ -67,9 +67,11 @@ nfpms:
         - statically-linked-binary
         - changelog-file-missing-in-native-package
 
+
     formats:
       - deb
       - rpm
+
 
 release:
   github:

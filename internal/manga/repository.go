@@ -2,7 +2,6 @@ package manga
 
 import (
 	"context"
-	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga/providers"
@@ -26,7 +25,7 @@ type (
 		downloader       *downloader
 		backupDir        string
 		serverUri        string
-		backupMap        BackupMap
+		backupMap        DownloadMap
 		wsEventManager   events.IWSEventManager
 		mu               sync.Mutex
 		downloadContexts map[DownloadID]context.CancelFunc
@@ -50,7 +49,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		downloader:       newDownloader(opts.Logger, opts.WsEventManager),
 		backupDir:        opts.BackupDir,
 		serverUri:        opts.ServerURI,
-		backupMap:        make(BackupMap),
+		backupMap:        make(DownloadMap),
 		downloadContexts: make(map[DownloadID]context.CancelFunc),
 	}
 
@@ -76,8 +75,9 @@ type EntryBackupContainer struct {
 type bucketType string
 
 const (
-	bucketTypeChapter bucketType = "chapters"
-	bucketTypePage    bucketType = "pages"
+	bucketTypeChapter        bucketType = "chapters"
+	bucketTypePage           bucketType = "pages"
+	bucketTypePageDimensions bucketType = "page-dimensions"
 )
 
 // getFcProviderBucket returns a bucket for the provider and mediaId.
@@ -130,7 +130,7 @@ func (r *Repository) GetMangaEntryBackups(provider manga_providers.Provider, med
 
 func (r *Repository) hydrateBackupMap() {
 	// Get the backup folders
-	backupMap, err := r.downloader.getBackups(r.backupDir)
+	backupMap, err := r.downloader.getDownloads(r.backupDir)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("manga: failed to hydrate backup map")
 		return
@@ -152,17 +152,11 @@ func (r *Repository) GetStoredChapterIdsFromBackup(c DownloadID) ([]string, bool
 
 func getImageNaturalSize(url string) (int, int, error) {
 	// Fetch the image
-	resp, err := http.Head(url) // DEVNOTE: Using HEAD to avoid downloading the entire image, this only works for ComicK
+	resp, err := http.Get(url)
 	if err != nil {
 		return 0, 0, err
 	}
 	defer resp.Body.Close()
-
-	// Extract image dimensions from the Content-Length header
-	contentLength := resp.Header.Get("Content-Length")
-	if contentLength == "" {
-		return 0, 0, fmt.Errorf("Content-Length header not found")
-	}
 
 	// Decode the image
 	img, _, err := image.DecodeConfig(resp.Body)

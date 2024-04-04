@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/listsync"
 	"github.com/seanime-app/seanime/internal/api/metadata"
+	"github.com/seanime-app/seanime/internal/constants"
 	_db "github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
@@ -71,28 +72,21 @@ type (
 		DiscordPresence     *discordrpc_presence.Presence
 		Cleanups            []func()
 		cancelContext       func()
-	}
-
-	AppOptions struct {
-		Config *ConfigOptions
+		previousVersion     string
 	}
 )
 
-var DefaultAppOptions = AppOptions{
-	Config: &DefaultConfig,
-}
-
 // NewApp creates a new server instance
-func NewApp(options *AppOptions, version string) *App {
-
-	opts := *options
-
-	// Set up a default config if none is provided
-	if options.Config == nil {
-		opts.Config = &DefaultConfig
-	}
-
+func NewApp() *App {
 	logger := util.NewLogger()
+
+	previousVersion := constants.Version
+
+	config := &DefaultConfig
+	config.OnVersionChange = append(config.OnVersionChange, func(oldVersion string, newVersion string) {
+		logger.Info().Str("prev", oldVersion).Str("current", newVersion).Msg("app: Version change detected")
+		previousVersion = oldVersion
+	})
 
 	// Print working directory
 	pwd, err := os.Getwd()
@@ -103,7 +97,7 @@ func NewApp(options *AppOptions, version string) *App {
 
 	// Initialize the config
 	// If the config file does not exist, it will be created
-	cfg, err := NewConfig(opts.Config)
+	cfg, err := NewConfig(config)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
 	}
@@ -177,8 +171,8 @@ func NewApp(options *AppOptions, version string) *App {
 		WSEventManager:          wsEventManager,
 		ListSyncCache:           listsync.NewCache(),
 		Logger:                  logger,
-		Version:                 version,
-		Updater:                 updater.New(version),
+		Version:                 constants.Version,
+		Updater:                 updater.New(constants.Version),
 		FileCacher:              fileCacher,
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
@@ -190,8 +184,10 @@ func NewApp(options *AppOptions, version string) *App {
 		MediaPlayRepository:     nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
 		WD:                      pwd,
+		previousVersion:         previousVersion,
 	}
 
+	app.RunOnce()
 	app.InitModulesOnce()
 	app.InitOrRefreshModules()
 

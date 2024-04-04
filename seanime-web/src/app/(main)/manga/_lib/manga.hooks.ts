@@ -1,12 +1,16 @@
 import {
+    ClearMangaCache_QueryVariables,
     MangaChapterContainer,
+    MangaChapterContainer_QueryVariables,
     MangaChapterDetails,
     MangaCollection,
     MangaEntry,
     MangaEntryBackups,
     MangaPageContainer,
+    MangaPageContainer_QueryVariables,
 } from "@/app/(main)/manga/_lib/manga.types"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
+import { __manga_readingModeAtom, MangaReadingMode } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
@@ -102,11 +106,97 @@ export function useUpdateMangaProgress() {
     }
 }
 
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Backups
+// Chapters and Pages
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export function useMangaEntryBackups(mediaId: string | undefined | null) {
+export function useClearMangaCache() {
+    const qc = useQueryClient()
+    const { mutate, isPending } = useSeaMutation<boolean, ClearMangaCache_QueryVariables>({
+        endpoint: SeaEndpoints.MANGA_ENTRY_CACHE,
+        method: "delete",
+        mutationKey: ["clear-manga-cache"],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-chapters"] })
+            toast.success("Sources reloaded successfully")
+        },
+    })
+
+    return {
+        clearMangaCache: mutate,
+        isClearingMangaCache: isPending,
+    }
+}
+
+export function useMangaChapterContainer(mediaId: string | undefined | null) {
+    const provider = useAtomValue(__manga_selectedProviderAtom)
+
+    const { data, isLoading, isError, isFetching } = useSeaQuery<MangaChapterContainer, MangaChapterContainer_QueryVariables>({
+        endpoint: SeaEndpoints.MANGA_CHAPTERS,
+        method: "post",
+        data: {
+            mediaId: Number(mediaId),
+            provider,
+        },
+        queryKey: ["get-manga-chapters", Number(mediaId), provider],
+        enabled: !!mediaId,
+        gcTime: 0,
+    })
+
+    // Keep track of chapter numbers as integers
+    // This is used to filter the chapters
+    // [id]: number
+    const chapterNumbersMap = React.useMemo(() => {
+        const map = new Map<string, number>()
+
+        for (const chapter of data?.chapters ?? []) {
+            map.set(chapter.id, getChapterNumberFromChapter(chapter.chapter))
+        }
+
+        return map
+    }, [data?.chapters])
+
+    return {
+        chapterContainer: data,
+        chapterIdToNumbersMap: chapterNumbersMap,
+        chapterContainerLoading: isLoading || isFetching,
+        chapterContainerError: isError,
+    }
+}
+
+export function useMangaPageContainer(mediaId: string | undefined | null, chapterId: string | undefined | null) {
+    const provider = useAtomValue(__manga_selectedProviderAtom)
+    const readingMode = useAtomValue(__manga_readingModeAtom)
+
+    const isDoublePage = React.useMemo(() => readingMode === MangaReadingMode.DOUBLE_PAGE, [readingMode])
+
+    const { data, isLoading, isError, isFetching } = useSeaQuery<MangaPageContainer, MangaPageContainer_QueryVariables>({
+        endpoint: SeaEndpoints.MANGA_PAGES,
+        method: "post",
+        data: {
+            mediaId: Number(mediaId),
+            chapterId: chapterId!,
+            provider,
+            doublePage: isDoublePage,
+        },
+        queryKey: ["get-manga-pages", Number(mediaId), provider, chapterId, isDoublePage],
+        enabled: !!mediaId && !!chapterId,
+    })
+
+    return {
+        pageContainer: data,
+        pageContainerLoading: isLoading || isFetching,
+        pageContainerError: isError,
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Downloads
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function useMangaEntryDownloads(mediaId: string | undefined | null) {
     // FIXME SHELVED
     // const provider = useAtomValue(__manga_selectedProviderAtom)
     //
@@ -155,86 +245,5 @@ export function useDownloadMangaChapter(mediaId: string | undefined | null) {
             })
         },
         isSendingDownloadRequest: isPending,
-    }
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Chapters and Pages
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export function useEmptyMangaCache() {
-    const qc = useQueryClient()
-    const { mutate, isPending } = useSeaMutation<boolean, { mediaId: number }>({
-        endpoint: SeaEndpoints.MANGA_ENTRY_CACHE,
-        method: "delete",
-        mutationKey: ["delete-manga-cache"],
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["get-manga-chapters"] })
-            toast.success("Sources reloaded successfully")
-        },
-    })
-
-    return {
-        emptyMangaCache: mutate,
-        isEmptyingMangaCache: isPending,
-    }
-}
-
-export function useMangaChapterContainer(mediaId: string | undefined | null) {
-    const provider = useAtomValue(__manga_selectedProviderAtom)
-
-    const { data, isLoading, isError, isFetching } = useSeaQuery<MangaChapterContainer>({
-        endpoint: SeaEndpoints.MANGA_CHAPTERS,
-        method: "post",
-        data: {
-            mediaId: Number(mediaId),
-            provider,
-        },
-        queryKey: ["get-manga-chapters", Number(mediaId), provider],
-        enabled: !!mediaId,
-        gcTime: 0,
-    })
-
-    // Keep track of chapter numbers as integers
-    // This is used to filter the chapters
-    // [id]: number
-    const chapterNumbersMap = React.useMemo(() => {
-        const map = new Map<string, number>()
-
-        for (const chapter of data?.chapters ?? []) {
-            map.set(chapter.id, getChapterNumberFromChapter(chapter.chapter))
-        }
-
-        return map
-    }, [data?.chapters])
-
-    return {
-        chapterContainer: data,
-        chapterIdToNumbersMap: chapterNumbersMap,
-        chapterContainerLoading: isLoading || isFetching,
-        chapterContainerError: isError,
-    }
-}
-
-export function useMangaPageContainer(mediaId: string | undefined | null, chapterId: string | undefined | null) {
-    const provider = useAtomValue(__manga_selectedProviderAtom)
-
-    const { data, isLoading, isError } = useSeaQuery<MangaPageContainer>({
-        endpoint: SeaEndpoints.MANGA_PAGES,
-        method: "post",
-        data: {
-            mediaId: Number(mediaId),
-            chapterId,
-            provider,
-        },
-        queryKey: ["get-manga-pages", Number(mediaId), provider, chapterId],
-        enabled: !!mediaId && !!chapterId,
-    })
-
-    return {
-        pageContainer: data,
-        pageContainerLoading: isLoading,
-        pageContainerError: isError,
     }
 }

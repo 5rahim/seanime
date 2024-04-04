@@ -32,8 +32,7 @@ func newDownloader(logger *zerolog.Logger, wsEventManager events.IWSEventManager
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// PageMap represents the map of page index to filename
-// This is used to store the mapping of page index to filename in a comic chapter in a main.txt file.
+// PageMap is used to store the mapping of page index to page details of a specific downloaded chapter in a main.txt file.
 type PageMap map[int]PageInfo
 
 type PageInfo struct {
@@ -50,15 +49,14 @@ func (p *PageInfo) ToChapterPage(key string) *manga_providers.ChapterPage {
 		Index: p.Index,
 		URL:   fmt.Sprintf("/%s/%s", key, p.Filename),
 	}
-
 }
 
-// BackupMap represents the backup folders for each media ID and provider
+// DownloadMap is used to store the mapping of a DownloadID to a list of chapterIDs.
 //
-//	e.g., cacheDir/comick_1234_One-Piece$10010/
-//	      cacheDir/comick_1234_One-Piece$10023/
+//	e.g., downloadDir/comick_1234_One-Piece$10010/
+//	      downloadDir/comick_1234_One-Piece$10023/
 //	-> map[DownloadID{ Provider: "comick", MediaID: 1234 }] = []string{"One-Piece$10010", "One-Piece$10023"}
-type BackupMap map[DownloadID][]string
+type DownloadMap map[DownloadID][]string
 
 // DownloadID represents the unique identifier for a backup folder group
 type DownloadID struct {
@@ -66,12 +64,11 @@ type DownloadID struct {
 	MediaID  int
 }
 
-// getBackups scans the cache folder and creates a map[DownloadID]string
-// where the key is a DownloadID and the value is the chapterID.
-func (d *downloader) getBackups(cacheDir string) (BackupMap, error) {
-	backups := make(BackupMap)
+// getDownloads scans the backup folder and creates a DownloadMap
+func (d *downloader) getDownloads(downloadDir string) (DownloadMap, error) {
+	ret := make(DownloadMap)
 
-	files, err := os.ReadDir(cacheDir)
+	files, err := os.ReadDir(downloadDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read cache directory: %v", err)
 	}
@@ -89,22 +86,22 @@ func (d *downloader) getBackups(cacheDir string) (BackupMap, error) {
 
 			comicID := DownloadID{Provider: provider, MediaID: mediaID}
 
-			if _, ok := backups[comicID]; !ok {
-				backups[comicID] = []string{chapterID}
+			if _, ok := ret[comicID]; !ok {
+				ret[comicID] = []string{chapterID}
 			} else {
-				backups[comicID] = append(backups[comicID], chapterID)
+				ret[comicID] = append(ret[comicID], chapterID)
 			}
 		}
 	}
 
-	return backups, nil
+	return ret, nil
 }
 
 // deleteDownloads deletes the cache directory for a given provider, mediaID, and chapterID.
 // If the cache directory does not exist, an error is returned.
-func (d *downloader) deleteDownloads(provider string, mediaID int, chapterID string, cacheDir string) error {
+func (d *downloader) deleteDownloads(provider string, mediaID int, chapterID string, downloadDir string) error {
 	comicDir := fmt.Sprintf("%s_%d_%s", provider, mediaID, chapterID)
-	comicPath := filepath.Join(cacheDir, comicDir)
+	comicPath := filepath.Join(downloadDir, comicDir)
 
 	if _, err := os.Stat(comicPath); os.IsNotExist(err) {
 		return fmt.Errorf("manga downloader: cache directory does not exist")
@@ -118,14 +115,14 @@ func (d *downloader) deleteDownloads(provider string, mediaID int, chapterID str
 	return nil
 }
 
-// getPageMap retrieves image filenames based on provider, mediaID, chapterID, and cacheDir.
-func (d *downloader) getPageMap(provider string, mediaID int, chapterID string, cacheDir string) (pm *PageMap, dirName string, err error) {
+// getPageMap retrieves page details based on provider, mediaID, chapterID, and downloadDir.
+func (d *downloader) getPageMap(provider string, mediaID int, chapterID string, downloadDir string) (pm *PageMap, dirName string, err error) {
 	defer util.HandlePanicInModuleThen("manga/downloader/downloadImages", func() {
 		err = fmt.Errorf("manga downloader: failed to get page map")
 	})
 
 	comicDir := fmt.Sprintf("%s_%d_%s", provider, mediaID, chapterID)
-	comicPath := filepath.Join(cacheDir, comicDir)
+	comicPath := filepath.Join(downloadDir, comicDir)
 
 	mainFilePath := filepath.Join(comicPath, "main.txt")
 
@@ -150,9 +147,9 @@ var (
 // downloadImages concurrently downloads images from given URLs and saves them to a directory
 // with the specified provider, media ID, and chapter ID.
 //
-//	e.g., cacheDir/comick_1234_One-Piece$10010/...
-//	e.g., cacheDir/comick_1234_One-Piece$10023/...
-func (d *downloader) downloadImages(ctx context.Context, provider string, mediaID int, chapterID string, pages []*manga_providers.ChapterPage, cacheDir string) (err error) {
+//	e.g., downloadDir/comick_1234_One-Piece$10010/...
+//	e.g., downloadDir/comick_1234_One-Piece$10023/...
+func (d *downloader) downloadImages(ctx context.Context, provider string, mediaID int, chapterID string, pages []*manga_providers.ChapterPage, downloadDir string) (err error) {
 	// Channel to receive errors from goroutines
 	errCh := make(chan error, len(pages))
 
@@ -172,7 +169,7 @@ func (d *downloader) downloadImages(ctx context.Context, provider string, mediaI
 
 	// Create directory for the comic
 	comicDir := fmt.Sprintf("%s_%d_%s", provider, mediaID, chapterID)
-	comicPath := filepath.Join(cacheDir, comicDir)
+	comicPath := filepath.Join(downloadDir, comicDir)
 	if err := os.MkdirAll(comicPath, 0755); err != nil {
 		return fmt.Errorf("manga downloader: failed to create comic directory: %v", err)
 	}

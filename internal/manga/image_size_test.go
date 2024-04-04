@@ -9,7 +9,7 @@ import (
 
 func TestGetImageNaturalSize(t *testing.T) {
 	// Test the function
-	width, height, err := getImageNaturalSize("https://meo.comick.pictures/2-G67V7CCdKhluM.png?width=3180")
+	width, height, err := getImageNaturalSize("https://scans-hot.leanbox.us/manga/One-Piece/1090-001.png")
 	if err != nil {
 		t.Fatal(err)
 	}

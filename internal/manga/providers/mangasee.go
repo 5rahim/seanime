@@ -220,8 +220,8 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 		return nil, errors.New("mangasee: failed to convert page count")
 	}
 
-	for i := 1; i <= pageCount; i++ {
-		pageNum := strings.Repeat("0", 3-len(strconv.Itoa(i))) + strconv.Itoa(i)
+	for i := 0; i < pageCount; i++ {
+		pageNum := strings.Repeat("0", 3-len(strconv.Itoa(i+1))) + strconv.Itoa(i+1)
 		ch := getChapterForImageUrl(getChapterNumber(curChapter.Chapter))
 
 		pages = append(pages, &ChapterPage{

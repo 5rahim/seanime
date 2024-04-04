@@ -1,5 +1,5 @@
-import { __manga_selectedProviderAtom, useEmptyMangaCache, useMangaChapterContainer } from "@/app/(main)/manga/_lib/manga.hooks"
-import { manga_providers_options, MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/manga.types"
+import { __manga_selectedProviderAtom, useClearMangaCache, useMangaChapterContainer } from "@/app/(main)/manga/_lib/manga.hooks"
+import { MANGA_PROVIDER_OPTIONS, MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/manga.types"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -39,7 +39,7 @@ export function ChaptersList(props: ChaptersListProps) {
 
     const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
 
-    const { emptyMangaCache, isEmptyingMangaCache } = useEmptyMangaCache()
+    const { clearMangaCache, isClearingMangaCache } = useClearMangaCache()
 
     // SHELVED
     // const { chapterBackups, chapterBackupsLoading } = useMangaEntryBackups(mediaId)
@@ -82,7 +82,7 @@ export function ChaptersList(props: ChaptersListProps) {
         description: "This action will empty the cache for this manga and fetch the latest data from the selected source.",
         onConfirm: () => {
             if (mediaId) {
-                emptyMangaCache({ mediaId: Number(mediaId) })
+                clearMangaCache({ mediaId: Number(mediaId) })
             }
         },
     })
@@ -96,25 +96,25 @@ export function ChaptersList(props: ChaptersListProps) {
             <div className="flex gap-2 items-center">
                 <Select
                     fieldClass="w-fit"
-                    options={manga_providers_options}
+                    options={MANGA_PROVIDER_OPTIONS}
                     value={provider}
                     onValueChange={setProvider}
                     leftAddon="Source"
                     intent="filled"
-                    disabled={isEmptyingMangaCache}
+                    disabled={isClearingMangaCache}
                 />
 
                 <Button
                     leftIcon={<FaRedo />}
                     intent="white-subtle"
                     onClick={() => confirmReloadSource.open()}
-                    loading={isEmptyingMangaCache}
+                    loading={isClearingMangaCache}
                 >
                     Reload sources
                 </Button>
             </div>
 
-            {(chapterContainerLoading || isEmptyingMangaCache) ? <LoadingSpinner /> : (
+            {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
                 chapterContainerError ? <LuffyError title="Oops!"><p>Failed to fetch chapters</p></LuffyError> : (
                     <>
 

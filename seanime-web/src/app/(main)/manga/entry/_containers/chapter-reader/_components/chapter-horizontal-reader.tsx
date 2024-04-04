@@ -36,6 +36,11 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 
     const [currentMapIndex, setCurrentMapIndex] = React.useState<number>(0)
 
+    React.useEffect(() => {
+        console.log(pageContainer?.pages)
+        console.log(pageContainer?.pageDimensions)
+    }, [pageContainer?.pageDimensions])
+
     const paginationMap = React.useMemo(() => {
         setCurrentMapIndex(0)
         if (!pageContainer?.pages?.length) return new Map<number, number[]>()
@@ -48,6 +53,19 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
             }
             return map
         }
+
+        let fullSpreadThreshold = 2000
+        // Get the lowest recurring width
+        // e.g. 784, 300, 784, 784, 1000 -> 784
+        const lowestRecurringWidth = Object.values(pageContainer.pageDimensions).reduce((acc, val) => {
+            if (!acc) return val.width
+            if (val.width === acc) return acc
+            return Math.min(acc, val.width)
+        }, 0)
+        if (lowestRecurringWidth > 0) {
+            fullSpreadThreshold = lowestRecurringWidth
+        }
+
         // idx -> [a, b]
         const map = new Map<number, number[]>()
         // if page x is over 2000px, we display it alone, else we display pairs
@@ -56,10 +74,10 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         let mapI = 0
         while (i < pageContainer.pages.length) {
             const width = pageContainer.pageDimensions?.[i]?.width || 0
-            if (width > 2000) {
+            if (width > fullSpreadThreshold) {
                 map.set(mapI, [pageContainer.pages[i].index])
                 i++
-            } else if (!!pageContainer.pages[i + 1] && !(!!pageContainer.pageDimensions?.[i + 1]?.width && pageContainer.pageDimensions?.[i + 1]?.width > 2000)) {
+            } else if (!!pageContainer.pages[i + 1] && !(!!pageContainer.pageDimensions?.[i + 1]?.width && pageContainer.pageDimensions?.[i + 1]?.width > fullSpreadThreshold)) {
                 map.set(mapI, [pageContainer.pages[i].index, pageContainer.pages[i + 1].index])
                 i += 2
             } else {
@@ -117,16 +135,20 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     }, [onPaginate, pageWrapperRef.current])
 
     const currentPages = React.useMemo(() => paginationMap.get(currentMapIndex), [currentMapIndex, paginationMap])
-    const showShadows = readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.length === 2 && pageGap
+    const twoPages = readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.length === 2
+    const showShadows = twoPages && pageGap && pageFit === MangaPageFit.CONTAIN
 
     return (
         <div
             className={cn(
-                "h-[calc(100dvh-60px)] overflow-y-hidden overflow-x-hidden w-full px-4 space-y-4 select-none relative",
+                "h-[calc(100dvh-3rem)] overflow-y-hidden overflow-x-hidden w-full px-4 select-none relative",
                 "focus-visible:outline-none",
                 pageFit === MangaPageFit.COVER && "overflow-y-auto",
                 pageFit === MangaPageFit.TRUE_SIZE && "overflow-y-auto",
                 pageFit === MangaPageFit.LARGER && "overflow-y-auto",
+
+                // Double page + PageFit = LARGER
+                pageFit === MangaPageFit.LARGER && readingMode === MangaReadingMode.DOUBLE_PAGE && "max-w-[1800px] mx-auto",
             )}
             ref={containerRef}
             tabIndex={-1}
@@ -153,9 +175,9 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
             <div
                 className={cn(
                     "focus-visible:outline-none",
-                    showShadows && readingMode === MangaReadingMode.DOUBLE_PAGE && "flex transition-transform duration-300",
-                    pageGap && "space-y-4",
-                    // showShadows && readingMode === ReadingMode.DOUBLE_PAGE && readingDirection === ReadingDirection.RTL && "flex-row-reverse",
+                    twoPages && readingMode === MangaReadingMode.DOUBLE_PAGE && "flex transition-transform duration-300",
+                    twoPages && readingMode === MangaReadingMode.DOUBLE_PAGE && pageGap && "gap-2",
+                    twoPages && readingMode === MangaReadingMode.DOUBLE_PAGE && "flex-row-reverse",
                 )}
                 ref={pageWrapperRef}
                 onClick={onPageWrapperClick}
@@ -164,17 +186,20 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                     <div
                         key={page.url}
                         className={cn(
-                            "w-full h-[calc(100dvh-60px)] scroll-div min-h-[200px] relative page",
+                            "w-full h-[calc(100dvh-3rem)] scroll-div min-h-[200px] relative page",
                             "focus-visible:outline-none",
                             !currentPages?.includes(index) ? "hidden" : "displayed",
-                            (showShadows && readingDirection === MangaReadingDirection.RTL && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0] === index)
+                            // Double Page, gap
+                            (showShadows && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0] === index)
                             && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            (showShadows && readingDirection === MangaReadingDirection.RTL && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[1] === index)
+                            (showShadows && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[1] === index)
                             && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            (showShadows && readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[1] === index)
-                            && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            (showShadows && readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0] === index)
-                            && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
+                            // (showShadows && readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE &&
+                            // currentPages?.[1] === index) && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full
+                            // before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]", (showShadows &&
+                            // readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0]
+                            // === index) && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full
+                            // before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
                         )}
                         id={`page-${index}`}
                     >
@@ -184,19 +209,46 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                             "focus-visible:outline-none",
                             "h-full inset-0 object-center select-none z-[4] relative",
 
-                            pageFit === MangaPageFit.CONTAIN && "object-contain w-full h-full",
-                            pageFit === MangaPageFit.LARGER && "w-[1400px] h-auto object-cover mx-auto",
-                            pageFit === MangaPageFit.COVER && "w-full h-auto",
-                            pageFit === MangaPageFit.TRUE_SIZE && "object-none h-auto w-auto mx-auto",
+                            //
+                            // Page fit
+                            //
 
-                            (showShadows && readingDirection === MangaReadingDirection.RTL && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0] === index)
+                            // Single page
+                            (readingMode === MangaReadingMode.PAGED
+                                && pageFit === MangaPageFit.CONTAIN) && "object-contain w-full h-full",
+                            (readingMode === MangaReadingMode.PAGED
+                                && pageFit === MangaPageFit.LARGER) && "w-[1400px] h-auto object-cover mx-auto",
+                            (readingMode === MangaReadingMode.PAGED
+                                && pageFit === MangaPageFit.COVER) && "w-full h-auto",
+                            (readingMode === MangaReadingMode.PAGED
+                                && pageFit === MangaPageFit.TRUE_SIZE) && "object-none h-auto w-auto mx-auto",
+                            // Double page
+                            (readingMode === MangaReadingMode.DOUBLE_PAGE
+                                && pageFit === MangaPageFit.CONTAIN) && "object-contain w-full h-full",
+                            (readingMode === MangaReadingMode.DOUBLE_PAGE
+                                && pageFit === MangaPageFit.LARGER) && "w-[1400px] h-auto object-cover mx-auto",
+                            (readingMode === MangaReadingMode.DOUBLE_PAGE
+                                && pageFit === MangaPageFit.COVER) && "w-full h-auto",
+                            (readingMode === MangaReadingMode.DOUBLE_PAGE
+                                && pageFit === MangaPageFit.TRUE_SIZE) && cn(
+                                "object-none h-auto w-auto",
+                                (twoPages && currentPages?.[0] === index)
+                                    ? "mr-auto" :
+                                    (twoPages && currentPages?.[1] === index)
+                                        ? "ml-auto" : "mx-auto",
+                            ),
+
+                            //
+                            // Double page - Page position
+                            //
+                            (twoPages && currentPages?.[0] === index)
                             && "[object-position:0%_50%] before:content-['']",
-                            (showShadows && readingDirection === MangaReadingDirection.RTL && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[1] === index)
+                            (twoPages && currentPages?.[1] === index)
                             && "[object-position:100%_50%]",
-                            (showShadows && readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0] === index)
-                            && "[object-position:100%_50%]",
-                            (showShadows && readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[1] === index)
-                            && "[object-position:0%_50%]",
+                            // (twoPages && readingDirection === MangaReadingDirection.LTR && currentPages?.[0] === index)
+                            // && "[object-position:100%_50%]",
+                            // (twoPages && readingDirection === MangaReadingDirection.LTR && currentPages?.[1] === index)
+                            // && "[object-position:0%_50%]",
                         )}
                         />
                     </div>
