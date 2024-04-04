@@ -2,6 +2,12 @@
 import { atom } from "jotai/index"
 import { atomWithStorage } from "jotai/utils"
 
+export const __manga_currentPageIndexAtom = atom(0)
+export const __manga_currentPaginationMapIndexAtom = atom(0) // HORIZONTAL MODE
+export const __manga_paginationMapAtom = atom<Record<number, number[]>>({})
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 export const MangaReadingDirection = {
     LTR: "ltr",
     RTL: "rtl",

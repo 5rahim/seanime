@@ -1,10 +1,11 @@
-import { MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { MangaChapterDetails, MangaEntry, MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
     ChapterReaderSettings,
     MANGA_READING_DIRECTION_OPTIONS,
     MANGA_READING_MODE_OPTIONS,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-reader-settings"
 import {
+    __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
@@ -21,6 +22,7 @@ type MangaReaderBarProps = {
     children?: React.ReactNode
     previousChapter?: MangaChapterDetails
     nextChapter?: MangaChapterDetails
+    pageContainer?: MangaPageContainer
     entry?: MangaEntry
 }
 
@@ -30,11 +32,14 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
         children,
         previousChapter,
         nextChapter,
+        pageContainer,
         entry,
         ...rest
     } = props
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
+
+    const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
 
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
@@ -111,16 +116,24 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                     <span className="max-w-[180px] text-ellipsis truncate block">{entry?.media?.title?.userPreferred}</span>
                 </h4>
 
-                <div className="flex gap-3 items-center">
+                {!!selectedChapter && <div className="flex gap-3 items-center">
                     <ChapterNavButton dir="left" />
                     {selectedChapter?.title || ""}
                     <ChapterNavButton dir="right" />
-                </div>
+                </div>}
 
                 <div className="flex flex-1"></div>
 
 
                 <div className="flex flex-1"></div>
+
+                {pageContainer && <div className="w-fit z-[5] flex items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>
+                    {!!(currentPageIndex + 1) && (
+                        <p className="">
+                            {currentPageIndex + 1} / {pageContainer?.pages?.length}
+                        </p>
+                    )}
+                </div>}
 
                 <p className="flex gap-4 items-center opacity-50">
                     <span className="flex items-center gap-1">

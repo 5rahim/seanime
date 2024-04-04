@@ -1,17 +1,20 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
+    __manga_currentPageIndexAtom,
+    __manga_currentPaginationMapIndexAtom,
     __manga_isLastPageAtom,
     __manga_pageFitAtom,
     __manga_pageGapAtom,
     __manga_pageStretchAtom,
+    __manga_paginationMapAtom,
     MangaPageFit,
     MangaPageStretch,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { useAtomValue, useSetAtom } from "jotai/react"
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
-import { useKeyPressEvent } from "react-use"
+import { useEffectOnce, useKeyPressEvent } from "react-use"
 
 export type MangaVerticalReaderProps = {
     pageContainer: MangaPageContainer | undefined
@@ -25,7 +28,34 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const pageStretch = useAtomValue(__manga_pageStretchAtom)
     const pageGap = useAtomValue(__manga_pageGapAtom)
 
-    const [currentPageIndex, setCurrentPageIndex] = React.useState<number>(0)
+    const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
+    const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
+    const [paginationMap, setPaginationMap] = useAtom(__manga_paginationMapAtom)
+
+    React.useEffect(() => {
+        setCurrentMapIndex(0)
+
+        if (!pageContainer?.pages?.length) {
+            setPaginationMap({})
+            return
+        }
+
+        let i = 0
+        const map = {} as Record<number, number[]>
+        while (i < pageContainer?.pages?.length) {
+            map[i] = [i]
+            i++
+        }
+        setPaginationMap(map)
+        return
+    }, [pageContainer?.pages])
+
+    useEffectOnce(() => {
+        if (currentPageIndex !== 0) {
+            const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex}`)
+            pageDiv?.scrollIntoView({ behavior: "smooth" })
+        }
+    })
 
     // Function to handle scroll event
     const handleScroll = () => {
@@ -70,13 +100,13 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
 
     return (
         <div className="max-h-[calc(100dvh-3rem)] relative focus-visible:outline-none" tabIndex={-1}>
-            <div className="w-fit right-6 absolute z-[5] flex items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>
-                {!!(currentPageIndex + 1) && (
-                    <p className="text-[--muted]">
-                        {currentPageIndex + 1} / {pageContainer?.pages?.length}
-                    </p>
-                )}
-            </div>
+            {/*<div className="w-fit right-6 absolute z-[5] flex items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>*/}
+            {/*    {!!(currentPageIndex + 1) && (*/}
+            {/*        <p className="text-[--muted]">*/}
+            {/*            {currentPageIndex + 1} / {pageContainer?.pages?.length}*/}
+            {/*        </p>*/}
+            {/*    )}*/}
+            {/*</div>*/}
             <div
                 className={cn(
                     "w-full h-[calc(100dvh-60px)] overflow-y-auto overflow-x-hidden px-4 select-none relative focus-visible:outline-none",

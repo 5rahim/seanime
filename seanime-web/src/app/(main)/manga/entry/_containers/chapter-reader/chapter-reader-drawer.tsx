@@ -4,8 +4,8 @@ import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(m
 import { MangaHorizontalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-vertical-reader"
 import {
+    __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
-    __manga_readingDirectionAtom,
     __manga_readingModeAtom,
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
@@ -19,7 +19,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
 import { toast } from "sonner"
@@ -52,9 +52,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     useDiscordMangaPresence(entry)
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
-
+    const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
-    const readingDirection = useAtomValue(__manga_readingDirectionAtom)
     const isLastPage = useAtomValue(__manga_isLastPageAtom)
 
     const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"), selectedChapter?.id)
@@ -106,6 +105,11 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         return currentChapterNumber > entry.listData.progress
     }, [chapterIdToNumbersMap, entry, selectedChapter])
 
+    // Reset the current page index when the chapter changes
+    React.useEffect(() => {
+        setCurrentPageIndex(0)
+    }, [pageContainer?.pages, chapterContainer?.chapters])
+
     return (
         <Drawer
             open={!!selectedChapter}
@@ -153,19 +157,21 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             <MangaReaderBar
                 previousChapter={previousChapter}
                 nextChapter={nextChapter}
+                pageContainer={pageContainer}
                 entry={entry}
             />
 
 
-            <div className="max-h-[calc(100dvh-3rem)]" tabIndex={-1}>
+            <div className="max-h-[calc(100dvh-3rem)] h-full" tabIndex={-1}>
                 {pageContainerError ? (
                     <LuffyError
                         title="Failed to load pages"
                     >
                         <p>An error occurred while trying to load pages for this chapter.</p>
+                        <p>Reload the page, reload sources or change the source.</p>
                     </LuffyError>
                 ) : (pageContainerLoading)
-                    ? (<LoadingSpinner />)
+                    ? (<LoadingSpinner containerClass="h-full" />)
                     : (readingMode === MangaReadingMode.LONG_STRIP
                         ? (<MangaVerticalReader pageContainer={pageContainer} />)
                         : (readingMode === MangaReadingMode.PAGED || readingMode === MangaReadingMode.DOUBLE_PAGE)
