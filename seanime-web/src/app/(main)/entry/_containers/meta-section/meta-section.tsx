@@ -60,7 +60,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative z-[4]"
             >
-                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[50%] 2xl:max-w-[60rem] relative">
+                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[60rem] relative">
                     <motion.div
                         {...{
                             initial: { opacity: 0 },
@@ -79,7 +79,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                         <div className="flex gap-8">
 
                             {entry.media.coverImage?.large && <div
-                                className="flex-none w-[200px] relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden 2xl:block"
+                                className="flex-none w-[200px] relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden lg:block"
                             >
                                 <Image
                                     src={entry.media.coverImage.large}
@@ -207,7 +207,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
             </motion.div>
 
             <div
-                className="h-[40rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
+                className="h-[35rem] 2xl:h-[40rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
             >
                 <div
                     className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"

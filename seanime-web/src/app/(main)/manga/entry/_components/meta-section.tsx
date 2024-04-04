@@ -72,7 +72,7 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
                             <div className="flex gap-8">
 
                                 {entry.media.coverImage?.large && <div
-                                    className="flex-none w-[200px] relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden 2xl:block"
+                                    className="flex-none w-[200px] relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden lg:block"
                                 >
                                     <Image
                                         src={entry.media.coverImage.large}
