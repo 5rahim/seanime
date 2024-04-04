@@ -9,7 +9,7 @@ import {
     __manga_isLastPageAtom,
     __manga_readingModeAtom,
     MangaReadingMode,
-} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
+} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { MangaReaderBar } from "@/app/(main)/manga/entry/_containers/chapter-reader/reader-bar/manga-reader-bar"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"

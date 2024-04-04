@@ -3,8 +3,11 @@ import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
     __manga_isLastPageAtom,
+    __manga_kbsPageLeft,
+    __manga_kbsPageRight,
     __manga_pageFitAtom,
     __manga_pageGapAtom,
+    __manga_pageGapShadowAtom,
     __manga_pageStretchAtom,
     __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
@@ -12,12 +15,13 @@ import {
     MangaPageFit,
     MangaReadingDirection,
     MangaReadingMode,
-} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
+} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { cn } from "@/components/ui/core/styling"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import mousetrap from "mousetrap"
 import React from "react"
-import { useEffectOnce, useKeyPressEvent } from "react-use"
+import { useEffectOnce } from "react-use"
 
 export type MangaHorizontalReaderProps = {
     pageContainer: MangaPageContainer | undefined
@@ -36,6 +40,10 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const pageFit = useAtomValue(__manga_pageFitAtom)
     const pageStretch = useAtomValue(__manga_pageStretchAtom)
     const pageGap = useAtomValue(__manga_pageGapAtom)
+    const pageGapShadow = useAtomValue(__manga_pageGapShadowAtom)
+
+    const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
+    const kbsPageRight = useAtomValue(__manga_kbsPageRight)
 
     // Global page index
     const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
@@ -110,8 +118,18 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     }, [paginationMap, readingDirection])
 
     // Arrow key navigation
-    useKeyPressEvent("ArrowLeft", () => onPaginate("left"))
-    useKeyPressEvent("ArrowRight", () => onPaginate("right"))
+    // useKeyPressEvent("ArrowLeft", () => onPaginate("left"))
+    // useKeyPressEvent("ArrowRight", () => onPaginate("right"))
+
+    React.useEffect(() => {
+        mousetrap.bind(kbsPageLeft, () => onPaginate("left"))
+        mousetrap.bind(kbsPageRight, () => onPaginate("right"))
+
+        return () => {
+            mousetrap.unbind(kbsPageLeft)
+            mousetrap.unbind(kbsPageRight)
+        }
+    }, [kbsPageLeft, kbsPageRight, paginationMap, readingDirection])
 
     useEffectOnce(() => {
         if (currentPageIndex !== 0) {
@@ -166,7 +184,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 
     const currentPages = React.useMemo(() => paginationMap[currentMapIndex], [currentMapIndex, paginationMap])
     const twoPages = readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.length === 2
-    const showShadows = twoPages && pageGap && pageFit === MangaPageFit.CONTAIN
+    const showShadows = twoPages && pageGap && pageFit === MangaPageFit.CONTAIN && pageGapShadow
 
     return (
         <div

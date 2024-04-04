@@ -8,6 +8,29 @@ export const __manga_paginationMapAtom = atom<Record<number, number[]>>({})
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+export const MANGA_KBS = {
+    kbsChapterLeft: "sea-manga-chapter-left",
+    kbsChapterRight: "sea-manga-chapter-right",
+    kbsPageLeft: "sea-manga-page-left",
+    kbsPageRight: "sea-manga-page-right",
+
+}
+
+export const MANGA_DEFAULT_KBS = {
+    [MANGA_KBS.kbsChapterLeft]: "[",
+    [MANGA_KBS.kbsChapterRight]: "]",
+    [MANGA_KBS.kbsPageLeft]: "left",
+    [MANGA_KBS.kbsPageRight]: "right",
+}
+
+
+export const __manga_kbsChapterLeft = atomWithStorage(MANGA_KBS.kbsChapterLeft, MANGA_DEFAULT_KBS[MANGA_KBS.kbsChapterLeft])
+export const __manga_kbsChapterRight = atomWithStorage(MANGA_KBS.kbsChapterRight, MANGA_DEFAULT_KBS[MANGA_KBS.kbsChapterRight])
+export const __manga_kbsPageLeft = atomWithStorage(MANGA_KBS.kbsPageLeft, MANGA_DEFAULT_KBS[MANGA_KBS.kbsPageLeft])
+export const __manga_kbsPageRight = atomWithStorage(MANGA_KBS.kbsPageRight, MANGA_DEFAULT_KBS[MANGA_KBS.kbsPageRight])
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 export const MangaReadingDirection = {
     LTR: "ltr",
     RTL: "rtl",
@@ -50,5 +73,7 @@ export const __manga_pageStretchAtom = atomWithStorage<string>("sea-manga-page-s
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const __manga_pageGapAtom = atomWithStorage<boolean>("sea-manga-page-gap", true)
+
+export const __manga_pageGapShadowAtom = atomWithStorage("sea-manga-page-gap-shadow", true)
 
 export const __manga_isLastPageAtom = atom(false)

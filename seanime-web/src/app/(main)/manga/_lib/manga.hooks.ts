@@ -10,7 +10,7 @@ import {
     MangaPageContainer_QueryVariables,
 } from "@/app/(main)/manga/_lib/manga.types"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
-import { __manga_readingModeAtom, MangaReadingMode } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
+import { __manga_readingModeAtom, MangaReadingMode } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"

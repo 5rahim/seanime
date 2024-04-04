@@ -9,7 +9,7 @@ import {
     __manga_paginationMapAtom,
     MangaPageFit,
     MangaPageStretch,
-} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
+} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"

@@ -6,7 +6,7 @@ import { useSeaMutation } from "@/lib/server/query"
 import { useAtomValue } from "jotai/react"
 import React from "react"
 
-export type DiscordPresenceRoute_Body = {
+export type DiscordPresenceRoute_QueryVariables = {
     title: string
     image: string
     chapter: string
@@ -16,7 +16,7 @@ export function useDiscordMangaPresence(entry: MangaEntry | undefined) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const currentChapter = useAtomValue(__manga_selectedChapterAtom)
 
-    const { mutate } = useSeaMutation<boolean, DiscordPresenceRoute_Body>({
+    const { mutate } = useSeaMutation<boolean, DiscordPresenceRoute_QueryVariables>({
         endpoint: SeaEndpoints.DISCORD_PRESENCE_MANGA,
     })
     const { mutate: cancelActivity } = useSeaMutation({

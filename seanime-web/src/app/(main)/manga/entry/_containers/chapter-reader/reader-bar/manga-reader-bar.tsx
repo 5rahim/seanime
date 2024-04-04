@@ -12,7 +12,7 @@ import {
     __manga_readingModeAtom,
     MangaReadingDirection,
     MangaReadingMode,
-} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
+} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { IconButton } from "@/components/ui/button"
 import { useAtom, useAtomValue } from "jotai/react"
