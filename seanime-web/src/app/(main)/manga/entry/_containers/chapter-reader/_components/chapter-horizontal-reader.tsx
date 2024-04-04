@@ -73,6 +73,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
             fullSpreadThreshold = lowestRecurringWidth
         }
 
+        console.log(Object.values(pageContainer.pageDimensions).map(n => n.width), lowestRecurringWidth, fullSpreadThreshold)
+
         // idx -> [a, b]
         const map = new Map<number, number[]>()
         // if page x is over 2000px, we display it alone, else we display pairs
@@ -305,24 +307,21 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 }
 
 function getLowestRecurringNumber(arr: number[]): number | undefined {
-    // Create a Map to store counts of each number
     const counts = new Map<number, number>()
 
-    // Iterate through the array and count occurrences of each number
     arr.forEach(num => {
         counts.set(num, (counts.get(num) || 0) + 1)
     })
 
-    // Find the number with the lowest count
-    let lowestCount = Infinity
-    let lowestNumber: number | undefined
+    let highestCount = 0
+    let highestNumber: number | undefined
 
     counts.forEach((count, num) => {
-        if (count < lowestCount) {
-            lowestCount = count
-            lowestNumber = num
+        if (count > highestCount) {
+            highestCount = count
+            highestNumber = num
         }
     })
 
-    return lowestNumber
+    return highestNumber
 }
