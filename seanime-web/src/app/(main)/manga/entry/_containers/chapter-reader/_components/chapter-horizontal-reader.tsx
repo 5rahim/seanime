@@ -73,8 +73,6 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
             fullSpreadThreshold = lowestRecurringWidth
         }
 
-        console.log(Object.values(pageContainer.pageDimensions).map(n => n.width), lowestRecurringWidth, fullSpreadThreshold)
-
         // idx -> [a, b]
         const map = new Map<number, number[]>()
         // if page x is over 2000px, we display it alone, else we display pairs

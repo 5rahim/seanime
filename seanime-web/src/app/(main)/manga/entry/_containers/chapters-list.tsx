@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button, IconButton } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
+import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
@@ -40,6 +41,8 @@ export function ChaptersList(props: ChaptersListProps) {
     const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
 
     const { clearMangaCache, isClearingMangaCache } = useClearMangaCache()
+
+    const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
 
     // SHELVED
     // const { chapterBackups, chapterBackupsLoading } = useMangaEntryBackups(mediaId)
@@ -87,6 +90,38 @@ export function ChaptersList(props: ChaptersListProps) {
         },
     })
 
+    /**
+     * Chapter tables
+     */
+    const columns = React.useMemo(() => defineDataGridColumns<MangaChapterDetails>(() => [
+        {
+            accessorKey: "title",
+            header: "Name",
+            size: 90,
+        },
+        {
+            id: "_actions",
+            size: 10,
+            enableSorting: false,
+            enableGlobalFilter: false,
+            cell: ({ row }) => {
+                return (
+                    <div className="flex justify-end w-full">
+                        <IconButton
+                            intent="gray-basic"
+                            size="sm"
+                            onClick={() => setSelectedChapter(row.original)}
+                            icon={<GiOpenBook />}
+                        />
+                    </div>
+                )
+            },
+        },
+    ]), [])
+
+    const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer])
+    const chapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
+
 
     return (
         <div
@@ -132,36 +167,50 @@ export function ChaptersList(props: ChaptersListProps) {
                         >
                             <AccordionItem value="all">
                                 <AccordionTrigger>
-                                    <h3 className="flex gap-2 items-center"><BiBookAlt className="text-gray-300" /> All chapters</h3>
+                                    <h3 className="flex p-1 gap-2 items-center"><BiBookAlt className="text-gray-300" /> All chapters</h3>
                                 </AccordionTrigger>
-                                <AccordionContent className="p-0 space-y-2 max-h-[75dvh] overflow-y-auto">
-                                    {chapterContainer?.chapters?.toReversed()?.map((chapter) => (
-                                        <ChapterItem
-                                            chapter={chapter}
-                                            key={chapter.id}
-                                            // chapterBackups={chapterBackups}
-                                            // handleDownloadChapter={handleDownloadChapter}
-                                            // downloadProgressMap={downloadProgressMap}
-                                            // isSendingDownloadRequest={false}
-                                        />
-                                    ))}
+                                <AccordionContent className="p-1 space-y-2 max-h-[75dvh] overflow-y-auto">
+                                    <DataGrid<MangaChapterDetails>
+                                        columns={columns}
+                                        data={chapters}
+                                        rowCount={chapters.length}
+                                        isLoading={chapterContainerLoading}
+                                        rowSelectionPrimaryKey={"id"}
+                                    />
+                                    {/*{chapterContainer?.chapters?.toReversed()?.map((chapter) => (*/}
+                                    {/*    <ChapterItem*/}
+                                    {/*        chapter={chapter}*/}
+                                    {/*        key={chapter.id}*/}
+                                    {/*        // chapterBackups={chapterBackups}*/}
+                                    {/*        // handleDownloadChapter={handleDownloadChapter}*/}
+                                    {/*        // downloadProgressMap={downloadProgressMap}*/}
+                                    {/*        // isSendingDownloadRequest={false}*/}
+                                    {/*    />*/}
+                                    {/*))}*/}
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
 
 
-                        <h3>Unread chapters</h3>
-                        <div className="p-0 space-y-2 max-h-[75dvh] overflow-y-auto">
-                            {chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (
-                                <ChapterItem
-                                    chapter={chapter}
-                                    key={chapter.id}
-                                    // chapterBackups={chapterBackups}
-                                    // handleDownloadChapter={handleDownloadChapter}
-                                    // downloadProgressMap={downloadProgressMap}
-                                    // isSendingDownloadRequest={false}
-                                />
-                            ))}
+                        <h3 className="px-1">Unread chapters</h3>
+                        <div className="p-1 space-y-2">
+                            {/*{chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (*/}
+                            {/*    <ChapterItem*/}
+                            {/*        chapter={chapter}*/}
+                            {/*        key={chapter.id}*/}
+                            {/*        // chapterBackups={chapterBackups}*/}
+                            {/*        // handleDownloadChapter={handleDownloadChapter}*/}
+                            {/*        // downloadProgressMap={downloadProgressMap}*/}
+                            {/*        // isSendingDownloadRequest={false}*/}
+                            {/*    />*/}
+                            {/*))}*/}
+                            <DataGrid<MangaChapterDetails>
+                                columns={columns}
+                                data={unreadChapters}
+                                rowCount={unreadChapters.length}
+                                isLoading={chapterContainerLoading}
+                                rowSelectionPrimaryKey={"id"}
+                            />
                         </div>
 
                         {chapterContainer && <ChapterReaderDrawer

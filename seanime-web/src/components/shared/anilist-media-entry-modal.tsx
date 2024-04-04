@@ -97,6 +97,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     icon={<AiFillEdit />}
                     rounded
                     size="sm"
+                    loading={isPending || isDeleting}
                     onClick={toggle}
                 />}
 
@@ -105,6 +106,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     icon={<BiPlus />}
                     rounded
                     size="sm"
+                    loading={isPending || isDeleting}
                     className={cn({ "hidden": isSuccess })} // Hide button when mutation is successful
                     onClick={() => mutate({
                         mediaId: media?.id || 0,
