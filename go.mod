@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/EDDYCJY/fake-useragent v0.2.0
+	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/Yamashou/gqlgenc v0.19.3
 	github.com/adrg/strutil v0.3.1
@@ -28,6 +29,7 @@ require (
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xfrr/goffmpeg v1.0.0
+	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
 	golang.org/x/net v0.21.0
 	golang.org/x/text v0.14.0
 	gorm.io/gorm v1.25.7
@@ -35,7 +37,6 @@ require (
 
 require (
 	github.com/99designs/gqlgen v0.17.44 // indirect
-	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antchfx/htmlquery v1.3.0 // indirect

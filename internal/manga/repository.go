@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util/filecache"
+	_ "golang.org/x/image/webp" // Register WebP format
 	"image"
 	_ "image/jpeg" // Register JPEG format
 	_ "image/png"  // Register PNG format
