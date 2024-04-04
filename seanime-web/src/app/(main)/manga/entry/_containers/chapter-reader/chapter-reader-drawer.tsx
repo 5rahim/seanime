@@ -1,0 +1,176 @@
+import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
+import { useMangaPageContainer } from "@/app/(main)/manga/_lib/manga.hooks"
+import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { MangaHorizontalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-horizontal-reader"
+import { MangaVerticalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-vertical-reader"
+import {
+    __manga_isLastPageAtom,
+    __manga_readingDirectionAtom,
+    __manga_readingModeAtom,
+    MangaReadingMode,
+} from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga.atoms"
+import { MangaReaderBar } from "@/app/(main)/manga/entry/_containers/chapter-reader/reader-bar/manga-reader-bar"
+import { LuffyError } from "@/components/shared/luffy-error"
+import { Button } from "@/components/ui/button"
+import { Card, CardFooter, CardHeader } from "@/components/ui/card"
+import { cn } from "@/components/ui/core/styling"
+import { Drawer } from "@/components/ui/drawer"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaMutation } from "@/lib/server/query"
+import { useQueryClient } from "@tanstack/react-query"
+import { useAtom, useAtomValue } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
+import React from "react"
+import { toast } from "sonner"
+
+type ChapterDrawerProps = {
+    entry: MangaEntry
+    chapterContainer: MangaChapterContainer
+    chapterIdToNumbersMap: Map<string, number>
+}
+
+export const __manga_selectedChapterAtom = atomWithStorage<MangaChapterDetails | undefined>("sea-manga-chapter",
+    undefined,
+    undefined,
+    { getOnInit: true })
+
+
+export function ChapterReaderDrawer(props: ChapterDrawerProps) {
+
+    const {
+        entry,
+        chapterContainer,
+        chapterIdToNumbersMap,
+        ...rest
+    } = props
+
+
+    const qc = useQueryClient()
+
+    // Discord rich presence
+    useDiscordMangaPresence(entry)
+
+    const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
+
+    const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
+    const readingDirection = useAtomValue(__manga_readingDirectionAtom)
+    const isLastPage = useAtomValue(__manga_isLastPageAtom)
+
+    const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"), selectedChapter?.id)
+
+    // If the reading mode is set to double page but
+    // the pageContainer doesn't have page dimensions, switch to paged mode
+    React.useEffect(() => {
+        if (selectedChapter) {
+            if (readingMode === MangaReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && !pageContainer?.pageDimensions) {
+                toast.error("Could not efficiently get page dimensions from this provider. Switching to paged mode.")
+                setReadingMode(MangaReadingMode.PAGED)
+            }
+        }
+    }, [selectedChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
+
+    // Update the progress when the user confirms
+    const { mutate: updateProgress, isPending: isUpdatingProgress } = useSeaMutation<boolean, {
+        chapterNumber: number,
+        mediaId: number,
+        totalChapters: number,
+    }>({
+        endpoint: SeaEndpoints.UPDATE_MANGA_PROGRESS,
+        mutationKey: ["update-manga-progress", entry.mediaId],
+        method: "post",
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-entry", Number(entry.mediaId)] })
+            await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
+            toast.success("Progress updated")
+        },
+    })
+
+    // Get the previous and next chapter
+    // Each variable can be undefined
+    const { previousChapter, nextChapter } = React.useMemo(() => {
+        if (!chapterContainer?.chapters) return { previousChapter: undefined, nextChapter: undefined }
+
+        const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === selectedChapter?.id)
+        return {
+            previousChapter: chapterContainer.chapters[idx - 1],
+            nextChapter: chapterContainer.chapters[idx + 1],
+        }
+    }, [chapterContainer?.chapters, selectedChapter])
+
+    // Check if the progress should be updated
+    const shouldUpdateProgress = React.useMemo(() => {
+        const currentChapterNumber = chapterIdToNumbersMap.get(selectedChapter?.id || "")
+        if (!currentChapterNumber) return false
+        if (!entry.listData?.progress) return true
+        return currentChapterNumber > entry.listData.progress
+    }, [chapterIdToNumbersMap, entry, selectedChapter])
+
+    return (
+        <Drawer
+            open={!!selectedChapter}
+            onOpenChange={() => setSelectedChapter(undefined)}
+            size="full"
+            side="bottom"
+            headerClass="absolute h-0"
+            contentClass="p-0"
+            closeButton={<></>}
+        >
+
+            <div
+                className={cn(
+                    "fixed top-2 left-2 z-[6] opacity-0 transition-opacity hidden duration-500",
+                    (shouldUpdateProgress && isLastPage && !pageContainerLoading && !pageContainerError) && "block opacity-100",
+                )}
+                tabIndex={-1}
+            >
+                <Card className="max-w-[800px]">
+                    <CardHeader>
+                        Update progress to {chapterIdToNumbersMap.get(selectedChapter?.id || "")} / {entry?.media?.chapters || "-"}
+                    </CardHeader>
+                    <CardFooter>
+                        <Button
+                            onClick={() => {
+                                updateProgress({
+                                    chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.id || "") || 0,
+                                    mediaId: entry.mediaId,
+                                    totalChapters: chapterContainer?.chapters?.length || 0,
+                                })
+                                !!nextChapter && setSelectedChapter(nextChapter)
+                            }}
+                            className="w-full"
+                            size="sm"
+                            intent="success"
+                            loading={isUpdatingProgress}
+                            disabled={isUpdatingProgress}
+                        >
+                            Confirm
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+
+            <MangaReaderBar
+                previousChapter={previousChapter}
+                nextChapter={nextChapter}
+                entry={entry}
+            />
+
+
+            <div className="max-h-[calc(100dvh-3rem)]" tabIndex={-1}>
+                {pageContainerError ? (
+                    <LuffyError
+                        title="Failed to load pages"
+                    >
+                        <p>An error occurred while trying to load pages for this chapter.</p>
+                    </LuffyError>
+                ) : (pageContainerLoading)
+                    ? (<LoadingSpinner />)
+                    : (readingMode === MangaReadingMode.LONG_STRIP
+                        ? (<MangaVerticalReader pageContainer={pageContainer} />)
+                        : (readingMode === MangaReadingMode.PAGED || readingMode === MangaReadingMode.DOUBLE_PAGE)
+                            ? (<MangaHorizontalReader pageContainer={pageContainer} />) : null)}
+            </div>
+        </Drawer>
+    )
+}

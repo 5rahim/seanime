@@ -1,6 +1,6 @@
 import { __manga_selectedProviderAtom, useEmptyMangaCache, useMangaChapterContainer } from "@/app/(main)/manga/_lib/manga.hooks"
 import { manga_providers_options, MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/manga.types"
-import { __manga_selectedChapterAtom, ChapterDrawer } from "@/app/(main)/manga/entry/_containers/chapter-drawer/chapter-drawer"
+import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -164,7 +164,7 @@ export function ChaptersList(props: ChaptersListProps) {
                             ))}
                         </div>
 
-                        {chapterContainer && <ChapterDrawer
+                        {chapterContainer && <ChapterReaderDrawer
                             entry={entry}
                             chapterContainer={chapterContainer}
                             chapterIdToNumbersMap={chapterIdToNumbersMap}
