@@ -272,7 +272,7 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 			defer wg.Done()
 			width, height, err := getImageNaturalSize(page.URL)
 			if err != nil {
-				r.logger.Warn().Err(err).Int("index", page.Index).Msg("manga: failed to get image size")
+				//r.logger.Warn().Err(err).Int("index", page.Index).Msg("manga: failed to get image size")
 				return
 			}
 

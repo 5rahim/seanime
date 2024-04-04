@@ -7,6 +7,7 @@ import {
 import {
     __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
+    __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
     MangaReadingDirection,
@@ -40,6 +41,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
 
     const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
+    const paginationMap = useAtomValue(__manga_paginationMapAtom)
 
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
@@ -98,6 +100,17 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
         }
     }, [selectedChapter, nextChapter, previousChapter, readingDirection, readingMode])
 
+    const secondPageText = React.useMemo(() => {
+        let secondPageIndex = 0
+        for (const [key, values] of Object.entries(paginationMap)) {
+            if (paginationMap[Number(key)].includes(currentPageIndex)) {
+                secondPageIndex = values[1]
+            }
+        }
+        if (isNaN(secondPageIndex) || secondPageIndex === 0 || secondPageIndex === currentPageIndex) return ""
+        return "-" + (secondPageIndex + 1)
+    }, [currentPageIndex, paginationMap])
+
     if (!entry) return null
 
     return (
@@ -130,7 +143,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                 {pageContainer && <div className="w-fit z-[5] flex items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>
                     {!!(currentPageIndex + 1) && (
                         <p className="">
-                            {currentPageIndex + 1} / {pageContainer?.pages?.length}
+                            {currentPageIndex + 1}{secondPageText} / {pageContainer?.pages?.length}
                         </p>
                     )}
                 </div>}

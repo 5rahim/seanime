@@ -43,13 +43,6 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
     const [paginationMap, setPaginationMap] = useAtom(__manga_paginationMapAtom)
 
-    const offset = 0
-
-    React.useEffect(() => {
-        console.log(pageContainer?.pages)
-        console.log(pageContainer?.pageDimensions)
-    }, [pageContainer?.pageDimensions])
-
     React.useEffect(() => {
         if (!pageContainer?.pages?.length) return
 
@@ -67,12 +60,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         let fullSpreadThreshold = 2000
         // Get the lowest recurring width
         // e.g. 784, 300, 784, 784, 1000 -> 784
-        const lowestRecurringWidth = Object.values(pageContainer.pageDimensions).reduce((acc, val) => {
-            if (!acc) return val.width
-            if (val.width === acc) return acc
-            return Math.min(acc, val.width)
-        }, 0)
-        if (lowestRecurringWidth > 0) {
+        const lowestRecurringWidth = getLowestRecurringNumber(Object.values(pageContainer.pageDimensions).map(n => n.width))
+        if (!!lowestRecurringWidth && lowestRecurringWidth > 0) {
             fullSpreadThreshold = lowestRecurringWidth
         }
 
@@ -298,4 +287,27 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 
         </div>
     )
+}
+
+function getLowestRecurringNumber(arr: number[]): number | undefined {
+    // Create a Map to store counts of each number
+    const counts = new Map<number, number>()
+
+    // Iterate through the array and count occurrences of each number
+    arr.forEach(num => {
+        counts.set(num, (counts.get(num) || 0) + 1)
+    })
+
+    // Find the number with the lowest count
+    let lowestCount = Infinity
+    let lowestNumber: number | undefined
+
+    counts.forEach((count, num) => {
+        if (count < lowestCount) {
+            lowestCount = count
+            lowestNumber = num
+        }
+    })
+
+    return lowestNumber
 }

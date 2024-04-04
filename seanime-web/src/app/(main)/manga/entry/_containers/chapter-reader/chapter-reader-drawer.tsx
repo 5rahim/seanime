@@ -5,6 +5,7 @@ import { MangaHorizontalReader } from "@/app/(main)/manga/entry/_containers/chap
 import { MangaVerticalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-vertical-reader"
 import {
     __manga_currentPageIndexAtom,
+    __manga_currentPaginationMapIndexAtom,
     __manga_isLastPageAtom,
     __manga_readingModeAtom,
     MangaReadingMode,
@@ -53,6 +54,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
     const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
+    const setCurrentPaginationMapIndex = useSetAtom(__manga_currentPaginationMapIndexAtom)
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const isLastPage = useAtomValue(__manga_isLastPageAtom)
 
@@ -108,6 +110,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     // Reset the current page index when the chapter changes
     React.useEffect(() => {
         setCurrentPageIndex(0)
+        setCurrentPaginationMapIndex(0)
     }, [pageContainer?.pages, chapterContainer?.chapters])
 
     return (
