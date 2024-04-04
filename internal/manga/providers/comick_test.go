@@ -20,6 +20,10 @@ func TestComicK_Search(t *testing.T) {
 			name:  "Jujutsu Kaisen",
 			query: "Jujutsu Kaisen",
 		},
+		{
+			name:  "Komi-san wa, Komyushou desu",
+			query: "Komi-san wa, Komyushou desu",
+		},
 	}
 
 	comick := NewComicK(util.NewLogger())
@@ -61,6 +65,11 @@ func TestComicK_FindChapters(t *testing.T) {
 		{
 			name:    "Jujutsu Kaisen",
 			id:      "TA22I5O7",
+			atLeast: 250,
+		},
+		{
+			name:    "Komi-san wa, Komyushou desu",
+			id:      "fKWNEsw8",
 			atLeast: 250,
 		},
 	}

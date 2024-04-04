@@ -99,8 +99,14 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	results := make([]*SearchResult, len(data))
-	for i, result := range data {
+	results := make([]*SearchResult, 0)
+	for _, result := range data {
+
+		// Skip fan-colored manga
+		if strings.Contains(result.Slug, "fan-colored") {
+			continue
+		}
+
 		var coverURL string
 		if len(result.MdCovers) > 0 && result.MdCovers[0].B2Key != "" {
 			coverURL = "https://meo.comick.pictures/" + result.MdCovers[0].B2Key
@@ -113,7 +119,7 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 		compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, []*string{&result.Title})
 
-		results[i] = &SearchResult{
+		results = append(results, &SearchResult{
 			ID:           result.HID,
 			Title:        cmp.Or(result.Title, result.Slug),
 			Synonyms:     altTitles,
@@ -121,7 +127,7 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 			Year:         result.Year,
 			SearchRating: compRes.Rating,
 			Provider:     ComickProvider,
-		}
+		})
 	}
 
 	return results, nil
