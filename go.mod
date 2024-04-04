@@ -29,7 +29,7 @@ require (
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xfrr/goffmpeg v1.0.0
-	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
+	golang.org/x/image v0.10.0
 	golang.org/x/net v0.21.0
 	golang.org/x/text v0.14.0
 	gorm.io/gorm v1.25.7

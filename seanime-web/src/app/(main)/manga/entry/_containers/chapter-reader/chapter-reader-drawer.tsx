@@ -74,7 +74,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     // the pageContainer doesn't have page dimensions, switch to paged mode
     React.useEffect(() => {
         if (selectedChapter) {
-            if (readingMode === MangaReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && !pageContainer?.pageDimensions) {
+            if (readingMode === MangaReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && (!pageContainer?.pageDimensions || Object.keys(
+                pageContainer.pageDimensions).length === 0)) {
                 toast.error("Could not efficiently get page dimensions from this provider. Switching to paged mode.")
                 setReadingMode(MangaReadingMode.PAGED)
             }

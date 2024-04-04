@@ -54,7 +54,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     React.useEffect(() => {
         if (!pageContainer?.pages?.length) return
 
-        if (readingMode === MangaReadingMode.PAGED || !pageContainer.pageDimensions) {
+        if (readingMode === MangaReadingMode.PAGED || (!pageContainer.pageDimensions || Object.keys(pageContainer.pageDimensions).length === 0)) {
             let i = 0
             const map = {} as Record<number, number[]>
             while (i < pageContainer?.pages?.length) {
