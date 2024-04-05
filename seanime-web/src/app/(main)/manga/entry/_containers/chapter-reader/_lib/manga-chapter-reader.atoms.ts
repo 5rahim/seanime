@@ -76,4 +76,6 @@ export const __manga_pageGapAtom = atomWithStorage<boolean>("sea-manga-page-gap"
 
 export const __manga_pageGapShadowAtom = atomWithStorage("sea-manga-page-gap-shadow", true)
 
+export const __manga_doublePageOffsetAtom = atomWithStorage("sea-manga-double-page-offset", 0)
+
 export const __manga_isLastPageAtom = atom(false)

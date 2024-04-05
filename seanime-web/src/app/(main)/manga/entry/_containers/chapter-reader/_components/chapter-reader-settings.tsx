@@ -1,5 +1,6 @@
 "use client"
 import {
+    __manga_doublePageOffsetAtom,
     __manga_kbsChapterLeft,
     __manga_kbsChapterRight,
     __manga_kbsPageLeft,
@@ -20,6 +21,7 @@ import {
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
+import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
@@ -139,6 +141,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     const [pageStretch, setPageStretch] = useAtom(__manga_pageStretchAtom)
     const [pageGap, setPageGap] = useAtom(__manga_pageGapAtom)
     const [pageGapShadow, setPageGapShadow] = useAtom(__manga_pageGapShadowAtom)
+    const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
 
     const [kbsChapterLeft, setKbsChapterLeft] = useAtom(__manga_kbsChapterLeft)
     const [kbsChapterRight, setKbsChapterRight] = useAtom(__manga_kbsChapterRight)
@@ -232,6 +235,17 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         onValueChange={(value) => setReadingMode(value)}
                     />
 
+                    <div
+                        className={cn(
+                            readingMode !== MangaReadingMode.DOUBLE_PAGE && "hidden",
+                        )}
+                    >
+                        <NumberInput
+                            label="Offset"
+                            value={doublePageOffset}
+                            onValueChange={(value) => setDoublePageOffset(value)}
+                        />
+                    </div>
                     <div
                         className={cn(
                             readingMode === MangaReadingMode.LONG_STRIP && "opacity-50 pointer-events-none",

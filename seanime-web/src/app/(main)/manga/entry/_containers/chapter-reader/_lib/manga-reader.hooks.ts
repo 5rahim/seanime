@@ -2,6 +2,7 @@ import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
+    __manga_doublePageOffsetAtom,
     __manga_pageFitAtom,
     __manga_pageStretchAtom,
     __manga_paginationMapAtom,
@@ -24,6 +25,8 @@ export function useHydrateMangaPaginationMap(pageContainer?: MangaPageContainer)
 
     // Global page index
     const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
+
+    const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
 
     /**
      * Pagination map is used to determine how many pages to display at once.
@@ -62,8 +65,10 @@ export function useHydrateMangaPaginationMap(pageContainer?: MangaPageContainer)
             let fullSpreadThreshold = 2000
             const recWidth = getRecurringNumber(Object.values(pageContainer.pageDimensions).map(n => n.width))
             if (!!recWidth && recWidth > 0) {
-                fullSpreadThreshold = recWidth
+                fullSpreadThreshold = recWidth + 50 // Add padding to the width to account for any discrepancies
             }
+
+            console.log("fullSpreadThreshold", fullSpreadThreshold)
 
             const map = new Map<number, number[]>()
 
@@ -76,11 +81,22 @@ export function useHydrateMangaPaginationMap(pageContainer?: MangaPageContainer)
             let i = 0
             let mapI = 0
             while (i < pageContainer.pages.length) {
+
+                if (doublePageOffset > 0 && i + 1 <= doublePageOffset) {
+                    map.set(mapI, [pageContainer.pages[i].index])
+                    i++
+                    mapI++
+                    continue
+                }
+
                 const width = pageContainer.pageDimensions?.[i]?.width || 0
                 if (width > fullSpreadThreshold) {
                     map.set(mapI, [pageContainer.pages[i].index])
                     i++
-                } else if (!!pageContainer.pages[i + 1] && !(!!pageContainer.pageDimensions?.[i + 1]?.width && pageContainer.pageDimensions?.[i + 1]?.width > fullSpreadThreshold)) {
+                } else if (
+                    !!pageContainer.pages[i + 1]
+                    && !(!!pageContainer.pageDimensions?.[i + 1]?.width && pageContainer.pageDimensions?.[i + 1]?.width > fullSpreadThreshold)
+                ) {
                     map.set(mapI, [pageContainer.pages[i].index, pageContainer.pages[i + 1].index])
                     i += 2
                 } else {
@@ -113,7 +129,7 @@ export function useHydrateMangaPaginationMap(pageContainer?: MangaPageContainer)
         // Set the current map index to the map index to scroll to
         setCurrentMapIndex(mapIndexToScroll)
 
-    }, [pageContainer?.pages, readingMode, selectedChapter])
+    }, [pageContainer?.pages, readingMode, selectedChapter, doublePageOffset])
 
 }
 

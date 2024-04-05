@@ -95,7 +95,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                 {/*TITLE*/}
                                 <div className="space-y-2">
                                     <TextGenerateEffect
-                                        className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center md:text-left text-pretty text-3xl lg:text-5xl"
+                                        className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center md:text-left text-pretty text-3xl text-4xl 2xl:text-5xl"
                                         words={entry.media.title?.userPreferred || ""}
                                     />
                                     {(!!entry.media.title?.english && entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase()) &&
@@ -207,7 +207,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
             </motion.div>
 
             <div
-                className="h-[35rem] 2xl:h-[40rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
+                className="h-[20rem] lg:h-[32rem] 2xl:h-[40rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
             >
                 <div
                     className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
@@ -239,23 +239,11 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                     priority
                     sizes="100vw"
                     className={cn(
-                        "object-cover object-left z-[2] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-80",
+                        "hidden lg:block object-cover object-left z-[2] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/meta-section:opacity-80",
                     )}
                 />
 
-                {/*<div className="absolute w-full -left-[5rem] h-full">*/}
-                {/*    <Image*/}
-                {/*        src={"/mask-2.png"}*/}
-                {/*        alt="mask"*/}
-                {/*        fill*/}
-                {/*        quality={100}*/}
-                {/*        priority*/}
-                {/*        sizes="100vw"*/}
-                {/*        className={cn(*/}
-                {/*            "object-cover object-left z-[2] transition-opacity opacity-100",*/}
-                {/*        )}*/}
-                {/*    />*/}
-                {/*</div>*/}
+                <div className="absolute h-full w-full block lg:hidden bg-gray-950 opacity-70 z-[2]" />
 
             </div>
         </motion.div>
