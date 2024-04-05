@@ -145,6 +145,7 @@ export function ChaptersList(props: ChaptersListProps) {
                     onValueChange={setProvider}
                     leftAddon="Source"
                     intent="filled"
+                    size="sm"
                     disabled={isClearingMangaCache}
                 />
 
@@ -153,6 +154,7 @@ export function ChaptersList(props: ChaptersListProps) {
                     intent="white-subtle"
                     onClick={() => confirmReloadSource.open()}
                     loading={isClearingMangaCache}
+                    size="sm"
                 >
                     Reload sources
                 </Button>

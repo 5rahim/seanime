@@ -27,7 +27,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
 
     return (
         <div className="space-y-4">
-            {!!anime && (
+            {!!anime?.length && (
                 <>
                     <h3>Relations</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-3 gap-4">

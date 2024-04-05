@@ -88,7 +88,7 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
                                     {/*TITLE*/}
                                     <div className="space-y-2">
                                         <TextGenerateEffect
-                                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center md:text-left text-pretty text-3xl lg:text-5xl"
+                                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center md:text-left text-pretty text-3xl lg:text-4xl 2xl:text-5xl"
                                             words={entry.media.title?.userPreferred || ""}
                                         />
                                         {(!!entry.media.title?.english && entry.media.title?.userPreferred?.toLowerCase() !== entry.media.title?.english?.toLowerCase()) &&
