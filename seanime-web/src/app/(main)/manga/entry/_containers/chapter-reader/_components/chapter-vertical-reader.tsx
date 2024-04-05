@@ -1,7 +1,6 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
     __manga_currentPageIndexAtom,
-    __manga_currentPaginationMapIndexAtom,
     __manga_isLastPageAtom,
     __manga_pageFitAtom,
     __manga_pageGapAtom,
@@ -10,16 +9,24 @@ import {
     MangaPageFit,
     MangaPageStretch,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
+import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import mousetrap from "mousetrap"
 import React from "react"
-import { useEffectOnce, useKeyPressEvent } from "react-use"
+import { useEffectOnce } from "react-use"
 
 export type MangaVerticalReaderProps = {
     pageContainer: MangaPageContainer | undefined
 }
 
+/**
+ * MangaVerticalReader component
+ *
+ * This component is responsible for rendering the manga pages in a vertical layout.
+ * It also handles the logic for scrolling and page navigation.
+ */
 export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps) {
 
     const containerRef = React.useRef<HTMLDivElement>(null)
@@ -27,37 +34,28 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const pageFit = useAtomValue(__manga_pageFitAtom)
     const pageStretch = useAtomValue(__manga_pageStretchAtom)
     const pageGap = useAtomValue(__manga_pageGapAtom)
-
     const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
-    const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
-    const [paginationMap, setPaginationMap] = useAtom(__manga_paginationMapAtom)
+    const paginationMap = useAtom(__manga_paginationMapAtom)
 
-    React.useEffect(() => {
-        setCurrentMapIndex(0)
+    useHydrateMangaPaginationMap(pageContainer)
 
-        if (!pageContainer?.pages?.length) {
-            setPaginationMap({})
-            return
-        }
-
-        let i = 0
-        const map = {} as Record<number, number[]>
-        while (i < pageContainer?.pages?.length) {
-            map[i] = [i]
-            i++
-        }
-        setPaginationMap(map)
-        return
-    }, [pageContainer?.pages])
-
+    /**
+     * When the reader mounts (reading mode changes), scroll to the current page
+     */
     useEffectOnce(() => {
         if (currentPageIndex !== 0) {
             const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex}`)
-            pageDiv?.scrollIntoView({ behavior: "smooth" })
+            pageDiv?.scrollIntoView()
         }
     })
 
-    // Function to handle scroll event
+    /**
+     * Function to handle scroll event
+     *
+     * This function is responsible for handling the scroll event on the container div.
+     * It checks if the user has scrolled past a certain point and sets the [isLastPage] state accordingly.
+     * It also checks which page is currently in the viewport and sets the [currentPageIndex] state.
+     */
     const handleScroll = () => {
         if (!!containerRef.current) {
             const scrollTop = containerRef.current.scrollTop
@@ -79,34 +77,36 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
         }
     }
 
+    // Reset isLastPage state when pages change
     React.useEffect(() => {
         setIsLastPage(false)
     }, [pageContainer?.pages])
 
     // Add scroll event listener when component mounts
     React.useEffect(() => {
+        // Add a scroll event listener to container
         containerRef.current?.addEventListener("scroll", handleScroll)
         return () => containerRef.current?.removeEventListener("scroll", handleScroll)
     }, [containerRef.current])
 
-    useKeyPressEvent("ArrowUp", () => {
-        containerRef.current?.scrollBy(0, -50)
-    })
+    // Page navigation
+    React.useEffect(() => {
+        mousetrap.bind("up", () => {
+            containerRef.current?.scrollBy(0, -100)
+        })
+        mousetrap.bind("down", () => {
+            containerRef.current?.scrollBy(0, 100)
+        })
 
-    useKeyPressEvent("ArrowDown", () => {
-        containerRef.current?.scrollBy(0, 50)
-    })
+        return () => {
+            mousetrap.unbind("up")
+            mousetrap.unbind("down")
+        }
+    }, [paginationMap])
 
 
     return (
         <div className="max-h-[calc(100dvh-3rem)] relative focus-visible:outline-none" tabIndex={-1}>
-            {/*<div className="w-fit right-6 absolute z-[5] flex items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>*/}
-            {/*    {!!(currentPageIndex + 1) && (*/}
-            {/*        <p className="text-[--muted]">*/}
-            {/*            {currentPageIndex + 1} / {pageContainer?.pages?.length}*/}
-            {/*        </p>*/}
-            {/*    )}*/}
-            {/*</div>*/}
             <div
                 className={cn(
                     "w-full h-[calc(100dvh-60px)] overflow-y-auto overflow-x-hidden px-4 select-none relative focus-visible:outline-none",

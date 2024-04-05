@@ -8,7 +8,6 @@ import {
     __manga_pageFitAtom,
     __manga_pageGapAtom,
     __manga_pageGapShadowAtom,
-    __manga_pageStretchAtom,
     __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
@@ -16,21 +15,18 @@ import {
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
-import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
+import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
 import { cn } from "@/components/ui/core/styling"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import React from "react"
-import { useEffectOnce } from "react-use"
+import { useUpdateEffect } from "react-use"
 
 export type MangaHorizontalReaderProps = {
     pageContainer: MangaPageContainer | undefined
 }
 
 export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderProps) {
-    // Current chapter
-    const selectedChapter = useAtomValue(__manga_selectedChapterAtom)
-
     const containerRef = React.useRef<HTMLDivElement>(null)
     const pageWrapperRef = React.useRef<HTMLDivElement>(null)
 
@@ -38,7 +34,6 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const setIsLastPage = useSetAtom(__manga_isLastPageAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
     const pageFit = useAtomValue(__manga_pageFitAtom)
-    const pageStretch = useAtomValue(__manga_pageStretchAtom)
     const pageGap = useAtomValue(__manga_pageGapAtom)
     const pageGapShadow = useAtomValue(__manga_pageGapShadowAtom)
 
@@ -46,101 +41,23 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
 
     // Global page index
-    const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
+    const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
 
+    const paginationMap = useAtomValue(__manga_paginationMapAtom)
     const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
-    const [paginationMap, setPaginationMap] = useAtom(__manga_paginationMapAtom)
 
-    React.useEffect(() => {
-        if (!pageContainer?.pages?.length) return
+    useHydrateMangaPaginationMap(pageContainer)
 
-        if (readingMode === MangaReadingMode.PAGED || (!pageContainer.pageDimensions || Object.keys(pageContainer.pageDimensions).length === 0)) {
-            let i = 0
-            const map = {} as Record<number, number[]>
-            while (i < pageContainer?.pages?.length) {
-                map[i] = [i]
-                i++
-            }
-            setPaginationMap(map)
-            return
-        }
+    /**
+     * When the current map index changes, scroll to the top of the container
+     */
+    useUpdateEffect(() => {
+        containerRef.current?.scrollTo({ top: 0 })
+    }, [currentMapIndex])
 
-        let fullSpreadThreshold = 2000
-        // Get the lowest recurring width
-        // e.g. 784, 300, 784, 784, 1000 -> 784
-        const lowestRecurringWidth = getLowestRecurringNumber(Object.values(pageContainer.pageDimensions).map(n => n.width))
-        if (!!lowestRecurringWidth && lowestRecurringWidth > 0) {
-            fullSpreadThreshold = lowestRecurringWidth
-        }
-
-        // idx -> [a, b]
-        const map = new Map<number, number[]>()
-        // if page x is over 2000px, we display it alone, else we display pairs
-        // e.g. [[0, 1], [2], [3], [4, 5], [6], [7, 8], ...]
-        let i = 0
-        let mapI = 0
-        while (i < pageContainer.pages.length) {
-            const width = pageContainer.pageDimensions?.[i]?.width || 0
-            if (width > fullSpreadThreshold) {
-                map.set(mapI, [pageContainer.pages[i].index])
-                i++
-            } else if (!!pageContainer.pages[i + 1] && !(!!pageContainer.pageDimensions?.[i + 1]?.width && pageContainer.pageDimensions?.[i + 1]?.width > fullSpreadThreshold)) {
-                map.set(mapI, [pageContainer.pages[i].index, pageContainer.pages[i + 1].index])
-                i += 2
-            } else {
-                map.set(mapI, [pageContainer.pages[i].index])
-                i++
-            }
-            mapI++
-        }
-
-        let _map = {} as Record<number, number[]>
-        map.forEach((value, key) => {
-            _map[key] = value
-        })
-        setPaginationMap(_map)
-        map.clear()
-
-        return
-    }, [pageContainer?.pages, readingMode, selectedChapter])
-
-    // Handle pagination
-    const onPaginate = React.useCallback((dir: "left" | "right") => {
-        const shouldDecrement = dir === "left" && readingDirection === MangaReadingDirection.LTR || dir === "right" && readingDirection === MangaReadingDirection.RTL
-
-        setCurrentMapIndex((draft) => {
-            const newIdx = shouldDecrement ? draft - 1 : draft + 1
-            if (paginationMap.hasOwnProperty(newIdx)) {
-                return newIdx
-            }
-            return draft
-        })
-    }, [paginationMap, readingDirection])
-
-    // Page navigation
-    React.useEffect(() => {
-        mousetrap.bind(kbsPageLeft, () => onPaginate("left"))
-        mousetrap.bind(kbsPageRight, () => onPaginate("right"))
-
-        return () => {
-            mousetrap.unbind(kbsPageLeft)
-            mousetrap.unbind(kbsPageRight)
-        }
-    }, [kbsPageLeft, kbsPageRight, paginationMap, readingDirection])
-
-    useEffectOnce(() => {
-        if (currentPageIndex !== 0) {
-            let mapIndexToScroll = 0
-            for (const [index, pages] of Object.entries(paginationMap)) {
-                if (pages.includes(currentPageIndex)) {
-                    mapIndexToScroll = Number(index)
-                    break
-                }
-            }
-            setCurrentMapIndex(mapIndexToScroll)
-        }
-    })
-
+    /**
+     * Set [isLastPage] state when the current map index changes
+     */
     React.useEffect(() => {
         setIsLastPage(Object.keys(paginationMap).length > 0 && currentMapIndex === Object.keys(paginationMap).length - 1)
     }, [currentMapIndex, paginationMap])
@@ -154,6 +71,45 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     //         : `http://${window?.location?.host}/manga-backups${url}`
     // }
 
+    /**
+     * Function to handle page navigation when the user clicks on the left or right side of the page
+     */
+    const onPaginate = React.useCallback((dir: "left" | "right") => {
+        const shouldDecrement = dir === "left" && readingDirection === MangaReadingDirection.LTR || dir === "right" && readingDirection === MangaReadingDirection.RTL
+
+        setCurrentMapIndex((draft) => {
+            const newIdx = shouldDecrement ? draft - 1 : draft + 1
+            if (paginationMap.hasOwnProperty(newIdx)) {
+                return newIdx
+            }
+            return draft
+        })
+    }, [paginationMap, readingDirection])
+
+    /**
+     * Key bindings for page navigation
+     */
+    React.useEffect(() => {
+        mousetrap.bind(kbsPageLeft, () => onPaginate("left"))
+        mousetrap.bind(kbsPageRight, () => onPaginate("right"))
+        mousetrap.bind("up", () => {
+            containerRef.current?.scrollBy(0, -100)
+        })
+        mousetrap.bind("down", () => {
+            containerRef.current?.scrollBy(0, 100)
+        })
+
+        return () => {
+            mousetrap.unbind(kbsPageLeft)
+            mousetrap.unbind(kbsPageRight)
+            mousetrap.unbind("up")
+            mousetrap.unbind("down")
+        }
+    }, [kbsPageLeft, kbsPageRight, paginationMap, readingDirection])
+
+    /**
+     * Function to handle page navigation when the user clicks on the left or right side of the page
+     */
     const onPageWrapperClick = React.useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (!pageWrapperRef.current) return
 
@@ -169,7 +125,9 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         }
     }, [onPaginate, pageWrapperRef.current])
 
-    // Sync universal page index tracker 'currentIndexAtom' when the user navigates in horizontal mode
+    /**
+     * Update the current page index when the current map index changes
+     */
     React.useEffect(() => {
         if (!pageContainer?.pages?.length) return
 
@@ -193,26 +151,11 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                 pageFit === MangaPageFit.LARGER && "overflow-y-auto",
 
                 // Double page + PageFit = LARGER
-                pageFit === MangaPageFit.LARGER && readingMode === MangaReadingMode.DOUBLE_PAGE && "max-w-[1800px] mx-auto",
+                pageFit === MangaPageFit.LARGER && readingMode === MangaReadingMode.DOUBLE_PAGE && "w-full px-40 mx-auto",
             )}
             ref={containerRef}
             tabIndex={-1}
         >
-            <div className="w-fit right-6 fixed z-[5] flex items-center bottom-2 focus-visible:outline-none">
-                {!!currentPages?.length && (
-                    readingMode === MangaReadingMode.DOUBLE_PAGE ? (
-                        <p className="text-[--muted]">
-                            {currentPages?.length > 1
-                                ? `${currentPages[0] + 1}-${currentPages[1] + 1}`
-                                : currentPages[0] + 1} / {pageContainer?.pages?.length}
-                        </p>
-                    ) : (
-                        <p className="text-[--muted]">
-                            {currentPages[0] + 1} / {pageContainer?.pages?.length}
-                        </p>
-                    )
-                )}
-            </div>
             {/*<div className="absolute w-full h-full right-8 flex z-[5] cursor-pointer" tabIndex={-1}>*/}
             {/*    <div className="h-full w-full flex flex-1 focus-visible:outline-none" onClick={() => onPaginate("left")} tabIndex={-1} />*/}
             {/*    <div className="h-full w-full flex flex-1 focus-visible:outline-none" onClick={() => onPaginate("right")} tabIndex={-1} />*/}
@@ -245,6 +188,9 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                             // readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0]
                             // === index) && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full
                             // before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
+
+                            // Page fit
+                            pageFit === MangaPageFit.LARGER && "h-full",
                         )}
                         id={`page-${index}`}
                     >
@@ -302,24 +248,4 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 
         </div>
     )
-}
-
-function getLowestRecurringNumber(arr: number[]): number | undefined {
-    const counts = new Map<number, number>()
-
-    arr.forEach(num => {
-        counts.set(num, (counts.get(num) || 0) + 1)
-    })
-
-    let highestCount = 0
-    let highestNumber: number | undefined
-
-    counts.forEach((count, num) => {
-        if (count > highestCount) {
-            highestCount = count
-            highestNumber = num
-        }
-    })
-
-    return highestNumber
 }

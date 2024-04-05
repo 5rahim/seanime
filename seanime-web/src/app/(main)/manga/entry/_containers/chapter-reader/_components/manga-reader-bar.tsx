@@ -1,15 +1,19 @@
 import { MangaChapterDetails, MangaEntry, MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
     ChapterReaderSettings,
+    MANGA_PAGE_FIT_OPTIONS,
+    MANGA_PAGE_STRETCH_OPTIONS,
     MANGA_READING_DIRECTION_OPTIONS,
     MANGA_READING_MODE_OPTIONS,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-reader-settings"
 import {
     __manga_currentPageIndexAtom,
-    __manga_isLastPageAtom,
+    __manga_pageFitAtom,
+    __manga_pageStretchAtom,
     __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
+    MangaPageStretch,
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
@@ -42,10 +46,10 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
     const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
     const paginationMap = useAtomValue(__manga_paginationMapAtom)
-
-    const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
+    const pageFit = useAtomValue(__manga_pageFitAtom)
+    const pageStretch = useAtomValue(__manga_pageStretchAtom)
+    const readingMode = useAtomValue(__manga_readingModeAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
-    const isLastPage = useAtomValue(__manga_isLastPageAtom)
 
     const ChapterNavButton = React.useCallback(({ dir }: { dir: "left" | "right" }) => {
         const reversed = (readingDirection === MangaReadingDirection.RTL && (readingMode === MangaReadingMode.PAGED || readingMode === MangaReadingMode.DOUBLE_PAGE))
@@ -100,6 +104,10 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
         }
     }, [selectedChapter, nextChapter, previousChapter, readingDirection, readingMode])
 
+    /**
+     * Format the second part of pagination text
+     * e.g. 1-2 / 10
+     */
     const secondPageText = React.useMemo(() => {
         let secondPageIndex = 0
         for (const [key, values] of Object.entries(paginationMap)) {
@@ -148,12 +156,22 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                     )}
                 </div>}
 
-                <p className="flex gap-4 items-center opacity-50">
+                <p className="flex gap-4 items-center text-[--muted]">
                     <span className="flex items-center gap-1">
+                        <span className="text-white">m:</span>
                         {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
                     </span>
+                    <span className="flex items-center gap-1">
+                        <span className="text-white">f:</span>
+                        {MANGA_PAGE_FIT_OPTIONS.find((option) => option.value === pageFit)?.label}
+                    </span>
+                    {pageStretch !== MangaPageStretch.NONE && <span className="flex items-center gap-1">
+                        <span className="text-white">s:</span>
+                        {MANGA_PAGE_STRETCH_OPTIONS.find((option) => option.value === pageStretch)?.label}
+                    </span>}
                     {readingMode !== MangaReadingMode.LONG_STRIP && (
                         <span className="flex items-center gap-1">
+                            <span className="text-white">d:</span>
                             <span>{MANGA_READING_DIRECTION_OPTIONS.find((option) => option.value === readingDirection)?.label}</span>
                         </span>
                     )}

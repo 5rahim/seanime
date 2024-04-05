@@ -16,6 +16,7 @@ import {
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
+import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader } from "@/components/ui/card"
@@ -68,21 +69,26 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const paginationMap = useAtomValue(__manga_paginationMapAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
 
+    useSwitchSettingsWithKeys()
+
     const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"), selectedChapter?.id)
 
-    // If the reading mode is set to double page but
-    // the pageContainer doesn't have page dimensions, switch to paged mode
+    /**
+     * Switch back to PAGED mode if the page dimensions could not be fetched efficiently
+     */
     React.useEffect(() => {
         if (selectedChapter) {
             if (readingMode === MangaReadingMode.DOUBLE_PAGE && !pageContainerLoading && !pageContainerError && (!pageContainer?.pageDimensions || Object.keys(
                 pageContainer.pageDimensions).length === 0)) {
-                toast.error("Could not efficiently get page dimensions from this provider. Switching to paged mode.")
+                toast.error("Could not get page dimensions from this provider. Switching to paged mode.")
                 setReadingMode(MangaReadingMode.PAGED)
             }
         }
     }, [selectedChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
 
-    // Update the progress when the user confirms
+    /**
+     * Update the progress when the user confirms
+     */
     const { mutate: updateProgress, isPending: isUpdatingProgress } = useSeaMutation<boolean, {
         chapterNumber: number,
         mediaId: number,
@@ -98,8 +104,10 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         },
     })
 
-    // Get the previous and next chapter
-    // Each variable can be undefined
+    /**
+     * Get the previous and next chapters
+     * Either can be undefined
+     */
     const { previousChapter, nextChapter } = React.useMemo(() => {
         if (!chapterContainer?.chapters) return { previousChapter: undefined, nextChapter: undefined }
 
@@ -110,7 +118,10 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         }
     }, [chapterContainer?.chapters, selectedChapter])
 
-    // Check if the progress should be updated
+    /**
+     * Check if the progress should be updated
+     * i.e. User progress is less than the current chapter number
+     */
     const shouldUpdateProgress = React.useMemo(() => {
         const currentChapterNumber = chapterIdToNumbersMap.get(selectedChapter?.id || "")
         if (!currentChapterNumber) return false
@@ -118,10 +129,18 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         return currentChapterNumber > entry.listData.progress
     }, [chapterIdToNumbersMap, entry, selectedChapter])
 
-    // Reset the current page index when the chapter changes
+    /**
+     * Reset the current page index when the pageContainer or chapterContainer changes
+     * This signals that the user has switched chapters
+     */
+    const previousChapterId = React.useRef(selectedChapter?.id)
     React.useEffect(() => {
-        setCurrentPageIndex(0)
-        setCurrentPaginationMapIndex(0)
+        // Avoid resetting the page index when we're still on the same chapter
+        if (selectedChapter?.id !== previousChapterId.current) {
+            setCurrentPageIndex(0)
+            setCurrentPaginationMapIndex(0)
+            previousChapterId.current = selectedChapter?.id
+        }
     }, [pageContainer?.pages, chapterContainer?.chapters])
 
     // Navigation

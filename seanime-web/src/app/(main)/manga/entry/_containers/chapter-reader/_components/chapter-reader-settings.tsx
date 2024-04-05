@@ -254,7 +254,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         onValueChange={(value) => setPageFit(value)}
                         help={<>
                             <p>'Contain': Fit Height</p>
-                            <p>'Larger': Fit Height with some overflow for larger images</p>
+                            <p>'Larger': Height overflow</p>
                             <p>'Cover': Fit Width</p>
                             <p>'True Size': No scaling, raw sizes</p>
                         </>}
@@ -298,8 +298,8 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         size="sm" className="rounded-full" intent="white-subtle"
                         disabled={isDefaultSettings}
                         onClick={() => {
-                            setPageFit(prev => defaultSettings[readingMode].pageFit)
-                            setPageStretch(prev => defaultSettings[readingMode].pageStretch)
+                            setPageFit(defaultSettings[readingMode].pageFit)
+                            setPageStretch(defaultSettings[readingMode].pageStretch)
                         }}
                     >
                         Reset defaults
