@@ -2,6 +2,8 @@ import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
     __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
+    __manga_kbsPageLeft,
+    __manga_kbsPageRight,
     __manga_pageFitAtom,
     __manga_pageGapAtom,
     __manga_pageStretchAtom,
@@ -36,6 +38,9 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const pageGap = useAtomValue(__manga_pageGapAtom)
     const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
     const paginationMap = useAtom(__manga_paginationMapAtom)
+
+    const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
+    const kbsPageRight = useAtomValue(__manga_kbsPageRight)
 
     useHydrateMangaPaginationMap(pageContainer)
 
@@ -98,11 +103,36 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
             containerRef.current?.scrollBy(0, 100)
         })
 
+
         return () => {
             mousetrap.unbind("up")
             mousetrap.unbind("down")
         }
     }, [paginationMap])
+
+    /**
+     * Key bindings for page navigation
+     */
+    React.useEffect(() => {
+        mousetrap.bind(kbsPageLeft, () => {
+            if (currentPageIndex > 0) {
+                const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex - 1}`)
+                pageDiv?.scrollIntoView()
+            }
+
+        })
+        mousetrap.bind(kbsPageRight, () => {
+            if (pageContainer?.pages?.length && currentPageIndex < pageContainer?.pages?.length - 1) {
+                const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex + 1}`)
+                pageDiv?.scrollIntoView()
+            }
+        })
+
+        return () => {
+            mousetrap.unbind(kbsPageLeft)
+            mousetrap.unbind(kbsPageRight)
+        }
+    }, [kbsPageLeft, kbsPageRight, paginationMap])
 
 
     return (

@@ -65,7 +65,7 @@ support transcoding or streaming to other devices (yet).
 
 # Next releases
 
-- [ ] **v1.3.0** - Saturday, 4/5/2024
+- [ ] **v1.3.0** - Saturday, 4/6/2024
 - [x] **v1.2.0** - Monday, 4/1/2024
 - [x] **v1.1.2** - Sunday, 3/24/2024
 - [x] **v1.1.1** - Sunday, 3/24/2024
