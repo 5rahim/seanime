@@ -1,4 +1,3 @@
-import { BetaBadge } from "@/components/application/beta-badge"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import React from "react"
@@ -23,11 +22,11 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
         <>
             <Field.Switch
                 name="enableRichPresence"
-                label={<span className="flex gap-1 items-center">Discord Rich Presence <BetaBadge /></span>}
+                label={<span className="flex gap-1 items-center">Discord Rich Presence</span>}
             />
             <div
                 className={cn(
-                    "flex gap-4 items-center flex-col md:flex-row md:pl-4 !mt-3",
+                    "flex gap-4 items-center flex-col md:flex-row !mt-3",
                     enableRichPresence ? "opacity-100" : "opacity-50 pointer-events-none",
                 )}
             >

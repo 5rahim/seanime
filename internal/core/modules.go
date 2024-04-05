@@ -217,7 +217,7 @@ func (a *App) InitOrRefreshModules() {
 		// Set AutoDownloader qBittorrent client
 		a.AutoDownloader.SetTorrentClientRepository(a.TorrentClientRepository)
 	} else {
-		a.Logger.Warn().Msg("app: Did not initialize qBittorrent module, no settings found")
+		a.Logger.Warn().Msg("app: Did not initialize torrent client module, no settings found")
 	}
 
 	// +---------------------+
@@ -236,8 +236,6 @@ func (a *App) InitOrRefreshModules() {
 	// Initialize library watcher
 	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
 		a.initLibraryWatcher(settings.Library.LibraryPath)
-	} else {
-		a.Logger.Warn().Msg("app: Did not initialize watcher module, no settings found")
 	}
 
 	// +---------------------+

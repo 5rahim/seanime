@@ -24,6 +24,7 @@ export function useAnilistAdvancedSearch() {
                 averageScore_greater: __advancedSearch_getValue(params.minScore) !== undefined ? __advancedSearch_getValue(params.minScore) : undefined,
                 sort: (params.title?.length && params.title.length > 0) ? ["SEARCH_MATCH", ...(__advancedSearch_getValue(params.sorting) || ["SCORE_DESC"])] : (__advancedSearch_getValue(params.sorting) || ["SCORE_DESC"]),
                 status: params.sorting?.includes("START_DATE_DESC") ? (__advancedSearch_getValue(params.status)?.filter((n: string) => n !== "NOT_YET_RELEASED") || ["FINISHED", "RELEASING"]) : __advancedSearch_getValue(params.status),
+                isAdult: params.isAdult,
             }
 
             return buildSeaQuery<ListMediaQuery>({

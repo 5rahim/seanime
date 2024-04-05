@@ -67,7 +67,7 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 
 	// Create a new client if rich presence is enabled
 	if settings.EnableRichPresence {
-		p.logger.Debug().Msg("discord rpc: rich presence enabled")
+		p.logger.Info().Msg("discord rpc: Discord Rich Presence enabled")
 		p.setClient()
 	} else {
 		p.client = nil

@@ -7,15 +7,17 @@ import {
     ADVANCED_SEARCH_STATUS,
 } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
 import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { Select } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { getYear } from "date-fns"
 import { useSetAtom } from "jotai"
-import { useAtom } from "jotai/react"
+import { useAtom, useAtomValue } from "jotai/react"
 import React, { useState } from "react"
 import { BiTrash } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
@@ -23,6 +25,7 @@ import { useUpdateEffect } from "react-use"
 
 export function AdvancedSearchOptions() {
 
+    const serverStatus = useAtomValue(serverStatusAtom)
     const [params, setParams] = useAtom(__advancedSearch_paramsAtom)
 
     return (
@@ -97,6 +100,15 @@ export function AdvancedSearchOptions() {
                     })}
                     fieldLabelClass="hidden"
                 />
+                {serverStatus?.settings?.anilist?.enableAdultContent && <Switch
+                    label="Adult"
+                    value={params.isAdult}
+                    onValueChange={v => setParams(draft => {
+                        draft.isAdult = v
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />}
                 <IconButton
                     icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
                     setParams({
@@ -109,6 +121,7 @@ export function AdvancedSearchOptions() {
                         season: null,
                         year: null,
                         minScore: null,
+                        isAdult: false,
                     })
                 }}/>
             </div>

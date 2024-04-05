@@ -21,7 +21,12 @@ export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {
 
     const status = useAtomValue(serverStatusAtom)
 
-    if (!entry || entry.media?.status === "NOT_YET_RELEASED" || !status?.settings?.library?.enableOnlinestream) return null
+    if (
+        !entry ||
+        entry.media?.status === "NOT_YET_RELEASED" ||
+        !status?.settings?.library?.enableOnlinestream ||
+        entry.media?.isAdult
+    ) return null
 
     return (
         <>

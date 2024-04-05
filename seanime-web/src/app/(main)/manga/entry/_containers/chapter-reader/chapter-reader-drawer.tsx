@@ -3,6 +3,7 @@ import { useMangaPageContainer } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import { MangaHorizontalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-vertical-reader"
+import { MangaReaderBar } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/manga-reader-bar"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -15,7 +16,6 @@ import {
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
-import { MangaReaderBar } from "@/app/(main)/manga/entry/_containers/chapter-reader/reader-bar/manga-reader-bar"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader } from "@/components/ui/card"

@@ -11,6 +11,7 @@ type Params = {
     season: MediaSeason | null
     year: string | null
     minScore: string | null
+    isAdult: boolean
 }
 
 export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
@@ -23,6 +24,7 @@ export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
     season: null,
     year: null,
     minScore: null,
+    isAdult: false,
 })
 
 export function __advancedSearch_getValue<T extends any>(value: T | ""): any {

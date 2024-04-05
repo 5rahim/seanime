@@ -47,7 +47,9 @@ type Settings struct {
 }
 
 type AnilistSettings struct {
-	HideAudienceScore bool `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
+	HideAudienceScore  bool `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
+	EnableAdultContent bool `gorm:"column:enable_adult_content" json:"enableAdultContent"`
+	BlurAdultContent   bool `gorm:"column:blur_adult_content" json:"blurAdultContent"`
 }
 
 type MediaPlayerSettings struct {

@@ -50,6 +50,7 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
         isLoading,
         isFetching,
         isSuccess,
+        isError,
     }
 }
 

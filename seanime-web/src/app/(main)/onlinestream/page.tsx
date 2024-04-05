@@ -102,6 +102,7 @@ export default function Page() {
         handleChangeEpisodeNumber,
         episodeLoading,
         isErrorEpisodeSource,
+        isErrorProvider,
     } = useOnlinestreamManager({
         mediaId,
         ref,
@@ -233,7 +234,7 @@ export default function Page() {
     })
 
 
-    if (!loadPage || !episodes || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
+    if (!loadPage || !media || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
@@ -304,7 +305,7 @@ export default function Page() {
                                     !theaterMode ? "aspect-video" : "max-h-[75dvh] w-full",
                                 )}
                             >
-                                {!!url ? <MediaPlayer
+                                {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
                                     ref={ref}
                                     crossOrigin="anonymous"
                                     src={{
@@ -525,7 +526,10 @@ export default function Page() {
 
                         <ScrollArea className="relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
                             <div className="space-y-4">
-                                {episodes.sort((a, b) => a.number - b.number)?.map((episode, idx) => {
+                                {(!episodes?.length && !loadPage) && <p>
+                                    No episodes found
+                                </p>}
+                                {episodes?.sort((a, b) => a.number - b.number)?.map((episode, idx) => {
                                     return (
                                         <div
                                             key={idx + (episode.title || "") + episode.number}

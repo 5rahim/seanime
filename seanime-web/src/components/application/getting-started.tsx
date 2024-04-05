@@ -102,6 +102,11 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
                                     },
+                                    anilist: {
+                                        hideAudienceScore: false,
+                                        enableAdultContent: false,
+                                        blurAdultContent: false,
+                                    },
                                 })
                             }}
                             defaultValues={{

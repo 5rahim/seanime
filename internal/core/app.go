@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
@@ -33,6 +32,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -77,32 +77,36 @@ type (
 )
 
 // NewApp creates a new server instance
-func NewApp() *App {
+func NewApp(configOpts *ConfigOptions) *App {
 	logger := util.NewLogger()
+
+	logger.Info().Msgf("app: Seanime %s-%s", constants.Version, constants.VersionName)
+	logger.Info().Msgf("app: OS: %s", runtime.GOOS)
+	logger.Info().Msgf("app: Arch: %s", runtime.GOARCH)
+	logger.Info().Msgf("app: Processor count: %d", runtime.NumCPU())
 
 	previousVersion := constants.Version
 
-	config := &DefaultConfig
-	config.OnVersionChange = append(config.OnVersionChange, func(oldVersion string, newVersion string) {
+	configOpts.OnVersionChange = append(configOpts.OnVersionChange, func(oldVersion string, newVersion string) {
 		logger.Info().Str("prev", oldVersion).Str("current", newVersion).Msg("app: Version change detected")
 		previousVersion = oldVersion
 	})
+
+	// Initialize the config
+	// If the config dir does not exist, it will be created
+	cfg, err := NewConfig(configOpts, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
+	}
+
+	logger.Info().Msgf("app: Data directory: %s", cfg.Data.AppDataDir)
 
 	// Print working directory
 	pwd, err := os.Getwd()
 	if err != nil {
 		logger.Fatal().Err(err).Msg("app: Failed to get working directory")
 	}
-	logger.Debug().Str("path", pwd).Msg("app: Working directory")
-
-	// Initialize the config
-	// If the config file does not exist, it will be created
-	cfg, err := NewConfig(config)
-	if err != nil {
-		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
-	}
-
-	logger.Debug().Str("path", cfg.Data.AppDataDir).Msg("app: Loaded config")
+	logger.Info().Msgf("app: Working directory: %s", pwd)
 
 	// Initialize the database
 	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
@@ -136,7 +140,10 @@ func NewApp() *App {
 	anizipCache := anizip.NewCache()
 
 	// File Cacher
-	fileCacher, _ := filecache.NewCacher(cfg.Cache.Dir)
+	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize file cacher")
+	}
 
 	// Online Stream
 	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{
@@ -157,7 +164,7 @@ func NewApp() *App {
 		Logger:         logger,
 		FileCacher:     fileCacher,
 		BackupDir:      cfg.Manga.BackupDir,
-		ServerURI:      cfg.GetServerURI("0.0.0.0"),
+		ServerURI:      cfg.GetServerURI(),
 		WsEventManager: wsEventManager,
 	})
 
@@ -204,13 +211,13 @@ func NewFiberApp(app *App) *fiber.App {
 		DisableStartupMessage: true,
 	})
 
-	app.Logger.Debug().Msgf("app: Serving web interface from \"%s\"", app.Config.Web.Dir)
+	app.Logger.Info().Msgf("app: Web interface path: %s", app.Config.Web.Dir)
 	fiberApp.Static("/", app.Config.Web.Dir, fiber.Static{
 		Index:    "index.html",
 		Compress: true,
 	})
 
-	app.Logger.Debug().Msgf("app: Serving web assets from \"%s\"", app.Config.Web.AssetDir)
+	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)
 	fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{
 		Index:    "index.html",
 		Compress: false,
@@ -257,20 +264,13 @@ func NewFiberApp(app *App) *fiber.App {
 
 // RunServer starts the server
 func RunServer(app *App, fiberApp *fiber.App) {
-	addr := fmt.Sprintf("%s:%d", app.Config.Server.Host, app.Config.Server.Port)
-
+	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
 	// Start the server
 	go func() {
-		log.Fatal(fiberApp.Listen(addr))
+		log.Fatal(fiberApp.Listen(app.Config.GetServerAddr()))
 	}()
 
-	pAddr := fmt.Sprintf("http://%s:%d", app.Config.Server.Host, app.Config.Server.Port)
-	if app.Config.Server.Host == "" {
-		pAddr = fmt.Sprintf(":%d", app.Config.Server.Port)
-	}
-
-	app.Logger.Info().Msg("Seanime started at " + pAddr)
-
+	app.Logger.Info().Msg("Seanime started at " + app.Config.GetServerURI())
 }
 
 func (a *App) Cleanup() {

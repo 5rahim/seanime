@@ -53,7 +53,7 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
                     transition={{ duration: 0.7, delay: 0.4 }}
                     className="relative z-[4]"
                 >
-                    <div className="space-y-8 p-6 sm:p-8 lg:max-w-[50%] 2xl:max-w-[60rem] relative">
+                    <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[60rem] relative">
                         <motion.div
                             {...{
                                 initial: { opacity: 0 },

@@ -15,9 +15,9 @@ require (
 	github.com/glebarez/sqlite v1.9.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gocolly/colly v1.2.0
-	github.com/gofiber/contrib/fiberzerolog v0.2.3
+	github.com/gofiber/contrib/fiberzerolog v1.0.0
 	github.com/gofiber/contrib/websocket v1.3.0
-	github.com/gofiber/fiber/v2 v2.52.1
+	github.com/gofiber/fiber/v2 v2.52.2
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
@@ -26,6 +26,7 @@ require (
 	github.com/rs/zerolog v1.32.0
 	github.com/samber/lo v1.39.0
 	github.com/sourcegraph/conc v0.3.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xfrr/goffmpeg v1.0.0
@@ -52,6 +53,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hekmon/cunits/v2 v2.1.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

@@ -27,7 +27,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
 
     const { mediaId, ref: playerRef } = props
 
-    const { episodes, media, isFetching, isLoading, isSuccess } = useOnlinestreamEpisodeList(mediaId)
+    const { episodes, media, isFetching, isLoading, isSuccess, isError } = useOnlinestreamEpisodeList(mediaId)
 
     const {
         episodeSource,
@@ -191,6 +191,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         handleChangeEpisodeNumber,
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
         isErrorEpisodeSource,
+        isErrorProvider: isError,
         opts: {
             currentEpisodeDetails: episodeDetails,
             servers,

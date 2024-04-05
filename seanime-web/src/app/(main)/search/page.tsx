@@ -38,6 +38,7 @@ export default function Page({ params: urlParams }: {
             season: urlParams.season || null,
             year: urlParams.year || null,
             minScore: null,
+            isAdult: false,
         })
     })
 

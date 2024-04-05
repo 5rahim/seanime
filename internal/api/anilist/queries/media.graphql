@@ -103,6 +103,10 @@ query MediaDetailsById ($id: Int) {
         node {
           mediaRecommendation {
             id
+            idMal
+            siteUrl
+            status(version: 2)
+            isAdult
             season
             type
             format

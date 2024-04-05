@@ -27,6 +27,8 @@ export type DiscordSettings = {
 
 export type AnilistSettings = {
     hideAudienceScore: boolean
+    enableAdultContent: boolean
+    blurAdultContent: boolean
 }
 
 export type MediaPlayerSettings = {

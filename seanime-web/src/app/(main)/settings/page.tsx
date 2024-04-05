@@ -110,6 +110,8 @@ export default function Page() {
                         },
                         anilist: {
                             hideAudienceScore: data.hideAudienceScore,
+                            enableAdultContent: data.enableAdultContent,
+                            blurAdultContent: data.blurAdultContent,
                         },
                     })
                 }}
@@ -147,6 +149,8 @@ export default function Page() {
                     enableRichPresence: status?.settings?.discord?.enableRichPresence ?? false,
                     enableAnimeRichPresence: status?.settings?.discord?.enableAnimeRichPresence ?? false,
                     enableMangaRichPresence: status?.settings?.discord?.enableMangaRichPresence ?? false,
+                    enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
+                    blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
                 }}
                 stackClass="space-y-4"
             >
@@ -213,6 +217,18 @@ export default function Page() {
                                 label="Hide audience score"
                                 help="If enabled, the audience score will be hidden until you decide to view it."
                             />
+
+                            <Field.Switch
+                                name="enableAdultContent"
+                                label="Enable adult content"
+                                help="If enabled, adult content will be displayed in search results."
+                            />
+                            <Field.Switch
+                                name="blurAdultContent"
+                                label="Blur adult content"
+                                help="If enabled, adult content will be blurred."
+                            />
+
                             <Separator />
 
                             <h3>Features</h3>

@@ -17,6 +17,7 @@ func ListMediaM(
 	Season *MediaSeason,
 	SeasonYear *int,
 	Format *MediaFormat,
+	IsAdult *bool,
 	logger *zerolog.Logger,
 ) (*ListMedia, error) {
 
@@ -51,6 +52,9 @@ func ListMediaM(
 	if Format != nil {
 		variables["format"] = *Format
 	}
+	if IsAdult != nil {
+		variables["isAdult"] = *IsAdult
+	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"query":     ListMediaQuery,
@@ -76,6 +80,7 @@ func ListMediaM(
 
 	return &listMediaF, nil
 }
+
 func ListMangaM(
 	Page *int,
 	Search *string,
@@ -87,6 +92,7 @@ func ListMangaM(
 	Season *MediaSeason,
 	SeasonYear *int,
 	Format *MediaFormat,
+	IsAdult *bool,
 	logger *zerolog.Logger,
 ) (*ListManga, error) {
 
@@ -120,6 +126,9 @@ func ListMangaM(
 	}
 	if Format != nil {
 		variables["format"] = *Format
+	}
+	if IsAdult != nil {
+		variables["isAdult"] = *IsAdult
 	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{
@@ -211,6 +220,7 @@ func ListMediaCacheKey(
 	Season *MediaSeason,
 	SeasonYear *int,
 	Format *MediaFormat,
+	IsAdult *bool,
 ) string {
 
 	key := "ListMedia"
@@ -243,6 +253,9 @@ func ListMediaCacheKey(
 	}
 	if Format != nil {
 		key += fmt.Sprintf("_%s", *Format)
+	}
+	if IsAdult != nil {
+		key += fmt.Sprintf("_%t", *IsAdult)
 	}
 
 	return key
@@ -289,6 +302,7 @@ const ListMediaQuery = `query ListMedia(
       $season: MediaSeason
       $seasonYear: Int
       $format: MediaFormat
+      $isAdult: Boolean
     ) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -303,7 +317,7 @@ const ListMediaQuery = `query ListMedia(
           search: $search
           sort: $sort
           status_in: $status
-          isAdult: false
+          isAdult: $isAdult
           format: $format
           genre_in: $genres
           averageScore_greater: $averageScore_greater
@@ -375,6 +389,7 @@ const ListMangaQuery = `query ListManga(
       $season: MediaSeason
       $seasonYear: Int
       $format: MediaFormat
+      $isAdult: Boolean
     ) {
         Page(page: $page, perPage: $perPage){
 		pageInfo{
@@ -384,7 +399,7 @@ const ListMangaQuery = `query ListManga(
 		  currentPage
 		  lastPage
 		},
-		media(type: MANGA, isAdult: false, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+		media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
 		  ...basicManga
 		}
 	  }

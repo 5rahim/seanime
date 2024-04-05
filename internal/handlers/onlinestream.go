@@ -41,9 +41,9 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 	// Get episode list
 	// This is cached using file cache
 	episodes, err := c.App.Onlinestream.GetMediaEpisodes(b.Provider, media, b.Dubbed)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
+	//if err != nil {
+	//	return c.RespondWithError(err)
+	//}
 
 	ret := struct {
 		Episodes []*onlinestream.Episode `json:"episodes"`

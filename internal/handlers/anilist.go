@@ -186,6 +186,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		Season              *anilist.MediaSeason   `json:"season,omitempty"`
 		SeasonYear          *int                   `json:"seasonYear,omitempty"`
 		Format              *anilist.MediaFormat   `json:"format,omitempty"`
+		IsAdult             *bool                  `json:"isAdult,omitempty"`
 	}
 
 	p := new(body)
@@ -196,6 +197,11 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 	if p.Page == nil || p.PerPage == nil {
 		*p.Page = 1
 		*p.PerPage = 20
+	}
+
+	isAdult := false
+	if p.IsAdult != nil {
+		isAdult = *p.IsAdult && c.App.Settings.Anilist.EnableAdultContent
 	}
 
 	cacheKey := anilist.ListMediaCacheKey(
@@ -209,6 +215,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		p.Season,
 		p.SeasonYear,
 		p.Format,
+		&isAdult,
 	)
 
 	cached, ok := anilistListMediaCache.Get(cacheKey)
@@ -227,6 +234,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		p.Season,
 		p.SeasonYear,
 		p.Format,
+		&isAdult,
 		c.App.Logger,
 	)
 	if err != nil {

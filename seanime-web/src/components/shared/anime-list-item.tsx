@@ -44,7 +44,7 @@ const actionPopupHoverAtom = atom<number | undefined>(undefined)
 
 export const AnimeListItem = ((props: AnimeListItemProps) => {
 
-    const status = useAtomValue(serverStatusAtom)
+    const serverStatus = useAtomValue(serverStatusAtom)
     const {
         media,
         listData: _listData,
@@ -64,7 +64,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
     const showProgressBar = (!!listData?.progress && (isManga ? !!media?.episodes : !!(media as any)?.chapters) && listData?.status !== "COMPLETED")
-    const showTrailer = _showTrailer && !libraryData // Show trailer only if libraryData is not available
+    const showTrailer = _showTrailer && !libraryData && !media?.isAdult // Show trailer only if libraryData is not available
 
     const link = !isManga ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
 
@@ -206,7 +206,10 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} type={!isManga ? "anime" : "manga"} />}
 
                         {withAudienceScore &&
-                            <AnimeEntryAudienceScore meanScore={media.meanScore} hideAudienceScore={status?.settings?.anilist?.hideAudienceScore} />}
+                            <AnimeEntryAudienceScore
+                                meanScore={media.meanScore}
+                                hideAudienceScore={serverStatus?.settings?.anilist?.hideAudienceScore}
+                            />}
 
                     </div>
                 </div>
@@ -284,6 +287,10 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                         sizes="20rem"
                         className="object-cover object-center group-hover/anime-list-item:scale-125 transition"
                     />
+
+                    {serverStatus?.settings?.anilist?.blurAdultContent && media.isAdult && <div
+                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] border-4"
+                    ></div>}
                 </div>
             </Link>
             <div className="pt-2 space-y-2 flex flex-col justify-between h-full">
@@ -309,15 +316,15 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link 
     link: string
 }) => {
 
-    const status = useAtomValue(serverStatusAtom)
+    const serverStatus = useAtomValue(serverStatusAtom)
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
     const [actionPopupHoverId] = useAtom(actionPopupHoverAtom)
     const actionPopupHover = actionPopupHoverId === media.id
-    const [trailerEnabled, setTrailerEnabled] = useState(!!media?.trailer?.id && !status?.settings?.library?.disableAnimeCardTrailers && showTrailer)
+    const [trailerEnabled, setTrailerEnabled] = useState(!!media?.trailer?.id && !serverStatus?.settings?.library?.disableAnimeCardTrailers && showTrailer)
 
     React.useEffect(() => {
-        setTrailerEnabled(!!media?.trailer?.id && !status?.settings?.library?.disableAnimeCardTrailers && showTrailer)
-    }, [!!media?.trailer?.id, !status?.settings?.library?.disableAnimeCardTrailers, showTrailer])
+        setTrailerEnabled(!!media?.trailer?.id && !serverStatus?.settings?.library?.disableAnimeCardTrailers && showTrailer)
+    }, [!!media?.trailer?.id, !serverStatus?.settings?.library?.disableAnimeCardTrailers, showTrailer])
 
     const Content = (
         <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2 cursor-pointer">
@@ -347,6 +354,10 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link 
                 )}
             /> : <div
                 className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent"
+            ></div>}
+
+            {serverStatus?.settings?.anilist?.blurAdultContent && media.isAdult && <div
+                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] border-2"
             ></div>}
 
             {(trailerEnabled && actionPopupHover) && <video

@@ -49,6 +49,7 @@ func TestListMedia(t *testing.T) {
 		Season              *MediaSeason
 		SeasonYear          *int
 		Format              *MediaFormat
+		IsAdult             *bool
 	}{
 		{
 			name:                "Popular",
@@ -62,6 +63,7 @@ func TestListMedia(t *testing.T) {
 			Season:              nil,
 			SeasonYear:          nil,
 			Format:              nil,
+			IsAdult:             nil,
 		},
 	}
 
@@ -79,6 +81,7 @@ func TestListMedia(t *testing.T) {
 				tt.Season,
 				tt.SeasonYear,
 				tt.Format,
+				tt.IsAdult,
 			)
 
 			t.Log(cacheKey)
@@ -94,6 +97,7 @@ func TestListMedia(t *testing.T) {
 				tt.Season,
 				tt.SeasonYear,
 				tt.Format,
+				tt.IsAdult,
 				util.NewLogger(),
 			)
 			assert.NoError(t, err)

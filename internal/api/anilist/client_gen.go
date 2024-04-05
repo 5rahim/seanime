@@ -5221,6 +5221,10 @@ func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_T
 
 type MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation struct {
 	ID          int                                                                               "json:\"id\" graphql:\"id\""
+	IDMal       *int                                                                              "json:\"idMal,omitempty\" graphql:\"idMal\""
+	SiteURL     *string                                                                           "json:\"siteUrl,omitempty\" graphql:\"siteUrl\""
+	Status      *MediaStatus                                                                      "json:\"status,omitempty\" graphql:\"status\""
+	IsAdult     *bool                                                                             "json:\"isAdult,omitempty\" graphql:\"isAdult\""
 	Season      *MediaSeason                                                                      "json:\"season,omitempty\" graphql:\"season\""
 	Type        *MediaType                                                                        "json:\"type,omitempty\" graphql:\"type\""
 	Format      *MediaFormat                                                                      "json:\"format,omitempty\" graphql:\"format\""
@@ -5239,6 +5243,30 @@ func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) 
 		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
 	}
 	return t.ID
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetIDMal() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.IDMal
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetSiteURL() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.SiteURL
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetStatus() *MediaStatus {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.Status
+}
+func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetIsAdult() *bool {
+	if t == nil {
+		t = &MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation{}
+	}
+	return t.IsAdult
 }
 func (t *MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation) GetSeason() *MediaSeason {
 	if t == nil {
@@ -7770,6 +7798,10 @@ const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
 				node {
 					mediaRecommendation {
 						id
+						idMal
+						siteUrl
+						status(version: 2)
+						isAdult
 						season
 						type
 						format
