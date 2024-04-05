@@ -241,7 +241,9 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anilistListMediaCache.SetT(cacheKey, ret, time.Minute*10)
+	if ret != nil {
+		anilistListMediaCache.SetT(cacheKey, ret, time.Minute*10)
+	}
 
 	return c.RespondWithData(ret)
 }

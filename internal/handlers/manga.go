@@ -400,7 +400,9 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anilistListMangaCache.SetT(cacheKey, ret, time.Minute*10)
+	if ret != nil {
+		anilistListMangaCache.SetT(cacheKey, ret, time.Minute*10)
+	}
 
 	return c.RespondWithData(ret)
 }

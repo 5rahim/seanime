@@ -17,6 +17,7 @@ import React from "react"
 import { BiBookAlt } from "react-icons/bi"
 import { FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
+import { IoBookOutline } from "react-icons/io5"
 
 type ChaptersListProps = {
     mediaId: string | null
@@ -97,7 +98,15 @@ export function ChaptersList(props: ChaptersListProps) {
         {
             accessorKey: "title",
             header: "Name",
+            size: 10,
+        },
+        {
+            header: "Number",
             size: 90,
+            enableSorting: true,
+            accessorFn: (row) => {
+                return chapterIdToNumbersMap.get(row.id)
+            },
         },
         {
             id: "_actions",
@@ -117,7 +126,7 @@ export function ChaptersList(props: ChaptersListProps) {
                 )
             },
         },
-    ]), [])
+    ]), [chapterIdToNumbersMap])
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer])
     const chapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
@@ -164,18 +173,26 @@ export function ChaptersList(props: ChaptersListProps) {
                             itemClass="border-b"
                             contentClass="pb-8"
                             collapsible
+                            defaultValue={!unreadChapters.length ? "all" : undefined}
                         >
                             <AccordionItem value="all">
                                 <AccordionTrigger>
                                     <h3 className="flex p-1 gap-2 items-center"><BiBookAlt className="text-gray-300" /> All chapters</h3>
                                 </AccordionTrigger>
-                                <AccordionContent className="p-1 space-y-2 max-h-[75dvh] overflow-y-auto">
+                                <AccordionContent className="p-0 pb-1 space-y-2">
                                     <DataGrid<MangaChapterDetails>
                                         columns={columns}
                                         data={chapters}
                                         rowCount={chapters.length}
                                         isLoading={chapterContainerLoading}
                                         rowSelectionPrimaryKey={"id"}
+                                        initialState={{
+                                            pagination: {
+                                                pageIndex: 0,
+                                                pageSize: 10,
+                                            },
+                                        }}
+                                        className="border rounded-md bg-[--paper] p-4"
                                     />
                                     {/*{chapterContainer?.chapters?.toReversed()?.map((chapter) => (*/}
                                     {/*    <ChapterItem*/}
@@ -192,26 +209,52 @@ export function ChaptersList(props: ChaptersListProps) {
                         </Accordion>
 
 
-                        <h3 className="px-1">Unread chapters</h3>
-                        <div className="p-1 space-y-2">
-                            {/*{chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (*/}
-                            {/*    <ChapterItem*/}
-                            {/*        chapter={chapter}*/}
-                            {/*        key={chapter.id}*/}
-                            {/*        // chapterBackups={chapterBackups}*/}
-                            {/*        // handleDownloadChapter={handleDownloadChapter}*/}
-                            {/*        // downloadProgressMap={downloadProgressMap}*/}
-                            {/*        // isSendingDownloadRequest={false}*/}
-                            {/*    />*/}
-                            {/*))}*/}
-                            <DataGrid<MangaChapterDetails>
-                                columns={columns}
-                                data={unreadChapters}
-                                rowCount={unreadChapters.length}
-                                isLoading={chapterContainerLoading}
-                                rowSelectionPrimaryKey={"id"}
-                            />
-                        </div>
+                        {!!unreadChapters?.length && (
+                            <>
+                                <div className="flex gap-2 items-center w-full pb-2">
+                                    <h3 className="px-1">Unread chapters</h3>
+                                    <div className="flex flex-1"></div>
+                                    <div>
+                                        <Button
+                                            intent="white"
+                                            rounded
+                                            leftIcon={<IoBookOutline />}
+                                            onClick={() => {
+                                                setSelectedChapter(unreadChapters[0])
+                                            }}
+                                        >
+                                            Continue reading
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    {/*{chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)).map((chapter) => (*/}
+                                    {/*    <ChapterItem*/}
+                                    {/*        chapter={chapter}*/}
+                                    {/*        key={chapter.id}*/}
+                                    {/*        // chapterBackups={chapterBackups}*/}
+                                    {/*        // handleDownloadChapter={handleDownloadChapter}*/}
+                                    {/*        // downloadProgressMap={downloadProgressMap}*/}
+                                    {/*        // isSendingDownloadRequest={false}*/}
+                                    {/*    />*/}
+                                    {/*))}*/}
+                                    <DataGrid<MangaChapterDetails>
+                                        columns={columns}
+                                        data={unreadChapters}
+                                        rowCount={unreadChapters.length}
+                                        isLoading={chapterContainerLoading}
+                                        rowSelectionPrimaryKey={"id"}
+                                        initialState={{
+                                            pagination: {
+                                                pageIndex: 0,
+                                                pageSize: 10,
+                                            },
+                                        }}
+                                        className="border rounded-md bg-[--paper] p-4"
+                                    />
+                                </div>
+                            </>
+                        )}
 
                         {chapterContainer && <ChapterReaderDrawer
                             entry={entry}

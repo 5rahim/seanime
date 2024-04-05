@@ -45,32 +45,32 @@ archives:
       - web/*
       - LICENSE
 
-nfpms:
-  - file_name_template: '{{- .ProjectName }}-
-      {{- .Version }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end -}}'
-    homepage: 'https://github.com/5rahim/seanime'
-    maintainer: 5rahim <talkwithrahim@gmail.com>
-    description: |-
-      Enhance your local anime library experience!
-    license: MIT
-
-    bindir: /usr/local/bin
-    section: utils
-
-    deb:
-      lintian_overrides:
-        - statically-linked-binary
-        - changelog-file-missing-in-native-package
-
-
-    formats:
-      - deb
-      - rpm
+#nfpms:
+#  - file_name_template: '{{- .ProjectName }}-
+#      {{- .Version }}_
+#      {{- title .Os }}_
+#      {{- if eq .Arch "amd64" }}x86_64
+#      {{- else if eq .Arch "386" }}i386
+#      {{- else }}{{ .Arch }}{{ end }}
+#      {{- if .Arm }}v{{ .Arm }}{{ end -}}'
+#    homepage: 'https://github.com/5rahim/seanime'
+#    maintainer: 5rahim <talkwithrahim@gmail.com>
+#    description: |-
+#      Enhance your local anime library experience!
+#    license: MIT
+#
+#    bindir: /usr/local/bin
+#    section: utils
+#
+#    deb:
+#      lintian_overrides:
+#        - statically-linked-binary
+#        - changelog-file-missing-in-native-package
+#
+#
+#    formats:
+#      - deb
+#      - rpm
 
 
 release:
