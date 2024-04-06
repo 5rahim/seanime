@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/inconshreveable/mousetrap"
 	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/cron"
 	"github.com/seanime-app/seanime/internal/handlers"
 	"github.com/spf13/cobra"
 	"os"
+	"runtime"
 )
 
 var rootArgs = struct {
@@ -58,8 +60,30 @@ func main() {
 	fmt.Println()
 	fmt.Println()
 
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if runtime.GOOS == "windows" && mousetrap.StartedByExplorer() {
+		app := core.NewApp(&core.ConfigOptions{
+			DataDir: "",
+		})
+		defer app.Cleanup()
+
+		// Create the fiber app instance
+		fiberApp := core.NewFiberApp(app)
+
+		// Initialize the routes
+		handlers.InitRoutes(app, fiberApp)
+
+		// Run the server
+		core.RunServer(app, fiberApp)
+
+		// Run the jobs in the background
+		cron.RunJobs(app)
+
+		select {}
+	} else {
+
+		if err := rootCmd.Execute(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 }
