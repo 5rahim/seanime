@@ -26,7 +26,7 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 
 	// If the account is nil, return false
 	if a.account == nil {
-		return nil, errors.New("no account was found")
+		return nil, nil
 	}
 
 	// Else, get the collection from Anilist
@@ -57,7 +57,7 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 func (a *App) GetAccount() (*models.Account, error) {
 
 	if a.account == nil {
-		return nil, errors.New("no account was found")
+		return nil, nil
 	}
 
 	if a.account.Username == "" {
@@ -91,7 +91,7 @@ func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 
 	// If the account is nil, return false
 	if a.account == nil {
-		return nil, errors.New("no account was found")
+		return nil, nil
 	}
 
 	// Else, get the collection from Anilist

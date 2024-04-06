@@ -29,7 +29,7 @@ func New(settings *models.DiscordSettings, logger *zerolog.Logger) *Presence {
 		var err error
 		client, err = discordrpc_client.New(constants.DiscordApplicationId)
 		if err != nil {
-			logger.Error().Err(err).Msg("discord rpc: rich presence enabled but failed to create discord rpc client")
+			logger.Error().Err(err).Msg("discordrpc: rich presence enabled but failed to create discord rpc client")
 		}
 	}
 
@@ -67,7 +67,7 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 
 	// Create a new client if rich presence is enabled
 	if settings.EnableRichPresence {
-		p.logger.Info().Msg("discord rpc: Discord Rich Presence enabled")
+		p.logger.Info().Msg("discordrpc: Discord Rich Presence enabled")
 		p.setClient()
 	} else {
 		p.client = nil
@@ -82,7 +82,7 @@ func (p *Presence) setClient() {
 	if p.client == nil {
 		client, err := discordrpc_client.New(constants.DiscordApplicationId)
 		if err != nil {
-			p.logger.Error().Err(err).Msg("discord rpc: rich presence enabled but failed to create discord rpc client")
+			p.logger.Error().Err(err).Msg("discordrpc: rich presence enabled but failed to create discord rpc client")
 			return
 		}
 		p.client = client
@@ -184,7 +184,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()
 
-	p.logger.Debug().Msgf("discord rpc: setting anime activity: %s", a.Title)
+	p.logger.Debug().Msgf("discordrpc: setting anime activity: %s", a.Title)
 	_ = p.client.SetActivity(activity)
 	p.lastSet = time.Now()
 }
@@ -217,7 +217,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()
 
-	p.logger.Debug().Msgf("discord rpc: setting manga activity: %s", a.Title)
+	p.logger.Debug().Msgf("discordrpc: setting manga activity: %s", a.Title)
 	_ = p.client.SetActivity(activity)
 	p.lastSet = time.Now()
 }

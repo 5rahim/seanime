@@ -18,6 +18,7 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
+import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
@@ -44,7 +45,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
     const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
 
-    const currentPageIndex = useAtomValue(__manga_currentPageIndexAtom)
+    const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
     const paginationMap = useAtomValue(__manga_paginationMapAtom)
     const pageFit = useAtomValue(__manga_pageFitAtom)
     const pageStretch = useAtomValue(__manga_pageStretchAtom)
@@ -148,13 +149,35 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
                 <div className="flex flex-1"></div>
 
-                {pageContainer && <div className="w-fit z-[5] flex items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>
+                {pageContainer && <Badge
+                    size="lg"
+                    className="w-fit rounded-md z-[5] flex bg-gray-950 items-center bottom-2 focus-visible:outline-none"
+                    tabIndex={-1}
+                >
                     {!!(currentPageIndex + 1) && (
                         <p className="">
-                            {currentPageIndex + 1}{secondPageText} / {pageContainer?.pages?.length}
+                            {currentPageIndex + 1}{secondPageText}<span className="text-[--muted]"> / {pageContainer?.pages?.length}</span>
                         </p>
                     )}
-                </div>}
+                </Badge>}
+
+                {/*{pageContainer && <Popover trigger={*/}
+                {/*    <Badge size="lg" className="w-fit cursor-pointer rounded-md z-[5] flex bg-gray-950 items-center bottom-2 focus-visible:outline-none" tabIndex={-1}>*/}
+                {/*        {!!(currentPageIndex + 1) && (*/}
+                {/*            <p className="">*/}
+                {/*                {currentPageIndex + 1}{secondPageText} <span className="text-[--muted]">/ {pageContainer?.pages?.length}</span>*/}
+                {/*            </p>*/}
+                {/*        )}*/}
+                {/*    </Badge>*/}
+                {/*}>*/}
+                {/*    <Select*/}
+                {/*        options={pageContainer.pages?.map((_, index) => ({ label: String(index + 1), value: String(index) })) ?? []}*/}
+                {/*        value={String(currentPageIndex)}*/}
+                {/*        onValueChange={value => {*/}
+                {/*            setCurrentPageIndex(Number(value))*/}
+                {/*        }}*/}
+                {/*    />*/}
+                {/*</Popover>}*/}
 
                 <p className="flex gap-4 items-center text-[--muted]">
                     <span className="flex items-center gap-1">
