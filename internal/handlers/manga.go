@@ -94,7 +94,7 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	collection, err := c.App.GetMangaCollection(false)
+	anilistCollection, err := c.App.GetMangaCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -104,13 +104,15 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 		Logger:               c.App.Logger,
 		FileCacher:           c.App.FileCacher,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		MangaCollection:      collection,
+		MangaCollection:      anilistCollection,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	baseMangaCache.SetT(entry.MediaId, entry.Media, time.Hour)
+	if entry != nil {
+		baseMangaCache.SetT(entry.MediaId, entry.Media, 1*time.Hour)
+	}
 
 	return c.RespondWithData(entry)
 }

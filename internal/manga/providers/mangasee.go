@@ -54,12 +54,12 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 
 func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 
-	m.logger.Debug().Str("query", opts.Query).Msg("mangasee: searching manga")
+	m.logger.Debug().Str("query", opts.Query).Msg("mangasee: Searching manga")
 
 	searchUrl := fmt.Sprintf("%s/_search.php", m.Url)
 	req, err := http.NewRequest("GET", searchUrl, nil)
 	if err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to create request")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to create request")
 		return nil, err
 	}
 	req.Header.Set("Referer", m.Url)
@@ -67,14 +67,14 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	res, err := m.Client.Do(req)
 	if err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to send request")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to send request")
 		return nil, err
 	}
 	defer res.Body.Close()
 
 	var result []*MangaseeResultItem
 	if err = json.NewDecoder(res.Body).Decode(&result); err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to decode response")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to decode response")
 		return nil, err
 	}
 
@@ -109,7 +109,7 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 
-	m.logger.Debug().Str("mangaId", slug).Msg("mangasee: fetching chapters")
+	m.logger.Debug().Str("mangaId", slug).Msg("mangasee: Fetching chapters")
 
 	chapterUrl := fmt.Sprintf("%s/manga/%s", m.Url, slug)
 
@@ -129,12 +129,12 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 
 	err := c.Visit(chapterUrl)
 	if err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to visit chapter url")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to visit chapter url")
 		return nil, err
 	}
 
 	if chapterData == nil || len(chapterData) == 0 {
-		m.logger.Error().Msg("mangasee: failed to find chapter data")
+		m.logger.Error().Msg("mangasee: Failed to find chapter data")
 		return nil, errors.New("failed to find chapter data")
 	}
 
@@ -159,7 +159,7 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 		}
 	}
 
-	m.logger.Info().Int("count", len(ret)).Msg("mangasee: found chapters")
+	m.logger.Info().Int("count", len(ret)).Msg("mangasee: Found chapters")
 
 	return ret, nil
 }
@@ -167,11 +167,13 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 
 	if !strings.Contains(id, "$") {
+		m.logger.Error().Str("chapterId", id).Msg("mangasee: Invalid chapter id")
 		return nil, errors.New("invalid chapter id")
 	}
 
 	info := strings.Split(id, "$")
 	if len(info) != 2 {
+		m.logger.Error().Str("chapterId", id).Msg("mangasee: Invalid chapter id")
 		return nil, errors.New("invalid chapter id")
 	}
 
@@ -201,23 +203,23 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 
 	err := c.Visit(uri)
 	if err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to visit chapter url")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to visit chapter url")
 		return nil, err
 	}
 
 	if curChapter.Chapter == "" {
-		m.logger.Error().Msg("mangasee: failed to find current chapter data")
+		m.logger.Error().Msg("mangasee: Failed to find current chapter data")
 		return nil, errors.New("failed to find current chapter data")
 	}
 	if curPathname == "" {
-		m.logger.Error().Msg("mangasee: failed to find pathname")
+		m.logger.Error().Msg("mangasee: Failed to find pathname")
 		return nil, errors.New("failed to find pathname")
 	}
 
 	pageCount, err := strconv.Atoi(curChapter.Page)
 	if err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to convert page count")
-		return nil, errors.New("mangasee: failed to convert page count")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to convert page count")
+		return nil, errors.New("failed to convert page count")
 	}
 
 	for i := 0; i < pageCount; i++ {
@@ -233,7 +235,7 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 
 	}
 
-	m.logger.Info().Int("count", len(pages)).Msg("mangasee: found pages")
+	m.logger.Info().Int("count", len(pages)).Msg("mangasee: Found pages")
 
 	return pages, nil
 }
@@ -256,7 +258,7 @@ func (m *Mangasee) getChapterData(script string, i int, ret interface{}) {
 
 	err := json.Unmarshal([]byte(chapters), &ret)
 	if err != nil {
-		m.logger.Error().Err(err).Msg("mangasee: failed to unmarshal chapter data")
+		m.logger.Error().Err(err).Msg("mangasee: Failed to unmarshal chapter data")
 	}
 }
 

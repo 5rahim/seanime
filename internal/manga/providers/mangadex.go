@@ -171,7 +171,6 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 	for page := 0; page <= 1; page++ {
 		uri := fmt.Sprintf("%s/manga/%s/feed?limit=500&translatedLanguage%%5B%%5D=en&includes[]=scanlation_group&includes[]=user&order[volume]=desc&order[chapter]=desc&offset=%d&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic", md.Url, id, 500*page)
 
-		fmt.Println(uri)
 		resp, err := http.Get(uri)
 		if err != nil {
 			return nil, err

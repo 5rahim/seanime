@@ -1,6 +1,5 @@
 "use client"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { BetaBadge } from "@/components/application/beta-badge"
 import { Button } from "@/components/ui/button"
 import { MAL_CLIENT_ID } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
@@ -75,9 +74,9 @@ export default function Page() {
                 <h4>Integration features:</h4>
                 <ul className="[&>li]:flex [&>li]:items-center [&>li]:gap-1.5 [&>li]:truncate">
                     <li><BiCheckCircle className="text-green-300" /> Progress tracking <span className="text-[--muted] italic text-base">
-                        Your progress will be automatically updated on MAL when you watch an episode or read a chapter with Seanime.
+                        Your progress will be automatically updated on MAL whenever you watch an episode or read a chapter with Seanime.
                     </span></li>
-                    <li><BiXCircle className="text-red-400" /> List synchronization <BetaBadge />
+                    <li><BiXCircle className="text-red-400" /> List synchronization
                         <span className="text-[--muted] italic text-base">
                             To sync your lists, use a third-party service like MAL-Sync.
                     </span>

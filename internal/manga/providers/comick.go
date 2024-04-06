@@ -71,7 +71,7 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 
 func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 
-	c.logger.Debug().Str("query", opts.Query).Msg("comick: searching manga")
+	c.logger.Debug().Str("query", opts.Query).Msg("comick: Searching manga")
 
 	searchUrl := fmt.Sprintf("%s/v1.0/search?q=%s&limit=25&page=1", c.Url, url.QueryEscape(opts.Query))
 	if opts.Year != 0 {
@@ -80,7 +80,7 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	req, err := http.NewRequest("GET", searchUrl, nil)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to create request")
+		c.logger.Error().Err(err).Msg("comick: Failed to create request")
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
@@ -89,13 +89,13 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to send request")
+		c.logger.Error().Err(err).Msg("comick: Failed to send request")
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
 	var data []*ComicKResultItem
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to decode response")
+		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
@@ -135,18 +135,18 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	ret := make([]*ChapterDetails, 0)
 
-	c.logger.Debug().Str("mangaId", id).Msg("comick: fetching chapters")
+	c.logger.Debug().Str("mangaId", id).Msg("comick: Fetching chapters")
 
 	uri := fmt.Sprintf("%s/comic/%s/chapters?lang=en&page=0&limit=1000000&chap-order=1", c.Url, id)
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to create request")
+		c.logger.Error().Err(err).Msg("comick: Failed to create request")
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to send request")
+		c.logger.Error().Err(err).Msg("comick: Failed to send request")
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 	defer resp.Body.Close()
@@ -156,7 +156,7 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to decode response")
+		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
@@ -182,9 +182,6 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 		}
 		title = strings.TrimSpace(title)
 
-		if chapter.Chap == "45" {
-			fmt.Println(title)
-		}
 		prev, ok := chaptersMap[chapter.Chap]
 		rating := chapter.UpCount - chapter.DownCount
 
@@ -216,25 +213,25 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 
 	ret = append(ret, chapters...)
 
-	c.logger.Info().Int("count", len(ret)).Msg("comick: found chapters")
+	c.logger.Info().Int("count", len(ret)).Msg("comick: Found chapters")
 
 	return ret, nil
 }
 func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	ret := make([]*ChapterPage, 0)
 
-	c.logger.Debug().Str("chapterId", id).Msg("comick: fetching chapter pages")
+	c.logger.Debug().Str("chapterId", id).Msg("comick: Fetching chapter pages")
 
 	uri := fmt.Sprintf("%s/chapter/%s", c.Url, id)
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to create request")
+		c.logger.Error().Err(err).Msg("comick: Failed to create request")
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to send request")
+		c.logger.Error().Err(err).Msg("comick: Failed to send request")
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 	defer resp.Body.Close()
@@ -244,12 +241,12 @@ func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("comick: failed to decode response")
+		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	if data.Chapter == nil {
-		c.logger.Error().Msg("comick: chapter not found")
+		c.logger.Error().Msg("comick: Chapter not found")
 		return nil, fmt.Errorf("chapter not found")
 	}
 
