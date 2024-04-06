@@ -23,15 +23,15 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Discover new anime, browse entries, get recommendations
 - **Local anime library**
   - Scan your local anime library effortlessly
-  - No mandatory folder structure or naming convention
+  - **No mandatory folder structure** or naming convention
   - Browse and manage your library with metadata
   - Support for torrents with absolute episode numbers
   - **Download new episodes & movies**
-    - Smart search engine powered by AnimeTosho, Nyaa, SeaDex
-    - Integration with qBittorrent & Transmission
+    - Smart search engine powered by public trackers (AnimeTosho, Nyaa), SeaDex
+    - Integration with **qBittorrent** & **Transmission**
     - **Automate** downloading new episodes by using custom filters
   - **Media players**
-    - MPV, VLC, and MPC-HC support
+    - **MPV**, **VLC**, and **MPC-HC** support
     - Sync progress to AniList (& MAL)
     - Create **playlists** and queue episodes
 - **Manga**
@@ -39,10 +39,9 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Fetch manga chapters from online sources
   - Read manga chapters from built-in reader
 - **Online streaming**
-  - Stream episodes from online sources using built-in player
+  - Stream episodes from online sources using a built-in player
   - Support for multiple sources
 - **MyAnimeList integration**
-  - Sync your anime lists between AniList and MyAnimeList (Experimental)
   - Automatically update your progress on MyAnimeList
 - **No data collection**
 

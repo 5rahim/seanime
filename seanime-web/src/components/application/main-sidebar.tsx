@@ -30,7 +30,6 @@ import { FaBookReader, FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
 import { LuLayoutDashboard } from "react-icons/lu"
-import { MdSyncAlt } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
 
@@ -171,12 +170,12 @@ export function MainSidebar() {
                                 href: "/scan-summaries",
                                 isCurrent: pathname === "/scan-summaries",
                             },
-                            {
-                                iconType: MdSyncAlt,
-                                name: "List sync",
-                                href: "/list-sync",
-                                isCurrent: pathname === "/list-sync",
-                            },
+                            // {
+                            //     iconType: MdSyncAlt,
+                            //     name: "List sync",
+                            //     href: "/list-sync",
+                            //     isCurrent: pathname === "/list-sync",
+                            // },
                             {
                                 iconType: FiSearch,
                                 name: "Search",

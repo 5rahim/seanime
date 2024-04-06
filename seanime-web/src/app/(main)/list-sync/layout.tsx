@@ -1,14 +1,23 @@
-import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
+"use client"
+import { useRouter } from "next/navigation"
 import React from "react"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 
-    return (
-        <>
-            {/*[CUSTOM UI]*/}
-            <CustomBackgroundImage />
-            {children}
-        </>
-    )
+    const router = useRouter()
+
+    React.useEffect(() => {
+        router.push("/")
+    }, [])
+
+    return null
+
+    // return (
+    //     <>
+    //         {/*[CUSTOM UI]*/}
+    //         <CustomBackgroundImage />
+    //         {children}
+    //     </>
+    // )
 
 }
