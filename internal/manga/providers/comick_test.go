@@ -24,6 +24,10 @@ func TestComicK_Search(t *testing.T) {
 			name:  "Komi-san wa, Komyushou desu",
 			query: "Komi-san wa, Komyushou desu",
 		},
+		{
+			name:  "Boku no Kokoro no Yabai Yatsu",
+			query: "Boku no Kokoro no Yabai Yatsu",
+		},
 	}
 
 	comick := NewComicK(util.NewLogger())
@@ -71,6 +75,11 @@ func TestComicK_FindChapters(t *testing.T) {
 			name:    "Komi-san wa, Komyushou desu",
 			id:      "fKWNEsw8",
 			atLeast: 250,
+		},
+		{
+			name:    "Boku no Kokoro no Yabai Yatsu",
+			id:      "pYN47sZm",
+			atLeast: 141,
 		},
 	}
 

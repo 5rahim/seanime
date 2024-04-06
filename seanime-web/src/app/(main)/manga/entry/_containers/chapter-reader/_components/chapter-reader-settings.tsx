@@ -212,9 +212,13 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
         }
     }
 
+    const [open, setOpen] = React.useState(false)
+
     return (
         <>
+            {open && <div className="fixed w-full top-0 left-0 h-full bg-gray-950 opacity-50 z-[10]" />}
             <Drawer
+                onOpenChange={setOpen}
                 trigger={
                     <IconButton
                         icon={<BiCog />}

@@ -168,7 +168,7 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	chaptersMap := make(map[string]*ChapterDetails)
 	count := 0
 	for _, chapter := range data.Chapters {
-		if chapter.Chap == "" {
+		if chapter.Chap == "" || chapter.Lang != "en" {
 			continue
 		}
 		title := "Chapter " + chapter.Chap + " "
@@ -182,10 +182,16 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 		}
 		title = strings.TrimSpace(title)
 
+		if chapter.Chap == "45" {
+			fmt.Println(title)
+		}
 		prev, ok := chaptersMap[chapter.Chap]
 		rating := chapter.UpCount - chapter.DownCount
 
-		if (!ok || rating > prev.Rating) && chapter.Lang == "en" {
+		if !ok || rating > prev.Rating {
+			if !ok {
+				count++
+			}
 			chaptersMap[chapter.Chap] = &ChapterDetails{
 				Provider:  ComickProvider,
 				ID:        chapter.HID,
@@ -195,9 +201,6 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 				Chapter:   chapter.Chap,
 				Rating:    rating,
 				UpdatedAt: chapter.UpdatedAt,
-			}
-			if !ok {
-				count++
 			}
 		}
 	}

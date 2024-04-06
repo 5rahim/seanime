@@ -123,7 +123,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
     return (
         <>
-            <div className="fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[#0c0c0c]">
+            <div className="fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[#0c0c0c]" id="manga-reader-bar">
 
                 <IconButton
                     icon={<AiOutlineCloseCircle />}

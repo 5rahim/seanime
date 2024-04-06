@@ -20,6 +20,10 @@ func TestMangadex_Search(t *testing.T) {
 			name:  "Jujutsu Kaisen",
 			query: "Jujutsu Kaisen",
 		},
+		{
+			name:  "Boku no Kokoro no Yabai Yatsu",
+			query: "Boku no Kokoro no Yabai Yatsu",
+		},
 	}
 
 	mangadex := NewMangadex(util.NewLogger())
@@ -68,6 +72,11 @@ func TestMangadex_FindChapters(t *testing.T) {
 			name:    "Jujutsu Kaisen",
 			id:      "c52b2ce3-7f95-469c-96b0-479524fb7a1a",
 			atLeast: 250,
+		},
+		{
+			name:    "The Dangers in My Heart",
+			id:      "3df1a9a3-a1be-47a3-9e90-9b3e55b1d0ac",
+			atLeast: 141,
 		},
 	}
 
