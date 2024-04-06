@@ -1,5 +1,5 @@
 import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
-import { useMangaPageContainer } from "@/app/(main)/manga/_lib/manga.hooks"
+import { useMangaPageContainer, useUpdateMangaProgress } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaChapterContainer, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import { MangaHorizontalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-vertical-reader"
@@ -23,9 +23,6 @@ import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
@@ -52,9 +49,6 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         chapterIdToNumbersMap,
         ...rest
     } = props
-
-
-    const qc = useQueryClient()
 
     // Discord rich presence
     useDiscordMangaPresence(entry)
@@ -89,20 +83,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     /**
      * Update the progress when the user confirms
      */
-    const { mutate: updateProgress, isPending: isUpdatingProgress } = useSeaMutation<boolean, {
-        chapterNumber: number,
-        mediaId: number,
-        totalChapters: number,
-    }>({
-        endpoint: SeaEndpoints.UPDATE_MANGA_PROGRESS,
-        mutationKey: ["update-manga-progress", entry.mediaId],
-        method: "post",
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["get-manga-entry", Number(entry.mediaId)] })
-            await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
-            toast.success("Progress updated")
-        },
-    })
+    const { updateProgress, isUpdatingProgress } = useUpdateMangaProgress(entry.mediaId)
 
     /**
      * Get the previous and next chapters
@@ -194,6 +175,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                                 updateProgress({
                                     chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.id || "") || 0,
                                     mediaId: entry.mediaId,
+                                    malId: entry.media?.idMal || undefined,
                                     totalChapters: chapterContainer?.chapters?.length || 0,
                                 })
                                 !!nextChapter && setSelectedChapter(nextChapter)

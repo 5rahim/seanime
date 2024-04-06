@@ -79,22 +79,6 @@ export function ProgressTracking() {
         },
     })
 
-    // Progress metadata error
-    useWebsocketMessageListener<string>({
-        type: WSEvents.PLAYBACK_MANAGER_PROGRESS_METADATA_ERROR,
-        onMessage: data => {
-            toast.error(data)
-        },
-    })
-
-    // Progress update error
-    useWebsocketMessageListener<string>({
-        type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATE_ERROR,
-        onMessage: data => {
-            toast.error(data)
-        },
-    })
-
     // Playback state
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE,
@@ -116,15 +100,6 @@ export function ProgressTracking() {
                 qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
                 setState(data)
                 toast.success("Progress updated")
-            }
-        },
-    })
-
-    useWebsocketMessageListener<string>({
-        type: WSEvents.PLAYBACK_MANAGER_NOTIFY_INFO,
-        onMessage: data => {
-            if (!!data) {
-                toast.info(data)
             }
         },
     })

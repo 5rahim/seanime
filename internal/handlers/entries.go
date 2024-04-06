@@ -494,6 +494,7 @@ func HandleUpdateProgress(c *RouteCtx) error {
 
 	type body struct {
 		MediaId       int `json:"mediaId"`
+		MalId         int `json:"malId"`
 		EpisodeNumber int `json:"episodeNumber"`
 		TotalEpisodes int `json:"totalEpisodes"`
 	}
@@ -519,13 +520,21 @@ func HandleUpdateProgress(c *RouteCtx) error {
 	go func() {
 		// Update the progress on MAL if an account is linked
 		malInfo, _ := c.App.Database.GetMalInfo()
-		if malInfo != nil && malInfo.AccessToken != "" {
-			client := mal.NewWrapper(malInfo.AccessToken)
+		if malInfo != nil && malInfo.AccessToken != "" && b.MalId > 0 {
+
+			// Verify MAL auth
+			malInfo, err = mal.VerifyMALAuth(malInfo, c.App.Database, c.App.Logger)
+			if err != nil {
+				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
+				return
+			}
+
+			client := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
 			err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
 				NumEpisodesWatched: &b.EpisodeNumber,
-			}, b.MediaId)
+			}, b.MalId)
 			if err != nil {
-				c.App.WSEventManager.SendEvent(events.PlaybackManagerNotifyError, "Failed to update progress on MyAnimeList")
+				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
 			}
 		}
 	}()

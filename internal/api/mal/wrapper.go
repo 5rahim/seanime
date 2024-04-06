@@ -3,9 +3,14 @@ package mal
 import (
 	"fmt"
 	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/database/models"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 )
 
 const (
@@ -16,13 +21,15 @@ type (
 	Wrapper struct {
 		AccessToken string
 		client      *http.Client
+		logger      *zerolog.Logger
 	}
 )
 
-func NewWrapper(accessToken string) *Wrapper {
+func NewWrapper(accessToken string, logger *zerolog.Logger) *Wrapper {
 	return &Wrapper{
 		AccessToken: accessToken,
 		client:      &http.Client{},
+		logger:      logger,
 	}
 }
 
@@ -77,4 +84,77 @@ func (w *Wrapper) doMutation(method, uri, encodedParams string) error {
 	}
 
 	return nil
+}
+
+func VerifyMALAuth(malInfo *models.Mal, db *db.Database, logger *zerolog.Logger) (*models.Mal, error) {
+
+	// Token has not expired
+	if malInfo.TokenExpiresAt.After(time.Now()) {
+		logger.Debug().Msg("mal: Token is still valid")
+		return malInfo, nil
+	}
+
+	// Token is expired, refresh it
+	client := &http.Client{}
+
+	// Build URL
+	urlData := url.Values{}
+	urlData.Set("grant_type", "refresh_token")
+	urlData.Set("refresh_token", malInfo.RefreshToken)
+	encodedData := urlData.Encode()
+
+	req, err := http.NewRequest("POST", "https://myanimelist.net/v1/oauth2/token", strings.NewReader(encodedData))
+	if err != nil {
+		logger.Error().Err(err).Msg("mal: Failed to create request")
+		return malInfo, err
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", "Basic "+malInfo.AccessToken)
+
+	// Response
+	res, err := client.Do(req)
+	if err != nil {
+		logger.Error().Err(err).Msg("mal: Failed to refresh token")
+		return malInfo, err
+	}
+	defer res.Body.Close()
+
+	type malAuthResponse struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresIn    int32  `json:"expires_in"`
+		TokenType    string `json:"token_type"`
+	}
+
+	ret := malAuthResponse{}
+	if err := json.NewDecoder(res.Body).Decode(&ret); err != nil {
+		return malInfo, err
+	}
+
+	if ret.AccessToken == "" {
+		logger.Error().Msgf("mal: Failed to refresh token %s", res.Status)
+		return malInfo, fmt.Errorf("mal: Failed to refresh token %s", res.Status)
+	}
+
+	// Save
+	updatedMalInfo := models.Mal{
+		BaseModel: models.BaseModel{
+			ID:        1,
+			UpdatedAt: time.Now(),
+		},
+		Username:       "",
+		AccessToken:    ret.AccessToken,
+		RefreshToken:   ret.RefreshToken,
+		TokenExpiresAt: time.Now().Add(time.Duration(ret.ExpiresIn) * time.Second),
+	}
+
+	_, err = db.UpsertMalInfo(&updatedMalInfo)
+	if err != nil {
+		logger.Error().Err(err).Msg("mal: Failed to save updated MAL info")
+		return malInfo, err
+	}
+
+	logger.Info().Msg("mal: Refreshed token")
+
+	return &updatedMalInfo, nil
 }

@@ -57,6 +57,8 @@ type (
 )
 
 func (w *Wrapper) GetAnimeDetails(mId int) (*BasicAnime, error) {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Getting anime details")
+
 	reqUrl := fmt.Sprintf("%s/anime/%d?fields=%s", ApiBaseURL, mId, BaseAnimeFields)
 
 	if w.AccessToken == "" {
@@ -66,13 +68,17 @@ func (w *Wrapper) GetAnimeDetails(mId int) (*BasicAnime, error) {
 	var anime BasicAnime
 	err := w.doQuery("GET", reqUrl, nil, "application/json", &anime)
 	if err != nil {
+		w.logger.Error().Err(err).Int("mId", mId).Msg("mal: Failed to get anime details")
 		return nil, err
 	}
+
+	w.logger.Info().Int("mId", mId).Msg("mal: Fetched anime details")
 
 	return &anime, nil
 }
 
 func (w *Wrapper) GetAnimeCollection() ([]*AnimeListEntry, error) {
+	w.logger.Debug().Msg("mal: Getting anime collection")
 
 	reqUrl := fmt.Sprintf("%s/users/@me/animelist?fields=list_status&limit=1000", ApiBaseURL)
 
@@ -83,8 +89,11 @@ func (w *Wrapper) GetAnimeCollection() ([]*AnimeListEntry, error) {
 	var data response
 	err := w.doQuery("GET", reqUrl, nil, "application/json", &data)
 	if err != nil {
+		w.logger.Error().Err(err).Msg("mal: Failed to get anime collection")
 		return nil, err
 	}
+
+	w.logger.Info().Msg("mal: Fetched anime collection")
 
 	return data.Data, nil
 }
@@ -94,6 +103,8 @@ type AnimeListProgressParams struct {
 }
 
 func (w *Wrapper) UpdateAnimeProgress(opts *AnimeListProgressParams, mId int) error {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Updating anime progress")
+
 	// Get anime details
 	anime, err := w.GetAnimeDetails(mId)
 	if err != nil {
@@ -101,8 +112,12 @@ func (w *Wrapper) UpdateAnimeProgress(opts *AnimeListProgressParams, mId int) er
 	}
 
 	status := MediaListStatusWatching
-	if anime.Status == MediaStatusFinishedAiring && anime.NumEpisodes == *opts.NumEpisodesWatched {
+	if anime.Status == MediaStatusFinishedAiring && anime.NumEpisodes > 0 && anime.NumEpisodes <= *opts.NumEpisodesWatched {
 		status = MediaListStatusCompleted
+	}
+
+	if anime.NumEpisodes > 0 && *opts.NumEpisodesWatched > anime.NumEpisodes {
+		*opts.NumEpisodesWatched = anime.NumEpisodes
 	}
 
 	// Update MAL list entry
@@ -110,6 +125,10 @@ func (w *Wrapper) UpdateAnimeProgress(opts *AnimeListProgressParams, mId int) er
 		Status:             &status,
 		NumEpisodesWatched: opts.NumEpisodesWatched,
 	}, mId)
+
+	if err == nil {
+		w.logger.Info().Int("mId", mId).Msg("mal: Updated anime progress")
+	}
 
 	return err
 }
@@ -122,6 +141,7 @@ type AnimeListStatusParams struct {
 }
 
 func (w *Wrapper) UpdateAnimeListStatus(opts *AnimeListStatusParams, mId int) error {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Updating anime list status")
 
 	reqUrl := fmt.Sprintf("%s/anime/%d/my_list_status", ApiBaseURL, mId)
 
@@ -143,19 +163,24 @@ func (w *Wrapper) UpdateAnimeListStatus(opts *AnimeListStatusParams, mId int) er
 
 	err := w.doMutation("PATCH", reqUrl, encodedData)
 	if err != nil {
+		w.logger.Error().Err(err).Int("mId", mId).Msg("mal: Failed to update anime list status")
 		return err
 	}
 	return nil
 }
 
 func (w *Wrapper) DeleteAnimeListItem(mId int) error {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Deleting anime list item")
 
 	reqUrl := fmt.Sprintf("%s/anime/%d/my_list_status", ApiBaseURL, mId)
 
 	err := w.doMutation("DELETE", reqUrl, "")
 	if err != nil {
+		w.logger.Error().Err(err).Int("mId", mId).Msg("mal: Failed to delete anime list item")
 		return err
 	}
+
+	w.logger.Info().Int("mId", mId).Msg("mal: Deleted anime list item")
 
 	return nil
 }

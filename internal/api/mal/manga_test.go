@@ -3,13 +3,14 @@ package mal
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/internal/test_utils"
+	"github.com/seanime-app/seanime/internal/util"
 	"testing"
 )
 
 func TestGetMangaDetails(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MyAnimeList())
 
-	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt)
+	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt, util.NewLogger())
 
 	res, err := malWrapper.GetMangaDetails(13)
 
@@ -25,7 +26,7 @@ func TestGetMangaDetails(t *testing.T) {
 func TestGetMangaCollection(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MyAnimeList())
 
-	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt)
+	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt, util.NewLogger())
 
 	res, err := malWrapper.GetMangaCollection()
 
@@ -44,7 +45,7 @@ func TestGetMangaCollection(t *testing.T) {
 func TestUpdateMangaListStatus(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MyAnimeList(), test_utils.MyAnimeListMutation())
 
-	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt)
+	malWrapper := NewWrapper(test_utils.ConfigData.Provider.MalJwt, util.NewLogger())
 
 	mId := 13
 	progress := 1000

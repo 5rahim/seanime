@@ -9,13 +9,22 @@ import (
 // It updates the progress of a media list entry. If the progress is equal to the total episodes, the status will be set to "completed".
 func (cw *ClientWrapper) UpdateMediaListEntryProgress(ctx context.Context, mediaId *int, progress *int, totalEpisodes *int) error {
 
-	if mediaId == nil || progress == nil || totalEpisodes == nil {
+	if mediaId == nil || progress == nil {
 		return errors.New("missing fields")
 	}
 
+	totalEp := 0
+	if totalEpisodes != nil && *totalEpisodes > 0 {
+		totalEp = *totalEpisodes
+	}
+
 	status := MediaListStatusCurrent
-	if *progress == *totalEpisodes {
+	if totalEp > 0 && *progress >= totalEp {
 		status = MediaListStatusCompleted
+	}
+
+	if totalEp > 0 && *progress > totalEp {
+		*progress = totalEp
 	}
 
 	// Update the progress

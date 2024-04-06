@@ -126,9 +126,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Logout from MAL
 	// POST /v1/mal/logout
 	v1.Post("/mal/logout", makeHandler(app, HandleMALLogout))
-	// Logout from MAL
-	// POST /v1/mal/progress
-	v1.Post("/mal/list-entry/progress", makeHandler(app, HandleEditMALListEntryProgress))
 
 	//
 	// Library

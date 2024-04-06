@@ -212,7 +212,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 				// see: RequestNextPlaylistFile, playlistHub code
 				pm.Logger.Debug().Str("path", path).Msg("playback manager: Playing next file")
 				// Send notification to the client
-				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyInfo, "Playing next file in playlist")
+				pm.wsEventManager.SendEvent(events.InfoToast, "Playing next file in playlist")
 				// Play the requested video
 				err := pm.MediaPlayerRepository.Play(path)
 				if err != nil {
@@ -224,7 +224,8 @@ func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 				pm.MediaPlayerRepository.StartTracking()
 			case <-pm.playlistHub.endOfPlaylistCh:
 				pm.Logger.Debug().Msg("playback manager: End of playlist")
-				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyInfo, "End of playlist")
+				pm.wsEventManager.SendEvent(events.InfoToast, "End of playlist")
+				// Send event to the client -- nil signals that no playlist is being played
 				pm.wsEventManager.SendEvent(events.PlaybackManagerPlaylistState, nil)
 				go pm.MediaPlayerRepository.Stop()
 				pm.playlistHub.cancel()

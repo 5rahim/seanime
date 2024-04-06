@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	BaseMangaFields string = "id,title,main_picture,alternative_titles,start_date,end_date,nsfw,synopsis,num_episodes,mean,rank,popularity,media_type,status"
+	BaseMangaFields string = "id,title,main_picture,alternative_titles,start_date,end_date,nsfw,synopsis,num_volumes,num_chapters,mean,rank,popularity,media_type,status"
 )
 
 type (
@@ -26,7 +26,8 @@ type (
 		EndDate     string      `json:"end_date"`
 		Synopsis    string      `json:"synopsis"`
 		NSFW        string      `json:"nsfw"`
-		NumEpisodes int         `json:"num_episodes"`
+		NumVolumes  int         `json:"num_volumes"`
+		NumChapters int         `json:"num_chapters"`
 		Mean        float32     `json:"mean"`
 		Rank        int         `json:"rank"`
 		Popularity  int         `json:"popularity"`
@@ -55,6 +56,8 @@ type (
 )
 
 func (w *Wrapper) GetMangaDetails(mId int) (*BasicManga, error) {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Getting manga details")
+
 	reqUrl := fmt.Sprintf("%s/manga/%d?fields=%s", ApiBaseURL, mId, BaseMangaFields)
 
 	if w.AccessToken == "" {
@@ -64,13 +67,17 @@ func (w *Wrapper) GetMangaDetails(mId int) (*BasicManga, error) {
 	var manga BasicManga
 	err := w.doQuery("GET", reqUrl, nil, "application/json", &manga)
 	if err != nil {
+		w.logger.Error().Err(err).Msg("mal: Failed to get manga details")
 		return nil, err
 	}
+
+	w.logger.Info().Int("mId", mId).Msg("mal: Fetched manga details")
 
 	return &manga, nil
 }
 
 func (w *Wrapper) GetMangaCollection() ([]*MangaListEntry, error) {
+	w.logger.Debug().Msg("mal: Getting manga collection")
 
 	reqUrl := fmt.Sprintf("%s/users/@me/mangalist?fields=list_status&limit=1000", ApiBaseURL)
 
@@ -81,8 +88,11 @@ func (w *Wrapper) GetMangaCollection() ([]*MangaListEntry, error) {
 	var data response
 	err := w.doQuery("GET", reqUrl, nil, "application/json", &data)
 	if err != nil {
+		w.logger.Error().Err(err).Msg("mal: Failed to get manga collection")
 		return nil, err
 	}
+
+	w.logger.Info().Msg("mal: Fetched manga collection")
 
 	return data.Data, nil
 }
@@ -92,15 +102,21 @@ type MangaListProgressParams struct {
 }
 
 func (w *Wrapper) UpdateMangaProgress(opts *MangaListProgressParams, mId int) error {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Updating manga progress")
+
 	// Get manga details
 	manga, err := w.GetMangaDetails(mId)
 	if err != nil {
 		return err
 	}
 
-	status := MediaListStatusWatching
-	if manga.Status == MediaStatusFinishedAiring && manga.NumEpisodes == *opts.NumChaptersRead {
+	status := MediaListStatusReading
+	if manga.Status == MediaStatusFinished && manga.NumChapters > 0 && manga.NumChapters <= *opts.NumChaptersRead {
 		status = MediaListStatusCompleted
+	}
+
+	if manga.NumChapters > 0 && *opts.NumChaptersRead > manga.NumChapters {
+		*opts.NumChaptersRead = manga.NumChapters
 	}
 
 	// Update MAL list entry
@@ -108,6 +124,10 @@ func (w *Wrapper) UpdateMangaProgress(opts *MangaListProgressParams, mId int) er
 		Status:          &status,
 		NumChaptersRead: opts.NumChaptersRead,
 	}, mId)
+
+	if err == nil {
+		w.logger.Info().Int("mId", mId).Msg("mal: Updated manga progress")
+	}
 
 	return err
 }
@@ -120,6 +140,7 @@ type MangaListStatusParams struct {
 }
 
 func (w *Wrapper) UpdateMangaListStatus(opts *MangaListStatusParams, mId int) error {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Updating manga list status")
 
 	reqUrl := fmt.Sprintf("%s/manga/%d/my_list_status", ApiBaseURL, mId)
 
@@ -141,19 +162,24 @@ func (w *Wrapper) UpdateMangaListStatus(opts *MangaListStatusParams, mId int) er
 
 	err := w.doMutation("PATCH", reqUrl, encodedData)
 	if err != nil {
+		w.logger.Error().Err(err).Msg("mal: Failed to update manga list status")
 		return err
 	}
 	return nil
 }
 
 func (w *Wrapper) DeleteMangaListItem(mId int) error {
+	w.logger.Debug().Int("mId", mId).Msg("mal: Deleting manga list item")
 
 	reqUrl := fmt.Sprintf("%s/manga/%d/my_list_status", ApiBaseURL, mId)
 
 	err := w.doMutation("DELETE", reqUrl, "")
 	if err != nil {
+		w.logger.Error().Err(err).Msg("mal: Failed to delete manga list item")
 		return err
 	}
+
+	w.logger.Info().Int("mId", mId).Msg("mal: Deleted manga list item")
 
 	return nil
 }

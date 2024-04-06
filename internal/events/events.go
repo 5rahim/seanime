@@ -17,14 +17,12 @@ const (
 	AutoScanCompleted                      = "auto-scan-completed"                        // The auto scan has stopped
 	PlaybackManagerProgressTrackingStarted = "playback-manager-progress-tracking-started" // The video progress tracking has started
 	PlaybackManagerProgressTrackingStopped = "playback-manager-progress-tracking-stopped" // The video progress tracking has stopped
-	PlaybackManagerProgressTrackingError   = "playback-manager-progress-tracking-error"   // The video progress tracking has an error
-	PlaybackManagerProgressUpdateError     = "playback-manager-progress-update-error"     // The video progress update has an error
-	PlaybackManagerProgressMetadataError   = "playback-manager-progress-metadata-error"   // Error occurred while fetching metadata
 	PlaybackManagerProgressVideoCompleted  = "playback-manager-progress-video-completed"  // The video progress has been completed
 	PlaybackManagerProgressPlaybackState   = "playback-manager-progress-playback-state"   // Dispatches the current playback state
 	PlaybackManagerProgressUpdated         = "playback-manager-progress-updated"          // Signals that the progress has been updated
-	PlaybackManagerNotifyInfo              = "playback-manager-notify-info"
-	PlaybackManagerNotifyError             = "playback-manager-notify-error"
-	PlaybackManagerPlaylistState           = "playback-manager-playlist-state" // Dispatches the current playlist state
+	PlaybackManagerPlaylistState           = "playback-manager-playlist-state"            // Dispatches the current playlist state
 	MangaDownloaderDownloadingProgress     = "manga-downloader-downloading-progress"
+	InfoToast                              = "info-toast"
+	ErrorToast                             = "error-toast"
+	WarningToast                           = "warning-toast"
 )

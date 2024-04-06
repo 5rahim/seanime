@@ -118,13 +118,13 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 	}
 
 	// Verify MAL auth
-	malInfo, err := verifyMALAuth(_malInfo, c)
+	malInfo, err := mal.VerifyMALAuth(_malInfo, c.App.Database, c.App.Logger)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Get MAL Wrapper
-	malWrapper := mal.NewWrapper(malInfo.AccessToken)
+	malWrapper := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
 
 	// Update MAL list entry
 	err = malWrapper.UpdateAnimeProgress(&mal.AnimeListProgressParams{
@@ -153,64 +153,4 @@ func HandleMALLogout(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(true)
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// verifyMALAuth will check if the MAL token has expired and refresh it if necessary.
-// It will return the updated MAL info if a refresh was necessary or the current MAL info if it wasn't.
-func verifyMALAuth(malInfo *models.Mal, c *RouteCtx) (*models.Mal, error) {
-
-	// Token has not expired
-	if malInfo.TokenExpiresAt.After(time.Now()) {
-		return malInfo, nil
-	}
-
-	// Token is expired, refresh it
-
-	client := &http.Client{}
-
-	// Build URL
-	urlData := url.Values{}
-	urlData.Set("grant_type", "refresh_token")
-	urlData.Set("refresh_token", malInfo.RefreshToken)
-	encodedData := urlData.Encode()
-
-	req, err := http.NewRequest("POST", "https://myanimelist.net/v1/oauth2/token", strings.NewReader(encodedData))
-	if err != nil {
-		return malInfo, err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Authorization", "Basic "+malInfo.AccessToken)
-
-	// Response
-	res, err := client.Do(req)
-	if err != nil {
-		return malInfo, err
-	}
-	defer res.Body.Close()
-
-	ret := malAuthResponse{}
-	if err := json.NewDecoder(res.Body).Decode(&ret); err != nil {
-		return malInfo, err
-	}
-
-	// Save
-	updatedMalInfo := models.Mal{
-		BaseModel: models.BaseModel{
-			ID:        1,
-			UpdatedAt: time.Now(),
-		},
-		Username:       "",
-		AccessToken:    ret.AccessToken,
-		RefreshToken:   ret.RefreshToken,
-		TokenExpiresAt: time.Now().Add(time.Duration(ret.ExpiresIn) * time.Second),
-	}
-
-	_, err = c.App.Database.UpsertMalInfo(&updatedMalInfo)
-	if err != nil {
-		return malInfo, err
-	}
-
-	return &updatedMalInfo, nil
 }

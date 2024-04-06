@@ -47,7 +47,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				if err != nil {
 					pm.Logger.Error().Err(err).Msg("playback manager: failed to get media data")
 					// Send error event to the client
-					pm.wsEventManager.SendEvent(events.PlaybackManagerProgressMetadataError, err.Error())
+					pm.wsEventManager.SendEvent(events.ErrorToast, err.Error())
 					//
 					pm.MediaPlayerRepository.Cancel()
 				} else {
@@ -170,14 +170,8 @@ func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 		err := pm.updateProgress(pm.currentMediaListEntry, pm.currentLocalFile)
 
 		if err != nil {
-			if errors.Is(err, ErrProgressUpdateAnilist) {
-				_ps.ProgressUpdated = false
-				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyError, "Failed to update progress on AniList")
-			} else {
-				_ps.ProgressUpdated = true
-				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
-				pm.wsEventManager.SendEvent(events.PlaybackManagerNotifyError, "Failed to update progress on MyAnimeList")
-			}
+			_ps.ProgressUpdated = false
+			pm.wsEventManager.SendEvent(events.ErrorToast, "Failed to update progress on AniList")
 		} else {
 			_ps.ProgressUpdated = true
 			pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
@@ -198,11 +192,9 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 	}
 
 	err := pm.updateProgress(pm.currentMediaListEntry, pm.currentLocalFile)
-	if err != nil && errors.Is(err, ErrProgressUpdateAnilist) {
+	if err != nil {
 		pm.eventMu.Unlock()
 		return err
-	} else if err != nil {
-		pm.Logger.Error().Err(err).Msg("playback manager: Failed to update progress on AniList")
 	}
 
 	// Push the current playback state to the history
@@ -219,7 +211,8 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 	return nil
 }
 
-// updateProgress updates the progress of the current video playback on AniList and MyAnimeList
+// updateProgress updates the progress of the current video playback on AniList and MyAnimeList.
+// This only returns an error if the progress update fails on AniList
 //   - /!\ When this is called, the PlaybackState should have been pushed to the history
 func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, localFile *entities.LocalFile) (err error) {
 
@@ -245,19 +238,35 @@ func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, loc
 
 	pm.Logger.Info().Msg("playback manager: Updated progress on AniList")
 
-	// Update the progress on MAL if an account is linked
-	malInfo, _ := pm.Database.GetMalInfo()
-	if malInfo != nil && malInfo.AccessToken != "" {
-		client := mal.NewWrapper(malInfo.AccessToken)
-		err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
-			NumEpisodesWatched: &epNum,
-		}, mediaId)
-		if err != nil {
-			pm.Logger.Error().Err(err).Msg("playback manager: Error occurred while updating progress on MyAnimeList")
-			return ErrProgressUpdateMAL
+	go func() {
+		defer util.HandlePanicThen(func() {})
+		malId := listEntry.GetMedia().GetIDMal()
+		if malId != nil {
+			// Update the progress on MAL if an account is linked
+			malInfo, _ := pm.Database.GetMalInfo()
+			if malInfo != nil && malInfo.AccessToken != "" {
+				// Verify MAL auth
+				malInfo, err = mal.VerifyMALAuth(malInfo, pm.Database, pm.Logger)
+				if err != nil {
+					pm.Logger.Error().Err(err).Msg("playback manager: Error occurred while verifying MAL auth")
+					return
+				}
+
+				client := mal.NewWrapper(malInfo.AccessToken, pm.Logger)
+
+				err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
+					NumEpisodesWatched: &epNum,
+				}, *malId)
+				if err != nil {
+					pm.Logger.Error().Err(err).Msg("playback manager: Error occurred while updating progress on MyAnimeList")
+					return
+				}
+				pm.Logger.Info().Msg("playback manager: Updated progress on MyAnimeList")
+			}
+		} else {
+			pm.Logger.Debug().Msg("playback manager: MAL ID not found, skipping update on MyAnimeList")
 		}
-		pm.Logger.Info().Msg("playback manager: Updated progress on MyAnimeList")
-	}
+	}()
 
 	return nil
 }

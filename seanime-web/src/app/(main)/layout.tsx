@@ -8,13 +8,16 @@ import { useAnilistUserMediaLoader } from "@/app/(main)/_loaders/anilist-user-me
 import { useLibraryCollectionLoader } from "@/app/(main)/_loaders/library-collection"
 import { useListenToAutoDownloaderItems } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
 import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
+import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
 import { LibraryWatcher } from "@/components/application/library-watcher"
 import { MainLayout } from "@/components/application/main-layout"
 import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
 import { TopNavbar } from "@/components/application/top-navbar"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
+import { WSEvents } from "@/lib/server/endpoints"
 import React from "react"
+import { toast } from "sonner"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 
@@ -23,6 +26,38 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     useListenToAutoDownloaderItems()
     useAnilistUserMediaLoader()
     useAnilistCollectionListener()
+
+    useWebsocketMessageListener<string>({
+        type: WSEvents.INFO_TOAST, onMessage: data => {
+            if (!!data) {
+                toast.info(data)
+            }
+        },
+    })
+
+    useWebsocketMessageListener<string>({
+        type: WSEvents.SUCCESS_TOAST, onMessage: data => {
+            if (!!data) {
+                toast.success(data)
+            }
+        },
+    })
+
+    useWebsocketMessageListener<string>({
+        type: WSEvents.WARNING_TOAST, onMessage: data => {
+            if (!!data) {
+                toast.warning(data)
+            }
+        },
+    })
+
+    useWebsocketMessageListener<string>({
+        type: WSEvents.ERROR_TOAST, onMessage: data => {
+            if (!!data) {
+                toast.error(data)
+            }
+        },
+    })
 
     return (
         <MainLayout>

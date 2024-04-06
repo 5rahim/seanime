@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/api/mal"
 	"github.com/seanime-app/seanime/internal/core"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util/result"
@@ -411,11 +413,12 @@ func HandleAnilistListManga(c *RouteCtx) error {
 //
 // DEVOTE: MyAnimeList is not supported
 //
-//	POST /v1/manga/update-progress
+//	POST /api/v1/manga/update-progress
 func HandleUpdateMangaProgress(c *RouteCtx) error {
 
 	type body struct {
 		MediaId       int `json:"mediaId"`
+		MalId         int `json:"malId"`
 		ChapterNumber int `json:"chapterNumber"`
 		TotalChapters int `json:"totalChapters"`
 	}
@@ -437,6 +440,28 @@ func HandleUpdateMangaProgress(c *RouteCtx) error {
 	}
 
 	_, _ = c.App.RefreshMangaCollection() // Refresh the AniList collection
+
+	go func() {
+		// Update the progress on MAL if an account is linked
+		malInfo, _ := c.App.Database.GetMalInfo()
+		if malInfo != nil && malInfo.AccessToken != "" && b.MalId > 0 {
+
+			// Verify MAL auth
+			malInfo, err = mal.VerifyMALAuth(malInfo, c.App.Database, c.App.Logger)
+			if err != nil {
+				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
+				return
+			}
+
+			client := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
+			err = client.UpdateMangaProgress(&mal.MangaListProgressParams{
+				NumChaptersRead: &b.ChapterNumber,
+			}, b.MalId)
+			if err != nil {
+				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
+			}
+		}
+	}()
 
 	return c.RespondWithData(true)
 }

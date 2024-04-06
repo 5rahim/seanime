@@ -94,15 +94,27 @@ export function useMangaEntryDetails(mediaId: string | undefined | null) {
     }
 }
 
-export function useUpdateMangaProgress() {
-    const { mutate, isPending } = useSeaMutation<boolean>({
+export function useUpdateMangaProgress(mediaId: number) {
+    const qc = useQueryClient()
+    const { mutate: updateProgress, isPending: isUpdatingProgress } = useSeaMutation<boolean, {
+        chapterNumber: number,
+        mediaId: number,
+        malId?: number,
+        totalChapters: number,
+    }>({
         endpoint: SeaEndpoints.UPDATE_MANGA_PROGRESS,
-        mutationKey: ["update-manga-progress"],
+        mutationKey: ["update-manga-progress", mediaId],
+        method: "post",
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-entry", Number(mediaId)] })
+            await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
+            toast.success("Progress updated")
+        },
     })
 
     return {
-        updateProgress: mutate,
-        isUpdating: isPending,
+        updateProgress,
+        isUpdatingProgress,
     }
 }
 

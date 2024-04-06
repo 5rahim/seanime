@@ -219,6 +219,7 @@ export default function Page() {
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useSeaMutation<boolean, {
         episodeNumber: number,
         mediaId: number,
+        malId?: number,
         totalEpisodes: number,
     }>({
         endpoint: SeaEndpoints.UPDATE_PROGRESS,
@@ -274,7 +275,7 @@ export default function Page() {
                         </div>
 
                         <div className="flex gap-2 items-center">
-                            {(!!progressItem && !!media.episodes) && <Button
+                            {(!!progressItem) && <Button
                                 className="animate-pulse"
                                 loading={isUpdatingProgress}
                                 disabled={hasUpdatedProgress}
@@ -282,7 +283,8 @@ export default function Page() {
                                     updateProgress({
                                         episodeNumber: progressItem.episodeNumber,
                                         mediaId: media.id,
-                                        totalEpisodes: media.episodes!,
+                                        totalEpisodes: media.episodes || 0,
+                                        malId: media.idMal || undefined,
                                     })
                                     setCurrentProgress(progressItem.episodeNumber)
                                 }}
