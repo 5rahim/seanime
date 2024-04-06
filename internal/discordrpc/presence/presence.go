@@ -145,6 +145,12 @@ var (
 				Time: time.Now(),
 			},
 		},
+		Buttons: []*discordrpc_client.Button{
+			{
+				Label: "Seanime",
+				Url:   "https://github.com/5rahim/seanime",
+			},
+		},
 		Instance: true,
 		Type:     3,
 	}
