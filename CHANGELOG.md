@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.3.0
+
+- ✨ Discord Rich Presence
+    - Anime & Manga activity + options to disable either one #30
+    - Enable this in your settings under the ‘Features’ section
+- ✨ Command line flags
+    - Use `--datadir` to override the default data directory and use multiple Seanime instances
+- ✨ Overhauled Manga Reader
+    - Added ‘Double Page’ layout
+    - Page layout customization
+    - Pagination key bindings
+    - Fixes spacing issues #31
+    - Note: This introduces breaking changes in the cache system, the migration will be handled automatically.
+- ⚡️MAL manga progress syncing
+- ⚡️Enable/Disable or Blur NSFW search results
+- 🦺 Fixed MAL anime progress syncing using wrong IDs
+- 🦺 Fixed MAL token refreshing
+- 🦺 Fixed error toasts on authentication
+- 🏗️ Removed built-in ‘List Sync’ feature
+    - Note: Use MAL-Sync instead
+- 🏗️ Refactored config code
+- 🏗️ Implemented automatic version migration system
+    - Some breaking changes will be handled automatically
+
 ## v1.2.0
 
 - 🎉 New feature: Manga (Experimental)

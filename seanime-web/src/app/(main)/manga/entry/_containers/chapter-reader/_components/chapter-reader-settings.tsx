@@ -27,12 +27,13 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useAtom } from "jotai/react"
 import React from "react"
+import { AiOutlineColumnHeight, AiOutlineColumnWidth } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
 import { FaRedo, FaRegImage } from "react-icons/fa"
 import { GiResize } from "react-icons/gi"
 import { MdMenuBook, MdOutlinePhotoSizeSelectLarge } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiReadCvLogoLight, PiScrollDuotone } from "react-icons/pi"
-import { TbArrowAutofitHeight, TbArrowAutofitWidth } from "react-icons/tb"
+import { TbArrowAutofitHeight } from "react-icons/tb"
 
 export type ChapterReaderSettingsProps = {
     children?: React.ReactNode
@@ -86,15 +87,15 @@ export const MANGA_READING_DIRECTION_OPTIONS = [
 export const MANGA_PAGE_FIT_OPTIONS = [
     {
         value: MangaPageFit.CONTAIN,
-        label: <span className="flex gap-2 items-center"><TbArrowAutofitHeight className="text-xl" /> <span>Contain</span></span>,
+        label: <span className="flex gap-2 items-center"><AiOutlineColumnHeight className="text-xl" /> <span>Contain</span></span>,
     },
     {
         value: MangaPageFit.LARGER,
-        label: <span className="flex gap-2 items-center"><TbArrowAutofitHeight className="text-xl" /> <span>Larger</span></span>,
+        label: <span className="flex gap-2 items-center"><TbArrowAutofitHeight className="text-xl" /> <span>Overflow</span></span>,
     },
     {
         value: MangaPageFit.COVER,
-        label: <span className="flex gap-2 items-center"><TbArrowAutofitWidth className="text-xl" /> <span>Cover</span></span>,
+        label: <span className="flex gap-2 items-center"><AiOutlineColumnWidth className="text-xl" /> <span>Cover</span></span>,
     },
     {
         value: MangaPageFit.TRUE_SIZE,
@@ -270,12 +271,12 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         options={MANGA_PAGE_FIT_OPTIONS}
                         value={pageFit}
                         onValueChange={(value) => setPageFit(value)}
-                        help={<>
-                            <p>'Contain': Fit Height</p>
-                            <p>'Larger': Height overflow</p>
-                            <p>'Cover': Fit Width</p>
-                            <p>'True Size': No scaling, raw sizes</p>
-                        </>}
+                        // help={<>
+                        //     <p>'Contain': Fit Height</p>
+                        //     <p>'Overflow': Height overflow</p>
+                        //     <p>'Cover': Fit Width</p>
+                        //     <p>'True Size': No scaling, raw sizes</p>
+                        // </>}
                     />
 
                     <div
@@ -289,7 +290,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                             options={MANGA_PAGE_STRETCH_OPTIONS}
                             value={pageStretch}
                             onValueChange={(value) => setPageStretch(value)}
-                            help="'Stretch' forces pages to have the same width in 'Long Strip' mode."
+                            help="'Stretch' forces all pages to have the same width as the container in 'Long Strip' mode."
                         />
                     </div>
 
@@ -331,34 +332,34 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                     {[
                         {
                             key: MANGA_KBS.kbsChapterLeft,
-                            label: "Chapter Left",
+                            label: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
                             value: kbsChapterLeft,
-                            help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
+                            // help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
                         },
                         {
                             key: MANGA_KBS.kbsChapterRight,
-                            label: "Chapter Right",
+                            label: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
                             value: kbsChapterRight,
-                            help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
+                            // help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
                         },
                         {
                             key: MANGA_KBS.kbsPageLeft,
-                            label: "Page Left",
+                            label: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
                             value: kbsPageLeft,
-                            help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
+                            // help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
                         },
                         {
                             key: MANGA_KBS.kbsPageRight,
-                            label: "Page Right",
+                            label: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
                             value: kbsPageRight,
-                            help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
+                            // help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
                         },
                     ].map(item => {
                         return (
                             <div className="flex gap-2 items-center" key={item.key}>
                                 <label className="text-[--gray]">
                                     <span className="font-semibold">{item.label}</span>
-                                    <span className="ml-2 text-[--muted]">({item.help})</span>
+                                    {/*{!!item.help && <span className="ml-2 text-[--muted]">({item.help})</span>}*/}
                                 </label>
                                 <Button
                                     onKeyDownCapture={(e) => setKbs(e, item.key)}

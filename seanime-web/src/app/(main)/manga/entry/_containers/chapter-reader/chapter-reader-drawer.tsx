@@ -110,6 +110,21 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         return currentChapterNumber > entry.listData.progress
     }, [chapterIdToNumbersMap, entry, selectedChapter])
 
+    const handleUpdateProgress = () => {
+        if (shouldUpdateProgress && !isUpdatingProgress) {
+            updateProgress({
+                chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.id || "") || 0,
+                mediaId: entry.mediaId,
+                malId: entry.media?.idMal || undefined,
+                totalChapters: chapterContainer?.chapters?.length || 0,
+            }, {
+                onSuccess: () => {
+                    !!nextChapter && setSelectedChapter(nextChapter)
+                },
+            })
+        }
+    }
+
     /**
      * Reset the current page index when the pageContainer or chapterContainer changes
      * This signals that the user has switched chapters
@@ -123,6 +138,17 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             previousChapterId.current = selectedChapter?.id
         }
     }, [pageContainer?.pages, chapterContainer?.chapters])
+
+    // Progress update keyboard shortcuts
+    React.useEffect(() => {
+        mousetrap.bind("u", () => {
+            handleUpdateProgress()
+        })
+
+        return () => {
+            mousetrap.unbind("u")
+        }
+    }, [pageContainer?.pages, chapterContainer?.chapters, shouldUpdateProgress, isLastPage])
 
     // Navigation
     React.useEffect(() => {
@@ -171,15 +197,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                     </CardHeader>
                     <CardFooter>
                         <Button
-                            onClick={() => {
-                                updateProgress({
-                                    chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.id || "") || 0,
-                                    mediaId: entry.mediaId,
-                                    malId: entry.media?.idMal || undefined,
-                                    totalChapters: chapterContainer?.chapters?.length || 0,
-                                })
-                                !!nextChapter && setSelectedChapter(nextChapter)
-                            }}
+                            onClick={handleUpdateProgress}
                             className="w-full"
                             size="sm"
                             intent="success"

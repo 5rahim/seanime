@@ -106,11 +106,11 @@ support transcoding or streaming to other devices (yet).
 <img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
+
+<img src="docs/images/v1/manga-entry_03.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
+
 <img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>
-
-<img src="docs/images/v1/manga-entry.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/manga-page_03.png" alt="preview" width="100%"/>
-
 <img src="docs/images/v1/online-stream.png" alt="preview" width="100%"/>
 
 # Disclaimer
