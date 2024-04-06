@@ -1,53 +1,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/inconshreveable/mousetrap"
 	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/cron"
 	"github.com/seanime-app/seanime/internal/handlers"
-	"github.com/spf13/cobra"
-	"os"
-	"runtime"
+	"strings"
 )
-
-var rootArgs = struct {
-	DataDir string
-}{}
-
-func init() {
-	// Add flags
-	rootCmd.Flags().StringVar(&rootArgs.DataDir, "datadir", "", "Directory that contains all Seanime data")
-}
-
-var rootCmd = &cobra.Command{
-	Use:   "seanime",
-	Short: "Self-hosted, user-friendly, media server for anime and manga enthusiasts.",
-	Long:  "Self-hosted, user-friendly, media server for anime and manga enthusiasts.",
-	Run: func(cmd *cobra.Command, args []string) {
-		// Create the app instance
-		app := core.NewApp(&core.ConfigOptions{
-			DataDir: rootArgs.DataDir,
-		})
-		defer app.Cleanup()
-
-		// Create the fiber app instance
-		fiberApp := core.NewFiberApp(app)
-
-		// Initialize the routes
-		handlers.InitRoutes(app, fiberApp)
-
-		// Run the server
-		core.RunServer(app, fiberApp)
-
-		// Run the jobs in the background
-		cron.RunJobs(app)
-
-		select {}
-	},
-}
 
 func main() {
 	col := color.New(color.FgHiBlue)
@@ -60,30 +22,38 @@ func main() {
 	fmt.Println()
 	fmt.Println()
 
-	if runtime.GOOS == "windows" && mousetrap.StartedByExplorer() {
-		app := core.NewApp(&core.ConfigOptions{
-			DataDir: "",
-		})
-		defer app.Cleanup()
-
-		// Create the fiber app instance
-		fiberApp := core.NewFiberApp(app)
-
-		// Initialize the routes
-		handlers.InitRoutes(app, fiberApp)
-
-		// Run the server
-		core.RunServer(app, fiberApp)
-
-		// Run the jobs in the background
-		cron.RunJobs(app)
-
-		select {}
-	} else {
-
-		if err := rootCmd.Execute(); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	// Help flag
+	flag.Usage = func() {
+		fmt.Printf("Self-hosted, user-friendly, media server for anime and manga enthusiasts.\n\n")
+		fmt.Printf("Usage:\n  seanime [flags]\n\n")
+		fmt.Printf("Flags:\n")
+		fmt.Printf("  -datadir, --datadir string")
+		fmt.Printf("   directory that contains all Seanime data\n")
+		fmt.Printf("  -h                           show this help message\n")
 	}
+	// Parse flags
+	var dataDir string
+	flag.StringVar(&dataDir, "datadir", "", "Directory that contains all Seanime data")
+	flag.Parse()
+
+	// Create the app instance
+	app := core.NewApp(&core.ConfigOptions{
+		DataDir: strings.TrimSpace(dataDir),
+	})
+	defer app.Cleanup()
+
+	// Create the fiber app instance
+	fiberApp := core.NewFiberApp(app)
+
+	// Initialize the routes
+	handlers.InitRoutes(app, fiberApp)
+
+	// Run the server
+	core.RunServer(app, fiberApp)
+
+	// Run the jobs in the background
+	cron.RunJobs(app)
+
+	select {}
+
 }

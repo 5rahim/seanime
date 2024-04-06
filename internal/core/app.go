@@ -122,10 +122,8 @@ func NewApp(configOpts *ConfigOptions) *App {
 		}
 	}
 
-	// Delete old local file entries
-	db.CleanUpLocalFiles()
-	// Delete old scan summaries
-	db.CleanUpScanSummaries()
+	db.TrimLocalFileEntries()
+	db.TrimScanSummaryEntries()
 
 	// Get token from stored account or return empty string
 	anilistToken := db.GetAnilistToken()
@@ -184,9 +182,9 @@ func NewApp(configOpts *ConfigOptions) *App {
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
-		PlaybackManager:         nil, // Initialized in App.InitModulesOnce
-		AutoDownloader:          nil, // Initialized in App.InitModulesOnce
-		AutoScanner:             nil, // Initialized in App.InitModulesOnce
+		PlaybackManager:         nil, // Initialized in App.initModulesOnce
+		AutoDownloader:          nil, // Initialized in App.initModulesOnce
+		AutoScanner:             nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayRepository:     nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
@@ -194,8 +192,8 @@ func NewApp(configOpts *ConfigOptions) *App {
 		previousVersion:         previousVersion,
 	}
 
-	app.RunOnce()
-	app.InitModulesOnce()
+	app.runMigrations()
+	app.initModulesOnce()
 	app.InitOrRefreshModules()
 
 	return app

@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
@@ -16,41 +15,12 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
-	"github.com/seanime-app/seanime/internal/util"
-	"strings"
 )
 
-func (a *App) RunOnce() {
-
-	go func() {
-		defer a.Logger.Info().Msg("app: Version migration complete")
-		defer util.HandlePanicThen(func() {
-			a.Logger.Error().Msg("app: RunOnce failed")
-		})
-		if a.previousVersion != a.Version {
-			versionComp, _ := util.CompareVersion(a.previousVersion, constants.Version)
-
-			// DEVNOTE: 1.2.0 uses an incorrect manga cache format for MangaSee pages
-			// This migration will remove all manga cache files that start with "manga_" upon updating from 1.2.0
-			if a.previousVersion == "1.2.0" && versionComp > 0 {
-				a.Logger.Debug().Msg("app: Executing version migration task")
-				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
-					return strings.HasPrefix(filename, "manga_")
-				})
-				if err != nil {
-					a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
-					a.Logger.Error().Msg("app: Failed to remove 'manga' cache files, please clear them manually by going to the settings. Ignore this message if you have no manga cache files.")
-				}
-			}
-		}
-	}()
-
-}
-
-// InitModulesOnce will initialize modules that need to persist.
+// initModulesOnce will initialize modules that need to persist.
 // This function is called once after the App instance is created.
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
-func (a *App) InitModulesOnce() {
+func (a *App) initModulesOnce() {
 
 	// Initialize Discord RPC
 	// Settings are set in InitOrRefreshModules
@@ -137,7 +107,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 	// |   Module settings   |
 	// +---------------------+
-	// Refresh settings of modules that were initialized in InitModulesOnce
+	// Refresh settings of modules that were initialized in initModulesOnce
 
 	// Refresh updater settings
 	if settings.Library != nil && a.Updater != nil {

@@ -71,7 +71,7 @@ func (db *Database) InsertScanSummary(sm *summary.ScanSummary) error {
 	}).Error
 }
 
-func (db *Database) CleanUpScanSummaries() {
+func (db *Database) TrimScanSummaryEntries() {
 	go func() {
 		var count int64
 		err := db.gormdb.Model(&models.ScanSummary{}).Count(&count).Error

@@ -68,8 +68,6 @@ export function useHydrateMangaPaginationMap(pageContainer?: MangaPageContainer)
                 fullSpreadThreshold = recWidth + 50 // Add padding to the width to account for any discrepancies
             }
 
-            console.log("fullSpreadThreshold", fullSpreadThreshold)
-
             const map = new Map<number, number[]>()
 
             /**

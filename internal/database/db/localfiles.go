@@ -74,9 +74,9 @@ func (db *Database) InsertLocalFiles(lfs []*entities.LocalFile) ([]*entities.Loc
 
 }
 
-// CleanUpLocalFiles will trim the local file entries if there are more than 10 entries.
+// TrimLocalFileEntries will trim the local file entries if there are more than 10 entries.
 // This is run in a goroutine.
-func (db *Database) CleanUpLocalFiles() {
+func (db *Database) TrimLocalFileEntries() {
 	go func() {
 		var count int64
 		err := db.gormdb.Model(&models.LocalFiles{}).Count(&count).Error

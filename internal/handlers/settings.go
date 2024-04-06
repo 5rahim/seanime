@@ -17,7 +17,7 @@ type settingsBody struct {
 
 // HandleGetSettings returns the app settings.
 //
-//	GET /v1/settings
+//	GET /api/v1/settings
 func HandleGetSettings(c *RouteCtx) error {
 
 	settings, err := c.App.Database.GetSettings()
@@ -34,7 +34,7 @@ func HandleGetSettings(c *RouteCtx) error {
 // HandleSaveSettings updates the app settings.
 // It returns a new Status containing the updated settings.
 //
-//	POST /v1/settings
+//	POST /api/v1/settings
 func HandleSaveSettings(c *RouteCtx) error {
 
 	body := new(settingsBody)
@@ -85,7 +85,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 // This will also delete the cached listsync.ListSync instance.
 // It returns true if the settings were saved successfully.
 //
-//	PATCH /v1/settings/list-sync
+//	PATCH /api/v1/settings/list-sync
 func HandleSaveListSyncSettings(c *RouteCtx) error {
 
 	body := new(models.ListSyncSettings)
@@ -130,7 +130,7 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 // HandleSaveAutoDownloaderSettings
 // It returns true if the settings were saved successfully.
 //
-//	PATCH /v1/settings/auto-downloader
+//	PATCH /api/v1/settings/auto-downloader
 func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 
 	body := new(models.AutoDownloaderSettings)
