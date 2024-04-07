@@ -221,7 +221,7 @@ export default function Page() {
                             <Field.Switch
                                 name="enableAdultContent"
                                 label="Enable adult content"
-                                help="If enabled, adult content will be displayed in search results."
+                                help="If disabled, adult content will be hidden from search results and your library."
                             />
                             <Field.Switch
                                 name="blurAdultContent"
