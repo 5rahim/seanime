@@ -1,4 +1,5 @@
 import { websocketAtom, WebSocketContext } from "@/atoms/websocket"
+import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -23,7 +24,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
 
         function connectWebSocket() {
             const newSocket = new WebSocket(`ws://${process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:43211`
+                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host}/events?id=${uuidv4()}`)
 
             newSocket.addEventListener("open", () => {

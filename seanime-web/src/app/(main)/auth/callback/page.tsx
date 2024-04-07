@@ -2,6 +2,7 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { websocketConnectedAtom } from "@/components/application/websocket-provider"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 
 import { ServerStatus } from "@/lib/types/server-status.types"
@@ -23,7 +24,7 @@ export default function CallbackPage() {
         mutationKey: ["login", token],
         mutationFn: async (variables) => {
             const res = await axios(typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:43211`
+                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host) + "/api/v1" + SeaEndpoints.LOGIN) : "", {
                 method: "POST",
                 data: variables,

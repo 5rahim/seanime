@@ -1,4 +1,5 @@
 "use client"
+import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useMutation, UseMutationOptions, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import axios, { AxiosError } from "axios"
@@ -31,7 +32,9 @@ export async function buildSeaQuery<T, D extends any = any>(
         params,
     }: SeaQuery<D>): Promise<T | undefined> {
     const res = await axios<T>({
-        url: typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development" ? `${window?.location?.hostname}:43211` : window?.location?.host) + "/api/v1" + endpoint) : "",
+        url: typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development"
+            ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
+            : window?.location?.host) + "/api/v1" + endpoint) : "",
         method,
         data,
         params,

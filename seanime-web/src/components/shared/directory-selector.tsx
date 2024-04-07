@@ -1,6 +1,7 @@
 import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
+import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"
@@ -44,7 +45,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
         queryKey: ["directory-settings", debouncedInput],
         queryFn: async () => {
             const res = await axios.post<DirectorySelectorResponse>("http://" + (process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:43211`
+                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host) + "/api/v1/directory-selector", {
                 input: debouncedInput,
             })

@@ -28,6 +28,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
+	github.com/traefik/yaegi v0.16.1
 	github.com/xfrr/goffmpeg v1.0.0
 	golang.org/x/image v0.10.0
 	golang.org/x/net v0.21.0
