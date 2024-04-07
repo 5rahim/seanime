@@ -15,6 +15,7 @@ type Status struct {
 	Mal           *models.Mal      `json:"mal"`
 	Version       string           `json:"version"`
 	ThemeSettings *models.Theme    `json:"themeSettings"`
+	IsOffline     bool             `json:"isOffline"`
 }
 
 // NewStatus returns a new Status struct.
@@ -45,6 +46,7 @@ func NewStatus(c *RouteCtx) *Status {
 		Mal:           mal,
 		Version:       c.App.Version,
 		ThemeSettings: theme,
+		IsOffline:     c.App.Config.Server.Offline,
 	}
 }
 

@@ -19,15 +19,6 @@ type (
 
 // NewHub creates a new offline hub.
 
-// Snapshot populates offline data
-func (h *Hub) Snapshot() error {
-
-	// Use NewMediaEntry (anime)
-	// Modify NewMediaEntry, so we don't concern ourselves with the DownloadInfo
-
-	panic("not implemented")
-}
-
 // func (h *Hub) UpdateAnimeListStatus
 
 // func (h *Hub) UpdateMangaListStatus

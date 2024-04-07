@@ -13,8 +13,9 @@ import (
 type Config struct {
 	Version string
 	Server  struct {
-		Host string
-		Port int
+		Host    string
+		Port    int
+		Offline bool
 	}
 	Database struct {
 		Name string
@@ -67,6 +68,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("version", constants.Version)
 	viper.SetDefault("server.host", "127.0.0.1")
 	viper.SetDefault("server.port", 43211)
+	viper.SetDefault("server.offline", false)
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.dir", "$SEANIME_WORKING_DIR/web")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
