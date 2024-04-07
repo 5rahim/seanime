@@ -34,6 +34,8 @@ import { GiResize } from "react-icons/gi"
 import { MdMenuBook, MdOutlinePhotoSizeSelectLarge } from "react-icons/md"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiReadCvLogoLight, PiScrollDuotone } from "react-icons/pi"
 import { TbArrowAutofitHeight } from "react-icons/tb"
+import { useWindowSize } from "react-use"
+import { toast } from "sonner"
 
 export type ChapterReaderSettingsProps = {
     children?: React.ReactNode
@@ -45,7 +47,7 @@ const radioGroupClasses = {
         "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
         "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
     ),
-    stackClass: "space-y-0 flex gap-2",
+    stackClass: "space-y-0 flex flex-wrap gap-2",
     itemIndicatorClass: "hidden",
     itemLabelClass: "font-normal tracking-wide line-clamp-1 truncate flex flex-col items-center data-[state=checked]:text-[--gray] cursor-pointer",
     itemContainerClass: cn(
@@ -215,6 +217,29 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
     const [open, setOpen] = React.useState(false)
 
+    /**
+     * Disabled double page on small screens
+     */
+    const { width } = useWindowSize()
+    React.useEffect(() => {
+        if (readingMode === MangaReadingMode.DOUBLE_PAGE && width < 950) {
+            setReadingMode(prev => {
+                toast.error("Double page mode is not supported on small screens.")
+                return MangaReadingMode.LONG_STRIP
+            })
+        }
+    }, [width, readingMode])
+
+    function handleSetReadingMode(mode: string) {
+        if (mode === MangaReadingMode.DOUBLE_PAGE && width < 950) {
+            toast.error("Double page mode is not supported on small screens.")
+            return
+        }
+        setReadingMode(mode)
+    }
+
+    const isMobile = width < 950
+
     return (
         <>
             {open && <div className="fixed w-full top-0 left-0 h-full bg-gray-950 opacity-50 z-[10]" />}
@@ -237,7 +262,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         label="Reading Mode"
                         options={MANGA_READING_MODE_OPTIONS}
                         value={readingMode}
-                        onValueChange={(value) => setReadingMode(value)}
+                        onValueChange={(value) => handleSetReadingMode(value)}
                     />
 
                     <div
@@ -327,66 +352,70 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
                     <Separator />
 
-                    <h4>Keyboard shortcuts</h4>
+                    {!isMobile && (
+                        <>
+                            <h4>Keyboard shortcuts</h4>
 
-                    {[
-                        {
-                            key: MANGA_KBS.kbsChapterLeft,
-                            label: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
-                            value: kbsChapterLeft,
-                            // help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
-                        },
-                        {
-                            key: MANGA_KBS.kbsChapterRight,
-                            label: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
-                            value: kbsChapterRight,
-                            // help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
-                        },
-                        {
-                            key: MANGA_KBS.kbsPageLeft,
-                            label: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
-                            value: kbsPageLeft,
-                            // help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
-                        },
-                        {
-                            key: MANGA_KBS.kbsPageRight,
-                            label: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
-                            value: kbsPageRight,
-                            // help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
-                        },
-                    ].map(item => {
-                        return (
-                            <div className="flex gap-2 items-center" key={item.key}>
-                                <label className="text-[--gray]">
-                                    <span className="font-semibold">{item.label}</span>
-                                    {/*{!!item.help && <span className="ml-2 text-[--muted]">({item.help})</span>}*/}
-                                </label>
-                                <Button
-                                    onKeyDownCapture={(e) => setKbs(e, item.key)}
-                                    className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
-                                    size="sm"
-                                    intent="white-subtle"
-                                >
-                                    {item.value}
-                                </Button>
+                            {[
                                 {
-                                    item.value !== (MANGA_DEFAULT_KBS as any)[item.key] && (
+                                    key: MANGA_KBS.kbsChapterLeft,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
+                                    value: kbsChapterLeft,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
+                                },
+                                {
+                                    key: MANGA_KBS.kbsChapterRight,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
+                                    value: kbsChapterRight,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
+                                },
+                                {
+                                    key: MANGA_KBS.kbsPageLeft,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
+                                    value: kbsPageLeft,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
+                                },
+                                {
+                                    key: MANGA_KBS.kbsPageRight,
+                                    label: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
+                                    value: kbsPageRight,
+                                    // help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
+                                },
+                            ].map(item => {
+                                return (
+                                    <div className="flex gap-2 items-center" key={item.key}>
+                                        <label className="text-[--gray]">
+                                            <span className="font-semibold">{item.label}</span>
+                                            {/*{!!item.help && <span className="ml-2 text-[--muted]">({item.help})</span>}*/}
+                                        </label>
                                         <Button
-                                            onClick={() => {
-                                                resetKeyDefault(item.key)
-                                            }}
-                                            className="rounded-full"
+                                            onKeyDownCapture={(e) => setKbs(e, item.key)}
+                                            className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
                                             size="sm"
-                                            intent="white-basic"
-                                            leftIcon={<FaRedo />}
+                                            intent="white-subtle"
                                         >
-                                            Reset
+                                            {item.value}
                                         </Button>
-                                    )
-                                }
-                            </div>
-                        )
-                    })}
+                                        {
+                                            item.value !== (MANGA_DEFAULT_KBS as any)[item.key] && (
+                                                <Button
+                                                    onClick={() => {
+                                                        resetKeyDefault(item.key)
+                                                    }}
+                                                    className="rounded-full"
+                                                    size="sm"
+                                                    intent="white-basic"
+                                                    leftIcon={<FaRedo />}
+                                                >
+                                                    Reset
+                                                </Button>
+                                            )
+                                        }
+                                    </div>
+                                )
+                            })}
+                        </>
+                    )}
                 </div>
             </Drawer>
         </>

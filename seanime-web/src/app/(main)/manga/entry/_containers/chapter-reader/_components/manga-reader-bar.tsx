@@ -134,18 +134,15 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                     onClick={() => setSelectedChapter(undefined)}
                 />
 
-                <h4 className="flex gap-1 items-center">
+                <h4 className="lg:flex gap-1 items-center hidden">
                     <span className="max-w-[180px] text-ellipsis truncate block">{entry?.media?.title?.userPreferred}</span>
                 </h4>
 
-                {!!selectedChapter && <div className="flex gap-3 items-center">
+                {!!selectedChapter && <div className="flex gap-3 items-center flex-none whitespace-nowrap ">
                     <ChapterNavButton dir="left" />
                     {selectedChapter?.title || ""}
                     <ChapterNavButton dir="right" />
                 </div>}
-
-                <div className="flex flex-1"></div>
-
 
                 <div className="flex flex-1"></div>
 
@@ -179,7 +176,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                 {/*    />*/}
                 {/*</Popover>}*/}
 
-                <p className="flex gap-4 items-center text-[--muted]">
+                <p className="hidden lg:flex gap-4 items-center text-[--muted]">
                     <span className="flex items-center gap-1">
                         <span className="text-white">m:</span>
                         {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
