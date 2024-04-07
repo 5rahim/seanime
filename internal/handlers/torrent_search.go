@@ -13,7 +13,7 @@ import (
 func HandleTorrentSearch(c *RouteCtx) error {
 
 	type body struct {
-		QuickSearch    *bool              `json:"quickSearch"`
+		SmartSearch    *bool              `json:"smartSearch"`
 		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
@@ -28,7 +28,7 @@ func HandleTorrentSearch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if b.QuickSearch == nil ||
+	if b.SmartSearch == nil ||
 		b.Media == nil ||
 		b.Batch == nil ||
 		b.EpisodeNumber == nil ||
@@ -40,7 +40,7 @@ func HandleTorrentSearch(c *RouteCtx) error {
 
 	data, err := torrent.NewSmartSearch(&torrent.SmartSearchOptions{
 		SmartSearchQueryOptions: torrent.SmartSearchQueryOptions{
-			QuickSearch:    b.QuickSearch,
+			SmartSearch:    b.SmartSearch,
 			Query:          b.Query,
 			EpisodeNumber:  b.EpisodeNumber,
 			Batch:          b.Batch,
@@ -56,6 +56,30 @@ func HandleTorrentSearch(c *RouteCtx) error {
 		Logger:                c.App.Logger,
 		MetadataProvider:      c.App.MetadataProvider,
 	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(data)
+
+}
+
+// HandleNsfwTorrentSearch will search NSFW torrents.
+// It will return a list of torrents without previews.
+//
+//	POST /v1/torrent/nsfw-search
+func HandleNsfwTorrentSearch(c *RouteCtx) error {
+
+	type body struct {
+		Query string `json:"query"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	data, err := torrent.NewNsfwSearch(b.Query, c.App.NyaaSearchCache)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

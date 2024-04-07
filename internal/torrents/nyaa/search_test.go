@@ -28,6 +28,26 @@ func TestSearch(t *testing.T) {
 	}
 }
 
+func TestNsfwSearch(t *testing.T) {
+
+	res, err := Search(SearchOptions{
+		Provider: "sukebei",
+		Query:    "Araiya-san!: Ore to Aitsu ga Onnayu de!?",
+		Category: "art-anime",
+		SortBy:   "seeders",
+		Filter:   "",
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, torrent := range res {
+		t.Logf("Title: %s", torrent.Name)
+		t.Logf("Seeders: %s", torrent.Seeders)
+	}
+}
+
 func TestBuildSearchQuery(t *testing.T) {
 
 	anilistLimiter := limiter.NewAnilistLimiter()

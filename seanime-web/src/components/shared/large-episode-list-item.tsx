@@ -70,7 +70,7 @@ export const LargeEpisodeListItem: React.FC<LargeEpisodeListItemProps & Omit<Rea
                 {topTitle && <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{topTitle}</p>}
                 <div className="w-full justify-between flex items-center">
                     <p className="text-base md:text-xl font-semibold line-clamp-2">{title}</p>
-                    {(meta) &&
+                    {(!!meta) &&
                         <p className="text-[--muted] text-sm md:text-base">{meta}</p>}
                 </div>
                 {isInvalid && <p className="text-red-300">No metadata found</p>}

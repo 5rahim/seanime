@@ -13,7 +13,7 @@ type SliderEpisodeItemProps = {
 
 export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeItemProps>(({ episode, onPlay, ...rest }, ref) => {
 
-    const date = episode.episodeMetadata?.airDate ? new Date(episode.episodeMetadata.airDate) : undefined
+    // const date = episode.episodeMetadata?.airDate ? new Date(episode.episodeMetadata.airDate) : undefined
     const offset = episode.progressNumber - episode.episodeNumber
 
     return (
@@ -61,7 +61,9 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
                                 <span className="opacity-40">/{` `}{episode.basicMedia.episodes - offset}</span>)}
                         </span>
                     </p>
-                    <p className="text-[--muted] text-sm md:text-base">{episode.episodeMetadata?.length + "m" || ""}</p>
+                    <div className="flex flex-1"></div>
+                    {!!episode.episodeMetadata?.length &&
+                        <p className="text-[--muted] text-sm md:text-base">{episode.episodeMetadata?.length + "m" || ""}</p>}
                 </div>
                 {episode.isInvalid && <p className="text-red-300">No metadata found</p>}
             </div>

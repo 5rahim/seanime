@@ -1,11 +1,11 @@
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+
+import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
-
-import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import React, { memo, useMemo } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 
@@ -14,7 +14,7 @@ type TorrentTable = {
     selectedTorrents: AnimeTorrent[]
     globalFilter: string,
     setGlobalFilter: React.Dispatch<React.SetStateAction<string>>
-    quickSearch: boolean
+    smartSearch: boolean
     isLoading: boolean
     isFetching: boolean
     onToggleTorrent: (t: AnimeTorrent) => void
@@ -26,7 +26,7 @@ export const TorrentTable = memo((
         selectedTorrents,
         globalFilter,
         setGlobalFilter,
-        quickSearch,
+        smartSearch,
         isFetching,
         isLoading,
         onToggleTorrent,
@@ -105,7 +105,7 @@ export const TorrentTable = memo((
             onGlobalFilterChange={setGlobalFilter}
             isLoading={isLoading || isFetching}
             isDataMutating={isFetching}
-            hideGlobalSearchInput={quickSearch}
+            hideGlobalSearchInput={smartSearch}
         />
     )
 

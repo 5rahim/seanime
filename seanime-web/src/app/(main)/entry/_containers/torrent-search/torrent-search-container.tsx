@@ -1,87 +1,70 @@
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
-import { AnimeTorrent, TorrentSearchData } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
+import { useTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent-search.hooks"
+import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
-import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { useDebounceWithSet } from "@/hooks/use-debounce"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { atom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
-import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react"
+import { useAtomValue } from "jotai/react"
+import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
-    const shouldLookForBatches = downloadInfo?.canBatch && downloadInfo?.episodesToDownload?.length > 1
+    const shouldLookForBatches = React.useMemo(() => !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length,
+        [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length])
+    const hasEpisodesToDownload = React.useMemo(() => !!downloadInfo?.episodesToDownload?.length, [downloadInfo?.episodesToDownload?.length])
+    const isAdult = React.useMemo(() => entry.media?.isAdult === true, [entry.media?.isAdult])
 
-    const hasEpisodesToDownload = !!downloadInfo?.episodesToDownload?.length
-
-    const [soughtEpisode, setSoughtEpisode] = useAtom(torrentSearchDrawerEpisodeAtom)
-
-    const [globalFilter, setGlobalFilter] = useState<string>(hasEpisodesToDownload ? "" : (entry.media?.title?.romaji || ""))
-    const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
-    const [quickSearch, setQuickSearch] = useState(true)
-    const [quickSearchBatch, setQuickSearchBatch] = useState<boolean>(shouldLookForBatches || false)
-    const [quickSearchEpisode, setQuickSearchEpisode] = useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
-    const [quickSearchResolution, setQuickSearchResolution] = useState("1080")
-    const [quickSearchBest, setQuickSearchBest] = useState(false)
-    const [dQuickSearchEpisode, setDQuickSearchEpisode] = useDebounceWithSet(quickSearchEpisode, 500)
-
-    useLayoutEffect(() => {
-        if (soughtEpisode !== undefined) {
-            setQuickSearchEpisode(soughtEpisode)
-            setDQuickSearchEpisode(soughtEpisode)
-            startTransition(() => {
-                setSoughtEpisode(undefined)
-            })
-        }
-    }, [soughtEpisode])
+    const {
+        globalFilter,
+        setGlobalFilter,
+        selectedTorrents,
+        setSelectedTorrents,
+        smartSearch,
+        setSmartSearch,
+        smartSearchBatch,
+        setSmartSearchBatch,
+        smartSearchEpisode,
+        setSmartSearchEpisode,
+        smartSearchResolution,
+        setSmartSearchResolution,
+        smartSearchBest,
+        setSmartSearchBest,
+        data,
+        isLoading,
+        isFetching,
+        soughtEpisode,
+    } = useTorrentSearch({
+        isAdult,
+        hasEpisodesToDownload,
+        shouldLookForBatches,
+        downloadInfo,
+        entry,
+    })
 
     useEffect(() => {
         setSelectedTorrents([])
     }, [])
 
     useLayoutEffect(() => {
-        if (quickSearch) {
+        if (smartSearch) {
             setGlobalFilter("")
         } else {
             setGlobalFilter(entry.media?.title?.romaji || "")
         }
-    }, [quickSearch])
-
-    const { data, isLoading, isFetching } = useSeaQuery<TorrentSearchData | undefined>({
-        endpoint: SeaEndpoints.TORRENT_SEARCH,
-        queryKey: ["torrent-search", entry.mediaId, dQuickSearchEpisode, globalFilter, quickSearchBatch, quickSearchResolution, quickSearch,
-            downloadInfo?.absoluteOffset, quickSearchBest],
-        method: "post",
-        data: {
-            query: globalFilter,
-            episodeNumber: dQuickSearchEpisode,
-            batch: quickSearchBatch,
-            media: entry.media,
-            absoluteOffset: downloadInfo?.absoluteOffset || 0,
-            resolution: quickSearchResolution,
-            quickSearch: quickSearch,
-            best: quickSearch && quickSearchBest,
-        },
-        refetchOnWindowFocus: false,
-        retry: 0,
-        retryDelay: 1000,
-        enabled: !(quickSearchEpisode === undefined && globalFilter.length === 0),
-    })
+    }, [smartSearch])
 
     const torrents = useMemo(() => data?.torrents ?? [], [data?.torrents])
     const previews = useMemo(() => data?.previews ?? [], [data?.previews])
@@ -89,23 +72,23 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const EpisodeNumberInput = useCallback(() => {
         return <NumberInput
             label="Episode number"
-            value={quickSearchEpisode}
-            disabled={entry?.media?.format === "MOVIE" || quickSearchBest}
+            value={smartSearchEpisode}
+            disabled={entry?.media?.format === "MOVIE" || smartSearchBest}
             onValueChange={(value) => {
                 startTransition(() => {
-                    setQuickSearchEpisode(value)
+                    setSmartSearchEpisode(value)
                 })
             }}
             hideControls
             size="sm"
             fieldClass={cn(
                 "flex items-center md:justify-end gap-3 space-y-0",
-                { "opacity-50 cursor-not-allowed pointer-events-none": (quickSearchBatch || !quickSearch) },
+                { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || !smartSearch) },
             )}
             fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
             className="max-w-[6rem]"
         />
-    }, [quickSearch, quickSearchBatch, downloadInfo, soughtEpisode])
+    }, [smartSearch, smartSearchBatch, downloadInfo, soughtEpisode])
 
     const handleToggleTorrent = useCallback((t: AnimeTorrent) => {
         setSelectedTorrents(prev => {
@@ -115,23 +98,30 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
             }
             return [...prev, t]
         })
-    }, [setSelectedTorrents, quickSearchBest])
+    }, [setSelectedTorrents, smartSearchBest])
 
     return (
         <>
             <div>
-                <div className="py-4 flex w-full justify-between">
+                {!isAdult ? <div className="py-4 flex w-full justify-between">
                     <Switch
                         label="Smart search"
                         help="Builds a search query automatically, based on parameters"
-                        value={quickSearch}
-                        onValueChange={setQuickSearch}
+                        value={smartSearch}
+                        onValueChange={setSmartSearch}
                     />
 
                     <TorrentConfirmationContinueButton />
-                </div>
+                </div> : <div className="py-4 flex items-center">
+                    <div>
+                        <div className="text-[--muted] italic">Smart search is not enabled for adult content</div>
+                        <div className="">Provider: <strong>Nyaa Sukeibei</strong></div>
+                    </div>
+                    <div className="flex flex-1"></div>
+                    <TorrentConfirmationContinueButton />
+                </div>}
 
-                {quickSearch && <div>
+                {smartSearch && <div>
                     <div className="space-y-2">
                         <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
 
@@ -139,19 +129,19 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
 
                             <Select
                                 label="Resolution"
-                                value={quickSearchResolution || "-"}
-                                onValueChange={v => setQuickSearchResolution(v != "-" ? v : "")}
+                                value={smartSearchResolution || "-"}
+                                onValueChange={v => setSmartSearchResolution(v != "-" ? v : "")}
                                 options={[
                                     { value: "-", label: "Any" },
                                     { value: "1080", label: "1080p" },
                                     { value: "720", label: "720p" },
                                     { value: "480", label: "480p" },
                                 ]}
-                                disabled={quickSearchBest || !quickSearch}
+                                disabled={smartSearchBest || !smartSearch}
                                 size="sm"
                                 fieldClass={cn(
                                     "flex items-center md:justify-center gap-3 space-y-0",
-                                    { "opacity-50 cursor-not-allowed pointer-events-none": !quickSearch || quickSearchBest },
+                                    { "opacity-50 cursor-not-allowed pointer-events-none": !smartSearch || smartSearchBest },
                                 )}
                                 fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                 className="w-[6rem]"
@@ -160,8 +150,8 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             <Switch
                                 label="Best releases"
                                 help={!downloadInfo?.canBatch ? "Cannot look for best releases yet" : "Look for the best releases"}
-                                value={quickSearchBest}
-                                onValueChange={setQuickSearchBest}
+                                value={smartSearchBest}
+                                onValueChange={setSmartSearchBest}
                                 fieldClass={cn(
                                     { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                 )}
@@ -171,11 +161,11 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                             <Switch
                                 label="Batches"
                                 help={!downloadInfo?.canBatch ? "Cannot look for batches yet" : "Look for batches"}
-                                value={quickSearchBatch}
-                                onValueChange={setQuickSearchBatch}
-                                disabled={quickSearchBest || !downloadInfo?.canBatch}
+                                value={smartSearchBatch}
+                                onValueChange={setSmartSearchBatch}
+                                disabled={smartSearchBest || !downloadInfo?.canBatch}
                                 fieldClass={cn(
-                                    { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || quickSearchBest },
+                                    { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
                                 )}
                                 size="sm"
                             />
@@ -185,7 +175,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                         {serverStatus?.settings?.library?.torrentProvider != "animetosho" && <DataGridSearchInput
                             value={globalFilter ?? ""}
                             onChange={v => setGlobalFilter(v)}
-                            placeholder={quickSearch ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
+                            placeholder={smartSearch ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
                             fieldClass="md:max-w-full w-full"
                         />}
 
@@ -204,7 +194,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
                     torrents={torrents}
                     globalFilter={globalFilter}
                     setGlobalFilter={setGlobalFilter}
-                    quickSearch={quickSearch}
+                    smartSearch={smartSearch}
                     isLoading={isLoading}
                     isFetching={isFetching}
                     selectedTorrents={selectedTorrents}

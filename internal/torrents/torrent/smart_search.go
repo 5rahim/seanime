@@ -24,7 +24,7 @@ import (
 
 type (
 	SmartSearchQueryOptions struct {
-		QuickSearch    *bool              `json:"quickSearch"`
+		SmartSearch    *bool              `json:"smartSearch"`
 		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
@@ -56,7 +56,7 @@ type (
 
 func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 
-	if opts.QuickSearch == nil ||
+	if opts.SmartSearch == nil ||
 		opts.Media == nil ||
 		opts.Batch == nil ||
 		opts.EpisodeNumber == nil ||
@@ -109,7 +109,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 		// +---------------------+
 
 		// Use quick search if the user turned it on OR has not specified a query
-		if *opts.QuickSearch || len(*opts.Query) == 0 {
+		if *opts.SmartSearch || len(*opts.Query) == 0 {
 			queries, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
 				Media:          opts.Media,
 				Batch:          opts.Batch,
@@ -170,7 +170,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 		// |     AnimeTosho      |
 		// +---------------------+
 
-		if *opts.QuickSearch || len(*opts.Query) == 0 {
+		if *opts.SmartSearch || len(*opts.Query) == 0 {
 
 			animetoshoTorrents := make([]*animetosho.Torrent, 0)
 			var err error

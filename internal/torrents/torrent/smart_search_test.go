@@ -21,7 +21,7 @@ func TestSmartTest(t *testing.T) {
 	metadataProvider := metadata.TestGetMockProvider(t)
 
 	tests := []struct {
-		quickSearch    bool
+		smartSearch    bool
 		query          string
 		episodeNumber  int
 		batch          bool
@@ -31,7 +31,7 @@ func TestSmartTest(t *testing.T) {
 		provider       string
 	}{
 		{
-			quickSearch:    true,
+			smartSearch:    true,
 			query:          "",
 			episodeNumber:  1,
 			batch:          false,
@@ -54,7 +54,7 @@ func TestSmartTest(t *testing.T) {
 
 			data, err := NewSmartSearch(&SmartSearchOptions{
 				SmartSearchQueryOptions: SmartSearchQueryOptions{
-					QuickSearch:    lo.ToPtr(tt.quickSearch),
+					SmartSearch:    lo.ToPtr(tt.smartSearch),
 					Query:          lo.ToPtr(tt.query),
 					EpisodeNumber:  lo.ToPtr(tt.episodeNumber),
 					Batch:          lo.ToPtr(tt.batch),

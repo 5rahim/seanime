@@ -84,8 +84,10 @@ func Search(opts SearchOptions) ([]*DetailedTorrent, error) {
 		ret = append(ret, torrent.toDetailedTorrent())
 	}
 
-	// add to the cache
-	opts.Cache.SetT(opts.Query, ret, time.Minute)
+	if opts.Cache != nil {
+		// add to the cache
+		opts.Cache.SetT(opts.Query, ret, time.Minute)
+	}
 
 	return ret, nil
 }

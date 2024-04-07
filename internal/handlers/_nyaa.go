@@ -40,7 +40,7 @@ type (
 func HandleNyaaSearch(c *RouteCtx) error {
 
 	type body struct {
-		QuickSearch    *bool              `json:"quickSearch"`
+		SmartSearch    *bool              `json:"smartSearch"`
 		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
@@ -54,7 +54,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if b.QuickSearch == nil ||
+	if b.SmartSearch == nil ||
 		b.Media == nil ||
 		b.Batch == nil ||
 		b.EpisodeNumber == nil ||
@@ -69,8 +69,8 @@ func HandleNyaaSearch(c *RouteCtx) error {
 	// +---------------------+
 	// | Build Search query  |
 	// +---------------------+
-	// Use quick search if the user turned it on OR has not specified a query
-	if *b.QuickSearch || len(*b.Query) == 0 {
+	// Use smart search if the user turned it on OR has not specified a query
+	if *b.SmartSearch || len(*b.Query) == 0 {
 		queries, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
 			Media:          b.Media,
 			Batch:          b.Batch,
