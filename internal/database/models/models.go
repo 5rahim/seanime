@@ -186,3 +186,16 @@ type PlaylistEntry struct {
 	Name  string `gorm:"column:name" json:"name"`
 	Value []byte `gorm:"column:value" json:"value"`
 }
+
+// +------------------------+
+// | Chapter Download Queue |
+// +------------------------+
+
+type ChapterDownloadQueueItem struct {
+	BaseModel
+	Provider  string `gorm:"column:provider" json:"provider"`
+	MediaID   int    `gorm:"column:media_id" json:"mediaId"`
+	ChapterID string `gorm:"column:chapter_id" json:"chapterId"`
+	PageData  []byte `gorm:"column:page_data" json:"pageData"` // Contains map of page index to page details
+	Status    string `gorm:"column:status" json:"status"`
+}

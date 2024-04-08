@@ -4,7 +4,7 @@
 
 <h2 align="center"><b>Seanime</b></h2>
 
-<h4 align="center">Self-hosted, user-friendly, media server for anime and manga enthusiasts.</h4>
+<h4 align="center">Self-hosted, user-friendly media server for anime and manga enthusiasts.</h4>
 
 <h1 align="center">
 <a href="https://seanime.rahim.app/">

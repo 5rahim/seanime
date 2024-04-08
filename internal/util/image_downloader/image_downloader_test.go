@@ -46,7 +46,7 @@ func TestImageDownloader_DownloadImages(t *testing.T) {
 				t.Errorf("ImageDownloader.DownloadImages() error = %v", err)
 			}
 
-			imgPath, ok := id.GetImagePathByUrl(tt.urls[0])
+			imgPath, ok := id.GetImageFilenameByUrl(tt.urls[0])
 			if !ok {
 				t.Errorf("ImageDownloader.GetImagePathByUrl() error")
 			} else {

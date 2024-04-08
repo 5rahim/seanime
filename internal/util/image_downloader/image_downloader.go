@@ -18,7 +18,6 @@ import (
 	"path/filepath"
 	"slices"
 	"sync"
-	"time"
 )
 
 const (
@@ -85,7 +84,6 @@ func (id *ImageDownloader) DownloadImages(urls []string) (err error) {
 				id.logger.Warn().Msg("image downloader: Download process canceled")
 				return
 			default:
-				time.Sleep(1 * time.Second)
 				id.downloadImage(url)
 			}
 		}(url)
@@ -192,7 +190,7 @@ func (id *ImageDownloader) downloadImage(url string) {
 	// Copy the image data to the file
 	_, err = io.Copy(file, bytes.NewReader(buf))
 	if err != nil {
-		fmt.Printf("Failed to write image data to file for image from %s: %s\n", url, err)
+		id.logger.Error().Err(err).Msgf("image downloader: Failed to write image data to file for image from %s", url)
 		return
 	}
 
@@ -275,7 +273,6 @@ func (r *Registry) save(urls []string) (err error) {
 	}
 
 	if !allDownloaded {
-
 		// Clean up downloaded images
 		go func() {
 			r.logger.Error().Msg("image downloader: Not all images have been downloaded, aborting")
