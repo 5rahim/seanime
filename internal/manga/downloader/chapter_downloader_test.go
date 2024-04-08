@@ -26,6 +26,15 @@ func TestQueue(t *testing.T) {
 
 	downloadDir := "./test"
 
+	downloader := NewDownloader(&NewDownloaderOptions{
+		Logger:         logger,
+		WSEventManager: events.NewMockWSEventManager(logger),
+		Database:       database,
+		DownloadDir:    downloadDir,
+	})
+
+	downloader.Start()
+
 	tests := []struct {
 		name         string
 		providerName manga_providers.Provider
@@ -40,6 +49,14 @@ func TestQueue(t *testing.T) {
 			name:         "Jujutsu Kaisen",
 			mangaId:      "TA22I5O7",
 			chapterIndex: 258,
+			mediaId:      101517,
+		},
+		{
+			providerName: manga_providers.ComickProvider,
+			provider:     manga_providers.NewComicK(util.NewLogger()),
+			name:         "Jujutsu Kaisen",
+			mangaId:      "TA22I5O7",
+			chapterIndex: 259,
 			mediaId:      101517,
 		},
 	}
@@ -70,22 +87,10 @@ func TestQueue(t *testing.T) {
 						//
 						// TEST
 						//
-
-						downloader := NewDownloader(&NewDownloaderOptions{
-							Logger:         logger,
-							WSEventManager: events.NewMockWSEventManager(logger),
-							Database:       database,
-							DownloadDir:    downloadDir,
-						})
-
-						downloader.Start()
-
 						err := downloader.DownloadChapter(string(tt.providerName), tt.mediaId, chapterInfo.ID, pages)
 						if err != nil {
 							t.Fatalf("Failed to download chapter: %v", err)
 						}
-
-						time.Sleep(10 * time.Second)
 
 					}
 				}
@@ -95,4 +100,5 @@ func TestQueue(t *testing.T) {
 
 	}
 
+	time.Sleep(10 * time.Second)
 }

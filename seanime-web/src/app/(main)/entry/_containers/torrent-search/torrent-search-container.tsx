@@ -25,7 +25,7 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     const shouldLookForBatches = React.useMemo(() => !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length,
         [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length])
     const hasEpisodesToDownload = React.useMemo(() => !!downloadInfo?.episodesToDownload?.length, [downloadInfo?.episodesToDownload?.length])
-    const isAdult = React.useMemo(() => entry.media?.isAdult === true, [entry.media?.isAdult])
+    const [isAdult, setIsAdult] = React.useState(entry.media?.isAdult === true)
 
     const {
         globalFilter,
@@ -103,6 +103,15 @@ export function TorrentSearchContainer({ entry }: { entry: MediaEntry }) {
     return (
         <>
             <div>
+                {entry.media?.isAdult === true && <div className="py-2">
+                    <Switch
+                        label="Adult"
+                        help="If enabled, Seanime will switch providers"
+                        value={isAdult}
+                        onValueChange={setIsAdult}
+                    />
+                </div>}
+
                 {!isAdult ? <div className="py-4 flex w-full justify-between">
                     <Switch
                         label="Smart search"

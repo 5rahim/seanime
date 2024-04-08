@@ -70,6 +70,7 @@ type (
 		MetadataProvider    *metadata.Provider
 		WD                  string // Working directory
 		DiscordPresence     *discordrpc_presence.Presence
+		MangaDownloader     *manga.Downloader
 		Cleanups            []func()
 		cancelContext       func()
 		previousVersion     string
@@ -182,6 +183,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
+		MangaDownloader:         nil, // Initialized in App.initModulesOnce
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce
 		AutoDownloader:          nil, // Initialized in App.initModulesOnce
 		AutoScanner:             nil, // Initialized in App.initModulesOnce

@@ -8,6 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
+	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
@@ -65,6 +66,16 @@ func (a *App) initModulesOnce() {
 	})
 
 	a.AutoScanner.Start()
+
+	// Manga Downloader
+	a.MangaDownloader = manga.NewDownloader(&manga.NewDownloaderOptions{
+		Database:       a.Database,
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
+		DownloadDir:    a.Config.Manga.BackupDir,
+	})
+
+	a.MangaDownloader.Start()
 
 }
 

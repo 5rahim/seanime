@@ -49,20 +49,9 @@ type (
 		queue    *Queue
 		runCh    chan *QueueInfo // QueueInfo from queue
 		cancelCh chan struct{}   // Called by client
-
-		mediaMap MediaMap // Refreshed on start and after each download
 	}
 
 	//+-------------------------------------------------------------------------------------------------------------------+
-
-	// MediaMap is used to store all downloaded chapters for each media.
-	MediaMap map[int]MediaMapInfo
-
-	// MediaMapInfo stores all downloaded chapters for a specific media.
-	MediaMapInfo struct {
-		Provider   string
-		ChapterIds []string
-	}
 
 	DownloadID struct {
 		Provider  string `json:"provider"`
@@ -146,6 +135,15 @@ func (cd *Downloader) DownloadChapter(provider string, mediaId int, chapterId st
 	cd.logger.Debug().Msgf("chapter downloader: Adding chapter to download queue: %s", chapterId)
 	// Add to queue
 	return cd.queue.Add(downloadId, pages)
+}
+
+func (cd *Downloader) DeleteChapter(provider string, mediaId int, chapterId string) error {
+	cd.mu.Lock()
+	defer cd.mu.Unlock()
+	downloadId := DownloadID{Provider: provider, MediaId: mediaId, ChapterId: chapterId}
+	_ = os.RemoveAll(cd.getChapterDownloadDir(downloadId))
+	cd.logger.Debug().Msgf("chapter downloader: Removed chapter %s", chapterId)
+	return nil
 }
 
 // Run starts the downloader.
