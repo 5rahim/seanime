@@ -19,7 +19,7 @@ export const monochromeCheckboxClass = {
 export const primaryPillCheckboxClass = {
     className: "hidden",
     labelClass: cn(
-        "text-[--muted] data-[checked=true]:text-white hover:!bg-[--highlight]",
+        "text-gray-300 data-[checked=true]:text-white hover:!bg-[--highlight]",
         "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
         "hover:bg-[--subtle] dark:bg-gray-900",
         "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",

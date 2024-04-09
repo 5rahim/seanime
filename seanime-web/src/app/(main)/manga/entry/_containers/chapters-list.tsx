@@ -55,8 +55,11 @@ export function ChaptersList(props: ChaptersListProps) {
 
     const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
 
-    const { isChapterQueued, isChapterDownloaded, getProviderNumberOfDownloadedChapters } = useMangaDownloadDataUtils(downloadData,
-        downloadDataLoading)
+    const {
+        isChapterQueued,
+        isChapterDownloaded,
+        getProviderNumberOfDownloadedChapters,
+    } = useMangaDownloadDataUtils(downloadData, downloadDataLoading)
 
     const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
 
@@ -80,7 +83,7 @@ export function ChaptersList(props: ChaptersListProps) {
     })
 
     /**
-     * Chapter tables
+     * Chapter columns
      */
     const columns = React.useMemo(() => defineDataGridColumns<MangaChapterDetails>(() => [
         {
@@ -127,6 +130,10 @@ export function ChaptersList(props: ChaptersListProps) {
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const allChapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
+
+    React.useEffect(() => {
+        setShowUnreadChapter(!!unreadChapters.length)
+    }, [unreadChapters])
 
     const chapters = React.useMemo(() => {
         let d = showUnreadChapter ? unreadChapters : allChapters
@@ -176,38 +183,6 @@ export function ChaptersList(props: ChaptersListProps) {
                         {chapterContainer?.chapters?.length === 0 && (
                             <LuffyError title="No chapters found"><p>Try another source</p></LuffyError>
                         )}
-
-                        {/*<Accordion*/}
-                        {/*    type="single"*/}
-                        {/*    className="!py-4"*/}
-                        {/*    triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"*/}
-                        {/*    itemClass="border-b"*/}
-                        {/*    contentClass="pb-8"*/}
-                        {/*    collapsible*/}
-                        {/*    defaultValue={!unreadChapters.length ? "all" : undefined}*/}
-                        {/*>*/}
-                        {/*    <AccordionItem value="all">*/}
-                        {/*        <AccordionTrigger>*/}
-                        {/*            <h3 className="flex p-1 gap-2 items-center"><BiBookAlt className="text-gray-300" /> All chapters</h3>*/}
-                        {/*        </AccordionTrigger>*/}
-                        {/*        <AccordionContent className="p-0 pb-1 space-y-2">*/}
-                        {/*            <DataGrid<MangaChapterDetails>*/}
-                        {/*                columns={columns}*/}
-                        {/*                data={chapters}*/}
-                        {/*                rowCount={chapters.length}*/}
-                        {/*                isLoading={chapterContainerLoading}*/}
-                        {/*                rowSelectionPrimaryKey={"id"}*/}
-                        {/*                initialState={{*/}
-                        {/*                    pagination: {*/}
-                        {/*                        pageIndex: 0,*/}
-                        {/*                        pageSize: 10,*/}
-                        {/*                    },*/}
-                        {/*                }}*/}
-                        {/*                className="border rounded-md bg-[--paper] p-4"*/}
-                        {/*            />*/}
-                        {/*        </AccordionContent>*/}
-                        {/*    </AccordionItem>*/}
-                        {/*</Accordion>*/}
 
                         {!!unreadChapters?.length && (
                             <>
@@ -274,7 +249,121 @@ export function ChaptersList(props: ChaptersListProps) {
                 )
             )}
 
+            <DownloadList data={downloadData} />
+
             <ConfirmationDialog {...confirmReloadSource} />
         </div>
+    )
+}
+
+// /* -------------------------------------------------------------------------------------------------
+//  * Download List
+//  * -----------------------------------------------------------------------------------------------*/
+
+
+type DownloadListProps = {
+    data: MangaDownloadData | undefined
+}
+
+type DownloadListTableItem = { provider: string, chapterId: string, queued: boolean, downloaded: boolean }
+
+function DownloadList(props: DownloadListProps) {
+
+    const {
+        data,
+        ...rest
+    } = props
+
+    // Transforms {downloaded: Record<string, string[]>, queued: Record<string, string[]>}
+    // to [{provider: string, chapterId: string, queued: boolean, downloaded: boolean}, ...]
+    const tableData = React.useMemo(() => {
+        let d: { provider: string, chapterId: string, queued: boolean, downloaded: boolean }[] = []
+        for (const provider in data?.downloaded || {}) {
+            d.push(...(data?.downloaded[provider] || []).map(chapterId => ({
+                provider,
+                chapterId,
+                queued: false,
+                downloaded: true,
+            })))
+        }
+        for (const provider in data?.queued || {}) {
+            d.push(...(data?.queued[provider] || []).map(chapterId => ({
+                provider,
+                chapterId,
+                queued: true,
+                downloaded: false,
+            })))
+        }
+        return d
+    }, [data])
+
+    const columns = React.useMemo(() => defineDataGridColumns<DownloadListTableItem>(() => [
+        {
+            accessorKey: "chapterId",
+            header: "Chapter ID",
+            size: 10,
+        },
+        {
+            accessorKey: "provider",
+            header: "Provider",
+            size: 10,
+        },
+        {
+            id: "_actions",
+            size: 10,
+            enableSorting: false,
+            enableGlobalFilter: false,
+            cell: ({ row }) => {
+                return (
+                    <div className="flex justify-end gap-2 items-center w-full">
+                        {row.original.queued && <p className="text-[--muted]">Queued</p>}
+                        {row.original.downloaded && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
+                    </div>
+                )
+            },
+        },
+    ]), [tableData])
+
+    if (!data || !tableData.length) return null
+
+    return (
+        <>
+            <h3 className="pt-8">Downloads</h3>
+
+            <div className="space-y-4 border rounded-md bg-[--paper] p-4">
+
+                {/*<div className="flex flex-wrap items-center gap-4">*/}
+                {/*    <Checkbox*/}
+                {/*        label="Show unread"*/}
+                {/*        value={showUnreadChapter}*/}
+                {/*        onValueChange={v => setShowUnreadChapter(v as boolean)}*/}
+                {/*        fieldClass="w-fit"*/}
+                {/*        {...primaryPillCheckboxClass}*/}
+                {/*    />*/}
+                {/*    <Checkbox*/}
+                {/*        label={<span className="flex gap-2 items-center"><IoLibrary /> Show downloaded</span>}*/}
+                {/*        value={showDownloadedChapters}*/}
+                {/*        onValueChange={v => setShowDownloadedChapters(v as boolean)}*/}
+                {/*        fieldClass="w-fit"*/}
+                {/*        {...primaryPillCheckboxClass}*/}
+                {/*    />*/}
+                {/*</div>*/}
+
+                <DataGrid<DownloadListTableItem>
+                    columns={columns}
+                    data={tableData}
+                    rowCount={tableData.length}
+                    isLoading={false}
+                    rowSelectionPrimaryKey={"id"}
+                    initialState={{
+                        pagination: {
+                            pageIndex: 0,
+                            pageSize: 10,
+                        },
+                    }}
+                    className=""
+                />
+            </div>
+        </>
     )
 }
