@@ -1,5 +1,5 @@
 "use client"
-import { useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/manga.hooks"
+import { useMangaDownloadData, useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaRecommendations } from "@/app/(main)/manga/entry/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/entry/_components/meta-section"
 import { ChaptersList } from "@/app/(main)/manga/entry/_containers/chapters-list"
@@ -14,6 +14,7 @@ export default function Page() {
     const mediaId = searchParams.get("id")
     const { mangaEntry, mangaEntryLoading } = useMangaEntry(mediaId)
     const { mangaDetails, mangaDetailsLoading } = useMangaEntryDetails(mediaId)
+    const {} = useMangaDownloadData(mediaId, mangaEntry)
 
     React.useEffect(() => {
         if (!mediaId) {

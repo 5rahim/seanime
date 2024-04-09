@@ -105,9 +105,9 @@ export const enum SeaEndpoints {
     MANGA_ENTRY_CACHE = "/manga/entry/cache", // (DELETE)
     MANGA_CHAPTERS = "/manga/chapters", // (POST)
     MANGA_PAGES = "/manga/pages", // (POST)
-    MANGA_ENTRY_BACKUPS = "/manga/entry/backups", // (POST)
-    DOWNLOAD_MANGA_CHAPTER = "/manga/download-chapter", // (POST)
     UPDATE_MANGA_PROGRESS = "/manga/update-progress", // (POST)
+    MANGA_DOWNLOAD_CHAPTERS = "/manga/download-chapters", // (POST)
+    MANGA_DOWNLOAD_DATA = "/manga/download-data", // (POST)
     /**
      * File Cache
      */

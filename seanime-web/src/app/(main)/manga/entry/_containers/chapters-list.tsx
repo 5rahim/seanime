@@ -1,12 +1,15 @@
-import { __manga_selectedProviderAtom, useClearMangaCache, useMangaChapterContainer } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MANGA_PROVIDER_OPTIONS, MangaChapterDetails, MangaEntry, MangaEntryBackups } from "@/app/(main)/manga/_lib/manga.types"
+import {
+    __manga_selectedProviderAtom,
+    useClearMangaCache,
+    useDownloadMangaChapter,
+    useMangaChapterContainer,
+} from "@/app/(main)/manga/_lib/manga.hooks"
+import { MANGA_PROVIDER_OPTIONS, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button, IconButton } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
@@ -15,7 +18,7 @@ import { atomWithImmer } from "jotai-immer"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiBookAlt } from "react-icons/bi"
-import { FaRedo } from "react-icons/fa"
+import { FaDownload, FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
 import { IoBookOutline } from "react-icons/io5"
 
@@ -36,7 +39,6 @@ export function ChaptersList(props: ChaptersListProps) {
         ...rest
     } = props
 
-
     const { chapterContainer, chapterIdToNumbersMap, chapterContainerError, chapterContainerLoading } = useMangaChapterContainer(mediaId)
 
     const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
@@ -45,11 +47,13 @@ export function ChaptersList(props: ChaptersListProps) {
 
     const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
 
+
+    const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
+
     // SHELVED
     // const { chapterBackups, chapterBackupsLoading } = useMangaEntryBackups(mediaId)
     // const [downloadProgressMap, setDownloadProgressMap] = useAtom(downloadProgressMapAtom)
     // const qc = useQueryClient()
-    // const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
     // useWebsocketMessageListener<{ chapterId: string, number: number } | null>({
     //     type: WSEvents.MANGA_DOWNLOADER_DOWNLOADING_PROGRESS,
     //     onMessage: data => {
@@ -119,6 +123,13 @@ export function ChaptersList(props: ChaptersListProps) {
                         <IconButton
                             intent="gray-basic"
                             size="sm"
+                            disabled={isSendingDownloadRequest}
+                            onClick={() => downloadChapter(row.original)}
+                            icon={<FaDownload />}
+                        />
+                        <IconButton
+                            intent="gray-basic"
+                            size="sm"
                             onClick={() => setSelectedChapter(row.original)}
                             icon={<GiOpenBook />}
                         />
@@ -126,7 +137,7 @@ export function ChaptersList(props: ChaptersListProps) {
                 )
             },
         },
-    ]), [chapterIdToNumbersMap])
+    ]), [chapterIdToNumbersMap, isSendingDownloadRequest])
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const chapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
@@ -269,58 +280,5 @@ export function ChaptersList(props: ChaptersListProps) {
 
             <ConfirmationDialog {...confirmReloadSource} />
         </div>
-    )
-}
-
-
-type ChapterItemProps = {
-    chapter: MangaChapterDetails
-    chapterBackups?: MangaEntryBackups | undefined
-    handleDownloadChapter?: (chapter: MangaChapterDetails) => void
-    downloadProgressMap?: Record<string, number>
-    isSendingDownloadRequest?: boolean
-}
-
-export function ChapterItem(props: ChapterItemProps) {
-
-    const {
-        chapter,
-        chapterBackups,
-        handleDownloadChapter,
-        downloadProgressMap,
-        isSendingDownloadRequest,
-        ...rest
-    } = props
-
-    const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
-
-    return (
-        <>
-            <Card
-                key={chapter.id}
-                className={cn(
-                    "px-3 py-1.5 flex w-full gap-2 items-center",
-                    "hover:bg-[--subtle]",
-                )}
-            >
-                <p>{chapter.title}</p>
-                <div className="flex flex-1"></div>
-                <IconButton
-                    intent="gray-basic"
-                    size="sm"
-                    onClick={() => setSelectedChapter(chapter)}
-                    icon={<GiOpenBook />}
-                />
-                {/*SHELVED*/}
-                {/*{!chapterBackups?.chapterIds[chapter.id] && <IconButton*/}
-                {/*    intent="gray-basic"*/}
-                {/*    size="sm"*/}
-                {/*    loading={downloadProgressMap?.[chapter.id] !== undefined}*/}
-                {/*    disabled={isSendingDownloadRequest}*/}
-                {/*    onClick={() => handleDownloadChapter?.(chapter)}*/}
-                {/*    icon={<FaDownload />}*/}
-                {/*/>}*/}
-            </Card>
-        </>
     )
 }

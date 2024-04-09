@@ -277,6 +277,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//v1Manga.Post("/download-chapter", makeHandler(app, HandleDownloadMangaChapter))
 	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
+	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
+	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
+
 	//
 	// File Cache
 	//

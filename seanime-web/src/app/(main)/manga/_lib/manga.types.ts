@@ -25,7 +25,6 @@ export type ClearMangaCache_QueryVariables = {
     mediaId: number
 }
 
-
 // +----------------------------------------------------------------+
 // Return data
 // +----------------------------------------------------------------+
@@ -60,12 +59,6 @@ export type MangaEntryListData = {
     completedAt?: string
 }
 
-export type MangaEntryBackups = {
-    mediaId: number
-    provider: string
-    chapterIds: Record<string, boolean>
-}
-
 export type MangaChapterContainer = {
     mediaId: number
     provider: string
@@ -98,3 +91,21 @@ export type MangaChapterPage = {
     index: number
 }
 
+// +----------------------------------------------------------------+
+// Downloads
+// +----------------------------------------------------------------+
+
+export type MangaDownloadChapters_QueryVariables = {
+    mediaId: number
+    provider: string
+    chapterIds: string[]
+}
+
+export type MangaDownladData_QueryVariables = {
+    mediaId: number
+}
+
+export type MangaDownloadData = {
+    downloaded: Record<string, string[]> // Provider -> ChapterId[]
+    queued: Record<string, string[]> // Provider -> ChapterId[]
+}

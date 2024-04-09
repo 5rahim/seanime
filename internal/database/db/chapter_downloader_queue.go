@@ -75,3 +75,14 @@ func (db *Database) UpdateChapterDownloadQueueItemStatus(provider string, mId in
 	}
 	return nil
 }
+
+func (db *Database) GetMediaQueuedChapters(mediaId int) ([]*models.ChapterDownloadQueueItem, error) {
+	var res []*models.ChapterDownloadQueueItem
+	err := db.gormdb.Where("media_id = ?", mediaId).Find(&res).Error
+	if err != nil {
+		db.logger.Error().Err(err).Msg("db: Failed to get media queued chapters")
+		return nil, err
+	}
+
+	return res, nil
+}

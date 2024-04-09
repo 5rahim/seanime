@@ -28,7 +28,7 @@ var (
 
 // 📁 cache/manga
 // └── 📁 {provider}_{mediaId}_{chapterId}      <- Downloader generates
-//     ├── 📄 registry.json						<- Contains ChapterDownloadRegistry
+//     ├── 📄 registry.json						<- Contains Registry
 //     ├── 📄 1.jpg
 //     ├── 📄 2.jpg
 //     └── 📄 ...
@@ -45,10 +45,9 @@ type (
 		downloadMu     sync.Mutex
 		// cancelChannel is used to cancel some or all downloads.
 		cancelChannels map[DownloadID]chan struct{}
-		// downloadQueue is used to keep track of the progress of each download.
-		queue    *Queue
-		runCh    chan *QueueInfo // QueueInfo from queue
-		cancelCh chan struct{}   // Called by client
+		queue          *Queue
+		runCh          chan *QueueInfo // Next item in the queue
+		cancelCh       chan struct{}   // Called by client
 	}
 
 	//+-------------------------------------------------------------------------------------------------------------------+
@@ -81,6 +80,12 @@ type (
 		DownloadDir    string
 		Database       *db.Database
 	}
+
+	DownloadOptions struct {
+		DownloadID
+		Pages    []*manga_providers.ChapterPage
+		StartNow bool
+	}
 )
 
 func NewDownloader(opts *NewDownloaderOptions) *Downloader {
@@ -103,6 +108,7 @@ func (cd *Downloader) Start() {
 	go func() {
 		for {
 			select {
+			// Listen for new queue items
 			case queueInfo := <-cd.runCh:
 				cd.logger.Debug().Msgf("chapter downloader: Received queue item to download: %s", queueInfo.ChapterId)
 				cd.run(queueInfo)
@@ -112,16 +118,13 @@ func (cd *Downloader) Start() {
 	}()
 }
 
-// DownloadChapter downloads a chapter from a manga provider.
-// It is the higher-order function called by the client.
-// If the chapter is already downloaded, it will delete the previous data and re-download it.
-//
-// It will spin up a goroutine to add the chapter to the download queue.
-func (cd *Downloader) DownloadChapter(provider string, mediaId int, chapterId string, pages []*manga_providers.ChapterPage) error {
+// Download adds a chapter to the download queue.
+// If the chapter is already downloaded (i.e. a folder already exists), it will delete the previous data and re-download it.
+func (cd *Downloader) Download(opts DownloadOptions) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
 
-	downloadId := DownloadID{Provider: provider, MediaId: mediaId, ChapterId: chapterId}
+	downloadId := DownloadID{Provider: opts.Provider, MediaId: opts.MediaId, ChapterId: opts.ChapterId}
 
 	// Check if chapter is already downloaded
 	registryPath := cd.getChapterRegistryPath(downloadId)
@@ -132,35 +135,33 @@ func (cd *Downloader) DownloadChapter(provider string, mediaId int, chapterId st
 	}
 
 	// Start download
-	cd.logger.Debug().Msgf("chapter downloader: Adding chapter to download queue: %s", chapterId)
+	cd.logger.Debug().Msgf("chapter downloader: Adding chapter to download queue: %s", opts.ChapterId)
 	// Add to queue
-	return cd.queue.Add(downloadId, pages)
+	return cd.queue.Add(downloadId, opts.Pages, opts.StartNow)
 }
 
-func (cd *Downloader) DeleteChapter(provider string, mediaId int, chapterId string) error {
+// DeleteChapter deletes a chapter directory from the download directory.
+func (cd *Downloader) DeleteChapter(id DownloadID) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
-	downloadId := DownloadID{Provider: provider, MediaId: mediaId, ChapterId: chapterId}
-	_ = os.RemoveAll(cd.getChapterDownloadDir(downloadId))
-	cd.logger.Debug().Msgf("chapter downloader: Removed chapter %s", chapterId)
+	_ = os.RemoveAll(cd.getChapterDownloadDir(id))
+	cd.logger.Debug().Msgf("chapter downloader: Removed chapter %s", id.ChapterId)
 	return nil
 }
 
-// Run starts the downloader.
-// It is a higher-order function called by the client.
+// Run starts the downloader if it's not already running.
 func (cd *Downloader) Run() {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
 
-	cd.queue.Start()
+	cd.queue.Run()
 }
 
-// run downloads the chapter based on the queue info provided.
-// It's run in a goroutine.
-// Ideally this will not be run concurrently.
+// run downloads the chapter based on the QueueInfo provided.
+// This is called successively for each current item being processed.
+// It invokes downloadChapterImages to download the chapter pages.
 func (cd *Downloader) run(queueInfo *QueueInfo) {
 
-	// Catch panic in runNext, so it doesn't bubble up and stop goroutines.
 	defer util.HandlePanicInModuleThen("internal/manga/downloader/runNext", func() {
 		cd.logger.Error().Msg("chapter downloader: Panic in 'run'")
 	})
@@ -172,6 +173,15 @@ func (cd *Downloader) run(queueInfo *QueueInfo) {
 
 }
 
+// downloadChapterImages creates a directory for the chapter and downloads each image to that directory.
+// It also creates a Registry file that contains information about each image.
+//
+//	e.g.,
+//	📁 {provider}_{mediaId}_{chapterId}
+//	   ├── 📄 registry.json
+//	   ├── 📄 1.jpg
+//	   ├── 📄 2.jpg
+//	   └── 📄 ...
 func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 	cd.cancelCh = make(chan struct{})
 
@@ -189,7 +199,7 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 
 	// calculateBatchSize calculates the batch size based on the number of URLs.
 	calculateBatchSize := func(numURLs int) int {
-		maxBatchSize := 1
+		maxBatchSize := 5
 		batchSize := numURLs / 10
 		if batchSize < 1 {
 			return 1
@@ -235,6 +245,8 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 	return
 }
 
+// downloadPage downloads a single page from the URL and saves it to the destination directory.
+// It also updates the Registry with the page information.
 func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destination string, registry *Registry) {
 
 	defer util.HandlePanicInModuleThen("manga/downloader/downloadImage", func() {
@@ -301,6 +313,7 @@ func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destinatio
 
 ////////////////////////
 
+// save saves the Registry content to a file in the chapter directory.
 func (r *Registry) save(queueInfo *QueueInfo, destination string, logger *zerolog.Logger) (err error) {
 
 	defer util.HandlePanicInModuleThen("manga/downloader/save", func() {

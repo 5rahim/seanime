@@ -4,8 +4,9 @@ import {
     MangaChapterContainer_QueryVariables,
     MangaChapterDetails,
     MangaCollection,
+    MangaDownloadChapters_QueryVariables,
+    MangaDownloadData,
     MangaEntry,
-    MangaEntryBackups,
     MangaPageContainer,
     MangaPageContainer_QueryVariables,
 } from "@/app/(main)/manga/_lib/manga.types"
@@ -208,44 +209,30 @@ export function useMangaPageContainer(mediaId: string | undefined | null, chapte
 // Downloads
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export function useMangaEntryDownloads(mediaId: string | undefined | null) {
-    // FIXME SHELVED
-    // const provider = useAtomValue(__manga_selectedProviderAtom)
-    //
-    // const { data, isLoading, isFetching } = useSeaQuery<MangaEntryBackups>({
-    //     endpoint: SeaEndpoints.MANGA_ENTRY_BACKUPS,
-    //     method: "post",
-    //     data: {
-    //         mediaId: Number(mediaId),
-    //         provider,
-    //     },
-    //     queryKey: ["get-manga-entry-backups", Number(mediaId), provider],
-    //     enabled: !!mediaId,
-    //     gcTime: 0,
-    // })
-    //
-    // return {
-    //     chapterBackups: data,
-    //     chapterBackupsLoading: isLoading || isFetching,
-    // }
+export function useMangaDownloadData(mediaId: string | undefined | null, entry: MangaEntry | undefined | null) {
+    const { data, isLoading, isFetching } = useSeaQuery<MangaDownloadData>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_DATA,
+        method: "post",
+        data: {
+            mediaId: Number(mediaId),
+        },
+        queryKey: ["get-manga-download-data", Number(mediaId)],
+        enabled: !!mediaId && !!entry,
+    })
 
     return {
-        chapterBackups: {
-            mediaId: Number(mediaId),
-            provider: "comick",
-            chapterIds: {},
-        } as MangaEntryBackups,
-        chapterBackupsLoading: false,
+        chapterBackups: data,
+        chapterBackupsLoading: isLoading || isFetching,
     }
 }
 
 export function useDownloadMangaChapter(mediaId: string | undefined | null) {
     const provider = useAtomValue(__manga_selectedProviderAtom)
 
-    const { mutate, isPending } = useSeaMutation<void, { mediaId: number, provider: string, chapterId: string }>({
-        endpoint: SeaEndpoints.DOWNLOAD_MANGA_CHAPTER,
+    const { mutate, isPending } = useSeaMutation<void, MangaDownloadChapters_QueryVariables>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_CHAPTERS,
         method: "post",
-        mutationKey: ["download-manga-chapter", Number(mediaId), provider],
+        mutationKey: ["download-manga-chapters", Number(mediaId), provider],
     })
 
     return {
@@ -253,7 +240,7 @@ export function useDownloadMangaChapter(mediaId: string | undefined | null) {
             mutate({
                 mediaId: Number(mediaId),
                 provider,
-                chapterId: chapter.id,
+                chapterIds: [chapter.id],
             })
         },
         isSendingDownloadRequest: isPending,

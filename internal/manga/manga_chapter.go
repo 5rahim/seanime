@@ -1,7 +1,6 @@
 package manga
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
@@ -296,113 +295,72 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) SHELVEDGetMangaPageContainer(
-	provider manga_providers.Provider,
-	mediaId int,
-	chapterId string,
-	backup bool, // Whether to retrieve downloaded pages
-) (*PageContainer, error) {
-
-	if backup {
-
-		r.hydrateBackupMap()
-
-		var container *PageContainer
-
-		foundDownloadedChapterId := false
-		storedChapterIds, found, err := r.GetStoredChapterIdsFromBackup(DownloadID{Provider: string(provider), MediaID: mediaId})
-		if err != nil {
-			r.logger.Error().Err(err).Msg("manga: failed to get stored chapters")
-			return nil, err
-		}
-
-		if found {
-			for _, storedChapterId := range storedChapterIds {
-				if storedChapterId == chapterId {
-					foundDownloadedChapterId = true
-					break
-				}
-			}
-		}
-
-		if !foundDownloadedChapterId {
-			return nil, ErrChapterNotDownloaded
-		}
-
-		//
-		// Chapter is downloaded
-		//
-		pageList := make([]*manga_providers.ChapterPage, 0)
-
-		// Get the downloaded pages
-		pageMap, chapterDir, err := r.downloader.getPageMap(string(provider), mediaId, chapterId, r.backupDir)
-		if err != nil {
-			r.logger.Error().Err(err).Msg("manga: failed to get downloaded pages")
-			return nil, err
-		}
-
-		pageDimensions := make(map[int]*PageDimension)
-
-		for _, pageInfo := range *pageMap {
-			pageList = append(pageList, pageInfo.ToChapterPage(chapterDir))
-			pageDimensions[pageInfo.Index] = &PageDimension{
-				Width:  pageInfo.Width,
-				Height: pageInfo.Height,
-			}
-		}
-
-		container = &PageContainer{
-			MediaId:        mediaId,
-			Provider:       string(provider),
-			ChapterId:      chapterId,
-			Pages:          pageList,
-			PageDimensions: pageDimensions,
-			IsDownloaded:   true,
-		}
-
-		return container, nil
-	}
-
-	return r.GetMangaPageContainer(provider, mediaId, chapterId, false)
-}
-
-func (r *Repository) DownloadMangaChapter(
-	provider manga_providers.Provider,
-	mediaId int,
-	chapterId string,
-) error {
-
-	ctx, cancel := context.WithCancel(context.Background())
-	r.downloadContexts[DownloadID{
-		Provider: string(provider),
-		MediaID:  mediaId,
-	}] = cancel
-
-	// Get the chapter pages from the online source
-	pc, err := r.GetMangaPageContainer(provider, mediaId, chapterId, false)
-	if err != nil {
-		r.logger.Error().Err(err).Msgf("manga: failed to get online pages for chapter %s, %s", chapterId, provider)
-		return err
-	}
-
-	go func() {
-		defer func() {
-			if _r := recover(); _r != nil {
-				r.logger.Error().Msgf("manga: download images for chapter %s, %s panicked", chapterId, provider)
-			}
-		}()
-		// Download the images
-		err = r.downloader.downloadImages(ctx, string(provider), mediaId, chapterId, pc.Pages, r.backupDir)
-		if err != nil {
-			r.logger.Error().Err(err).Msgf("manga: failed to download images for chapter %s, %s", chapterId, provider)
-			return
-		}
-
-		// Update the backup map
-		r.mu.Lock()
-		r.hydrateBackupMap()
-		r.mu.Unlock()
-	}()
-
-	return nil
-}
+//func (r *Repository) SHELVEDGetMangaPageContainer(
+//	provider manga_providers.Provider,
+//	mediaId int,
+//	chapterId string,
+//	backup bool, // Whether to retrieve downloaded pages
+//) (*PageContainer, error) {
+//
+//	if backup {
+//
+//		r.hydrateBackupMap()
+//
+//		var container *PageContainer
+//
+//		foundDownloadedChapterId := false
+//		storedChapterIds, found, err := r.GetStoredChapterIdsFromBackup(DownloadID{Provider: string(provider), MediaID: mediaId})
+//		if err != nil {
+//			r.logger.Error().Err(err).Msg("manga: failed to get stored chapters")
+//			return nil, err
+//		}
+//
+//		if found {
+//			for _, storedChapterId := range storedChapterIds {
+//				if storedChapterId == chapterId {
+//					foundDownloadedChapterId = true
+//					break
+//				}
+//			}
+//		}
+//
+//		if !foundDownloadedChapterId {
+//			return nil, ErrChapterNotDownloaded
+//		}
+//
+//		//
+//		// Chapter is downloaded
+//		//
+//		pageList := make([]*manga_providers.ChapterPage, 0)
+//
+//		// Get the downloaded pages
+//		pageMap, chapterDir, err := r.downloader.getPageMap(string(provider), mediaId, chapterId, r.backupDir)
+//		if err != nil {
+//			r.logger.Error().Err(err).Msg("manga: failed to get downloaded pages")
+//			return nil, err
+//		}
+//
+//		pageDimensions := make(map[int]*PageDimension)
+//
+//		for _, pageInfo := range *pageMap {
+//			pageList = append(pageList, pageInfo.ToChapterPage(chapterDir))
+//			pageDimensions[pageInfo.Index] = &PageDimension{
+//				Width:  pageInfo.Width,
+//				Height: pageInfo.Height,
+//			}
+//		}
+//
+//		container = &PageContainer{
+//			MediaId:        mediaId,
+//			Provider:       string(provider),
+//			ChapterId:      chapterId,
+//			Pages:          pageList,
+//			PageDimensions: pageDimensions,
+//			IsDownloaded:   true,
+//		}
+//
+//		return container, nil
+//	}
+//
+//	return r.GetMangaPageContainer(provider, mediaId, chapterId, false)
+//}

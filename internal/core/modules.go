@@ -73,6 +73,7 @@ func (a *App) initModulesOnce() {
 		Logger:         a.Logger,
 		WSEventManager: a.WSEventManager,
 		DownloadDir:    a.Config.Manga.BackupDir,
+		Repository:     a.MangaRepository,
 	})
 
 	a.MangaDownloader.Start()

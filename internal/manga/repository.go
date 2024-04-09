@@ -1,7 +1,6 @@
 package manga
 
 import (
-	"context"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga/providers"
@@ -19,17 +18,13 @@ import (
 
 type (
 	Repository struct {
-		logger           *zerolog.Logger
-		fileCacher       *filecache.Cacher
-		comick           *manga_providers.ComicK
-		mangasee         *manga_providers.Mangasee
-		downloader       *downloader
-		backupDir        string
-		serverUri        string
-		backupMap        DownloadMap
-		wsEventManager   events.IWSEventManager
-		mu               sync.Mutex
-		downloadContexts map[DownloadID]context.CancelFunc
+		logger         *zerolog.Logger
+		fileCacher     *filecache.Cacher
+		comick         *manga_providers.ComicK
+		mangasee       *manga_providers.Mangasee
+		serverUri      string
+		wsEventManager events.IWSEventManager
+		mu             sync.Mutex
 	}
 
 	NewRepositoryOptions struct {
@@ -43,30 +38,13 @@ type (
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:           opts.Logger,
-		fileCacher:       opts.FileCacher,
-		comick:           manga_providers.NewComicK(opts.Logger),
-		mangasee:         manga_providers.NewMangasee(opts.Logger),
-		downloader:       newDownloader(opts.Logger, opts.WsEventManager),
-		backupDir:        opts.BackupDir,
-		serverUri:        opts.ServerURI,
-		backupMap:        make(DownloadMap),
-		downloadContexts: make(map[DownloadID]context.CancelFunc),
+		logger:     opts.Logger,
+		fileCacher: opts.FileCacher,
+		comick:     manga_providers.NewComicK(opts.Logger),
+		mangasee:   manga_providers.NewMangasee(opts.Logger),
+		serverUri:  opts.ServerURI,
 	}
-
-	//go r.hydrateBackupMap()
-
 	return r
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Backups
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type EntryBackupContainer struct {
-	Provider   string          `json:"provider"`
-	MediaId    int             `json:"mediaId"`
-	ChapterIds map[string]bool `json:"chapterIds"` // Using map for O(1) lookup in the client
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,56 +77,6 @@ func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Backups
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// GetMangaEntryBackups returns the backup chapters for the given manga entry.
-// Used by the client to display the downloaded chapters / allow user to download chapters.
-// Never returns nil.
-func (r *Repository) GetMangaEntryBackups(provider manga_providers.Provider, mediaId int) *EntryBackupContainer {
-
-	// Get the backup chapters for the given manga entry
-	backupContainer := &EntryBackupContainer{
-		ChapterIds: make(map[string]bool),
-		Provider:   string(provider),
-		MediaId:    mediaId,
-	}
-
-	if r.backupMap == nil {
-		return backupContainer
-	}
-
-	storedChapterIds, found := r.backupMap[DownloadID{Provider: string(provider), MediaID: mediaId}]
-	if !found {
-		return backupContainer
-	}
-
-	for _, chapterId := range storedChapterIds {
-		backupContainer.ChapterIds[chapterId] = true
-	}
-
-	return backupContainer
-}
-
-func (r *Repository) hydrateBackupMap() {
-	// Get the backup folders
-	backupMap, err := r.downloader.getDownloads(r.backupDir)
-	if err != nil {
-		r.logger.Error().Err(err).Msg("manga: failed to hydrate backup map")
-		return
-	}
-
-	// Set the backup map
-	r.backupMap = backupMap
-}
-func (r *Repository) GetStoredChapterIdsFromBackup(c DownloadID) ([]string, bool, error) {
-	if r.backupMap == nil {
-		return nil, false, nil
-	}
-
-	storedChapterIds, found := r.backupMap[c]
-	return storedChapterIds, found, nil
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func getImageNaturalSize(url string) (int, int, error) {

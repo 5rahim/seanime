@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
-	manga_providers "github.com/seanime-app/seanime/internal/manga/providers"
+	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util"
 	"sync"
 )
@@ -17,12 +17,14 @@ const (
 )
 
 type (
+	// Queue is used to manage the download queue.
+	// If feeds the downloader with the next item in the queue.
 	Queue struct {
 		logger  *zerolog.Logger
 		mu      sync.Mutex
 		db      *db.Database
 		current *QueueInfo
-		runCh   chan *QueueInfo
+		runCh   chan *QueueInfo // Channel to tell downloader to run the next item
 	}
 
 	QueueStatus string
@@ -44,7 +46,9 @@ func NewQueue(db *db.Database, logger *zerolog.Logger, runCh chan *QueueInfo) *Q
 	}
 }
 
-func (q *Queue) Add(id DownloadID, pages []*manga_providers.ChapterPage) error {
+// Add adds a chapter to the download queue.
+// It tells the queue to download the next item if possible.
+func (q *Queue) Add(id DownloadID, pages []*manga_providers.ChapterPage, runNext bool) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
@@ -69,8 +73,10 @@ func (q *Queue) Add(id DownloadID, pages []*manga_providers.ChapterPage) error {
 
 	q.logger.Info().Msgf("chapter downloader: Added chapter to download queue: %s", id.ChapterId)
 
-	// Tells queue to run next if possible
-	go q.runNext()
+	if runNext {
+		// Tells queue to run next if possible
+		go q.runNext()
+	}
 
 	return nil
 }
@@ -98,7 +104,8 @@ func (q *Queue) HasCompleted(id DownloadID) {
 	q.runNext()
 }
 
-func (q *Queue) Start() {
+// Run invokes runNext
+func (q *Queue) Run() {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 

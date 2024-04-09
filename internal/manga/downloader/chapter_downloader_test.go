@@ -87,7 +87,15 @@ func TestQueue(t *testing.T) {
 						//
 						// TEST
 						//
-						err := downloader.DownloadChapter(string(tt.providerName), tt.mediaId, chapterInfo.ID, pages)
+						err := downloader.Download(DownloadOptions{
+							DownloadID: DownloadID{
+								Provider:  string(tt.providerName),
+								MediaId:   tt.mediaId,
+								ChapterId: chapterInfo.ID,
+							},
+							Pages:    pages,
+							StartNow: true,
+						})
 						if err != nil {
 							t.Fatalf("Failed to download chapter: %v", err)
 						}
