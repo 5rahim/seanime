@@ -123,6 +123,7 @@ export type MangaChapterDownloadQueueItem = {
 }
 
 export type MangaDownloadListItem = {
+    mediaId: number
     media?: BaseMangaFragment
     // Provider -> ChapterId[]
     downloadData: Record<string, string[]>

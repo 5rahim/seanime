@@ -237,27 +237,53 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                         </LuffyError> : null)}
 
                     {!!data?.length ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-                            {data?.filter(n => !!n.media)
+                        <>
+                            {data?.filter(n => !n.media)
                                 .sort((a, b) => Object.values(b.downloadData).flatMap(n => n).length - Object.values(a.downloadData)
                                     .flatMap(n => n).length)
                                 .map(item => {
-                                    const nb = Object.values(item.downloadData).flatMap(n => n).length
-                                return <div key={item.media?.id!} className="col-span-1">
-                                    <AnimeListItem
-                                        media={item.media!}
-                                        showLibraryBadge
-                                        showTrailer
-                                        isManga
-                                        overlay={<Badge
-                                            className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
-                                            intent="gray"
-                                            size="lg"
-                                        >{nb} chapter{nb === 1 ? "" : "s"}</Badge>}
-                                    />
-                                </div>
-                            })}
-                        </div>
+                                    return (
+                                        <Card
+                                            key={item.mediaId} className={cn(
+                                            "px-3 py-2 bg-gray-900 space-y-1",
+                                        )}
+                                        >
+                                            <Link
+                                                className="font-semibold underline"
+                                                href={`/manga/entry?id=${item.mediaId}`}
+                                            >Media {item.mediaId}</Link>
+
+                                            <div className="flex items-center gap-2">
+                                                <p>{Object.values(item.downloadData)
+                                                    .flatMap(n => n).length} chapters</p> - <em className="text-[--muted]">Not in your AniList
+                                                                                                                           collection</em>
+                                            </div>
+                                        </Card>
+                                    )
+                                })}
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
+                                {data?.filter(n => !!n.media)
+                                    .sort((a, b) => Object.values(b.downloadData).flatMap(n => n).length - Object.values(a.downloadData)
+                                        .flatMap(n => n).length)
+                                    .map(item => {
+                                        const nb = Object.values(item.downloadData).flatMap(n => n).length
+                                        return <div key={item.media?.id!} className="col-span-1">
+                                            <AnimeListItem
+                                                media={item.media!}
+                                                showLibraryBadge
+                                                showTrailer
+                                                isManga
+                                                overlay={<Badge
+                                                    className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
+                                                    intent="gray"
+                                                    size="lg"
+                                                >{nb} chapter{nb === 1 ? "" : "s"}</Badge>}
+                                            />
+                                        </div>
+                                    })}
+                            </div>
+                        </>
                     ) : ((!isLoading && !isError) && (
                         <p className="text-center text-[--muted] italic">
                             No chapters downloaded

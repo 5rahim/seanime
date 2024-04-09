@@ -176,6 +176,7 @@ type (
 	}
 
 	DownloadListItem struct {
+		MediaId      int                 `json:"mediaId"`
 		Media        *anilist.BaseManga  `json:"media"`
 		DownloadData ProviderDownloadMap `json:"downloadData"`
 	}
@@ -191,20 +192,25 @@ func (d *Downloader) NewDownloadList(opts *NewDownloadListOptions) (ret []*Downl
 		listEntry, ok := opts.MangaCollection.GetListEntryFromMediaId(mId)
 		if !ok {
 			ret = append(ret, &DownloadListItem{
+				MediaId:      mId,
 				Media:        nil,
 				DownloadData: data,
 			})
+			continue
 		}
 
 		media := listEntry.GetMedia()
 		if media == nil {
 			ret = append(ret, &DownloadListItem{
+				MediaId:      mId,
 				Media:        nil,
 				DownloadData: data,
 			})
+			continue
 		}
 
 		item := &DownloadListItem{
+			MediaId:      mId,
 			Media:        media,
 			DownloadData: data,
 		}
