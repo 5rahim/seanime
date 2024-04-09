@@ -108,6 +108,13 @@ export const enum SeaEndpoints {
     UPDATE_MANGA_PROGRESS = "/manga/update-progress", // (POST)
     MANGA_DOWNLOAD_CHAPTERS = "/manga/download-chapters", // (POST)
     MANGA_DOWNLOAD_DATA = "/manga/download-data", // (POST)
+    MANGA_REFRESH_DOWNLOAD_DATA = "/manga/download-data/refresh", // (POST)
+    MANGA_DOWNLOAD_QUEUE = "/manga/download-queue", // (GET, DELETE)
+    MANGA_DOWNLOAD_QUEUE_START = "/manga/download-queue/start", // (POST)
+    MANGA_DOWNLOAD_QUEUE_STOP = "/manga/download-queue/stop", // (POST)
+    MANGA_DOWNLOAD_QUEUE_RESET_ERRORED = "/manga/download-queue/reset-errored", // (POST)
+    MANGA_DOWNLOAD_DELETE_CHAPTER = "/manga/download-chapter", // (DELETE)
+    MANGA_DOWNLOADS = "/manga/downloads", // (GET)
     /**
      * File Cache
      */
@@ -145,4 +152,6 @@ export const enum WSEvents {
     SUCCESS_TOAST = "success-toast",
     INFO_TOAST = "info-toast",
     WARNING_TOAST = "warning-toast",
+    DOWNLOADED_CHAPTER = "downloaded-chapter",
+    CHAPTER_DOWNLOAD_QUEUE_UPDATED = "chapter-download-queue-updated",
 }

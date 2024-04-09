@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/goccy/go-json"
-	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/events"
@@ -44,10 +43,11 @@ type (
 		mu             sync.Mutex
 		downloadMu     sync.Mutex
 		// cancelChannel is used to cancel some or all downloads.
-		cancelChannels map[DownloadID]chan struct{}
-		queue          *Queue
-		runCh          chan *QueueInfo // Next item in the queue
-		cancelCh       chan struct{}   // Called by client
+		cancelChannels      map[DownloadID]chan struct{}
+		queue               *Queue
+		cancelCh            chan struct{}   // Close to cancel the download process
+		runCh               chan *QueueInfo // Receives a signal to download the next item
+		chapterDownloadedCh chan DownloadID // Sends a signal when a chapter has been downloaded
 	}
 
 	//+-------------------------------------------------------------------------------------------------------------------+
@@ -92,12 +92,13 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 	runCh := make(chan *QueueInfo, 1)
 
 	d := &Downloader{
-		logger:         opts.Logger,
-		wsEventManager: opts.WSEventManager,
-		downloadDir:    opts.DownloadDir,
-		cancelChannels: make(map[DownloadID]chan struct{}),
-		runCh:          runCh,
-		queue:          NewQueue(opts.Database, opts.Logger, runCh),
+		logger:              opts.Logger,
+		wsEventManager:      opts.WSEventManager,
+		downloadDir:         opts.DownloadDir,
+		cancelChannels:      make(map[DownloadID]chan struct{}),
+		runCh:               runCh,
+		queue:               NewQueue(opts.Database, opts.Logger, opts.WSEventManager, runCh),
+		chapterDownloadedCh: make(chan DownloadID, 1),
 	}
 
 	return d
@@ -116,6 +117,10 @@ func (cd *Downloader) Start() {
 			}
 		}
 	}()
+}
+
+func (cd *Downloader) ChapterDownloaded() <-chan DownloadID {
+	return cd.chapterDownloadedCh
 }
 
 // Download adds a chapter to the download queue.
@@ -154,7 +159,27 @@ func (cd *Downloader) Run() {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
 
+	cd.cancelCh = make(chan struct{})
+
 	cd.queue.Run()
+}
+
+// Stop cancels the download process and stops the queue from running.
+func (cd *Downloader) Stop() {
+	cd.mu.Lock()
+	defer cd.mu.Unlock()
+
+	defer func() {
+		if r := recover(); r != nil {
+			cd.logger.Error().Msgf("chapter downloader: cancelCh is already closed")
+		}
+	}()
+
+	cd.cancelCh = make(chan struct{})
+
+	close(cd.cancelCh) // Cancel download process
+
+	cd.queue.Stop()
 }
 
 // run downloads the chapter based on the QueueInfo provided.
@@ -171,6 +196,7 @@ func (cd *Downloader) run(queueInfo *QueueInfo) {
 		return
 	}
 
+	cd.chapterDownloadedCh <- queueInfo.DownloadID
 }
 
 // downloadChapterImages creates a directory for the chapter and downloads each image to that directory.
@@ -183,7 +209,6 @@ func (cd *Downloader) run(queueInfo *QueueInfo) {
 //	   ├── 📄 2.jpg
 //	   └── 📄 ...
 func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
-	cd.cancelCh = make(chan struct{})
 
 	// Create download directory
 	// 📁 {provider}_{mediaId}_{chapterId}
@@ -236,7 +261,7 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 	// Write the registry
 	_ = registry.save(queueInfo, destination, cd.logger)
 
-	cd.queue.HasCompleted(queueInfo.DownloadID)
+	cd.queue.HasCompleted(queueInfo)
 
 	if queueInfo.Status != QueueStatusErrored {
 		cd.logger.Info().Msgf("chapter downloader: Finished downloading chapter %s", queueInfo.ChapterId)
@@ -255,7 +280,7 @@ func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destinatio
 	// Download image from URL
 	cd.logger.Debug().Msgf("chapter downloader: Downloading page %d", page.Index)
 
-	imgID := uuid.NewString()
+	imgID := fmt.Sprintf("%02d", page.Index+1)
 
 	// Download the image
 	resp, err := http.Get(page.URL)
@@ -331,13 +356,10 @@ func (r *Registry) save(queueInfo *QueueInfo, destination string, logger *zerolo
 
 	if !allDownloaded {
 		// Clean up downloaded images
-		go func() {
-			logger.Error().Msg("chapter downloader: Not all images have been downloaded, aborting")
-			// Delete directory
-			_ = os.RemoveAll(destination)
-
-			queueInfo.Status = QueueStatusErrored
-		}()
+		logger.Error().Msg("chapter downloader: Not all images have been downloaded, aborting")
+		queueInfo.Status = QueueStatusErrored
+		// Delete directory
+		go os.RemoveAll(destination)
 		return fmt.Errorf("chapter downloader: Not all images have been downloaded, operation aborted")
 	}
 

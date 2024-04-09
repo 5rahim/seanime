@@ -277,8 +277,16 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//v1Manga.Post("/download-chapter", makeHandler(app, HandleDownloadMangaChapter))
 	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
+	v1Manga.Get("/downloads", makeHandler(app, HandleGetMangaDownloadsList))
 	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
 	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
+	v1Manga.Delete("/download-data", makeHandler(app, HandleDeleteMangaChapterDownload))
+	v1Manga.Post("/download-data/refresh", makeHandler(app, HandleRefreshMangaDownloadData))
+	v1Manga.Get("/download-queue", makeHandler(app, HandleGetMangaDownloadQueue))
+	v1Manga.Post("/download-queue/start", makeHandler(app, HandleStartMangaDownloadQueue))
+	v1Manga.Post("/download-queue/stop", makeHandler(app, HandleStopMangaDownloadQueue))
+	v1Manga.Delete("/download-queue", makeHandler(app, HandleClearAllChapterDownloadQueue))
+	v1Manga.Post("/download-queue/reset-errored", makeHandler(app, HandleResetErroredChapterDownloadQueue))
 
 	//
 	// File Cache

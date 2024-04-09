@@ -3,6 +3,7 @@ package manga
 import (
 	"errors"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
@@ -25,9 +26,12 @@ type (
 
 		mediaMap   *MediaMap // Refreshed on start and after each download
 		mediaMapMu sync.RWMutex
+
+		chapterDownloadedCh chan chapter_downloader.DownloadID
+		readingDownloadDir  bool
 	}
 
-	// MediaMap is used to store all downloaded chapters for each media.
+	// MediaMap is created after reading the download directory.
 	//
 	//	e.g., downloadDir/comick_1234_abc/
 	//	      downloadDir/comick_1234_def/
@@ -77,6 +81,8 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		DownloadDir:    opts.DownloadDir,
 	})
 
+	_ = os.MkdirAll(d.downloadDir, os.ModePerm)
+
 	go d.refreshMediaMap()
 
 	return d
@@ -85,6 +91,16 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 // Start is called once to start the Chapter downloader 's main goroutine.
 func (d *Downloader) Start() {
 	d.chapterDownloader.Start()
+	go func() {
+		for {
+			select {
+			// Refresh the media map when a chapter is downloaded
+			case _ = <-d.chapterDownloader.ChapterDownloaded():
+				d.refreshMediaMap()
+			default:
+			}
+		}
+	}()
 }
 
 // DownloadChapter is called by the client to download a chapter.
@@ -109,21 +125,93 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	})
 }
 
-func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId string) error {
-	return d.chapterDownloader.DeleteChapter(chapter_downloader.DownloadID{
+// DeleteChapter is called by the client to delete a downloaded chapter.
+func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId string) (err error) {
+	err = d.chapterDownloader.DeleteChapter(chapter_downloader.DownloadID{
 		Provider:  provider,
 		MediaId:   mediaId,
 		ChapterId: chapterId,
 	})
+	if err != nil {
+		return err
+	}
+
+	d.refreshMediaMap()
+
+	return nil
 }
 
-func (d *Downloader) GetMediaDownloads(mediaId int) (MediaDownloadData, error) {
+func (d *Downloader) GetMediaDownloads(mediaId int, cached bool) (MediaDownloadData, error) {
+
+	if !cached {
+		d.refreshMediaMap()
+	}
+
 	return d.mediaMap.getMediaDownload(mediaId, d.database)
 }
 
 func (d *Downloader) RefreshMediaMap() *MediaMap {
 	d.refreshMediaMap()
 	return d.mediaMap
+}
+
+func (d *Downloader) GetAllMediaDownloads() *MediaMap {
+	return d.mediaMap
+}
+
+func (d *Downloader) RunChapterDownloadQueue() {
+	d.chapterDownloader.Run()
+}
+
+func (d *Downloader) StopChapterDownloadQueue() {
+	d.chapterDownloader.Stop()
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type (
+	NewDownloadListOptions struct {
+		MangaCollection *anilist.MangaCollection
+	}
+
+	DownloadListItem struct {
+		Media        *anilist.BaseManga  `json:"media"`
+		DownloadData ProviderDownloadMap `json:"downloadData"`
+	}
+)
+
+func (d *Downloader) NewDownloadList(opts *NewDownloadListOptions) (ret []*DownloadListItem, err error) {
+
+	mm := d.mediaMap
+
+	ret = make([]*DownloadListItem, 0)
+
+	for mId, data := range *mm {
+		listEntry, ok := opts.MangaCollection.GetListEntryFromMediaId(mId)
+		if !ok {
+			ret = append(ret, &DownloadListItem{
+				Media:        nil,
+				DownloadData: data,
+			})
+		}
+
+		media := listEntry.GetMedia()
+		if media == nil {
+			ret = append(ret, &DownloadListItem{
+				Media:        nil,
+				DownloadData: data,
+			})
+		}
+
+		item := &DownloadListItem{
+			Media:        media,
+			DownloadData: data,
+		}
+
+		ret = append(ret, item)
+	}
+
+	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,12 +254,23 @@ func (mm *MediaMap) getMediaDownload(mediaId int, db *db.Database) (MediaDownloa
 }
 
 func (d *Downloader) refreshMediaMap() {
+
+	if d.readingDownloadDir {
+		return
+	}
+
 	d.mediaMapMu.Lock()
 	defer d.mediaMapMu.Unlock()
 
+	d.readingDownloadDir = true
+	defer func() {
+		d.readingDownloadDir = false
+	}()
+
+	d.logger.Debug().Msg("manga downloader: Reading download directory")
+
 	ret := make(MediaMap)
 
-	_ = os.MkdirAll(d.downloadDir, os.ModePerm)
 	files, err := os.ReadDir(d.downloadDir)
 	if err != nil {
 		d.logger.Error().Err(err).Msg("manga downloader: Failed to read download directory")
@@ -216,4 +315,7 @@ func (d *Downloader) refreshMediaMap() {
 	wg.Wait()
 
 	d.mediaMap = &ret
+
+	// When done refreshing, send a message to the client to refetch the download data
+	d.wsEventManager.SendEvent(events.ChapterDownloaded, nil)
 }

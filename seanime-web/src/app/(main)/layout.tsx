@@ -6,7 +6,9 @@ import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner
 import { useAnilistCollectionListener } from "@/app/(main)/_loaders/anilist-collection"
 import { useAnilistUserMediaLoader } from "@/app/(main)/_loaders/anilist-user-media"
 import { useLibraryCollectionLoader } from "@/app/(main)/_loaders/library-collection"
+import { useMangaListener } from "@/app/(main)/_loaders/manga.listeners"
 import { useListenToAutoDownloaderItems } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
+import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
 import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
@@ -26,6 +28,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     useListenToAutoDownloaderItems()
     useAnilistUserMediaLoader()
     useAnilistCollectionListener()
+    useMangaListener()
 
     useWebsocketMessageListener<string>({
         type: WSEvents.INFO_TOAST, onMessage: data => {
@@ -65,6 +68,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LibraryWatcher />
             <ScannerModal />
             <PlaylistsModal />
+            <ChapterDownloadsDrawer />
             <div className="min-h-screen">
                 <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
                     <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">

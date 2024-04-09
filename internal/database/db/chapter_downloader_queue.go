@@ -33,7 +33,7 @@ func (db *Database) GetNextChapterDownloadQueueItem() (*models.ChapterDownloadQu
 func (db *Database) DequeueChapterDownloadQueueItem() (*models.ChapterDownloadQueueItem, error) {
 	// Pop the first item from the queue
 	var res models.ChapterDownloadQueueItem
-	err := db.gormdb.Where("status = ?", "not_started").First(&res).Error
+	err := db.gormdb.Where("status = ?", "downloading").First(&res).Error
 	if err != nil {
 		return nil, err
 	}
@@ -85,4 +85,27 @@ func (db *Database) GetMediaQueuedChapters(mediaId int) ([]*models.ChapterDownlo
 	}
 
 	return res, nil
+}
+
+func (db *Database) ClearAllChapterDownloadQueueItems() error {
+	err := db.gormdb.
+		Where("status = ? OR status = ? OR status = ?", "not_started", "downloading", "errored").
+		Delete(&models.ChapterDownloadQueueItem{}).
+		Error
+	if err != nil {
+		db.logger.Error().Err(err).Msg("db: Failed to clear all chapter download queue items")
+		return err
+	}
+	return nil
+}
+
+func (db *Database) ResetErroredChapterDownloadQueueItems() error {
+	err := db.gormdb.Model(&models.ChapterDownloadQueueItem{}).
+		Where("status = ?", "errored").
+		Update("status", "not_started").Error
+	if err != nil {
+		db.logger.Error().Err(err).Msg("db: Failed to reset errored chapter download queue items")
+		return err
+	}
+	return nil
 }

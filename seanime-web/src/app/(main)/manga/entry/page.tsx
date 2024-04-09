@@ -14,7 +14,7 @@ export default function Page() {
     const mediaId = searchParams.get("id")
     const { mangaEntry, mangaEntryLoading } = useMangaEntry(mediaId)
     const { mangaDetails, mangaDetailsLoading } = useMangaEntryDetails(mediaId)
-    const {} = useMangaDownloadData(mediaId, mangaEntry)
+    const { mangaDownloadData, mangaDownloadDataLoading } = useMangaDownloadData(mediaId, mangaEntry)
 
     React.useEffect(() => {
         if (!mediaId) {
@@ -52,7 +52,13 @@ export default function Page() {
                         className="grid gap-4 xl:grid-cols-[1fr,380px] 2xl:grid-cols-[1fr,650px]"
                     >
                         <div className="space-y-2">
-                            <ChaptersList entry={mangaEntry} mediaId={mediaId} details={mangaDetails} />
+                            <ChaptersList
+                                entry={mangaEntry}
+                                mediaId={mediaId}
+                                details={mangaDetails}
+                                downloadData={mangaDownloadData}
+                                downloadDataLoading={mangaDownloadDataLoading}
+                            />
                         </div>
 
                         <div>

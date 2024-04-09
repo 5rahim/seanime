@@ -3,9 +3,12 @@ import {
     MangaChapterContainer,
     MangaChapterContainer_QueryVariables,
     MangaChapterDetails,
+    MangaChapterDownloadQueueItem,
     MangaCollection,
     MangaDownloadChapters_QueryVariables,
     MangaDownloadData,
+    MangaDownloadData_QueryVariables,
+    MangaDownloadListItem,
     MangaEntry,
     MangaPageContainer,
     MangaPageContainer_QueryVariables,
@@ -210,29 +213,34 @@ export function useMangaPageContainer(mediaId: string | undefined | null, chapte
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function useMangaDownloadData(mediaId: string | undefined | null, entry: MangaEntry | undefined | null) {
-    const { data, isLoading, isFetching } = useSeaQuery<MangaDownloadData>({
+    const { data, isLoading, isFetching } = useSeaQuery<MangaDownloadData, MangaDownloadData_QueryVariables>({
         endpoint: SeaEndpoints.MANGA_DOWNLOAD_DATA,
         method: "post",
         data: {
             mediaId: Number(mediaId),
+            cached: true,
         },
         queryKey: ["get-manga-download-data", Number(mediaId)],
         enabled: !!mediaId && !!entry,
     })
 
     return {
-        chapterBackups: data,
-        chapterBackupsLoading: isLoading || isFetching,
+        mangaDownloadData: data,
+        mangaDownloadDataLoading: isLoading || isFetching,
     }
 }
 
 export function useDownloadMangaChapter(mediaId: string | undefined | null) {
+    const qc = useQueryClient()
     const provider = useAtomValue(__manga_selectedProviderAtom)
 
     const { mutate, isPending } = useSeaMutation<void, MangaDownloadChapters_QueryVariables>({
         endpoint: SeaEndpoints.MANGA_DOWNLOAD_CHAPTERS,
         method: "post",
         mutationKey: ["download-manga-chapters", Number(mediaId), provider],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-download-data", Number(mediaId)] })
+        },
     })
 
     return {
@@ -241,8 +249,95 @@ export function useDownloadMangaChapter(mediaId: string | undefined | null) {
                 mediaId: Number(mediaId),
                 provider,
                 chapterIds: [chapter.id],
+                startNow: false,
+            }, {
+                onSuccess: () => {
+                    toast.success("Chapter added to download queue")
+                },
             })
         },
         isSendingDownloadRequest: isPending,
+    }
+}
+
+export function useMangaChapterDownloadQueue() {
+    const qc = useQueryClient()
+
+    const { data, isLoading, isError } = useSeaQuery<MangaChapterDownloadQueueItem[]>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_QUEUE,
+        method: "get",
+        queryKey: ["get-manga-chapter-download-queue"],
+    })
+
+    const { mutate: start, isPending: isStarting } = useSeaMutation<void>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_QUEUE_START,
+        method: "post",
+        mutationKey: ["start-manga-chapter-download-queue"],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-chapter-download-queue"] })
+            toast.info("Downloading chapters")
+        },
+    })
+
+    const { mutate: stop, isPending: isStopping } = useSeaMutation<void>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_QUEUE_STOP,
+        method: "post",
+        mutationKey: ["stop-manga-chapter-download-queue"],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-chapter-download-queue"] })
+            toast.success("Download queue stopped")
+        },
+    })
+
+    const { mutate: resetErrored, isPending: isResettingErrored } = useSeaMutation<void>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_QUEUE_RESET_ERRORED,
+        method: "post",
+        mutationKey: ["manga-chapter-download-queue-reset-errored"],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-chapter-download-queue"] })
+            toast.success("Reset errored chapters")
+        },
+    })
+
+    const { mutate: clearQueue, isPending: isClearingQueue } = useSeaMutation<void>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_QUEUE,
+        method: "delete",
+        mutationKey: ["clear-manga-chapter-download-queue"],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-chapter-download-queue"] })
+            toast.success("Download queue cleared")
+        },
+    })
+
+    return {
+        downloadQueue: data,
+        downloadQueueLoading: isLoading,
+        downloadQueueError: isError,
+        startDownloadQueue: start,
+        isStartingDownloadQueue: isStarting,
+        stopDownloadQueue: stop,
+        isStoppingDownloadQueue: isStopping,
+        resetErroredChapters: resetErrored,
+        isResettingErroredChapters: isResettingErrored,
+        clearDownloadQueue: clearQueue,
+        isClearingDownloadQueue: isClearingQueue,
+    }
+}
+
+
+export function useMangaChapterDownloads() {
+    const qc = useQueryClient()
+
+    const { data, isLoading, isError } = useSeaQuery<MangaDownloadListItem[]>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOADS,
+        method: "get",
+        queryKey: ["get-manga-downloads"],
+    })
+
+
+    return {
+        data,
+        isLoading,
+        isError,
     }
 }

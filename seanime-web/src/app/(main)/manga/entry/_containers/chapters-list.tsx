@@ -1,10 +1,12 @@
+import { __manga__chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import {
     __manga_selectedProviderAtom,
     useClearMangaCache,
     useDownloadMangaChapter,
     useMangaChapterContainer,
 } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MANGA_PROVIDER_OPTIONS, MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { MANGA_PROVIDER_OPTIONS, MangaChapterDetails, MangaDownloadData, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/manga.utils"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -14,7 +16,6 @@ import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
-import { atomWithImmer } from "jotai-immer"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { BiBookAlt } from "react-icons/bi"
@@ -25,10 +26,10 @@ import { IoBookOutline } from "react-icons/io5"
 type ChaptersListProps = {
     mediaId: string | null
     entry: MangaEntry
-    details?: MangaDetailsByIdQuery["Media"]
+    details: MangaDetailsByIdQuery["Media"] | undefined
+    downloadData: MangaDownloadData | undefined
+    downloadDataLoading: boolean
 }
-
-const downloadProgressMapAtom = atomWithImmer<Record<string, number>>({})
 
 export function ChaptersList(props: ChaptersListProps) {
 
@@ -36,6 +37,8 @@ export function ChaptersList(props: ChaptersListProps) {
         mediaId,
         entry,
         details,
+        downloadData,
+        downloadDataLoading,
         ...rest
     } = props
 
@@ -47,34 +50,12 @@ export function ChaptersList(props: ChaptersListProps) {
 
     const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
 
-
     const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
 
-    // SHELVED
-    // const { chapterBackups, chapterBackupsLoading } = useMangaEntryBackups(mediaId)
-    // const [downloadProgressMap, setDownloadProgressMap] = useAtom(downloadProgressMapAtom)
-    // const qc = useQueryClient()
-    // useWebsocketMessageListener<{ chapterId: string, number: number } | null>({
-    //     type: WSEvents.MANGA_DOWNLOADER_DOWNLOADING_PROGRESS,
-    //     onMessage: data => {
-    //         if (!data) return
-    //
-    //         if (data.number === 0) {
-    //             setDownloadProgressMap(draft => {
-    //                 delete draft[data.chapterId]
-    //             })
-    //             qc.refetchQueries({ queryKey: ["get-manga-entry-backups"] })
-    //         } else {
-    //             setDownloadProgressMap(draft => {
-    //                 draft[data.chapterId] = data.number
-    //             })
-    //         }
-    //     },
-    // })
-    // const handleDownloadChapter = React.useCallback((chapter: MangaChapterDetails) => {
-    //     // shelved
-    //     // downloadChapter(chapter)
-    // }, [])
+    const { isChapterQueued, isChapterDownloaded, getProviderNumberOfDownloadedChapters } = useMangaDownloadDataUtils(downloadData,
+        downloadDataLoading)
+
+    const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
 
     const retainUnreadChapters = React.useCallback((chapter: MangaChapterDetails) => {
         if (!entry.listData || !chapterIdToNumbersMap.has(chapter.id) || !entry.listData?.progress) return true
@@ -119,14 +100,15 @@ export function ChaptersList(props: ChaptersListProps) {
             enableGlobalFilter: false,
             cell: ({ row }) => {
                 return (
-                    <div className="flex justify-end w-full">
-                        <IconButton
+                    <div className="flex justify-end gap-2 items-center w-full">
+                        {(!isChapterDownloaded(row.original) && !isChapterQueued(row.original)) && <IconButton
                             intent="gray-basic"
                             size="sm"
                             disabled={isSendingDownloadRequest}
                             onClick={() => downloadChapter(row.original)}
                             icon={<FaDownload />}
-                        />
+                        />}
+                        {isChapterQueued(row.original) && <p className="text-[--muted]">Queued</p>}
                         <IconButton
                             intent="gray-basic"
                             size="sm"
@@ -137,7 +119,7 @@ export function ChaptersList(props: ChaptersListProps) {
                 )
             },
         },
-    ]), [chapterIdToNumbersMap, isSendingDownloadRequest])
+    ]), [chapterIdToNumbersMap, isSendingDownloadRequest, isChapterDownloaded])
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const chapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
@@ -147,6 +129,10 @@ export function ChaptersList(props: ChaptersListProps) {
         <div
             className="space-y-2"
         >
+
+            <Button onClick={() => openDownloadQueue(true)}>
+                Queue
+            </Button>
 
             <div className="flex gap-2 items-center">
                 <Select

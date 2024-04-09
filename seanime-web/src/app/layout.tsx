@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
     title: "Seanime",
-    description: "Manage your anime library.",
+    description: "Self-hosted, user-friendly media server for anime and manga.",
     icons: {
         icon: "/icons/favicon.ico",
     },
