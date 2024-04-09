@@ -1,5 +1,6 @@
 "use client"
 import { useMangaChapterDownloadQueue, useMangaChapterDownloads } from "@/app/(main)/manga/_lib/manga.hooks"
+import { MangaCollection } from "@/app/(main)/manga/_lib/manga.types"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
@@ -10,8 +11,11 @@ import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { SeaEndpoints } from "@/lib/server/endpoints"
+import { useSeaQuery } from "@/lib/server/query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import Link from "next/link"
 import React from "react"
 import { MdClear } from "react-icons/md"
 import { PiWarningOctagonDuotone } from "react-icons/pi"
@@ -29,6 +33,11 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
 
     const [isOpen, setIsOpen] = useAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
 
+    const { data: mangaCollection } = useSeaQuery<MangaCollection>({
+        endpoint: SeaEndpoints.MANGA_COLLECTION,
+        queryKey: ["get-manga-collection"],
+    })
+
     return (
         <>
             <Drawer
@@ -39,7 +48,7 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
             >
 
                 <div className="py-4 space-y-8">
-                    <ChapterDownloadQueue />
+                    <ChapterDownloadQueue mangaCollection={mangaCollection} />
 
                     <ChapterDownloadList />
                 </div>
@@ -51,11 +60,14 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
 
 /////////////////////////////////////
 
-type ChapterDownloadQueueProps = {}
+type ChapterDownloadQueueProps = {
+    mangaCollection: MangaCollection | undefined
+}
 
 export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
 
     const {
+        mangaCollection,
         ...rest
     } = props
 
@@ -99,7 +111,6 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                                 <Button
                                     intent="alert-subtle"
                                     size="sm"
-                                    disabled={isMutating}
                                     onClick={() => stopDownloadQueue()}
                                     loading={isStoppingDownloadQueue}
                                 >
@@ -147,6 +158,8 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                             <div className="space-y-2">
                                 {downloadQueue.map(item => {
 
+                                    const media = mangaCollection?.lists?.flatMap(n => n.entries)?.find(n => n.media?.id === item.mediaId)?.media
+
                                     return (
                                         <Card
                                             key={item.mediaId + item.provider + item.chapterId} className={cn(
@@ -155,7 +168,11 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                                         )}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <p>{item.chapterId}</p>
+                                                {!!media && <Link
+                                                    className="font-semibold max-w-[180px] text-ellipsis truncate underline"
+                                                    href={`/manga/entry?id=${media.id}`}
+                                                >{media.title?.userPreferred}</Link>}
+                                                <p>Chapter (id: {item.chapterId})</p>
                                                 {item.status === "errored" && (
                                                     <div className="flex gap-1 items-center text-[--orange]">
                                                         <PiWarningOctagonDuotone className="text-2xl text-[--orange]" />
@@ -221,7 +238,11 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
 
                     {!!data?.length ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-                            {data?.filter(n => !!n.media).map(item => {
+                            {data?.filter(n => !!n.media)
+                                .sort((a, b) => Object.values(b.downloadData).flatMap(n => n).length - Object.values(a.downloadData)
+                                    .flatMap(n => n).length)
+                                .map(item => {
+                                    const nb = Object.values(item.downloadData).flatMap(n => n).length
                                 return <div key={item.media?.id!} className="col-span-1">
                                     <AnimeListItem
                                         media={item.media!}
@@ -232,7 +253,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                             className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
                                             intent="gray"
                                             size="lg"
-                                        >{Object.values(item.downloadData).flatMap(n => n).length} chapters</Badge>}
+                                        >{nb} chapter{nb === 1 ? "" : "s"}</Badge>}
                                     />
                                 </div>
                             })}

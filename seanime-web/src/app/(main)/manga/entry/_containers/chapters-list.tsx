@@ -21,7 +21,7 @@ import React from "react"
 import { BiBookAlt } from "react-icons/bi"
 import { FaDownload, FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
-import { IoBookOutline } from "react-icons/io5"
+import { IoBookOutline, IoLibrary } from "react-icons/io5"
 
 type ChaptersListProps = {
     mediaId: string | null
@@ -106,11 +106,12 @@ export function ChaptersList(props: ChaptersListProps) {
                             size="sm"
                             disabled={isSendingDownloadRequest}
                             onClick={() => downloadChapter(row.original)}
-                            icon={<FaDownload />}
+                            icon={<FaDownload className="text-sm" />}
                         />}
                         {isChapterQueued(row.original) && <p className="text-[--muted]">Queued</p>}
+                        {isChapterDownloaded(row.original) && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
                         <IconButton
-                            intent="gray-basic"
+                            intent="gray-subtle"
                             size="sm"
                             onClick={() => setSelectedChapter(row.original)}
                             icon={<GiOpenBook />}
@@ -119,7 +120,7 @@ export function ChaptersList(props: ChaptersListProps) {
                 )
             },
         },
-    ]), [chapterIdToNumbersMap, isSendingDownloadRequest, isChapterDownloaded])
+    ]), [chapterIdToNumbersMap, isSendingDownloadRequest, isChapterDownloaded, downloadData])
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const chapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])

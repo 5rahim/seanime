@@ -164,6 +164,7 @@ func (d *Downloader) RunChapterDownloadQueue() {
 }
 
 func (d *Downloader) StopChapterDownloadQueue() {
+	_ = d.database.ResetDownloadingChapterDownloadQueueItems()
 	d.chapterDownloader.Stop()
 }
 

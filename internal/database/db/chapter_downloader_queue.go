@@ -109,3 +109,14 @@ func (db *Database) ResetErroredChapterDownloadQueueItems() error {
 	}
 	return nil
 }
+
+func (db *Database) ResetDownloadingChapterDownloadQueueItems() error {
+	err := db.gormdb.Model(&models.ChapterDownloadQueueItem{}).
+		Where("status = ?", "downloading").
+		Update("status", "not_started").Error
+	if err != nil {
+		db.logger.Error().Err(err).Msg("db: Failed to reset downloading chapter download queue items")
+		return err
+	}
+	return nil
+}

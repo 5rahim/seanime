@@ -166,6 +166,10 @@ func (q *Queue) runNext() {
 		ChapterId: next.ChapterID,
 	}
 
+	q.wsEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
+	// Update status
+	_ = q.db.UpdateChapterDownloadQueueItemStatus(id.Provider, id.MediaId, id.ChapterId, string(QueueStatusDownloading))
+
 	// Set the current item.
 	q.current = &QueueInfo{
 		DownloadID:     id,
@@ -177,6 +181,7 @@ func (q *Queue) runNext() {
 	err := json.Unmarshal(next.PageData, &q.current.Pages)
 	if err != nil {
 		q.logger.Error().Err(err).Msgf("Failed to unmarshal pages for id %v", id)
+		_ = q.db.UpdateChapterDownloadQueueItemStatus(id.Provider, id.MediaId, id.ChapterId, string(QueueStatusNotStarted))
 		return
 	}
 
@@ -184,11 +189,6 @@ func (q *Queue) runNext() {
 
 	// FIXME: This is a temporary fix to prevent the downloader from running too fast.
 	time.Sleep(5 * time.Second)
-
-	q.wsEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
-
-	// Update status
-	_ = q.db.UpdateChapterDownloadQueueItemStatus(id.Provider, id.MediaId, id.ChapterId, string(QueueStatusDownloading))
 
 	// Tell Downloader to run
 	q.runCh <- q.current
