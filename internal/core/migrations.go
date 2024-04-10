@@ -28,6 +28,16 @@ func (a *App) runMigrations() {
 					a.Logger.Error().Msg("app: Failed to remove 'manga' cache files, please clear them manually by going to the settings. Ignore this message if you have no manga cache files.")
 				}
 			}
+			if a.previousVersion == "1.3.0" && versionComp > 0 {
+				a.Logger.Debug().Msg("app: Executing version migration task")
+				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
+					return strings.HasPrefix(filename, "manga_")
+				})
+				if err != nil {
+					a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
+					a.Logger.Error().Msg("app: Failed to remove 'manga' cache files, please clear them manually by going to the settings. Ignore this message if you have no manga cache files.")
+				}
+			}
 		}
 	}()
 

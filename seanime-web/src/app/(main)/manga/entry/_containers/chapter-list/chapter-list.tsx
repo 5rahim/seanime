@@ -137,14 +137,19 @@ export function ChapterList(props: ChapterListProps) {
                         <IconButton
                             intent="gray-subtle"
                             size="sm"
-                            onClick={() => setSelectedChapter(row.original)}
+                            onClick={() => setSelectedChapter({
+                                chapterId: row.original.id,
+                                chapterNumber: row.original.chapter,
+                                provider: row.original.provider,
+                                mediaId: Number(mediaId),
+                            })}
                             icon={<GiOpenBook />}
                         />
                     </div>
                 )
             },
         },
-    ]), [chapterIdToNumbersMap, isSendingDownloadRequest, isChapterDownloaded, downloadData])
+    ]), [chapterIdToNumbersMap, isSendingDownloadRequest, isChapterDownloaded, downloadData, mediaId])
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const allChapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
@@ -231,7 +236,12 @@ export function ChapterList(props: ChapterListProps) {
                                             rounded
                                             leftIcon={<IoBookOutline />}
                                             onClick={() => {
-                                                setSelectedChapter(unreadChapters[0])
+                                                setSelectedChapter({
+                                                    chapterId: unreadChapters[0].id,
+                                                    chapterNumber: unreadChapters[0].chapter,
+                                                    provider: unreadChapters[0].provider,
+                                                    mediaId: Number(mediaId),
+                                                })
                                             }}
                                         >
                                             Continue reading

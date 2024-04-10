@@ -4,6 +4,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/manga/providers"
+	"time"
 )
 
 // HandleDownloadMangaChapters
@@ -33,6 +34,7 @@ func HandleDownloadMangaChapters(c *RouteCtx) error {
 		if err != nil {
 			return c.RespondWithError(err)
 		}
+		time.Sleep(400 * time.Second) // Sleep to avoid rate limiting
 	}
 
 	return c.RespondWithData(true)

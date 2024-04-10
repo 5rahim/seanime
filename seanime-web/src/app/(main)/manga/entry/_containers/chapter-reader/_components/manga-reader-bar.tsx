@@ -26,10 +26,10 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineCloseCircle } from "r
 
 type MangaReaderBarProps = {
     children?: React.ReactNode
-    previousChapter?: MangaChapterDetails
-    nextChapter?: MangaChapterDetails
-    pageContainer?: MangaPageContainer
-    entry?: MangaEntry
+    previousChapter: MangaChapterDetails | undefined
+    nextChapter: MangaChapterDetails | undefined
+    pageContainer: MangaPageContainer | undefined
+    entry: MangaEntry | undefined
 }
 
 export function MangaReaderBar(props: MangaReaderBarProps) {
@@ -62,7 +62,16 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         rounded
                         intent="white-outline"
                         size="sm"
-                        onClick={() => setSelectedChapter(nextChapter)}
+                        onClick={() => {
+                            if (nextChapter && entry) {
+                                setSelectedChapter({
+                                    chapterId: nextChapter.id,
+                                    chapterNumber: nextChapter.chapter,
+                                    provider: nextChapter.provider,
+                                    mediaId: entry.mediaId,
+                                })
+                            }
+                        }}
                         disabled={!nextChapter}
                     />
                 )
@@ -73,7 +82,16 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         rounded
                         intent="gray-outline"
                         size="sm"
-                        onClick={() => setSelectedChapter(previousChapter)}
+                        onClick={() => {
+                            if (previousChapter && entry) {
+                                setSelectedChapter({
+                                    chapterId: previousChapter.id,
+                                    chapterNumber: previousChapter.chapter,
+                                    provider: previousChapter.provider,
+                                    mediaId: entry.mediaId,
+                                })
+                            }
+                        }}
                         disabled={!previousChapter}
                     />
                 )
@@ -86,7 +104,16 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         rounded
                         intent="gray-outline"
                         size="sm"
-                        onClick={() => setSelectedChapter(previousChapter)}
+                        onClick={() => {
+                            if (previousChapter && entry) {
+                                setSelectedChapter({
+                                    chapterId: previousChapter.id,
+                                    chapterNumber: previousChapter.chapter,
+                                    provider: previousChapter.provider,
+                                    mediaId: entry.mediaId,
+                                })
+                            }
+                        }}
                         disabled={!previousChapter}
                     />
                 )
@@ -97,7 +124,16 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         rounded
                         intent="white-outline"
                         size="sm"
-                        onClick={() => setSelectedChapter(nextChapter)}
+                        onClick={() => {
+                            if (nextChapter && entry) {
+                                setSelectedChapter({
+                                    chapterId: nextChapter.id,
+                                    chapterNumber: nextChapter.chapter,
+                                    provider: nextChapter.provider,
+                                    mediaId: entry.mediaId,
+                                })
+                            }
+                        }}
                         disabled={!nextChapter}
                     />
                 )
@@ -140,7 +176,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
                 {!!selectedChapter && <div className="flex gap-3 items-center flex-none whitespace-nowrap ">
                     <ChapterNavButton dir="left" />
-                    {selectedChapter?.title || ""}
+                    {`Chapter ${selectedChapter?.chapterNumber}`}
                     <ChapterNavButton dir="right" />
                 </div>}
 

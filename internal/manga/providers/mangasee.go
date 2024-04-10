@@ -154,7 +154,7 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 			ID:       slug + "$" + chStr, // e.g. One-Piece
 			Title:    fmt.Sprintf("Chapter %s", unpaddedChStr),
 			URL:      fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chStr),
-			Chapter:  chStr,
+			Chapter:  unpaddedChStr,
 			Index:    uint(i),
 		}
 	}

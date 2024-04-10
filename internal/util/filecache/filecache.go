@@ -4,6 +4,7 @@ import (
 	"github.com/goccy/go-json"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -203,6 +204,9 @@ func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 	}
 
 	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".cache") {
+			continue
+		}
 		if !filter(file.Name()) {
 			continue
 		}
@@ -229,6 +233,9 @@ func (c *Cacher) GetTotalSize(filter func(filename string) bool) (int64, error) 
 
 	var totalSize int64
 	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".cache") {
+			continue
+		}
 		if !filter(file.Name()) {
 			continue
 		}

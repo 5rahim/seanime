@@ -5,14 +5,17 @@
 
 import { useDeleteDownloadedMangaChapter } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaDownloadData, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { primaryPillCheckboxClass } from "@/components/shared/styling/classnames"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { RowSelectionState } from "@tanstack/react-table"
+import { useSetAtom } from "jotai"
 import React from "react"
 import { BiTrash } from "react-icons/bi"
+import { GiOpenBook } from "react-icons/gi"
 import { IoLibrary } from "react-icons/io5"
 
 type DownloadedChapterListProps = {
@@ -29,6 +32,11 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         data,
         ...rest
     } = props
+
+    /**
+     * Set selected chapter
+     */
+    const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
 
     const [showQueued, setShowQueued] = React.useState(false)
 
@@ -91,11 +99,23 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                     <div className="flex justify-end gap-2 items-center w-full">
                         {row.original.queued && <p className="text-[--muted]">Queued</p>}
                         {row.original.downloaded && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
+
+                        <IconButton
+                            intent="gray-subtle"
+                            size="sm"
+                            onClick={() => setSelectedChapter({
+                                chapterId: row.original.chapterId,
+                                chapterNumber: row.original.chapterNumber,
+                                provider: row.original.provider,
+                                mediaId: Number(entry.mediaId),
+                            })}
+                            icon={<GiOpenBook />}
+                        />
                     </div>
                 )
             },
         },
-    ]), [tableData])
+    ]), [tableData, entry?.mediaId])
 
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
