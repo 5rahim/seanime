@@ -143,9 +143,10 @@ func HandleResetErroredChapterDownloadQueue(c *RouteCtx) error {
 func HandleDeleteMangaChapterDownload(c *RouteCtx) error {
 
 	type body struct {
-		MediaId   int    `json:"mediaId"`
-		Provider  string `json:"provider"`
-		ChapterId string `json:"chapterId"`
+		MediaId       int    `json:"mediaId"`
+		Provider      string `json:"provider"`
+		ChapterId     string `json:"chapterId"`
+		ChapterNumber string `json:"chapterNumber"`
 	}
 
 	var b body
@@ -153,7 +154,7 @@ func HandleDeleteMangaChapterDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err := c.App.MangaDownloader.DeleteChapter(b.Provider, b.MediaId, b.ChapterId)
+	err := c.App.MangaDownloader.DeleteChapter(b.Provider, b.MediaId, b.ChapterId, b.ChapterNumber)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

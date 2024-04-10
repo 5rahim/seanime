@@ -265,7 +265,7 @@ type DownloadListProps = {
     data: MangaDownloadData | undefined
 }
 
-type DownloadListTableItem = { provider: string, chapterId: string, queued: boolean, downloaded: boolean }
+type DownloadListTableItem = { provider: string, chapterId: string, chapterNumber: string, queued: boolean, downloaded: boolean }
 
 function DownloadList(props: DownloadListProps) {
 
@@ -274,38 +274,49 @@ function DownloadList(props: DownloadListProps) {
         ...rest
     } = props
 
-    // Transforms {downloaded: Record<string, string[]>, queued: Record<string, string[]>}
+    // Transforms {downloaded: Record<string, { chapterId: string, chapterNumber: string }[]>,
+    //                            queued: Record<string, { chapterId: string, chapterNumber: string }[]>}
     // to [{provider: string, chapterId: string, queued: boolean, downloaded: boolean}, ...]
     const tableData = React.useMemo(() => {
-        let d: { provider: string, chapterId: string, queued: boolean, downloaded: boolean }[] = []
-        for (const provider in data?.downloaded || {}) {
-            d.push(...(data?.downloaded[provider] || []).map(chapterId => ({
-                provider,
-                chapterId,
-                queued: false,
-                downloaded: true,
-            })))
-        }
-        for (const provider in data?.queued || {}) {
-            d.push(...(data?.queued[provider] || []).map(chapterId => ({
-                provider,
-                chapterId,
-                queued: true,
-                downloaded: false,
-            })))
+        let d: DownloadListTableItem[] = []
+        if (data) {
+            for (const provider in data.downloaded) {
+                d = d.concat(data.downloaded[provider].map(ch => ({
+                    provider,
+                    chapterId: ch.chapterId,
+                    chapterNumber: ch.chapterNumber,
+                    queued: false,
+                    downloaded: true,
+                })))
+            }
+            for (const provider in data.queued) {
+                d = d.concat(data.queued[provider].map(ch => ({
+                    provider,
+                    chapterId: ch.chapterId,
+                    chapterNumber: ch.chapterNumber,
+                    queued: true,
+                    downloaded: false,
+                })))
+            }
         }
         return d
     }, [data])
 
     const columns = React.useMemo(() => defineDataGridColumns<DownloadListTableItem>(() => [
         {
-            accessorKey: "chapterId",
-            header: "Chapter ID",
+            accessorKey: "chapterNumber",
+            header: "Chapter",
             size: 10,
+            cell: info => <span>Chapter {info.getValue<string>()}</span>,
         },
         {
             accessorKey: "provider",
             header: "Provider",
+            size: 10,
+        },
+        {
+            accessorKey: "chapterId",
+            header: "Chapter ID",
             size: 10,
         },
         {

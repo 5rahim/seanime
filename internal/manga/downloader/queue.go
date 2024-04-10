@@ -37,8 +37,8 @@ type (
 	QueueInfo struct {
 		DownloadID
 		Pages          []*manga_providers.ChapterPage
-		DownloadedUrls []string    `json:"downloadedUrls"`
-		Status         QueueStatus `json:"status"`
+		DownloadedUrls []string
+		Status         QueueStatus
 	}
 )
 
@@ -64,12 +64,13 @@ func (q *Queue) Add(id DownloadID, pages []*manga_providers.ChapterPage, runNext
 	}
 
 	err = q.db.InsertChapterDownloadQueueItem(&models.ChapterDownloadQueueItem{
-		BaseModel: models.BaseModel{},
-		Provider:  id.Provider,
-		MediaID:   id.MediaId,
-		ChapterID: id.ChapterId,
-		PageData:  marshalled,
-		Status:    string(QueueStatusNotStarted),
+		BaseModel:     models.BaseModel{},
+		Provider:      id.Provider,
+		MediaID:       id.MediaId,
+		ChapterNumber: id.ChapterNumber,
+		ChapterID:     id.ChapterId,
+		PageData:      marshalled,
+		Status:        string(QueueStatusNotStarted),
 	})
 	if err != nil {
 		q.logger.Error().Err(err).Msgf("Failed to insert chapter download queue item for id %v", id)
@@ -161,9 +162,10 @@ func (q *Queue) runNext() {
 	}
 
 	id := DownloadID{
-		Provider:  next.Provider,
-		MediaId:   next.MediaID,
-		ChapterId: next.ChapterID,
+		Provider:      next.Provider,
+		MediaId:       next.MediaID,
+		ChapterId:     next.ChapterID,
+		ChapterNumber: next.ChapterNumber,
 	}
 
 	q.wsEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)

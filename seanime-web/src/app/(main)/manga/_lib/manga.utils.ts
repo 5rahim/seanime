@@ -10,12 +10,12 @@ export function useMangaDownloadDataUtils(data: MangaDownloadData | undefined, l
 
     const isChapterDownloaded = React.useCallback((chapter: MangaChapterDetails | undefined) => {
         if (!data || !chapter) return false
-        return !!data?.downloaded[chapter.provider]?.includes(chapter.id)
+        return (data?.downloaded[chapter.provider]?.findIndex(n => n.chapterId === chapter.id) ?? -1) !== -1
     }, [data])
 
     const isChapterQueued = React.useCallback((chapter: MangaChapterDetails | undefined) => {
         if (!data || !chapter) return false
-        return !!data?.queued[chapter.provider]?.includes(chapter.id)
+        return (data?.queued[chapter.provider]?.findIndex(n => n.chapterId === chapter.id) ?? -1) !== -1
     }, [data])
 
     const getProviderNumberOfDownloadedChapters = React.useCallback((provider: string) => {

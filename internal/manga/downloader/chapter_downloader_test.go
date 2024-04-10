@@ -89,9 +89,10 @@ func TestQueue(t *testing.T) {
 						//
 						err := downloader.Download(DownloadOptions{
 							DownloadID: DownloadID{
-								Provider:  string(tt.providerName),
-								MediaId:   tt.mediaId,
-								ChapterId: chapterInfo.ID,
+								Provider:      string(tt.providerName),
+								MediaId:       tt.mediaId,
+								ChapterId:     chapterInfo.ID,
+								ChapterNumber: chapterInfo.Chapter,
 							},
 							Pages:    pages,
 							StartNow: true,

@@ -2,6 +2,7 @@ package manga
 
 import (
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/db"
@@ -33,13 +34,18 @@ type (
 
 	// MediaMap is created after reading the download directory.
 	//
-	//	e.g., downloadDir/comick_1234_abc/
-	//	      downloadDir/comick_1234_def/
-	// -> map[1234]["comick"] = ["abc", "def"]
+	//	e.g., downloadDir/comick_1234_abc_13/
+	//	      downloadDir/comick_1234_def_13.5/
+	// -> map[1234]["comick"] = [{"abc", "13"}, {"def", "13.5"}]
 	MediaMap map[int]ProviderDownloadMap
 
 	// ProviderDownloadMap is used to store all downloaded chapters for a specific media and provider.
-	ProviderDownloadMap map[string][]string
+	ProviderDownloadMap map[string][]ProviderDownloadMapChapterInfo
+
+	ProviderDownloadMapChapterInfo struct {
+		ChapterID     string `json:"chapterId"`
+		ChapterNumber string `json:"chapterNumber"`
+	}
 
 	MediaDownloadData struct {
 		Downloaded ProviderDownloadMap `json:"downloaded"`
@@ -108,6 +114,18 @@ func (d *Downloader) Start() {
 // and invokes the chapter_downloader.Downloader 'Download' method to add the chapter to the download queue.
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
+	chapterKey := fmt.Sprintf("%s$%d", opts.Provider, opts.MediaId)
+	chapterBucket := d.repository.getFcProviderBucket(opts.Provider, opts.MediaId, bucketTypeChapter)
+	var chapterContainer *ChapterContainer
+	if found, _ := d.repository.fileCacher.Get(chapterBucket, chapterKey, &chapterContainer); !found {
+		return errors.New("chapters not found")
+	}
+
+	chapter, ok := chapterContainer.GetChapter(opts.ChapterId)
+	if !ok {
+		return errors.New("chapter not found")
+	}
+
 	// Fetch the chapter pages
 	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false)
 	if err != nil {
@@ -117,20 +135,22 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	// Add the chapter to the download queue
 	return d.chapterDownloader.Download(chapter_downloader.DownloadOptions{
 		DownloadID: chapter_downloader.DownloadID{
-			Provider:  string(opts.Provider),
-			MediaId:   opts.MediaId,
-			ChapterId: opts.ChapterId,
+			Provider:      string(opts.Provider),
+			MediaId:       opts.MediaId,
+			ChapterId:     opts.ChapterId,
+			ChapterNumber: chapter.GetNormalizedChapter(),
 		},
 		Pages: pageContainer.Pages,
 	})
 }
 
 // DeleteChapter is called by the client to delete a downloaded chapter.
-func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId string) (err error) {
+func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId string, chapterNumber string) (err error) {
 	err = d.chapterDownloader.DeleteChapter(chapter_downloader.DownloadID{
-		Provider:  provider,
-		MediaId:   mediaId,
-		ChapterId: chapterId,
+		Provider:      provider,
+		MediaId:       mediaId,
+		ChapterId:     chapterId,
+		ChapterNumber: chapterNumber,
 	})
 	if err != nil {
 		return err
@@ -233,7 +253,7 @@ func (mm *MediaMap) getMediaDownload(mediaId int, db *db.Database) (MediaDownloa
 	// Get all downloaded chapters for the media
 	downloads, ok := (*mm)[mediaId]
 	if !ok {
-		downloads = make(map[string][]string)
+		downloads = make(map[string][]ProviderDownloadMapChapterInfo)
 	}
 
 	// Get all queued chapters for the media
@@ -245,9 +265,17 @@ func (mm *MediaMap) getMediaDownload(mediaId int, db *db.Database) (MediaDownloa
 	qm := make(ProviderDownloadMap)
 	for _, item := range queued {
 		if _, ok := qm[item.Provider]; !ok {
-			qm[item.Provider] = []string{item.ChapterID}
+			qm[item.Provider] = []ProviderDownloadMapChapterInfo{
+				{
+					ChapterID:     item.ChapterID,
+					ChapterNumber: item.ChapterNumber,
+				},
+			}
 		} else {
-			qm[item.Provider] = append(qm[item.Provider], item.ChapterID)
+			qm[item.Provider] = append(qm[item.Provider], ProviderDownloadMapChapterInfo{
+				ChapterID:     item.ChapterID,
+				ChapterNumber: item.ChapterNumber,
+			})
 		}
 	}
 
@@ -291,14 +319,15 @@ func (d *Downloader) refreshMediaMap() {
 			defer wg.Done()
 
 			if file.IsDir() {
-				parts := strings.SplitN(file.Name(), "_", 3)
-				if len(parts) != 3 {
+				parts := strings.SplitN(file.Name(), "_", 4)
+				if len(parts) != 4 {
 					return
 				}
 
 				provider := parts[0]
 				mediaID, err := strconv.Atoi(parts[1])
 				chapterID := parts[2]
+				chapterNumber := parts[3]
 
 				if err != nil {
 					return
@@ -306,13 +335,26 @@ func (d *Downloader) refreshMediaMap() {
 
 				mu.Lock()
 				if _, ok := ret[mediaID]; !ok {
-					ret[mediaID] = make(map[string][]string)
-					ret[mediaID][provider] = []string{chapterID}
+					ret[mediaID] = make(map[string][]ProviderDownloadMapChapterInfo)
+					ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{
+						{
+							ChapterID:     chapterID,
+							ChapterNumber: chapterNumber,
+						},
+					}
 				} else {
 					if _, ok := ret[mediaID][provider]; !ok {
-						ret[mediaID][provider] = []string{chapterID}
+						ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{
+							{
+								ChapterID:     chapterID,
+								ChapterNumber: chapterNumber,
+							},
+						}
 					} else {
-						ret[mediaID][provider] = append(ret[mediaID][provider], chapterID)
+						ret[mediaID][provider] = append(ret[mediaID][provider], ProviderDownloadMapChapterInfo{
+							ChapterID:     chapterID,
+							ChapterNumber: chapterNumber,
+						})
 					}
 				}
 				mu.Unlock()

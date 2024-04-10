@@ -54,7 +54,20 @@ func (db *Database) InsertChapterDownloadQueueItem(item *models.ChapterDownloadQ
 	err := db.gormdb.Where("provider = ? AND media_id = ? AND chapter_id = ?", item.Provider, item.MediaID, item.ChapterID).First(&existingItem).Error
 	if err == nil {
 		db.logger.Debug().Msg("db: Chapter download queue item already exists")
-		return nil
+		return errors.New("chapter is already in the download queue")
+	}
+
+	if item.ChapterID == "" {
+		return errors.New("chapter ID is empty")
+	}
+	if item.Provider == "" {
+		return errors.New("provider is empty")
+	}
+	if item.MediaID == 0 {
+		return errors.New("media ID is empty")
+	}
+	if item.ChapterNumber == "" {
+		return errors.New("chapter number is empty")
 	}
 
 	err = db.gormdb.Create(item).Error

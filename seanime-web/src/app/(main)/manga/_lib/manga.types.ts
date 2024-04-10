@@ -109,15 +109,16 @@ export type MangaDownloadData_QueryVariables = {
 
 export type MangaDownloadData = {
     // Provider -> ChapterId[]
-    downloaded: Record<string, string[]>
+    downloaded: Record<string, { chapterId: string, chapterNumber: string }[]>
     // Provider -> ChapterId[]
-    queued: Record<string, string[]>
+    queued: Record<string, { chapterId: string, chapterNumber: string }[]>
 }
 
 export type MangaChapterDownloadQueueItem = {
     mediaId: number
     provider: string
     chapterId: string
+    chapterNumber: string
     pageData: MangaChapterPage[]
     status: "not_started" | "downloading" | "errored"
 }
@@ -125,6 +126,6 @@ export type MangaChapterDownloadQueueItem = {
 export type MangaDownloadListItem = {
     mediaId: number
     media?: BaseMangaFragment
-    // Provider -> ChapterId[]
-    downloadData: Record<string, string[]>
+    // Provider -> `{ChapterId}___{chapterNumber}`[]
+    downloadData: Record<string, { chapterId: string, chapterNumber: string }[]>
 }

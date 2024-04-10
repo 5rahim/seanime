@@ -26,8 +26,8 @@ var (
 )
 
 // 📁 cache/manga
-// └── 📁 {provider}_{mediaId}_{chapterId}      <- Downloader generates
-//     ├── 📄 registry.json						<- Contains Registry
+// └── 📁 {provider}_{mediaId}_{chapterId}_[{chapterNumber}]      <- Downloader generates
+//     ├── 📄 registry.json						                <- Contains Registry
 //     ├── 📄 1.jpg
 //     ├── 📄 2.jpg
 //     └── 📄 ...
@@ -53,9 +53,10 @@ type (
 	//+-------------------------------------------------------------------------------------------------------------------+
 
 	DownloadID struct {
-		Provider  string `json:"provider"`
-		MediaId   int    `json:"mediaId"`
-		ChapterId string `json:"chapterId"`
+		Provider      string `json:"provider"`
+		MediaId       int    `json:"mediaId"`
+		ChapterId     string `json:"chapterId"`
+		ChapterNumber string `json:"chapterNumber"`
 	}
 
 	//+-------------------------------------------------------------------------------------------------------------------+
@@ -129,7 +130,7 @@ func (cd *Downloader) Download(opts DownloadOptions) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
 
-	downloadId := DownloadID{Provider: opts.Provider, MediaId: opts.MediaId, ChapterId: opts.ChapterId}
+	downloadId := opts.DownloadID
 
 	// Check if chapter is already downloaded
 	registryPath := cd.getChapterRegistryPath(downloadId)
@@ -203,7 +204,7 @@ func (cd *Downloader) run(queueInfo *QueueInfo) {
 // It also creates a Registry file that contains information about each image.
 //
 //	e.g.,
-//	📁 {provider}_{mediaId}_{chapterId}
+//	📁 {provider}_{mediaId}_{chapterId}_[{chapterNumber}]
 //	   ├── 📄 registry.json
 //	   ├── 📄 1.jpg
 //	   ├── 📄 2.jpg
@@ -380,7 +381,7 @@ func (r *Registry) save(queueInfo *QueueInfo, destination string, logger *zerolo
 }
 
 func (cd *Downloader) getChapterDownloadDir(downloadId DownloadID) string {
-	return filepath.Join(cd.downloadDir, fmt.Sprintf("%s_%d_%s", downloadId.Provider, downloadId.MediaId, downloadId.ChapterId))
+	return filepath.Join(cd.downloadDir, fmt.Sprintf("%s_%d_%s_%s", downloadId.Provider, downloadId.MediaId, downloadId.ChapterId, downloadId.ChapterNumber))
 }
 
 func (cd *Downloader) getChapterRegistryPath(downloadId DownloadID) string {
