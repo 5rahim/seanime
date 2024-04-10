@@ -124,6 +124,10 @@ func (q *Queue) Run() {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
+	if !q.active {
+		q.logger.Debug().Msg("chapter downloader: Starting queue")
+	}
+
 	q.active = true
 
 	// Tells queue to run next if possible
@@ -135,6 +139,10 @@ func (q *Queue) Stop() {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
+	if q.active {
+		q.logger.Debug().Msg("chapter downloader: Stopping queue")
+	}
+
 	q.active = false
 }
 
@@ -143,12 +151,15 @@ func (q *Queue) Stop() {
 //   - If nothing is running, it gets the next item (QueueInfo) from the database, sets it as current and sends it to the downloader.
 func (q *Queue) runNext() {
 
+	q.logger.Debug().Msg("chapter downloader: Processing next item in queue")
+
 	// Catch panic in runNext, so it doesn't bubble up and stop goroutines.
 	defer util.HandlePanicInModuleThen("internal/manga/downloader/runNext", func() {
 		q.logger.Error().Msg("chapter downloader: Panic in 'runNext'")
 	})
 
 	if q.current != nil {
+		q.logger.Debug().Msg("chapter downloader: Current item is not nil")
 		return
 	}
 
@@ -167,6 +178,8 @@ func (q *Queue) runNext() {
 		ChapterId:     next.ChapterID,
 		ChapterNumber: next.ChapterNumber,
 	}
+
+	q.logger.Debug().Msgf("chapter downloader: Preparing next item in queue: %s", id.ChapterId)
 
 	q.wsEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
 	// Update status
@@ -187,10 +200,10 @@ func (q *Queue) runNext() {
 		return
 	}
 
-	q.logger.Info().Msgf("chapter downloader: Running next item in queue: %s", id.ChapterId)
-
 	// FIXME: This is a temporary fix to prevent the downloader from running too fast.
 	time.Sleep(5 * time.Second)
+
+	q.logger.Info().Msgf("chapter downloader: Running next item in queue: %s", id.ChapterId)
 
 	// Tell Downloader to run
 	q.runCh <- q.current

@@ -150,6 +150,9 @@ func (cd *Downloader) Download(opts DownloadOptions) error {
 func (cd *Downloader) DeleteChapter(id DownloadID) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
+
+	cd.logger.Debug().Msgf("chapter downloader: Deleting chapter %s", id.ChapterId)
+
 	_ = os.RemoveAll(cd.getChapterDownloadDir(id))
 	cd.logger.Debug().Msgf("chapter downloader: Removed chapter %s", id.ChapterId)
 	return nil
@@ -159,6 +162,8 @@ func (cd *Downloader) DeleteChapter(id DownloadID) error {
 func (cd *Downloader) Run() {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
+
+	cd.logger.Debug().Msg("chapter downloader: Starting queue")
 
 	cd.cancelCh = make(chan struct{})
 
@@ -250,7 +255,7 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 			}()
 			select {
 			case <-cd.cancelCh:
-				cd.logger.Warn().Msg("chapter downloader: Download process canceled")
+				//cd.logger.Warn().Msg("chapter downloader: Download goroutine canceled")
 				return
 			default:
 				cd.downloadPage(page, destination, registry)
@@ -279,7 +284,6 @@ func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destinatio
 	})
 
 	// Download image from URL
-	cd.logger.Debug().Msgf("chapter downloader: Downloading page %d", page.Index)
 
 	imgID := fmt.Sprintf("%02d", page.Index+1)
 

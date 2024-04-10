@@ -21,7 +21,7 @@ import { MdClear } from "react-icons/md"
 import { PiWarningOctagonDuotone } from "react-icons/pi"
 import { TbWorldDownload } from "react-icons/tb"
 
-export const __manga__chapterDownloadsDrawerIsOpenAtom = atom(true)
+export const __manga__chapterDownloadsDrawerIsOpenAtom = atom(false)
 
 type ChapterDownloadQueueDrawerProps = {}
 
