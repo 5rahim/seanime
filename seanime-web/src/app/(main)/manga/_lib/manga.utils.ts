@@ -1,4 +1,6 @@
 import { MangaChapterDetails, MangaDownloadData } from "@/app/(main)/manga/_lib/manga.types"
+import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
+import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 
 export function getChapterNumberFromChapter(chapter: string): number {
@@ -28,5 +30,26 @@ export function useMangaDownloadDataUtils(data: MangaDownloadData | undefined, l
         isChapterQueued,
         getProviderNumberOfDownloadedChapters,
         showActionButtons: !loading,
+    }
+}
+
+export function useMangaChapterListRowSelection() {
+
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
+
+    const [selectedChapters, setSelectedChapters] = React.useState<MangaChapterDetails[]>([])
+
+    const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<MangaChapterDetails>) => {
+        setSelectedChapters(event.data)
+    }, [])
+
+    return {
+        rowSelection, setRowSelection,
+        rowSelectedChapters: selectedChapters,
+        onRowSelectionChange: onSelectChange,
+        resetRowSelection: () => {
+            setRowSelection({})
+            setSelectedChapters([])
+        },
     }
 }

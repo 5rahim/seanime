@@ -182,7 +182,7 @@ export function DataGrid<T extends Record<string, any>>(props: DataGridProps<T>)
         persistent: enablePersistentRowSelection,
         onRowSelect: onRowSelect,
         rowSelectionPrimaryKey: rowSelectionPrimaryKey,
-        enabled: enableRowSelection,
+        enabled: !!enableRowSelection,
     })
 
     const {
@@ -350,10 +350,10 @@ export function DataGrid<T extends Record<string, any>>(props: DataGridProps<T>)
                                     colSpan={header.colSpan}
                                     scope="col"
                                     className={cn(DataGridAnatomy.th(), thClass)}
-                                    data-is-selection-col={`${index === 0 && enableRowSelection}`}
+                                    data-is-selection-col={`${index === 0 && !!enableRowSelection}`}
                                     style={{ width: header.getSize() }}
                                 >
-                                    {((index !== 0 && enableRowSelection) || !enableRowSelection) ? <div
+                                    {((index !== 0 && !!enableRowSelection) || !enableRowSelection) ? <div
                                         className={cn(
                                             "flex items-center justify-between",
                                             {

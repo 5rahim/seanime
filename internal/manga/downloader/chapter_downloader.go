@@ -9,7 +9,9 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util"
-	_ "golang.org/x/image/webp"
+	_ "golang.org/x/image/bmp"  // Register BMP format
+	_ "golang.org/x/image/tiff" // Register Tiff format
+	_ "golang.org/x/image/webp" // Register WebP format
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"

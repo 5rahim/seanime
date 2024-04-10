@@ -6,7 +6,9 @@ import {
     useMangaChapterContainer,
 } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MANGA_PROVIDER_OPTIONS, MangaChapterDetails, MangaDownloadData, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
-import { useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/manga.utils"
+import { useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/manga.utils"
+import { ChapterListBulkActions } from "@/app/(main)/manga/entry/_containers/chapter-list/_components/chapter-list-bulk-actions"
+import { DownloadedChapterList } from "@/app/(main)/manga/entry/_containers/chapter-list/_components/downloaded-chapter-list"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -23,7 +25,7 @@ import { FaDownload, FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
 import { IoBookOutline, IoLibrary } from "react-icons/io5"
 
-type ChaptersListProps = {
+type ChapterListProps = {
     mediaId: string | null
     entry: MangaEntry
     details: MangaDetailsByIdQuery["Media"] | undefined
@@ -31,7 +33,7 @@ type ChaptersListProps = {
     downloadDataLoading: boolean
 }
 
-export function ChaptersList(props: ChaptersListProps) {
+export function ChapterList(props: ChapterListProps) {
 
     const {
         mediaId,
@@ -42,32 +44,48 @@ export function ChaptersList(props: ChaptersListProps) {
         ...rest
     } = props
 
-    const [showUnreadChapter, setShowUnreadChapter] = React.useState(false)
-    const [showDownloadedChapters, setShowDownloadedChapters] = React.useState(false)
-
+    /**
+     * Fetch chapter container
+     */
     const { chapterContainer, chapterIdToNumbersMap, chapterContainerError, chapterContainerLoading } = useMangaChapterContainer(mediaId)
 
+    const [showUnreadChapter, setShowUnreadChapter] = React.useState(false)
+    const [showDownloadedChapters, setShowDownloadedChapters] = React.useState(false)
+    const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
+
+    /**
+     * Current provider
+     */
     const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
-
-    const { clearMangaCache, isClearingMangaCache } = useClearMangaCache()
-
+    /**
+     * Set selected chapter
+     */
     const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
-
-    const { downloadChapter, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
-
+    /**
+     * Clear manga cache
+     */
+    const { clearMangaCache, isClearingMangaCache } = useClearMangaCache()
+    /**
+     * Download chapter
+     */
+    const { downloadChapters, isSendingDownloadRequest } = useDownloadMangaChapter(mediaId)
+    /**
+     * Download data utils
+     */
     const {
         isChapterQueued,
         isChapterDownloaded,
         getProviderNumberOfDownloadedChapters,
     } = useMangaDownloadDataUtils(downloadData, downloadDataLoading)
 
-    const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
-
+    /**
+     * Function to filter unread chapters
+     */
     const retainUnreadChapters = React.useCallback((chapter: MangaChapterDetails) => {
         if (!entry.listData || !chapterIdToNumbersMap.has(chapter.id) || !entry.listData?.progress) return true
 
         const chapterNumber = chapterIdToNumbersMap.get(chapter.id)
-        return chapterNumber && chapterNumber > entry.listData?.progress
+        return !!chapterNumber && chapterNumber > entry.listData?.progress
     }, [chapterIdToNumbersMap, chapterContainer, entry])
 
     const confirmReloadSource = useConfirmationDialog({
@@ -89,11 +107,11 @@ export function ChaptersList(props: ChaptersListProps) {
         {
             accessorKey: "title",
             header: "Name",
-            size: 10,
+            size: 90,
         },
         {
             header: "Number",
-            size: 90,
+            size: 10,
             enableSorting: true,
             accessorFn: (row) => {
                 return chapterIdToNumbersMap.get(row.id)
@@ -111,7 +129,7 @@ export function ChaptersList(props: ChaptersListProps) {
                             intent="gray-basic"
                             size="sm"
                             disabled={isSendingDownloadRequest}
-                            onClick={() => downloadChapter(row.original)}
+                            onClick={() => downloadChapters([row.original])}
                             icon={<FaDownload className="text-sm" />}
                         />}
                         {isChapterQueued(row.original) && <p className="text-[--muted]">Queued</p>}
@@ -131,10 +149,16 @@ export function ChaptersList(props: ChaptersListProps) {
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const allChapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
 
+    /**
+     * Set "showUnreadChapter" state if there are unread chapters
+     */
     React.useEffect(() => {
         setShowUnreadChapter(!!unreadChapters.length)
     }, [unreadChapters])
 
+    /**
+     * Filter chapters based on state
+     */
     const chapters = React.useMemo(() => {
         let d = showUnreadChapter ? unreadChapters : allChapters
         if (showDownloadedChapters) {
@@ -143,6 +167,18 @@ export function ChaptersList(props: ChaptersListProps) {
         return d
     }, [showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData])
 
+
+    const {
+        rowSelectedChapters,
+        onRowSelectionChange,
+        rowSelection,
+        setRowSelection,
+        resetRowSelection,
+    } = useMangaChapterListRowSelection()
+
+    React.useEffect(() => {
+        resetRowSelection()
+    }, [chapters])
 
     return (
         <div
@@ -222,18 +258,32 @@ export function ChaptersList(props: ChaptersListProps) {
                                         />
                                     </div>
 
+                                    <ChapterListBulkActions
+                                        rowSelectedChapters={rowSelectedChapters}
+                                        onDownloadSelected={chapters => {
+                                            downloadChapters(chapters)
+                                            resetRowSelection()
+                                        }}
+                                    />
+
                                     <DataGrid<MangaChapterDetails>
                                         columns={columns}
                                         data={chapters}
                                         rowCount={chapters.length}
                                         isLoading={chapterContainerLoading}
-                                        rowSelectionPrimaryKey={"id"}
+                                        rowSelectionPrimaryKey="id"
+                                        enableRowSelection={row => (!isChapterDownloaded(row.original) && !isChapterQueued(row.original))}
                                         initialState={{
                                             pagination: {
                                                 pageIndex: 0,
                                                 pageSize: 10,
                                             },
                                         }}
+                                        state={{
+                                            rowSelection,
+                                        }}
+                                        onRowSelect={onRowSelectionChange}
+                                        onRowSelectionChange={setRowSelection}
                                         className=""
                                     />
                                 </div>
@@ -249,132 +299,13 @@ export function ChaptersList(props: ChaptersListProps) {
                 )
             )}
 
-            <DownloadList data={downloadData} />
+            <DownloadedChapterList
+                entry={entry}
+                data={downloadData}
+            />
 
             <ConfirmationDialog {...confirmReloadSource} />
         </div>
     )
 }
 
-// /* -------------------------------------------------------------------------------------------------
-//  * Download List
-//  * -----------------------------------------------------------------------------------------------*/
-
-
-type DownloadListProps = {
-    data: MangaDownloadData | undefined
-}
-
-type DownloadListTableItem = { provider: string, chapterId: string, chapterNumber: string, queued: boolean, downloaded: boolean }
-
-function DownloadList(props: DownloadListProps) {
-
-    const {
-        data,
-        ...rest
-    } = props
-
-    // Transforms {downloaded: Record<string, { chapterId: string, chapterNumber: string }[]>,
-    //                            queued: Record<string, { chapterId: string, chapterNumber: string }[]>}
-    // to [{provider: string, chapterId: string, queued: boolean, downloaded: boolean}, ...]
-    const tableData = React.useMemo(() => {
-        let d: DownloadListTableItem[] = []
-        if (data) {
-            for (const provider in data.downloaded) {
-                d = d.concat(data.downloaded[provider].map(ch => ({
-                    provider,
-                    chapterId: ch.chapterId,
-                    chapterNumber: ch.chapterNumber,
-                    queued: false,
-                    downloaded: true,
-                })))
-            }
-            for (const provider in data.queued) {
-                d = d.concat(data.queued[provider].map(ch => ({
-                    provider,
-                    chapterId: ch.chapterId,
-                    chapterNumber: ch.chapterNumber,
-                    queued: true,
-                    downloaded: false,
-                })))
-            }
-        }
-        return d
-    }, [data])
-
-    const columns = React.useMemo(() => defineDataGridColumns<DownloadListTableItem>(() => [
-        {
-            accessorKey: "chapterNumber",
-            header: "Chapter",
-            size: 10,
-            cell: info => <span>Chapter {info.getValue<string>()}</span>,
-        },
-        {
-            accessorKey: "provider",
-            header: "Provider",
-            size: 10,
-        },
-        {
-            accessorKey: "chapterId",
-            header: "Chapter ID",
-            size: 10,
-        },
-        {
-            id: "_actions",
-            size: 10,
-            enableSorting: false,
-            enableGlobalFilter: false,
-            cell: ({ row }) => {
-                return (
-                    <div className="flex justify-end gap-2 items-center w-full">
-                        {row.original.queued && <p className="text-[--muted]">Queued</p>}
-                        {row.original.downloaded && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
-                    </div>
-                )
-            },
-        },
-    ]), [tableData])
-
-    if (!data || !tableData.length) return null
-
-    return (
-        <>
-            <h3 className="pt-8">Downloads</h3>
-
-            <div className="space-y-4 border rounded-md bg-[--paper] p-4">
-
-                {/*<div className="flex flex-wrap items-center gap-4">*/}
-                {/*    <Checkbox*/}
-                {/*        label="Show unread"*/}
-                {/*        value={showUnreadChapter}*/}
-                {/*        onValueChange={v => setShowUnreadChapter(v as boolean)}*/}
-                {/*        fieldClass="w-fit"*/}
-                {/*        {...primaryPillCheckboxClass}*/}
-                {/*    />*/}
-                {/*    <Checkbox*/}
-                {/*        label={<span className="flex gap-2 items-center"><IoLibrary /> Show downloaded</span>}*/}
-                {/*        value={showDownloadedChapters}*/}
-                {/*        onValueChange={v => setShowDownloadedChapters(v as boolean)}*/}
-                {/*        fieldClass="w-fit"*/}
-                {/*        {...primaryPillCheckboxClass}*/}
-                {/*    />*/}
-                {/*</div>*/}
-
-                <DataGrid<DownloadListTableItem>
-                    columns={columns}
-                    data={tableData}
-                    rowCount={tableData.length}
-                    isLoading={false}
-                    rowSelectionPrimaryKey={"id"}
-                    initialState={{
-                        pagination: {
-                            pageIndex: 0,
-                            pageSize: 10,
-                        },
-                    }}
-                    className=""
-                />
-            </div>
-        </>
-    )
-}

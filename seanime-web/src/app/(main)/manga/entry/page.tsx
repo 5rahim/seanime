@@ -2,7 +2,7 @@
 import { useMangaDownloadData, useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaRecommendations } from "@/app/(main)/manga/entry/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/entry/_components/meta-section"
-import { ChaptersList } from "@/app/(main)/manga/entry/_containers/chapters-list"
+import { ChapterList } from "@/app/(main)/manga/entry/_containers/chapter-list/chapter-list"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -52,7 +52,7 @@ export default function Page() {
                         className="grid gap-4 xl:grid-cols-[1fr,380px] 2xl:grid-cols-[1fr,650px]"
                     >
                         <div className="space-y-2">
-                            <ChaptersList
+                            <ChapterList
                                 entry={mangaEntry}
                                 mediaId={mediaId}
                                 details={mangaDetails}

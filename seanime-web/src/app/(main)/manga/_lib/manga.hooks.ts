@@ -5,6 +5,7 @@ import {
     MangaChapterDetails,
     MangaChapterDownloadQueueItem,
     MangaCollection,
+    MangaDeleteChapter_QueryVariables,
     MangaDownloadChapters_QueryVariables,
     MangaDownloadData,
     MangaDownloadData_QueryVariables,
@@ -32,6 +33,9 @@ const enum MangaProvider {
 
 export const __manga_selectedProviderAtom = atomWithStorage<string>("sea-manga-provider", MangaProvider.COMICK)
 
+/**
+ * Get the manga collection
+ */
 export function useMangaCollection() {
     const router = useRouter()
     const { data, isLoading, isError } = useSeaQuery<MangaCollection>({
@@ -65,6 +69,9 @@ export function useMangaCollection() {
     }
 }
 
+/**
+ * Get the AniList manga entry
+ */
 export function useMangaEntry(mediaId: string | undefined | null) {
     const router = useRouter()
     const { data, isLoading, isError } = useSeaQuery<MangaEntry>({
@@ -85,6 +92,9 @@ export function useMangaEntry(mediaId: string | undefined | null) {
     }
 }
 
+/**
+ * Get AniList manga entry details
+ */
 export function useMangaEntryDetails(mediaId: string | undefined | null) {
     const { data, isLoading } = useSeaQuery<MangaDetailsByIdQuery["Media"]>({
         endpoint: SeaEndpoints.MANGA_ENTRY_DETAILS.replace("{id}", mediaId ?? ""),
@@ -98,6 +108,9 @@ export function useMangaEntryDetails(mediaId: string | undefined | null) {
     }
 }
 
+/**
+ * Update the manga progress
+ */
 export function useUpdateMangaProgress(mediaId: number) {
     const qc = useQueryClient()
     const { mutate: updateProgress, isPending: isUpdatingProgress } = useSeaMutation<boolean, {
@@ -127,6 +140,9 @@ export function useUpdateMangaProgress(mediaId: number) {
 // Chapters and Pages
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Clear the manga cache
+ */
 export function useClearMangaCache() {
     const qc = useQueryClient()
     const { mutate, isPending } = useSeaMutation<boolean, ClearMangaCache_QueryVariables>({
@@ -145,6 +161,9 @@ export function useClearMangaCache() {
     }
 }
 
+/**
+ * Get the manga chapter container
+ */
 export function useMangaChapterContainer(mediaId: string | undefined | null) {
     const provider = useAtomValue(__manga_selectedProviderAtom)
 
@@ -181,6 +200,9 @@ export function useMangaChapterContainer(mediaId: string | undefined | null) {
     }
 }
 
+/**
+ * Get the manga page container
+ */
 export function useMangaPageContainer(mediaId: string | undefined | null, chapterId: string | undefined | null) {
     const provider = useAtomValue(__manga_selectedProviderAtom)
     const readingMode = useAtomValue(__manga_readingModeAtom)
@@ -244,19 +266,38 @@ export function useDownloadMangaChapter(mediaId: string | undefined | null) {
     })
 
     return {
-        downloadChapter: (chapter: MangaChapterDetails) => {
+        downloadChapters: (chapters: MangaChapterDetails[]) => {
             mutate({
                 mediaId: Number(mediaId),
                 provider,
-                chapterIds: [chapter.id],
+                chapterIds: chapters.map(ch => ch.id),
                 startNow: false,
             }, {
                 onSuccess: () => {
-                    toast.success("Chapter added to download queue")
+                    toast.success("Chapters added to download queue")
                 },
             })
         },
         isSendingDownloadRequest: isPending,
+    }
+}
+
+export function useDeleteDownloadedMangaChapter(mediaId: string | undefined | null) {
+    const qc = useQueryClient()
+    const provider = useAtomValue(__manga_selectedProviderAtom)
+
+    const { mutate, isPending } = useSeaMutation<void, MangaDeleteChapter_QueryVariables>({
+        endpoint: SeaEndpoints.MANGA_DOWNLOAD_DELETE_CHAPTER,
+        method: "delete",
+        mutationKey: ["delete-downloaded-manga-chapter", Number(mediaId), provider],
+        onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-manga-download-data", Number(mediaId)] })
+        },
+    })
+
+    return {
+        deleteChapter: mutate,
+        isDeletingChapter: isPending,
     }
 }
 
@@ -324,7 +365,9 @@ export function useMangaChapterDownloadQueue() {
     }
 }
 
-
+/**
+ * Get the list of downloaded chapters
+ */
 export function useMangaChapterDownloads() {
     const qc = useQueryClient()
 

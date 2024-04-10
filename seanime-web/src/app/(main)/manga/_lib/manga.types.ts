@@ -107,6 +107,14 @@ export type MangaDownloadData_QueryVariables = {
     cached: boolean
 }
 
+
+export type MangaDeleteChapter_QueryVariables = {
+    mediaId: number
+    provider: string
+    chapterId: string
+    chapterNumber: string
+}
+
 export type MangaDownloadData = {
     // Provider -> ChapterId[]
     downloaded: Record<string, { chapterId: string, chapterNumber: string }[]>

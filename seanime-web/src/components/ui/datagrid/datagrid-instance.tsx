@@ -8,6 +8,7 @@ import {
     getSortedRowModel,
     OnChangeFn,
     PaginationState,
+    Row,
     RowSelectionState,
     SortingState,
     useReactTable,
@@ -41,7 +42,7 @@ export type DataGridInstanceProps<T extends Record<string, any>> = {
      * A checkbox will be shown in the first column of each row.
      * - Requires `rowSelectionPrimaryKey` for more accurate selection (default is row index)
      */
-    enableRowSelection?: boolean
+    enableRowSelection?: boolean | ((row: Row<T>) => boolean) | undefined
     /**
      * Callback invoked when a row is selected.
      */
@@ -212,20 +213,24 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
         disableGlobalFilter: true,
         header: ({ table }) => {
             return (
-                <Checkbox
-                    value={table.getIsSomeRowsSelected() ? "indeterminate" : table.getIsAllRowsSelected()}
-                    onValueChange={() => table.toggleAllRowsSelected()}
-                />
+                <div className="px-1">
+                    <Checkbox
+                        value={table.getIsSomeRowsSelected() ? "indeterminate" : table.getIsAllRowsSelected()}
+                        onValueChange={() => table.toggleAllRowsSelected()}
+                        fieldClass="w-fit"
+                    />
+                </div>
             )
         },
         cell: ({ row }) => {
             return (
-                <div className="px-1">
+                <div className="">
                     <Checkbox
                         key={row.id}
                         value={row.getIsSomeSelected() ? "indeterminate" : row.getIsSelected()}
                         disabled={!row.getCanSelect()}
                         onValueChange={row.getToggleSelectedHandler()}
+                        fieldClass="w-fit"
                     />
                 </div>
             )
