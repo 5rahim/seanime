@@ -113,6 +113,7 @@ func calculateBatchSize(numURLs int) int {
 
 func (id *ImageDownloader) DeleteDownloads() {
 	_ = os.RemoveAll(id.downloadDir)
+	id.registry.content = &RegistryContent{}
 }
 
 // CancelDownload cancels the download process.
@@ -271,7 +272,7 @@ func (r *Registry) setup() (err error) {
 	r.content.IdToUrl = make(map[string]string)
 	r.content.IdToExt = make(map[string]string)
 
-	// Check if the registry  exists
+	// Check if the registry exists
 	_ = os.MkdirAll(filepath.Dir(r.registryPath), 0700)
 	_, err = os.Stat(r.registryPath)
 	if os.IsNotExist(err) {

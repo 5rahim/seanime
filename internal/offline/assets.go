@@ -28,6 +28,8 @@ func (h *assetsHandler) DownloadAssets(
 	ids []int, // Media to download assets for
 ) (ret *AssetMap, err error) {
 
+	h.imageDownloader.DeleteDownloads()
+
 	ret = &AssetMap{}
 	mu := sync.Mutex{}
 	cancelCh := make(chan struct{})

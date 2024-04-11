@@ -10,6 +10,7 @@ import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 import React from "react"
 import { IoCloudOfflineOutline } from "react-icons/io5"
+import { toast } from "sonner"
 
 export default function Page() {
     const status = useAtomValue(serverStatusAtom)
@@ -79,8 +80,12 @@ export default function Page() {
                                 intent="white"
                                 loading={isCreating}
                                 onClick={() => {
-                                    createOfflineSnapshot({ animeMediaIds })
-                                    setOpen(false)
+                                    if (animeMediaIds.length) {
+                                        createOfflineSnapshot({ animeMediaIds })
+                                        setOpen(false)
+                                    } else {
+                                        toast.error("Select at least one anime")
+                                    }
                                 }}
                             >Create snapshot</Button>
                         </div>
