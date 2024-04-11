@@ -17,16 +17,23 @@ import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, Settings } from "@/li
 import { useAtom } from "jotai/react"
 import Link from "next/link"
 import React, { useEffect } from "react"
+import { CgMediaPodcast } from "react-icons/cg"
+import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
 import { GoArrowRight } from "react-icons/go"
 import { HiPlay } from "react-icons/hi"
 import { ImDownload } from "react-icons/im"
+import { IoLibrary } from "react-icons/io5"
 import { LuLayoutDashboard } from "react-icons/lu"
+import { MdNoAdultContent, MdOutlineDownloading } from "react-icons/md"
+import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
+import { SiAnilist } from "react-icons/si"
+import { TbDatabaseExclamation } from "react-icons/tb"
 import { toast } from "sonner"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
-const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[350px,1fr] gap-4")
+const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
 
 const tabsTriggerClass = cn(
     "text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
@@ -174,15 +181,15 @@ export default function Page() {
                     listClass={tabsListClass}
                 >
                     <TabsList>
-                        <TabsTrigger value="seanime">Seanime</TabsTrigger>
-                        <TabsTrigger value="anilist">AniList</TabsTrigger>
-                        <TabsTrigger value="manga">Manga</TabsTrigger>
-                        <TabsTrigger value="onlinestream">Online streaming</TabsTrigger>
-                        <TabsTrigger value="discord">Discord</TabsTrigger>
-                        <TabsTrigger value="cache">Cache</TabsTrigger>
-                        <TabsTrigger value="media-player">Media Player</TabsTrigger>
-                        <TabsTrigger value="torrent-client">Torrent Client</TabsTrigger>
-                        <TabsTrigger value="nsfw">NSFW</TabsTrigger>
+                        <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
+                        <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
+                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
+                        <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                        <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
+                        <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
+                        <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
+                        <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
+                        <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
                     </TabsList>
 
                     <div className="">
@@ -213,19 +220,17 @@ export default function Page() {
                             />
                             <Separator />
                             <Field.Switch
+                                name="autoUpdateProgress"
+                                label="Automatically update progress"
+                                help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
+                            />
+                            <Separator />
+                            <Field.Switch
                                 name="disableUpdateCheck"
                                 label="Do not check for updates"
                                 help="If enabled, Seanime will not check for new releases."
                             />
 
-                            <Separator />
-                            <h3>Watching</h3>
-
-                            <Field.Switch
-                                name="autoUpdateProgress"
-                                label="Automatically update progress"
-                                help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
-                            />
 
                             <Separator />
 
