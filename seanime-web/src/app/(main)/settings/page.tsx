@@ -2,10 +2,10 @@
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
-import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,6 +26,17 @@ import { RiFolderDownloadFill } from "react-icons/ri"
 import { toast } from "sonner"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
+const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[350px,1fr] gap-4")
+
+const tabsTriggerClass = cn(
+    "text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+    "h-12 lg:h-10 lg:justify-start px-3",
+)
+
+const tabsListClass = cn(
+    "w-full flex flex-wrap md:flex-nowrap h-fit md:h-12",
+    "lg:block",
+)
 
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
@@ -49,7 +60,7 @@ export default function Page() {
         <PageWrapper className="p-4 sm:p-8 space-y-4">
             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
                 <div className="space-y-1">
-                    <h2>Settings</h2>
+                    <h2 className="text-center lg:text-left">Settings</h2>
                     <p className="text-[--muted]">App version: {status?.version}-{status?.os}</p>
                 </div>
                 <div>
@@ -158,16 +169,23 @@ export default function Page() {
                 {/*<Card className="p-0 overflow-hidden">*/}
                 <Tabs
                     defaultValue="seanime"
+                    className={tabsRootClass}
                     triggerClass={tabsTriggerClass}
                     listClass={tabsListClass}
                 >
                     <TabsList>
                         <TabsTrigger value="seanime">Seanime</TabsTrigger>
+                        <TabsTrigger value="anilist">AniList</TabsTrigger>
+                        <TabsTrigger value="manga">Manga</TabsTrigger>
+                        <TabsTrigger value="onlinestream">Online streaming</TabsTrigger>
+                        <TabsTrigger value="discord">Discord</TabsTrigger>
+                        <TabsTrigger value="cache">Cache</TabsTrigger>
                         <TabsTrigger value="media-player">Media Player</TabsTrigger>
                         <TabsTrigger value="torrent-client">Torrent Client</TabsTrigger>
+                        <TabsTrigger value="nsfw">NSFW</TabsTrigger>
                     </TabsList>
 
-                    <div className="pt-4">
+                    <div className="">
                         <TabsContent value="seanime" className="space-y-6">
 
                             <h3>Library</h3>
@@ -199,8 +217,8 @@ export default function Page() {
                                 label="Do not check for updates"
                                 help="If enabled, Seanime will not check for new releases."
                             />
-                            <Separator />
 
+                            <Separator />
                             <h3>Watching</h3>
 
                             <Field.Switch
@@ -208,47 +226,7 @@ export default function Page() {
                                 label="Automatically update progress"
                                 help="If enabled, your progress will be automatically updated without having to confirm it when you watch 90% of an episode."
                             />
-                            <Separator />
 
-                            <h3>AniList</h3>
-
-                            <Field.Switch
-                                name="hideAudienceScore"
-                                label="Hide audience score"
-                                help="If enabled, the audience score will be hidden until you decide to view it."
-                            />
-
-                            <Field.Switch
-                                name="enableAdultContent"
-                                label="Enable adult content"
-                                help="If disabled, adult content will be hidden from search results and your library."
-                            />
-                            <Field.Switch
-                                name="blurAdultContent"
-                                label="Blur adult content"
-                                help="If enabled, adult content will be blurred."
-                            />
-
-                            <Separator />
-
-                            <h3>Features</h3>
-
-                            <Field.Switch
-                                name="enableManga"
-                                label={<span className="flex gap-1 items-center">Manga <BetaBadge /></span>}
-                                help="Read manga chapters and track your progress."
-                            />
-                            <Field.Switch
-                                name="enableOnlinestream"
-                                label={<span className="flex gap-1 items-center">Online streaming <BetaBadge /></span>}
-                                help="Watch anime episodes from online sources."
-                            />
-                            <DiscordRichPresenceSettings />
-                            <Field.Switch
-                                name="disableAnimeCardTrailers"
-                                label="Disable anime card trailers"
-                                help=""
-                            />
                             <Separator />
 
                             <h3>Torrent Provider</h3>
@@ -264,7 +242,76 @@ export default function Page() {
                                 ]}
                             />
 
-                            <Separator />
+                        </TabsContent>
+
+                        <TabsContent value="nsfw" className="space-y-6">
+
+                            <h3>NSFW</h3>
+
+                            <Field.Switch
+                                name="enableAdultContent"
+                                label="Enable adult content"
+                                help="If disabled, adult content will be hidden from search results and your library."
+                            />
+                            <Field.Switch
+                                name="blurAdultContent"
+                                label="Blur adult content"
+                                help="If enabled, adult content will be blurred."
+                            />
+
+                        </TabsContent>
+
+                        <TabsContent value="anilist" className="space-y-6">
+
+                            <h3>AniList</h3>
+
+                            <Field.Switch
+                                name="hideAudienceScore"
+                                label="Hide audience score"
+                                help="If enabled, the audience score will be hidden until you decide to view it."
+                            />
+
+                            <Field.Switch
+                                name="disableAnimeCardTrailers"
+                                label="Disable anime card trailers"
+                                help=""
+                            />
+
+                        </TabsContent>
+
+                        <TabsContent value="manga" className="space-y-6">
+
+                            <h3>Manga <BetaBadge /></h3>
+
+                            <Field.Switch
+                                name="enableManga"
+                                label={<span className="flex gap-1 items-center">Enable</span>}
+                                help="Read manga series, download chapters and track your progress."
+                            />
+
+                        </TabsContent>
+
+                        <TabsContent value="onlinestream" className="space-y-6">
+
+                            <h3>Online streaming <BetaBadge /></h3>
+
+                            <Field.Switch
+                                name="enableOnlinestream"
+                                label={<span className="flex gap-1 items-center">Enable </span>}
+                                help="Watch anime episodes from online sources."
+                            />
+
+                        </TabsContent>
+
+                        <TabsContent value="discord" className="space-y-6">
+
+                            <h3>Discord</h3>
+
+                            <DiscordRichPresenceSettings />
+
+                        </TabsContent>
+
+                        <TabsContent value="cache" className="space-y-6">
 
                             <h3>Cache</h3>
 
@@ -464,7 +511,7 @@ export default function Page() {
                         </TabsContent>
 
                         <div className="mt-8">
-                            <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
+                            <Field.Submit role="save" intent="white" rounded loading={isPending}>Save</Field.Submit>
                         </div>
                     </div>
                 </Tabs>
