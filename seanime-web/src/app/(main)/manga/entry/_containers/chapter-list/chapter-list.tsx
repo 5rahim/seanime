@@ -1,4 +1,3 @@
-import { __manga__chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import {
     __manga_selectedProviderAtom,
     useClearMangaCache,
@@ -51,7 +50,6 @@ export function ChapterList(props: ChapterListProps) {
 
     const [showUnreadChapter, setShowUnreadChapter] = React.useState(false)
     const [showDownloadedChapters, setShowDownloadedChapters] = React.useState(false)
-    const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
 
     /**
      * Current provider
@@ -189,10 +187,6 @@ export function ChapterList(props: ChapterListProps) {
         <div
             className="space-y-2"
         >
-
-            <Button onClick={() => openDownloadQueue(true)}>
-                Queue
-            </Button>
 
             <div className="flex gap-2 items-center">
                 <Select

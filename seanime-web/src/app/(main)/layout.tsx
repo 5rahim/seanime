@@ -8,6 +8,7 @@ import { useAnilistUserMediaLoader } from "@/app/(main)/_loaders/anilist-user-me
 import { useLibraryCollectionLoader } from "@/app/(main)/_loaders/library-collection"
 import { useMangaListener } from "@/app/(main)/_loaders/manga.listeners"
 import { useListenToAutoDownloaderItems } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
+import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
 import { useWebsocketMessageListener } from "@/atoms/websocket"
@@ -78,6 +79,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             <ProgressTracking />
                         </div>
                         <div className="flex items-center gap-4">
+                            <ChapterDownloadsButton />
                             <RefreshAnilistButton />
                         </div>
                     </div>

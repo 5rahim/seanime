@@ -1,0 +1,38 @@
+"use client"
+import { __manga__chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
+import { Button } from "@/components/ui/button"
+import { useSetAtom } from "jotai/react"
+import { usePathname } from "next/navigation"
+import React from "react"
+import { FaDownload } from "react-icons/fa"
+
+type ChapterDownloadsButtonProps = {
+    children?: React.ReactNode
+}
+
+export function ChapterDownloadsButton(props: ChapterDownloadsButtonProps) {
+
+    const {
+        children,
+        ...rest
+    } = props
+
+    const pathname = usePathname()
+
+    const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
+
+    if (!pathname.startsWith("/manga")) return null
+
+    return (
+        <>
+            <Button
+                onClick={() => openDownloadQueue(true)}
+                intent="primary-outline"
+                size="sm"
+                leftIcon={<FaDownload />}
+            >
+                Downloads
+            </Button>
+        </>
+    )
+}

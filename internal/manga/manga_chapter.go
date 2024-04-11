@@ -1,15 +1,17 @@
 package manga
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
-	chapter_downloader "github.com/seanime-app/seanime/internal/manga/downloader"
+	"github.com/seanime-app/seanime/internal/manga/downloader"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -389,6 +391,10 @@ func (r *Repository) GetDownloadedMangaPageContainer(
 			Height: pageInfo.Height,
 		}
 	}
+
+	slices.SortStableFunc(pageList, func(i, j *manga_providers.ChapterPage) int {
+		return cmp.Compare(i.Index, j.Index)
+	})
 
 	container := &PageContainer{
 		MediaId:        mediaId,
