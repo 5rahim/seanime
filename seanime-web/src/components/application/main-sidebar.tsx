@@ -28,7 +28,7 @@ import React from "react"
 import { BiCalendarAlt, BiChart, BiCollection, BiDownload, BiLogOut } from "react-icons/bi"
 import { FaBookReader, FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { IoLibrary } from "react-icons/io5"
+import { IoCloudOffline, IoLibrary } from "react-icons/io5"
 import { LuLayoutDashboard } from "react-icons/lu"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
@@ -195,6 +195,12 @@ export function MainSidebar() {
                             onMouseLeave={handleUnexpandedSidebar}
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
+                                {
+                                    iconType: IoCloudOffline,
+                                    name: "Offline mode",
+                                    href: "/offline-mode",
+                                    isCurrent: pathname.includes("/offline-mode"),
+                                },
                                 {
                                     iconType: LuLayoutDashboard,
                                     name: "UI Settings",
