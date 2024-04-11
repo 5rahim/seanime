@@ -75,7 +75,7 @@ type (
 		Cleanups            []func()
 		cancelContext       func()
 		previousVersion     string
-		offlineHub          *offline.Hub
+		OfflineHub          *offline.Hub
 	}
 )
 
@@ -209,7 +209,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
 		WD:                      pwd,
 		previousVersion:         previousVersion,
-		offlineHub:              offlineHub,
+		OfflineHub:              offlineHub,
 	}
 
 	app.runMigrations()

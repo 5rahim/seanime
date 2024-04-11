@@ -22,4 +22,5 @@ const (
 	WarningToast                           = "warning-toast"
 	ChapterDownloaded                      = "chapter-downloaded"
 	ChapterDownloadQueueUpdated            = "chapter-download-queue-updated"
+	OfflineSnapshotCreated                 = "offline-snapshot-created"
 )

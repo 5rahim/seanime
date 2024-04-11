@@ -244,6 +244,10 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	return err
 }
 
+func (h *Hub) GetLatestSnapshotEntry() (snapshotEntry *SnapshotEntry, err error) {
+	return h.offlineDb.GetLatestSnapshot()
+}
+
 func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
 
 	h.logger.Debug().Msg("offline hub: Getting latest snapshot")

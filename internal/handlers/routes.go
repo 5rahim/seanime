@@ -305,6 +305,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Discord.Post("/presence/cancel", makeHandler(app, HandleCancelDiscordActivity))
 
 	//
+	// Offline
+	//
+
+	v1.Get("/offline/snapshot", makeHandler(app, HandleGetOfflineSnapshot))
+	v1.Post("/offline/snapshot", makeHandler(app, HandleCreateOfflineSnapshot))
+
+	//
 	// Websocket
 	//
 

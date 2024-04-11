@@ -126,6 +126,10 @@ export const enum SeaEndpoints {
     DISCORD_PRESENCE_MANGA = "/discord/presence/manga", // (POST)
     DISCORD_PRESENCE_CANCEL = "/discord/presence/cancel", // (POST)
     /**
+     * Offline
+     */
+    OFFLINE_SNAPSHOT = "/offline/snapshot", // (GET, POST)
+    /**
      * Theme
      */
     THEME = "/theme", // (GET, PATCH)
@@ -154,4 +158,5 @@ export const enum WSEvents {
     WARNING_TOAST = "warning-toast",
     DOWNLOADED_CHAPTER = "downloaded-chapter",
     CHAPTER_DOWNLOAD_QUEUE_UPDATED = "chapter-download-queue-updated",
+    OFFLINE_SNAPSHOT_CREATED = "offline-snapshot-created",
 }
