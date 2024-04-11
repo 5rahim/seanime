@@ -71,6 +71,12 @@ func (m *BaseManga) GetCoverImageSafe() string {
 	}
 	return ""
 }
+func (m *BaseManga) GetBannerImageSafe() string {
+	if m.GetBannerImage() != nil {
+		return *m.GetBannerImage()
+	}
+	return m.GetCoverImageSafe()
+}
 
 func (m *BaseManga) GetAllTitles() []*string {
 	titles := make([]*string, 0)

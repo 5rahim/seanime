@@ -66,7 +66,7 @@ func TestSnapshot(t *testing.T) {
 	// Test
 	err := offlineHub.CreateSnapshot(&NewSnapshotOptions{
 		AnimeToDownload:  []int{153518},
-		DownloadAssetsOf: []int{153518},
+		DownloadAssetsOf: []int{153518, 101517, 144946},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -85,6 +85,13 @@ func TestSnapshot(t *testing.T) {
 		t.Logf("  %s", entry.Media.GetPreferredTitle())
 		t.Logf("    %d episodes", len(entry.Episodes))
 		t.Logf("    hasDownloadedAssets %t", entry.DownloadedAssets)
+		t.Logf("")
+	}
+	t.Logf(" Manga Entries: %d", len(snapshot.Entries.MangaEntries))
+	for _, entry := range snapshot.Entries.MangaEntries {
+		t.Logf("    %s", entry.Media.GetPreferredTitle())
+		t.Logf("       %d chapters", len(entry.ChapterContainer.Chapters))
+		t.Logf("       hasDownloadedAssets %t", entry.DownloadedAssets)
 		t.Logf("")
 	}
 
@@ -110,6 +117,7 @@ func TestSnapshot_GetLatestSnapshot(t *testing.T) {
 		t.Logf("       hasDownloadedAssets %t", entry.DownloadedAssets)
 		t.Logf("")
 	}
+	t.Logf(" Manga Entries: %d", len(snapshot.Entries.MangaEntries))
 	for _, entry := range snapshot.Entries.MangaEntries {
 		t.Logf("    %s", entry.Media.GetPreferredTitle())
 		t.Logf("       %d chapters", len(entry.ChapterContainer.Chapters))

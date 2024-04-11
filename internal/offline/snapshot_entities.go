@@ -14,22 +14,19 @@ const (
 	EntryStatusPaused    EntryStatus = "paused"
 )
 
-const (
-	EntryTypeAnime EntryType = "anime"
-	EntryTypeManga EntryType = "manga"
-)
-
 type (
 	EntryStatus string
-	EntryType   string
 
 	Snapshot struct {
-		DbId        uint              `json:"dbId"`
-		User        *entities.User    `json:"user"`
-		Entries     *Entries          `json:"entries"`
-		Collections *Collections      `json:"libraryCollections"`
-		AssetMap    map[string]string `json:"assetMap"` // Key: URL, Value: Local path
+		DbId        uint           `json:"dbId"`
+		User        *entities.User `json:"user"`
+		Entries     *Entries       `json:"entries"`
+		Collections *Collections   `json:"libraryCollections"`
+		AssetMap    *AssetMap      `json:"assetMap"` // Key MediaId, Value: [Key: URL, Value: Local path]
 	}
+
+	AssetMap         map[int]AssetMapImageMap
+	AssetMapImageMap map[string]string
 
 	// Collections is a snapshot of the user's AniList collections.
 	// This is created by [Snapshot] and is stored for offline use.

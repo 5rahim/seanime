@@ -21,11 +21,15 @@ type (
 // This is called by the user before going offline.
 func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
+	h.logger.Debug().Msg("offline hub: Creating snapshot")
+
 	// Get local files
 	lfs, _, err := h.db.GetLocalFiles()
 	if err != nil {
 		return err
 	}
+
+	h.logger.Debug().Msg("offline hub: Retrieved local files")
 
 	// Get user
 	dbAcc, err := h.db.GetAccount()
@@ -36,6 +40,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	if err != nil {
 		return err
 	}
+
+	h.logger.Debug().Msg("offline hub: Retrieved user")
 
 	//
 	// Collections
@@ -54,6 +60,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		AnimeCollection: animeCollection,
 		MangaCollection: mangaCollection,
 	}
+
+	h.logger.Debug().Msg("offline hub: Retrieved collections")
 
 	//
 	// Anime Entries
@@ -121,6 +129,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		time.Sleep(1 * time.Second)
 	}
 
+	h.logger.Debug().Msg("offline hub: Generated anime entries")
+
 	//
 	// Manga Entries
 	//
@@ -160,11 +170,18 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		mangaEntries = append(mangaEntries, mangaEntry)
 	}
 
+	h.logger.Debug().Msg("offline hub: Generated manga entries")
+
 	//
 	// DownloadAssets
 	//
-	assetMap := make(map[string]string)
-	// TODO
+	assetMap, err := h.assetsHandler.DownloadAssets(animeEntries, mangaEntries, opts.DownloadAssetsOf)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to download assets")
+		return err
+	}
+
+	h.logger.Debug().Msg("offline hub: Downloaded assets")
 
 	snapshot := Snapshot{
 		User:        user,
@@ -197,6 +214,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		return err
 	}
 
+	h.logger.Info().Msg("offline hub: Saved snapshot")
+
 	// Save the snapshot media entries
 	for _, animeEntry := range animeEntries {
 		marshaledAnimeEntry, err := json.Marshal(animeEntry)
@@ -220,10 +239,14 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		}
 	}
 
+	h.logger.Info().Msg("offline hub: Saved snapshot media entries")
+
 	return err
 }
 
 func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
+
+	h.logger.Debug().Msg("offline hub: Getting latest snapshot")
 
 	snapshot = &Snapshot{
 		User: &entities.User{},
@@ -232,7 +255,7 @@ func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
 			MangaEntries: make([]*MangaEntry, 0),
 		},
 		Collections: &Collections{},
-		AssetMap:    make(map[string]string),
+		AssetMap:    new(AssetMap),
 	}
 
 	snapshotEntry, err := h.offlineDb.GetLatestSnapshot()
@@ -291,6 +314,8 @@ func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
 			snapshot.Entries.MangaEntries = append(snapshot.Entries.MangaEntries, mangaEntry)
 		}
 	}
+
+	h.logger.Info().Msg("offline hub: Retrieved latest snapshot")
 
 	return snapshot, nil
 }

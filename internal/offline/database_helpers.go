@@ -19,6 +19,18 @@ func (db *database) GetSnapshot(id uint) (*SnapshotEntry, error) {
 }
 
 func (db *database) InsertSnapshot(user []byte, collections []byte, assetMap []byte) (*SnapshotEntry, error) {
+
+	// Delete the previous snapshots
+	if db.HasSnapshots() {
+		snapshots, err := db.GetSnapshots()
+		db.logger.Debug().Msgf("offline hub: Deleting %d snapshot(s)", len(snapshots))
+		if err == nil {
+			for _, snapshot := range snapshots {
+				_ = db.DeleteSnapshot(snapshot.ID)
+			}
+		}
+	}
+
 	snapshot := &SnapshotEntry{
 		User:        user,
 		Collections: collections,
@@ -38,7 +50,13 @@ func (db *database) UpdateSnapshot(id uint, collections []byte, assetMap []byte)
 }
 
 func (db *database) DeleteSnapshot(id uint) error {
-	return db.gormdb.Delete(&SnapshotEntry{}, id).Error
+	err := db.gormdb.Delete(&SnapshotEntry{}, id).Error
+
+	if err == nil {
+		_ = db.DeleteSnapshotMediaEntries(id)
+	}
+
+	return err
 }
 
 func (db *database) GetLatestSnapshot() (*SnapshotEntry, error) {

@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
+	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
 	"image"
 	_ "image/gif"
@@ -137,6 +139,57 @@ func (id *ImageDownloader) GetImageFilenameByUrl(url string) (filename string, o
 	return
 }
 
+// GetImageFilenamesByUrls returns a map of URLs to image filenames.
+//
+//	e.g., {"url1": "filename1.png", "url2": "filename2.jpg"}
+func (id *ImageDownloader) GetImageFilenamesByUrls(urls []string) (ret map[string]string, err error) {
+	ret = make(map[string]string)
+
+	if err = id.registry.setup(); err != nil {
+		return nil, err
+	}
+
+	id.mu.Lock()
+	defer id.mu.Unlock()
+
+	for _, url := range urls {
+		imgID, ok := id.registry.content.UrlToId[url]
+		if !ok {
+			continue
+		}
+
+		ret[url] = imgID + "." + id.registry.content.IdToExt[imgID]
+	}
+	return
+}
+
+func (id *ImageDownloader) DeleteImagesByUrls(urls []string) (err error) {
+
+	if err = id.registry.setup(); err != nil {
+		return
+	}
+
+	id.mu.Lock()
+	defer id.mu.Unlock()
+
+	for _, url := range urls {
+		imgID, ok := id.registry.content.UrlToId[url]
+		if !ok {
+			continue
+		}
+
+		err = os.Remove(filepath.Join(id.downloadDir, imgID+"."+id.registry.content.IdToExt[imgID]))
+		if err != nil {
+			continue
+		}
+
+		delete(id.registry.content.UrlToId, url)
+		delete(id.registry.content.IdToUrl, imgID)
+		delete(id.registry.content.IdToExt, imgID)
+	}
+	return
+}
+
 // downloadImage downloads an image from a URL.
 func (id *ImageDownloader) downloadImage(url string) {
 
@@ -145,9 +198,9 @@ func (id *ImageDownloader) downloadImage(url string) {
 
 	// Check if the image has already been downloaded
 	id.mu.Lock()
-	if _, ok := id.registry.content.IdToUrl[url]; ok {
+	if _, ok := id.registry.content.UrlToId[url]; ok {
 		id.mu.Unlock()
-		id.logger.Info().Msgf("image downloader: Image from URL %s has already been downloaded", url)
+		id.logger.Debug().Msgf("image downloader: Image from URL %s has already been downloaded", url)
 		return
 	}
 	id.mu.Unlock()
