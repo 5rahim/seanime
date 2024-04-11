@@ -1,11 +1,30 @@
+"use client"
 import { MangaChapterDetails, MangaDownloadData } from "@/app/(main)/manga/_lib/manga.types"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
+import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 
 export function getChapterNumberFromChapter(chapter: string): number {
     const chapterNumber = chapter.match(/(\d+(\.\d+)?)/)?.[0]
     return chapterNumber ? Math.floor(parseFloat(chapterNumber)) : 0
+}
+
+export function useMangaReaderUtils() {
+
+    const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined) => {
+        if (!isDownloaded) {
+            return url
+        }
+
+        return process.env.NODE_ENV === "development"
+            ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/manga-downloads/${url}`
+            : `http://${window?.location?.host}/manga-downloads/${url}`
+    }, [])
+
+    return {
+        getChapterPageUrl,
+    }
 }
 
 export function useMangaDownloadDataUtils(data: MangaDownloadData | undefined, loading: boolean) {

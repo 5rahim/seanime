@@ -27,6 +27,7 @@ type (
 		serverUri      string
 		wsEventManager events.IWSEventManager
 		mu             sync.Mutex
+		downloadDir    string
 	}
 
 	NewRepositoryOptions struct {
@@ -35,16 +36,19 @@ type (
 		BackupDir      string
 		ServerURI      string
 		WsEventManager events.IWSEventManager
+		DownloadDir    string
 	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:     opts.Logger,
-		fileCacher: opts.FileCacher,
-		comick:     manga_providers.NewComicK(opts.Logger),
-		mangasee:   manga_providers.NewMangasee(opts.Logger),
-		serverUri:  opts.ServerURI,
+		logger:         opts.Logger,
+		fileCacher:     opts.FileCacher,
+		comick:         manga_providers.NewComicK(opts.Logger),
+		mangasee:       manga_providers.NewMangasee(opts.Logger),
+		serverUri:      opts.ServerURI,
+		wsEventManager: opts.WsEventManager,
+		downloadDir:    opts.DownloadDir,
 	}
 	return r
 }

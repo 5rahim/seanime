@@ -1,4 +1,5 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
+import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/manga.utils"
 import {
     __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
@@ -134,6 +135,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
         }
     }, [kbsPageLeft, kbsPageRight, paginationMap])
 
+    const { getChapterPageUrl } = useMangaReaderUtils()
 
     return (
         <div className="max-h-[calc(100dvh-3rem)] relative focus-visible:outline-none" tabIndex={-1}>
@@ -162,7 +164,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                     >
                         <LoadingSpinner containerClass="h-full absolute inset-0 z-[1] focus-visible:outline-none" tabIndex={-1} />
                         <img
-                            src={page.url}
+                            src={getChapterPageUrl(page.url, pageContainer?.isDownloaded)}
                             alt={`Page ${index}`}
                             className={cn(
                                 "max-w-full h-auto mx-auto select-none z-[4] relative focus-visible:outline-none",

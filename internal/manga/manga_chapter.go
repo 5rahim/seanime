@@ -3,9 +3,15 @@ package manga
 import (
 	"errors"
 	"fmt"
+	"github.com/goccy/go-json"
 	"github.com/samber/lo"
+	chapter_downloader "github.com/seanime-app/seanime/internal/manga/downloader"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"github.com/seanime-app/seanime/internal/util"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -32,8 +38,8 @@ type (
 		Provider       string                         `json:"provider"`
 		ChapterId      string                         `json:"chapterId"`
 		Pages          []*manga_providers.ChapterPage `json:"pages"`
-		PageDimensions map[int]*PageDimension         `json:"pageDimensions"`
-		IsDownloaded   bool                           `json:"isDownloaded"` // TODO
+		PageDimensions map[int]*PageDimension         `json:"pageDimensions"` // Indexed by page number
+		IsDownloaded   bool                           `json:"isDownloaded"`   // TODO
 	}
 
 	// PageDimension is used to store the dimensions of a page.
@@ -148,6 +154,19 @@ func (r *Repository) GetMangaPageContainer(
 	doublePage bool,
 ) (*PageContainer, error) {
 
+	//
+	// Check downloads
+	//
+
+	ret, _ := r.GetDownloadedMangaPageContainer(provider, mediaId, chapterId)
+	if ret != nil {
+		return ret, nil
+	}
+
+	//
+	//
+	//
+
 	// PageContainer key
 	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
 
@@ -237,6 +256,8 @@ func (r *Repository) GetMangaPageContainer(
 	return container, nil
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId int, chapterId string, pages []*manga_providers.ChapterPage) (ret map[int]*PageDimension, err error) {
 	util.HandlePanicInModuleThen("manga/getPageDimensions", func() {
 		err = fmt.Errorf("failed to get page dimensions")
@@ -253,11 +274,10 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 	//         -> { "comick$123$10010": PageDimensions }, { "comick$123$10011": PageDimensions }
 	bucket := r.getFcProviderBucket(manga_providers.Provider(provider), mediaId, bucketTypePageDimensions)
 
-	// FIXME UNCOMMENT
-	//if found, _ := r.fileCacher.Get(bucket, fmt.Sprintf(key, provider, mediaId), &ret); found {
-	//	r.logger.Info().Str("key", key).Msg("manga: Page Dimensions Cache HIT")
-	//	return
-	//}
+	if found, _ := r.fileCacher.Get(bucket, fmt.Sprintf(key, provider, mediaId), &ret); found {
+		r.logger.Info().Str("key", key).Msg("manga: Page Dimensions Cache HIT")
+		return
+	}
 
 	r.logger.Debug().Str("key", key).Msg("manga: getting page dimensions")
 
@@ -293,74 +313,93 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 	return pageDimensions, nil
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------
 
-//func (r *Repository) SHELVEDGetMangaPageContainer(
-//	provider manga_providers.Provider,
-//	mediaId int,
-//	chapterId string,
-//	backup bool, // Whether to retrieve downloaded pages
-//) (*PageContainer, error) {
-//
-//	if backup {
-//
-//		r.hydrateBackupMap()
-//
-//		var container *PageContainer
-//
-//		foundDownloadedChapterId := false
-//		storedChapterIds, found, err := r.GetStoredChapterIdsFromBackup(DownloadID{Provider: string(provider), MediaID: mediaId})
-//		if err != nil {
-//			r.logger.Error().Err(err).Msg("manga: failed to get stored chapters")
-//			return nil, err
-//		}
-//
-//		if found {
-//			for _, storedChapterId := range storedChapterIds {
-//				if storedChapterId == chapterId {
-//					foundDownloadedChapterId = true
-//					break
-//				}
-//			}
-//		}
-//
-//		if !foundDownloadedChapterId {
-//			return nil, ErrChapterNotDownloaded
-//		}
-//
-//		//
-//		// Chapter is downloaded
-//		//
-//		pageList := make([]*manga_providers.ChapterPage, 0)
-//
-//		// Get the downloaded pages
-//		pageMap, chapterDir, err := r.downloader.getPageMap(string(provider), mediaId, chapterId, r.backupDir)
-//		if err != nil {
-//			r.logger.Error().Err(err).Msg("manga: failed to get downloaded pages")
-//			return nil, err
-//		}
-//
-//		pageDimensions := make(map[int]*PageDimension)
-//
-//		for _, pageInfo := range *pageMap {
-//			pageList = append(pageList, pageInfo.ToChapterPage(chapterDir))
-//			pageDimensions[pageInfo.Index] = &PageDimension{
-//				Width:  pageInfo.Width,
-//				Height: pageInfo.Height,
-//			}
-//		}
-//
-//		container = &PageContainer{
-//			MediaId:        mediaId,
-//			Provider:       string(provider),
-//			ChapterId:      chapterId,
-//			Pages:          pageList,
-//			PageDimensions: pageDimensions,
-//			IsDownloaded:   true,
-//		}
-//
-//		return container, nil
-//	}
-//
-//	return r.GetMangaPageContainer(provider, mediaId, chapterId, false)
-//}
+// GetDownloadedMangaPageContainer returns the PageContainer for a downloaded manga chapter based on the provider.
+func (r *Repository) GetDownloadedMangaPageContainer(
+	provider manga_providers.Provider,
+	mediaId int,
+	chapterId string,
+) (*PageContainer, error) {
+
+	// Check if the chapter is downloaded
+	found := false
+
+	// Read download directory
+	files, err := os.ReadDir(r.downloadDir)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Failed to read download directory")
+		return nil, err
+	}
+
+	chapterDir := "" // e.g., manga_comick_123_10010_13
+	for _, file := range files {
+		if file.IsDir() {
+			parts := strings.SplitN(file.Name(), "_", 4)
+			if len(parts) != 4 {
+				continue
+			}
+
+			mId, _ := strconv.Atoi(parts[1])
+
+			if parts[0] == string(provider) && mId == mediaId && parts[2] == chapterId {
+				found = true
+				chapterDir = file.Name()
+				break
+			}
+		}
+	}
+
+	if !found {
+		return nil, ErrChapterNotDownloaded
+	}
+
+	r.logger.Debug().Msg("manga: Found downloaded chapter directory")
+
+	// Open registry file
+	registryFile, err := os.Open(filepath.Join(r.downloadDir, chapterDir, "registry.json"))
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Failed to open registry file")
+		return nil, err
+	}
+	defer registryFile.Close()
+
+	r.logger.Info().Str("chapterId", chapterId).Msg("manga: Reading registry file")
+
+	// Read registry file
+	var pageRegistry *chapter_downloader.Registry
+	err = json.NewDecoder(registryFile).Decode(&pageRegistry)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Failed to decode registry file")
+		return nil, err
+	}
+
+	pageList := make([]*manga_providers.ChapterPage, 0)
+	pageDimensions := make(map[int]*PageDimension)
+
+	// Get the downloaded pages
+	for pageIndex, pageInfo := range *pageRegistry {
+		pageList = append(pageList, &manga_providers.ChapterPage{
+			Index:    pageIndex,
+			URL:      filepath.Join(chapterDir, pageInfo.Filename),
+			Provider: provider,
+		})
+		pageDimensions[pageIndex] = &PageDimension{
+			Width:  pageInfo.Width,
+			Height: pageInfo.Height,
+		}
+	}
+
+	container := &PageContainer{
+		MediaId:        mediaId,
+		Provider:       string(provider),
+		ChapterId:      chapterId,
+		Pages:          pageList,
+		PageDimensions: pageDimensions,
+		IsDownloaded:   true,
+	}
+
+	r.logger.Info().Str("chapterId", chapterId).Msg("manga: Found downloaded chapter")
+
+	return container, nil
+}

@@ -1,4 +1,5 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
+import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/manga.utils"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -61,15 +62,6 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     React.useEffect(() => {
         setIsLastPage(Object.keys(paginationMap).length > 0 && currentMapIndex === Object.keys(paginationMap).length - 1)
     }, [currentMapIndex, paginationMap])
-
-    // const getSrc = (url: string) => {
-    //     if (!pageContainer?.isDownloaded) {
-    //         return url
-    //     }
-    //     return process.env.NODE_ENV === "development"
-    //         ? `http://${window?.location?.hostname}:43211/manga-backups${url}`
-    //         : `http://${window?.location?.host}/manga-backups${url}`
-    // }
 
     /**
      * Function to handle page navigation when the user clicks on the left or right side of the page
@@ -141,6 +133,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const twoPages = readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.length === 2
     const showShadows = twoPages && pageGap && pageFit === MangaPageFit.CONTAIN && pageGapShadow
 
+    const { getChapterPageUrl } = useMangaReaderUtils()
+
     return (
         <div
             className={cn(
@@ -196,7 +190,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                     >
                         {/*<LoadingSpinner containerClass="h-full absolute inset-0 z-[1] w-24 mx-auto" />*/}
                         <img
-                            src={page.url} alt={`Page ${index}`} className={cn(
+                            src={getChapterPageUrl(page.url, pageContainer?.isDownloaded)} alt={`Page ${index}`} className={cn(
                             "focus-visible:outline-none",
                             "h-full inset-0 object-center select-none z-[4] relative",
 

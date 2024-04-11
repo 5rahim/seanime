@@ -34,7 +34,7 @@ func HandleDownloadMangaChapters(c *RouteCtx) error {
 		if err != nil {
 			return c.RespondWithError(err)
 		}
-		time.Sleep(400 * time.Second) // Sleep to avoid rate limiting
+		time.Sleep(400 * time.Millisecond) // Sleep to avoid rate limiting
 	}
 
 	return c.RespondWithData(true)

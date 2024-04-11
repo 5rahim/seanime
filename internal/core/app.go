@@ -162,9 +162,10 @@ func NewApp(configOpts *ConfigOptions) *App {
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      cfg.Manga.BackupDir,
+		BackupDir:      cfg.Manga.DownloadDir,
 		ServerURI:      cfg.GetServerURI(),
 		WsEventManager: wsEventManager,
+		DownloadDir:    cfg.Manga.DownloadDir,
 	})
 
 	app := &App{
@@ -224,13 +225,13 @@ func NewFiberApp(app *App) *fiber.App {
 	})
 
 	// DEVNOTE: SHELVED
-	//if app.Config.Manga.Enabled {
-	//	app.Logger.Debug().Msgf("app: Serving manga backups from \"%s\"", app.Config.Manga.BackupDir)
-	//	fiberApp.Static("/manga-backups", app.Config.Manga.BackupDir, fiber.Static{
-	//		Index:    "index.html",
-	//		Compress: false,
-	//	})
-	//}
+	if app.Config.Manga.DownloadDir != "" {
+		app.Logger.Debug().Msgf("app: Serving manga backups from \"%s\"", app.Config.Manga.DownloadDir)
+		fiberApp.Static("/manga-downloads", app.Config.Manga.DownloadDir, fiber.Static{
+			Index:    "index.html",
+			Compress: false,
+		})
+	}
 
 	fiberApp.Get("*", func(c *fiber.Ctx) error {
 		path := c.OriginalURL()

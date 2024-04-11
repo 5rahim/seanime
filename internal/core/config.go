@@ -31,7 +31,8 @@ type Config struct {
 		Dir string
 	}
 	Manga struct {
-		BackupDir string
+		BackupDir   string
+		DownloadDir string
 	}
 	Data struct { // Hydrated after config is loaded
 		AppDataDir string
@@ -74,6 +75,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")
 	viper.SetDefault("manga.backupDir", "$SEANIME_DATA_DIR/cache/manga")
+	viper.SetDefault("manga.downloadDir", "$SEANIME_DATA_DIR/manga")
 	viper.SetDefault("logs.dir", "$SEANIME_DATA_DIR/logs")
 
 	// Create and populate the config file if it doesn't exist
@@ -170,6 +172,9 @@ func validateConfig(cfg *Config) error {
 	if cfg.Manga.BackupDir == "" {
 		return errInvalidConfigValue("manga.backupDir", "cannot be empty")
 	}
+	if cfg.Manga.DownloadDir == "" {
+		return errInvalidConfigValue("manga.downloadDir", "cannot be empty")
+	}
 
 	return nil
 }
@@ -209,6 +214,7 @@ func expandEnvironmentValues(cfg *Config) {
 	cfg.Cache.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.Dir))
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
 	cfg.Manga.BackupDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.BackupDir))
+	cfg.Manga.DownloadDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.DownloadDir))
 }
 
 // createConfigFile creates a default config file if it doesn't exist

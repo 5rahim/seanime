@@ -72,7 +72,7 @@ func (a *App) initModulesOnce() {
 		Database:       a.Database,
 		Logger:         a.Logger,
 		WSEventManager: a.WSEventManager,
-		DownloadDir:    a.Config.Manga.BackupDir,
+		DownloadDir:    a.Config.Manga.DownloadDir,
 		Repository:     a.MangaRepository,
 	})
 
