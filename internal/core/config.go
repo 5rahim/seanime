@@ -30,6 +30,10 @@ type Config struct {
 	Cache struct {
 		Dir string
 	}
+	Offline struct {
+		Dir      string
+		AssetDir string
+	}
 	Manga struct {
 		BackupDir   string
 		DownloadDir string
@@ -77,6 +81,8 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("manga.backupDir", "$SEANIME_DATA_DIR/cache/manga")
 	viper.SetDefault("manga.downloadDir", "$SEANIME_DATA_DIR/manga")
 	viper.SetDefault("logs.dir", "$SEANIME_DATA_DIR/logs")
+	viper.SetDefault("offline.dir", "$SEANIME_DATA_DIR/offline")
+	viper.SetDefault("offline.assetDir", "$SEANIME_DATA_DIR/offline/assets")
 
 	// Create and populate the config file if it doesn't exist
 	if err = createConfigFile(configPath); err != nil {
@@ -215,6 +221,8 @@ func expandEnvironmentValues(cfg *Config) {
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
 	cfg.Manga.BackupDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.BackupDir))
 	cfg.Manga.DownloadDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.DownloadDir))
+	cfg.Offline.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.Dir))
+	cfg.Offline.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.AssetDir))
 }
 
 // createConfigFile creates a default config file if it doesn't exist

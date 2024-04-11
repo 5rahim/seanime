@@ -11,7 +11,7 @@ import (
 	"github.com/seanime-app/seanime/internal/constants"
 	_db "github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
-	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
+	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
@@ -23,6 +23,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
+	"github.com/seanime-app/seanime/internal/offline"
 	"github.com/seanime-app/seanime/internal/onlinestream"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
@@ -74,6 +75,7 @@ type (
 		Cleanups            []func()
 		cancelContext       func()
 		previousVersion     string
+		offlineHub          *offline.Hub
 	}
 )
 
@@ -168,6 +170,20 @@ func NewApp(configOpts *ConfigOptions) *App {
 		DownloadDir:    cfg.Manga.DownloadDir,
 	})
 
+	// Offline Hub
+	// Will exit if offline mode is enabled and no snapshots are found
+	offlineHub := offline.NewHub(&offline.NewHubOptions{
+		AnilistClientWrapper: anilistCW,
+		MetadataProvider:     metadataProvider,
+		MangaRepository:      mangaRepository,
+		Db:                   db,
+		FileCacher:           fileCacher,
+		Logger:               logger,
+		OfflineDir:           cfg.Offline.Dir,
+		AssetDir:             cfg.Offline.AssetDir,
+		IsOffline:            cfg.Server.Offline,
+	})
+
 	app := &App{
 		Config:                  cfg,
 		Database:                db,
@@ -193,6 +209,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
 		WD:                      pwd,
 		previousVersion:         previousVersion,
+		offlineHub:              offlineHub,
 	}
 
 	app.runMigrations()
@@ -226,7 +243,7 @@ func NewFiberApp(app *App) *fiber.App {
 
 	// DEVNOTE: SHELVED
 	if app.Config.Manga.DownloadDir != "" {
-		app.Logger.Debug().Msgf("app: Serving manga backups from \"%s\"", app.Config.Manga.DownloadDir)
+		app.Logger.Info().Msgf("app: Manga downloads path: %s", app.Config.Manga.DownloadDir)
 		fiberApp.Static("/manga-downloads", app.Config.Manga.DownloadDir, fiber.Static{
 			Index:    "index.html",
 			Compress: false,

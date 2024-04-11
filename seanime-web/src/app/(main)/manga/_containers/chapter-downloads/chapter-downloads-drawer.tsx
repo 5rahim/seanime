@@ -124,7 +124,7 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                                     size="sm"
                                     disabled={isMutating}
                                     onClick={() => clearDownloadQueue()}
-                                    leftIcon={<MdClear />}
+                                    leftIcon={<MdClear className="text-xl" />}
                                     loading={isClearingDownloadQueue}
                                 >
                                     Clear all
@@ -135,10 +135,10 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                                     size="sm"
                                     disabled={isMutating}
                                     onClick={() => startDownloadQueue()}
-                                    leftIcon={<TbWorldDownload />}
+                                    leftIcon={<TbWorldDownload className="text-xl" />}
                                     loading={isStartingDownloadQueue}
                                 >
-                                    Resume
+                                    Start
                                 </Button>}
                             </>
                         )}

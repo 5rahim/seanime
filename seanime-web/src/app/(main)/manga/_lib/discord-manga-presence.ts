@@ -1,4 +1,4 @@
-import { MangaChapterDetails, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { SeaEndpoints } from "@/lib/server/endpoints"
@@ -23,7 +23,7 @@ export function useDiscordMangaPresence(entry: MangaEntry | undefined) {
         endpoint: SeaEndpoints.DISCORD_PRESENCE_CANCEL,
     })
 
-    const prevChapter = React.useRef<MangaChapterDetails | undefined>()
+    const prevChapter = React.useRef<any>()
 
     React.useEffect(() => {
         if (
@@ -35,7 +35,7 @@ export function useDiscordMangaPresence(entry: MangaEntry | undefined) {
                 mutate({
                     title: entry.media.title?.userPreferred || entry.media.title?.romaji || entry.media.title?.english || "Reading",
                     image: entry.media.coverImage?.large || entry.media.coverImage?.medium || "",
-                    chapter: currentChapter.chapter,
+                    chapter: currentChapter.chapterNumber,
                 })
             }
 

@@ -131,7 +131,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
 
     const currentPages = React.useMemo(() => paginationMap[currentMapIndex], [currentMapIndex, paginationMap])
     const twoPages = readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.length === 2
-    const showShadows = twoPages && pageGap && pageFit === MangaPageFit.CONTAIN && pageGapShadow
+    const showShadows = twoPages && pageGap && !(pageFit === MangaPageFit.COVER || pageFit === MangaPageFit.TRUE_SIZE) && pageGapShadow
 
     const { getChapterPageUrl } = useMangaReaderUtils()
 

@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/offline"
 )
 
 // GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
@@ -109,4 +110,14 @@ func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 	a.mangaCollection = collection
 
 	return collection, nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (a *App) GetOfflineHub() (h *offline.Hub, ok bool) {
+	if !a.Config.Server.Offline {
+		return nil, false
+	}
+
+	return a.offlineHub, true
 }

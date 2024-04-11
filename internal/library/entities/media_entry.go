@@ -159,8 +159,8 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
 			Status:      anilistEntry.Status,
-			StartedAt:   anilist.ToEntryStartDate(anilistEntry.StartedAt),
-			CompletedAt: anilist.ToEntryCompletionDate(anilistEntry.CompletedAt),
+			StartedAt:   anilist.ToEntryDate(anilistEntry.StartedAt),
+			CompletedAt: anilist.ToEntryDate(anilistEntry.CompletedAt),
 		}
 	}
 

@@ -5,6 +5,7 @@
 
 import { useDeleteDownloadedMangaChapter } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaDownloadData, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { primaryPillCheckboxClass } from "@/components/shared/styling/classnames"
 import { Button, IconButton } from "@/components/ui/button"
@@ -72,12 +73,30 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         return d
     }, [data, showQueued])
 
+    const chapterIdsToNumber = React.useMemo(() => {
+        const map = new Map<string, number>()
+
+        for (const chapter of tableData ?? []) {
+            map.set(chapter.chapterId, getChapterNumberFromChapter(chapter.chapterNumber))
+        }
+
+        return map
+    }, [tableData])
+
     const columns = React.useMemo(() => defineDataGridColumns<DownloadChapterItem>(() => [
         {
             accessorKey: "chapterNumber",
             header: "Chapter",
             size: 90,
             cell: info => <span>Chapter {info.getValue<string>()}</span>,
+        },
+        {
+            header: "Number",
+            size: 10,
+            enableSorting: true,
+            accessorFn: (row) => {
+                return chapterIdsToNumber.get(row.chapterId)
+            },
         },
         {
             accessorKey: "provider",
@@ -88,6 +107,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
             accessorKey: "chapterId",
             header: "Chapter ID",
             size: 20,
+            cell: info => <span className="text-[--muted] text-sm italic">{info.getValue<string>()}</span>,
         },
         {
             id: "_actions",
@@ -100,7 +120,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                         {row.original.queued && <p className="text-[--muted]">Queued</p>}
                         {row.original.downloaded && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
 
-                        <IconButton
+                        {row.original.downloaded && <IconButton
                             intent="gray-subtle"
                             size="sm"
                             onClick={() => setSelectedChapter({
@@ -110,12 +130,12 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                                 mediaId: Number(entry.mediaId),
                             })}
                             icon={<GiOpenBook />}
-                        />
+                        />}
                     </div>
                 )
             },
         },
-    ]), [tableData, entry?.mediaId])
+    ]), [tableData, entry?.mediaId, chapterIdsToNumber])
 
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
@@ -167,6 +187,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                         size="sm"
                         leftIcon={<BiTrash />}
                         className=""
+                        loading={isDeletingChapter}
                     >
                         Delete selected chapters ({selectedChapters?.length})
                     </Button>
@@ -184,10 +205,17 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                             pageIndex: 0,
                             pageSize: 10,
                         },
+                        sorting: [
+                            {
+                                id: "chapterNumber",
+                                desc: false,
+                            },
+                        ],
                     }}
                     state={{
                         rowSelection,
                     }}
+                    onSortingChange={console.log}
                     onRowSelect={onSelectChange}
                     onRowSelectionChange={setRowSelection}
                     className=""

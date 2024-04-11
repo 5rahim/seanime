@@ -16,42 +16,58 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 
-- **User-friendly web interface**
-  - Simple, intuitive design, easy to set up and use 
-- **Seamless integration with AniList**
+### Server + Web Interface
+
+- 🪶 **Lightweight server**
+  - Low resource usage
+  - Performant and responsive
+- 🖥️ **Cross-platform**
+  - Works on Windows, macOS, and Linux 
+- 🔥 **User-friendly**
+  - Simple and intuitive web interface
+  - Easy to set up and use 
+- 🌐 **Seamless integration with AniList**
   - Manage your AniList collection (anime and manga)
   - Discover new anime, browse entries, get recommendations
-- **Local anime library**
-  - Scan your local anime library effortlessly
-  - **No mandatory folder structure** or naming convention
-  - Browse and manage your library with metadata
-  - Support for torrents with absolute episode numbers
-  - **Download new episodes & movies**
+- ✈️ **Offline mode**
+  - Use Seanime without an internet connection
+- 🔒 **No data collection**
+
+### Anime
+
+- 🏞️ **Local anime library**
+  - 🔎 **Scan** your local anime library effortlessly
+  - 🗂️ **No mandatory folder structure** or naming convention
+  - 🌅 Browse and manage your library with metadata
+  - 📃 Support for torrents with absolute episode numbers
+- ⬇️ **Download new episodes & movies**
     - Smart search engine powered by public trackers (AnimeTosho, Nyaa), SeaDex
     - Integration with **qBittorrent** & **Transmission**
-    - **Automate** downloading new episodes by using custom filters
-  - **Media players**
+- 🥱 **Automate your library**
+  - Download new episodes automatically by using custom filters
+- 🎞️ **External Players**
     - **MPV**, **VLC**, and **MPC-HC** support
-    - Sync progress to AniList (& MAL)
+    - Sync progress to AniList (& MAL) automatically
     - Create **playlists** and queue episodes
-- **Manga**
-  - Browse and manage your manga collection
-  - Fetch manga chapters from online sources
-  - Read manga chapters from built-in reader
-- **Online streaming**
-  - Stream episodes from online sources using a built-in player
+
+### Manga / Manhwa 
+
+- 📕 **Browse and manage** your AniList manga/manhwa collection
+- 📖 **Read** chapters from various sources
+  - Built-in, customizable **manga reader**
+  - Custom reader settings for different series
+- ⬇️ **Download chapters** for offline reading
+  - Bulk downloads, persistent download queue
+
+### And more
+
+- 📺 **Online streaming**
+  - Stream episodes from online sources using the built-in player
   - Support for multiple sources
 - **MyAnimeList integration**
   - Automatically update your progress on MyAnimeList
-- **No data collection**
-
-
-### Additional features
-
-- Customizable UI
-- Auto scan
-- Advanced anime search
-- Scan summaries
+- **Quality of life features**
+  - Customizable UI, Scan summaries, advanced anime search, and more
 
 ### What it is not
 

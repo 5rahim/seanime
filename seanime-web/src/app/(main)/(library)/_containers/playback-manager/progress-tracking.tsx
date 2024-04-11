@@ -260,7 +260,7 @@ export function ProgressTracking() {
                             <div>
                                 <h4 className="text-lg font-medium text-center text-[--muted]">Playlist</h4>
                                 {!!playlistState.remaining &&
-                                    <p>{playlistState.remaining} more episode{playlistState.remaining > 1 ? "s" : ""} after this one</p>}
+                                    <p>{playlistState.remaining} episode{playlistState.remaining > 1 ? "s" : ""} after this one</p>}
                                 <p className="text-center truncate line-clamp-1">Next: <span className="font-semibold">{playlistState?.next?.name}</span>
                                 </p>
                             </div>

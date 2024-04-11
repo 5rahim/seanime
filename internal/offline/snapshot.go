@@ -1,16 +1,296 @@
 package offline
 
+import (
+	"context"
+	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/library/entities"
+	"slices"
+	"time"
+)
+
 type (
 	NewSnapshotOptions struct {
-		MediaIds []int
+		AnimeToDownload  []int // MediaIds
+		DownloadAssetsOf []int // MediaIds
 	}
 )
 
-// Snapshot populates offline data
-func (h *Hub) Snapshot(opts *NewSnapshotOptions) error {
+// CreateSnapshot creates a snapshot of the current state of the library and stores it for offline use.
+// This is called by the user before going offline.
+func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
-	// Use NewMediaEntry (anime)
-	// Modify NewMediaEntry, so we don't concern ourselves with the DownloadInfo
+	// Get local files
+	lfs, _, err := h.db.GetLocalFiles()
+	if err != nil {
+		return err
+	}
 
-	panic("not implemented")
+	// Get user
+	dbAcc, err := h.db.GetAccount()
+	if err != nil {
+		return err
+	}
+	user, err := entities.NewUser(dbAcc)
+	if err != nil {
+		return err
+	}
+
+	//
+	// Collections
+	//
+	animeCollection, err := h.anilistClientWrapper.AnimeCollection(context.Background(), &user.Viewer.Name)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get Anilist anime collection")
+		return err
+	}
+	mangaCollection, err := h.anilistClientWrapper.MangaCollection(context.Background(), &user.Viewer.Name)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get Anilist manga collection")
+		return err
+	}
+	collections := Collections{
+		AnimeCollection: animeCollection,
+		MangaCollection: mangaCollection,
+	}
+
+	//
+	// Anime Entries
+	//
+
+	animeEntries := make([]*AnimeEntry, 0)
+
+	lfWrapper := entities.NewLocalFileWrapper(lfs)
+	lfEntries := lfWrapper.GetLocalEntries()
+
+	anizipCache := anizip.NewCache()
+
+	for _, lfEntry := range lfEntries {
+		if !slices.Contains(opts.AnimeToDownload, lfEntry.GetMediaId()) {
+			continue
+		}
+
+		// Get the media
+		listEntry, ok := animeCollection.GetListEntryFromMediaId(lfEntry.GetMediaId())
+		if !ok {
+			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to get Anilist media %d", lfEntry.GetMediaId())
+			return err
+		}
+
+		_mediaEntry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
+			MediaId:              lfEntry.GetMediaId(),
+			LocalFiles:           lfs,
+			AnizipCache:          anizipCache,
+			AnilistCollection:    animeCollection,
+			AnilistClientWrapper: h.anilistClientWrapper,
+			MetadataProvider:     h.metadataProvider,
+		})
+		if err != nil {
+			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to create media entry for media %d", lfEntry.GetMediaId())
+			return err
+		}
+
+		mediaEpisodes := _mediaEntry.Episodes
+		// Note: We don't need the BasicMedia in each episode for the snapshot
+		// it's a waste of space
+		for _, episode := range mediaEpisodes {
+			episode.BasicMedia = nil
+		}
+
+		shouldDownloadAssets := slices.Contains(opts.DownloadAssetsOf, lfEntry.GetMediaId())
+
+		// Create the AnimeEntry
+		animeEntry := &AnimeEntry{
+			MediaId: lfEntry.GetMediaId(),
+			ListData: &ListData{
+				Score:       *listEntry.GetScore(),
+				Status:      anilistStatusToEntryStatus(listEntry.GetStatus()),
+				Progress:    *listEntry.GetProgress(),
+				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
+				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
+			},
+			Media:            listEntry.GetMedia(),
+			Episodes:         mediaEpisodes,
+			DownloadedAssets: shouldDownloadAssets,
+		}
+
+		// Add the AnimeEntry
+		animeEntries = append(animeEntries, animeEntry)
+
+		time.Sleep(1 * time.Second)
+	}
+
+	//
+	// Manga Entries
+	//
+
+	mangaEntries := make([]*MangaEntry, 0)
+
+	containers, err := h.mangaRepository.GetDownloadedChapterContainers(mangaCollection)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get downloaded manga chapters")
+		return err
+	}
+
+	for _, container := range containers {
+		// Get the media
+		listEntry, ok := mangaCollection.GetListEntryFromMediaId(container.MediaId)
+		if !ok {
+			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to get Anilist media %d", container.MediaId)
+			return err
+		}
+
+		// Create the MangaEntry
+		mangaEntry := &MangaEntry{
+			MediaId: container.MediaId,
+			ListData: &ListData{
+				Score:       *listEntry.GetScore(),
+				Status:      anilistStatusToEntryStatus(listEntry.GetStatus()),
+				Progress:    *listEntry.GetProgress(),
+				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
+				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
+			},
+			Media:            listEntry.GetMedia(),
+			ChapterContainer: container,
+			DownloadedAssets: slices.Contains(opts.DownloadAssetsOf, container.MediaId),
+		}
+
+		// Add the MangaEntry
+		mangaEntries = append(mangaEntries, mangaEntry)
+	}
+
+	//
+	// DownloadAssets
+	//
+	assetMap := make(map[string]string)
+	// TODO
+
+	snapshot := Snapshot{
+		User:        user,
+		Collections: &collections,
+		Entries: &Entries{
+			AnimeEntries: animeEntries,
+			MangaEntries: mangaEntries,
+		},
+		AssetMap: assetMap,
+	}
+
+	marshaledUser, err := json.Marshal(snapshot.User)
+	if err != nil {
+		return err
+	}
+
+	marshaledCollections, err := json.Marshal(snapshot.Collections)
+	if err != nil {
+		return err
+	}
+
+	marshaledAssetMap, err := json.Marshal(snapshot.AssetMap)
+	if err != nil {
+		return err
+	}
+
+	// Save the snapshot
+	snapshotEntry, err := h.offlineDb.InsertSnapshot(marshaledUser, marshaledCollections, marshaledAssetMap)
+	if err != nil {
+		return err
+	}
+
+	// Save the snapshot media entries
+	for _, animeEntry := range animeEntries {
+		marshaledAnimeEntry, err := json.Marshal(animeEntry)
+		if err != nil {
+			return err
+		}
+		_, err = h.offlineDb.InsertSnapshotMediaEntry(snapshotEntry.ID, SnapshotMediaEntryTypeAnime, animeEntry.MediaId, marshaledAnimeEntry)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, mangaEntry := range mangaEntries {
+		marshaledMangaEntry, err := json.Marshal(mangaEntry)
+		if err != nil {
+			return err
+		}
+		_, err = h.offlineDb.InsertSnapshotMediaEntry(snapshotEntry.ID, SnapshotMediaEntryTypeManga, mangaEntry.MediaId, marshaledMangaEntry)
+		if err != nil {
+			return err
+		}
+	}
+
+	return err
+}
+
+func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
+
+	snapshot = &Snapshot{
+		User: &entities.User{},
+		Entries: &Entries{
+			AnimeEntries: make([]*AnimeEntry, 0),
+			MangaEntries: make([]*MangaEntry, 0),
+		},
+		Collections: &Collections{},
+		AssetMap:    make(map[string]string),
+	}
+
+	snapshotEntry, err := h.offlineDb.GetLatestSnapshot()
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to get latest snapshot")
+		return nil, err
+	}
+
+	snapshot.DbId = snapshotEntry.ID
+
+	// Get the user
+	err = json.Unmarshal(snapshotEntry.User, &snapshot.User)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to unmarshal user")
+		return nil, err
+	}
+
+	// Get the collections
+	err = json.Unmarshal(snapshotEntry.Collections, &snapshot.Collections)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to unmarshal collections")
+		return nil, err
+	}
+
+	// Get the asset map
+	err = json.Unmarshal(snapshotEntry.AssetMap, &snapshot.AssetMap)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to unmarshal asset map")
+		return nil, err
+	}
+
+	// Get the snapshot media entries
+	mediaEntries, err := h.offlineDb.GetSnapshotMediaEntries(snapshotEntry.ID)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to get snapshot media entries")
+		return nil, err
+	}
+
+	for _, mediaEntry := range mediaEntries {
+		switch SnapshotMediaEntryType(mediaEntry.Type) {
+		case SnapshotMediaEntryTypeAnime:
+			animeEntry := &AnimeEntry{}
+			err = json.Unmarshal(mediaEntry.Value, animeEntry)
+			if err != nil {
+				h.logger.Error().Err(err).Msg("offline hub: Failed to unmarshal anime entry")
+				return nil, err
+			}
+			snapshot.Entries.AnimeEntries = append(snapshot.Entries.AnimeEntries, animeEntry)
+		case SnapshotMediaEntryTypeManga:
+			mangaEntry := &MangaEntry{}
+			err = json.Unmarshal(mediaEntry.Value, mangaEntry)
+			if err != nil {
+				h.logger.Error().Err(err).Msg("offline hub: Failed to unmarshal manga entry")
+				return nil, err
+			}
+			snapshot.Entries.MangaEntries = append(snapshot.Entries.MangaEntries, mangaEntry)
+		}
+	}
+
+	return snapshot, nil
 }
