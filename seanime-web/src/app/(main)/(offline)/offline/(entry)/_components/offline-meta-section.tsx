@@ -1,10 +1,10 @@
 "use client"
+import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
 import { OfflineAnimeEntry, OfflineAssetMap, OfflineMangaEntry } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { serverStatusAtom } from "@/atoms/server-status"
-import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -115,7 +115,14 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
                                             progress={entry.listData?.progress}
                                             episodes={type === "anime" ? (entry.media as any)?.episodes : (entry.media as any)?.chapters}
                                         />
-                                        <AnilistMediaEntryModal listData={entry.listData} media={entry.media} type="manga" />
+
+                                        <OfflineAnilistMediaEntryModal
+                                            listData={entry.listData}
+                                            assetMap={assetMap}
+                                            media={entry.media}
+                                            type={type}
+                                        />
+
                                         <p className="text-base md:text-lg">{capitalize(entry.listData?.status === "CURRENT"
                                             ? (type === "anime" ? "Watching" : "Reading")
                                             : entry.listData?.status)}</p>

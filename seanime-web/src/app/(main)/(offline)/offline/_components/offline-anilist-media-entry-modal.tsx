@@ -31,8 +31,8 @@ const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
-    startedAt: presets.datePicker.nullish().transform(value => value ? value.toUTCString() : null),
-    completedAt: presets.datePicker.nullish().transform(value => value ? value.toUTCString() : null),
+    startDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null),
+    endDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null),
 }))
 
 
@@ -105,8 +105,8 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                             status: data.status || "PLANNING",
                             score: data.score || 0,
                             progress: data.progress || 0,
-                            startedAt: data.startedAt,
-                            completedAt: data.completedAt,
+                            startDate: data.startDate,
+                            endDate: data.endDate,
                         })
                     }}
                     className={cn(
@@ -120,9 +120,9 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                         score: listData?.score,
                         progress: listData?.progress,
                         //@ts-expect-error
-                        startedAt: listData?.startedAt ? new Date(listData?.startedAt) : undefined,
+                        startDate: listData?.startedAt ? new Date(listData?.startedAt) : undefined,
                         //@ts-expect-error
-                        completedAt: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
+                        endDate: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
                     }}
                 >
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -178,11 +178,11 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                     {media?.status !== "NOT_YET_RELEASED" && <div className="flex flex-col sm:flex-row gap-4">
                         <Field.DatePicker
                             label="Start date"
-                            name="startedAt"
+                            name="startDate"
                         />
                         <Field.DatePicker
                             label="Completion date"
-                            name="completedAt"
+                            name="endDate"
                         />
                     </div>}
 
