@@ -2,12 +2,11 @@
 import { OfflineAssetMap, OfflineListData } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { userAtom } from "@/atoms/user"
-import { mediaListDataSchema } from "@/components/shared/anilist-media-entry-modal"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Field, Form, InferType } from "@/components/ui/form"
+import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
+import { BaseMangaFragment, BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
@@ -23,10 +22,18 @@ type Props = {
     children?: React.ReactNode
     listData: OfflineListData | undefined
     assetMap: OfflineAssetMap | undefined
-    media?: BaseMediaFragment
+    media: BaseMediaFragment | BaseMangaFragment
     hideButton?: boolean
     type: "anime" | "manga"
 }
+
+const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
+    status: z.custom<MediaListStatus>().nullish(),
+    score: z.number().min(0).max(1000).nullish(),
+    progress: z.number().min(0).nullish(),
+    startedAt: presets.datePicker.nullish().transform(value => value ? value.toUTCString() : null),
+    completedAt: presets.datePicker.nullish().transform(value => value ? value.toUTCString() : null),
+}))
 
 
 export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
@@ -40,13 +47,13 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
 
     const { mutate, isPending, isSuccess } = useSeaMutation<any, InferType<typeof mediaListDataSchema> & {
         mediaId: number,
-        type: "anime" | "manga"
     }>({
-        endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
-        mutationKey: ["update-anilist-list-entry"],
+        endpoint: SeaEndpoints.OFFLINE_SNAPSHOT_ENTRY,
+        method: "patch",
+        mutationKey: ["update-offline-anilist-list-entry"],
         onSuccess: async () => {
+            await qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
             toast.success("Entry updated")
-
         },
     })
 
@@ -96,11 +103,10 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                         mutate({
                             mediaId: media?.id || 0,
                             status: data.status || "PLANNING",
-                            score: data.score ? data.score * 10 : 0,
+                            score: data.score || 0,
                             progress: data.progress || 0,
                             startedAt: data.startedAt,
                             completedAt: data.completedAt,
-                            type: type,
                         })
                     }}
                     className={cn(
@@ -160,9 +166,6 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                                 label="Progress"
                                 name="progress"
                                 min={0}
-                                max={!!media?.nextAiringEpisode?.episode ? media?.nextAiringEpisode?.episode - 1 : (media?.episodes
-                                    ? media.episodes
-                                    : undefined)}
                                 formatOptions={{
                                     maximumFractionDigits: 0,
                                     minimumFractionDigits: 0,

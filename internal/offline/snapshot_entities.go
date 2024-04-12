@@ -57,7 +57,7 @@ type (
 	}
 
 	ListData struct {
-		Score       float64                 `json:"score"`
+		Score       int                     `json:"score"`
 		Status      anilist.MediaListStatus `json:"status"`
 		Progress    int                     `json:"progress"`
 		StartedAt   string                  `json:"startedAt"`

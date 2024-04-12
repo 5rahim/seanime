@@ -114,7 +114,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		animeEntry := &AnimeEntry{
 			MediaId: lfEntry.GetMediaId(),
 			ListData: &ListData{
-				Score:       *listEntry.GetScore(),
+				Score:       int(*listEntry.GetScore()),
 				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
 				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
@@ -162,7 +162,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		mangaEntry := &MangaEntry{
 			MediaId: container.MediaId,
 			ListData: &ListData{
-				Score:       *listEntry.GetScore(),
+				Score:       int(*listEntry.GetScore()),
 				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
 				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),

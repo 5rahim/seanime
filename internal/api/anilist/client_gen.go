@@ -6730,7 +6730,7 @@ const MangaCollectionDocument = `query MangaCollection ($userName: String) {
 			status
 			entries {
 				id
-				score
+				score(format: POINT_10)
 				progress
 				status
 				notes
@@ -7255,7 +7255,7 @@ const AnimeCollectionDocument = `query AnimeCollection ($userName: String) {
 			status
 			entries {
 				id
-				score
+				score(format: POINT_10)
 				progress
 				status
 				notes

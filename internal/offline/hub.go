@@ -157,6 +157,70 @@ func (h *Hub) UpdateAnimeListStatus(
 	return
 }
 
+func (h *Hub) UpdateEntryListData(
+	mediaId *int,
+	status *anilist.MediaListStatus,
+	score *int,
+	progress *int,
+	startDate *string,
+	endDate *string,
+) (err error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.logger.Debug().Int("mediaId", *mediaId).Msg("offline hub: Updating anime list data")
+
+	if h.currentSnapshot == nil {
+		return errors.New("snapshot not found")
+	}
+
+	var snapshotEntry *SnapshotMediaEntry
+	snapshotEntry, err = h.offlineDb.GetSnapshotMediaEntry(*mediaId, h.currentSnapshot.DbId)
+	if err != nil {
+		return err
+	}
+
+	entry := snapshotEntry.GetAnimeEntry()
+	if entry == nil {
+		return errors.New("entry not found")
+	}
+
+	if progress != nil {
+		entry.ListData.Progress = *progress
+	}
+	if status != nil {
+		entry.ListData.Status = *status
+	}
+	if score != nil {
+		entry.ListData.Score = *score
+	}
+	if startDate != nil {
+		entry.ListData.StartedAt = *startDate
+	}
+	if endDate != nil {
+		entry.ListData.CompletedAt = *endDate
+	}
+
+	snapshotEntry.Value = entry.Marshal()
+
+	_, err = h.offlineDb.UpdateSnapshotMediaEntryT(snapshotEntry)
+	if err != nil {
+		return err
+	}
+
+	// Refresh current snapshot
+	ret, err := h.GetLatestSnapshot(true)
+	if err != nil {
+		return err
+	}
+
+	h.currentSnapshot = ret
+
+	h.logger.Info().Msg("offline hub: Updated anime list data")
+
+	return
+}
+
 func (h *Hub) UpdateMangaListStatus(
 	mediaId int,
 	progress int,
@@ -203,5 +267,12 @@ func (h *Hub) UpdateMangaListStatus(
 	h.logger.Info().Msg("offline hub: Updated manga list status")
 
 	return
+
+}
+
+func (h *Hub) GetUpdatedListData() {
+
+	// Score should be * 10
+	// Dates should be converted to FuzzyDateInput
 
 }

@@ -29,23 +29,20 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - 🌐 **Seamless integration with AniList**
   - Manage your AniList collection (anime and manga)
   - Discover new anime, browse entries, get recommendations
-- ✈️ **Offline mode**
-  - Consume media in the ‘offline view’ with downloaded metadata and images
-  - Record your progress offline and sync when you’re online
 - 🔒 **No data collection**
 
 ### Anime
 
 - 🏞️ **Local anime library**
-  - 🔎 **Scan** your local anime library effortlessly
-  - 🗂️ **No mandatory folder structure** or naming convention
-  - 🌅 Browse and manage your library with metadata
-  - 📃 Support for torrents with absolute episode numbers
+  - **Scan** your local anime library effortlessly
+  -  **No mandatory folder structure** or naming convention
+  - Browse and manage your library with metadata
+  - Support for torrents with absolute episode numbers
 - ⬇️ **Download new episodes & movies**
     - Smart search engine powered by public trackers (AnimeTosho, Nyaa), SeaDex
     - Integration with **qBittorrent** & **Transmission**
 - 🥱 **Automate your library**
-  - Download new episodes automatically by using custom filters
+  - Download new episodes automatically with the use of custom filters
 - 🎞️ **External Players**
     - **MPV**, **VLC**, and **MPC-HC** support
     - Sync progress to AniList (& MAL) automatically
@@ -53,12 +50,9 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 
 ### Manga / Manhwa 
 
+- 📖 **Read chapters** from various sources
+  - Built-in, customizable **reader**
 - 📕 **Browse and manage** your AniList manga/manhwa collection
-- 📖 **Read** chapters from various sources
-  - Built-in, customizable **manga reader**
-  - Custom reader settings for different series
-- ⬇️ **Download chapters** for offline reading
-  - Bulk downloads, persistent download queue
 
 ### And more
 
@@ -81,7 +75,7 @@ support transcoding or streaming to other devices (yet).
 
 # Next releases
 
-- [ ] **v1.4.0**
+- [ ] **v1.4.0** - Friday, 4/19/2024
 - [x] **v1.3.0** - Saturday, 4/6/2024
 - [x] **v1.2.0** - Monday, 4/1/2024
 - [x] **v1.1.2** - Sunday, 3/24/2024

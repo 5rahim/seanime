@@ -149,6 +149,7 @@ export const OfflineMediaListAtom = ((props: OfflineMediaListItemProps) => {
                         <OfflineAnilistMediaEntryModal
                             listData={listData}
                             assetMap={assetMap}
+                            media={media}
                             type={!isManga ? "anime" : "manga"}
                         />
 

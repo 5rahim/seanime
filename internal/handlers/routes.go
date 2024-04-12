@@ -334,6 +334,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/offline/snapshot", makeHandler(app, HandleGetOfflineSnapshot))
 	v1.Get("/offline/snapshot-entry", makeHandler(app, HandleGetOfflineSnapshotEntry))
 	v1.Post("/offline/snapshot", makeHandler(app, HandleCreateOfflineSnapshot))
+	v1.Patch("/offline/snapshot-entry", makeHandler(app, HandleUpdateOfflineEntryListData))
 
 	//
 	// Websocket
