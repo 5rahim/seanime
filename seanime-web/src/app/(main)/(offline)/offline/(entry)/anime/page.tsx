@@ -132,6 +132,7 @@ export function EpisodeLists(props: EpisodeListsProps) {
             )}
 
             <div className="space-y-10 pb-10">
+                <h2>Episodes</h2>
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 min-[2000px]:grid-cols-4">
                     {mainEpisodes.map(episode => (
                         <EpisodeItem

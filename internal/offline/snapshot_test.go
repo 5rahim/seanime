@@ -73,7 +73,7 @@ func TestSnapshot(t *testing.T) {
 	}
 
 	// Get snapshot
-	snapshot, err := offlineHub.GetLatestSnapshot()
+	snapshot, err := offlineHub.GetLatestSnapshot(false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestSnapshot_GetLatestSnapshot(t *testing.T) {
 
 	offlineHub := getHub(t)
 
-	snapshot, err := offlineHub.GetLatestSnapshot()
+	snapshot, err := offlineHub.GetLatestSnapshot(false)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -50,7 +50,7 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 //
 //	GET /api/offline/snapshot
 func HandleGetOfflineSnapshot(c *RouteCtx) error {
-	snapshot, _ := c.App.OfflineHub.GetLatestSnapshot()
+	snapshot, _ := c.App.OfflineHub.GetLatestSnapshot(false)
 	return c.RespondWithData(snapshot)
 }
 

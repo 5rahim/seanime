@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
+	"github.com/seanime-app/seanime/internal/offline"
 	"sync"
 )
 
@@ -40,6 +41,9 @@ type (
 		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
 		currentLocalFileWrapperEntry *entities.LocalFileWrapperEntry // This contains the current media entry local file data (can be nil)
 		playlistHub                  *playlistHub                    // The playlist hub
+
+		isOffline  bool
+		offlineHub *offline.Hub
 	}
 
 	PlaybackStateType string
@@ -65,6 +69,8 @@ type (
 		Database                     *db.Database
 		RefreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence              *discordrpc_presence.Presence
+		IsOffline                    bool
+		OfflineHub                   *offline.Hub
 	}
 )
 
@@ -80,6 +86,8 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		playlistHub:                  newPlaylistHub(opts.Logger, opts.WSEventManager),
 		mu:                           sync.Mutex{},
 		historyMap:                   make(map[string]PlaybackState),
+		isOffline:                    opts.IsOffline,
+		offlineHub:                   opts.OfflineHub,
 	}
 }
 
@@ -152,6 +160,16 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
 	pm.playlistHub.reset()
 
+	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
+	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
+	if pm.isOffline && pm.anilistCollection == nil {
+		snapshot, found := pm.offlineHub.GetCurrentSnapshot()
+		if !found {
+			return errors.New("could not retrieve anime collection")
+		}
+		pm.anilistCollection = snapshot.Collections.AnimeCollection
+	}
+
 	err := pm.MediaPlayerRepository.Play(videopath)
 	if err != nil {
 		return err
@@ -180,6 +198,16 @@ func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 // This action is triggered by the client.
 func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 	pm.playlistHub.loadPlaylist(playlist)
+
+	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
+	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
+	if pm.isOffline && pm.anilistCollection == nil {
+		snapshot, found := pm.offlineHub.GetCurrentSnapshot()
+		if !found {
+			return errors.New("could not retrieve anime collection")
+		}
+		pm.anilistCollection = snapshot.Collections.AnimeCollection
+	}
 
 	// Play the first video in the playlist
 	firstVidPath := playlist.LocalFiles[0].Path

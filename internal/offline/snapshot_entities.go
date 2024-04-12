@@ -1,6 +1,7 @@
 package offline
 
 import (
+	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/manga"
@@ -63,3 +64,13 @@ type (
 		CompletedAt string                  `json:"completedAt"`
 	}
 )
+
+func (a *AnimeEntry) Marshal() (data []byte) {
+	data, _ = json.Marshal(a)
+	return
+}
+
+func (a *MangaEntry) Marshal() (data []byte) {
+	data, _ = json.Marshal(a)
+	return
+}

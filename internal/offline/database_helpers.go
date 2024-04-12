@@ -1,5 +1,7 @@
 package offline
 
+import "github.com/goccy/go-json"
+
 func (db *database) HasSnapshots() bool {
 	var count int64
 	db.gormdb.Model(&SnapshotEntry{}).Count(&count)
@@ -107,4 +109,18 @@ func (db *database) GetSnapshotMediaEntries(snapshotItemId uint) ([]*SnapshotMed
 
 func (db *database) DeleteSnapshotMediaEntries(snapshotItemId uint) error {
 	return db.gormdb.Where("snapshot_item_id = ?", snapshotItemId).Delete(&SnapshotMediaEntry{}).Error
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (sme *SnapshotMediaEntry) GetAnimeEntry() *AnimeEntry {
+	var entry *AnimeEntry
+	_ = json.Unmarshal(sme.Value, &entry)
+	return entry
+}
+
+func (sme *SnapshotMediaEntry) GetMangaEntry() *MangaEntry {
+	var entry *MangaEntry
+	_ = json.Unmarshal(sme.Value, &entry)
+	return entry
 }

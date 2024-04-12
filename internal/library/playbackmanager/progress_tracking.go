@@ -218,6 +218,17 @@ func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, loc
 
 	defer util.HandlePanicInModuleWithError("playbackmanager/updateProgress", &err)
 
+	//
+	// Offline
+	//
+	if pm.isOffline {
+		return pm.updateProgressOffline(listEntry, localFile)
+	}
+
+	//
+	// Online
+	//
+
 	mediaId := listEntry.GetMedia().GetID()
 	epNum := localFile.GetEpisodeNumber()
 	totalEpisodes := listEntry.GetMedia().GetTotalEpisodeCount()
@@ -269,4 +280,27 @@ func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, loc
 	}()
 
 	return nil
+}
+
+func (pm *PlaybackManager) updateProgressOffline(listEntry *anilist.MediaListEntry, localFile *entities.LocalFile) (err error) {
+
+	mediaId := listEntry.GetMedia().GetID()
+	epNum := localFile.GetEpisodeNumber()
+	totalEpisodes := listEntry.GetMedia().GetTotalEpisodeCount()
+
+	totalEp := 0
+	if totalEpisodes != 0 && totalEpisodes > 0 {
+		totalEp = totalEpisodes
+	}
+
+	status := anilist.MediaListStatusCurrent
+	if totalEp > 0 && epNum >= totalEp {
+		status = anilist.MediaListStatusCompleted
+	}
+
+	if totalEp > 0 && epNum > totalEp {
+		epNum = totalEp
+	}
+
+	return pm.offlineHub.UpdateAnimeListStatus(mediaId, epNum, status)
 }

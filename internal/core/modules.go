@@ -41,6 +41,8 @@ func (a *App) initModulesOnce() {
 			_, _ = a.RefreshAnilistCollection()
 		},
 		DiscordPresence: a.DiscordPresence,
+		IsOffline:       a.IsOffline(),
+		OfflineHub:      a.OfflineHub,
 	})
 
 	// Auto downloader

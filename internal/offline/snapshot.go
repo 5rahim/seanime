@@ -256,9 +256,9 @@ func (h *Hub) GetLatestSnapshotEntry() (snapshotEntry *SnapshotEntry, err error)
 	return h.offlineDb.GetLatestSnapshot()
 }
 
-func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
+func (h *Hub) GetLatestSnapshot(bypassCache bool) (snapshot *Snapshot, err error) {
 
-	if h.currentSnapshot != nil {
+	if h.currentSnapshot != nil && !bypassCache {
 		return h.currentSnapshot, nil
 	}
 

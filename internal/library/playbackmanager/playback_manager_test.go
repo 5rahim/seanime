@@ -39,5 +39,6 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 		RefreshAnilistCollectionFunc: func() {
 			// Do nothing
 		},
+		IsOffline: false,
 	}), anilistClientWrapper, anilistCollection, nil
 }
