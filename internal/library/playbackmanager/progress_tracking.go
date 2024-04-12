@@ -5,9 +5,8 @@ import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/mal"
-	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
+	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/util"
 )
@@ -61,12 +60,12 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				go pm.playlistHub.onVideoStart(pm.currentMediaListEntry, pm.currentLocalFile, pm.anilistCollection, _ps)
 
 				// ------- Discord ------- //
-				if pm.discordPresence != nil {
+				if pm.discordPresence != nil && !pm.isOffline {
 					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
 						Title:         pm.currentMediaListEntry.GetMedia().GetPreferredTitle(),
 						Image:         pm.currentMediaListEntry.GetMedia().GetCoverImageSafe(),
 						IsMovie:       pm.currentMediaListEntry.GetMedia().IsMovie(),
-						EpisodeNumber: pm.currentLocalFile.GetEpisodeNumber(),
+						EpisodeNumber: pm.currentLocalFileWrapperEntry.GetProgressNumber(pm.currentLocalFile),
 					})
 				}
 
@@ -105,7 +104,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				go pm.playlistHub.onTrackingStopped()
 
 				// ------- Discord ------- //
-				if pm.discordPresence != nil {
+				if pm.discordPresence != nil && !pm.isOffline {
 					go pm.discordPresence.Close()
 				}
 
@@ -164,10 +163,14 @@ func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) 
 // autoSyncCurrentProgress syncs the current video playback progress with providers.
 // This is called once when a "video complete" event is heard.
 func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
+	if pm.currentLocalFile == nil || pm.currentMediaListEntry == nil {
+		return
+	}
+
 	if shouldUpdate, err := pm.Database.AutoUpdateProgressIsEnabled(); err == nil && shouldUpdate {
 		// Update the progress on AniList
 		pm.Logger.Debug().Msg("playback manager: Updating progress on AniList")
-		err := pm.updateProgress(pm.currentMediaListEntry, pm.currentLocalFile)
+		err := pm.updateProgress()
 
 		if err != nil {
 			_ps.ProgressUpdated = false
@@ -191,7 +194,7 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 		return errors.New("no video is being watched")
 	}
 
-	err := pm.updateProgress(pm.currentMediaListEntry, pm.currentLocalFile)
+	err := pm.updateProgress()
 	if err != nil {
 		pm.eventMu.Unlock()
 		return err
@@ -214,7 +217,7 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 // updateProgress updates the progress of the current video playback on AniList and MyAnimeList.
 // This only returns an error if the progress update fails on AniList
 //   - /!\ When this is called, the PlaybackState should have been pushed to the history
-func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, localFile *entities.LocalFile) (err error) {
+func (pm *PlaybackManager) updateProgress() (err error) {
 
 	defer util.HandlePanicInModuleWithError("playbackmanager/updateProgress", &err)
 
@@ -222,16 +225,16 @@ func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, loc
 	// Offline
 	//
 	if pm.isOffline {
-		return pm.updateProgressOffline(listEntry, localFile)
+		return pm.updateProgressOffline()
 	}
 
 	//
 	// Online
 	//
 
-	mediaId := listEntry.GetMedia().GetID()
-	epNum := localFile.GetEpisodeNumber()
-	totalEpisodes := listEntry.GetMedia().GetTotalEpisodeCount()
+	mediaId := pm.currentMediaListEntry.GetMedia().GetID()
+	epNum := pm.currentLocalFileWrapperEntry.GetProgressNumber(pm.currentLocalFile)
+	totalEpisodes := pm.currentMediaListEntry.GetMedia().GetTotalEpisodeCount()
 
 	// Update the progress on AniList
 	err = pm.anilistClientWrapper.UpdateMediaListEntryProgress(
@@ -251,7 +254,7 @@ func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, loc
 
 	go func() {
 		defer util.HandlePanicThen(func() {})
-		malId := listEntry.GetMedia().GetIDMal()
+		malId := pm.currentMediaListEntry.GetMedia().GetIDMal()
 		if malId != nil {
 			// Update the progress on MAL if an account is linked
 			malInfo, _ := pm.Database.GetMalInfo()
@@ -282,11 +285,11 @@ func (pm *PlaybackManager) updateProgress(listEntry *anilist.MediaListEntry, loc
 	return nil
 }
 
-func (pm *PlaybackManager) updateProgressOffline(listEntry *anilist.MediaListEntry, localFile *entities.LocalFile) (err error) {
+func (pm *PlaybackManager) updateProgressOffline() (err error) {
 
-	mediaId := listEntry.GetMedia().GetID()
-	epNum := localFile.GetEpisodeNumber()
-	totalEpisodes := listEntry.GetMedia().GetTotalEpisodeCount()
+	mediaId := pm.currentMediaListEntry.GetMedia().GetID()
+	epNum := pm.currentLocalFileWrapperEntry.GetProgressNumber(pm.currentLocalFile)
+	totalEpisodes := pm.currentMediaListEntry.GetMedia().GetTotalEpisodeCount()
 
 	totalEp := 0
 	if totalEpisodes != 0 && totalEpisodes > 0 {

@@ -147,6 +147,27 @@ func (e *LocalFileWrapperEntry) FindNextEpisode(lf *LocalFile) (*LocalFile, bool
 	return next, true
 }
 
+// GetProgressNumber returns the progress number of a **main** local file.
+func (e *LocalFileWrapperEntry) GetProgressNumber(lf *LocalFile) int {
+	lfs, ok := e.GetMainLocalFiles()
+	if !ok {
+		return 0
+	}
+	var hasEpZero bool
+	for _, l := range lfs {
+		if l.GetEpisodeNumber() == 0 {
+			hasEpZero = true
+			break
+		}
+	}
+
+	if hasEpZero {
+		return lf.GetEpisodeNumber() + 1
+	}
+
+	return lf.GetEpisodeNumber()
+}
+
 func (lfw *LocalFileWrapper) GetUnmatchedLocalFiles() []*LocalFile {
 	return lfw.unmatchedLocalFiles
 }
