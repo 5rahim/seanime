@@ -11,22 +11,26 @@ type JobCtx struct {
 
 func RunJobs(app *core.App) {
 
-	ctx := &JobCtx{
-		App: app,
-	}
+	// Run the jobs only if the server is online
+	if !app.IsOffline() {
 
-	refreshAnilistTicker := time.NewTicker(10 * time.Minute)
-	refetchReleaseTicker := time.NewTicker(1 * time.Hour)
-
-	go func() {
-		for {
-			select {
-			case <-refreshAnilistTicker.C:
-				RefreshAnilistCollectionJob(ctx)
-			case <-refetchReleaseTicker.C:
-				app.Updater.ShouldRefetchReleases()
-			}
+		ctx := &JobCtx{
+			App: app,
 		}
-	}()
 
+		refreshAnilistTicker := time.NewTicker(10 * time.Minute)
+		refetchReleaseTicker := time.NewTicker(1 * time.Hour)
+
+		go func() {
+			for {
+				select {
+				case <-refreshAnilistTicker.C:
+					RefreshAnilistCollectionJob(ctx)
+				case <-refetchReleaseTicker.C:
+					app.Updater.ShouldRefetchReleases()
+				}
+			}
+		}()
+
+	}
 }

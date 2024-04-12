@@ -86,6 +86,10 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 			return err
 		}
 
+		if listEntry.GetStatus() == nil {
+			continue
+		}
+
 		_mediaEntry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
 			MediaId:              lfEntry.GetMediaId(),
 			LocalFiles:           lfs,
@@ -106,21 +110,20 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 			episode.BasicMedia = nil
 		}
 
-		shouldDownloadAssets := slices.Contains(opts.DownloadAssetsOf, lfEntry.GetMediaId())
-
 		// Create the AnimeEntry
 		animeEntry := &AnimeEntry{
 			MediaId: lfEntry.GetMediaId(),
 			ListData: &ListData{
 				Score:       *listEntry.GetScore(),
-				Status:      anilistStatusToEntryStatus(listEntry.GetStatus()),
+				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
 				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
 				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
 			},
-			Media:            listEntry.GetMedia(),
-			Episodes:         mediaEpisodes,
-			DownloadedAssets: shouldDownloadAssets,
+			Media:    listEntry.GetMedia(),
+			Episodes: mediaEpisodes,
+			//DownloadedAssets: slices.Contains(opts.DownloadAssetsOf, lfEntry.GetMediaId()),
+			DownloadedAssets: true,
 		}
 
 		// Add the AnimeEntry
@@ -151,19 +154,24 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 			return err
 		}
 
+		if listEntry.GetStatus() == nil {
+			continue
+		}
+
 		// Create the MangaEntry
 		mangaEntry := &MangaEntry{
 			MediaId: container.MediaId,
 			ListData: &ListData{
 				Score:       *listEntry.GetScore(),
-				Status:      anilistStatusToEntryStatus(listEntry.GetStatus()),
+				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
 				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
 				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
 			},
 			Media:            listEntry.GetMedia(),
 			ChapterContainer: container,
-			DownloadedAssets: slices.Contains(opts.DownloadAssetsOf, container.MediaId),
+			//DownloadedAssets: slices.Contains(opts.DownloadAssetsOf, container.MediaId),
+			DownloadedAssets: true,
 		}
 
 		// Add the MangaEntry
@@ -175,7 +183,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	//
 	// DownloadAssets
 	//
-	assetMap, err := h.assetsHandler.DownloadAssets(animeEntries, mangaEntries, opts.DownloadAssetsOf)
+	assetMap, err := h.assetsHandler.DownloadAssets(animeEntries, mangaEntries, user, opts.DownloadAssetsOf)
 	if err != nil {
 		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to download assets")
 		return err
@@ -250,6 +258,10 @@ func (h *Hub) GetLatestSnapshotEntry() (snapshotEntry *SnapshotEntry, err error)
 
 func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
 
+	if h.currentSnapshot != nil {
+		return h.currentSnapshot, nil
+	}
+
 	h.logger.Debug().Msg("offline hub: Getting latest snapshot")
 
 	snapshot = &Snapshot{
@@ -259,7 +271,7 @@ func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
 			MangaEntries: make([]*MangaEntry, 0),
 		},
 		Collections: &Collections{},
-		AssetMap:    new(AssetMap),
+		AssetMap:    new(AssetMapImageMap),
 	}
 
 	snapshotEntry, err := h.offlineDb.GetLatestSnapshot()
@@ -320,6 +332,8 @@ func (h *Hub) GetLatestSnapshot() (snapshot *Snapshot, err error) {
 	}
 
 	h.logger.Info().Msg("offline hub: Retrieved latest snapshot")
+
+	h.currentSnapshot = snapshot
 
 	return snapshot, nil
 }

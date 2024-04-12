@@ -3,65 +3,45 @@ import { ProgressTracking } from "@/app/(main)/(library)/_containers/playback-ma
 import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scanner/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
-import { useAnilistCollectionListener } from "@/app/(main)/_loaders/anilist-collection"
-import { useAnilistUserMediaLoader } from "@/app/(main)/_loaders/anilist-user-media"
-import { useLibraryCollectionLoader } from "@/app/(main)/_loaders/library-collection"
-import { useMangaListener } from "@/app/(main)/_loaders/manga.listeners"
-import { useListenToAutoDownloaderItems } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
-import { useListenToMissingEpisodes } from "@/atoms/missing-episodes"
-import { useWebsocketMessageListener } from "@/atoms/websocket"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
 import { LibraryWatcher } from "@/components/application/library-watcher"
 import { MainLayout } from "@/components/application/main-layout"
+import { OfflineLayout } from "@/components/application/offline-layout"
 import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
 import { TopNavbar } from "@/components/application/top-navbar"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
-import { WSEvents } from "@/lib/server/endpoints"
+import { useAtomValue } from "jotai"
 import React from "react"
-import { toast } from "sonner"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 
-    useLibraryCollectionLoader()
-    useListenToMissingEpisodes()
-    useListenToAutoDownloaderItems()
-    useAnilistUserMediaLoader()
-    useAnilistCollectionListener()
-    useMangaListener()
+    const serverStatus = useAtomValue(serverStatusAtom)
 
-    useWebsocketMessageListener<string>({
-        type: WSEvents.INFO_TOAST, onMessage: data => {
-            if (!!data) {
-                toast.info(data)
-            }
-        },
-    })
+    if (serverStatus?.isOffline) {
+        return (
+            <OfflineLayout>
+                <div className="min-h-screen">
+                    <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
+                        <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
+                            <div className="flex items-center w-full gap-2">
+                                <AppSidebarTrigger />
+                                {/*<TopNavbar />*/}
+                                <ProgressTracking />
+                            </div>
+                        </div>
+                        <DynamicHeaderBackground />
+                    </div>
 
-    useWebsocketMessageListener<string>({
-        type: WSEvents.SUCCESS_TOAST, onMessage: data => {
-            if (!!data) {
-                toast.success(data)
-            }
-        },
-    })
-
-    useWebsocketMessageListener<string>({
-        type: WSEvents.WARNING_TOAST, onMessage: data => {
-            if (!!data) {
-                toast.warning(data)
-            }
-        },
-    })
-
-    useWebsocketMessageListener<string>({
-        type: WSEvents.ERROR_TOAST, onMessage: data => {
-            if (!!data) {
-                toast.error(data)
-            }
-        },
-    })
+                    <div>
+                        {children}
+                    </div>
+                </div>
+            </OfflineLayout>
+        )
+    }
 
     return (
         <MainLayout>

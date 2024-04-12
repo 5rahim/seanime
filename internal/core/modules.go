@@ -232,7 +232,9 @@ func (a *App) InitOrRefreshModules() {
 	// |       AniList       |
 	// +---------------------+
 
-	a.initAnilistData()
+	if !a.IsOffline() {
+		a.initAnilistData()
+	}
 
 	a.Logger.Info().Msg("app: Initialized modules")
 

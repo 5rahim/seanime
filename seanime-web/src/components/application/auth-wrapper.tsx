@@ -8,12 +8,11 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
-
 import { ServerStatus } from "@/lib/types/server-status.types"
 import { useAtom } from "jotai/react"
 import Cookies from "js-cookie"
 import { usePathname, useRouter } from "next/navigation"
-import React, { useEffect } from "react"
+import React from "react"
 
 type AuthWrapperProps = {
     children?: React.ReactNode
@@ -31,7 +30,7 @@ export function AuthWrapper(props: AuthWrapperProps) {
         queryKey: ["status"],
     })
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (!isLoading) {
             if (data?.user) {
                 Cookies.set("anilistToken", data?.user?.token ?? "", {

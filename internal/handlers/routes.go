@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/util"
+	"strings"
 	"sync"
 )
 
@@ -36,6 +37,27 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")
+
+	if app.IsOffline() {
+		v1.Use(func(c *fiber.Ctx) error {
+			uriS := strings.Split(c.Request().URI().String(), "v1")
+			if len(uriS) > 1 {
+				if strings.HasPrefix(uriS[1], "/offline") ||
+					strings.HasPrefix(uriS[1], "/settings") ||
+					strings.HasPrefix(uriS[1], "/theme") ||
+					strings.HasPrefix(uriS[1], "/status") ||
+					strings.HasPrefix(uriS[1], "/playback-manager") ||
+					strings.HasPrefix(uriS[1], "/playlists") ||
+					strings.HasPrefix(uriS[1], "/directory-selector") ||
+					strings.HasPrefix(uriS[1], "/open-in-explorer") {
+					return c.Next()
+				} else {
+					return c.Status(200).SendString("offline")
+				}
+			}
+			return c.Next()
+		})
+	}
 
 	//
 	// General
@@ -309,6 +331,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1.Get("/offline/snapshot", makeHandler(app, HandleGetOfflineSnapshot))
+	v1.Get("/offline/snapshot-entry", makeHandler(app, HandleGetOfflineSnapshotEntry))
 	v1.Post("/offline/snapshot", makeHandler(app, HandleCreateOfflineSnapshot))
 
 	//

@@ -11,6 +11,7 @@ export type ServerStatus = {
     mal: MalInfo | null
     version: string
     themeSettings?: ThemeSettings | null
+    isOffline: boolean
 }
 
 export type MalInfo = {

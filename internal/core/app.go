@@ -241,10 +241,17 @@ func NewFiberApp(app *App) *fiber.App {
 		Compress: false,
 	})
 
-	// DEVNOTE: SHELVED
 	if app.Config.Manga.DownloadDir != "" {
 		app.Logger.Info().Msgf("app: Manga downloads path: %s", app.Config.Manga.DownloadDir)
 		fiberApp.Static("/manga-downloads", app.Config.Manga.DownloadDir, fiber.Static{
+			Index:    "index.html",
+			Compress: false,
+		})
+	}
+
+	if app.IsOffline() {
+		app.Logger.Info().Msgf("app: Offline assets path: %s", app.Config.Offline.AssetDir)
+		fiberApp.Static("/offline-assets", app.Config.Offline.AssetDir, fiber.Static{
 			Index:    "index.html",
 			Compress: false,
 		})

@@ -6,26 +6,15 @@ import (
 	"github.com/seanime-app/seanime/internal/manga"
 )
 
-const (
-	EntryStatusCurrent   EntryStatus = "current"
-	EntryStatusPlanned   EntryStatus = "planned"
-	EntryStatusCompleted EntryStatus = "completed"
-	EntryStatusDropped   EntryStatus = "dropped"
-	EntryStatusPaused    EntryStatus = "paused"
-)
-
 type (
-	EntryStatus string
-
 	Snapshot struct {
-		DbId        uint           `json:"dbId"`
-		User        *entities.User `json:"user"`
-		Entries     *Entries       `json:"entries"`
-		Collections *Collections   `json:"libraryCollections"`
-		AssetMap    *AssetMap      `json:"assetMap"` // Key MediaId, Value: [Key: URL, Value: Local path]
+		DbId        uint              `json:"dbId"`
+		User        *entities.User    `json:"user"`
+		Entries     *Entries          `json:"entries"`
+		Collections *Collections      `json:"libraryCollections"`
+		AssetMap    *AssetMapImageMap `json:"assetMap"` // Key MediaId, Value: [Key: URL, Value: Local path]
 	}
 
-	AssetMap         map[int]AssetMapImageMap
 	AssetMapImageMap map[string]string
 
 	// Collections is a snapshot of the user's AniList collections.
@@ -67,27 +56,10 @@ type (
 	}
 
 	ListData struct {
-		Score       float64     `json:"score"`
-		Status      EntryStatus `json:"status"`
-		Progress    int         `json:"progress"`
-		StartedAt   string      `json:"startedAt"`
-		CompletedAt string      `json:"completedAt"`
+		Score       float64                 `json:"score"`
+		Status      anilist.MediaListStatus `json:"status"`
+		Progress    int                     `json:"progress"`
+		StartedAt   string                  `json:"startedAt"`
+		CompletedAt string                  `json:"completedAt"`
 	}
 )
-
-func anilistStatusToEntryStatus(as *anilist.MediaListStatus) EntryStatus {
-	switch *as {
-	case anilist.MediaListStatusCurrent:
-		return EntryStatusCurrent
-	case anilist.MediaListStatusPlanning:
-		return EntryStatusPlanned
-	case anilist.MediaListStatusCompleted:
-		return EntryStatusCompleted
-	case anilist.MediaListStatusDropped:
-		return EntryStatusDropped
-	case anilist.MediaListStatusPaused:
-		return EntryStatusPaused
-	default:
-		return EntryStatusPlanned
-	}
-}

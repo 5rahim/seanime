@@ -40,7 +40,7 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 		}
 
 		c.App.WSEventManager.SendEvent(events.InfoToast, "Offline snapshot created successfully")
-		c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, nil)
+		c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, true)
 	}()
 
 	return c.RespondWithData(true)
@@ -50,6 +50,17 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 //
 //	GET /api/offline/snapshot
 func HandleGetOfflineSnapshot(c *RouteCtx) error {
-	snapshot, _ := c.App.OfflineHub.GetLatestSnapshotEntry()
+	snapshot, _ := c.App.OfflineHub.GetLatestSnapshot()
 	return c.RespondWithData(snapshot)
+}
+
+// HandleGetOfflineSnapshotEntry
+//
+//	GET /api/offline/snapshot-entry
+func HandleGetOfflineSnapshotEntry(c *RouteCtx) error {
+	entry, _ := c.App.OfflineHub.GetLatestSnapshotEntry()
+	if entry != nil {
+		entry.Collections = nil
+	}
+	return c.RespondWithData(entry)
 }

@@ -1,6 +1,6 @@
 "use client"
 import { SnapshotAnimeSelector } from "@/app/(main)/offline-mode/_components/snapshot-anime-selector"
-import { useOfflineSnapshot } from "@/app/(main)/offline-mode/_lib/offline-mode.hooks"
+import { useOfflineSnapshotEntry } from "@/app/(main)/offline-mode/_lib/offline-mode.hooks"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ export default function Page() {
         snapshot,
         isLoading,
         isCreating,
-    } = useOfflineSnapshot()
+    } = useOfflineSnapshotEntry()
 
     return (
         <PageWrapper

@@ -8,6 +8,10 @@ import (
 	"github.com/seanime-app/seanime/internal/database/models"
 )
 
+func (a *App) IsOffline() bool {
+	return a.Config.Server.Offline
+}
+
 // GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
 // When bypassCache is true, it will always query Anilist for the user's collection
 func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {

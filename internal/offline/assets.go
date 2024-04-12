@@ -2,8 +2,8 @@ package offline
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/util/image_downloader"
-	"slices"
 	"sync"
 	"time"
 )
@@ -25,21 +25,44 @@ func newAssetsHandler(logger *zerolog.Logger, imageDownloader *image_downloader.
 func (h *assetsHandler) DownloadAssets(
 	animeEntries []*AnimeEntry,
 	mangaEntries []*MangaEntry,
+	user *entities.User,
 	ids []int, // Media to download assets for
-) (ret *AssetMap, err error) {
+) (ret *AssetMapImageMap, err error) {
 
 	h.imageDownloader.DeleteDownloads()
 
-	ret = &AssetMap{}
+	ret = &AssetMapImageMap{}
 	mu := sync.Mutex{}
 	cancelCh := make(chan struct{})
 	errCh := make(chan error)
 
+	userAvatarUrls := make([]string, 0)
+	if user.Viewer.GetAvatar().GetLarge() != nil {
+		userAvatarUrls = append(userAvatarUrls, *user.Viewer.GetAvatar().GetLarge())
+	}
+	if user.Viewer.GetAvatar().GetMedium() != nil {
+		userAvatarUrls = append(userAvatarUrls, *user.Viewer.GetAvatar().GetMedium())
+	}
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_ = h.imageDownloader.DownloadImages(userAvatarUrls)
+		imageMap, err := h.imageDownloader.GetImageFilenamesByUrls(userAvatarUrls)
+		if err == nil {
+			for url, filename := range imageMap {
+				(*ret)[url] = filename
+			}
+		}
+	}()
+	wg.Wait()
+
 	wg1 := sync.WaitGroup{}
 	for _, animeEntry := range animeEntries {
-		if !slices.Contains(ids, animeEntry.MediaId) {
-			continue
-		}
+		//if !slices.Contains(ids, animeEntry.MediaId) {
+		//	continue
+		//}
 
 		wg1.Add(1)
 		go func(entry *AnimeEntry) {
@@ -57,7 +80,9 @@ func (h *assetsHandler) DownloadAssets(
 				}
 
 				mu.Lock()
-				(*ret)[entry.MediaId] = assetMap
+				for url, filename := range assetMap {
+					(*ret)[url] = filename
+				}
 				mu.Unlock()
 			}
 		}(animeEntry)
@@ -65,9 +90,9 @@ func (h *assetsHandler) DownloadAssets(
 
 	wg2 := sync.WaitGroup{}
 	for _, mangaEntry := range mangaEntries {
-		if !slices.Contains(ids, mangaEntry.MediaId) {
-			continue
-		}
+		//if !slices.Contains(ids, mangaEntry.MediaId) {
+		//	continue
+		//}
 
 		wg2.Add(1)
 		go func(entry *MangaEntry) {
@@ -85,7 +110,9 @@ func (h *assetsHandler) DownloadAssets(
 				}
 
 				mu.Lock()
-				(*ret)[entry.MediaId] = assetMap
+				for url, filename := range assetMap {
+					(*ret)[url] = filename
+				}
 				mu.Unlock()
 			}
 		}(mangaEntry)

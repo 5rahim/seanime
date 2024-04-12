@@ -59,10 +59,9 @@ func (db *database) DeleteSnapshot(id uint) error {
 	return err
 }
 
-func (db *database) GetLatestSnapshot() (*SnapshotEntry, error) {
-	var snapshot SnapshotEntry
-	err := db.gormdb.Last(&snapshot).Error
-	return &snapshot, err
+func (db *database) GetLatestSnapshot() (snapshot *SnapshotEntry, err error) {
+	err = db.gormdb.Last(&snapshot).Error
+	return
 }
 
 //

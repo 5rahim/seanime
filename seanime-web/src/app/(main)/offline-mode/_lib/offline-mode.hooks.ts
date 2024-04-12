@@ -8,12 +8,12 @@ type CreateOfflineSnapshot_QueryVariables = {
     animeMediaIds: number[]
 }
 
-export type OfflineSnapshot = {
+export type OfflineSnapshotEntry = {
     id: number
     createdAt: string
 }
 
-export function useOfflineSnapshot() {
+export function useOfflineSnapshotEntry() {
     const qc = useQueryClient()
 
     const { mutate, isPending: isCreating } = useSeaMutation<void, CreateOfflineSnapshot_QueryVariables>({
@@ -24,15 +24,15 @@ export function useOfflineSnapshot() {
         },
     })
 
-    const { data, isLoading } = useSeaQuery<OfflineSnapshot>({
-        endpoint: SeaEndpoints.OFFLINE_SNAPSHOT,
-        queryKey: ["offline-snapshot"],
+    const { data, isLoading } = useSeaQuery<OfflineSnapshotEntry>({
+        endpoint: SeaEndpoints.OFFLINE_SNAPSHOT_ENTRY,
+        queryKey: ["get-offline-snapshot-entry"],
     })
 
     useWebsocketMessageListener({
         type: WSEvents.OFFLINE_SNAPSHOT_CREATED,
         onMessage: _ => {
-            qc.refetchQueries({ queryKey: ["offline-snapshot"] })
+            qc.refetchQueries({ queryKey: ["get-offline-snapshot-entry"] })
         },
     })
 

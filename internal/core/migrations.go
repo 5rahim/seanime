@@ -9,7 +9,12 @@ import (
 func (a *App) runMigrations() {
 
 	go func() {
-		defer a.Logger.Info().Msg("app: Version migration complete")
+		done := false
+		defer func() {
+			if done {
+				a.Logger.Info().Msg("app: Version migration complete")
+			}
+		}()
 		defer util.HandlePanicThen(func() {
 			a.Logger.Error().Msg("app: runMigrations failed")
 		})
@@ -27,6 +32,7 @@ func (a *App) runMigrations() {
 					a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
 					a.Logger.Error().Msg("app: Failed to remove 'manga' cache files, please clear them manually by going to the settings. Ignore this message if you have no manga cache files.")
 				}
+				done = true
 			}
 			if a.previousVersion == "1.3.0" && versionComp > 0 {
 				a.Logger.Debug().Msg("app: Executing version migration task")
@@ -37,6 +43,7 @@ func (a *App) runMigrations() {
 					a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
 					a.Logger.Error().Msg("app: Failed to remove 'manga' cache files, please clear them manually by going to the settings. Ignore this message if you have no manga cache files.")
 				}
+				done = true
 			}
 		}
 	}()

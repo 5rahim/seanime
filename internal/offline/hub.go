@@ -25,6 +25,8 @@ type (
 		offlineDir           string         // Contains database
 		assetDir             string         // Contains assets
 		isOffline            bool           // User enabled offline mode
+
+		currentSnapshot *Snapshot
 	}
 )
 
