@@ -4,7 +4,6 @@ import { OfflineAnimeLists } from "@/app/(main)/(offline)/offline/_components/of
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { OfflineMediaListAtom } from "@/components/shared/custom-ui/offline-media-list-item"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { useAtomValue } from "jotai"
 import React from "react"
@@ -20,14 +19,8 @@ export default function Page() {
     return (
         <>
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner />}
-            <PageWrapper
-                className="p-4 sm:p-8 pt-4 relative space-y-8"
-            >
-                <div className="space-y-6">
-                    <h2 className="text-center lg:text-left">Anime</h2>
 
-                    <OfflineAnimeLists />
-                </div>
+                <OfflineAnimeLists />
                 <div className="space-y-6">
                     <h2 className="text-center lg:text-left">Manga</h2>
 
@@ -49,7 +42,6 @@ export default function Page() {
                     </div>
                 </div>
 
-            </PageWrapper>
         </>
     )
 }
