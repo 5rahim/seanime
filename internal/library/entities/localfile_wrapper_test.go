@@ -105,6 +105,11 @@ func TestLocalFileWrapperEntryProgressNumber(t *testing.T) {
 			{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
 			{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
 		}),
+		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656_2, []MockHydratedLocalFileWrapperOptionsMetadata{
+			{metadataEpisode: 1, metadataAniDbEpisode: "S1", metadataType: LocalFileTypeMain},
+			{metadataEpisode: 2, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
+			{metadataEpisode: 3, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
+		}),
 	)
 
 	tests := []struct {
@@ -121,6 +126,14 @@ func TestLocalFileWrapperEntryProgressNumber(t *testing.T) {
 			expectedNbMainLocalFiles:          3,
 			expectedLatestEpisode:             2,
 			expectedEpisodeNumberAfterEpisode: []int{1, 2},
+			expectedProgressNumbers:           []int{1, 2, 3}, // S1 -> 1, 1 -> 2, 2 -> 3
+		},
+		{
+			name:                              "Kimi ni Todoke 2",
+			mediaId:                           9656_2,
+			expectedNbMainLocalFiles:          3,
+			expectedLatestEpisode:             3,
+			expectedEpisodeNumberAfterEpisode: []int{2, 3},
 			expectedProgressNumbers:           []int{1, 2, 3}, // S1 -> 1, 1 -> 2, 2 -> 3
 		},
 	}

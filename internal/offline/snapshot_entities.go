@@ -66,11 +66,11 @@ type (
 )
 
 func (a *AnimeEntry) Marshal() (data []byte) {
-	data, _ = json.Marshal(a)
+	data, _ = json.Marshal(*a)
 	return
 }
 
 func (a *MangaEntry) Marshal() (data []byte) {
-	data, _ = json.Marshal(a)
+	data, _ = json.Marshal(*a)
 	return
 }

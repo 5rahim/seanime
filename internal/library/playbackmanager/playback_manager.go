@@ -163,7 +163,7 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
 	if pm.isOffline && pm.anilistCollection == nil {
-		snapshot, found := pm.offlineHub.GetCurrentSnapshot()
+		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
 		if !found {
 			return errors.New("could not retrieve anime collection")
 		}
@@ -202,7 +202,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
 	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
 	if pm.isOffline && pm.anilistCollection == nil {
-		snapshot, found := pm.offlineHub.GetCurrentSnapshot()
+		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
 		if !found {
 			return errors.New("could not retrieve anime collection")
 		}

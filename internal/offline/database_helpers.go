@@ -1,6 +1,8 @@
 package offline
 
-import "github.com/goccy/go-json"
+import (
+	"github.com/goccy/go-json"
+)
 
 func (db *database) HasSnapshots() bool {
 	var count int64
@@ -87,14 +89,9 @@ func (db *database) GetSnapshotMediaEntry(mediaId int, snapshotItemId uint) (*Sn
 	return &entry, err
 }
 
-func (db *database) UpdateSnapshotMediaEntry(mediaId int, snapshotItemId uint, value []byte) (*SnapshotMediaEntry, error) {
-	entry := &SnapshotMediaEntry{
-		MediaId:        mediaId,
-		SnapshotItemId: snapshotItemId,
-		Value:          value,
-	}
-	err := db.gormdb.Model(&SnapshotMediaEntry{}).Where("media_id = ? AND snapshot_item_id = ?", mediaId, snapshotItemId).Updates(entry).Error
-	return entry, err
+func (db *database) UpdateSnapshotMediaEntryT(e *SnapshotMediaEntry) (*SnapshotMediaEntry, error) {
+	err := db.gormdb.Save(e).Error
+	return e, err
 }
 
 func (db *database) DeleteSnapshotMediaEntry(mediaId int, snapshotItemId uint) error {

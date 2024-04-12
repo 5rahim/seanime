@@ -10,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"github.com/seanime-app/seanime/internal/util/image_downloader"
 	"os"
+	"sync"
 )
 
 type (
@@ -27,6 +28,7 @@ type (
 		assetDir             string         // Contains assets
 		isOffline            bool           // User enabled offline mode
 
+		mu              sync.Mutex
 		currentSnapshot *Snapshot
 	}
 )
@@ -82,7 +84,25 @@ func NewHub(opts *NewHubOptions) *Hub {
 	}
 }
 
+func (h *Hub) RetrieveCurrentSnapshot() (ret *Snapshot, ok bool) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if h.currentSnapshot == nil {
+		// Refresh current snapshot
+		ret, err := h.GetLatestSnapshot(true)
+		if err != nil {
+			return nil, false
+		}
+		h.currentSnapshot = ret
+	}
+	return h.currentSnapshot, true
+}
+
 func (h *Hub) GetCurrentSnapshot() (ret *Snapshot, ok bool) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
 	if h.currentSnapshot == nil {
 		return nil, false
 	}
@@ -94,12 +114,17 @@ func (h *Hub) UpdateAnimeListStatus(
 	progress int,
 	status anilist.MediaListStatus,
 ) (err error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.logger.Debug().Int("progress", progress).Msg("offline hub: Updating anime list status")
 
 	if h.currentSnapshot == nil {
 		return errors.New("snapshot not found")
 	}
 
-	snapshotEntry, err := h.offlineDb.GetSnapshotMediaEntry(mediaId, h.currentSnapshot.DbId)
+	var snapshotEntry *SnapshotMediaEntry
+	snapshotEntry, err = h.offlineDb.GetSnapshotMediaEntry(mediaId, h.currentSnapshot.DbId)
 	if err != nil {
 		return err
 	}
@@ -112,7 +137,12 @@ func (h *Hub) UpdateAnimeListStatus(
 	animeEntry.ListData.Progress = progress
 	animeEntry.ListData.Status = status
 
-	_, err = h.offlineDb.UpdateSnapshotMediaEntry(mediaId, snapshotEntry.ID, animeEntry.Marshal())
+	snapshotEntry.Value = animeEntry.Marshal()
+
+	_, err = h.offlineDb.UpdateSnapshotMediaEntryT(snapshotEntry)
+	if err != nil {
+		return err
+	}
 
 	// Refresh current snapshot
 	ret, err := h.GetLatestSnapshot(true)
@@ -122,6 +152,8 @@ func (h *Hub) UpdateAnimeListStatus(
 
 	h.currentSnapshot = ret
 
+	h.logger.Info().Msg("offline hub: Updated anime list status")
+
 	return
 }
 
@@ -130,12 +162,17 @@ func (h *Hub) UpdateMangaListStatus(
 	progress int,
 	status anilist.MediaListStatus,
 ) (err error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.logger.Debug().Int("progress", progress).Msg("offline hub: Updating manga list status")
 
 	if h.currentSnapshot == nil {
 		return errors.New("snapshot not found")
 	}
 
-	snapshotEntry, err := h.offlineDb.GetSnapshotMediaEntry(mediaId, h.currentSnapshot.DbId)
+	var snapshotEntry *SnapshotMediaEntry
+	snapshotEntry, err = h.offlineDb.GetSnapshotMediaEntry(mediaId, h.currentSnapshot.DbId)
 	if err != nil {
 		return err
 	}
@@ -148,7 +185,12 @@ func (h *Hub) UpdateMangaListStatus(
 	mangaEntry.ListData.Progress = progress
 	mangaEntry.ListData.Status = status
 
-	_, err = h.offlineDb.UpdateSnapshotMediaEntry(mediaId, snapshotEntry.ID, mangaEntry.Marshal())
+	snapshotEntry.Value = mangaEntry.Marshal()
+
+	_, err = h.offlineDb.UpdateSnapshotMediaEntryT(snapshotEntry)
+	if err != nil {
+		return err
+	}
 
 	// Refresh current snapshot
 	ret, err := h.GetLatestSnapshot(true)
@@ -157,6 +199,8 @@ func (h *Hub) UpdateMangaListStatus(
 	}
 
 	h.currentSnapshot = ret
+
+	h.logger.Info().Msg("offline hub: Updated manga list status")
 
 	return
 

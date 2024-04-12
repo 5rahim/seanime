@@ -95,9 +95,13 @@ export function ProgressTracking() {
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATED,
         onMessage: data => {
             if (data) {
-                qc.refetchQueries({ queryKey: ["get-media-entry", data.mediaId] })
-                qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+                if (!serverStatus?.isOffline) {
+                    qc.refetchQueries({ queryKey: ["get-media-entry", data.mediaId] })
+                    qc.refetchQueries({ queryKey: ["get-library-collection"] })
+                    qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+                } else {
+                    qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
+                }
                 setState(data)
                 toast.success("Progress updated")
             }
@@ -116,9 +120,13 @@ export function ProgressTracking() {
         method: "post",
         mutationKey: ["playback-sync-current-progress"],
         onSuccess: async (mediaId: number | undefined) => {
-            qc.refetchQueries({ queryKey: ["get-media-entry", mediaId] })
-            qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            if (!serverStatus?.isOffline) {
+                qc.refetchQueries({ queryKey: ["get-media-entry", mediaId] })
+                qc.refetchQueries({ queryKey: ["get-library-collection"] })
+                qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+            } else {
+                qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
+            }
         },
     })
 
