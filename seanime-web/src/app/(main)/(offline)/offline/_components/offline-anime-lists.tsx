@@ -22,6 +22,7 @@ export function OfflineAnimeLists() {
                     return <OfflineMediaListAtom
                         key={entry.mediaId}
                         media={entry.media!}
+                        listData={entry.listData}
                         withAudienceScore={false}
                         assetMap={snapshot?.assetMap}
                     />

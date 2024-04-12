@@ -1,4 +1,5 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
+import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
 import { OfflineAssetMap, OfflineListData } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
@@ -22,11 +23,11 @@ import { VscVerified } from "react-icons/vsc"
 
 type OfflineMediaListItemProps = {
     media: BaseMediaFragment,
-    listData?: OfflineListData
+    listData: OfflineListData | undefined
     overlay?: React.ReactNode
     isManga?: boolean
     withAudienceScore?: boolean
-    assetMap?: OfflineAssetMap
+    assetMap: OfflineAssetMap | undefined
 } & {
     containerClassName?: string
 }
@@ -144,6 +145,12 @@ export const OfflineMediaListAtom = ((props: OfflineMediaListItemProps) => {
 
                     </div>
                     <div className="flex gap-2">
+
+                        <OfflineAnilistMediaEntryModal
+                            listData={listData}
+                            assetMap={assetMap}
+                            type={!isManga ? "anime" : "manga"}
+                        />
 
                         {withAudienceScore &&
                             <AnimeEntryAudienceScore
