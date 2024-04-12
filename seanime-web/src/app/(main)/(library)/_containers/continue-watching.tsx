@@ -14,9 +14,10 @@ import React, { useDeferredValue, useEffect } from "react"
 
 export const __libraryHeaderEpisodeAtom = atom<MediaEntryEpisode | null>(null)
 
-export function ContinueWatching({ list, isLoading }: {
+export function ContinueWatching({ list, isLoading, linkTemplate }: {
     list: MediaEntryEpisode[],
     isLoading: boolean
+    linkTemplate?: string
 }) {
 
     const ts = useThemeSettings()
@@ -118,6 +119,7 @@ export function ContinueWatching({ list, isLoading }: {
                                 key={episode.localFile?.path || ""}
                                 episode={episode}
                                 mRef={episodeRefs[idx]}
+                                overrideLink={linkTemplate}
                             />
                         </CarouselItem>
                     ))}
@@ -127,7 +129,11 @@ export function ContinueWatching({ list, isLoading }: {
     )
 }
 
-const EpisodeItem = React.memo(({ episode, mRef }: { episode: MediaEntryEpisode, mRef: React.RefObject<any> }) => {
+const EpisodeItem = React.memo(({ episode, mRef, overrideLink }: {
+    episode: MediaEntryEpisode,
+    mRef: React.RefObject<any>,
+    overrideLink?: string
+}) => {
     const router = useRouter()
     const setHeaderImage = useSetAtom(__libraryHeaderImageAtom)
     const setHeaderEpisode = useSetAtom(__libraryHeaderEpisodeAtom)
@@ -158,7 +164,11 @@ const EpisodeItem = React.memo(({ episode, mRef }: { episode: MediaEntryEpisode,
             }}
             ref={mRef}
             onClick={() => {
-                router.push(`/entry?id=${episode.basicMedia?.id}&playNext=true`)
+                if (!overrideLink) {
+                    router.push(`/entry?id=${episode.basicMedia?.id}&playNext=true`)
+                } else {
+                    router.push(overrideLink.replace("{id}", episode.basicMedia?.id ? String(episode.basicMedia.id) : ""))
+                }
             }}
         />
     )

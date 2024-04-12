@@ -10,6 +10,7 @@ import { DynamicHeaderBackground } from "@/components/application/dynamic-header
 import { LibraryWatcher } from "@/components/application/library-watcher"
 import { MainLayout } from "@/components/application/main-layout"
 import { OfflineLayout } from "@/components/application/offline-layout"
+import { OfflineTopNavbar } from "@/components/application/offline-top-navbar"
 import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
 import { TopNavbar } from "@/components/application/top-navbar"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
@@ -28,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
                             <div className="flex items-center w-full gap-2">
                                 <AppSidebarTrigger />
-                                {/*<TopNavbar />*/}
+                                <OfflineTopNavbar />
                                 <ProgressTracking />
                             </div>
                         </div>

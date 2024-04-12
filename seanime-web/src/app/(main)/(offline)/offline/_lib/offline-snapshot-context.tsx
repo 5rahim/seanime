@@ -1,18 +1,26 @@
 "use client"
 import { useGetOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.hooks"
-import { OfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import React from "react"
+import { undefined } from "zod"
 
-const __offlineSnapshotContext = React.createContext<OfflineSnapshot | undefined>(undefined)
+type OfflineSnapshotContextProps = ReturnType<typeof useGetOfflineSnapshot>
+
+const __offlineSnapshotContext = React.createContext<OfflineSnapshotContextProps>({
+    animeLists: {},
+    continueWatchingEpisodeList: [],
+    isLoading: true,
+    //@ts-expect-error
+    snapshot: undefined,
+})
 
 export function OfflineSnapshotProvider({ children }: { children?: React.ReactNode }) {
 
-    const { snapshot } = useGetOfflineSnapshot()
+    const opts = useGetOfflineSnapshot()
 
 
     return (
         <__offlineSnapshotContext.Provider
-            value={snapshot}
+            value={opts}
         >
             {children}
         </__offlineSnapshotContext.Provider>

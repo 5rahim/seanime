@@ -12,7 +12,7 @@ export default function Page() {
     const status = useAtomValue(serverStatusAtom)
     const ts = useThemeSettings()
 
-    const snapshot = useOfflineSnapshot()
+    const { snapshot } = useOfflineSnapshot()
 
     if (!snapshot) return null
 

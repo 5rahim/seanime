@@ -1,23 +1,26 @@
 "use client"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/components/ui/core/styling"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { useAtomValue } from "jotai"
 import { usePathname } from "next/navigation"
 import React from "react"
+import { FaBookReader } from "react-icons/fa"
 import { FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
 import { LuLayoutDashboard } from "react-icons/lu"
 
 
 export function OfflineSidebar() {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const ctx = useAppSidebarContext()
     const ts = useThemeSettings()
-    const snapshot = useOfflineSnapshot()
+    const { snapshot } = useOfflineSnapshot()
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
@@ -62,6 +65,12 @@ export function OfflineSidebar() {
                                 href: "/offline",
                                 isCurrent: pathname === "/offline",
                             },
+                            ...[serverStatus?.settings?.library?.enableManga && {
+                                iconType: FaBookReader,
+                                name: "Manga",
+                                href: "/offline/manga",
+                                isCurrent: pathname.startsWith("/offline/manga"),
+                            }].filter(Boolean) as any,
                         ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
