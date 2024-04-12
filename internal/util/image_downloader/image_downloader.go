@@ -40,6 +40,7 @@ type (
 		logger       *zerolog.Logger
 		downloadDir  string
 		registryPath string
+		mu           sync.Mutex
 	}
 	RegistryContent struct {
 		UrlToId map[string]string `json:"url_to_id"`
@@ -122,13 +123,12 @@ func (id *ImageDownloader) CancelDownload() {
 }
 
 func (id *ImageDownloader) GetImageFilenameByUrl(url string) (filename string, ok bool) {
+	id.mu.Lock()
+	defer id.mu.Unlock()
 
 	if err := id.registry.setup(); err != nil {
 		return
 	}
-
-	id.mu.Lock()
-	defer id.mu.Unlock()
 
 	var imgID string
 	imgID, ok = id.registry.content.UrlToId[url]
@@ -144,14 +144,14 @@ func (id *ImageDownloader) GetImageFilenameByUrl(url string) (filename string, o
 //
 //	e.g., {"url1": "filename1.png", "url2": "filename2.jpg"}
 func (id *ImageDownloader) GetImageFilenamesByUrls(urls []string) (ret map[string]string, err error) {
+	id.mu.Lock()
+	defer id.mu.Unlock()
+
 	ret = make(map[string]string)
 
 	if err = id.registry.setup(); err != nil {
 		return nil, err
 	}
-
-	id.mu.Lock()
-	defer id.mu.Unlock()
 
 	for _, url := range urls {
 		imgID, ok := id.registry.content.UrlToId[url]
@@ -165,13 +165,12 @@ func (id *ImageDownloader) GetImageFilenamesByUrls(urls []string) (ret map[strin
 }
 
 func (id *ImageDownloader) DeleteImagesByUrls(urls []string) (err error) {
+	id.mu.Lock()
+	defer id.mu.Unlock()
 
 	if err = id.registry.setup(); err != nil {
 		return
 	}
-
-	id.mu.Lock()
-	defer id.mu.Unlock()
 
 	for _, url := range urls {
 		imgID, ok := id.registry.content.UrlToId[url]
@@ -259,6 +258,8 @@ func (id *ImageDownloader) downloadImage(url string) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Registry) setup() (err error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	defer util.HandlePanicInModuleThen("util/image_downloader/setup", func() {
 		err = fmt.Errorf("image downloader: Failed to setup registry")
@@ -312,6 +313,8 @@ func (r *Registry) setup() (err error) {
 
 // save verifies and saves the registry content.
 func (r *Registry) save(urls []string) (err error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	defer util.HandlePanicInModuleThen("util/image_downloader/save", func() {
 		err = fmt.Errorf("image downloader: Failed to save registry content")

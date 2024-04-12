@@ -30,7 +30,8 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Manage your AniList collection (anime and manga)
   - Discover new anime, browse entries, get recommendations
 - ✈️ **Offline mode**
-  - Use Seanime without an internet connection
+  - Consume media in the ‘offline view’ with downloaded metadata and images
+  - Record your progress offline and sync when you’re online
 - 🔒 **No data collection**
 
 ### Anime
