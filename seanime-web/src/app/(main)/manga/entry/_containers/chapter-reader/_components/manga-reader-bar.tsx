@@ -234,7 +234,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                     )}
                 </p>
 
-                <ChapterReaderSettings />
+                <ChapterReaderSettings mediaId={entry.mediaId} />
             </div>
         </>
     )

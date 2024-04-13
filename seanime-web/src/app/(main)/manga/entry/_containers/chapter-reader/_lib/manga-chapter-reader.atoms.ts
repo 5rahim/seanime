@@ -9,30 +9,45 @@ export const __manga_paginationMapAtom = atom<Record<number, number[]>>({})
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const __manga_entryReaderSettings = atomWithStorage("sea-manga-entry-reader-settings", {})
+// e.g. { "mangaId": { "sea-manga-reading-mode": "long-stop" } }
+// DEVNOTE: change key by adding "-vx" when settings system changes
+export const __manga_entryReaderSettings = atomWithStorage<Record<string, Record<string, any>>>("sea-manga-entry-reader-settings", {})
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const MANGA_KBS = {
+export const MANGA_KBS_ATOM_KEYS = {
     kbsChapterLeft: "sea-manga-chapter-left",
     kbsChapterRight: "sea-manga-chapter-right",
     kbsPageLeft: "sea-manga-page-left",
     kbsPageRight: "sea-manga-page-right",
-
 }
 
 export const MANGA_DEFAULT_KBS = {
-    [MANGA_KBS.kbsChapterLeft]: "[",
-    [MANGA_KBS.kbsChapterRight]: "]",
-    [MANGA_KBS.kbsPageLeft]: "left",
-    [MANGA_KBS.kbsPageRight]: "right",
+    [MANGA_KBS_ATOM_KEYS.kbsChapterLeft]: "[",
+    [MANGA_KBS_ATOM_KEYS.kbsChapterRight]: "]",
+    [MANGA_KBS_ATOM_KEYS.kbsPageLeft]: "left",
+    [MANGA_KBS_ATOM_KEYS.kbsPageRight]: "right",
 }
 
 
-export const __manga_kbsChapterLeft = atomWithStorage(MANGA_KBS.kbsChapterLeft, MANGA_DEFAULT_KBS[MANGA_KBS.kbsChapterLeft])
-export const __manga_kbsChapterRight = atomWithStorage(MANGA_KBS.kbsChapterRight, MANGA_DEFAULT_KBS[MANGA_KBS.kbsChapterRight])
-export const __manga_kbsPageLeft = atomWithStorage(MANGA_KBS.kbsPageLeft, MANGA_DEFAULT_KBS[MANGA_KBS.kbsPageLeft])
-export const __manga_kbsPageRight = atomWithStorage(MANGA_KBS.kbsPageRight, MANGA_DEFAULT_KBS[MANGA_KBS.kbsPageRight])
+export const __manga_kbsChapterLeft = atomWithStorage(MANGA_KBS_ATOM_KEYS.kbsChapterLeft, MANGA_DEFAULT_KBS[MANGA_KBS_ATOM_KEYS.kbsChapterLeft])
+export const __manga_kbsChapterRight = atomWithStorage(MANGA_KBS_ATOM_KEYS.kbsChapterRight, MANGA_DEFAULT_KBS[MANGA_KBS_ATOM_KEYS.kbsChapterRight])
+export const __manga_kbsPageLeft = atomWithStorage(MANGA_KBS_ATOM_KEYS.kbsPageLeft, MANGA_DEFAULT_KBS[MANGA_KBS_ATOM_KEYS.kbsPageLeft])
+export const __manga_kbsPageRight = atomWithStorage(MANGA_KBS_ATOM_KEYS.kbsPageRight, MANGA_DEFAULT_KBS[MANGA_KBS_ATOM_KEYS.kbsPageRight])
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const MANGA_SETTINGS_ATOM_KEYS = {
+    readingMode: "sea-manga-reading-mode",
+    readingDirection: "sea-manga-reading-direction",
+    pageFit: "sea-manga-page-fit",
+    pageStretch: "sea-manga-page-stretch",
+    pageGap: "sea-manga-page-gap",
+    pageGapShadow: "sea-manga-page-gap-shadow",
+    doublePageOffset: "sea-manga-double-page-offset",
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +56,7 @@ export const MangaReadingDirection = {
     RTL: "rtl",
 }
 
-export const __manga_readingDirectionAtom = atomWithStorage<string>("sea-manga-reading-direction", MangaReadingDirection.LTR)
+export const __manga_readingDirectionAtom = atomWithStorage<string>(MANGA_SETTINGS_ATOM_KEYS.readingDirection, MangaReadingDirection.LTR)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +66,7 @@ export const MangaReadingMode = {
     DOUBLE_PAGE: "double-page",
 }
 
-export const __manga_readingModeAtom = atomWithStorage<string>("sea-manga-reading-mode", MangaReadingMode.LONG_STRIP)
+export const __manga_readingModeAtom = atomWithStorage<string>(MANGA_SETTINGS_ATOM_KEYS.readingMode, MangaReadingMode.LONG_STRIP)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +78,7 @@ export const MangaPageFit = {
 }
 
 
-export const __manga_pageFitAtom = atomWithStorage<string>("sea-manga-page-fit", MangaPageFit.CONTAIN)
+export const __manga_pageFitAtom = atomWithStorage<string>(MANGA_SETTINGS_ATOM_KEYS.pageFit, MangaPageFit.CONTAIN)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,14 +88,14 @@ export const MangaPageStretch = {
 }
 
 
-export const __manga_pageStretchAtom = atomWithStorage<string>("sea-manga-page-stretch", MangaPageStretch.NONE)
+export const __manga_pageStretchAtom = atomWithStorage<string>(MANGA_SETTINGS_ATOM_KEYS.pageStretch, MangaPageStretch.NONE)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const __manga_pageGapAtom = atomWithStorage<boolean>("sea-manga-page-gap", true)
+export const __manga_pageGapAtom = atomWithStorage<boolean>(MANGA_SETTINGS_ATOM_KEYS.pageGap, true)
 
-export const __manga_pageGapShadowAtom = atomWithStorage("sea-manga-page-gap-shadow", true)
+export const __manga_pageGapShadowAtom = atomWithStorage(MANGA_SETTINGS_ATOM_KEYS.pageGapShadow, true)
 
-export const __manga_doublePageOffsetAtom = atomWithStorage("sea-manga-double-page-offset", 0)
+export const __manga_doublePageOffsetAtom = atomWithStorage(MANGA_SETTINGS_ATOM_KEYS.doublePageOffset, 0)
 
 export const __manga_isLastPageAtom = atom(false)

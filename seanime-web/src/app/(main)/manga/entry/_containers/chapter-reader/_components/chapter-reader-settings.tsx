@@ -1,6 +1,7 @@
 "use client"
 import {
     __manga_doublePageOffsetAtom,
+    __manga_entryReaderSettings,
     __manga_kbsChapterLeft,
     __manga_kbsChapterRight,
     __manga_kbsPageLeft,
@@ -12,7 +13,8 @@ import {
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
     MANGA_DEFAULT_KBS,
-    MANGA_KBS,
+    MANGA_KBS_ATOM_KEYS,
+    MANGA_SETTINGS_ATOM_KEYS,
     MangaPageFit,
     MangaPageStretch,
     MangaReadingDirection,
@@ -38,7 +40,7 @@ import { useWindowSize } from "react-use"
 import { toast } from "sonner"
 
 export type ChapterReaderSettingsProps = {
-    children?: React.ReactNode
+    mediaId: number
 }
 
 const radioGroupClasses = {
@@ -134,7 +136,7 @@ const defaultSettings = {
 export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
     const {
-        children,
+        mediaId,
         ...rest
     } = props
 
@@ -145,6 +147,43 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     const [pageGap, setPageGap] = useAtom(__manga_pageGapAtom)
     const [pageGapShadow, setPageGapShadow] = useAtom(__manga_pageGapShadowAtom)
     const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
+
+    /**
+     * Remember settings for current media
+     */
+    const [entrySettings, setEntrySettings] = useAtom(__manga_entryReaderSettings)
+
+    const mounted = React.useRef(false)
+    React.useEffect(() => {
+        if (!mounted.current) {
+            if (entrySettings[mediaId]) {
+                const settings = entrySettings[mediaId]
+                setReadingDirection(settings[MANGA_SETTINGS_ATOM_KEYS.readingDirection])
+                setReadingMode(settings[MANGA_SETTINGS_ATOM_KEYS.readingMode])
+                setPageFit(settings[MANGA_SETTINGS_ATOM_KEYS.pageFit])
+                setPageStretch(settings[MANGA_SETTINGS_ATOM_KEYS.pageStretch])
+                setPageGap(settings[MANGA_SETTINGS_ATOM_KEYS.pageGap])
+                setPageGapShadow(settings[MANGA_SETTINGS_ATOM_KEYS.pageGapShadow])
+                setDoublePageOffset(settings[MANGA_SETTINGS_ATOM_KEYS.doublePageOffset])
+            }
+        }
+        mounted.current = true
+    }, [entrySettings[mediaId]])
+
+    React.useEffect(() => {
+        setEntrySettings(prev => ({
+            ...prev,
+            [mediaId]: {
+                [MANGA_SETTINGS_ATOM_KEYS.readingDirection]: readingDirection,
+                [MANGA_SETTINGS_ATOM_KEYS.readingMode]: readingMode,
+                [MANGA_SETTINGS_ATOM_KEYS.pageFit]: pageFit,
+                [MANGA_SETTINGS_ATOM_KEYS.pageStretch]: pageStretch,
+                [MANGA_SETTINGS_ATOM_KEYS.pageGap]: pageGap,
+                [MANGA_SETTINGS_ATOM_KEYS.pageGapShadow]: pageGapShadow,
+                [MANGA_SETTINGS_ATOM_KEYS.doublePageOffset]: doublePageOffset,
+            },
+        }))
+    }, [readingDirection, readingMode, pageFit, pageStretch, pageGap, pageGapShadow, doublePageOffset])
 
     const [kbsChapterLeft, setKbsChapterLeft] = useAtom(__manga_kbsChapterLeft)
     const [kbsChapterRight, setKbsChapterRight] = useAtom(__manga_kbsChapterRight)
@@ -157,29 +196,29 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
     const resetKeyDefault = React.useCallback((key: string) => {
         switch (key) {
-            case MANGA_KBS.kbsChapterLeft:
+            case MANGA_KBS_ATOM_KEYS.kbsChapterLeft:
                 setKbsChapterLeft(MANGA_DEFAULT_KBS[key])
                 break
-            case MANGA_KBS.kbsChapterRight:
+            case MANGA_KBS_ATOM_KEYS.kbsChapterRight:
                 setKbsChapterRight(MANGA_DEFAULT_KBS[key])
                 break
-            case MANGA_KBS.kbsPageLeft:
+            case MANGA_KBS_ATOM_KEYS.kbsPageLeft:
                 setKbsPageLeft(MANGA_DEFAULT_KBS[key])
                 break
-            case MANGA_KBS.kbsPageRight:
+            case MANGA_KBS_ATOM_KEYS.kbsPageRight:
                 setKbsPageRight(MANGA_DEFAULT_KBS[key])
                 break
         }
     }, [])
 
     const resetKbsDefaultIfConflict = (currentKey: string, value: string) => {
-        for (const key of Object.values(MANGA_KBS)) {
+        for (const key of Object.values(MANGA_KBS_ATOM_KEYS)) {
             if (key !== currentKey) {
                 const otherValue = {
-                    [MANGA_KBS.kbsChapterLeft]: kbsChapterLeft,
-                    [MANGA_KBS.kbsChapterRight]: kbsChapterRight,
-                    [MANGA_KBS.kbsPageLeft]: kbsPageLeft,
-                    [MANGA_KBS.kbsPageRight]: kbsPageRight,
+                    [MANGA_KBS_ATOM_KEYS.kbsChapterLeft]: kbsChapterLeft,
+                    [MANGA_KBS_ATOM_KEYS.kbsChapterRight]: kbsChapterRight,
+                    [MANGA_KBS_ATOM_KEYS.kbsPageLeft]: kbsPageLeft,
+                    [MANGA_KBS_ATOM_KEYS.kbsPageRight]: kbsPageRight,
                 }[key]
                 if (otherValue === value) {
                     resetKeyDefault(key)
@@ -204,10 +243,10 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 .replace("+", "plus")}`
 
             const kbsSetter = {
-                [MANGA_KBS.kbsChapterLeft]: setKbsChapterLeft,
-                [MANGA_KBS.kbsChapterRight]: setKbsChapterRight,
-                [MANGA_KBS.kbsPageLeft]: setKbsPageLeft,
-                [MANGA_KBS.kbsPageRight]: setKbsPageRight,
+                [MANGA_KBS_ATOM_KEYS.kbsChapterLeft]: setKbsChapterLeft,
+                [MANGA_KBS_ATOM_KEYS.kbsChapterRight]: setKbsChapterRight,
+                [MANGA_KBS_ATOM_KEYS.kbsPageLeft]: setKbsPageLeft,
+                [MANGA_KBS_ATOM_KEYS.kbsPageRight]: setKbsPageRight,
             }
 
             kbsSetter[kbs]?.(keyStr)
@@ -358,25 +397,25 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
                             {[
                                 {
-                                    key: MANGA_KBS.kbsChapterLeft,
+                                    key: MANGA_KBS_ATOM_KEYS.kbsChapterLeft,
                                     label: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
                                     value: kbsChapterLeft,
                                     // help: readingDirection === MangaReadingDirection.LTR ? "Previous chapter" : "Next chapter",
                                 },
                                 {
-                                    key: MANGA_KBS.kbsChapterRight,
+                                    key: MANGA_KBS_ATOM_KEYS.kbsChapterRight,
                                     label: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
                                     value: kbsChapterRight,
                                     // help: readingDirection === MangaReadingDirection.LTR ? "Next chapter" : "Previous chapter",
                                 },
                                 {
-                                    key: MANGA_KBS.kbsPageLeft,
+                                    key: MANGA_KBS_ATOM_KEYS.kbsPageLeft,
                                     label: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
                                     value: kbsPageLeft,
                                     // help: readingDirection === MangaReadingDirection.LTR ? "Previous page" : "Next page",
                                 },
                                 {
-                                    key: MANGA_KBS.kbsPageRight,
+                                    key: MANGA_KBS_ATOM_KEYS.kbsPageRight,
                                     label: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
                                     value: kbsPageRight,
                                     // help: readingDirection === MangaReadingDirection.LTR ? "Next page" : "Previous page",
