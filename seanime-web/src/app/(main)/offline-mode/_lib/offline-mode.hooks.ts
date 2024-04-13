@@ -27,6 +27,7 @@ export function useOfflineSnapshotEntry() {
     const { data, isLoading } = useSeaQuery<OfflineSnapshotEntry>({
         endpoint: SeaEndpoints.OFFLINE_SNAPSHOT_ENTRY,
         queryKey: ["get-offline-snapshot-entry"],
+        muteError: true,
     })
 
     useWebsocketMessageListener({

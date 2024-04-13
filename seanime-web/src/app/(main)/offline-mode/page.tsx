@@ -44,7 +44,7 @@ export default function Page() {
                     </p>
                 </div>
 
-                {!!snapshot && <ul className="[&>li]:flex [&>li]:items-center [&>li]:gap-1.5 [&>li]:truncate text-lg">
+                {!!snapshot?.id && <ul className="[&>li]:flex [&>li]:items-center [&>li]:gap-1.5 [&>li]:truncate text-lg">
                     <li><IoCloudOfflineOutline className="text-green-300 text-xl" /> Snapshot <span className="text-[--muted]">
                         ({format(snapshot.createdAt, "P HH:mm")})
                     </span>

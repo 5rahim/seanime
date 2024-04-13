@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -84,8 +85,7 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Referer", "https://google.com")
+	req.Header.Set("User-Agent", browser.Firefox())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -143,6 +143,8 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 		c.logger.Error().Err(err).Msg("comick: Failed to create request")
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
+
+	req.Header.Set("User-Agent", browser.Firefox())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -228,6 +230,8 @@ func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 		c.logger.Error().Err(err).Msg("comick: Failed to create request")
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
+
+	req.Header.Set("User-Agent", browser.Firefox())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {

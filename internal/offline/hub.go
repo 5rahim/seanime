@@ -339,11 +339,13 @@ func (h *Hub) SyncListData() {
 
 		updatedSnapshotEntries := make([]*SnapshotMediaEntry, 0)
 		for _, se := range snapshotEntries {
-			if se.CreatedAt.Equal(se.UpdatedAt) {
+			if se.CreatedAt == se.UpdatedAt {
 				continue
 			}
 			updatedSnapshotEntries = append(updatedSnapshotEntries, se)
 		}
+
+		_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
 
 		if len(updatedSnapshotEntries) == 0 {
 			return

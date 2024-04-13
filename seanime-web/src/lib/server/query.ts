@@ -75,6 +75,7 @@ type SeaQueryProps<TData, TParams> = UseQueryOptions<TData | undefined, SeaError
     method?: "post" | "get"
     params?: TParams
     data?: TParams
+    muteError?: boolean
 }
 
 export function useSeaQuery<TData, TParams = any>(
@@ -83,6 +84,7 @@ export function useSeaQuery<TData, TParams = any>(
         method = "get",
         params,
         data,
+        muteError,
         ...options
     }: SeaQueryProps<TData | undefined, TParams>): UseQueryResult<TData | undefined, SeaError> {
     const props = useQuery({
@@ -98,11 +100,11 @@ export function useSeaQuery<TData, TParams = any>(
     })
 
     useEffect(() => {
-        if (props.isError) {
+        if (!muteError && props.isError) {
             console.log("Sea error", props.error)
             toast.error(_handleSeaError(props.error?.response?.data))
         }
-    }, [props.error, props.isError])
+    }, [props.error, props.isError, muteError])
 
     return props
 }
