@@ -331,6 +331,14 @@ func (h *Hub) SyncListData() {
 			return
 		}
 
+		if snapshotItem == nil {
+			return
+		}
+
+		if snapshotItem.Synced {
+			return
+		}
+
 		snapshotEntries, err := h.offlineDb.GetSnapshotMediaEntries(snapshotItem.ID)
 		if err != nil {
 			h.logger.Error().Err(err).Msg("offline hub: READ! Failed to retrieve offline updates")
@@ -344,6 +352,9 @@ func (h *Hub) SyncListData() {
 			}
 			updatedSnapshotEntries = append(updatedSnapshotEntries, se)
 		}
+
+		//snapshotItem.Synced = true
+		//_, _ = h.offlineDb.UpdateSnapshotT(snapshotItem)
 
 		_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
 

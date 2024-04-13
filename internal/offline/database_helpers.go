@@ -44,13 +44,9 @@ func (db *database) InsertSnapshot(user []byte, collections []byte, assetMap []b
 	return snapshot, err
 }
 
-func (db *database) UpdateSnapshot(id uint, collections []byte, assetMap []byte) (*SnapshotEntry, error) {
-	snapshot := &SnapshotEntry{
-		Collections: collections,
-		AssetMap:    assetMap,
-	}
-	err := db.gormdb.Model(&SnapshotEntry{}).Where("id = ?", id).Updates(snapshot).Error
-	return snapshot, err
+func (db *database) UpdateSnapshotT(e *SnapshotEntry) (*SnapshotEntry, error) {
+	err := db.gormdb.Save(e).Error
+	return e, err
 }
 
 func (db *database) DeleteSnapshot(id uint) error {

@@ -29,6 +29,20 @@ export function useGetOfflineSnapshot() {
         }
     }, [snapshot?.entries?.animeEntries])
 
+    const mangaLists = React.useMemo(() => {
+        if (!snapshot) return {}
+
+        const grouped = groupBy(snapshot.entries?.mangaEntries?.filter(Boolean), n => n?.listData?.status)
+
+        return {
+            current: grouped?.CURRENT,
+            planning: grouped?.PLANNING,
+            completed: grouped?.COMPLETED,
+            paused: grouped?.PAUSED,
+            dropped: grouped?.DROPPED,
+        }
+    }, [snapshot?.entries?.mangaEntries])
+
     const continueWatchingEpisodeList = React.useMemo(() => {
         if (!snapshot) return []
 
@@ -60,6 +74,7 @@ export function useGetOfflineSnapshot() {
     return {
         snapshot,
         animeLists,
+        mangaLists,
         continueWatchingEpisodeList,
         isLoading,
     }

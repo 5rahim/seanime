@@ -27,10 +27,10 @@ export function OfflineLayout(props: OfflineLayoutProps) {
 
     React.useEffect(() => {
         if (!serverStatus?.isOffline) {
-            setContinue(true)
+            setContinue(false)
             return
         }
-        if (pathname.startsWith("/offline")) {
+        if (pathname.startsWith("/offline") && !pathname.startsWith("/offline-mode")) {
             setContinue(true)
             return
         }

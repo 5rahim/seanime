@@ -280,6 +280,16 @@ func (h *Hub) GetLatestSnapshot(bypassCache bool) (snapshot *Snapshot, err error
 		return nil, err
 	}
 
+	if snapshotEntry == nil {
+		h.logger.Info().Msg("offline hub: No snapshot found")
+		return nil, nil
+	}
+
+	snapshotEntry.Synced = false
+	go func() {
+		_, _ = h.offlineDb.UpdateSnapshotT(snapshotEntry)
+	}()
+
 	snapshot.DbId = snapshotEntry.ID
 
 	// Get the user

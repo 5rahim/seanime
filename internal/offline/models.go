@@ -7,6 +7,7 @@ type SnapshotEntry struct {
 	User        []byte `gorm:"column:user" json:"user"`
 	Collections []byte `gorm:"column:collections" json:"collections"`
 	AssetMap    []byte `gorm:"column:asset_map" json:"assetMap"`
+	Synced      bool   `gorm:"column:synced" json:"synced"`
 }
 
 type SnapshotMediaEntryType string
