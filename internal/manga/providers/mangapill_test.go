@@ -57,7 +57,7 @@ func TestMangapill_FindChapters(t *testing.T) {
 	}{
 		{
 			name:    "The Dangers in My Heart",
-			id:      "",
+			id:      "5232$boku-no-kokoro-no-yabai-yatsu",
 			atLeast: 141,
 		},
 	}
@@ -99,7 +99,7 @@ func TestMangapill_FindChapterPages(t *testing.T) {
 	}{
 		{
 			name:      "The Dangers in My Heart",
-			chapterId: "", // Chapter 1
+			chapterId: "5232-10001000$boku-no-kokoro-no-yabai-yatsu-chapter-1", // Chapter 1
 		},
 	}
 

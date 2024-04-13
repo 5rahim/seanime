@@ -109,6 +109,10 @@ func (r *Repository) GetMangaChapterContainer(provider manga_providers.Provider,
 			_searchRes, err = r.mangadex.Search(manga_providers.SearchOptions{
 				Query: *title,
 			})
+		case manga_providers.MangapillProvider:
+			_searchRes, err = r.mangapill.Search(manga_providers.SearchOptions{
+				Query: *title,
+			})
 		}
 		if err == nil {
 			searchRes = append(searchRes, _searchRes...)
@@ -142,6 +146,8 @@ func (r *Repository) GetMangaChapterContainer(provider manga_providers.Provider,
 		chapterList, err = r.mangasee.FindChapters(bestRes.ID)
 	case manga_providers.MangadexProvider:
 		chapterList, err = r.mangadex.FindChapters(bestRes.ID)
+	case manga_providers.MangapillProvider:
+		chapterList, err = r.mangapill.FindChapters(bestRes.ID)
 	}
 
 	if err != nil {
@@ -268,6 +274,8 @@ func (r *Repository) GetMangaPageContainer(
 		pageList, err = r.mangasee.FindChapterPages(chapter.ID)
 	case manga_providers.MangadexProvider:
 		pageList, err = r.mangadex.FindChapterPages(chapter.ID)
+	case manga_providers.MangapillProvider:
+		pageList, err = r.mangapill.FindChapterPages(chapter.ID)
 	}
 
 	if err != nil {

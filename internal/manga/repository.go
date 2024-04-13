@@ -25,6 +25,7 @@ type (
 		comick         *manga_providers.ComicK
 		mangasee       *manga_providers.Mangasee
 		mangadex       *manga_providers.Mangadex
+		mangapill      *manga_providers.Mangapill
 		serverUri      string
 		wsEventManager events.IWSEventManager
 		mu             sync.Mutex
@@ -48,6 +49,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		comick:         manga_providers.NewComicK(opts.Logger),
 		mangasee:       manga_providers.NewMangasee(opts.Logger),
 		mangadex:       manga_providers.NewMangadex(opts.Logger),
+		mangapill:      manga_providers.NewMangapill(opts.Logger),
 		serverUri:      opts.ServerURI,
 		wsEventManager: opts.WsEventManager,
 		downloadDir:    opts.DownloadDir,

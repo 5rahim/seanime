@@ -1,8 +1,9 @@
 import { BaseMangaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 
 export const MANGA_PROVIDER_OPTIONS = [
-    { value: "mangasee", label: "MangaSee" },
-    { value: "mangadex", label: "MangaDex" },
+    { value: "mangasee", label: "Mangasee" },
+    { value: "mangadex", label: "Mangadex" },
+    { value: "mangapill", label: "Mangapill" },
     { value: "comick", label: "ComicK" },
 ]
 

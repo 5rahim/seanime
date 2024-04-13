@@ -1,10 +1,16 @@
 package manga_providers
 
 import (
+	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/comparison"
 	"net/http"
+	"net/url"
+	"slices"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -30,10 +36,12 @@ func NewMangapill(logger *zerolog.Logger) *Mangapill {
 	}
 }
 
-func (mp *Mangapill) Search(opts SearchOptions) ([]*SearchResult, error) {
-	results := make([]*SearchResult, 0)
+func (mp *Mangapill) Search(opts SearchOptions) (ret []*SearchResult, err error) {
+	ret = make([]*SearchResult, 0)
 
 	mp.logger.Debug().Str("query", opts.Query).Msg("mangapill: Searching manga")
+
+	uri := fmt.Sprintf("%s/search?q=%s", mp.Url, url.QueryEscape(opts.Query))
 
 	c := colly.NewCollector(
 		colly.UserAgent(mp.UserAgent),
@@ -41,28 +49,116 @@ func (mp *Mangapill) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	c.WithTransport(mp.Client.Transport)
 
-	// code
+	c.OnHTML("div.container div.my-3.justify-end > div", func(e *colly.HTMLElement) {
+		defer func() {
+			if r := recover(); r != nil {
+			}
+		}()
+		result := &SearchResult{
+			Provider: MangapillProvider,
+		}
 
-	if len(results) == 0 {
-		mp.logger.Error().Str("query", opts.Query).Msg("mangapill: No results found")
-		return nil, ErrNoResults
+		result.ID = strings.Split(e.ChildAttr("a", "href"), "/manga/")[1]
+		result.ID = strings.Replace(result.ID, "/", "$", -1)
+
+		title := e.DOM.Find("div > a > div.mt-3").Text()
+		result.Title = strings.TrimSpace(title)
+
+		altTitles := e.DOM.Find("div > a > div.text-xs.text-secondary").Text()
+		if altTitles != "" {
+			result.Synonyms = []string{strings.TrimSpace(altTitles)}
+		}
+
+		compTitles := []*string{&result.Title}
+		if len(result.Synonyms) > 0 {
+			compTitles = append(compTitles, &result.Synonyms[0])
+		}
+		compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, compTitles)
+		result.SearchRating = compRes.Rating
+
+		result.Image = e.ChildAttr("a img", "data-src")
+
+		yearStr := e.DOM.Find("div > div.flex > div").Eq(1).Text()
+		year, err := strconv.Atoi(strings.TrimSpace(yearStr))
+		if err != nil {
+			result.Year = 0
+		} else {
+			result.Year = year
+		}
+
+		ret = append(ret, result)
+	})
+
+	err = c.Visit(uri)
+	if err != nil {
+		mp.logger.Error().Err(err).Msg("mangapill: Failed to visit")
+		return nil, err
 	}
-
-	mp.logger.Info().Int("count", len(results)).Msg("mangapill: Found results")
-
-	return results, nil
-}
-
-func (mp *Mangapill) FindChapters(id string) ([]*ChapterDetails, error) {
-	ret := make([]*ChapterDetails, 0)
-
-	mp.logger.Debug().Str("mangaId", id).Msg("mangapill: Finding chapters")
 
 	// code
 
 	if len(ret) == 0 {
+		mp.logger.Error().Str("query", opts.Query).Msg("mangapill: No results found")
+		return nil, ErrNoResults
+	}
+
+	mp.logger.Info().Int("count", len(ret)).Msg("mangapill: Found results")
+
+	return ret, nil
+}
+
+func (mp *Mangapill) FindChapters(id string) (ret []*ChapterDetails, err error) {
+	ret = make([]*ChapterDetails, 0)
+
+	mp.logger.Debug().Str("mangaId", id).Msg("mangapill: Finding chapters")
+
+	uriId := strings.Replace(id, "$", "/", -1)
+	uri := fmt.Sprintf("%s/manga/%s", mp.Url, uriId)
+
+	c := colly.NewCollector(
+		colly.UserAgent(mp.UserAgent),
+	)
+
+	c.WithTransport(mp.Client.Transport)
+
+	c.OnHTML("div.container div.border-border div#chapters div.grid-cols-1 a", func(e *colly.HTMLElement) {
+		defer func() {
+			if r := recover(); r != nil {
+			}
+		}()
+		chapter := &ChapterDetails{
+			Provider: MangapillProvider,
+		}
+
+		chapter.ID = strings.Split(e.Attr("href"), "/chapters/")[1]
+		chapter.ID = strings.Replace(chapter.ID, "/", "$", -1)
+
+		chapter.Title = strings.TrimSpace(e.Text)
+
+		splitTitle := strings.Split(chapter.Title, "Chapter ")
+		if len(splitTitle) < 2 {
+			return
+		}
+		chapter.Chapter = splitTitle[1]
+
+		ret = append(ret, chapter)
+	})
+
+	err = c.Visit(uri)
+	if err != nil {
+		mp.logger.Error().Err(err).Msg("mangapill: Failed to visit")
+		return nil, err
+	}
+
+	if len(ret) == 0 {
 		mp.logger.Error().Str("mangaId", id).Msg("mangapill: No chapters found")
 		return nil, ErrNoChapters
+	}
+
+	slices.Reverse(ret)
+
+	for i, chapter := range ret {
+		chapter.Index = uint(i)
 	}
 
 	mp.logger.Info().Int("count", len(ret)).Msg("mangapill: Found chapters")
@@ -70,12 +166,47 @@ func (mp *Mangapill) FindChapters(id string) ([]*ChapterDetails, error) {
 	return ret, nil
 }
 
-func (mp *Mangapill) FindChapterPages(id string) ([]*ChapterPage, error) {
-	ret := make([]*ChapterPage, 0)
+func (mp *Mangapill) FindChapterPages(id string) (ret []*ChapterPage, err error) {
+	ret = make([]*ChapterPage, 0)
 
 	mp.logger.Debug().Str("chapterId", id).Msg("mangapill: Finding chapter pages")
 
-	// code
+	uriId := strings.Replace(id, "$", "/", -1)
+	uri := fmt.Sprintf("%s/chapters/%s", mp.Url, uriId)
+
+	c := colly.NewCollector(
+		colly.UserAgent(mp.UserAgent),
+	)
+
+	c.WithTransport(mp.Client.Transport)
+
+	c.OnHTML("chapter-page", func(e *colly.HTMLElement) {
+		defer func() {
+			if r := recover(); r != nil {
+			}
+		}()
+		page := &ChapterPage{}
+
+		page.URL = e.DOM.Find("div picture img").AttrOr("data-src", "")
+		if page.URL == "" {
+			return
+		}
+		indexStr := e.DOM.Find("div[data-summary] > div").Text()
+		index, _ := strconv.Atoi(strings.Split(strings.Split(indexStr, "page ")[1], "/")[0])
+		page.Index = index - 1
+
+		page.Headers = map[string]string{
+			"Referer": mp.Url,
+		}
+
+		ret = append(ret, page)
+	})
+
+	err = c.Visit(uri)
+	if err != nil {
+		mp.logger.Error().Err(err).Msg("mangapill: Failed to visit")
+		return nil, err
+	}
 
 	if len(ret) == 0 {
 		mp.logger.Error().Str("chapterId", id).Msg("mangapill: No pages found")
