@@ -327,7 +327,7 @@ export default function Page() {
                             />
 
 
-                            <Separator />
+                            {/*<Separator />*/}
 
                             {/*<h3>DNS over HTTPS</h3>*/}
 
@@ -346,6 +346,9 @@ export default function Page() {
                         </TabsContent>
 
                         <TabsContent value="media-player" className="space-y-4">
+
+                            <h3>Media Player</h3>
+
                             <Field.Select
                                 name="defaultPlayer"
                                 label="Default player"
@@ -449,6 +452,8 @@ export default function Page() {
                         </TabsContent>
 
                         <TabsContent value="torrent-client" className="space-y-4">
+
+                            <h3>Torrent Client</h3>
 
                             <Field.Select
                                 name="defaultTorrentClient"

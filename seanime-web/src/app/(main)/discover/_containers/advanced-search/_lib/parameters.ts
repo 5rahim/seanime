@@ -12,6 +12,7 @@ type Params = {
     year: string | null
     minScore: string | null
     isAdult: boolean
+    type: "anime" | "manga"
 }
 
 export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
@@ -25,6 +26,7 @@ export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
     year: null,
     minScore: null,
     isAdult: false,
+    type: "anime",
 })
 
 export function __advancedSearch_getValue<T extends any>(value: T | ""): any {

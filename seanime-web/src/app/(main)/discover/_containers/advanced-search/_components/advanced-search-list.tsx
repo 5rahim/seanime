@@ -7,7 +7,7 @@ import { AiOutlinePlusCircle } from "react-icons/ai"
 
 export function AdvancedSearchList() {
 
-    const { isLoading, data, fetchNextPage, hasNextPage } = useAnilistAdvancedSearch()
+    const { isLoading, data, fetchNextPage, hasNextPage, type } = useAnilistAdvancedSearch()
 
     return <>
         {!isLoading && <div
@@ -19,6 +19,7 @@ export function AdvancedSearchList() {
                     media={media}
                     showLibraryBadge={true}
                     showTrailer
+                    isManga={type === "manga"}
                 />
             ))}
             {((data?.pages.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean) || []).length > 0 && hasNextPage) &&

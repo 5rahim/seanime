@@ -5,6 +5,7 @@ import {
     ADVANCED_SEARCH_SEASONS,
     ADVANCED_SEARCH_SORTING,
     ADVANCED_SEARCH_STATUS,
+    ADVANCED_SEARCH_TYPE,
 } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
 import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
 import { serverStatusAtom } from "@/atoms/server-status"
@@ -32,6 +33,15 @@ export function AdvancedSearchOptions() {
         <AppLayoutStack className="px-4 xl:px-0">
             <div className="flex flex-col md:flex-row xl:flex-col gap-4">
                 <TitleInput/>
+                <Select
+                    className="w-full"
+                    options={ADVANCED_SEARCH_TYPE}
+                    value={params.type}
+                    onValueChange={v => setParams(draft => {
+                        draft.type = v as "anime" | "manga"
+                        return
+                    })}
+                />
                 <Select
                     // label="Sorting"
                     className="w-full"
@@ -111,7 +121,8 @@ export function AdvancedSearchOptions() {
                 />}
                 <IconButton
                     icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
-                    setParams({
+                    setParams(prev => ({
+                        ...prev,
                         active: true,
                         title: null,
                         sorting: null,
@@ -121,8 +132,7 @@ export function AdvancedSearchOptions() {
                         season: null,
                         year: null,
                         minScore: null,
-                        isAdult: false,
-                    })
+                    }))
                 }}/>
             </div>
             {/*<Select*/}

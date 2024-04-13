@@ -39,6 +39,7 @@ export default function Page({ params: urlParams }: {
             year: urlParams.year || null,
             minScore: null,
             isAdult: false,
+            type: "anime",
         })
     })
 

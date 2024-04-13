@@ -52,3 +52,8 @@ export const ADVANCED_SEARCH_SORTING = [
     { value: "POPULARITY_DESC", label: "Most popular" },
     { value: "EPISODES_DESC", label: "Number of episodes" },
 ]
+
+export const ADVANCED_SEARCH_TYPE = [
+    { value: "anime", label: "Anime" },
+    { value: "manga", label: "Manga" },
+]
