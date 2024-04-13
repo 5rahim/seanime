@@ -1,6 +1,8 @@
+import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { useUpdateSnapshotEntryListData } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
 import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
 import { useMangaPageContainer, useUpdateMangaProgress } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MangaChapterContainer, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
+import { MangaChapterContainer } from "@/app/(main)/manga/_lib/manga.types"
 import { MangaHorizontalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-vertical-reader"
 import { MangaReaderBar } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/manga-reader-bar"
@@ -17,12 +19,14 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
@@ -30,7 +34,7 @@ import React from "react"
 import { toast } from "sonner"
 
 type ChapterDrawerProps = {
-    entry: MangaEntry
+    entry: { media: BaseMangaFragment | undefined, mediaId: number, listData?: MediaEntryListData }
     chapterContainer: MangaChapterContainer
     chapterIdToNumbersMap: Map<string, number>
 }
@@ -57,6 +61,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         ...rest
     } = props
 
+    const serverStatus = useAtomValue(serverStatusAtom)
+
     // Discord rich presence
     useDiscordMangaPresence(entry)
 
@@ -72,8 +78,17 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
     useSwitchSettingsWithKeys()
 
-    const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(String(entry?.media?.id || "0"),
-        selectedChapter?.chapterId)
+    const { pageContainer, pageContainerLoading, pageContainerError } = useMangaPageContainer(
+        String(entry?.media?.id || "0"),
+        selectedChapter?.chapterId,
+    )
+
+    /**
+     * Update the progress when the user confirms
+     */
+    const { updateProgress, isUpdatingProgress: _isUpdatingProgress } = useUpdateMangaProgress(entry.mediaId)
+    const { mutate: updateProgressOffline, isPending: isUpdatingProgressOffline } = useUpdateSnapshotEntryListData()
+    const isUpdatingProgress = _isUpdatingProgress || isUpdatingProgressOffline
 
     /**
      * Switch back to PAGED mode if the page dimensions could not be fetched efficiently
@@ -92,10 +107,6 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         }
     }, [selectedChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
 
-    /**
-     * Update the progress when the user confirms
-     */
-    const { updateProgress, isUpdatingProgress } = useUpdateMangaProgress(entry.mediaId)
 
     /**
      * Get the previous and next chapters
@@ -124,21 +135,35 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
     const handleUpdateProgress = () => {
         if (shouldUpdateProgress && !isUpdatingProgress) {
-            updateProgress({
-                chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0,
-                mediaId: entry.mediaId,
-                malId: entry.media?.idMal || undefined,
-                totalChapters: chapterContainer?.chapters?.length || 0,
-            }, {
-                onSuccess: () => {
-                    !!nextChapter && setSelectedChapter({
-                        chapterId: nextChapter.id,
-                        chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
-                        mediaId: entry.mediaId,
-                        provider: chapterContainer.provider,
-                    })
-                },
-            })
+
+            if (!serverStatus?.isOffline) {
+
+                updateProgress({
+                    chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0,
+                    mediaId: entry.mediaId,
+                    malId: entry.media?.idMal || undefined,
+                    totalChapters: chapterContainer?.chapters?.length || 0,
+                }, {
+                    onSuccess: () => {
+                        !!nextChapter && setSelectedChapter({
+                            chapterId: nextChapter.id,
+                            chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
+                            mediaId: entry.mediaId,
+                            provider: chapterContainer.provider,
+                        })
+                    },
+                })
+
+            } else {
+
+                updateProgressOffline({
+                    mediaId: entry.mediaId,
+                    type: "manga",
+                    progress: chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0,
+                })
+
+            }
+
         }
     }
 

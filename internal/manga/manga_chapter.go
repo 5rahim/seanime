@@ -168,15 +168,24 @@ func (r *Repository) GetMangaPageContainer(
 	mediaId int,
 	chapterId string,
 	doublePage bool,
+	isOffline bool,
 ) (*PageContainer, error) {
 
 	// +---------------------+
 	// |      Downloads      |
 	// +---------------------+
 
-	ret, _ := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
-	if ret != nil {
+	if isOffline {
+		ret, err := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+		if err != nil {
+			return nil, err
+		}
 		return ret, nil
+	} else {
+		ret, _ := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+		if ret != nil {
+			return ret, nil
+		}
 	}
 
 	// +---------------------+

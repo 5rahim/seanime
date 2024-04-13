@@ -1,6 +1,7 @@
 "use client"
 
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_components/offline-meta-section"
+import { OfflineChapterList } from "@/app/(main)/(offline)/offline/(entry)/manga/_components/offline-chapter-list"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -24,6 +25,7 @@ export default function Page() {
     return (
         <>
             <OfflineMetaSection type="manga" entry={entry} assetMap={snapshot?.assetMap} />
+            <OfflineChapterList entry={entry} />
         </>
     )
 

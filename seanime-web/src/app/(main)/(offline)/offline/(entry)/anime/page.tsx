@@ -6,7 +6,7 @@ import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-
 import { OfflineAnimeEntry, OfflineAssetMap } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-section/episode-item"
-import { useMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
+import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
@@ -95,6 +95,14 @@ export function EpisodeLists(props: EpisodeListsProps) {
     }, [mainEpisodes, entry.listData?.progress])
 
     const { playVideo } = useMediaPlayer()
+
+    usePlayNextVideoOnMount({
+        onPlay: () => {
+            if (episodesToWatch.length > 0) {
+                playVideo({ path: episodesToWatch[0].localFile?.path ?? "" })
+            }
+        },
+    })
 
     return (
         <div className="space-y-10">

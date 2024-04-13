@@ -42,9 +42,9 @@ export type OfflineAnimeEntry = {
 
 export type OfflineMangaEntry = {
     mediaId: number
-    listData?: OfflineListData
-    media?: BaseMangaFragment
-    chapterContainer?: MangaChapterContainer
+    listData: OfflineListData | undefined
+    media: BaseMangaFragment | undefined
+    chapterContainer: MangaChapterContainer | undefined
     downloadedAssets: boolean
 }
 

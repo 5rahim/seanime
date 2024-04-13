@@ -78,6 +78,7 @@ func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 		Progress  *int                     `json:"progress"`
 		StartDate *string                  `json:"startDate"`
 		EndDate   *string                  `json:"endDate"`
+		Type      string                   `json:"type"`
 	}
 
 	var b body
@@ -92,6 +93,7 @@ func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 		b.Progress,
 		b.StartDate,
 		b.EndDate,
+		b.Type,
 	)
 	if err != nil {
 		return c.RespondWithError(err)

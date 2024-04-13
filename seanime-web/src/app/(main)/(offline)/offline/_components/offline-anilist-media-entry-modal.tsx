@@ -31,22 +31,15 @@ const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
-    startDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null),
-    endDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null),
+    startDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null).nullish(),
+    endDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null).nullish(),
 }))
 
-
-export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
-    const [open, toggle] = useToggle(false)
-
-    const { children, media, listData, hideButton, assetMap, type = "anime", ...rest } = props
-
-    const user = useAtomValue(userAtom)
-
+export function useUpdateSnapshotEntryListData() {
     const qc = useQueryClient()
-
-    const { mutate, isPending, isSuccess } = useSeaMutation<any, InferType<typeof mediaListDataSchema> & {
+    return useSeaMutation<any, InferType<typeof mediaListDataSchema> & {
         mediaId: number,
+        type: string
     }>({
         endpoint: SeaEndpoints.OFFLINE_SNAPSHOT_ENTRY,
         method: "patch",
@@ -56,6 +49,18 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
             toast.success("Entry updated")
         },
     })
+}
+
+
+export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
+    const [open, toggle] = useToggle(false)
+
+    const { children, media, listData, hideButton, assetMap, type = "anime", ...rest } = props
+
+    const user = useAtomValue(userAtom)
+
+
+    const { mutate, isPending, isSuccess } = useUpdateSnapshotEntryListData()
 
     if (!user) return null
 
@@ -107,6 +112,7 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                             progress: data.progress || 0,
                             startDate: data.startDate,
                             endDate: data.endDate,
+                            type,
                         })
                     }}
                     className={cn(

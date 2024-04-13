@@ -234,7 +234,7 @@ func HandleGetMangaEntryPages(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	container, err := c.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, b.DoublePage)
+	container, err := c.App.MangaRepository.GetMangaPageContainer(b.Provider, b.MediaId, b.ChapterId, b.DoublePage, c.App.IsOffline())
 	if err != nil {
 		return c.RespondWithError(err)
 	}

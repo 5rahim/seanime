@@ -127,7 +127,7 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	}
 
 	// Fetch the chapter pages
-	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false)
+	pageContainer, err := d.repository.GetMangaPageContainer(opts.Provider, opts.MediaId, opts.ChapterId, false, false)
 	if err != nil {
 		return err
 	}

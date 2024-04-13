@@ -1,4 +1,4 @@
-import { MangaChapterDetails, MangaEntry, MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
+import { MangaChapterDetails, MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import {
     ChapterReaderSettings,
     MANGA_PAGE_FIT_OPTIONS,
@@ -20,6 +20,7 @@ import {
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
+import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
 import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineCloseCircle } from "react-icons/ai"
@@ -29,7 +30,7 @@ type MangaReaderBarProps = {
     previousChapter: MangaChapterDetails | undefined
     nextChapter: MangaChapterDetails | undefined
     pageContainer: MangaPageContainer | undefined
-    entry: MangaEntry | undefined
+    entry: { mediaId: number, media: BaseMangaFragment | undefined } | undefined
 }
 
 export function MangaReaderBar(props: MangaReaderBarProps) {

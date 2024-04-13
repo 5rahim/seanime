@@ -164,6 +164,7 @@ func (h *Hub) UpdateEntryListData(
 	progress *int,
 	startDate *string,
 	endDate *string,
+	t string,
 ) (err error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -180,32 +181,62 @@ func (h *Hub) UpdateEntryListData(
 		return err
 	}
 
-	entry := snapshotEntry.GetAnimeEntry()
-	if entry == nil {
-		return errors.New("entry not found")
-	}
+	switch t {
+	case "anime":
+		entry := snapshotEntry.GetAnimeEntry()
+		if entry == nil {
+			return errors.New("entry not found")
+		}
 
-	if progress != nil {
-		entry.ListData.Progress = *progress
-	}
-	if status != nil {
-		entry.ListData.Status = *status
-	}
-	if score != nil {
-		entry.ListData.Score = *score
-	}
-	if startDate != nil {
-		entry.ListData.StartedAt = *startDate
-	}
-	if endDate != nil {
-		entry.ListData.CompletedAt = *endDate
-	}
+		if progress != nil {
+			entry.ListData.Progress = *progress
+		}
+		if status != nil {
+			entry.ListData.Status = *status
+		}
+		if score != nil {
+			entry.ListData.Score = *score
+		}
+		if startDate != nil {
+			entry.ListData.StartedAt = *startDate
+		}
+		if endDate != nil {
+			entry.ListData.CompletedAt = *endDate
+		}
 
-	snapshotEntry.Value = entry.Marshal()
+		snapshotEntry.Value = entry.Marshal()
 
-	_, err = h.offlineDb.UpdateSnapshotMediaEntryT(snapshotEntry)
-	if err != nil {
-		return err
+		_, err = h.offlineDb.UpdateSnapshotMediaEntryT(snapshotEntry)
+		if err != nil {
+			return err
+		}
+	case "manga":
+		entry := snapshotEntry.GetMangaEntry()
+		if entry == nil {
+			return errors.New("entry not found")
+		}
+		if progress != nil {
+			entry.ListData.Progress = *progress
+		}
+		if status != nil {
+			entry.ListData.Status = *status
+		}
+		if score != nil {
+			entry.ListData.Score = *score
+		}
+		if startDate != nil {
+			entry.ListData.StartedAt = *startDate
+		}
+		if endDate != nil {
+			entry.ListData.CompletedAt = *endDate
+		}
+
+		snapshotEntry.Value = entry.Marshal()
+
+		_, err = h.offlineDb.UpdateSnapshotMediaEntryT(snapshotEntry)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Refresh current snapshot
