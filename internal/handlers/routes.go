@@ -33,7 +33,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/icons",
 			"/api/v1/image-proxy",
 		},
-		Levels: []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
+		Fields:   []string{"method", "error", "status", "url"},
+		Messages: []string{"req: error", "req: client error", "req: Success"},
+		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
 	})
 	fiberApp.Use(fiberLogger)
 

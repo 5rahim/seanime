@@ -1,5 +1,5 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
-import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/manga.utils"
+import { ChapterPage } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-page"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -105,6 +105,9 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const onPageWrapperClick = React.useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (!pageWrapperRef.current) return
 
+        if ((e.target as HTMLElement).id === "retry-button") return
+        if ((e.target as HTMLElement).id === "retry-icon") return
+
         const { clientX } = e.nativeEvent
         const divWidth = pageWrapperRef.current.offsetWidth
         const clickPosition = clientX - pageWrapperRef.current.getBoundingClientRect().left
@@ -129,11 +132,12 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         setCurrentPageIndex(currentPages[0])
     }, [currentMapIndex])
 
+    // Current page indexes displayed
     const currentPages = React.useMemo(() => paginationMap[currentMapIndex], [currentMapIndex, paginationMap])
+    // Two pages are currently displayed
     const twoPages = readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.length === 2
+    // Show shadows
     const showShadows = twoPages && pageGap && !(pageFit === MangaPageFit.COVER || pageFit === MangaPageFit.TRUE_SIZE) && pageGapShadow
-
-    const { getChapterPageUrl } = useMangaReaderUtils()
 
     return (
         <div
@@ -165,9 +169,13 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                 onClick={onPageWrapperClick}
             >
                 {pageContainer?.pages?.toSorted((a, b) => a.index - b.index)?.map((page, index) => (
-                    <div
+                    <ChapterPage
                         key={page.url}
-                        className={cn(
+                        page={page}
+                        index={index}
+                        readingMode={readingMode}
+                        pageContainer={pageContainer}
+                        containerClass={cn(
                             "w-full h-[calc(100dvh-3rem)] scroll-div min-h-[200px] relative page",
                             "focus-visible:outline-none",
                             !currentPages?.includes(index) ? "hidden" : "displayed",
@@ -176,21 +184,10 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                             && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
                             (showShadows && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[1] === index)
                             && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-                            // (showShadows && readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE &&
-                            // currentPages?.[1] === index) && "before:content-[''] before:absolute before:w-[3%] before:z-[5] before:h-full
-                            // before:[background:_linear-gradient(-90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]", (showShadows &&
-                            // readingDirection === MangaReadingDirection.LTR && readingMode === MangaReadingMode.DOUBLE_PAGE && currentPages?.[0]
-                            // === index) && "before:content-[''] before:absolute before:right-0 before:w-[3%] before:z-[5] before:h-full
-                            // before:[background:_linear-gradient(90deg,_rgba(17,_17,_17,_0)_0,_rgba(17,_17,_17,_.3)_100%)]",
-
                             // Page fit
                             pageFit === MangaPageFit.LARGER && "h-full",
                         )}
-                        id={`page-${index}`}
-                    >
-                        {/*<LoadingSpinner containerClass="h-full absolute inset-0 z-[1] w-24 mx-auto" />*/}
-                        <img
-                            src={getChapterPageUrl(page.url, pageContainer?.isDownloaded)} alt={`Page ${index}`} className={cn(
+                        imageClass={cn(
                             "focus-visible:outline-none",
                             "h-full inset-0 object-center select-none z-[4] relative",
 
@@ -230,13 +227,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                             && "[object-position:0%_50%] before:content-['']",
                             (twoPages && currentPages?.[1] === index)
                             && "[object-position:100%_50%]",
-                            // (twoPages && readingDirection === MangaReadingDirection.LTR && currentPages?.[0] === index)
-                            // && "[object-position:100%_50%]",
-                            // (twoPages && readingDirection === MangaReadingDirection.LTR && currentPages?.[1] === index)
-                            // && "[object-position:0%_50%]",
                         )}
-                        />
-                    </div>
+                    />
                 ))}
             </div>
 

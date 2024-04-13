@@ -51,7 +51,7 @@ type ConfigOptions struct {
 // NewConfig initializes the config
 func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) {
 
-	logger.Trace().Msg("app: Initializing config")
+	logger.Debug().Msg("app: Initializing config")
 
 	// Initialize the app data directory
 	dataDir, configPath, err := initAppDataDir(options.DataDir, logger)
@@ -246,7 +246,7 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 		// Normalize the data directory path
 		dataDir = filepath.FromSlash(os.ExpandEnv(definedDataDir))
 
-		logger.Trace().Str("dataDir", dataDir).Msg("Overriding default data directory")
+		logger.Trace().Str("dataDir", dataDir).Msg("app: Overriding default data directory")
 	} else {
 		// Default OS data directory
 		// windows: %APPDATA%

@@ -16,7 +16,7 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 		id := c.Locals("id").(string)
 
 		app.WSEventManager.AddConn(id, c)
-		app.Logger.Trace().Str("id", id).Msg("ws: Client connected")
+		app.Logger.Debug().Str("id", id).Msg("ws: Client connected")
 
 		var (
 			_   int
@@ -26,10 +26,10 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 		for {
 			if _, msg, err = c.ReadMessage(); err != nil {
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-					app.Logger.Trace().Msg("ws: Client disconnected")
+					app.Logger.Debug().Msg("ws: Client disconnected")
 					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				} else {
-					app.Logger.Trace().Msg("ws: Client disconnection")
+					app.Logger.Debug().Msg("ws: Client disconnection")
 					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				}
 				break

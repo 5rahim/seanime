@@ -1,5 +1,6 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
 import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/manga.utils"
+import { ChapterPage } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-page"
 import {
     __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
@@ -14,7 +15,6 @@ import {
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
 import { cn } from "@/components/ui/core/styling"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import React from "react"
@@ -151,37 +151,33 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
 
                 </div>
                 {pageContainer?.pages?.map((page, index) => (
-                    <div
+                    <ChapterPage
                         key={page.url}
-                        className={cn(
+                        page={page}
+                        index={index}
+                        readingMode={"paged"}
+                        pageContainer={pageContainer}
+                        containerClass={cn(
                             "max-w-[1400px] mx-auto scroll-div min-h-[200px] relative focus-visible:outline-none",
                             pageFit === MangaPageFit.CONTAIN && "max-w-full h-[calc(100dvh-60px)]",
                             pageFit === MangaPageFit.TRUE_SIZE && "max-w-full",
                             pageFit === MangaPageFit.COVER && "max-w-full",
                         )}
-                        id={`page-${index}`}
-                        tabIndex={-1}
-                    >
-                        <LoadingSpinner containerClass="h-full absolute inset-0 z-[1] focus-visible:outline-none" tabIndex={-1} />
-                        <img
-                            src={getChapterPageUrl(page.url, pageContainer?.isDownloaded, page.headers)}
-                            alt={`Page ${index}`}
-                            className={cn(
-                                "max-w-full h-auto mx-auto select-none z-[4] relative focus-visible:outline-none",
+                        imageClass={cn(
+                            "max-w-full h-auto mx-auto select-none z-[4] relative focus-visible:outline-none",
 
-                                // "h-full inset-0 object-center select-none z-[4] relative",
+                            // "h-full inset-0 object-center select-none z-[4] relative",
 
-                                pageFit === MangaPageFit.CONTAIN ?
-                                    pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "object-fill w-[1400px] h-full" :
-                                    undefined,
-                                pageFit === MangaPageFit.LARGER ?
-                                    pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "w-[1400px] h-auto object-cover mx-auto" :
-                                    undefined,
-                                pageFit === MangaPageFit.COVER && "w-full h-auto",
-                                pageFit === MangaPageFit.TRUE_SIZE && "object-none h-auto w-auto mx-auto",
-                            )}
-                        />
-                    </div>
+                            pageFit === MangaPageFit.CONTAIN ?
+                                pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "object-fill w-[1400px] h-full" :
+                                undefined,
+                            pageFit === MangaPageFit.LARGER ?
+                                pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "w-[1400px] h-auto object-cover mx-auto" :
+                                undefined,
+                            pageFit === MangaPageFit.COVER && "w-full h-auto",
+                            pageFit === MangaPageFit.TRUE_SIZE && "object-none h-auto w-auto mx-auto",
+                        )}
+                    />
                 ))}
 
             </div>
