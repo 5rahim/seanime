@@ -12,6 +12,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type (
@@ -42,7 +43,9 @@ type (
 )
 
 func NewMangasee(logger *zerolog.Logger) *Mangasee {
-	c := &http.Client{}
+	c := &http.Client{
+		Timeout: 60 * time.Second,
+	}
 	c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &Mangasee{
 		Url:       "https://mangasee123.com",

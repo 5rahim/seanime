@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"time"
 )
 
 type (
@@ -60,10 +61,12 @@ type (
 )
 
 func NewComicK(logger *zerolog.Logger) *ComicK {
-	c := &http.Client{}
+	c := &http.Client{
+		Timeout: 60 * time.Second,
+	}
 	c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &ComicK{
-		Url:       "https://api.comick.io",
+		Url:       "https://api.comick.fun",
 		Client:    c,
 		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
 		logger:    logger,
@@ -219,6 +222,7 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 
 	return ret, nil
 }
+
 func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	ret := make([]*ChapterPage, 0)
 

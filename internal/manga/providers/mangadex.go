@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -11,6 +12,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"time"
 )
 
 type (
@@ -64,7 +66,9 @@ type (
 )
 
 func NewMangadex(logger *zerolog.Logger) *Mangadex {
-	c := &http.Client{}
+	c := &http.Client{
+		Timeout: 60 * time.Second,
+	}
 	c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &Mangadex{
 		Url:       "https://api.mangadex.org",
@@ -85,7 +89,7 @@ func (md *Mangadex) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 		req, err := http.NewRequest("GET", uri, nil)
 		if err != nil {
-			md.logger.Error().Err(err).Msg("mangadex: failed to create request")
+			md.logger.Error().Err(err).Msg("mangadex: Failed to create request")
 			return nil, fmt.Errorf("failed to create request: %w", err)
 		}
 
@@ -103,7 +107,7 @@ func (md *Mangadex) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 		err = json.NewDecoder(resp.Body).Decode(&data)
 		if err != nil {
-			md.logger.Error().Err(err).Msg("mangadex: failed to decode response")
+			md.logger.Error().Err(err).Msg("mangadex: Failed to decode response")
 			_ = resp.Body.Close()
 			return nil, fmt.Errorf("failed to decode response: %w", err)
 		}
@@ -184,14 +188,14 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 
 		err = json.NewDecoder(resp.Body).Decode(&data)
 		if err != nil {
-			md.logger.Error().Err(err).Msg("mangadex: failed to decode response")
+			md.logger.Error().Err(err).Msg("mangadex: Failed to decode response")
 			resp.Body.Close()
 			return nil, fmt.Errorf("failed to decode response: %w", err)
 		}
 		resp.Body.Close()
 
 		if data.Result == "error" {
-			md.logger.Error().Str("error", data.Errors[0].Title).Str("detail", data.Errors[0].Detail).Msg("mangadex: could not find chapters")
+			md.logger.Error().Str("error", data.Errors[0].Title).Str("detail", data.Errors[0].Detail).Msg("mangadex: Could not find chapters")
 			return nil, fmt.Errorf("could not find chapters: %s", data.Errors[0].Detail)
 		}
 
@@ -215,6 +219,7 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 				ID:        chapter.ID,
 				Title:     title,
 				Index:     idx,
+				Chapter:   chapter.Attributes.Chapter,
 				UpdatedAt: chapter.Attributes.UpdatedAt,
 				Provider:  MangadexProvider,
 			}
@@ -240,8 +245,56 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 	return ret, nil
 
 }
-func (md *Mangadex) FindChapterPages(info *ChapterDetails) ([]*ChapterPage, error) {
-	panic("not implemented")
+func (md *Mangadex) FindChapterPages(id string) ([]*ChapterPage, error) {
+	ret := make([]*ChapterPage, 0)
+
+	uri := fmt.Sprintf("%s/at-home/server/%s", md.Url, id)
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		md.logger.Error().Err(err).Msg("mangadex: Failed to create request")
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("User-Agent", browser.Firefox())
+
+	resp, err := md.Client.Do(req)
+	if err != nil {
+		md.logger.Error().Err(err).Msg("mangadex: Failed to get chapter pages")
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var data struct {
+		BaseUrl string `json:"baseUrl"`
+		Chapter struct {
+			Hash string   `json:"hash"`
+			Data []string `json:"data"`
+		}
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		md.logger.Error().Err(err).Msg("mangadex: Failed to decode response")
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	for i, page := range data.Chapter.Data {
+		ret = append(ret, &ChapterPage{
+			Provider: MangadexProvider,
+			URL:      fmt.Sprintf("%s/data/%s/%s", data.BaseUrl, data.Chapter.Hash, page),
+			Index:    i,
+			Headers: map[string]string{
+				"Referer": "https://mangadex.org",
+			},
+		})
+	}
+
+	if len(ret) == 0 {
+		return nil, fmt.Errorf("no pages found")
+	}
+
+	return ret, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

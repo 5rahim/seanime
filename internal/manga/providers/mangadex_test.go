@@ -109,52 +109,44 @@ func TestMangadex_FindChapters(t *testing.T) {
 
 }
 
-//
-//func TestMangadex_FindChapterPages(t *testing.T) {
-//
-//	tests := []struct {
-//		name          string
-//		id            string
-//		chapterNumber int
-//	}{
-//		{
-//			name:          "One Piece",
-//			id:            "One-Piece",
-//			chapterNumber: 1111,
-//		},
-//	}
-//
-//	mangadex := NewMangadex(util.NewLogger())
-//
-//	for _, tt := range tests {
-//
-//		t.Run(tt.name, func(t *testing.T) {
-//
-//			chapters, err := mangadex.FindChapters(tt.id)
-//			if assert.NoError(t, err, "mangadex.FindChapters() error") {
-//
-//				assert.NotEmpty(t, chapters, "chapters is empty")
-//
-//				var chapterInfo *ChapterDetails
-//				for _, chapter := range chapters {
-//					if chapter.Number == tt.chapterNumber {
-//						chapterInfo = chapter
-//						break
-//					}
-//				}
-//
-//				if assert.NotNil(t, chapterInfo, "chapter not found") {
-//					pages, err := mangadex.FindChapterPages(chapterInfo)
-//					if assert.NoError(t, err, "mangadex.FindChapterPages() error") {
-//						assert.NotEmpty(t, pages, "pages is empty")
-//
-//						spew.Dump(pages)
-//					}
-//				}
-//			}
-//
-//		})
-//
-//	}
-//
-//}
+func TestMangadex_FindChapterPages(t *testing.T) {
+
+	tests := []struct {
+		name      string
+		id        string
+		chapterId string
+	}{
+		{
+			name:      "The Dangers in My Heart",
+			id:        "3df1a9a3-a1be-47a3-9e90-9b3e55b1d0ac",
+			chapterId: "5145ea39-be4b-4bf9-81e7-4f90961db857", // Chapter 1
+		},
+		{
+			name:      "Kagurabachi",
+			id:        "",
+			chapterId: "9c9652fc-10d2-40b3-9382-16fb072d3068", // Chapter 1
+		},
+	}
+
+	mangadex := NewMangadex(util.NewLogger())
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			pages, err := mangadex.FindChapterPages(tt.chapterId)
+			if assert.NoError(t, err, "mangadex.FindChapterPages() error") {
+				assert.NotEmpty(t, pages, "pages is empty")
+
+				for _, page := range pages {
+					t.Logf("Index: %d", page.Index)
+					t.Logf("\tURL: %s", page.URL)
+					t.Log("--------------------------------------------------")
+				}
+			}
+
+		})
+
+	}
+
+}

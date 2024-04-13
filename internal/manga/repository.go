@@ -24,6 +24,7 @@ type (
 		fileCacher     *filecache.Cacher
 		comick         *manga_providers.ComicK
 		mangasee       *manga_providers.Mangasee
+		mangadex       *manga_providers.Mangadex
 		serverUri      string
 		wsEventManager events.IWSEventManager
 		mu             sync.Mutex
@@ -46,6 +47,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		fileCacher:     opts.FileCacher,
 		comick:         manga_providers.NewComicK(opts.Logger),
 		mangasee:       manga_providers.NewMangasee(opts.Logger),
+		mangadex:       manga_providers.NewMangadex(opts.Logger),
 		serverUri:      opts.ServerURI,
 		wsEventManager: opts.WsEventManager,
 		downloadDir:    opts.DownloadDir,

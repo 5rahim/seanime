@@ -73,7 +73,7 @@ func TestComicK_FindChapters(t *testing.T) {
 		},
 		{
 			name:    "Komi-san wa, Komyushou desu",
-			id:      "fKWNEsw8",
+			id:      "K_Dn8VW7",
 			atLeast: 250,
 		},
 		{
