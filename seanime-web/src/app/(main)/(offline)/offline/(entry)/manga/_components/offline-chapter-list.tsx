@@ -4,7 +4,6 @@ import { MangaChapterDetails } from "@/app/(main)/manga/_lib/manga.types"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { primaryPillCheckboxClass } from "@/components/shared/styling/classnames"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -114,7 +113,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
     }, [showUnreadChapter, entry?.chapterContainer?.chapters, unreadChapters])
 
     return (
-        <PageWrapper className="p-4">
+        <>
             <div className="space-y-4 border rounded-md bg-[--paper] p-4">
 
                 <div className="flex flex-wrap items-center gap-4">
@@ -148,6 +147,6 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                     chapterContainer={entry?.chapterContainer}
                 />}
             </div>
-        </PageWrapper>
+        </>
     )
 }

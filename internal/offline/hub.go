@@ -1,16 +1,19 @@
 package offline
 
 import (
+	"context"
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/manga"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"github.com/seanime-app/seanime/internal/util/image_downloader"
 	"os"
 	"sync"
+	"time"
 )
 
 type (
@@ -120,7 +123,12 @@ func (h *Hub) UpdateAnimeListStatus(
 	h.logger.Debug().Int("progress", progress).Msg("offline hub: Updating anime list status")
 
 	if h.currentSnapshot == nil {
-		return errors.New("snapshot not found")
+		// Refresh current snapshot
+		ret, err := h.GetLatestSnapshot(true)
+		if err != nil {
+			return errors.New("snapshot not found")
+		}
+		h.currentSnapshot = ret
 	}
 
 	var snapshotEntry *SnapshotMediaEntry
@@ -172,7 +180,12 @@ func (h *Hub) UpdateEntryListData(
 	h.logger.Debug().Int("mediaId", *mediaId).Msg("offline hub: Updating anime list data")
 
 	if h.currentSnapshot == nil {
-		return errors.New("snapshot not found")
+		// Refresh current snapshot
+		ret, err := h.GetLatestSnapshot(true)
+		if err != nil {
+			return errors.New("snapshot not found")
+		}
+		h.currentSnapshot = ret
 	}
 
 	var snapshotEntry *SnapshotMediaEntry
@@ -263,7 +276,12 @@ func (h *Hub) UpdateMangaListStatus(
 	h.logger.Debug().Int("progress", progress).Msg("offline hub: Updating manga list status")
 
 	if h.currentSnapshot == nil {
-		return errors.New("snapshot not found")
+		// Refresh current snapshot
+		ret, err := h.GetLatestSnapshot(true)
+		if err != nil {
+			return errors.New("snapshot not found")
+		}
+		h.currentSnapshot = ret
 	}
 
 	var snapshotEntry *SnapshotMediaEntry
@@ -301,9 +319,95 @@ func (h *Hub) UpdateMangaListStatus(
 
 }
 
-func (h *Hub) GetUpdatedListData() {
+// SyncListData updates the user's AniList collection once they come back online
+func (h *Hub) SyncListData() {
 
-	// Score should be * 10
-	// Dates should be converted to FuzzyDateInput
+	go func() {
 
+		util.HandlePanicInModuleThen("offline/SyncListData", func() {})
+
+		snapshotItem, err := h.offlineDb.GetLatestSnapshot()
+		if err != nil {
+			return
+		}
+
+		snapshotEntries, err := h.offlineDb.GetSnapshotMediaEntries(snapshotItem.ID)
+		if err != nil {
+			h.logger.Error().Err(err).Msg("offline hub: READ! Failed to retrieve offline updates")
+			return
+		}
+
+		updatedSnapshotEntries := make([]*SnapshotMediaEntry, 0)
+		for _, se := range snapshotEntries {
+			if se.CreatedAt.Equal(se.UpdatedAt) {
+				continue
+			}
+			updatedSnapshotEntries = append(updatedSnapshotEntries, se)
+		}
+
+		if len(updatedSnapshotEntries) == 0 {
+			return
+		}
+
+		h.logger.Info().Msg("offline hub: Syncing list data")
+
+		for _, se := range updatedSnapshotEntries {
+
+			var listData *ListData
+
+			switch se.Type {
+			case "anime":
+				listData = se.GetAnimeEntry().ListData
+			case "manga":
+				listData = se.GetMangaEntry().ListData
+			}
+
+			if listData == nil {
+				continue
+			}
+
+			listData.Score = listData.Score * 10
+
+			var startDate *anilist.FuzzyDateInput
+			var endDate *anilist.FuzzyDateInput
+			if listData.StartedAt != "" {
+				parsedDate, err := time.Parse("2006-01-02", listData.StartedAt)
+				if err == nil {
+					year := parsedDate.Year()
+					month := int(parsedDate.Month())
+					day := parsedDate.Day()
+					startDate = &anilist.FuzzyDateInput{
+						Year:  &year,
+						Month: &month,
+						Day:   &day,
+					}
+				}
+			}
+			if listData.CompletedAt != "" {
+				parsedDate, err := time.Parse("2006-01-02", listData.CompletedAt)
+				if err == nil {
+					year := parsedDate.Year()
+					month := int(parsedDate.Month())
+					day := parsedDate.Day()
+					endDate = &anilist.FuzzyDateInput{
+						Year:  &year,
+						Month: &month,
+						Day:   &day,
+					}
+				}
+			}
+
+			_, _ = h.anilistClientWrapper.UpdateMediaListEntry(
+				context.Background(),
+				&se.MediaId,
+				&listData.Status,
+				&listData.Score,
+				&listData.Progress,
+				startDate,
+				endDate,
+			)
+
+		}
+
+	}()
 }
