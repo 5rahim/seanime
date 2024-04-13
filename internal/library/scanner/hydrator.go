@@ -29,6 +29,7 @@ type FileHydrator struct {
 	Logger               *zerolog.Logger
 	ScanLogger           *ScanLogger                // optional
 	ScanSummaryLogger    *summary.ScanSummaryLogger // optional
+	ForceMediaId         int                        // optional - force all local files to have this media ID
 }
 
 // HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
@@ -256,7 +257,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		}
 
 		// Absolute episode count
-		if episode > media.GetCurrentEpisodeCount() {
+		if episode > media.GetCurrentEpisodeCount() && fh.ForceMediaId == 0 {
 			if !treeFetched {
 
 				mediaTreeFetchStart := time.Now()
@@ -326,6 +327,64 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				fh.ScanSummaryLogger.LogMetadataEpisodeNormalized(lf, mId, episode, lf.Metadata.Episode, lf.MediaId, lf.Metadata.AniDBEpisode)
 			}
 			return
+		}
+
+		// Absolute episode count with forced media ID
+		if fh.ForceMediaId != 0 && episode > media.GetCurrentEpisodeCount() {
+
+			azm, err := anizip.FetchAniZipMedia("anilist", fh.ForceMediaId)
+			if err != nil {
+				/*Log */
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.ErrorLevel, lf, mId, episode).
+						Str("error", err.Error()).
+						Msg("Could not fetch AniZip media")
+				}
+				lf.Metadata.Episode = episode
+				lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
+				lf.MediaId = fh.ForceMediaId
+				return
+			}
+
+			// Get the offset
+			found := false
+			for _, ep := range azm.Episodes {
+				epI, _ := strconv.Atoi(ep.Episode)
+				if epI != ep.EpisodeNumber && ep.EpisodeNumber == episode {
+
+					if fh.ScanLogger != nil {
+						fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
+							Dict("normalization", zerolog.Dict().
+								Bool("normalized", true),
+							).
+							Msg("File has been marked as main")
+					}
+					lf.Metadata.Episode = epI
+					lf.Metadata.AniDBEpisode = strconv.Itoa(epI)
+					lf.MediaId = fh.ForceMediaId
+					found = true
+					break
+				}
+			}
+
+			if found {
+				return
+			}
+
+			if fh.ScanLogger != nil {
+				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+					Dict("normalization", zerolog.Dict().
+						Bool("normalized", false).
+						Str("error", err.Error()).
+						Str("reason", "Episode normalization failed"),
+					).
+					Msg("File has been marked as main")
+			}
+			lf.Metadata.Episode = episode
+			lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
+			lf.MediaId = fh.ForceMediaId
+			return
+
 		}
 
 	})

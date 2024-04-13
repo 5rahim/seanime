@@ -390,6 +390,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		AllMedia: []*entities.NormalizedMedia{
 			entities.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
 		},
+		ForceMediaId: mediaRes.GetMedia().GetID(),
 	}
 
 	fh.HydrateMetadata()
