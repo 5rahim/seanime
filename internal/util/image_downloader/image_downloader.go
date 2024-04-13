@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/limiter"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"
@@ -20,6 +21,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sync"
+	"time"
 )
 
 const (
@@ -71,22 +73,18 @@ func (id *ImageDownloader) DownloadImages(urls []string) (err error) {
 		return
 	}
 
-	batchSize := calculateBatchSize(len(urls)) // Calculate batch size based on number of URLs
+	rateLimiter := limiter.NewLimiter(5*time.Second, 5)
 	var wg sync.WaitGroup
-	semaphore := make(chan struct{}, batchSize) // Semaphore to control concurrency
 	for _, url := range urls {
-		semaphore <- struct{}{} // Acquire semaphore
 		wg.Add(1)
 		go func(url string) {
-			defer func() {
-				<-semaphore // Release semaphore
-				wg.Done()
-			}()
+			defer wg.Done()
 			select {
 			case <-id.cancelChannel:
 				id.logger.Warn().Msg("image downloader: Download process canceled")
 				return
 			default:
+				rateLimiter.Wait()
 				id.downloadImage(url)
 			}
 		}(url)

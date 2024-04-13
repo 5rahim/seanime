@@ -322,6 +322,10 @@ func (h *Hub) UpdateMangaListStatus(
 // SyncListData updates the user's AniList collection once they come back online
 func (h *Hub) SyncListData() {
 
+	if h.isOffline {
+		return
+	}
+
 	go func() {
 
 		util.HandlePanicInModuleThen("offline/SyncListData", func() {})

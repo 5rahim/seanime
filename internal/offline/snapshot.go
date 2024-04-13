@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/util/limiter"
 	"slices"
 	"time"
 )
@@ -74,6 +75,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
 	anizipCache := anizip.NewCache()
 
+	rateLimiter := limiter.NewLimiter(5*time.Second, 5)
 	for _, lfEntry := range lfEntries {
 		if !slices.Contains(opts.AnimeToDownload, lfEntry.GetMediaId()) {
 			continue
@@ -90,6 +92,9 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 			continue
 		}
 
+		h.logger.Debug().Msgf("offline hub: Creating media entry snapshot for media %d", lfEntry.GetMediaId())
+
+		rateLimiter.Wait()
 		_mediaEntry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
 			MediaId:              lfEntry.GetMediaId(),
 			LocalFiles:           lfs,
@@ -99,7 +104,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 			MetadataProvider:     h.metadataProvider,
 		})
 		if err != nil {
-			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to create media entry for media %d", lfEntry.GetMediaId())
+			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to create media entry for anime %d", lfEntry.GetMediaId())
 			return err
 		}
 
@@ -157,6 +162,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		if listEntry.GetStatus() == nil {
 			continue
 		}
+
+		h.logger.Debug().Msgf("offline hub: Creating media entry snapshot for manga %d", container.MediaId)
 
 		// Create the MangaEntry
 		mangaEntry := &MangaEntry{
