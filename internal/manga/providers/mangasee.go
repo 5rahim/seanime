@@ -107,6 +107,13 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 		})
 	}
 
+	if len(searchResults) == 0 {
+		m.logger.Error().Msg("mangasee: No results found")
+		return nil, ErrNoResults
+	}
+
+	m.logger.Info().Int("count", len(searchResults)).Msg("mangasee: Found results")
+
 	return searchResults, nil
 }
 
@@ -119,6 +126,8 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 	c := colly.NewCollector(
 		colly.UserAgent(m.UserAgent),
 	)
+
+	c.WithTransport(m.Client.Transport)
 
 	var chapterData []struct {
 		Chapter     string `json:"Chapter"`
@@ -162,6 +171,11 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 		}
 	}
 
+	if len(ret) == 0 {
+		m.logger.Error().Msg("mangasee: No chapters found")
+		return nil, ErrNoChapters
+	}
+
 	m.logger.Info().Int("count", len(ret)).Msg("mangasee: Found chapters")
 
 	return ret, nil
@@ -189,6 +203,8 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 	c := colly.NewCollector(
 		colly.UserAgent(m.UserAgent),
 	)
+
+	c.WithTransport(m.Client.Transport)
 
 	var curChapter struct {
 		Chapter     string `json:"Chapter"`
@@ -235,7 +251,11 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 			Index:    i,
 			Headers:  map[string]string{"Referer": uri},
 		})
+	}
 
+	if len(pages) == 0 {
+		m.logger.Error().Msg("mangasee: No pages found")
+		return nil, ErrNoPages
 	}
 
 	m.logger.Info().Int("count", len(pages)).Msg("mangasee: Found pages")

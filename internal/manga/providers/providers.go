@@ -1,9 +1,18 @@
 package manga_providers
 
+import "errors"
+
 const (
-	MangaseeProvider Provider = "mangasee"
-	MangadexProvider Provider = "mangadex"
-	ComickProvider   Provider = "comick"
+	MangaseeProvider  Provider = "mangasee"
+	MangadexProvider  Provider = "mangadex"
+	ComickProvider    Provider = "comick"
+	MangapillProvider Provider = "mangapill"
+)
+
+var (
+	ErrNoResults  = errors.New("no results found")
+	ErrNoChapters = errors.New("no chapters found")
+	ErrNoPages    = errors.New("no pages found")
 )
 
 type (

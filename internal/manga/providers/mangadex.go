@@ -166,11 +166,19 @@ func (md *Mangadex) Search(opts SearchOptions) ([]*SearchResult, error) {
 		ret = append(ret, result)
 	}
 
+	if len(ret) == 0 {
+		md.logger.Error().Msg("mangadex: No results found")
+		return nil, ErrNoResults
+	}
+
+	md.logger.Info().Int("count", len(ret)).Msg("mangadex: Found results")
+
 	return ret, nil
 }
 func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
-
 	ret := make([]*ChapterDetails, 0)
+
+	md.logger.Debug().Str("mangaId", id).Msg("mangadex: Finding chapters")
 
 	for page := 0; page <= 1; page++ {
 		uri := fmt.Sprintf("%s/manga/%s/feed?limit=500&translatedLanguage%%5B%%5D=en&includes[]=scanlation_group&includes[]=user&order[volume]=desc&order[chapter]=desc&offset=%d&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic", md.Url, id, 500*page)
@@ -242,11 +250,20 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 		}
 	}
 
+	if len(ret) == 0 {
+		md.logger.Error().Msg("mangadex: No chapters found")
+		return nil, ErrNoChapters
+	}
+
+	md.logger.Info().Int("count", len(ret)).Msg("mangadex: Found chapters")
+
 	return ret, nil
 
 }
 func (md *Mangadex) FindChapterPages(id string) ([]*ChapterPage, error) {
 	ret := make([]*ChapterPage, 0)
+
+	md.logger.Debug().Str("chapterId", id).Msg("mangadex: Finding chapter pages")
 
 	uri := fmt.Sprintf("%s/at-home/server/%s", md.Url, id)
 
@@ -291,8 +308,11 @@ func (md *Mangadex) FindChapterPages(id string) ([]*ChapterPage, error) {
 	}
 
 	if len(ret) == 0 {
-		return nil, fmt.Errorf("no pages found")
+		md.logger.Error().Msg("mangadex: No pages found")
+		return nil, ErrNoPages
 	}
+
+	md.logger.Info().Int("count", len(ret)).Msg("mangadex: Found pages")
 
 	return ret, nil
 }

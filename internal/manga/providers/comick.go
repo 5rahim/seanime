@@ -133,8 +133,16 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 		})
 	}
 
+	if len(results) == 0 {
+		c.logger.Warn().Msg("comick: No results found")
+		return nil, ErrNoChapters
+	}
+
+	c.logger.Info().Int("count", len(results)).Msg("comick: Found results")
+
 	return results, nil
 }
+
 func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	ret := make([]*ChapterDetails, 0)
 
@@ -218,6 +226,11 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 
 	ret = append(ret, chapters...)
 
+	if len(ret) == 0 {
+		c.logger.Warn().Msg("comick: No chapters found")
+		return nil, ErrNoChapters
+	}
+
 	c.logger.Info().Int("count", len(ret)).Msg("comick: Found chapters")
 
 	return ret, nil
@@ -226,7 +239,7 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	ret := make([]*ChapterPage, 0)
 
-	c.logger.Debug().Str("chapterId", id).Msg("comick: Fetching chapter pages")
+	c.logger.Debug().Str("chapterId", id).Msg("comick: Finding chapter pages")
 
 	uri := fmt.Sprintf("%s/chapter/%s", c.Url, id)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -267,7 +280,12 @@ func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 		})
 	}
 
-	c.logger.Info().Int("count", len(ret)).Msg("comick: found pages")
+	if len(ret) == 0 {
+		c.logger.Warn().Msg("comick: No pages found")
+		return nil, ErrNoPages
+	}
+
+	c.logger.Info().Int("count", len(ret)).Msg("comick: Found pages")
 
 	return ret, nil
 
