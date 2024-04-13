@@ -9,7 +9,7 @@ import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
 import { ServerStatus } from "@/lib/types/server-status.types"
-import { DEFAULT_TORRENT_PROVIDER, Settings } from "@/lib/types/settings.types"
+import { DEFAULT_DOH_PROVIDER, DEFAULT_TORRENT_PROVIDER, Settings } from "@/lib/types/settings.types"
 import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
@@ -71,6 +71,7 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                         disableAnimeCardTrailers: false,
                                         enableOnlinestream: data.enableOnlinestream,
                                         enableManga: data.enableManga,
+                                        dohProvider: DEFAULT_DOH_PROVIDER,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

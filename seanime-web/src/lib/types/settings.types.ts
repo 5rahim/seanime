@@ -2,6 +2,8 @@ export const DEFAULT_TORRENT_PROVIDER = "animetosho"
 
 export const DEFAULT_TORRENT_CLIENT = "qbittorrent"
 
+export const DEFAULT_DOH_PROVIDER = ""
+
 export type AutoDownloaderSettings = {
     provider: string
     interval: number
@@ -53,6 +55,7 @@ export type LibrarySettings = {
     enableOnlinestream: boolean
     disableAnimeCardTrailers: boolean
     enableManga: boolean
+    dohProvider: string
 }
 
 export type TorrentSettings = {

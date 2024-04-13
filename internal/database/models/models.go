@@ -74,6 +74,7 @@ type LibrarySettings struct {
 	EnableOnlinestream       bool   `gorm:"column:enable_onlinestream" json:"enableOnlinestream"`
 	DisableAnimeCardTrailers bool   `gorm:"column:disable_anime_card_trailers" json:"disableAnimeCardTrailers"`
 	EnableManga              bool   `gorm:"column:enable_manga" json:"enableManga"`
+	DOHProvider              string `gorm:"column:doh_provider" json:"dohProvider"`
 }
 type TorrentSettings struct {
 	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`

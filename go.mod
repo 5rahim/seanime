@@ -30,7 +30,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/xfrr/goffmpeg v1.0.0
 	golang.org/x/image v0.10.0
-	golang.org/x/net v0.21.0
+	golang.org/x/net v0.24.0
 	golang.org/x/text v0.14.0
 	gorm.io/gorm v1.25.7
 )
@@ -57,6 +57,8 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/klauspost/compress v1.17.3 // indirect
+	github.com/likexian/doh-go v0.6.4 // indirect
+	github.com/likexian/gokit v0.25.13 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -88,7 +90,7 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.15.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/tools v0.18.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect

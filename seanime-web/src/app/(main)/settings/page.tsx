@@ -17,7 +17,7 @@ import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, Settings } from "@/li
 import { useAtom } from "jotai/react"
 import Link from "next/link"
 import React, { useEffect } from "react"
-import { CgMediaPodcast } from "react-icons/cg"
+import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
 import { GoArrowRight } from "react-icons/go"
@@ -95,6 +95,7 @@ export default function Page() {
                             enableOnlinestream: data.enableOnlinestream,
                             disableAnimeCardTrailers: data.disableAnimeCardTrailers,
                             enableManga: data.enableManga,
+                            dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
                         },
                         mediaPlayer: {
                             host: data.mediaPlayerHost,
@@ -169,6 +170,7 @@ export default function Page() {
                     enableMangaRichPresence: status?.settings?.discord?.enableMangaRichPresence ?? false,
                     enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
                     blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
+                    dohProvider: status?.settings?.library?.dohProvider || "-",
                 }}
                 stackClass="space-y-4"
             >
@@ -183,6 +185,7 @@ export default function Page() {
                     <TabsList>
                         <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
                         <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
+                        <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                         <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
                         <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
@@ -229,22 +232,6 @@ export default function Page() {
                                 name="disableUpdateCheck"
                                 label="Do not check for updates"
                                 help="If enabled, Seanime will not check for new releases."
-                            />
-
-
-                            <Separator />
-
-                            <h3>Torrent Provider</h3>
-
-                            <Field.Select
-                                name="torrentProvider"
-                                // label="Torrent Provider"
-                                help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results."
-                                leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
-                                options={[
-                                    { label: "AnimeTosho (recommended)", value: "animetosho" },
-                                    { label: "Nyaa", value: "nyaa" },
-                                ]}
                             />
 
                         </TabsContent>
@@ -321,6 +308,40 @@ export default function Page() {
                             <h3>Cache</h3>
 
                             <FilecacheSettings />
+
+                        </TabsContent>
+
+                        <TabsContent value="torrent" className="space-y-6">
+
+                            <h3>Torrent Provider</h3>
+
+                            <Field.Select
+                                name="torrentProvider"
+                                // label="Torrent Provider"
+                                help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results."
+                                leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
+                                options={[
+                                    { label: "AnimeTosho (recommended)", value: "animetosho" },
+                                    { label: "Nyaa", value: "nyaa" },
+                                ]}
+                            />
+
+
+                            <Separator />
+
+                            {/*<h3>DNS over HTTPS</h3>*/}
+
+                            {/*<Field.Select*/}
+                            {/*    name="dohProvider"*/}
+                            {/*    // label="Torrent Provider"*/}
+                            {/*    help="Choose a DNS over HTTPS provider to resolve domain names for torrent search."*/}
+                            {/*    leftIcon={<FcFilingCabinet className="-500" />}*/}
+                            {/*    options={[*/}
+                            {/*        { label: "None", value: "-" },*/}
+                            {/*        { label: "Cloudflare", value: "cloudflare" },*/}
+                            {/*        { label: "Quad9", value: "quad9" },*/}
+                            {/*    ]}*/}
+                            {/*/>*/}
 
                         </TabsContent>
 

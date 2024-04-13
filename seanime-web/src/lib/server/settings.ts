@@ -37,6 +37,7 @@ export const settingsSchema = z.object({
     enableMangaRichPresence: z.boolean().optional().default(false),
     enableAdultContent: z.boolean().optional().default(false),
     blurAdultContent: z.boolean().optional().default(false),
+    dohProvider: z.string().optional().default(""),
 })
 
 export function useDefaultSettingsPaths() {
