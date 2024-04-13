@@ -91,6 +91,7 @@ export type MangaChapterPage = {
     provider: string
     url: string
     index: number
+    headers?: Record<string, string>
 }
 
 // +----------------------------------------------------------------+

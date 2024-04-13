@@ -1,6 +1,7 @@
 package manga
 
 import (
+	"bytes"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga/providers"
@@ -99,6 +100,17 @@ func getImageNaturalSize(url string) (int, int, error) {
 
 	// Decode the image
 	img, _, err := image.DecodeConfig(resp.Body)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	// Return the natural size
+	return img.Width, img.Height, nil
+}
+
+func getImageNaturalSizeB(data []byte) (int, int, error) {
+	// Decode the image
+	img, _, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil {
 		return 0, 0, err
 	}

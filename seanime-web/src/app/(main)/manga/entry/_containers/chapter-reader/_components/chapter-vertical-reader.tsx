@@ -164,7 +164,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                     >
                         <LoadingSpinner containerClass="h-full absolute inset-0 z-[1] focus-visible:outline-none" tabIndex={-1} />
                         <img
-                            src={getChapterPageUrl(page.url, pageContainer?.isDownloaded)}
+                            src={getChapterPageUrl(page.url, pageContainer?.isDownloaded, page.headers)}
                             alt={`Page ${index}`}
                             className={cn(
                                 "max-w-full h-auto mx-auto select-none z-[4] relative focus-visible:outline-none",

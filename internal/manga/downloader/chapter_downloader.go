@@ -17,7 +17,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
@@ -289,17 +288,9 @@ func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destinatio
 
 	imgID := fmt.Sprintf("%02d", page.Index+1)
 
-	// Download the image
-	resp, err := http.Get(page.URL)
+	buf, err := manga_providers.GetImage(page.URL, page.Headers)
 	if err != nil {
-		cd.logger.Error().Err(err).Msgf("chapter downloader: Failed to download image from URL %s", page.URL)
-		return
-	}
-	defer resp.Body.Close()
-
-	buf, err := io.ReadAll(resp.Body)
-	if err != nil {
-		cd.logger.Error().Err(err).Msgf("chapter downloader: Failed to read image data from URL %s", page.URL)
+		cd.logger.Error().Err(err).Msgf("chapter downloader: Failed to get image from URL %s", page.URL)
 		return
 	}
 

@@ -12,8 +12,15 @@ export function getChapterNumberFromChapter(chapter: string): number {
 
 export function useMangaReaderUtils() {
 
-    const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined) => {
+    const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined, headers?: Record<string, string>) => {
         if (!isDownloaded) {
+            if (headers && Object.keys(headers).length > 0) {
+                return process.env.NODE_ENV === "development"
+                    ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
+                        JSON.stringify(headers))}`
+                    : `http://${window?.location?.host}/manga-downloads/api/v1/?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(JSON.stringify(
+                        headers))}`
+            }
             return url
         }
 

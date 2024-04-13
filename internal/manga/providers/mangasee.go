@@ -249,7 +249,7 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 			Provider: MangaseeProvider,
 			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, slug, ch, pageNum),
 			Index:    i,
-			Headers:  map[string]string{"Referer": uri},
+			Headers:  map[string]string{"Referer": m.Url},
 		})
 	}
 

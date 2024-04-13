@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/util"
+	util2 "github.com/seanime-app/seanime/internal/util/proxies"
 	"strings"
 	"sync"
 )
@@ -30,6 +31,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/internal/metrics",
 			"/_next",
 			"/icons",
+			"/api/v1/image-proxy",
 		},
 		Levels: []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.TraceLevel},
 	})
@@ -60,6 +62,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			return c.Next()
 		})
 	}
+
+	// Image Proxy
+	imageProxy := &util2.ImageProxy{}
+	v1.Get("/image-proxy", imageProxy.ProxyImage)
 
 	//
 	// General
