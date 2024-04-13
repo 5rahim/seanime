@@ -150,7 +150,7 @@ func (pm *PlaybackManager) getPlaybackState(status *mediaplayer.PlaybackStatus) 
 	// Find the following episode
 	_, canPlayNext := pm.currentLocalFileWrapperEntry.FindNextEpisode(pm.currentLocalFile)
 	return PlaybackState{
-		EpisodeNumber:        pm.currentLocalFile.GetEpisodeNumber(),
+		EpisodeNumber:        pm.currentLocalFileWrapperEntry.GetProgressNumber(pm.currentLocalFile),
 		MediaTitle:           pm.currentMediaListEntry.GetMedia().GetPreferredTitle(),
 		MediaTotalEpisodes:   pm.currentMediaListEntry.GetMedia().GetCurrentEpisodeCount(),
 		MediaId:              pm.currentMediaListEntry.GetMedia().GetID(),
