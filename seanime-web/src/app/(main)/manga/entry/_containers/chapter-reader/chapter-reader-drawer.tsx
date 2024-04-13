@@ -26,7 +26,7 @@ import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
+import { BaseMangaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
@@ -142,7 +142,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                     chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0,
                     mediaId: entry.mediaId,
                     malId: entry.media?.idMal || undefined,
-                    totalChapters: chapterContainer?.chapters?.length || 0,
+                    totalChapters: entry.media?.chapters || 0,
                 }, {
                     onSuccess: () => {
                         !!nextChapter && setSelectedChapter({
@@ -156,10 +156,26 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
             } else {
 
+                let progress = chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0
+                let status = "CURRENT"
+                if (!!entry.media?.chapters && progress >= entry.media?.chapters) {
+                    progress = entry.media?.chapters
+                    status = "COMPLETED"
+                }
                 updateProgressOffline({
                     mediaId: entry.mediaId,
                     type: "manga",
-                    progress: chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0,
+                    progress: progress,
+                    status: status as MediaListStatus,
+                }, {
+                    onSuccess: () => {
+                        !!nextChapter && setSelectedChapter({
+                            chapterId: nextChapter.id,
+                            chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
+                            mediaId: entry.mediaId,
+                            provider: chapterContainer.provider,
+                        })
+                    },
                 })
 
             }
