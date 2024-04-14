@@ -45,6 +45,11 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
 
     const paginationMap = useAtomValue(__manga_paginationMapAtom)
+
+    /**
+     * For this horizontal reader [currentMapIndex] is the actual variable that controls what pages are displayed
+     * [currentPageIndex] is updated AFTER [currentMapIndex] changes
+     */
     const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
 
     useHydrateMangaPaginationMap(pageContainer)

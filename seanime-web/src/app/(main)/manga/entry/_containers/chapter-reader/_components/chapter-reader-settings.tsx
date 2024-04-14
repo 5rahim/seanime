@@ -10,6 +10,7 @@ import {
     __manga_pageGapAtom,
     __manga_pageGapShadowAtom,
     __manga_pageStretchAtom,
+    __manga_readerProgressBarAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
     MANGA_DEFAULT_KBS,
@@ -147,6 +148,8 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     const [pageGap, setPageGap] = useAtom(__manga_pageGapAtom)
     const [pageGapShadow, setPageGapShadow] = useAtom(__manga_pageGapShadowAtom)
     const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
+    //---
+    const [readerProgressBar, setReaderProgressBar] = useAtom(__manga_readerProgressBarAtom)
 
     /**
      * Remember settings for current media
@@ -388,6 +391,18 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         Reset defaults
                         for <span className="w-2"></span> {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
                     </Button>
+
+                    <Separator />
+
+                    <div className="flex items-center gap-4">
+                        <Switch
+                            label="Progress Bar"
+                            value={readerProgressBar}
+                            onValueChange={setReaderProgressBar}
+                            fieldClass="w-fit"
+                            size="sm"
+                        />
+                    </div>
 
                     <Separator />
 

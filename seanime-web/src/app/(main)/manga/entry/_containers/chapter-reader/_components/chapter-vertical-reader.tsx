@@ -13,7 +13,9 @@ import {
     MangaPageStretch,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
+import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
+import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import React from "react"
@@ -22,6 +24,8 @@ import { useEffectOnce } from "react-use"
 export type MangaVerticalReaderProps = {
     pageContainer: MangaPageContainer | undefined
 }
+
+export const ___manga_scrollSignalAtom = atom(0)
 
 /**
  * MangaVerticalReader component
@@ -53,6 +57,16 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
             pageDiv?.scrollIntoView()
         }
     })
+
+
+    /**
+     * When there is a signal, scroll to the current page
+     */
+    const scrollSignal = useAtomValue(___manga_scrollSignalAtom)
+    useUpdateEffect(() => {
+        const pageDiv = containerRef.current?.querySelector(`#page-${currentPageIndex}`)
+        pageDiv?.scrollIntoView()
+    }, [scrollSignal])
 
     /**
      * Function to handle scroll event

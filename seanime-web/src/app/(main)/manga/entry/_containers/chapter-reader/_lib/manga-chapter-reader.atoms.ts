@@ -92,6 +92,8 @@ export const __manga_pageStretchAtom = atomWithStorage<string>(MANGA_SETTINGS_AT
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+export const __manga_readerProgressBarAtom = atomWithStorage<boolean>("sea-manga-reader-progress-bar", false)
+
 export const __manga_pageGapAtom = atomWithStorage<boolean>(MANGA_SETTINGS_ATOM_KEYS.pageGap, true)
 
 export const __manga_pageGapShadowAtom = atomWithStorage(MANGA_SETTINGS_ATOM_KEYS.pageGapShadow, true)
