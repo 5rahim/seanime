@@ -1,6 +1,6 @@
 import { OfflineMangaEntry } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MangaChapterDetails } from "@/app/(main)/manga/_lib/manga.types"
+import { MangaChapterContainer, MangaChapterDetails } from "@/app/(main)/manga/_lib/manga.types"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
 import { primaryPillCheckboxClass } from "@/components/shared/styling/classnames"
@@ -31,16 +31,22 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
     const setProvider = useSetAtom(__manga_selectedProviderAtom)
 
+    const chapters = React.useMemo(() => {
+        return entry?.chapterContainers?.flatMap(n => n.chapters)?.filter(Boolean) ?? []
+    }, [entry?.chapterContainers])
+
 
     const chapterNumbersMap = React.useMemo(() => {
         const map = new Map<string, number>()
 
-        for (const chapter of entry?.chapterContainer?.chapters ?? []) {
+        for (const chapter of chapters) {
             map.set(chapter.id, getChapterNumberFromChapter(chapter.chapter))
         }
 
         return map
-    }, [entry?.chapterContainer])
+    }, [entry?.chapterContainers])
+
+    const [selectedChapterContainer, setSelectedChapterContainer] = React.useState<MangaChapterContainer | undefined>(undefined)
 
     const columns = React.useMemo(() => defineDataGridColumns<MangaChapterDetails>(() => [
         {
@@ -55,6 +61,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
             enableSorting: true,
         },
         {
+            id: "number",
             header: "Number",
             size: 10,
             enableSorting: true,
@@ -75,6 +82,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                             size="sm"
                             onClick={() => {
                                 setProvider(row.original.provider)
+                                setSelectedChapterContainer(entry?.chapterContainers?.find(c => c.provider === row.original.provider))
                                 React.startTransition(() => {
                                     setSelectedChapter({
                                         chapterId: row.original.id,
@@ -99,18 +107,20 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
         const chapterNumber = chapterNumbersMap.get(chapter.id)
         return !!chapterNumber && chapterNumber > entry.listData?.progress
-    }, [chapterNumbersMap, entry?.chapterContainer, entry])
+    }, [chapterNumbersMap, entry?.chapterContainers, entry])
 
-    const unreadChapters = React.useMemo(() => entry?.chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [],
-        [entry?.chapterContainer, entry])
+    const unreadChapters = React.useMemo(() => chapters.filter(ch => retainUnreadChapters(ch)) ?? [],
+        [chapters, entry])
 
     React.useEffect(() => {
         setShowUnreadChapter(!!unreadChapters.length)
     }, [unreadChapters])
 
-    const chapters = React.useMemo(() => {
-        return showUnreadChapter ? unreadChapters : entry?.chapterContainer?.chapters
-    }, [showUnreadChapter, entry?.chapterContainer?.chapters, unreadChapters])
+    const tableChapters = React.useMemo(() => {
+        return showUnreadChapter ? unreadChapters : chapters
+    }, [showUnreadChapter, chapters, unreadChapters])
+
+    if (!entry) return null
 
     return (
         <>
@@ -128,23 +138,29 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
                 <DataGrid<MangaChapterDetails>
                     columns={columns}
-                    data={chapters}
-                    rowCount={chapters?.length || 0}
-                    isLoading={!chapters}
+                    data={tableChapters}
+                    rowCount={tableChapters?.length || 0}
+                    isLoading={!tableChapters}
                     rowSelectionPrimaryKey="id"
                     initialState={{
                         pagination: {
                             pageIndex: 0,
                             pageSize: 10,
                         },
+                        sorting: [
+                            {
+                                id: "number",
+                                desc: false,
+                            },
+                        ],
                     }}
                     className=""
                 />
 
-                {!!entry?.chapterContainer && <ChapterReaderDrawer
+                {(!!selectedChapterContainer) && <ChapterReaderDrawer
                     entry={entry}
                     chapterIdToNumbersMap={chapterNumbersMap}
-                    chapterContainer={entry?.chapterContainer}
+                    chapterContainer={selectedChapterContainer}
                 />}
             </div>
         </>

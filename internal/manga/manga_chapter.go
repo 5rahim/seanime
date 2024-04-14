@@ -538,6 +538,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		provider := manga_providers.Provider(pair.provider)
 		mediaId := pair.mediaId
 
+		// Get the manga chapter container (downloaded and non-downloaded)
 		container, err := r.GetMangaChapterContainer(provider, mediaId, nil)
 		if err != nil {
 			if errors.Is(err, ErrNoTitlesProvided) { // This means the cache has expired
@@ -561,9 +562,11 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 
 		// Now that we have the container, we'll filter out the chapters that are not downloaded
 		chapters := make([]*manga_providers.ChapterDetails, 0)
+		// Go through each chapter and check if it's downloaded
 		for _, chapter := range container.Chapters {
+			// For each chapter, check if the chapter directory exists
 			for _, dir := range chapterDirs {
-				if strings.HasPrefix(dir, fmt.Sprintf("%s_%d_%s", provider, mediaId, chapter.ID)) {
+				if dir == fmt.Sprintf("%s_%d_%s_%s", provider, mediaId, chapter.ID, chapter.Chapter) {
 					chapters = append(chapters, chapter)
 					break
 				}

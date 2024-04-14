@@ -3,9 +3,11 @@ package offline
 import (
 	"context"
 	"github.com/goccy/go-json"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"slices"
 	"time"
@@ -151,7 +153,11 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		return err
 	}
 
-	for _, container := range containers {
+	uniqContainers := lo.UniqBy(containers, func(c *manga.ChapterContainer) int {
+		return c.MediaId
+	})
+
+	for _, container := range uniqContainers {
 		// Get the media
 		listEntry, ok := mangaCollection.GetListEntryFromMediaId(container.MediaId)
 		if !ok {
@@ -165,6 +171,15 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
 		h.logger.Debug().Msgf("offline hub: Creating media entry snapshot for manga %d", container.MediaId)
 
+		// Get all chapter containers for this media
+		// A manga entry can have multiple chapter containers due to different sources
+		eContainers := make([]*manga.ChapterContainer, 0)
+		for _, c := range containers {
+			if c.MediaId == container.MediaId {
+				eContainers = append(eContainers, c)
+			}
+		}
+
 		// Create the MangaEntry
 		mangaEntry := &MangaEntry{
 			MediaId: container.MediaId,
@@ -175,8 +190,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
 				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
 			},
-			Media:            listEntry.GetMedia(),
-			ChapterContainer: container,
+			Media:             listEntry.GetMedia(),
+			ChapterContainers: eContainers,
 			//DownloadedAssets: slices.Contains(opts.DownloadAssetsOf, container.MediaId),
 			DownloadedAssets: true,
 		}

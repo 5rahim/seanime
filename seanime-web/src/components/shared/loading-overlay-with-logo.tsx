@@ -6,11 +6,11 @@ import React from "react"
 export function LoadingOverlayWithLogo() {
     return <LoadingOverlay showSpinner={false}>
         <Image
-            src="/icons/android-chrome-192x192.png"
+            src="/logo_2.png"
             alt="Loading..."
             priority
-            width={80}
-            height={80}
+            width={180}
+            height={180}
             className="animate-pulse"
         />
         <TextGenerateEffect className="text-lg mt-2 text-[--muted] animate-pulse" words={"S e a n i m e"} />

@@ -49,11 +49,11 @@ type (
 	// MangaEntry is a snapshot of a manga list entry.
 	//  - Updates are made to this struct, then saved to the database.
 	MangaEntry struct {
-		MediaId          int                     `json:"mediaId"`
-		ListData         *ListData               `json:"listData"`
-		Media            *anilist.BaseManga      `json:"media"`
-		ChapterContainer *manga.ChapterContainer `json:"chapterContainer"`
-		DownloadedAssets bool                    `json:"downloadedAssets"`
+		MediaId           int                       `json:"mediaId"`
+		ListData          *ListData                 `json:"listData"`
+		Media             *anilist.BaseManga        `json:"media"`
+		ChapterContainers []*manga.ChapterContainer `json:"chapterContainers"`
+		DownloadedAssets  bool                      `json:"downloadedAssets"`
 	}
 
 	ListData struct {

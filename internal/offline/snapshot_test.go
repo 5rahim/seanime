@@ -90,7 +90,7 @@ func TestSnapshot(t *testing.T) {
 	t.Logf(" Manga Entries: %d", len(snapshot.Entries.MangaEntries))
 	for _, entry := range snapshot.Entries.MangaEntries {
 		t.Logf("    %s", entry.Media.GetPreferredTitle())
-		t.Logf("       %d chapters", len(entry.ChapterContainer.Chapters))
+		t.Logf("       %d chapter containers", len(entry.ChapterContainers))
 		t.Logf("       hasDownloadedAssets %t", entry.DownloadedAssets)
 		t.Logf("")
 	}
@@ -120,7 +120,7 @@ func TestSnapshot_GetLatestSnapshot(t *testing.T) {
 	t.Logf(" Manga Entries: %d", len(snapshot.Entries.MangaEntries))
 	for _, entry := range snapshot.Entries.MangaEntries {
 		t.Logf("    %s", entry.Media.GetPreferredTitle())
-		t.Logf("       %d chapters", len(entry.ChapterContainer.Chapters))
+		t.Logf("       %d chapter containers", len(entry.ChapterContainers))
 		t.Logf("       hasDownloadedAssets %t", entry.DownloadedAssets)
 		t.Logf("")
 	}
