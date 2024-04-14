@@ -4,6 +4,7 @@ export const MANGA_PROVIDER_OPTIONS = [
     { value: "mangasee", label: "Mangasee" },
     { value: "mangadex", label: "Mangadex" },
     { value: "mangapill", label: "Mangapill" },
+    { value: "manganato", label: "Manganato" },
     { value: "comick", label: "ComicK" },
 ]
 
