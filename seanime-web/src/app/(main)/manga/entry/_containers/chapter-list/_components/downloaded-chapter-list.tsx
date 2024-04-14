@@ -160,11 +160,11 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         }
     }, [selectedChapters])
 
-    if (!data || !tableData.length) return null
+    if (!data || Object.keys(data.downloaded).length === 0 && Object.keys(data.queued).length === 0) return null
 
     return (
         <>
-            <h3 className="pt-8">Downloads</h3>
+            <h3 className="pt-8">Downloaded chapters</h3>
 
             <div className="space-y-4 border rounded-md bg-[--paper] p-4">
 

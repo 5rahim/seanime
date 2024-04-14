@@ -28,9 +28,9 @@ export const OfflineTopNavbar: React.FC<OfflineTopNavbarProps> = (props) => {
                 name: "My library",
             },
             ...[serverStatus?.settings?.library?.enableManga && {
-                href: "#manga",
+                href: "/offline#manga",
                 icon: null,
-                isCurrent: pathname.includes("#manga"),
+                isCurrent: pathname.includes("/offline#manga"),
                 name: "Manga",
             }].filter(Boolean) as NavigationMenuProps["items"],
         ].filter(Boolean)

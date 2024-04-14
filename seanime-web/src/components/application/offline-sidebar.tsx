@@ -68,8 +68,8 @@ export function OfflineSidebar() {
                             ...[serverStatus?.settings?.library?.enableManga && {
                                 iconType: FaBookReader,
                                 name: "Manga",
-                                href: "#manga",
-                                isCurrent: pathname.startsWith("#manga"),
+                                href: "/offline#manga",
+                                isCurrent: pathname.startsWith("/offline#manga"),
                             }].filter(Boolean) as any,
                         ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}
