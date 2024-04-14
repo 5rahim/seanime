@@ -53,7 +53,7 @@ type EpisodeListsProps = {
     assetMap: OfflineAssetMap | undefined
 }
 
-export function EpisodeLists(props: EpisodeListsProps) {
+function EpisodeLists(props: EpisodeListsProps) {
 
     const {
         children,

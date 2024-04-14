@@ -115,7 +115,6 @@ func (cd *Downloader) Start() {
 			case queueInfo := <-cd.runCh:
 				cd.logger.Debug().Msgf("chapter downloader: Received queue item to download: %s", queueInfo.ChapterId)
 				cd.run(queueInfo)
-			default:
 			}
 		}
 	}()

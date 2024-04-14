@@ -1,5 +1,4 @@
 import { MangaPageContainer } from "@/app/(main)/manga/_lib/manga.types"
-import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/manga.utils"
 import { ChapterPage } from "@/app/(main)/manga/entry/_containers/chapter-reader/_components/chapter-page"
 import {
     __manga_currentPageIndexAtom,
@@ -134,8 +133,6 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
             mousetrap.unbind(kbsPageRight)
         }
     }, [kbsPageLeft, kbsPageRight, paginationMap])
-
-    const { getChapterPageUrl } = useMangaReaderUtils()
 
     return (
         <div className="max-h-[calc(100dvh-3rem)] relative focus-visible:outline-none" tabIndex={-1}>

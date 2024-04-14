@@ -103,7 +103,6 @@ func (d *Downloader) Start() {
 			// Refresh the media map when a chapter is downloaded
 			case _ = <-d.chapterDownloader.ChapterDownloaded():
 				d.refreshMediaMap()
-			default:
 			}
 		}
 	}()
