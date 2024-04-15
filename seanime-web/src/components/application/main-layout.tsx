@@ -6,12 +6,10 @@ import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
 import { useAutoDownloaderItemListener } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
 import { useMissingEpisodeListener } from "@/atoms/missing-episodes"
+import { GlobalSearch } from "@/components/application/global-search"
 import { MainSidebar } from "@/components/application/main-sidebar"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
-import dynamic from "next/dynamic"
 import React from "react"
-
-const GlobalSearch = dynamic(() => import("@/components/application/global-search").then((mod) => mod.GlobalSearch))
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 

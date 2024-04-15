@@ -18,6 +18,8 @@ import { BsFileEarmarkExcelFill, BsFileEarmarkPlayFill } from "react-icons/bs"
 import { LuFileSearch, LuTextSelect } from "react-icons/lu"
 import { TbListSearch } from "react-icons/tb"
 
+export const dynamic = "force-static"
+
 export default function Page() {
 
     const [selectedSummaryId, setSelectedSummaryId] = React.useState<string | null>(null)

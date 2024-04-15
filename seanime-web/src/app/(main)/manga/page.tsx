@@ -22,6 +22,8 @@ import { useAtom, useAtomValue } from "jotai/react"
 import React, { memo } from "react"
 import { FiSearch } from "react-icons/fi"
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const { mangaCollection, mangaCollectionLoading } = useMangaCollection()
 

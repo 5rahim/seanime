@@ -22,6 +22,8 @@ const settingsSchema = defineSchema(({ z }) => z.object({
     origin: z.string().min(1),
 }))
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const serverStatus = useAtomValue(serverStatusAtom)
     const qc = useQueryClient()

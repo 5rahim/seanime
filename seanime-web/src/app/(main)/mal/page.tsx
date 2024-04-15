@@ -10,6 +10,8 @@ import React from "react"
 import { BiCheckCircle, BiLogOut, BiXCircle } from "react-icons/bi"
 import { SiMyanimelist } from "react-icons/si"
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const status = useAtomValue(serverStatusAtom)
     const qc = useQueryClient()

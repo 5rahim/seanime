@@ -31,6 +31,8 @@ function anilist_filterEntriesByTitle(arr: AnilistCollectionEntry[], input: stri
     return arr
 }
 
+export const dynamic = "force-static"
+
 export default function Home() {
     const serverStatus = useAtomValue(serverStatusAtom)
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)

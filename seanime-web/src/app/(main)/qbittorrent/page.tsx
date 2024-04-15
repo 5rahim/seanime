@@ -2,6 +2,8 @@
 import { serverStatusAtom } from "@/atoms/server-status"
 import { useAtomValue } from "jotai"
 
+export const dynamic = "force-static"
+
 export default function Page() {
 
     const status = useAtomValue(serverStatusAtom)

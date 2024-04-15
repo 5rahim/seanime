@@ -1,20 +1,18 @@
 "use client"
 import { SnapshotAnimeSelector } from "@/app/(main)/offline-mode/_components/snapshot-anime-selector"
 import { useOfflineSnapshotEntry } from "@/app/(main)/offline-mode/_lib/offline-mode.hooks"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
-import { useAtomValue } from "jotai"
 import React from "react"
 import { IoCloudOfflineOutline } from "react-icons/io5"
 import { toast } from "sonner"
 
-export default function Page() {
-    const status = useAtomValue(serverStatusAtom)
+export const dynamic = "force-static"
 
+export default function Page() {
     const [animeMediaIds, setAnimeMediaIds] = React.useState<number[]>([])
     const [open, setOpen] = React.useState(false)
 

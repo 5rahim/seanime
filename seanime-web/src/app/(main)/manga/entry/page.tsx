@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()

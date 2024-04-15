@@ -22,3 +22,5 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
         {children}
     </>
 }
+
+export const dynamic = "force-static"

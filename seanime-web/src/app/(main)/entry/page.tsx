@@ -18,6 +18,8 @@ import { motion } from "framer-motion"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()

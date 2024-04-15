@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
 
+export const dynamic = "force-static"
+
 export default function CallbackPage() {
     const router = useRouter()
     const [status, setServerStatus] = useAtom(serverStatusAtom)

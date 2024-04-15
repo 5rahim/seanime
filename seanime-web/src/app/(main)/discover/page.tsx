@@ -7,6 +7,7 @@ import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-sec
 import { motion } from "framer-motion"
 import React from "react"
 
+export const dynamic = "force-static"
 
 export default function Page() {
 

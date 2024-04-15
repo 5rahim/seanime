@@ -34,6 +34,8 @@ const themeSchema = defineSchema(({ z }) => z.object({
         .default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundOpacity),
 }))
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const [serverStatus, setServerStatus] = useAtom(serverStatusAtom)
     const qc = useQueryClient()

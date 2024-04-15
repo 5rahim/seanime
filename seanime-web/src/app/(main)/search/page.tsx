@@ -13,6 +13,7 @@ import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { useMount } from "react-use"
 
+export const dynamic = "force-static"
 
 export default function Page({ params: urlParams }: {
     params: {

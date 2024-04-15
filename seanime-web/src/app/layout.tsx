@@ -4,6 +4,8 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import React from "react"
 
+export const dynamic = "force-static"
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -28,4 +30,4 @@ export default function RootLayout({ children }: {
     )
 }
 
-export const dynamic = "force-static"
+

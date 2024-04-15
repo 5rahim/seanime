@@ -18,6 +18,8 @@ import React, { useCallback } from "react"
 import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
 import * as upath from "upath"
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const serverStatus = useAtomValue(serverStatusAtom)
 

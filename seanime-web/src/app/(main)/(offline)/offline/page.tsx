@@ -9,6 +9,8 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { useAtomValue } from "jotai"
 import React from "react"
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const status = useAtomValue(serverStatusAtom)
     const ts = useThemeSettings()

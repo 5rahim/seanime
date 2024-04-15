@@ -58,6 +58,8 @@ type ProgressItem = {
 }
 const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 
+export const dynamic = "force-static"
+
 export default function Page() {
 
     const router = useRouter()

@@ -45,6 +45,8 @@ const tabsListClass = cn(
     "lg:block",
 )
 
+export const dynamic = "force-static"
+
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
 

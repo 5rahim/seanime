@@ -7,6 +7,8 @@ import { useMissingEpisodes } from "@/app/(main)/schedule/_lib/missing-episodes"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
+export const dynamic = "force-static"
+
 export default function Page() {
 
     const { missingEpisodes, silencedEpisodes, isLoading } = useMissingEpisodes()

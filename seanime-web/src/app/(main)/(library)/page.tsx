@@ -12,6 +12,8 @@ import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-back
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import React, { useMemo } from "react"
 
+export const dynamic = "force-static"
+
 export default function Library() {
 
     const {

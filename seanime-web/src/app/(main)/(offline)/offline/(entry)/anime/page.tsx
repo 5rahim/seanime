@@ -22,6 +22,8 @@ import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { MdInfo } from "react-icons/md"
 
+export const dynamic = "force-static"
+
 export default function Page() {
 
     const router = useRouter()
