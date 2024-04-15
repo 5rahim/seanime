@@ -82,10 +82,10 @@ func (a *App) initModulesOnce() {
 
 	//
 
-	a.OfflineHub.RefreshAnilistCollection = func() {
+	a.OfflineHub.RefreshAnilistCollections = func() {
 		_, _ = a.RefreshAnilistCollection()
+		_, _ = a.RefreshMangaCollection()
 	}
-	a.OfflineHub.SyncListData()
 
 }
 

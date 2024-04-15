@@ -1,4 +1,4 @@
-import { libraryCollectionAtom } from "@/app/(main)/_loaders/library-collection"
+import { libraryCollectionAtom } from "@/app/(main)/_lib/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import { useAtomValue } from "jotai/react"

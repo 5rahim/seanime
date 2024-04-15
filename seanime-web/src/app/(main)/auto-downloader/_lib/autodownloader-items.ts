@@ -20,7 +20,7 @@ export function useAutoDownloaderQueueCount() {
  * @description
  * - When the user is not on the main page, send a request to get auto downloader queue items
  */
-export function useListenToAutoDownloaderItems() {
+export function useAutoDownloaderItemListener() {
     const pathname = usePathname()
     const setter = useSetAtom(autoDownloaderItemsAtom)
     const qc = useQueryClient()

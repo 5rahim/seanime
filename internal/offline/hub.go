@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
@@ -21,6 +22,7 @@ type (
 	Hub struct {
 		anilistClientWrapper anilist.ClientWrapperInterface // Used to fetch anime and manga data from AniList
 		metadataProvider     *metadata.Provider             // Provides metadata for anime and manga entries
+		wsEventManager       events.IWSEventManager
 		mangaRepository      *manga.Repository
 		db                   *db.Database
 		offlineDb            *database // Stores snapshots
@@ -34,22 +36,23 @@ type (
 		mu              sync.Mutex
 		currentSnapshot *Snapshot
 
-		RefreshAnilistCollection func()
+		RefreshAnilistCollections func()
 	}
 )
 
 type (
 	NewHubOptions struct {
-		AnilistClientWrapper     anilist.ClientWrapperInterface
-		MetadataProvider         *metadata.Provider
-		MangaRepository          *manga.Repository
-		Db                       *db.Database
-		FileCacher               *filecache.Cacher
-		Logger                   *zerolog.Logger
-		OfflineDir               string
-		AssetDir                 string
-		IsOffline                bool
-		RefreshAnilistCollection func()
+		AnilistClientWrapper      anilist.ClientWrapperInterface
+		WSEventManager            events.IWSEventManager
+		MetadataProvider          *metadata.Provider
+		MangaRepository           *manga.Repository
+		Db                        *db.Database
+		FileCacher                *filecache.Cacher
+		Logger                    *zerolog.Logger
+		OfflineDir                string
+		AssetDir                  string
+		IsOffline                 bool
+		RefreshAnilistCollections func()
 	}
 )
 
@@ -76,18 +79,19 @@ func NewHub(opts *NewHubOptions) *Hub {
 	imgDownloader := image_downloader.NewImageDownloader(opts.AssetDir, opts.Logger)
 
 	return &Hub{
-		anilistClientWrapper:     opts.AnilistClientWrapper,
-		metadataProvider:         opts.MetadataProvider,
-		mangaRepository:          opts.MangaRepository,
-		db:                       opts.Db,
-		offlineDb:                offlineDb,
-		fileCacher:               opts.FileCacher,
-		logger:                   opts.Logger,
-		offlineDir:               opts.OfflineDir,
-		assetDir:                 opts.AssetDir,
-		isOffline:                opts.IsOffline,
-		assetsHandler:            newAssetsHandler(opts.Logger, imgDownloader),
-		RefreshAnilistCollection: opts.RefreshAnilistCollection,
+		anilistClientWrapper:      opts.AnilistClientWrapper,
+		wsEventManager:            opts.WSEventManager,
+		metadataProvider:          opts.MetadataProvider,
+		mangaRepository:           opts.MangaRepository,
+		db:                        opts.Db,
+		offlineDb:                 offlineDb,
+		fileCacher:                opts.FileCacher,
+		logger:                    opts.Logger,
+		offlineDir:                opts.OfflineDir,
+		assetDir:                  opts.AssetDir,
+		isOffline:                 opts.IsOffline,
+		assetsHandler:             newAssetsHandler(opts.Logger, imgDownloader),
+		RefreshAnilistCollections: opts.RefreshAnilistCollections,
 	}
 }
 
@@ -324,113 +328,117 @@ func (h *Hub) UpdateMangaListStatus(
 }
 
 // SyncListData updates the user's AniList collection once they come back online
-func (h *Hub) SyncListData() {
+func (h *Hub) SyncListData() error {
+	util.HandlePanicInModuleThen("offline/SyncListData", func() {})
 
 	if h.isOffline {
-		return
+		return nil
 	}
 
-	go func() {
+	snapshotItem, err := h.offlineDb.GetLatestSnapshot()
+	if err != nil {
+		return errors.New("no snapshot found")
+	}
 
-		util.HandlePanicInModuleThen("offline/SyncListData", func() {})
+	if snapshotItem == nil {
+		return errors.New("no snapshot found")
+	}
 
-		snapshotItem, err := h.offlineDb.GetLatestSnapshot()
-		if err != nil {
-			return
+	if snapshotItem.Synced {
+		return errors.New("data already synced")
+	}
+
+	if !snapshotItem.Used {
+		return errors.New("snapshot not used")
+	}
+
+	snapshotEntries, err := h.offlineDb.GetSnapshotMediaEntries(snapshotItem.ID)
+	if err != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to retrieve offline updates")
+		return err
+	}
+
+	updatedSnapshotEntries := make([]*SnapshotMediaEntry, 0)
+	for _, se := range snapshotEntries {
+		if se.CreatedAt == se.UpdatedAt {
+			continue
+		}
+		updatedSnapshotEntries = append(updatedSnapshotEntries, se)
+	}
+
+	//snapshotItem.Synced = true
+	//_, _ = h.offlineDb.UpdateSnapshotT(snapshotItem)
+
+	_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
+
+	if len(updatedSnapshotEntries) == 0 {
+		return nil
+	}
+
+	h.logger.Info().Msg("offline hub: Syncing list data")
+
+	for _, se := range updatedSnapshotEntries {
+
+		var listData *ListData
+
+		switch se.Type {
+		case "anime":
+			listData = se.GetAnimeEntry().ListData
+		case "manga":
+			listData = se.GetMangaEntry().ListData
 		}
 
-		if snapshotItem == nil {
-			return
+		if listData == nil {
+			continue
 		}
 
-		if snapshotItem.Synced {
-			return
-		}
+		listData.Score = listData.Score * 10
 
-		snapshotEntries, err := h.offlineDb.GetSnapshotMediaEntries(snapshotItem.ID)
-		if err != nil {
-			h.logger.Error().Err(err).Msg("offline hub: READ! Failed to retrieve offline updates")
-			return
-		}
-
-		updatedSnapshotEntries := make([]*SnapshotMediaEntry, 0)
-		for _, se := range snapshotEntries {
-			if se.CreatedAt == se.UpdatedAt {
-				continue
-			}
-			updatedSnapshotEntries = append(updatedSnapshotEntries, se)
-		}
-
-		//snapshotItem.Synced = true
-		//_, _ = h.offlineDb.UpdateSnapshotT(snapshotItem)
-
-		_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
-
-		if len(updatedSnapshotEntries) == 0 {
-			return
-		}
-
-		h.logger.Info().Msg("offline hub: Syncing list data")
-
-		for _, se := range updatedSnapshotEntries {
-
-			var listData *ListData
-
-			switch se.Type {
-			case "anime":
-				listData = se.GetAnimeEntry().ListData
-			case "manga":
-				listData = se.GetMangaEntry().ListData
-			}
-
-			if listData == nil {
-				continue
-			}
-
-			listData.Score = listData.Score * 10
-
-			var startDate *anilist.FuzzyDateInput
-			var endDate *anilist.FuzzyDateInput
-			if listData.StartedAt != "" {
-				parsedDate, err := time.Parse("2006-01-02", listData.StartedAt)
-				if err == nil {
-					year := parsedDate.Year()
-					month := int(parsedDate.Month())
-					day := parsedDate.Day()
-					startDate = &anilist.FuzzyDateInput{
-						Year:  &year,
-						Month: &month,
-						Day:   &day,
-					}
+		var startDate *anilist.FuzzyDateInput
+		var endDate *anilist.FuzzyDateInput
+		if listData.StartedAt != "" {
+			parsedDate, err := time.Parse("2006-01-02", listData.StartedAt)
+			if err == nil {
+				year := parsedDate.Year()
+				month := int(parsedDate.Month())
+				day := parsedDate.Day()
+				startDate = &anilist.FuzzyDateInput{
+					Year:  &year,
+					Month: &month,
+					Day:   &day,
 				}
 			}
-			if listData.CompletedAt != "" {
-				parsedDate, err := time.Parse("2006-01-02", listData.CompletedAt)
-				if err == nil {
-					year := parsedDate.Year()
-					month := int(parsedDate.Month())
-					day := parsedDate.Day()
-					endDate = &anilist.FuzzyDateInput{
-						Year:  &year,
-						Month: &month,
-						Day:   &day,
-					}
+		}
+		if listData.CompletedAt != "" {
+			parsedDate, err := time.Parse("2006-01-02", listData.CompletedAt)
+			if err == nil {
+				year := parsedDate.Year()
+				month := int(parsedDate.Month())
+				day := parsedDate.Day()
+				endDate = &anilist.FuzzyDateInput{
+					Year:  &year,
+					Month: &month,
+					Day:   &day,
 				}
 			}
-
-			_, _ = h.anilistClientWrapper.UpdateMediaListEntry(
-				context.Background(),
-				&se.MediaId,
-				&listData.Status,
-				&listData.Score,
-				&listData.Progress,
-				startDate,
-				endDate,
-			)
-
 		}
 
-		h.RefreshAnilistCollection()
+		_, _ = h.anilistClientWrapper.UpdateMediaListEntry(
+			context.Background(),
+			&se.MediaId,
+			&listData.Status,
+			&listData.Score,
+			&listData.Progress,
+			startDate,
+			endDate,
+		)
 
-	}()
+	}
+
+	h.RefreshAnilistCollections()
+
+	h.wsEventManager.SendEvent(events.RefreshedAnilistCollection, nil)
+	h.wsEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
+
+	return nil
 }

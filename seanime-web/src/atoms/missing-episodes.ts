@@ -24,7 +24,7 @@ export function useMissingEpisodeCount() {
  * @description
  * - When the user is not on the main page, send a request to get missing episodes
  */
-export function useListenToMissingEpisodes() {
+export function useMissingEpisodeListener() {
     const pathname = usePathname()
     const setter = useSetAtom(missingEpisodesAtom)
     const silencedSetter = useSetAtom(missingSilencedEpisodesAtom)

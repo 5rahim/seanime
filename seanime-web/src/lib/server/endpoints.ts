@@ -130,6 +130,7 @@ export const enum SeaEndpoints {
      */
     OFFLINE_SNAPSHOT = "/offline/snapshot", // (GET, POST)
     OFFLINE_SNAPSHOT_ENTRY = "/offline/snapshot-entry", // (GET, PATCH)
+    OFFLINE_SYNC = "/offline/sync", // (POST)
     /**
      * Theme
      */

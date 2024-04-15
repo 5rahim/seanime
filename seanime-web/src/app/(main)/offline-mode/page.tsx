@@ -23,6 +23,8 @@ export default function Page() {
         snapshot,
         isLoading,
         isCreating,
+        sync,
+        isSyncing,
     } = useOfflineSnapshotEntry()
 
     return (
@@ -44,10 +46,22 @@ export default function Page() {
                     </p>
                 </div>
 
-                {!!snapshot?.id && <ul className="[&>li]:flex [&>li]:items-center [&>li]:gap-1.5 [&>li]:truncate text-lg">
-                    <li><IoCloudOfflineOutline className="text-green-300 text-xl" /> Snapshot <span className="text-[--muted]">
+                {!!snapshot?.id && <ul className="text-lg">
+                    <li className="flex gap-2 items-center">
+                        <IoCloudOfflineOutline className="text-green-300 text-xl" /> Snapshot <span className="text-[--muted]">
                         ({format(snapshot.createdAt, "P HH:mm")})
                     </span>
+
+                        <Button
+                            rounded
+                            intent="white"
+                            size="sm"
+                            disabled={!snapshot.used}
+                            loading={isSyncing}
+                            onClick={() => sync()}
+                        >
+                            Sync and delete
+                        </Button>
                     </li>
                 </ul>}
 

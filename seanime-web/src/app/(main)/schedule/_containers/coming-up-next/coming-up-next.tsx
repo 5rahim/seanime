@@ -1,4 +1,4 @@
-import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
+import { useAnilistCollection } from "@/app/(main)/_lib/anilist-anime-collection"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"

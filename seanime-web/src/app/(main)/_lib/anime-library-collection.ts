@@ -1,26 +1,12 @@
 import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { libraryCollectionAtom } from "@/app/(main)/_lib/anime-library-collection.atoms"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
-import { atom } from "jotai/index"
 import { useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 
-export const libraryCollectionAtom = atom<LibraryCollection | undefined>(undefined)
-
-export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom),
-    (get, set, payload: number) => {
-        const lists = get(libraryCollectionAtom)?.lists
-        if (!lists) {
-            return undefined
-        }
-        return lists.flatMap(n => n.entries).find(n => n.mediaId === payload)
-    },
-)
-
 /**
- * @description
- * - Top level hook for fetching the LibraryCollection
- * - Sends a request for the LibraryCollection and updates `libraryCollectionAtom`
+ * Fetches the library collection and sets it in the atom
  */
 export function useLibraryCollectionLoader() {
 

@@ -40,7 +40,7 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 			c.App.WSEventManager.SendEvent(events.ErrorToast, err.Error())
 		}
 
-		c.App.WSEventManager.SendEvent(events.InfoToast, "Offline snapshot created successfully")
+		c.App.WSEventManager.SendEvent(events.SuccessToast, "Offline snapshot created successfully")
 		c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, true)
 	}()
 
@@ -95,6 +95,17 @@ func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 		b.EndDate,
 		b.Type,
 	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	return c.RespondWithData(true)
+}
+
+// HandleSyncOfflineData
+//
+//	POST /api/offline/sync
+func HandleSyncOfflineData(c *RouteCtx) error {
+	err := c.App.OfflineHub.SyncListData()
 	if err != nil {
 		return c.RespondWithError(err)
 	}

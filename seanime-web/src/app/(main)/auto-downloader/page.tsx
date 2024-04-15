@@ -1,5 +1,5 @@
 "use client"
-import { anilistUserMediaAtom } from "@/app/(main)/_loaders/anilist-user-media"
+import { anilistUserMediaAtom } from "@/app/(main)/_lib/anilist-user-media"
 import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_components/items"
 import { RuleForm } from "@/app/(main)/auto-downloader/_components/rule-form"
 import { AutoDownloaderItem, AutoDownloaderRule } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"

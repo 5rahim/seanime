@@ -11,6 +11,7 @@ type CreateOfflineSnapshot_QueryVariables = {
 export type OfflineSnapshotEntry = {
     id: number
     createdAt: string
+    used: boolean
 }
 
 export function useOfflineSnapshotEntry() {
@@ -21,6 +22,15 @@ export function useOfflineSnapshotEntry() {
         mutationKey: ["create-offline-snapshot"],
         onSuccess: () => {
             toast.info("Creating snapshot...")
+        },
+    })
+
+    const { mutate: sync, isPending: isSyncing } = useSeaMutation<void>({
+        endpoint: SeaEndpoints.OFFLINE_SYNC,
+        mutationKey: ["sync-offline-snapshot"],
+        onSuccess: () => {
+            toast.success("Data synced successfully")
+            qc.refetchQueries({ queryKey: ["get-offline-snapshot-entry"] })
         },
     })
 
@@ -42,5 +52,7 @@ export function useOfflineSnapshotEntry() {
         snapshot: data,
         isLoading,
         isCreating,
+        sync,
+        isSyncing,
     }
 }

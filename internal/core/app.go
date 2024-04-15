@@ -176,6 +176,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		AnilistClientWrapper: anilistCW,
 		MetadataProvider:     metadataProvider,
 		MangaRepository:      mangaRepository,
+		WSEventManager:       wsEventManager,
 		Db:                   db,
 		FileCacher:           fileCacher,
 		Logger:               logger,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
+import { useAnilistCollection } from "@/app/(main)/_lib/anilist-anime-collection"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"

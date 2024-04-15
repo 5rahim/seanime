@@ -44,6 +44,7 @@ func getHub(t *testing.T) *Hub {
 
 	offlineHub := NewHub(&NewHubOptions{
 		AnilistClientWrapper: anilistClientWrapper,
+		WSEventManager:       events.NewMockWSEventManager(logger),
 		MetadataProvider:     metadataProvider,
 		MangaRepository:      mangaRepository,
 		Db:                   db,

@@ -308,6 +308,9 @@ func (h *Hub) GetLatestSnapshot(bypassCache bool) (snapshot *Snapshot, err error
 	}
 
 	snapshotEntry.Synced = false
+	if h.isOffline {
+		snapshotEntry.Used = true
+	}
 	go func() {
 		_, _ = h.offlineDb.UpdateSnapshotT(snapshotEntry)
 	}()

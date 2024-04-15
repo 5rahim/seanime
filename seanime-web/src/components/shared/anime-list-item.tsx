@@ -1,6 +1,6 @@
 import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
 import { MediaEntryLibraryData, MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { getAtomicLibraryEntryAtom } from "@/app/(main)/_loaders/library-collection"
+import { getAtomicLibraryEntryAtom } from "@/app/(main)/_lib/anime-library-collection.atoms"
 import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
 import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
