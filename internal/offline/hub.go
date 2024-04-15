@@ -33,20 +33,23 @@ type (
 
 		mu              sync.Mutex
 		currentSnapshot *Snapshot
+
+		RefreshAnilistCollection func()
 	}
 )
 
 type (
 	NewHubOptions struct {
-		AnilistClientWrapper anilist.ClientWrapperInterface
-		MetadataProvider     *metadata.Provider
-		MangaRepository      *manga.Repository
-		Db                   *db.Database
-		FileCacher           *filecache.Cacher
-		Logger               *zerolog.Logger
-		OfflineDir           string
-		AssetDir             string
-		IsOffline            bool
+		AnilistClientWrapper     anilist.ClientWrapperInterface
+		MetadataProvider         *metadata.Provider
+		MangaRepository          *manga.Repository
+		Db                       *db.Database
+		FileCacher               *filecache.Cacher
+		Logger                   *zerolog.Logger
+		OfflineDir               string
+		AssetDir                 string
+		IsOffline                bool
+		RefreshAnilistCollection func()
 	}
 )
 
@@ -73,17 +76,18 @@ func NewHub(opts *NewHubOptions) *Hub {
 	imgDownloader := image_downloader.NewImageDownloader(opts.AssetDir, opts.Logger)
 
 	return &Hub{
-		anilistClientWrapper: opts.AnilistClientWrapper,
-		metadataProvider:     opts.MetadataProvider,
-		mangaRepository:      opts.MangaRepository,
-		db:                   opts.Db,
-		offlineDb:            offlineDb,
-		fileCacher:           opts.FileCacher,
-		logger:               opts.Logger,
-		offlineDir:           opts.OfflineDir,
-		assetDir:             opts.AssetDir,
-		isOffline:            opts.IsOffline,
-		assetsHandler:        newAssetsHandler(opts.Logger, imgDownloader),
+		anilistClientWrapper:     opts.AnilistClientWrapper,
+		metadataProvider:         opts.MetadataProvider,
+		mangaRepository:          opts.MangaRepository,
+		db:                       opts.Db,
+		offlineDb:                offlineDb,
+		fileCacher:               opts.FileCacher,
+		logger:                   opts.Logger,
+		offlineDir:               opts.OfflineDir,
+		assetDir:                 opts.AssetDir,
+		isOffline:                opts.IsOffline,
+		assetsHandler:            newAssetsHandler(opts.Logger, imgDownloader),
+		RefreshAnilistCollection: opts.RefreshAnilistCollection,
 	}
 }
 
@@ -425,6 +429,8 @@ func (h *Hub) SyncListData() {
 			)
 
 		}
+
+		h.RefreshAnilistCollection()
 
 	}()
 }

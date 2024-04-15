@@ -183,7 +183,6 @@ func NewApp(configOpts *ConfigOptions) *App {
 		AssetDir:             cfg.Offline.AssetDir,
 		IsOffline:            cfg.Server.Offline,
 	})
-	offlineHub.SyncListData()
 
 	app := &App{
 		Config:                  cfg,

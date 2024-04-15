@@ -1,22 +1,31 @@
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { addSeconds, formatDistanceToNow } from "date-fns"
+import { useAtomValue } from "jotai/index"
 import Image from "next/image"
 import Link from "next/link"
-import React, { useMemo } from "react"
+import React from "react"
 
 export function ComingUpNext() {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const { anilistLists } = useAnilistCollection()
-    const _media = useMemo(() => {
+    const _media = React.useMemo(() => {
         const collectionEntries = anilistLists?.map(n => n?.entries).flat() ?? []
         return collectionEntries.filter(Boolean).map(entry => entry.media) as BaseMediaFragment[]
     }, [anilistLists])
 
-    const media = _media.filter(item => !!item.nextAiringEpisode?.episode)
-        .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
+    const media = React.useMemo(() => {
+        let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
+            .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
+        if (serverStatus?.settings?.anilist?.enableAdultContent) {
+            return ret
+        } else {
+            return ret.filter(item => !item.isAdult)
+        }
+    }, [_media])
 
     if (media.length === 0) return null
 

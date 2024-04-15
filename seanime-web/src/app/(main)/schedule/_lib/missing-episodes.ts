@@ -1,11 +1,13 @@
 import { MediaEntryMissingEpisodes, missingEpisodesAtom, missingSilencedEpisodesAtom } from "@/atoms/missing-episodes"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
+import { useAtomValue } from "jotai"
 import { useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 
 export function useMissingEpisodes() {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const setAtom = useSetAtom(missingEpisodesAtom)
     const setSilencedAtom = useSetAtom(missingSilencedEpisodesAtom)
 
@@ -16,13 +18,19 @@ export function useMissingEpisodes() {
 
     useEffect(() => {
         if (status === "success") {
-            setAtom(data?.episodes ?? [])
+            if (serverStatus?.settings?.anilist?.enableAdultContent) {
+                setAtom(data?.episodes ?? [])
+            } else {
+                setAtom(data?.episodes?.filter(episode => !episode?.basicMedia?.isAdult) ?? [])
+            }
             setSilencedAtom(data?.silencedEpisodes ?? [])
         }
-    }, [data])
+    }, [data, serverStatus?.settings?.anilist?.enableAdultContent])
 
     return {
-        missingEpisodes: data?.episodes ?? [],
+        missingEpisodes: serverStatus?.settings?.anilist?.enableAdultContent
+            ? (data?.episodes ?? [])
+            : (data?.episodes?.filter(episode => !episode?.basicMedia?.isAdult) ?? []),
         silencedEpisodes: data?.silencedEpisodes ?? [],
         isLoading: isLoading,
     }

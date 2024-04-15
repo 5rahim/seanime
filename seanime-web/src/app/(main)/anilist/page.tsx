@@ -1,6 +1,7 @@
 "use client"
 
 import { useAnilistCollection } from "@/app/(main)/_loaders/anilist-collection"
+import { serverStatusAtom } from "@/atoms/server-status"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -31,7 +32,7 @@ function anilist_filterEntriesByTitle(arr: AnilistCollectionEntry[], input: stri
 }
 
 export default function Home() {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
     const [pending, startTransition] = useTransition()
 
@@ -56,9 +57,12 @@ export default function Home() {
     const getList = useCallback((status: MediaListStatus) => {
         let obj = structuredClone(sortedLists?.find(n => n?.status === status))
         if (!obj) return undefined
+        if (!serverStatus?.settings?.anilist?.enableAdultContent) {
+            obj.entries = obj.entries?.filter(entry => !entry?.media?.isAdult)
+        }
         obj.entries = anilist_filterEntriesByTitle(obj.entries as AnilistCollectionEntry[], search)
         return obj
-    }, [sortedLists, search])
+    }, [sortedLists, search, serverStatus?.settings?.anilist?.enableAdultContent])
 
     const currentList = useMemo(() => getList("CURRENT"), [search, getList, anilistLists])
     const planningList = useMemo(() => getList("PLANNING"), [search, getList, anilistLists])

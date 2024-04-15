@@ -73,7 +73,7 @@ func (id *ImageDownloader) DownloadImages(urls []string) (err error) {
 		return
 	}
 
-	rateLimiter := limiter.NewLimiter(5*time.Second, 5)
+	rateLimiter := limiter.NewLimiter(1*time.Second, 5)
 	var wg sync.WaitGroup
 	for _, url := range urls {
 		wg.Add(1)

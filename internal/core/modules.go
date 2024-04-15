@@ -80,6 +80,13 @@ func (a *App) initModulesOnce() {
 
 	a.MangaDownloader.Start()
 
+	//
+
+	a.OfflineHub.RefreshAnilistCollection = func() {
+		_, _ = a.RefreshAnilistCollection()
+	}
+	a.OfflineHub.SyncListData()
+
 }
 
 // InitOrRefreshModules will initialize or refresh modules that depend on settings.

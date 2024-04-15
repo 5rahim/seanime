@@ -46,7 +46,6 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
                                     >{edge?.node?.format === "MOVIE"
                                         ? capitalize(edge.relationType || "").replace("_", " ") + " (Movie)"
                                         : capitalize(edge.relationType || "").replace("_", " ")}</Badge>}
-                                    isManga
                                 />
                             </div>
                         })}

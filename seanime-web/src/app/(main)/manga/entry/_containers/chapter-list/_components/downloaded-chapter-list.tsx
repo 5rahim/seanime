@@ -3,7 +3,7 @@
 //  * -----------------------------------------------------------------------------------------------*/
 
 
-import { useDeleteDownloadedMangaChapter } from "@/app/(main)/manga/_lib/manga.hooks"
+import { __manga_selectedProviderAtom, useDeleteDownloadedMangaChapter } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaDownloadData, MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
@@ -33,6 +33,8 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         data,
         ...rest
     } = props
+
+    const setProvider = useSetAtom(__manga_selectedProviderAtom)
 
     /**
      * Set selected chapter
@@ -123,12 +125,17 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                         {row.original.downloaded && <IconButton
                             intent="gray-subtle"
                             size="sm"
-                            onClick={() => setSelectedChapter({
-                                chapterId: row.original.chapterId,
-                                chapterNumber: row.original.chapterNumber,
-                                provider: row.original.provider,
-                                mediaId: Number(entry.mediaId),
-                            })}
+                            onClick={() => {
+                                setProvider(row.original.provider)
+                                React.startTransition(() => {
+                                    setSelectedChapter({
+                                        chapterId: row.original.chapterId,
+                                        chapterNumber: row.original.chapterNumber,
+                                        provider: row.original.provider,
+                                        mediaId: Number(entry.mediaId),
+                                    })
+                                })
+                            }}
                             icon={<GiOpenBook />}
                         />}
                     </div>

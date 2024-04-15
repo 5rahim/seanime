@@ -51,6 +51,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 					strings.HasPrefix(uriS[1], "/theme") ||
 					strings.HasPrefix(uriS[1], "/status") ||
 					strings.HasPrefix(uriS[1], "/media-player") ||
+					strings.HasPrefix(uriS[1], "/filecache") ||
 					strings.HasPrefix(uriS[1], "/playback-manager") ||
 					strings.HasPrefix(uriS[1], "/playlists") ||
 					strings.HasPrefix(uriS[1], "/directory-selector") ||

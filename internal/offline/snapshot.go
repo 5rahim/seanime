@@ -77,7 +77,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
 	anizipCache := anizip.NewCache()
 
-	rateLimiter := limiter.NewLimiter(5*time.Second, 5)
+	rateLimiter := limiter.NewLimiter(1*time.Second, 5)
 	for _, lfEntry := range lfEntries {
 		if !slices.Contains(opts.AnimeToDownload, lfEntry.GetMediaId()) {
 			continue
