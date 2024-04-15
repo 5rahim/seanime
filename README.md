@@ -1,16 +1,17 @@
 <p align="center">
-<img src="docs/images/logo.png" alt="preview" width="75px"/>
+<a href="https://seanime.rahim.app/">
+<img src="docs/images/logo_2.png" alt="preview" width="200px"/>
+</a>
 </p>
 
 <h2 align="center"><b>Seanime</b></h2>
 
 <h4 align="center">Self-hosted, user-friendly media server for anime and manga enthusiasts.</h4>
 
-<h1 align="center">
-<a href="https://seanime.rahim.app/">
-<img src="docs/images/v1/rec_play.gif" alt="preview" width="100%"/>
-</a>
-</h1>
+<p align="center">
+<img src="docs/images/v1/rec_play.gif" alt="preview" width="49%"/>
+<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="49%"/>
+</p>
 
 Feel free to open issues or contribute. Leave a star if you like this project!
 
@@ -29,11 +30,14 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - 🌐 **Seamless integration with AniList**
   - Manage your AniList collection (anime and manga)
   - Discover new anime, browse entries, get recommendations
+- ✈️ **Offline mode**
+  - Consume media in the ‘offline view’ with downloaded metadata and images
+  - Record your progress offline and sync when you’re online
 - 🔒 **No data collection**
 
 ### Anime
 
-- 🏞️ **Local anime library**
+- 🗂️ **Local anime library**
   - **Scan** your local anime library effortlessly
   -  **No mandatory folder structure** or naming convention
   - Browse and manage your library with metadata
@@ -42,7 +46,7 @@ Feel free to open issues or contribute. Leave a star if you like this project!
     - Smart search engine powered by public trackers (AnimeTosho, Nyaa), SeaDex
     - Integration with **qBittorrent** & **Transmission**
 - 🥱 **Automate your library**
-  - Download new episodes automatically with the use of custom filters
+  - Download new episodes automatically by using custom filters
 - 🎞️ **External Players**
     - **MPV**, **VLC**, and **MPC-HC** support
     - Sync progress to AniList (& MAL) automatically
@@ -50,9 +54,12 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 
 ### Manga / Manhwa 
 
-- 📖 **Read chapters** from various sources
-  - Built-in, customizable **reader**
 - 📕 **Browse and manage** your AniList manga/manhwa collection
+- 📖 **Read** chapters from various sources
+  - Built-in, customizable **manga reader**
+  - Custom reader settings for different series
+- ⬇️ **Download chapters** for offline reading
+  - Bulk downloads, persistent download queue
 
 ### And more
 
@@ -69,19 +76,9 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 🚨Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
 support transcoding or streaming to other devices (yet).
 
-# Setup
+# Get started
 
-[How to use Seanime.](https://seanime.rahim.app/docs)
-
-# Next releases
-
-- [ ] **v1.4.0** - Friday, 4/19/2024
-- [x] **v1.3.0** - Saturday, 4/6/2024
-- [x] **v1.2.0** - Monday, 4/1/2024
-- [x] **v1.1.2** - Sunday, 3/24/2024
-- [x] **v1.1.1** - Sunday, 3/24/2024
-- [x] **v1.1.0** - Thursday, 3/21/2024
-- [x] **v1.0.0** - Saturday, 3/9/2024
+[How to use Seanime](https://seanime.rahim.app/docs)
  
 ### Not planned
 
@@ -92,19 +89,19 @@ support transcoding or streaming to other devices (yet).
 
 ## Resources
 
-- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs)
-- [MAL API](https://myanimelist.net/apiconfig/references/api/v2)
 - [Chalk UI](https://chalk.rahim.app) - UI library
-- [Fiber](https://gofiber.io/) - Web framework
-- [GORM](https://gorm.io/) - ORM
+- [Fiber](https://gofiber.io/) - Go Web framework
+- [GORM](https://gorm.io/) - Go ORM
 - [gqlgenc](https://github.com/Yamashou/gqlgenc) - GraphQL codegen
 - [Next.js](https://nextjs.org/) - React framework
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 - [React Query](https://react-query.tanstack.com/) - Data fetching library
-- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Parser for anime files
+- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Filename parser
 - [ani.zip](https://api.ani.zip/mappings?anilist_id=124080) - Mappings and episode data
 - [anime-lists](https://github.com/Fribb/anime-lists) - Mappings
 - [TheTVDB](https://www.thetvdb.com/) - Episode images
+- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs) - User data, anime and manga metadata
+- [MAL API](https://myanimelist.net/apiconfig/references/api/v2)
 
 ## Acknowledgements
 
