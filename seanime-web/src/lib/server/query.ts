@@ -111,7 +111,7 @@ export function useSeaQuery<TData, TParams = any>(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function _handleSeaError(data: any): string {
+export function _handleSeaError(data: any): string {
     if (typeof data === "string") return "Internal Server Error: " + data
 
     const err = data?.error as string

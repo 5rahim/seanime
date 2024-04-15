@@ -112,7 +112,6 @@ func customQuery(body []byte, logger *zerolog.Logger) (data interface{}, err err
 
 	reqErrors, ok := res.(map[string]interface{})["errors"].([]interface{})
 
-	fmt.Println(len(reqErrors))
 	if ok && len(reqErrors) > 0 {
 		firstError, foundErr := reqErrors[0].(map[string]interface{})
 		if foundErr {

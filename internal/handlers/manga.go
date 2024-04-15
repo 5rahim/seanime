@@ -261,9 +261,8 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		Sort                []*anilist.MediaSort   `json:"sort,omitempty"`
 		Status              []*anilist.MediaStatus `json:"status,omitempty"`
 		Genres              []*string              `json:"genres,omitempty"`
-		AverageScoreGreater *int                   `json:"averageScoreGreater,omitempty"`
-		Season              *anilist.MediaSeason   `json:"season,omitempty"`
-		SeasonYear          *int                   `json:"seasonYear,omitempty"`
+		AverageScoreGreater *int                   `json:"averageScore_greater,omitempty"`
+		Year                *int                   `json:"year,omitempty"`
 		IsAdult             *bool                  `json:"isAdult,omitempty"`
 		Format              *anilist.MediaFormat   `json:"format,omitempty"`
 	}
@@ -291,8 +290,8 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		p.Status,
 		p.Genres,
 		p.AverageScoreGreater,
-		p.Season,
-		p.SeasonYear,
+		nil,
+		p.Year,
 		p.Format,
 		&isAdult,
 	)
@@ -310,8 +309,7 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		p.Status,
 		p.Genres,
 		p.AverageScoreGreater,
-		p.Season,
-		p.SeasonYear,
+		p.Year,
 		p.Format,
 		&isAdult,
 		c.App.Logger,

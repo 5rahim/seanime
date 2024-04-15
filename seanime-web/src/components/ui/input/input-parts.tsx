@@ -109,7 +109,7 @@ export type InputStyling = Omit<VariantProps<typeof InputAnatomy.root>,
     "isDisabled" | "hasError" | "hasLeftAddon" | "hasRightAddon" | "hasLeftIcon" | "hasRightIcon"> &
     ComponentAnatomy<typeof InputAddonsAnatomy> &
     ComponentAnatomy<typeof InputContainerAnatomy> & {
-    leftAddon?: string
+    leftAddon?: React.ReactNode
     leftIcon?: React.ReactNode
     rightAddon?: React.ReactNode
     rightIcon?: React.ReactNode

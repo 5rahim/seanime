@@ -4,6 +4,7 @@ import {
     ADVANCED_SEARCH_MEDIA_GENRES,
     ADVANCED_SEARCH_SEASONS,
     ADVANCED_SEARCH_SORTING,
+    ADVANCED_SEARCH_SORTING_MANGA,
     ADVANCED_SEARCH_STATUS,
     ADVANCED_SEARCH_TYPE,
 } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
@@ -21,7 +22,12 @@ import { useSetAtom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React, { useState } from "react"
 import { BiTrash } from "react-icons/bi"
+import { FaRegStar, FaSortAmountDown } from "react-icons/fa"
 import { FiSearch } from "react-icons/fi"
+import { LuCalendar, LuLeaf } from "react-icons/lu"
+import { MdPersonalVideo } from "react-icons/md"
+import { RiSignalTowerLine } from "react-icons/ri"
+import { TbSwords } from "react-icons/tb"
 import { useUpdateEffect } from "react-use"
 
 export function AdvancedSearchOptions() {
@@ -44,8 +50,9 @@ export function AdvancedSearchOptions() {
                 />
                 <Select
                     // label="Sorting"
+                    leftAddon={<FaSortAmountDown />}
                     className="w-full"
-                    options={ADVANCED_SEARCH_SORTING}
+                    options={params.type === "anime" ? ADVANCED_SEARCH_SORTING : ADVANCED_SEARCH_SORTING_MANGA}
                     value={params.sorting?.[0] || "SCORE_DESC"}
                     onValueChange={v => setParams(draft => {
                         draft.sorting = [v] as any
@@ -53,11 +60,25 @@ export function AdvancedSearchOptions() {
                     })}
                     disabled={!!params.title && params.title.length > 0}
                 />
+                <Select
+                    leftAddon={<FaRegStar />}
+                    placeholder="All scores" className="w-full"
+                    options={[...Array(9)].map((v, idx) => 9 - idx).map(score => ({
+                        value: String(score),
+                        label: String(score),
+                    }))}
+                    value={params.minScore || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.minScore = v as any
+                        return
+                    })}
+                />
             </div>
             <div className="flex flex-col md:flex-row xl:flex-col gap-4 items-end xl:items-start">
                 <Combobox
                     multiple
-                    emptyMessage="No option found"
+                    leftAddon={<TbSwords />}
+                    emptyMessage="No options found"
                     label="Genre" placeholder="All genres" className="w-full"
                     options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}
                     value={params.genre ? params.genre : []}
@@ -67,7 +88,8 @@ export function AdvancedSearchOptions() {
                     })}
                     fieldLabelClass="hidden"
                 />
-                <Select
+                {params.type === "anime" && <Select
+                    leftAddon={<MdPersonalVideo />}
                     label="Format" placeholder="All formats" className="w-full"
                     options={ADVANCED_SEARCH_FORMATS}
                     value={params.format || ""}
@@ -76,9 +98,10 @@ export function AdvancedSearchOptions() {
                         return
                     })}
                     fieldLabelClass="hidden"
-                />
-                <Select
-                    label="Season" placeholder="All seasons" className="w-full"
+                />}
+                {params.type === "anime" && <Select
+                    leftAddon={<LuLeaf />}
+                    placeholder="All seasons" className="w-full"
                     options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
                     value={params.season || ""}
                     onValueChange={v => setParams(draft => {
@@ -86,8 +109,9 @@ export function AdvancedSearchOptions() {
                         return
                     })}
                     fieldLabelClass="hidden"
-                />
+                />}
                 <Select
+                    leftAddon={<LuCalendar />}
                     label="Year" placeholder="Timeless" className="w-full"
                     options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx).map(year => ({
                         value: String(year),
@@ -101,7 +125,8 @@ export function AdvancedSearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    label="Status" placeholder="All" className="w-full"
+                    leftAddon={<RiSignalTowerLine />}
+                    label="Status" placeholder="All statuses" className="w-full"
                     options={ADVANCED_SEARCH_STATUS}
                     value={params.status?.[0] || ""}
                     onValueChange={v => setParams(draft => {
@@ -135,18 +160,6 @@ export function AdvancedSearchOptions() {
                     }))
                 }}/>
             </div>
-            {/*<Select*/}
-            {/*    label="Minimum score" placeholder="No preference" className="w-full"*/}
-            {/*    options={[...Array(9)].map((v, idx) => 9 - idx).map(score => ({*/}
-            {/*        value: String(score),*/}
-            {/*        label: String(score),*/}
-            {/*    }))}*/}
-            {/*    value={params.minScore || ""}*/}
-            {/*    onValueChange={v => setParams(draft => {*/}
-            {/*        draft.minScore = v as any*/}
-            {/*        return*/}
-            {/*    })}*/}
-            {/*/>*/}
 
         </AppLayoutStack>
     )

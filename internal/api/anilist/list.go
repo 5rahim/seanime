@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 func ListMediaM(
@@ -89,8 +90,7 @@ func ListMangaM(
 	Status []*MediaStatus,
 	Genres []*string,
 	AverageScoreGreater *int,
-	Season *MediaSeason,
-	SeasonYear *int,
+	Year *int,
 	Format *MediaFormat,
 	IsAdult *bool,
 	logger *zerolog.Logger,
@@ -116,13 +116,11 @@ func ListMangaM(
 		variables["genres"] = Genres
 	}
 	if AverageScoreGreater != nil {
-		variables["averageScore_greater"] = *AverageScoreGreater
+		variables["averageScore_greater"] = *AverageScoreGreater * 10
 	}
-	if Season != nil {
-		variables["season"] = *Season
-	}
-	if SeasonYear != nil {
-		variables["seasonYear"] = *SeasonYear
+	if Year != nil {
+		variables["startDate_greater"] = lo.ToPtr(fmt.Sprintf("%d0000", *Year))
+		variables["startDate_lesser"] = lo.ToPtr(fmt.Sprintf("%d0000", *Year+1))
 	}
 	if Format != nil {
 		variables["format"] = *Format
@@ -386,8 +384,8 @@ const ListMangaQuery = `query ListManga(
       $status: [MediaStatus]
       $genres: [String]
       $averageScore_greater: Int
-      $season: MediaSeason
-      $seasonYear: Int
+      $startDate_greater: FuzzyDateInt
+      $startDate_lesser: FuzzyDateInt
       $format: MediaFormat
       $isAdult: Boolean
     ) {
@@ -399,7 +397,7 @@ const ListMangaQuery = `query ListManga(
 		  currentPage
 		  lastPage
 		},
-		media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+		media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
 		  ...basicManga
 		}
 	  }

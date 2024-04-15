@@ -45,7 +45,7 @@ export function useAnilistAdvancedSearch() {
             // : undefined)
             return (!!curr && hasNext) ? pages.length + 1 : undefined
         },
-        enabled: params.active,
+        enabled: params.active && params.type === "anime",
         refetchOnMount: true,
     })
 
@@ -56,11 +56,9 @@ export function useAnilistAdvancedSearch() {
             const variables = {
                 page: pageParam,
                 perPage: 48,
-                format: __advancedSearch_getValue(params.format)?.toUpperCase(),
                 search: (params.title === null || params.title === "") ? undefined : params.title,
                 genres: __advancedSearch_getValue(params.genre),
-                season: __advancedSearch_getValue(params.season),
-                seasonYear: __advancedSearch_getValue(params.year),
+                year: __advancedSearch_getValue(params.year),
                 averageScore_greater: __advancedSearch_getValue(params.minScore) !== undefined
                     ? __advancedSearch_getValue(params.minScore)
                     : undefined,
@@ -84,7 +82,7 @@ export function useAnilistAdvancedSearch() {
             // : undefined)
             return (!!curr && hasNext) ? pages.length + 1 : undefined
         },
-        enabled: params.active,
+        enabled: params.active && params.type === "manga",
         refetchOnMount: true,
     })
 

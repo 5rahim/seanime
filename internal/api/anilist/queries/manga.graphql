@@ -34,7 +34,7 @@ query SearchBaseManga($page: Int, $perPage: Int, $sort: [MediaSort], $search: St
     pageInfo{
       hasNextPage
     },
-    media(type: MANGA, search: $search, sort: $sort, status_in: $status, format_not: MUSIC){
+    media(type: MANGA, search: $search, sort: $sort, status_in: $status, format_not: NOVEL){
       ...baseManga
     }
   }
@@ -110,8 +110,19 @@ query MangaDetailsById ($id: Int) {
   }
 }
 
-
-query ListManga($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat){
+query ListManga(
+  $page: Int
+  $search: String
+  $perPage: Int
+  $sort: [MediaSort]
+  $status: [MediaStatus]
+  $genres: [String]
+  $averageScore_greater: Int
+  $startDate_greater: FuzzyDateInt
+  $startDate_lesser: FuzzyDateInt
+  $format: MediaFormat
+  $isAdult: Boolean
+) {
   Page(page: $page, perPage: $perPage){
     pageInfo{
       hasNextPage
@@ -120,7 +131,7 @@ query ListManga($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], 
       currentPage
       lastPage
     },
-    media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
+    media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
       ...basicManga
     }
   }

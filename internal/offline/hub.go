@@ -369,14 +369,13 @@ func (h *Hub) SyncListData() error {
 	//snapshotItem.Synced = true
 	//_, _ = h.offlineDb.UpdateSnapshotT(snapshotItem)
 
-	_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
-
 	if len(updatedSnapshotEntries) == 0 {
 		return nil
 	}
 
 	h.logger.Info().Msg("offline hub: Syncing list data")
 
+	var errI error
 	for _, se := range updatedSnapshotEntries {
 
 		var listData *ListData
@@ -423,7 +422,7 @@ func (h *Hub) SyncListData() error {
 			}
 		}
 
-		_, _ = h.anilistClientWrapper.UpdateMediaListEntry(
+		_, errI = h.anilistClientWrapper.UpdateMediaListEntry(
 			context.Background(),
 			&se.MediaId,
 			&listData.Status,
@@ -434,6 +433,13 @@ func (h *Hub) SyncListData() error {
 		)
 
 	}
+
+	if errI != nil {
+		h.logger.Error().Err(err).Msg("offline hub: Failed to sync some data. Please try again.")
+		return err
+	}
+
+	_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
 
 	h.RefreshAnilistCollections()
 

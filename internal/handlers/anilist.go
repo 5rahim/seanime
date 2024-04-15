@@ -182,7 +182,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		Sort                []*anilist.MediaSort   `json:"sort,omitempty"`
 		Status              []*anilist.MediaStatus `json:"status,omitempty"`
 		Genres              []*string              `json:"genres,omitempty"`
-		AverageScoreGreater *int                   `json:"averageScoreGreater,omitempty"`
+		AverageScoreGreater *int                   `json:"averageScore_greater,omitempty"`
 		Season              *anilist.MediaSeason   `json:"season,omitempty"`
 		SeasonYear          *int                   `json:"seasonYear,omitempty"`
 		Format              *anilist.MediaFormat   `json:"format,omitempty"`

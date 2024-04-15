@@ -19,7 +19,7 @@ type GithubGraphQLClient interface {
 	SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error)
 	BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error)
 	MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error)
-	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
+	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
 	BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error)
@@ -6593,7 +6593,7 @@ const UpdateEntryDocument = `mutation UpdateEntry ($mediaId: Int, $status: Media
 `
 
 func (c *Client) UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"mediaId":               mediaID,
 		"status":                status,
 		"score":                 score,
@@ -6626,7 +6626,7 @@ const UpdateMediaListEntryDocument = `mutation UpdateMediaListEntry ($mediaId: I
 `
 
 func (c *Client) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"mediaId":     mediaID,
 		"status":      status,
 		"scoreRaw":    scoreRaw,
@@ -6655,7 +6655,7 @@ const UpdateMediaListEntryProgressDocument = `mutation UpdateMediaListEntryProgr
 `
 
 func (c *Client) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"mediaId":  mediaID,
 		"progress": progress,
 		"status":   status,
@@ -6681,7 +6681,7 @@ const UpdateMediaListEntryStatusDocument = `mutation UpdateMediaListEntryStatus 
 `
 
 func (c *Client) UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"mediaId":  mediaID,
 		"progress": progress,
 		"status":   status,
@@ -6708,7 +6708,7 @@ const DeleteEntryDocument = `mutation DeleteEntry ($mediaListEntryId: Int) {
 `
 
 func (c *Client) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"mediaListEntryId": mediaListEntryID,
 	}
 
@@ -6842,7 +6842,7 @@ fragment basicManga on Media {
 `
 
 func (c *Client) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"userName": userName,
 	}
 
@@ -6863,7 +6863,7 @@ const SearchBaseMangaDocument = `query SearchBaseManga ($page: Int, $perPage: In
 		pageInfo {
 			hasNextPage
 		}
-		media(type: MANGA, search: $search, sort: $sort, status_in: $status, format_not: MUSIC) {
+		media(type: MANGA, search: $search, sort: $sort, status_in: $status, format_not: NOVEL) {
 			... baseManga
 		}
 	}
@@ -6957,7 +6957,7 @@ fragment basicManga on Media {
 `
 
 func (c *Client) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"page":    page,
 		"perPage": perPage,
 		"sort":    sort,
@@ -7071,7 +7071,7 @@ fragment basicManga on Media {
 `
 
 func (c *Client) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -7152,7 +7152,7 @@ const MangaDetailsByIDDocument = `query MangaDetailsById ($id: Int) {
 `
 
 func (c *Client) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -7168,7 +7168,7 @@ func (c *Client) MangaDetailsByID(ctx context.Context, id *int, interceptors ...
 	return &res, nil
 }
 
-const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat) {
+const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $startDate_greater: FuzzyDateInt, $startDate_lesser: FuzzyDateInt, $format: MediaFormat, $isAdult: Boolean) {
 	Page(page: $page, perPage: $perPage) {
 		pageInfo {
 			hasNextPage
@@ -7177,7 +7177,7 @@ const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPag
 			currentPage
 			lastPage
 		}
-		media(type: MANGA, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC) {
+		media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL) {
 			... basicManga
 		}
 	}
@@ -7223,8 +7223,8 @@ fragment basicManga on Media {
 }
 `
 
-func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
-	vars := map[string]interface{}{
+func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+	vars := map[string]any{
 		"page":                 page,
 		"search":               search,
 		"perPage":              perPage,
@@ -7232,9 +7232,10 @@ func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPa
 		"status":               status,
 		"genres":               genres,
 		"averageScore_greater": averageScoreGreater,
-		"season":               season,
-		"seasonYear":           seasonYear,
+		"startDate_greater":    startDateGreater,
+		"startDate_lesser":     startDateLesser,
 		"format":               format,
+		"isAdult":              isAdult,
 	}
 
 	var res ListManga
@@ -7385,7 +7386,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"userName": userName,
 	}
 
@@ -7462,7 +7463,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"page":    page,
 		"perPage": perPage,
 		"sort":    sort,
@@ -7538,7 +7539,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -7610,7 +7611,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -7738,7 +7739,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -7840,7 +7841,7 @@ const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
 `
 
 func (c *Client) MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -7966,7 +7967,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"id": id,
 	}
 
@@ -8047,7 +8048,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"page":                 page,
 		"search":               search,
 		"perPage":              perPage,
@@ -8143,7 +8144,7 @@ fragment basicMedia on Media {
 `
 
 func (c *Client) ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"page":             page,
 		"perPage":          perPage,
 		"airingAt_greater": airingAtGreater,
@@ -8181,7 +8182,7 @@ const GetViewerDocument = `query GetViewer {
 `
 
 func (c *Client) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
-	vars := map[string]interface{}{}
+	vars := map[string]any{}
 
 	var res GetViewer
 	if err := c.Client.Post(ctx, "GetViewer", GetViewerDocument, &res, vars, interceptors...); err != nil {
