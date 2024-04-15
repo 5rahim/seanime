@@ -15,7 +15,7 @@ import { extractInputPartProps, hiddenInputStyles, InputAddon, InputAnatomy, Inp
 export const SelectAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Select__root",
-        "inline-flex items-center justify-between relative",
+        "inline-flex items-center justify-between relative whitespace-nowrap truncate",
     ]),
     chevronIcon: cva([
         "UI-Combobox__chevronIcon",
@@ -241,7 +241,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, r
                                         )}
                                         value="__placeholder__"
                                     >
-                                        <SelectPrimitive.ItemText>{placeholder}</SelectPrimitive.ItemText>
+                                        <SelectPrimitive.ItemText className="flex-none whitespace-nowrap truncate">{placeholder}</SelectPrimitive.ItemText>
                                     </SelectPrimitive.Item>
                                 )}
 
@@ -256,7 +256,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, r
                                         disabled={option.disabled}
                                         data-disabled={option.disabled}
                                     >
-                                        <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
+                                        <SelectPrimitive.ItemText className="flex-none whitespace-nowrap truncate">{option.label}</SelectPrimitive.ItemText>
                                         <SelectPrimitive.ItemIndicator asChild>
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"

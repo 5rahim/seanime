@@ -74,7 +74,7 @@ export function AdvancedSearchOptions() {
                     })}
                 />
             </div>
-            <div className="flex flex-col md:flex-row xl:flex-col gap-4 items-end xl:items-start">
+            <div className="flex flex-col md:flex-row xl:flex-col gap-4 items-end xl:items-start flex-wrap">
                 <Combobox
                     multiple
                     leftAddon={<TbSwords />}

@@ -47,7 +47,7 @@ type (
 func NewCollection(opts *NewCollectionOptions) (collection *Collection, err error) {
 	coll := &Collection{}
 	if opts.MangaCollection == nil {
-		return nil, fmt.Errorf("MangaCollection is nil")
+		return nil, nil
 	}
 	if opts.AnilistClientWrapper == nil {
 		return nil, fmt.Errorf("AnilistClientWrapper is nil")

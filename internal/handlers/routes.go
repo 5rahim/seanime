@@ -33,7 +33,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/icons",
 			"/api/v1/image-proxy",
 		},
-		Fields:   []string{"method", "error", "status", "url"},
+		Fields:   []string{"method", "error", "url"},
 		Messages: []string{"req: error", "req: client error", "req: Success"},
 		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
 	})
