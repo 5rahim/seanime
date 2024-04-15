@@ -109,6 +109,17 @@ func customQuery(body []byte, logger *zerolog.Logger) (data interface{}, err err
 	}
 
 	var ok bool
+
+	reqErrors, ok := res.(map[string]interface{})["errors"].([]interface{})
+
+	fmt.Println(len(reqErrors))
+	if ok && len(reqErrors) > 0 {
+		firstError, foundErr := reqErrors[0].(map[string]interface{})
+		if foundErr {
+			return nil, errors.New(firstError["message"].(string))
+		}
+	}
+
 	data, ok = res.(map[string]interface{})["data"]
 	if !ok {
 		return nil, errors.New("failed to parse data")
