@@ -4,7 +4,7 @@
 </a>
 </p>
 
-<h2 align="center"><b>Seanime</b></h2>
+<h1 align="center"><b>Seanime</b></h1>
 
 <h4 align="center">Self-hosted, user-friendly media server for anime and manga enthusiasts.</h4>
 
@@ -13,63 +13,74 @@
 <img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="49%"/>
 </p>
 
+## About
+
+Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
+It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
+
 Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 
-### Server + Web Interface
+### General
 
-- 🪶 **Lightweight server**
-  - Low resource usage
-  - Performant and responsive
-- 🖥️ **Cross-platform**
-  - Works on Windows, macOS, and Linux 
-- 🔥 **User-friendly**
-  - Simple and intuitive web interface
-  - Easy to set up and use 
-- 🌐 **Seamless integration with AniList**
-  - Manage your AniList collection (anime and manga)
-  - Discover new anime, browse entries, get recommendations
+- 🪶 Lightweight and performant server
+- 🔥 Simple and intuitive web interface
+- 🖥️ Cross-platform (Windows, macOS, Linux)
+- 🌐 Full integration with AniList
+- 🔒 No data collection
 - ✈️ **Offline mode**
-  - Consume media in the ‘offline view’ with downloaded metadata and images
+  - Use the main features as if you were online, with cached metadata and images
   - Record your progress offline and sync when you’re online
-- 🔒 **No data collection**
 
 ### Anime
 
 - 🗂️ **Local anime library**
-  - **Scan** your local anime library effortlessly
-  -  **No mandatory folder structure** or naming convention
+  - Powerful library scanner
+  -  **No mandatory folder structure** and **no naming conventions**
   - Browse and manage your library with metadata
   - Support for torrents with absolute episode numbers
+  - Support for specials, OVAs, movies, NCs
+  - Multiple metadata providers (AniList, AniDB, TVDB)
 - ⬇️ **Download new episodes & movies**
-    - Smart search engine powered by public trackers (AnimeTosho, Nyaa), SeaDex
+    - Search engine for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei)
     - Integration with **qBittorrent** & **Transmission**
+    - Active torrent list interface
+    - View upcoming and missing episodes
+    - SeaDex support
 - 🥱 **Automate your library**
-  - Download new episodes automatically by using custom filters
+  - Create custom rules and let Seanime download new episodes automatically
+  - Rules can filter by quality, release group, episode number
+  - Smart and powerful RSS feed parser
 - 🎞️ **External Players**
     - **MPV**, **VLC**, and **MPC-HC** support
-    - Sync progress to AniList (& MAL) automatically
-    - Create **playlists** and queue episodes
+    - Automatic progress tracking and syncing to AniList (& MAL)
+    - Create **playlists** to play episodes in order
 
 ### Manga / Manhwa 
 
-- 📕 **Browse and manage** your AniList manga/manhwa collection
-- 📖 **Read** chapters from various sources
+- 📕 **Browse and manage** your manga/manhwa collection
+  - Browse your AniList manga collection
+  - View manga details, and recommendations
+  - Search for new manga
+- 📖 **Read chapters**
+  - Display and read chapters from various sources
   - Built-in, customizable **manga reader**
   - Custom reader settings for different series
-- ⬇️ **Download chapters** for offline reading
-  - Bulk downloads, persistent download queue
+- ⬇️ **Download chapters**
+  - Easily download multiple chapters for offline reading
+  - Persistent download queue
 
 ### And more
 
 - 📺 **Online streaming**
   - Stream episodes from online sources using the built-in player
   - Support for multiple sources
-- **MyAnimeList integration**
-  - Automatically update your progress on MyAnimeList
-- **Quality of life features**
-  - Customizable UI, Scan summaries, advanced anime search, and more
+- **MyAnimeList integration** for syncing progress
+- **Customizable UI**
+- **Logs and scan summaries**
+- **Advanced anime/manga search**
+- **Discord Rich Presence**
 
 ### What it is not
 
