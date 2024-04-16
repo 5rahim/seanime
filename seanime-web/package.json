@@ -98,6 +98,7 @@
     "react-hook-form": "^7.50.1",
     "react-icons": "^5.0.1",
     "react-phone-number-input": "^3.3.9",
+    "react-remove-scroll-bar": "^2.3.6",
     "react-resizable-panels": "^2.0.11",
     "react-use": "^17.5.0",
     "recharts": "^2.12.1",

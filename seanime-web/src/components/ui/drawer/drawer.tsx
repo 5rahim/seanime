@@ -8,7 +8,7 @@ import * as React from "react"
 import { CloseButton } from "../button"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
-const __openDrawersAtom = atom<string[]>([])
+export const __openDrawersAtom = atom<string[]>([])
 
 function useDrawerBodyBehavior(id: string, open: boolean | undefined) {
     const [openDrawers, setOpenDrawers] = useAtom(__openDrawersAtom)
@@ -19,15 +19,15 @@ function useDrawerBodyBehavior(id: string, open: boolean | undefined) {
 
         if (open) {
             setOpenDrawers(prev => [...prev, id])
-            body.style.overflow = "hidden"
+            // body.style.overflow = "hidden"
         } else {
             setOpenDrawers(prev => {
                 let next = prev.filter(i => i !== id)
-                if (next.length === 0) body.style.overflow = ""
+                // if (next.length === 0) body.style.overflow = ""
                 return next
             })
         }
-    }, [open, __openDrawersAtom])
+    }, [open])
 
 }
 
@@ -182,7 +182,8 @@ export function Drawer(props: DrawerProps) {
 
             <DialogPrimitive.Portal container={portalContainer}>
 
-                <DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} />
+                {/*<DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} />*/}
+                {open && <div className={cn(DrawerAnatomy.overlay(), overlayClass)} />}
 
                 <DialogPrimitive.Content
                     className={cn(DrawerAnatomy.content({ size, side }), contentClass)}
