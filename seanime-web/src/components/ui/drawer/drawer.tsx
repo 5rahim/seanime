@@ -2,9 +2,34 @@
 
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { cva, VariantProps } from "class-variance-authority"
+import { atom } from "jotai/index"
+import { useAtom } from "jotai/react"
 import * as React from "react"
 import { CloseButton } from "../button"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+
+const __openDrawersAtom = atom<string[]>([])
+
+function useDrawerBodyBehavior(id: string, open: boolean | undefined) {
+    const [openDrawers, setOpenDrawers] = useAtom(__openDrawersAtom)
+
+    React.useEffect(() => {
+        const body = document.querySelector("body")
+        if (!body) return
+
+        if (open) {
+            setOpenDrawers(prev => [...prev, id])
+            body.style.overflow = "hidden"
+        } else {
+            setOpenDrawers(prev => {
+                let next = prev.filter(i => i !== id)
+                if (next.length === 0) body.style.overflow = ""
+                return next
+            })
+        }
+    }, [open, __openDrawersAtom])
+
+}
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -135,6 +160,7 @@ export function Drawer(props: DrawerProps) {
         hideCloseButton,
         side,
         size,
+        open,
         // Content
         onOpenAutoFocus,
         onCloseAutoFocus,
@@ -145,8 +171,12 @@ export function Drawer(props: DrawerProps) {
         ...rest
     } = props
 
+    const id = React.useId()
+
+    useDrawerBodyBehavior(id, open)
+
     return (
-        <DialogPrimitive.Root modal={!allowOutsideInteraction} {...rest}>
+        <DialogPrimitive.Root modal={!allowOutsideInteraction} open={open} {...rest}>
 
             {trigger && <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>}
 

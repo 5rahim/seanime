@@ -259,6 +259,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         }
     }, [kbsChapterLeft, kbsChapterRight, paginationMap, readingDirection, chapterContainer])
 
+
     return (
         <Drawer
             open={!!selectedChapter}
@@ -266,7 +267,9 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             size="full"
             side="bottom"
             headerClass="absolute h-0"
-            contentClass="p-0"
+            contentClass={cn(
+                "p-0",
+            )}
             closeButton={<></>}
         >
 
