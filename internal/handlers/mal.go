@@ -31,8 +31,8 @@ type malAuthResponse struct {
 func HandleMALAuth(c *RouteCtx) error {
 
 	type body struct {
-		Code         string
-		State        string
+		Code         string `json:"code"`
+		State        string `json:"state"`
 		CodeVerifier string `json:"code_verifier"`
 	}
 

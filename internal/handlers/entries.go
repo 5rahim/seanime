@@ -22,16 +22,20 @@ import (
 	"runtime"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 )
 
-// HandleGetMediaEntry will return the media entry (entities.MediaEntry) with the given media id.
+// HandleGetMediaEntry
 //
-//	GET /v1/library/media-entry/:id
+//	@summary return a media entry for the given AniList anime media id.
+//	@desc This is used by the anime media entry pages to get all the data about the anime.
+//	@desc This includes the episodes and metadata (if any), the AniList data, download info...
+//	@route /api/v1/library/media-entry/{id} [GET]
+//	@param id - int - true - "AniList anime media ID"
+//	@returns entities.MediaEntry
 func HandleGetMediaEntry(c *RouteCtx) error {
 
-	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	mId, err := c.Fiber.ParamsInt("id")
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -72,10 +76,13 @@ var (
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleMediaEntryBulkAction will perform the given action on all the local files for the given media id.
-// It will return the updated local files.
+// HandleMediaEntryBulkAction
 //
-//	PATCH /v1/library/media-entry/bulk-action
+//	@summary perform given action on all the local files for the given media id.
+//	@desc This is used to unmatch or toggle the lock status of all the local files for a specific media entry
+//	@desc The response is not used in the frontend. The client should just refetch the entire media entry data.
+//	@route /api/v1/library/media-entry/bulk-action [PATCH]
+//	@returns []entities.LocalFile
 func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 	type body struct {
@@ -135,10 +142,13 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleOpenMediaEntryInExplorer will open the directory of the local files for the given media id in the file explorer.
-// It will return true if the operation was successful. (Note: the operation can still fail even if true is returned)
+// HandleOpenMediaEntryInExplorer
 //
-//	POST /v1/library/media-entry/open-in-explorer
+//	@summary opens the directory of a media entry in the file explorer.
+//	@desc This finds a common directory for all media entry local files and opens it in the file explorer.
+//	@desc Returns 'true' whether the operation was successful or not, errors are ignored.
+//	@route /api/v1/library/media-entry/open-in-explorer [POST]
+//	@returns true
 func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 
 	type body struct {
@@ -197,13 +207,13 @@ var (
 	entriesAnilistBasicMediaCache = result.NewCache[int, *anilist.BasicMedia]()
 )
 
-// HandleFindProspectiveMediaEntrySuggestions will return a list of media suggestions for files in the given directory.
-// This is used by the "Resolve unmatched media" feature to suggest media entries for the local files in the given directory.
+// HandleFindProspectiveMediaEntrySuggestions
 //
-// It uses the title of the first local file in the directory to fetch suggestions from MAL.
-// It will return a list of anilist.BasicMedia.
-//
-//	POST /v1/library/media-entry/suggestions
+//	@summary returns a list of media suggestions for files in the given directory.
+//	@desc This is used by the "Resolve unmatched media" feature to suggest media entries for the local files in the given directory.
+//	@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.
+//	@route /api/v1/library/media-entry/suggestions [POST]
+//	@returns []anilist.BasicMedia
 func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 	type body struct {
@@ -322,15 +332,14 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleMediaEntryManualMatch will match the local files in the given directory to the given media.
-// It is used by the "Resolve unmatched media" feature to manually match local files to media entries.
+// HandleMediaEntryManualMatch
 //
-//   - It will hydrate the local files with the appropriate metadata by using scanner.FileHydrator.
-//   - It will also add the media id to the selected local files and lock them.
-//
-// It will return the updated local files.
-//
-//	POST /v1/library/media-entry/manual-match
+//	@summary matches un-matched local files in the given directory to the given media.
+//	@desc It is used by the "Resolve unmatched media" feature to manually match local files to a specific media entry.
+//	@desc Matching involves the use of scanner.FileHydrator. It will also lock the files.
+//	@desc The response is not used in the frontend. The client should just refetch the entire library collection.
+//	@route /api/v1/library/media-entry/manual-match [POST]
+//	@returns []entities.LocalFile
 func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	type body struct {
@@ -419,10 +428,13 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleGetMissingEpisodes will return a list of missing episodes from the user's library collection.
-// Missing episodes are detected using data coming from the user's AniList collection.
+// HandleGetMissingEpisodes
 //
-//	GET /v1/library/missing-episodes
+//	@summary returns a list of episodes missing from the user's library collection
+//	@desc It detects missing episodes by comparing the user's AniList collection 'next airing' data with the local files.
+//	@desc This route can be called multiple times, as it does not bypass the cache.
+//	@route /api/v1/library/missing-episodes [GET]
+//	@returns entities.MissingEpisodes
 func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
@@ -455,9 +467,13 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleAddUnknownMedia will add the given media ids to the user's AniList planning collection.
+// HandleAddUnknownMedia
 //
-//	POST /v1/library/media-entry/unknown-media
+//	@summary adds the given media to the user's AniList planning collections
+//	@desc Since media not found in the user's AniList collection are not displayed in the library, this route is used to add them.
+//	@desc The response is ignored in the frontend, the client should just refetch the entire library collection.
+//	@route /api/v1/media-entry/unknown-media [POST]
+//	@returns anilist.AnimeCollection
 func HandleAddUnknownMedia(c *RouteCtx) error {
 
 	type body struct {
@@ -486,11 +502,14 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-// HandleUpdateProgress will update the progress of the given media entry.
+// HandleUpdateProgress
 //
-// This route will update the progress on AniList and MyAnimeList (if an account is linked).
-//
-//	POST /v1/library/media-entry/update-progress
+//	@summary update the progress of the given anime media entry.
+//	@desc This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked).
+//	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
+//	@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
+//	@route /api/v1/media-entry/update-progress [POST]
+//	@returns true
 func HandleUpdateProgress(c *RouteCtx) error {
 
 	type body struct {

@@ -9,6 +9,10 @@
 <h4 align="center">Self-hosted, user-friendly media server for anime and manga enthusiasts.</h4>
 
 <p align="center">
+<img src="docs/images/v1/showcase.png" alt="preview" width="100%"/>
+</p>
+
+<p align="center">
 <img src="docs/images/v1/rec_play.gif" alt="preview" width="49%"/>
 <img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="49%"/>
 </p>

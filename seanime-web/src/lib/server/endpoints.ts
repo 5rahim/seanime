@@ -1,4 +1,5 @@
 export const enum SeaEndpoints {
+    DOCS = "/internal/docs",
     STATUS = "/status",
     LOGIN = "/auth/login",
     LOGOUT = "/auth/logout",

@@ -12,11 +12,11 @@ import (
 	"path/filepath"
 )
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// HandleDownloadTorrentFile will download a torrent file from a given URL and save it to the destination folder.
+// HandleDownloadTorrentFile
 //
-//	POST /v1/download-torrent-file
+//	@summary downloads torrent files to the destination folder
+//	@route /api/v1/download-torrent-file [POST]
+//	@returns true
 func HandleDownloadTorrentFile(c *RouteCtx) error {
 
 	type body struct {
@@ -92,9 +92,15 @@ func downloadTorrentFile(url string, dest string) (err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleDownloadRelease will download a release from a given URL and extract it to the destination folder.
+// HandleDownloadRelease
 //
-//	POST /v1/download-release
+//	@summary downloads selected release asset to the destination folder.
+//	@desc Downloads the selected release asset to the destination folder and extracts it if possible.
+//	@desc If the extraction fails, the error message will be returned in the successful response.
+//	@desc The successful response will contain the destination path of the extracted files.
+//	@desc It only returns an error if the download fails.
+//	@route /api/v1/download-release [POST]
+//	@returns handlers.HandleDownloadRelease.retData
 func HandleDownloadRelease(c *RouteCtx) error {
 
 	type retData struct {

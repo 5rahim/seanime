@@ -12,10 +12,14 @@ type AuthRequestBody struct {
 	Token string
 }
 
-// HandleLogin is called when a new JWT is obtained (after login from AniList)
-// It saves the JWT in the database, fetches the user data from AniList, and returns a new Status.
+// HandleLogin
 //
-//	POST /v1/auth/login
+//	@summary logs in the user by saving the JWT token in the database.
+//	@desc This is called when the JWT token is obtained from AniList after logging in with redirection on the client.
+//	@desc It also fetches the Viewer data from AniList and saves it in the database.
+//	@desc It creates a new handlers.Status and refreshes App modules.
+//	@route /api/v1/auth/login [POST]
+//	@returns handlers.Status
 func HandleLogin(c *RouteCtx) error {
 
 	c.Fiber.Accepts("application/json")
@@ -74,10 +78,13 @@ func HandleLogin(c *RouteCtx) error {
 
 }
 
-// HandleLogout logs out the user by removing the user data from the database.
-// It returns a new Status that will be used to update the client.
+// HandleLogout
 //
-//	POST /auth/logout
+//	@summary logs out the user by removing JWT token from the database.
+//	@desc It removes JWT token and Viewer data from the database.
+//	@desc It creates a new handlers.Status and refreshes App modules.
+//	@route /api/v1/auth/logout [POST]
+//	@returns handlers.Status
 func HandleLogout(c *RouteCtx) error {
 
 	_, err := c.App.Database.UpsertAccount(&models.Account{

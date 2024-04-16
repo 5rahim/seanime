@@ -1,0 +1,2062 @@
+{
+  "routeGroups": [
+    {
+      "filename": "anilist.go",
+      "routes": [
+        {
+          "name": "HandleGetAnilistCollection",
+          "summary": "returns the user's anime collection.",
+          "description": "Calling GET will return the cached data. Calling POST will refetch the data from Anilist.",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "endpoint": "/api/v1/anilist/collection",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "anilist.AnilistCollection"
+        },
+        {
+          "name": "HandleEditAnilistListEntry",
+          "summary": "updates the user's list entry on Anilist.",
+          "description": "This is used to edit an entry on AniList. The \"type\" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly. The client should refetch collection-dependent queries after this mutation.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/anilist/list-entry",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "status",
+              "type": "*anilist.MediaListStatus",
+              "description": ""
+            },
+            {
+              "name": "score",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "progress",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "startedAt",
+              "type": "*anilist.FuzzyDateInput",
+              "description": ""
+            },
+            {
+              "name": "completedAt",
+              "type": "*anilist.FuzzyDateInput",
+              "description": ""
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": "anilist.UpdateMediaListEntry"
+        },
+        {
+          "name": "HandleGetAnilistMediaDetails",
+          "summary": "returns more details about an AniList media.",
+          "description": "This is used to fetch more fields omitted from the base queries.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/anilist/media-details/{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "The AniList anime ID"
+            }
+          ],
+          "requestBodyFields": [],
+          "returns": "anilist.MediaDetailsById_Media"
+        },
+        {
+          "name": "HandleDeleteAnilistListEntry",
+          "summary": "deletes an entry from the user's AniList list.",
+          "description": "This is used to delete an entry on AniList. The \"type\" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly. The client should refetch collection-dependent queries after this mutation.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/anilist/list-entry",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "type",
+              "type": "*string",
+              "description": ""
+            }
+          ],
+          "returns": "anilist.DeleteEntry"
+        },
+        {
+          "name": "HandleAnilistListAnime",
+          "summary": "returns a list of anime based on the search parameters.",
+          "description": "This is used by the \"Discover\" and \"Advanced Search\".",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/anilist/list-anime",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "page",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "search",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "perPage",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "sort",
+              "type": "[]*anilist.MediaSort",
+              "description": ""
+            },
+            {
+              "name": "status",
+              "type": "[]*anilist.MediaStatus",
+              "description": ""
+            },
+            {
+              "name": "genres",
+              "type": "[]*string",
+              "description": ""
+            },
+            {
+              "name": "averageScore_greater",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "season",
+              "type": "*anilist.MediaSeason",
+              "description": ""
+            },
+            {
+              "name": "seasonYear",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "format",
+              "type": "*anilist.MediaFormat",
+              "description": ""
+            },
+            {
+              "name": "isAdult",
+              "type": "*bool",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleAnilistListRecentAiringAnime",
+          "summary": "returns a list of recently aired anime.",
+          "description": "This is used by the \"Schedule\" page to display recently aired anime.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/anilist/list-recent-anime",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "page",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "search",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "perPage",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "airingAt_greater",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "airingAt_lesser",
+              "type": "*int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "auth.go",
+      "routes": [
+        {
+          "name": "HandleLogin",
+          "summary": "logs in the user by saving the JWT token in the database.",
+          "description": "This is called when the JWT token is obtained from AniList after logging in with redirection on the client. It also fetches the Viewer data from AniList and saves it in the database. It creates a new handlers.Status and refreshes App modules.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/auth/login",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "handlers.Status"
+        },
+        {
+          "name": "HandleLogout",
+          "summary": "logs out the user by removing JWT token from the database.",
+          "description": "It removes JWT token and Viewer data from the database. It creates a new handlers.Status and refreshes App modules.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/auth/logout",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "handlers.Status"
+        }
+      ]
+    },
+    {
+      "filename": "auto_downloader.go",
+      "routes": [
+        {
+          "name": "HandleRunAutoDownloader",
+          "summary": "tells the AutoDownloader to check for new episodes if enabled.",
+          "description": "This will run the AutoDownloader if it is enabled. It does nothing if the AutoDownloader is disabled.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/auto-downloader/run",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "bool"
+        },
+        {
+          "name": "HandleGetAutoDownloaderRule",
+          "summary": "returns the rule with the given DB id.",
+          "description": "This is used to get a specific rule, useful for editing.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/auto-downloader/rule/{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "The DB id of the rule"
+            }
+          ],
+          "requestBodyFields": [],
+          "returns": "entities.AutoDownloaderRule"
+        },
+        {
+          "name": "HandleGetAutoDownloaderRules",
+          "summary": "returns all rules.",
+          "description": "This is used to list all rules. It returns an empty slice if there are no rules.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/auto-downloader/rules",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "[]entities.AutoDownloaderRule"
+        },
+        {
+          "name": "HandleCreateAutoDownloaderRule",
+          "summary": "creates a new rule.",
+          "description": "The body should contain the same fields as entities.AutoDownloaderRule. It returns the created rule.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/auto-downloader/rule",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "entities.AutoDownloaderRule"
+        },
+        {
+          "name": "HandleUpdateAutoDownloaderRule",
+          "summary": "updates a rule.",
+          "description": "The body should contain the same fields as entities.AutoDownloaderRule. It returns the updated rule.",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/v1/auto-downloader/rule",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "entities.AutoDownloaderRule"
+        },
+        {
+          "name": "HandleDeleteAutoDownloaderRule",
+          "summary": "deletes a rule.",
+          "description": "It returns 'true' if the rule was deleted.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/auto-downloader/rule/{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "The DB id of the rule"
+            }
+          ],
+          "requestBodyFields": [],
+          "returns": "bool"
+        },
+        {
+          "name": "HandleGetAutoDownloaderItems",
+          "summary": "returns all queued items.",
+          "description": "Queued items are episodes that are downloaded but not scanned or not yet downloaded. The AutoDownloader uses these items in order to not download the same episode twice.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/auto-downloader/items",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "[]models.AutoDownloaderItem"
+        },
+        {
+          "name": "HandleDeleteAutoDownloaderItem",
+          "summary": "delete a queued item.",
+          "description": "This is used to remove a queued item from the list. Returns 'true' if the item was deleted.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/auto-downloader/item",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "The DB id of the item"
+            }
+          ],
+          "requestBodyFields": [
+            {
+              "name": "id",
+              "type": "uint",
+              "description": ""
+            }
+          ],
+          "returns": "bool"
+        }
+      ]
+    },
+    {
+      "filename": "collection.go",
+      "routes": [
+        {
+          "name": "HandleGetLibraryCollection",
+          "summary": "returns the main local anime collection.",
+          "description": "This creates a new LibraryCollection struct and returns it. This is used to get the main anime collection of the user. It uses the cached Anilist anime collection for the GET method. It refreshes the AniList anime collection if the POST method is used.",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "endpoint": "/api/v1/library/collection",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "entities.LibraryCollection"
+        }
+      ]
+    },
+    {
+      "filename": "directory_selector.go",
+      "routes": [
+        {
+          "name": "HandleDirectorySelector",
+          "summary": "returns directory content based on the input path.",
+          "description": "This used by the directory selector component to get directory validation and suggestions. It returns subdirectories based on the input path. It returns 500 error if the directory does not exist (or cannot be accessed).",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/directory-selector",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "input",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": "handlers.DirectoryInfo"
+        }
+      ]
+    },
+    {
+      "filename": "discord.go",
+      "routes": [
+        {
+          "name": "HandleSetDiscordMangaActivity",
+          "summary": "sets manga activity for discord rich presence.",
+          "description": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/discord/presence/manga",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "title",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "image",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "chapter",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": "true"
+        },
+        {
+          "name": "HandleCancelDiscordActivity",
+          "summary": "cancels the current discord rich presence activity.",
+          "description": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/discord/presence/cancel",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "true"
+        }
+      ]
+    },
+    {
+      "filename": "docs.go",
+      "routes": [
+        {
+          "name": "HandleGetDocs",
+          "summary": "returns the API documentation",
+          "description": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/internal/docs",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "docs.Docs"
+        }
+      ]
+    },
+    {
+      "filename": "download.go",
+      "routes": [
+        {
+          "name": "HandleDownloadTorrentFile",
+          "summary": "downloads torrent files to the destination folder",
+          "description": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/download-torrent-file",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "download_urls",
+              "type": "[]string",
+              "description": ""
+            },
+            {
+              "name": "destination",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "media",
+              "type": "*anilist.BaseMedia",
+              "description": ""
+            }
+          ],
+          "returns": "true"
+        },
+        {
+          "name": "HandleDownloadRelease",
+          "summary": "downloads selected release asset to the destination folder.",
+          "description": "Downloads the selected release asset to the destination folder and extracts it if possible. If the extraction fails, the error message will be returned in the successful response. The successful response will contain the destination path of the extracted files. It only returns an error if the download fails.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/download-release",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "download_url",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "destination",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": "handlers.HandleDownloadRelease.retData"
+        }
+      ]
+    },
+    {
+      "filename": "entries.go",
+      "routes": [
+        {
+          "name": "HandleGetMediaEntry",
+          "summary": "return a media entry for the given AniList anime media id.",
+          "description": "This is used by the anime media entry pages to get all the data about the anime. This includes the episodes and metadata (if any), the AniList data, download info...",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/library/media-entry/{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "AniList anime media ID"
+            }
+          ],
+          "requestBodyFields": [],
+          "returns": "entities.MediaEntry"
+        },
+        {
+          "name": "HandleMediaEntryBulkAction",
+          "summary": "perform given action on all the local files for the given media id.",
+          "description": "This is used to unmatch or toggle the lock status of all the local files for a specific media entry The response is not used in the frontend. The client should just refetch the entire media entry data.",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/v1/library/media-entry/bulk-action",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "action",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": "[]entities.LocalFile"
+        },
+        {
+          "name": "HandleOpenMediaEntryInExplorer",
+          "summary": "opens the directory of a media entry in the file explorer.",
+          "description": "This finds a common directory for all media entry local files and opens it in the file explorer. Returns 'true' whether the operation was successful or not, errors are ignored.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/library/media-entry/open-in-explorer",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": "true"
+        },
+        {
+          "name": "HandleFindProspectiveMediaEntrySuggestions",
+          "summary": "returns a list of media suggestions for files in the given directory.",
+          "description": "This is used by the \"Resolve unmatched media\" feature to suggest media entries for the local files in the given directory. If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/library/media-entry/suggestions",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "dir",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": "[]anilist.BasicMedia"
+        },
+        {
+          "name": "HandleMediaEntryManualMatch",
+          "summary": "matches un-matched local files in the given directory to the given media.",
+          "description": "It is used by the \"Resolve unmatched media\" feature to manually match local files to a specific media entry. Matching involves the use of scanner.FileHydrator. It will also lock the files. The response is not used in the frontend. The client should just refetch the entire library collection.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/library/media-entry/manual-match",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "dir",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": "[]entities.LocalFile"
+        },
+        {
+          "name": "HandleGetMissingEpisodes",
+          "summary": "returns a list of episodes missing from the user's library collection",
+          "description": "It detects missing episodes by comparing the user's AniList collection 'next airing' data with the local files. This route can be called multiple times, as it does not bypass the cache.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/library/missing-episodes",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": "entities.MissingEpisodes"
+        },
+        {
+          "name": "HandleAddUnknownMedia",
+          "summary": "adds the given media to the user's AniList planning collections",
+          "description": "Since media not found in the user's AniList collection are not displayed in the library, this route is used to add them. The response is ignored in the frontend, the client should just refetch the entire library collection.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/media-entry/unknown-media",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaIds",
+              "type": "[]int",
+              "description": ""
+            }
+          ],
+          "returns": "anilist.AnimeCollection"
+        },
+        {
+          "name": "HandleUpdateProgress",
+          "summary": "update the progress of the given anime media entry.",
+          "description": "This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked). The response is not used in the frontend, the client should just refetch the entire media entry data. NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/media-entry/update-progress",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "malId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "episodeNumber",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "totalEpisodes",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": "true"
+        }
+      ]
+    },
+    {
+      "filename": "explorer.go",
+      "routes": [
+        {
+          "name": "HandleOpenInExplorer",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "path",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "filecache.go",
+      "routes": [
+        {
+          "name": "HandleGetFileCacheTotalSize",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleRemoveFileCacheBucket",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "bucket",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "list_sync.go",
+      "routes": [
+        {
+          "name": "HandleDeleteListSyncCache",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetListSyncAnimeDiffs",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleSyncAnime",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "kind",
+              "type": "listsync.AnimeDiffKind",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "localfiles.go",
+      "routes": [
+        {
+          "name": "HandleGetLocalFiles",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleLocalFileBulkAction",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "action",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleUpdateLocalFileData",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "path",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "metadata",
+              "type": "*entities.LocalFileMetadata",
+              "description": ""
+            },
+            {
+              "name": "locked",
+              "type": "bool",
+              "description": ""
+            },
+            {
+              "name": "ignored",
+              "type": "bool",
+              "description": ""
+            },
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleDeleteLocalFiles",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "paths",
+              "type": "[]string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleRemoveEmptyDirectories",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "mal.go",
+      "routes": [
+        {
+          "name": "HandleMALAuth",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "code",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "code_verifier",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleEditMALListEntryProgress",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "progress",
+              "type": "*int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleMALLogout",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "manga.go",
+      "routes": [
+        {
+          "name": "HandleGetAnilistMangaCollection",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "bypassCache",
+              "type": "bool",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaCollection",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaEntry",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaEntryDetails",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleEmptyMangaEntryCache",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaEntryChapters",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "provider",
+              "type": "manga_providers.Provider",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleAnilistListManga",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "page",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "search",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "perPage",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "sort",
+              "type": "[]*anilist.MediaSort",
+              "description": ""
+            },
+            {
+              "name": "status",
+              "type": "[]*anilist.MediaStatus",
+              "description": ""
+            },
+            {
+              "name": "genres",
+              "type": "[]*string",
+              "description": ""
+            },
+            {
+              "name": "averageScore_greater",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "year",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "isAdult",
+              "type": "*bool",
+              "description": ""
+            },
+            {
+              "name": "format",
+              "type": "*anilist.MediaFormat",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleUpdateMangaProgress",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "malId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "chapterNumber",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "totalChapters",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "manga_download.go",
+      "routes": [
+        {
+          "name": "HandleDownloadMangaChapters",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "provider",
+              "type": "manga_providers.Provider",
+              "description": ""
+            },
+            {
+              "name": "chapterIds",
+              "type": "[]string",
+              "description": ""
+            },
+            {
+              "name": "startNow",
+              "type": "bool",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaDownloadData",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "cached",
+              "type": "bool",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaDownloadQueue",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleStartMangaDownloadQueue",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleStopMangaDownloadQueue",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleRefreshMangaDownloadData",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleClearAllChapterDownloadQueue",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleResetErroredChapterDownloadQueue",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleDeleteMangaChapterDownload",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "provider",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "chapterId",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "chapterNumber",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetMangaDownloadsList",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "manual_dump.go",
+      "routes": [
+        {
+          "name": "HandleTestDump",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "mediaplayer.go",
+      "routes": [
+        {
+          "name": "HandlePlayVideo",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "path",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleStartDefaultMediaPlayer",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "metadata.go",
+      "routes": [
+        {
+          "name": "HandlePopulateTVDBEpisodes",
+          "summary": "populate cache with TVDB episode metadata.",
+          "description": "This will populate the cache with TVDB episode metadata for the given media.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/metadata-provider/tvdb-episodes",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": "[]tvdb.Episode"
+        },
+        {
+          "name": "HandleEmptyTVDBEpisodes",
+          "summary": "empties TVDB episode metadata cache.",
+          "description": "This will empty the TVDB episode metadata cache for the given media.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/metadata-provider/tvdb-episodes",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": "bool"
+        }
+      ]
+    },
+    {
+      "filename": "offline.go",
+      "routes": [
+        {
+          "name": "HandleCreateOfflineSnapshot",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "animeMediaIds",
+              "type": "[]int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetOfflineSnapshot",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetOfflineSnapshotEntry",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleUpdateOfflineEntryListData",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "status",
+              "type": "*anilist.MediaListStatus",
+              "description": ""
+            },
+            {
+              "name": "score",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "progress",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "startDate",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "endDate",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleSyncOfflineData",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "onlinestream.go",
+      "routes": [
+        {
+          "name": "HandleGetOnlineStreamEpisodeList",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "dubbed",
+              "type": "bool",
+              "description": ""
+            },
+            {
+              "name": "provider",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetOnlineStreamEpisodeSource",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "episodeNumber",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "provider",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "dubbed",
+              "type": "bool",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleOnlineStreamEmptyCache",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "playback_manager.go",
+      "routes": [
+        {
+          "name": "HandlePlaybackSyncCurrentProgress",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandlePlaybackPlayNextEpisode",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandlePlaybackStartPlaylist",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "dbId",
+              "type": "uint",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandlePlaybackCancelCurrentPlaylist",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandlePlaybackPlaylistNext",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "playlist.go",
+      "routes": [
+        {
+          "name": "HandleCreatePlaylist",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "name",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "paths",
+              "type": "[]string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetPlaylists",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleUpdatePlaylist",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "dbId",
+              "type": "uint",
+              "description": ""
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "paths",
+              "type": "[]string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleDeletePlaylist",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "dbId",
+              "type": "uint",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleGetPlaylistEpisodes",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "releases.go",
+      "routes": [
+        {
+          "name": "HandleGetLatestUpdate",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "response.go",
+      "routes": []
+    },
+    {
+      "filename": "routes.go",
+      "routes": []
+    },
+    {
+      "filename": "scan.go",
+      "routes": [
+        {
+          "name": "HandleScanLocalFiles",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "scan_summary.go",
+      "routes": [
+        {
+          "name": "HandleGetLatestScanSummaries",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "settings.go",
+      "routes": [
+        {
+          "name": "HandleGetSettings",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleSaveSettings",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleSaveListSyncSettings",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleSaveAutoDownloaderSettings",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "silenced_media_entries.go",
+      "routes": [
+        {
+          "name": "HandleGetMediaEntrySilenceStatus",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleToggleMediaEntrySilenceStatus",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "status.go",
+      "routes": [
+        {
+          "name": "HandleStatus",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "stream.go",
+      "routes": []
+    },
+    {
+      "filename": "theme.go",
+      "routes": [
+        {
+          "name": "HandleGetTheme",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleUpdateTheme",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "torrent_client.go",
+      "routes": [
+        {
+          "name": "HandleGetActiveTorrentList",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [],
+          "returns": ""
+        },
+        {
+          "name": "HandleTorrentClientAction",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "hash",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "action",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "dir",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleTorrentClientDownload",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "urls",
+              "type": "[]string",
+              "description": ""
+            },
+            {
+              "name": "destination",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "enabled",
+              "type": "bool",
+              "description": ""
+            },
+            {
+              "name": "missingEpisodeNumbers",
+              "type": "[]int",
+              "description": ""
+            },
+            {
+              "name": "}",
+              "type": "`json:\"smartSelect\"`",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleTorrentClientAddMagnetFromRule",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "magnetUrl",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "ruleId",
+              "type": "uint",
+              "description": ""
+            },
+            {
+              "name": "queuedItemId",
+              "type": "uint",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "torrent_search.go",
+      "routes": [
+        {
+          "name": "HandleTorrentSearch",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "smartSearch",
+              "type": "*bool",
+              "description": ""
+            },
+            {
+              "name": "query",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "episodeNumber",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "batch",
+              "type": "*bool",
+              "description": ""
+            },
+            {
+              "name": "media",
+              "type": "*anilist.BaseMedia",
+              "description": ""
+            },
+            {
+              "name": "absoluteOffset",
+              "type": "*int",
+              "description": ""
+            },
+            {
+              "name": "resolution",
+              "type": "*string",
+              "description": ""
+            },
+            {
+              "name": "best",
+              "type": "*bool",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        },
+        {
+          "name": "HandleNsfwTorrentSearch",
+          "summary": "",
+          "description": "",
+          "methods": [],
+          "endpoint": "",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "query",
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "filename": "websocket.go",
+      "routes": []
+    }
+  ]
+}

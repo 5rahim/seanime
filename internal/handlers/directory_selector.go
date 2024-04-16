@@ -12,15 +12,20 @@ type DirectoryInfo struct {
 	FolderName string `json:"folderName"`
 }
 
-// HandleDirectorySelector is a route handler that returns directory suggestions and content based on the inputted path.
-// It is used by the directory selector component.
+// HandleDirectorySelector
 //
-//	POST /v1/directory-selector
+//	@summary returns directory content based on the input path.
+//	@desc This used by the directory selector component to get directory validation and suggestions.
+//	@desc It returns subdirectories based on the input path.
+//	@desc It returns 500 error if the directory does not exist (or cannot be accessed).
+//	@route /api/v1/directory-selector [POST]
+//	@returns handlers.DirectoryInfo
 func HandleDirectorySelector(c *RouteCtx) error {
 
-	var request struct {
+	type body struct {
 		Input string `json:"input"`
 	}
+	var request body
 
 	if err := c.Fiber.BodyParser(&request); err != nil {
 		return c.Fiber.Status(fiber.StatusBadRequest).JSON(fiber.Map{
