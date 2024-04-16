@@ -5,6 +5,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import React from "react"
 import { FaRedo } from "react-icons/fa"
+import { useUpdateEffect } from "react-use"
 
 type ChapterPageProps = {
     children?: React.ReactNode
@@ -14,6 +15,7 @@ type ChapterPageProps = {
     containerClass: string
     imageClass: string
     readingMode: string
+    onFinishedLoading?: () => void
 }
 
 export function ChapterPage(props: ChapterPageProps) {
@@ -26,11 +28,18 @@ export function ChapterPage(props: ChapterPageProps) {
         imageClass,
         children,
         readingMode,
+        onFinishedLoading,
         ...rest
     } = props
 
     const ref = React.useRef<HTMLImageElement>(null)
     const { isLoaded, isLoading, hasError, retry } = useImageLoadStatus(ref)
+
+    useUpdateEffect(() => {
+        if (isLoaded && onFinishedLoading) {
+            onFinishedLoading()
+        }
+    }, [isLoaded])
 
     const { getChapterPageUrl } = useMangaReaderUtils()
 

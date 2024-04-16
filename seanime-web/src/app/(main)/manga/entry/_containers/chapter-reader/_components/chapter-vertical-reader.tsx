@@ -168,6 +168,11 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                         index={index}
                         readingMode={"paged"}
                         pageContainer={pageContainer}
+                        onFinishedLoading={() => {
+                            if (index === 0) {
+                                setCurrentPageIndex(0)
+                            }
+                        }}
                         containerClass={cn(
                             "max-w-[1400px] mx-auto scroll-div min-h-[200px] relative focus-visible:outline-none",
                             pageFit === MangaPageFit.CONTAIN && "max-w-full h-[calc(100dvh-60px)]",
