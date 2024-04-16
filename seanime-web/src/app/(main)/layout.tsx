@@ -57,13 +57,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <ChapterDownloadsDrawer />
                 <div className="min-h-screen">
                     <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
-                        <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
-                            <div className="flex items-center w-full gap-2">
+                        <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
+                            <div className="flex items-center w-full gap-3">
                                 <AppSidebarTrigger />
                                 <TopNavbar />
                                 <ProgressTracking />
-                            </div>
-                            <div className="flex items-center gap-4">
+                                <div className="flex flex-1"></div>
                                 <ChapterDownloadsButton />
                                 <RefreshAnilistButton />
                             </div>
