@@ -6,10 +6,16 @@
 
 <h1 align="center"><b>Seanime</b></h1>
 
-<h4 align="center">Self-hosted, user-friendly media server for anime and manga enthusiasts.</h4>
+<h4 align="center">
+Self-hosted anime and manga server for sea rovers.
+</h4>
 
 <p align="center">
-<img src="docs/images/v1/showcase.png" alt="preview" width="100%"/>
+Scan, automate and consume your anime collection, track your progress, read manga and more - all in one place.
+</p>
+
+<p align="center">
+<img src="docs/images/v1/showcase_1.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -23,6 +29,14 @@ Seanime is a free and open-source media server built around AniList and other an
 It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
 Feel free to open issues or contribute. Leave a star if you like this project!
+
+<p align="center">
+  <a href="#anime">Anime features</a> •
+  <a href="#manga--manhwa">Manga features</a> •
+  <a href="https://seanime.rahim.app/docs">Documentation</a> •
+  <a href="https://github.com/5rahim/seanime/releases">Latest release</a> •
+  <a href="#screenshots">Screenshots</a>
+</p>
 
 # Features
 
@@ -93,7 +107,15 @@ support transcoding or streaming to other devices (yet).
 
 # Get started
 
-[How to use Seanime](https://seanime.rahim.app/docs)
+Read the installation guide to set up Seanime on your device.
+
+<p align="center">
+<a href="https://seanime.rahim.app/docs" style="font-size:18px;" align="center">
+How to install Seanime
+</a>
+</p>
+
+
  
 ### Not planned
 
