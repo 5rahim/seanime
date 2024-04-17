@@ -20,15 +20,8 @@ Scan, automate and consume your anime collection, track your progress, read mang
 
 <p align="center">
 <img src="docs/images/v1/rec_play.gif" alt="preview" width="49%"/>
-<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="49%"/>
+<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="48.9%"/>
 </p>
-
-## About
-
-Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
-It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
-
-Feel free to open issues or contribute. Leave a star if you like this project!
 
 <p align="center">
   <a href="#anime">Anime features</a> •
@@ -37,6 +30,13 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> •
   <a href="#screenshots">Screenshots</a>
 </p>
+
+## About
+
+Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
+It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
+
+Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 
