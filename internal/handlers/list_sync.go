@@ -5,10 +5,12 @@ import (
 	"time"
 )
 
-// HandleDeleteListSyncCache will delete the listsync.ListSync cached instance.
-// This will allow the client to fetch an up-to-date instance the next time it requests it.
+// HandleDeleteListSyncCache
 //
-//	POST /v1/list-sync/cache
+//	@summary deletes the list sync cache.
+//	@desc This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.
+//	@route /api/v1/filecache/cache [POST]
+//	@returns bool
 func HandleDeleteListSyncCache(c *RouteCtx) error {
 
 	c.App.ListSyncCache.Delete(0)
@@ -16,10 +18,12 @@ func HandleDeleteListSyncCache(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-// HandleGetListSyncAnimeDiffs will return []*listsync.AnimeDiff from the cached listsync.ListSync instance.
-// If the instance is not found, it will generate a new listsync.ListSync instance and cache them for 10 minutes in App.ListSyncCache.
+// HandleGetListSyncAnimeDiffs
 //
-//	GET /v1/list-sync/anime
+//	@summary returns the anime diffs from the list sync instance.
+//	@desc If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes
+//	@route /api/v1/filecache/anime [GET]
+//	@returns []listsync.AnimeDiff
 func HandleGetListSyncAnimeDiffs(c *RouteCtx) error {
 	// Fetch the list sync instance from the cache
 	cachedLs, found := c.App.ListSyncCache.Get(0)
@@ -39,9 +43,11 @@ func HandleGetListSyncAnimeDiffs(c *RouteCtx) error {
 	return c.RespondWithData(ls.AnimeDiffs)
 }
 
-// HandleSyncAnime will sync the anime based on the provided diff kind.
+// HandleSyncAnime
 //
-//	POST /v1/list-sync/anime
+//	@summary syncs the anime based on the provided diff kind
+//	@route /api/v1/filecache/anime [POST]
+//	@returns []listsync.AnimeDiff
 func HandleSyncAnime(c *RouteCtx) error {
 
 	type body struct {

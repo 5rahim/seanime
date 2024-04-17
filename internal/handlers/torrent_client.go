@@ -10,10 +10,13 @@ import (
 	"strings"
 )
 
-// HandleGetActiveTorrentList will return all active qBittorrent torrents. (i.e. downloading or seeding)
-// This handler is used by the client to display the active torrents.
+// HandleGetActiveTorrentList
 //
-//	GET /v1/torrent-client/list
+//	@summary returns all active torrents.
+//	@desc This handler is used by the client to display the active torrents.
+//
+//	@route /v1/torrent-client/list [GET]
+//	@returns []torrent_client.Torrent
 func HandleGetActiveTorrentList(c *RouteCtx) error {
 
 	// Get torrent list
@@ -32,10 +35,12 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 
 }
 
-// HandleTorrentClientAction will perform an action on a torrent.
-// It returns true if the action was successful.
+// HandleTorrentClientAction
 //
-//	POST /v1/torrent-client/action
+//	@summary performs an action on a torrent.
+//	@desc This handler is used to pause, resume or remove a torrent.
+//	@route /v1/torrent-client/action [POST]
+//	@returns bool
 func HandleTorrentClientAction(c *RouteCtx) error {
 
 	type body struct {
@@ -80,10 +85,13 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 
 }
 
-// HandleTorrentClientDownload will get magnets from Nyaa and add them to qBittorrent.
-// It also handles smart selection (torrent_client.SmartSelect).
+// HandleTorrentClientDownload
 //
-//	POST /v1/torrent-client/download
+//	@summary adds torrents to the torrent client.
+//	@desc It fetches the magnets from the provided URLs and adds them to the torrent client.
+//	@desc If smart select is enabled, it will try to select the best torrent based on the missing episodes.
+//	@route /v1/torrent-client/download [POST]
+//	@returns bool
 func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	type body struct {
@@ -153,11 +161,13 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 }
 
-// HandleTorrentClientAddMagnetFromRule will add the magnets to the torrent client based on the queued rule item.
+// HandleTorrentClientAddMagnetFromRule
 //
-// CLIENT: The AutoDownloader items should be re-fetched after this.
-//
-//	POST /v1/torrent-client/rule-magnet
+//	@summary adds magnets to the torrent client based on the AutoDownloader item.
+//	@desc This is used to download torrents that were queued by the AutoDownloader.
+//	@desc The AutoDownloader items should be re-fetched after this.
+//	@route /v1/torrent-client/rule-magnet [POST]
+//	@returns bool
 func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 
 	type body struct {

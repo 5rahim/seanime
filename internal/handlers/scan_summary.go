@@ -1,8 +1,10 @@
 package handlers
 
-// HandleGetLatestScanSummaries will return the latest scan summaries.
+// HandleGetLatestScanSummaries
 //
-//	GET /v1/library/scan-summaries
+//	@summary returns the latest scan summaries.
+//	@route /v1/library/scan-summaries [GET]
+//	@returns []db.ScanSummaryItem
 func HandleGetLatestScanSummaries(c *RouteCtx) error {
 
 	sm, err := c.App.Database.GetScanSummaries()

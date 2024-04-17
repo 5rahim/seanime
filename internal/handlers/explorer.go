@@ -7,10 +7,12 @@ import (
 	"strings"
 )
 
-// HandleOpenInExplorer is a route handler that opens the given directory in the file explorer.
-// It returns true.
+// HandleOpenInExplorer
 //
-//	POST /v1/open-in-explorer
+//	@summary opens the given directory in the file explorer.
+//	@desc It returns 'true' whether the operation was successful or not.
+//	@route /api/v1/open-in-explorer [POST]
+//	@returns bool
 func HandleOpenInExplorer(c *RouteCtx) error {
 
 	type body struct {

@@ -5,7 +5,7 @@
       "routes": [
         {
           "name": "HandleGetAnilistCollection",
-          "summary": "returns the user's anime collection.",
+          "summary": "returns the user's AniList anime collection.",
           "description": "Calling GET will return the cached data. Calling POST will refetch the data from Anilist.",
           "methods": [
             "GET",
@@ -66,8 +66,8 @@
         },
         {
           "name": "HandleGetAnilistMediaDetails",
-          "summary": "returns more details about an AniList media.",
-          "description": "This is used to fetch more fields omitted from the base queries.",
+          "summary": "returns more details about an AniList anime entry.",
+          "description": "This fetches more fields omitted from the base queries.",
           "methods": [
             "GET"
           ],
@@ -536,7 +536,7 @@
         {
           "name": "HandleGetMediaEntry",
           "summary": "return a media entry for the given AniList anime media id.",
-          "description": "This is used by the anime media entry pages to get all the data about the anime. This includes the episodes and metadata (if any), the AniList data, download info...",
+          "description": "This is used by the anime media entry pages to get all the data about the anime. This includes episodes and metadata (if any), AniList list data, download info...",
           "methods": [
             "GET"
           ],
@@ -704,10 +704,12 @@
       "routes": [
         {
           "name": "HandleOpenInExplorer",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "opens the given directory in the file explorer.",
+          "description": "It returns 'true' whether the operation was successful or not.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/open-in-explorer",
           "params": [],
           "requestBodyFields": [
             {
@@ -716,7 +718,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -725,20 +727,24 @@
       "routes": [
         {
           "name": "HandleGetFileCacheTotalSize",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the total size of cache files.",
+          "description": "The total size of the cache files is returned in human-readable format.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/filecache/total-size",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleRemoveFileCacheBucket",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "deletes all buckets with the given prefix.",
+          "description": "The bucket value is the prefix of the cache files that should be deleted. Returns 'true' if the operation was successful.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/filecache/bucket",
           "params": [],
           "requestBodyFields": [
             {
@@ -747,7 +753,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -756,30 +762,36 @@
       "routes": [
         {
           "name": "HandleDeleteListSyncCache",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "deletes the list sync cache.",
+          "description": "This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/filecache/cache",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleGetListSyncAnimeDiffs",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the anime diffs from the list sync instance.",
+          "description": "If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/filecache/anime",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]listsync.AnimeDiff"
         },
         {
           "name": "HandleSyncAnime",
-          "summary": "",
+          "summary": "syncs the anime based on the provided diff kind",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/filecache/anime",
           "params": [],
           "requestBodyFields": [
             {
@@ -788,7 +800,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "[]listsync.AnimeDiff"
         }
       ]
     },
@@ -797,20 +809,24 @@
       "routes": [
         {
           "name": "HandleGetLocalFiles",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns all local files.",
+          "description": "Reminder that local files are scanned from the library path.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/library/local-files",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]entities.LocalFile"
         },
         {
           "name": "HandleLocalFileBulkAction",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "performs an action on all local files.",
+          "description": "This will perform the given action on all local files. The response is ignored, the client should refetch the entire library collection and media entry.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/library/local-files",
           "params": [],
           "requestBodyFields": [
             {
@@ -819,14 +835,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "[]entities.LocalFile"
         },
         {
           "name": "HandleUpdateLocalFileData",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates the local file with the given path.",
+          "description": "This will update the local file with the given path. The response is ignored, the client should refetch the entire library collection and media entry.",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/v1/library/local-file",
           "params": [],
           "requestBodyFields": [
             {
@@ -855,14 +873,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "[]entities.LocalFile"
         },
         {
           "name": "HandleDeleteLocalFiles",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "deletes the local file with the given paths.",
+          "description": "The response is ignored, the client should refetch the entire library collection and media entry.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/library/local-files",
           "params": [],
           "requestBodyFields": [
             {
@@ -871,17 +891,19 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "[]entities.LocalFile"
         },
         {
           "name": "HandleRemoveEmptyDirectories",
-          "summary": "",
+          "summary": "deletes the empty directories from the library path.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/library/empty-directories",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -890,10 +912,12 @@
       "routes": [
         {
           "name": "HandleMALAuth",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "fetches the access and refresh tokens for the given code.",
+          "description": "This is used to authenticate the user with MyAnimeList. It will save the info in the database, effectively logging the user in. The client should re-fetch the server status after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/mal/auth",
           "params": [],
           "requestBodyFields": [
             {
@@ -912,14 +936,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "handlers.malAuthResponse"
         },
         {
           "name": "HandleEditMALListEntryProgress",
-          "summary": "",
+          "summary": "updates the progress of a MAL list entry.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/mal/list-entry/progress",
           "params": [],
           "requestBodyFields": [
             {
@@ -933,17 +959,19 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleMALLogout",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "logs the user out of MyAnimeList.",
+          "description": "This will delete the MAL info from the database, effectively logging the user out. The client should re-fetch the server status after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/mal/logout",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -952,10 +980,12 @@
       "routes": [
         {
           "name": "HandleGetAnilistMangaCollection",
-          "summary": "",
+          "summary": "returns the user's AniList manga collection.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/manga/anilist/collection",
           "params": [],
           "requestBodyFields": [
             {
@@ -964,54 +994,66 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "anilist.MangaCollection"
         },
         {
           "name": "HandleGetMangaCollection",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the user's main manga collection.",
+          "description": "This is an object that contains all the user's manga entries in a structured format.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/manga/collection",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "manga.Collection"
         },
         {
           "name": "HandleGetMangaEntry",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
+          "summary": "returns a manga entry for the given AniList manga id.",
+          "description": "This is used by the manga media entry pages to get all the data about the anime. It includes metadata and AniList list data.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/manga/entry/{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "AniList manga media ID"
+            }
+          ],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "manga.Entry"
         },
         {
           "name": "HandleGetMangaEntryDetails",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
+          "summary": "returns more details about an AniList manga entry.",
+          "description": "This fetches more fields omitted from the base queries.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/manga/entry/{id}/details",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "required": true,
+              "description": "AniList manga media ID"
+            }
+          ],
           "requestBodyFields": [],
-          "returns": ""
-        },
-        {
-          "name": "",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
-          "requestBodyFields": [],
-          "returns": ""
+          "returns": "anilist.MangaDetailsById_Media"
         },
         {
           "name": "HandleEmptyMangaEntryCache",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "empties the cache for a manga entry.",
+          "description": "This will empty the cache for a manga entry (chapter lists and pages), allowing the client to fetch fresh data. HandleGetMangaEntryChapters should be called after this to fetch the new chapter list. Returns 'true' if the operation was successful.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/manga/entry/cache",
           "params": [],
           "requestBodyFields": [
             {
@@ -1020,14 +1062,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleGetMangaEntryChapters",
-          "summary": "",
+          "summary": "returns the chapters for a manga entry based on the provider.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/chapters",
           "params": [],
           "requestBodyFields": [
             {
@@ -1041,14 +1085,49 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "manga.ChapterContainer"
+        },
+        {
+          "name": "HandleGetMangaEntryPages",
+          "summary": "returns the pages for a manga entry based on the provider and chapter id.",
+          "description": "This will return the pages for a manga chapter. If the app is offline and the chapter is not downloaded, it will return an error. If the app is online and the chapter is not downloaded, it will return the pages from the provider. If the chapter is downloaded, it will return the appropriate struct. If 'double page' is requested, it will fetch image sizes and include the dimensions in the response.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/pages",
+          "params": [],
+          "requestBodyFields": [
+            {
+              "name": "mediaId",
+              "type": "int",
+              "description": ""
+            },
+            {
+              "name": "provider",
+              "type": "manga_providers.Provider",
+              "description": ""
+            },
+            {
+              "name": "chapterId",
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "doublePage",
+              "type": "bool",
+              "description": ""
+            }
+          ],
+          "returns": "manga.PageContainer"
         },
         {
           "name": "HandleAnilistListManga",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns a list of manga based on the search parameters.",
+          "description": "This is used by \"Advanced Search\" and search function.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/anilist/list",
           "params": [],
           "requestBodyFields": [
             {
@@ -1106,10 +1185,12 @@
         },
         {
           "name": "HandleUpdateMangaProgress",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates the progress of a manga entry.",
+          "description": "Note: MyAnimeList is not supported",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/update-progress",
           "params": [],
           "requestBodyFields": [
             {
@@ -1142,10 +1223,12 @@
       "routes": [
         {
           "name": "HandleDownloadMangaChapters",
-          "summary": "",
+          "summary": "adds chapters to the download queue.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/download-chapters",
           "params": [],
           "requestBodyFields": [
             {
@@ -1169,14 +1252,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleGetMangaDownloadData",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the download data for a specific media.",
+          "description": "This is used to display information about the downloaded and queued chapters in the UI. If the 'cached' parameter is false, it will refresh the data by rescanning the download folder.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/download-data",
           "params": [],
           "requestBodyFields": [
             {
@@ -1190,74 +1275,76 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "manga.MediaDownloadData"
         },
         {
           "name": "HandleGetMangaDownloadQueue",
-          "summary": "",
+          "summary": "returns the items in the download queue.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/manga/download-queue",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]manga.ChapterDownloadQueueItem"
         },
         {
           "name": "HandleStartMangaDownloadQueue",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "starts the download queue if it's not already running.",
+          "description": "This will start the download queue if it's not already running. Returns 'true' whether the queue was started or not.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/download-queue/start",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleStopMangaDownloadQueue",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "stops the manga download queue.",
+          "description": "This will stop the manga download queue. Returns 'true' whether the queue was stopped or not.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/download-queue/stop",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
-        },
-        {
-          "name": "HandleRefreshMangaDownloadData",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
-          "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleClearAllChapterDownloadQueue",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "clears all chapters from the download queue.",
+          "description": "This will clear all chapters from the download queue. Returns 'true' whether the queue was cleared or not. This will also send a websocket event telling the client to refetch the download queue.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/manga/download-queue",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleResetErroredChapterDownloadQueue",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "resets the errored chapters in the download queue.",
+          "description": "This will reset the errored chapters in the download queue, so they can be re-downloaded. Returns 'true' whether the queue was reset or not. This will also send a websocket event telling the client to refetch the download queue.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/manga/download-queue/reset-errored",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleDeleteMangaChapterDownload",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "deletes a downloaded chapter.",
+          "description": "This will delete a downloaded chapter from the filesystem. Returns 'true' whether the chapter was deleted or not. The client should refetch the download data after this.",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/api/v1/manga/download-chapter",
           "params": [],
           "requestBodyFields": [
             {
@@ -1281,17 +1368,19 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleGetMangaDownloadsList",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "displays the list of downloaded manga.",
+          "description": "This analyzes the download folder and returns a well-formatted structure for displaying downloaded manga. It returns a list of manga.DownloadListItem where the media data might be nil if it's not in the AniList collection.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/manga/downloads",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]manga.DownloadListItem"
         }
       ]
     },
@@ -1300,10 +1389,12 @@
       "routes": [
         {
           "name": "HandleTestDump",
-          "summary": "",
+          "summary": "this is a dummy handler for testing purposes.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/test-dump",
           "params": [],
           "requestBodyFields": [],
           "returns": ""
@@ -1315,10 +1406,12 @@
       "routes": [
         {
           "name": "HandlePlayVideo",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "plays the video with the given path using the media player.",
+          "description": "This tells the Playback Manager to play the video using the media player and start tracking progress.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/media-player/play",
           "params": [],
           "requestBodyFields": [
             {
@@ -1327,17 +1420,19 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "nil"
         },
         {
           "name": "HandleStartDefaultMediaPlayer",
-          "summary": "",
+          "summary": "launches the default media player (vlc or mpc-hc).",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/media-player/start",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1387,10 +1482,12 @@
       "routes": [
         {
           "name": "HandleCreateOfflineSnapshot",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "creates an offline snapshot.",
+          "description": "This will create an offline snapshot of the given anime media ids and downloaded manga chapters. It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot. This is a non-blocking operation.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/offline/snapshot",
           "params": [],
           "requestBodyFields": [
             {
@@ -1399,34 +1496,40 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleGetOfflineSnapshot",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "retrieves the offline snapshot.",
+          "description": "This will return the latest offline snapshot. (Offline only)",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/offline/snapshot",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "offline.Snapshot"
         },
         {
           "name": "HandleGetOfflineSnapshotEntry",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "retrieves an offline snapshot entry.",
+          "description": "This will return the latest offline snapshot entry so the client can display the data.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/offline/snapshot-entry",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "offline.SnapshotEntry"
         },
         {
           "name": "HandleUpdateOfflineEntryListData",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates data for an offline entry list.",
+          "description": "This will update the offline entry list data. (Offline only)",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/offline/snapshot-entry",
           "params": [],
           "requestBodyFields": [
             {
@@ -1465,17 +1568,19 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleSyncOfflineData",
-          "summary": "",
+          "summary": "synchronizes offline data with AniList when the user is back online.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/offline/sync",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1484,10 +1589,12 @@
       "routes": [
         {
           "name": "HandleGetOnlineStreamEpisodeList",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the episode list for the given media and provider.",
+          "description": "It returns the episode list for the given media and provider. The episodes are cached using a file cache. The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/onlinestream/episode-list",
           "params": [],
           "requestBodyFields": [
             {
@@ -1506,14 +1613,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "{episodes: Episode[], media: BaseMedia}"
         },
         {
           "name": "HandleGetOnlineStreamEpisodeSource",
-          "summary": "",
+          "summary": "returns the video sources for the given media, episode number and provider.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/onlinestream/episode-sources",
           "params": [],
           "requestBodyFields": [
             {
@@ -1537,14 +1646,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "onlinestream.EpisodeSource"
         },
         {
           "name": "HandleOnlineStreamEmptyCache",
-          "summary": "",
+          "summary": "empties the cache for the given media.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/v1/onlinestream/cache",
           "params": [],
           "requestBodyFields": [
             {
@@ -1553,7 +1664,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1562,30 +1673,36 @@
       "routes": [
         {
           "name": "HandlePlaybackSyncCurrentProgress",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates the AniList progress of the currently playing media.",
+          "description": "This is called after 'Update progress' is clicked when watching a media. This route returns the media ID of the currently playing media, so the client can refetch the media entry data.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/playback-manager/sync-current-progress",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "int"
         },
         {
           "name": "HandlePlaybackPlayNextEpisode",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "plays the next episode of the currently playing media.",
+          "description": "This will play the next episode of the currently playing media. This is non-blocking so the client should prevent multiple calls until the next status is received.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/playback-manager/play-next",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandlePlaybackStartPlaylist",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "starts playing a playlist.",
+          "description": "The client should refetch playlists.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/playback-manager/start-playlist",
           "params": [],
           "requestBodyFields": [
             {
@@ -1594,27 +1711,31 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandlePlaybackCancelCurrentPlaylist",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "ends the current playlist.",
+          "description": "This will stop the current playlist. This is non-blocking.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/playback-manager/cancel-playlist",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandlePlaybackPlaylistNext",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "moves to the next item in the current playlist.",
+          "description": "This is non-blocking so the client should prevent multiple calls until the next status is received.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/playback-manager/playlist-next",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1623,10 +1744,12 @@
       "routes": [
         {
           "name": "HandleCreatePlaylist",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "creates a new playlist.",
+          "description": "This will create a new playlist with the given name and local file paths. The response is ignored, the client should re-fetch the playlists after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/playlist",
           "params": [],
           "requestBodyFields": [
             {
@@ -1640,25 +1763,36 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "entities.Playlist"
         },
         {
           "name": "HandleGetPlaylists",
-          "summary": "",
+          "summary": "returns all playlists.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/v1/playlists",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]entities.Playlist"
         },
         {
           "name": "HandleUpdatePlaylist",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
+          "summary": "updates a playlist.",
+          "description": "The response is ignored, the client should re-fetch the playlists after this.",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/v1/playlist/{id}",
+          "params": [
+            {
+              "name": " id",
+              "type": "int",
+              "required": true,
+              "description": "The ID of the playlist to update."
+            }
+          ],
           "requestBodyFields": [
             {
               "name": "dbId",
@@ -1676,14 +1810,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "entities.Playlist"
         },
         {
           "name": "HandleDeletePlaylist",
-          "summary": "",
+          "summary": "deletes a playlist.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "DELETE"
+          ],
+          "endpoint": "/v1/playlist",
           "params": [],
           "requestBodyFields": [
             {
@@ -1692,15 +1828,30 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleGetPlaylistEpisodes",
-          "summary": "",
+          "summary": "returns all the local files of a playlist media entry that have not been watched.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/v1/playlist/episodes/{id}/{progress}",
+          "params": [
+            {
+              "name": " id",
+              "type": "int",
+              "required": true,
+              "description": "The ID of the media entry."
+            },
+            {
+              "name": " progress",
+              "type": "int",
+              "required": true,
+              "description": "The progress of the media entry."
+            }
+          ],
           "requestBodyFields": [],
           "returns": ""
         }
@@ -1711,13 +1862,15 @@
       "routes": [
         {
           "name": "HandleGetLatestUpdate",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the latest update.",
+          "description": "This will return the latest update. If an error occurs, it will return an empty update.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/v1/latest-update",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "updater.Update"
         }
       ]
     },
@@ -1734,13 +1887,15 @@
       "routes": [
         {
           "name": "HandleScanLocalFiles",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "scans the user's library.",
+          "description": "This will scan the user's library. The response is ignored, the client should re-fetch the library after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/library/scan",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]entities.LocalFile"
         }
       ]
     },
@@ -1749,13 +1904,15 @@
       "routes": [
         {
           "name": "HandleGetLatestScanSummaries",
-          "summary": "",
+          "summary": "returns the latest scan summaries.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/v1/library/scan-summaries",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]db.ScanSummaryItem"
         }
       ]
     },
@@ -1764,43 +1921,77 @@
       "routes": [
         {
           "name": "HandleGetSettings",
-          "summary": "",
+          "summary": "returns the app settings.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/settings",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "models.Settings"
         },
         {
           "name": "HandleSaveSettings",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates the app settings.",
+          "description": "This will update the app settings. The client should re-fetch the server status after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/api/v1/settings",
           "params": [],
-          "requestBodyFields": [],
-          "returns": ""
+          "requestBodyFields": [
+            {
+              "name": "library",
+              "type": "models.LibrarySettings",
+              "description": ""
+            },
+            {
+              "name": "mediaPlayer",
+              "type": "models.MediaPlayerSettings",
+              "description": ""
+            },
+            {
+              "name": "torrent",
+              "type": "models.TorrentSettings",
+              "description": ""
+            },
+            {
+              "name": "anilist",
+              "type": "models.AnilistSettings",
+              "description": ""
+            },
+            {
+              "name": "discord",
+              "type": "models.DiscordSettings",
+              "description": ""
+            }
+          ],
+          "returns": "Status"
         },
         {
           "name": "HandleSaveListSyncSettings",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates the list sync settings",
+          "description": "This will update the ListSync settings and clear the ListSync cache.",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/v1/settings/list-sync",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleSaveAutoDownloaderSettings",
-          "summary": "",
+          "summary": "updates the auto-downloader settings.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/v1/settings/auto-downloader",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1809,20 +2000,31 @@
       "routes": [
         {
           "name": "HandleGetMediaEntrySilenceStatus",
-          "summary": "",
+          "summary": "returns the silence status of a media entry.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
-          "params": [],
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/v1/library/media-entry/silence/:id",
+          "params": [
+            {
+              "name": " id",
+              "type": "int",
+              "required": true,
+              "description": "The ID of the media entry."
+            }
+          ],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "models.SilencedMediaEntry"
         },
         {
           "name": "HandleToggleMediaEntrySilenceStatus",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "toggles the silence status of a media entry.",
+          "description": "The missing episodes should be re-fetched after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/library/media-entry/silence",
           "params": [],
           "requestBodyFields": [
             {
@@ -1831,7 +2033,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1840,13 +2042,15 @@
       "routes": [
         {
           "name": "HandleStatus",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns the server status.",
+          "description": "The server status includes app info, auth info and settings. The client uses this to set the UI. It is called on every page load to get the most up-to-date data. It should be called right after updating the settings.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/library/media-entry/silence",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1859,23 +2063,27 @@
       "routes": [
         {
           "name": "HandleGetTheme",
-          "summary": "",
+          "summary": "returns the theme settings.",
           "description": "",
-          "methods": [],
-          "endpoint": "",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/api/v1/theme",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "models.Theme"
         },
         {
           "name": "HandleUpdateTheme",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "updates the theme settings.",
+          "description": "The server status should be re-fetched after this on the client.",
+          "methods": [
+            "PATCH"
+          ],
+          "endpoint": "/api/v1/theme",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "models.Theme"
         }
       ]
     },
@@ -1884,20 +2092,24 @@
       "routes": [
         {
           "name": "HandleGetActiveTorrentList",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "returns all active torrents.",
+          "description": "This handler is used by the client to display the active torrents.",
+          "methods": [
+            "GET"
+          ],
+          "endpoint": "/v1/torrent-client/list",
           "params": [],
           "requestBodyFields": [],
-          "returns": ""
+          "returns": "[]torrent_client.Torrent"
         },
         {
           "name": "HandleTorrentClientAction",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "performs an action on a torrent.",
+          "description": "This handler is used to pause, resume or remove a torrent.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/torrent-client/action",
           "params": [],
           "requestBodyFields": [
             {
@@ -1916,14 +2128,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleTorrentClientDownload",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "adds torrents to the torrent client.",
+          "description": "It fetches the magnets from the provided URLs and adds them to the torrent client. If smart select is enabled, it will try to select the best torrent based on the missing episodes.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/torrent-client/download",
           "params": [],
           "requestBodyFields": [
             {
@@ -1952,14 +2166,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         },
         {
           "name": "HandleTorrentClientAddMagnetFromRule",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "adds magnets to the torrent client based on the AutoDownloader item.",
+          "description": "This is used to download torrents that were queued by the AutoDownloader. The AutoDownloader items should be re-fetched after this.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/torrent-client/rule-magnet",
           "params": [],
           "requestBodyFields": [
             {
@@ -1978,7 +2194,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "bool"
         }
       ]
     },
@@ -1987,10 +2203,12 @@
       "routes": [
         {
           "name": "HandleTorrentSearch",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "searches torrents and returns a list of torrents and their previews.",
+          "description": "This will search for torrents and return a list of torrents with previews. If smart search is enabled, it will filter the torrents based on search parameters.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/torrent/search",
           "params": [],
           "requestBodyFields": [
             {
@@ -2034,14 +2252,16 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "torrent.SearchData"
         },
         {
           "name": "HandleNsfwTorrentSearch",
-          "summary": "",
-          "description": "",
-          "methods": [],
-          "endpoint": "",
+          "summary": "searches NSFW torrents and returns a list of torrents without previews.",
+          "description": "This will search for NSFW torrents and return a list of torrents without previews.",
+          "methods": [
+            "POST"
+          ],
+          "endpoint": "/v1/torrent/nsfw-search",
           "params": [],
           "requestBodyFields": [
             {
@@ -2050,7 +2270,7 @@
               "description": ""
             }
           ],
-          "returns": ""
+          "returns": "torrent.SearchData"
         }
       ]
     },

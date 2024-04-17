@@ -7,10 +7,13 @@ import (
 	"strings"
 )
 
-// HandleCreatePlaylist will create a new playlist.
-// It returns the playlist
+// HandleCreatePlaylist
 //
-//	POST /v1/playlist
+//	@summary creates a new playlist.
+//	@desc This will create a new playlist with the given name and local file paths.
+//	@desc The response is ignored, the client should re-fetch the playlists after this.
+//	@route /v1/playlist [POST]
+//	@returns entities.Playlist
 func HandleCreatePlaylist(c *RouteCtx) error {
 
 	type body struct {
@@ -52,9 +55,11 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	return c.RespondWithData(playlist)
 }
 
-// HandleGetPlaylists will return all playlists.
+// HandleGetPlaylists
 //
-//	GET /v1/playlists
+//	@summary returns all playlists.
+//	@route /v1/playlists [GET]
+//	@returns []entities.Playlist
 func HandleGetPlaylists(c *RouteCtx) error {
 
 	playlists, err := c.App.Database.GetPlaylists()
@@ -65,10 +70,14 @@ func HandleGetPlaylists(c *RouteCtx) error {
 	return c.RespondWithData(playlists)
 }
 
-// HandleUpdatePlaylist will update a playlist.
-// It returns the updated playlist
+// HandleUpdatePlaylist
 //
-//	PATCH /v1/playlist/:id
+//	@summary updates a playlist.
+//	@returns the updated playlist
+//	@desc The response is ignored, the client should re-fetch the playlists after this.
+//	@route /v1/playlist/{id} [PATCH]
+//	@params id - int - true - "The ID of the playlist to update."
+//	@returns entities.Playlist
 func HandleUpdatePlaylist(c *RouteCtx) error {
 
 	type body struct {
@@ -113,9 +122,11 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	return c.RespondWithData(playlist)
 }
 
-// HandleDeletePlaylist will delete a playlist.
+// HandleDeletePlaylist
 //
-//	DELETE /v1/playlist
+//	@summary deletes a playlist.
+//	@route /v1/playlist [DELETE]
+//	@returns bool
 func HandleDeletePlaylist(c *RouteCtx) error {
 
 	type body struct {
@@ -135,9 +146,12 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-// HandleGetPlaylistEpisodes will return all the playable local files of a playlist media entry
+// HandleGetPlaylistEpisodes
 //
-//	GET /v1/playlist/episodes/:id/:progress
+//	@summary returns all the local files of a playlist media entry that have not been watched.
+//	@route /v1/playlist/episodes/{id}/{progress} [GET]
+//	@params id - int - true - "The ID of the media entry."
+//	@params progress - int - true - "The progress of the media entry."
 func HandleGetPlaylistEpisodes(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()

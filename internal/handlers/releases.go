@@ -2,9 +2,13 @@ package handlers
 
 import "github.com/seanime-app/seanime/internal/updater"
 
-// HandleGetLatestUpdate will return the latest update.
+// HandleGetLatestUpdate
 //
-//	GET /v1/latest-update
+//	@summary returns the latest update.
+//	@desc This will return the latest update.
+//	@desc If an error occurs, it will return an empty update.
+//	@route /v1/latest-update [GET]
+//	@returns updater.Update
 func HandleGetLatestUpdate(c *RouteCtx) error {
 	update, err := c.App.Updater.GetLatestUpdate()
 	if err != nil {

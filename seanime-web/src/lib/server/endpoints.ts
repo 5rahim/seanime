@@ -109,7 +109,6 @@ export const enum SeaEndpoints {
     UPDATE_MANGA_PROGRESS = "/manga/update-progress", // (POST)
     MANGA_DOWNLOAD_CHAPTERS = "/manga/download-chapters", // (POST)
     MANGA_DOWNLOAD_DATA = "/manga/download-data", // (POST)
-    MANGA_REFRESH_DOWNLOAD_DATA = "/manga/download-data/refresh", // (POST)
     MANGA_DOWNLOAD_QUEUE = "/manga/download-queue", // (GET, DELETE)
     MANGA_DOWNLOAD_QUEUE_START = "/manga/download-queue/start", // (POST)
     MANGA_DOWNLOAD_QUEUE_STOP = "/manga/download-queue/stop", // (POST)

@@ -9,9 +9,12 @@ import (
 	"os"
 )
 
-// HandleGetLocalFiles will return all local files.
+// HandleGetLocalFiles
 //
-//	GET /v1/local-files
+//	@summary returns all local files.
+//	@desc Reminder that local files are scanned from the library path.
+//	@route /api/v1/library/local-files [GET]
+//	@returns []entities.LocalFile
 func HandleGetLocalFiles(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
@@ -25,11 +28,13 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleLocalFileBulkAction will perform an action on all local files.
-// It is used by the [Bulk Action Modal] feature.
-// It returns the updated local files.
+// HandleLocalFileBulkAction
 //
-//	POST /v1/library/local-files
+//	@summary performs an action on all local files.
+//	@desc This will perform the given action on all local files.
+//	@desc The response is ignored, the client should refetch the entire library collection and media entry.
+//	@route /api/v1/library/local-files [POST]
+//	@returns []entities.LocalFile
 func HandleLocalFileBulkAction(c *RouteCtx) error {
 
 	type body struct {
@@ -74,11 +79,13 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleUpdateLocalFileData will update the metadata of the local file with the given path.
-// It is used by the [Local File Metadata Editor] feature.
-// It returns the updated local files.
+// HandleUpdateLocalFileData
 //
-//	PATCH /v1/library/local-files
+//	@summary updates the local file with the given path.
+//	@desc This will update the local file with the given path.
+//	@desc The response is ignored, the client should refetch the entire library collection and media entry.
+//	@route /api/v1/library/local-file [PATCH]
+//	@returns []entities.LocalFile
 func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 	type body struct {
@@ -123,9 +130,12 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleDeleteLocalFiles will delete local files with the given paths.
+// HandleDeleteLocalFiles
 //
-//	DELETE /v1/library/local-files
+//	@summary deletes the local file with the given paths.
+//	@desc The response is ignored, the client should refetch the entire library collection and media entry.
+//	@route /api/v1/library/local-files [DELETE]
+//	@returns []entities.LocalFile
 func HandleDeleteLocalFiles(c *RouteCtx) error {
 
 	type body struct {
@@ -176,9 +186,11 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleRemoveEmptyDirectories will remove empty directories from the library path.
+// HandleRemoveEmptyDirectories
 //
-//	DELETE /v1/library/empty-directories
+//	@summary deletes the empty directories from the library path.
+//	@route /api/v1/library/empty-directories [DELETE]
+//	@returns bool
 func HandleRemoveEmptyDirectories(c *RouteCtx) error {
 
 	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()
@@ -188,6 +200,6 @@ func HandleRemoveEmptyDirectories(c *RouteCtx) error {
 
 	filesystem.RemoveEmptyDirectories(libraryPath, c.App.Logger)
 
-	return c.RespondWithData(nil)
+	return c.RespondWithData(true)
 
 }

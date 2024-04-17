@@ -7,17 +7,11 @@ import (
 	"time"
 )
 
-type settingsBody struct {
-	Library     models.LibrarySettings     `json:"library"`
-	MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
-	Torrent     models.TorrentSettings     `json:"torrent"`
-	Anilist     models.AnilistSettings     `json:"anilist"`
-	Discord     models.DiscordSettings     `json:"discord"`
-}
-
-// HandleGetSettings returns the app settings.
+// HandleGetSettings
 //
-//	GET /api/v1/settings
+//	@summary returns the app settings.
+//	@route /api/v1/settings [GET]
+//	@returns models.Settings
 func HandleGetSettings(c *RouteCtx) error {
 
 	settings, err := c.App.Database.GetSettings()
@@ -31,15 +25,25 @@ func HandleGetSettings(c *RouteCtx) error {
 	return c.RespondWithData(settings)
 }
 
-// HandleSaveSettings updates the app settings.
-// It returns a new Status containing the updated settings.
+// HandleSaveSettings
 //
-//	POST /api/v1/settings
+//	@summary updates the app settings.
+//	@desc This will update the app settings.
+//	@desc The client should re-fetch the server status after this.
+//	@route /api/v1/settings [POST]
+//	@returns Status
 func HandleSaveSettings(c *RouteCtx) error {
 
-	body := new(settingsBody)
+	type body struct {
+		Library     models.LibrarySettings     `json:"library"`
+		MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
+		Torrent     models.TorrentSettings     `json:"torrent"`
+		Anilist     models.AnilistSettings     `json:"anilist"`
+		Discord     models.DiscordSettings     `json:"discord"`
+	}
+	var b body
 
-	if err := c.Fiber.BodyParser(body); err != nil {
+	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -58,11 +62,11 @@ func HandleSaveSettings(c *RouteCtx) error {
 			ID:        1,
 			UpdatedAt: time.Now(),
 		},
-		Library:        &body.Library,
-		MediaPlayer:    &body.MediaPlayer,
-		Torrent:        &body.Torrent,
-		Anilist:        &body.Anilist,
-		Discord:        &body.Discord,
+		Library:        &b.Library,
+		MediaPlayer:    &b.MediaPlayer,
+		Torrent:        &b.Torrent,
+		Anilist:        &b.Anilist,
+		Discord:        &b.Discord,
 		ListSync:       listSyncSettings,
 		AutoDownloader: autoDownloaderSettings,
 	})
@@ -82,10 +86,11 @@ func HandleSaveSettings(c *RouteCtx) error {
 }
 
 // HandleSaveListSyncSettings
-// This will also delete the cached listsync.ListSync instance.
-// It returns true if the settings were saved successfully.
 //
-//	PATCH /api/v1/settings/list-sync
+//	@summary updates the list sync settings
+//	@desc This will update the ListSync settings and clear the ListSync cache.
+//	@route /api/v1/settings/list-sync [PATCH]
+//	@returns bool
 func HandleSaveListSyncSettings(c *RouteCtx) error {
 
 	body := new(models.ListSyncSettings)
@@ -128,9 +133,10 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 }
 
 // HandleSaveAutoDownloaderSettings
-// It returns true if the settings were saved successfully.
 //
-//	PATCH /api/v1/settings/auto-downloader
+//	@summary updates the auto-downloader settings.
+//	@route /api/v1/settings/auto-downloader [PATCH]
+//	@returns bool
 func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 
 	body := new(models.AutoDownloaderSettings)

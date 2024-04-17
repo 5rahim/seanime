@@ -6,10 +6,15 @@ import (
 	"github.com/seanime-app/seanime/internal/onlinestream"
 )
 
-// HandleGetOnlineStreamEpisodeList returns the episodes.
-// It returns the best available episodes from the online stream providers.
+// HandleGetOnlineStreamEpisodeList
 //
-//	POST /v1/onlinestream/episode-list
+//	@summary returns the episode list for the given media and provider.
+//	@desc It returns the episode list for the given media and provider.
+//	@desc The episodes are cached using a file cache.
+//	@desc The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
+//	@desc The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+//	@route /v1/onlinestream/episode-list [POST]
+//	@returns {episodes: Episode[], media: BaseMedia}
 func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 	type body struct {
@@ -58,7 +63,9 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 // HandleGetOnlineStreamEpisodeSource
 //
-//	POST /v1/onlinestream/episode-sources
+//	@summary returns the video sources for the given media, episode number and provider.
+//	@route /v1/onlinestream/episode-sources [POST]
+//	@returns onlinestream.EpisodeSource
 func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 
 	type body struct {
@@ -83,7 +90,9 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 
 // HandleOnlineStreamEmptyCache
 //
-//	DELETE /v1/onlinestream/cache
+//	@summary empties the cache for the given media.
+//	@route /v1/onlinestream/cache [DELETE]
+//	@returns bool
 func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
 
 	type body struct {

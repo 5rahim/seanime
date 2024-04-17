@@ -10,7 +10,7 @@ import (
 
 // HandleGetAnilistCollection
 //
-//	@summary returns the user's anime collection.
+//	@summary returns the user's AniList anime collection.
 //	@desc Calling GET will return the cached data.
 //	@desc Calling POST will refetch the data from Anilist.
 //	@returns anilist.AnilistCollection
@@ -90,8 +90,8 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 // HandleGetAnilistMediaDetails
 //
-//	@summary returns more details about an AniList media.
-//	@desc This is used to fetch more fields omitted from the base queries.
+//	@summary returns more details about an AniList anime entry.
+//	@desc This fetches more fields omitted from the base queries.
 //	@param id - int - true - "The AniList anime ID"
 //	@returns anilist.MediaDetailsById_Media
 //	@route /api/v1/anilist/media-details/{id} [GET]

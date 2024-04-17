@@ -29,7 +29,7 @@ import (
 //
 //	@summary return a media entry for the given AniList anime media id.
 //	@desc This is used by the anime media entry pages to get all the data about the anime.
-//	@desc This includes the episodes and metadata (if any), the AniList data, download info...
+//	@desc This includes episodes and metadata (if any), AniList list data, download info...
 //	@route /api/v1/library/media-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
 //	@returns entities.MediaEntry

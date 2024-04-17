@@ -1,11 +1,11 @@
 package handlers
 
-// HandlePlayVideo will play the video with the given path with the default media player.
-// It returns nil.
+// HandlePlayVideo
 //
-// It also starts tracking the progress of the video by launching a goroutine.
-//
-//	POST /v1/media-player/play
+//	@summary plays the video with the given path using the media player.
+//	@desc This tells the Playback Manager to play the video using the media player and start tracking progress.
+//	@route /v1/media-player/play [POST]
+//	@returns nil
 func HandlePlayVideo(c *RouteCtx) error {
 
 	type body struct {
@@ -26,9 +26,11 @@ func HandlePlayVideo(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleStartDefaultMediaPlayer will launch the default media player.
+// HandleStartDefaultMediaPlayer
 //
-//	POST /v1/media-player/start
+//	@summary launches the default media player (vlc or mpc-hc).
+//	@route /v1/media-player/start [POST]
+//	@returns bool
 func HandleStartDefaultMediaPlayer(c *RouteCtx) error {
 
 	// Retrieve settings
