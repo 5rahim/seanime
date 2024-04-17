@@ -396,7 +396,7 @@ func (h *Hub) SyncListData() error {
 		var startDate *anilist.FuzzyDateInput
 		var endDate *anilist.FuzzyDateInput
 		if listData.StartedAt != "" {
-			parsedDate, err := time.Parse("2006-01-02", listData.StartedAt)
+			parsedDate, err := time.Parse(time.RFC3339, listData.StartedAt)
 			if err == nil {
 				year := parsedDate.Year()
 				month := int(parsedDate.Month())
@@ -409,7 +409,7 @@ func (h *Hub) SyncListData() error {
 			}
 		}
 		if listData.CompletedAt != "" {
-			parsedDate, err := time.Parse("2006-01-02", listData.CompletedAt)
+			parsedDate, err := time.Parse(time.RFC3339, listData.CompletedAt)
 			if err == nil {
 				year := parsedDate.Year()
 				month := int(parsedDate.Month())

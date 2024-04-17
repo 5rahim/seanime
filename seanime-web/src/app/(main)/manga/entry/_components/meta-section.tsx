@@ -105,7 +105,7 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
                                                 year: "numeric",
                                                 month: "short",
                                             }).format(new Date(entry.media.startDate?.year || 0,
-                                                entry.media.startDate?.month || 0))}
+                                                entry.media.startDate?.month ? entry.media.startDate?.month - 1 : 0))}
                                             </p>
 
                                             <Badge

@@ -32,9 +32,10 @@ type (
 	ImageDownloader struct {
 		downloadDir   string
 		registry      Registry
-		mu            sync.Mutex
 		cancelChannel chan struct{}
 		logger        *zerolog.Logger
+		actionMu      sync.Mutex
+		registryMu    sync.Mutex
 	}
 
 	Registry struct {
@@ -98,19 +99,13 @@ func (id *ImageDownloader) DownloadImages(urls []string) (err error) {
 	return
 }
 
-// calculateBatchSize calculates the batch size based on the number of URLs.
-func calculateBatchSize(numURLs int) int {
-	maxBatchSize := 1
-	batchSize := numURLs / 10
-	if batchSize < 1 {
-		return 1
-	} else if batchSize > maxBatchSize {
-		return maxBatchSize
-	}
-	return batchSize
-}
-
 func (id *ImageDownloader) DeleteDownloads() {
+	id.actionMu.Lock()
+	defer id.actionMu.Unlock()
+
+	id.registryMu.Lock()
+	defer id.registryMu.Unlock()
+
 	_ = os.RemoveAll(id.downloadDir)
 	id.registry.content = &RegistryContent{}
 }
@@ -121,8 +116,11 @@ func (id *ImageDownloader) CancelDownload() {
 }
 
 func (id *ImageDownloader) GetImageFilenameByUrl(url string) (filename string, ok bool) {
-	id.mu.Lock()
-	defer id.mu.Unlock()
+	id.actionMu.Lock()
+	defer id.actionMu.Unlock()
+
+	id.registryMu.Lock()
+	defer id.registryMu.Unlock()
 
 	if err := id.registry.setup(); err != nil {
 		return
@@ -142,8 +140,11 @@ func (id *ImageDownloader) GetImageFilenameByUrl(url string) (filename string, o
 //
 //	e.g., {"url1": "filename1.png", "url2": "filename2.jpg"}
 func (id *ImageDownloader) GetImageFilenamesByUrls(urls []string) (ret map[string]string, err error) {
-	id.mu.Lock()
-	defer id.mu.Unlock()
+	id.actionMu.Lock()
+	defer id.actionMu.Unlock()
+
+	id.registryMu.Lock()
+	defer id.registryMu.Unlock()
 
 	ret = make(map[string]string)
 
@@ -163,8 +164,11 @@ func (id *ImageDownloader) GetImageFilenamesByUrls(urls []string) (ret map[strin
 }
 
 func (id *ImageDownloader) DeleteImagesByUrls(urls []string) (err error) {
-	id.mu.Lock()
-	defer id.mu.Unlock()
+	id.actionMu.Lock()
+	defer id.actionMu.Unlock()
+
+	id.registryMu.Lock()
+	defer id.registryMu.Unlock()
 
 	if err = id.registry.setup(); err != nil {
 		return
@@ -195,13 +199,13 @@ func (id *ImageDownloader) downloadImage(url string) {
 	})
 
 	// Check if the image has already been downloaded
-	id.mu.Lock()
+	id.registryMu.Lock()
 	if _, ok := id.registry.content.UrlToId[url]; ok {
-		id.mu.Unlock()
+		id.registryMu.Unlock()
 		id.logger.Debug().Msgf("image downloader: Image from URL %s has already been downloaded", url)
 		return
 	}
-	id.mu.Unlock()
+	id.registryMu.Unlock()
 
 	// Download image from URL
 	id.logger.Info().Msgf("image downloader: Downloading image from URL: %s", url)
@@ -246,9 +250,9 @@ func (id *ImageDownloader) downloadImage(url string) {
 	}
 
 	// Update registry
-	id.mu.Lock()
+	id.registryMu.Lock()
 	id.registry.addUrl(imgID, url, format)
-	id.mu.Unlock()
+	id.registryMu.Unlock()
 
 	return
 }
@@ -366,6 +370,8 @@ func (r *Registry) save(urls []string) (err error) {
 }
 
 func (r *Registry) addUrl(imgID, url, format string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	r.content.UrlToId[url] = imgID
 	r.content.IdToUrl[imgID] = url
 	r.content.IdToExt[imgID] = format

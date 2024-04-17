@@ -87,7 +87,9 @@ func ParseRoutes(dir string) (docs *Docs) {
 	for _, rawFile := range rawFiles {
 		group := parseFile(rawFile.Content)
 		group.Filename = rawFile.Name
-		groups = append(groups, group)
+		if len(group.Routes) > 0 {
+			groups = append(groups, group)
+		}
 	}
 
 	docs = &Docs{

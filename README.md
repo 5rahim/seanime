@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://seanime.rahim.app/">
-<img src="docs/images/logo_2.png" alt="preview" width="200px"/>
+<img src="docs/images/logo_2.png" alt="preview" width="150px"/>
 </a>
 </p>
 

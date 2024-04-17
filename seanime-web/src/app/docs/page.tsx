@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
-import { useTheme } from "next-themes"
 
 export type D_Docs = {
     routeGroups: D_RouteGroup[]
@@ -46,8 +45,6 @@ export default function Page() {
         endpoint: SeaEndpoints.DOCS,
         queryKey: ["get-docs"],
     })
-
-    useTheme()
 
     return (
         <div className="space-y-4 container py-10">

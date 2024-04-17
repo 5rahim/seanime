@@ -112,7 +112,9 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
                                             year: "numeric",
                                             month: "short",
                                         }).format(new Date(entry.media.startDate?.year || 0,
-                                            entry.media.startDate?.month || 0))} - {!!entry.media.season ? capitalize(entry.media.season) : "TBD"}
+                                            entry.media.startDate?.month ? entry.media.startDate?.month - 1 : 0))} - {!!entry.media.season
+                                            ? capitalize(entry.media.season)
+                                            : "TBD"}
                                         </p>
                                     </div>
                                 )}

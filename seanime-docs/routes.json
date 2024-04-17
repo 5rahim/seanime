@@ -1875,14 +1875,6 @@
       ]
     },
     {
-      "filename": "response.go",
-      "routes": []
-    },
-    {
-      "filename": "routes.go",
-      "routes": []
-    },
-    {
       "filename": "scan.go",
       "routes": [
         {
@@ -2053,10 +2045,6 @@
           "returns": "bool"
         }
       ]
-    },
-    {
-      "filename": "stream.go",
-      "routes": []
     },
     {
       "filename": "theme.go",
@@ -2273,10 +2261,6 @@
           "returns": "torrent.SearchData"
         }
       ]
-    },
-    {
-      "filename": "websocket.go",
-      "routes": []
     }
   ]
 }
