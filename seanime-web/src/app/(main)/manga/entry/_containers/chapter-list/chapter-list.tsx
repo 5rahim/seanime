@@ -212,7 +212,7 @@ export function ChapterList(props: ChapterListProps) {
             </div>
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
-                chapterContainerError ? <LuffyError title="Oops!"><p>Failed to fetch chapters</p></LuffyError> : (
+                chapterContainerError ? <LuffyError title="Oops!"><p>No chapters found</p></LuffyError> : (
                     <>
 
                         {chapterContainer?.chapters?.length === 0 && (
