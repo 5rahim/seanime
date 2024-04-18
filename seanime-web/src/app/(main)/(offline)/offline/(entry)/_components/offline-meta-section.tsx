@@ -8,12 +8,14 @@ import { serverStatusAtom } from "@/atoms/server-status"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React, { useMemo } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
+import { useWindowScroll } from "react-use"
 
 type OfflineMetaSectionProps<T extends "anime" | "manga"> = {
     type: T,
@@ -27,6 +29,9 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
     const status = useAtomValue(serverStatusAtom)
     const hideAudienceScore = useMemo(() => status?.settings?.anilist?.hideAudienceScore ?? false, [status?.settings?.anilist?.hideAudienceScore])
+
+    const ts = useThemeSettings()
+    const { y } = useWindowScroll()
 
     if (!entry?.media) return null
 
@@ -151,7 +156,13 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
                 </motion.div>
 
                 <div
-                    className="h-[20rem] lg:h-[30rem] 2xl:h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
+                    className={cn(
+                        "h-[20rem] lg:h-[30rem] 2xl:h-[30rem] w-full flex-none object-cover object-center absolute z-[3] top-0 overflow-hidden bg-[--background]",
+                        !ts.libraryScreenCustomBackgroundImage && cn(
+                            "fixed transition-opacity duration-1000",
+                            y > 100 && "opacity-10",
+                        ),
+                    )}
                 >
                     <div
                         className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"

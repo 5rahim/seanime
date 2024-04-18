@@ -43,10 +43,10 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 
 		if err != nil {
 			c.App.WSEventManager.SendEvent(events.ErrorToast, err.Error())
+		} else {
+			c.App.WSEventManager.SendEvent(events.SuccessToast, "Offline snapshot created successfully")
+			c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, true)
 		}
-
-		c.App.WSEventManager.SendEvent(events.SuccessToast, "Offline snapshot created successfully")
-		c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, true)
 	}()
 
 	return c.RespondWithData(true)

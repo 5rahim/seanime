@@ -19,13 +19,15 @@ function useDrawerBodyBehavior(id: string, open: boolean | undefined) {
 
         if (open) {
             setOpenDrawers(prev => [...prev, id])
-            // body.style.overflow = "hidden"
         } else {
             setOpenDrawers(prev => {
                 let next = prev.filter(i => i !== id)
-                // if (next.length === 0) body.style.overflow = ""
                 return next
             })
+        }
+
+        return () => {
+            setOpenDrawers(prev => prev.filter(i => i !== id))
         }
     }, [open])
 

@@ -63,7 +63,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
     const [__atomicLibraryCollection, getAtomicLibraryEntry] = useAtom(getAtomicLibraryEntryAtom)
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
-    const showProgressBar = (!!listData?.progress && (isManga ? !!media?.episodes : !!(media as any)?.chapters) && listData?.status !== "COMPLETED")
+    const showProgressBar = (!!listData?.progress && (!isManga ? !!media?.episodes : !!(media as any)?.chapters) && listData?.status !== "COMPLETED")
     const showTrailer = _showTrailer && !libraryData && !media?.isAdult // Show trailer only if libraryData is not available
 
     const link = !isManga ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
@@ -234,7 +234,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                                 },
                             )}
                             style={{
-                                width: `${String(Math.ceil((listData.progress! / (isManga
+                                width: `${String(Math.ceil((listData.progress! / (!isManga
                                     ? media?.episodes
                                     : (media as any)?.chapters)!) * 100))}%`,
                             }}

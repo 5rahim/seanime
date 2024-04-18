@@ -15,12 +15,12 @@ Scan, automate and enjoy your anime collection, read manga, track your progress 
 </p>
 
 <p align="center">
-<img src="docs/images/v1/showcase.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/showcase_1.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
 <img src="docs/images/v1/rec_play.gif" alt="preview" width="49%"/>
-<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="48.9%"/>
+<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="48.75%"/>
 </p>
 
 <p align="center">
@@ -149,11 +149,11 @@ How to install Seanime
 # Screenshots
 
 <img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
-<img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/my-library_06.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/entry_03.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
 
-<img src="docs/images/v1/manga-entry_03.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/manga-entry-2_02.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
 
 <img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>

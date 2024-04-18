@@ -215,7 +215,7 @@ export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByI
 
             <div
                 className={cn(
-                    "absolute h-[20rem] lg:h-[32rem] 2xl:h-[40rem] w-full flex-none object-cover object-center z-[3] -top-[5rem] overflow-hidden bg-[--background]",
+                    "absolute h-[20rem] lg:h-[32rem] 2xl:h-[40rem] w-full flex-none object-cover object-center z-[3] top-0 overflow-hidden bg-[--background]",
                     !ts.libraryScreenCustomBackgroundImage && cn(
                         "fixed transition-opacity duration-1000",
                         y > 100 && "opacity-10",
