@@ -15,7 +15,7 @@ Scan, automate and enjoy your anime collection, read manga, track your progress 
 </p>
 
 <p align="center">
-<img src="docs/images/v1/showcase_2.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/showcase.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -49,7 +49,7 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - 🔒 No data collection
 - ✈️ **Offline mode**
   - Use the main features as if you were online, with cached metadata and images
-  - Record your progress offline and sync when you’re back online
+  - Track your progress and manage your lists offline and sync when you’re back online
 
 ### Anime
 

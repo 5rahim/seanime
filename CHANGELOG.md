@@ -5,32 +5,32 @@ All notable changes to this project will be documented in this file.
 ## v1.4.0
 
 - 🎉 New feature: Offline mode
-    - Create a snapshot of media you want to consume offline
     - Watch anime/read manga in the ‘offline view’ with metadata and images
-    - Track your progress offline and sync when you’re back online
-- ✨ Manga: Download Chapters
+    - Track your progress and manage your lists offline and sync when you’re back online
+- 🎉 New feature: Download Chapters (Experimental)
     - Download from multiple sources without hassle
     - Persistent download queue, interruption handling, error detection
-- ✨ Manga: Added more providers
+- ✨ Manga: Added more sources
     - Mangadex, Mangapill, Manganato
 - ✨ Anime: Improved NSFW support
-    - Torrent search now supports Nyaa Sukebei
+    - Search engine now supports Nyaa Sukebei
     - Hide NSFW media from your library
-- ⚡️Manga: Improved reader
+- ⚡️ Manga: Improved reader
     - Reader settings are now unique to each manga series
-    - Auto reload errored images and retry button
-    - Added progress bar and page selection
+    - Automatic reloading of failed pages
+    - Progress bar and page selection
     - Support for more image formats
-- ⚡️Added manga to advanced search
+- ⚡️ Added manga to advanced search
+- ⚡️ Unified chapter lists with new toggles
 - 💄 New settings page layout
-- 💄 Unified chapter lists with new toggles
+- 💄 Added fade effect to media entry banner image
 - 🦺 Scanner: Force media ID when resolving unmatched files
 - 🦺 Manga: Fix page indexing for Mangasee
 - 🦺 Fix incorrect start dates
 - 🦺 Progress tracking: Fixed incorrect progress number being used when Episode 0 is included
 - 🦺 UI: Fixed issues related to scrollbar visibility
-- 🏗️ Core: Manga: Built-in image proxy
-- ⬆️ Dev: Updated Next.js & switched to Turbopack
+- 🏗️ Core: Built-in image proxy
+- ⬆️ Updated Next.js & switched to Turbopack
 
 ## v1.3.0
 
