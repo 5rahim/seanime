@@ -145,6 +145,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                             showProgressBar={showProgressBar}
                             showTrailer={showTrailer || false}
                             link={link}
+                            isManga={isManga}
                         />
 
                         <div>
@@ -234,9 +235,7 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
                                 },
                             )}
                             style={{
-                                width: `${String(Math.ceil((listData.progress! / (!isManga
-                                    ? media?.episodes
-                                    : (media as any)?.chapters)!) * 100))}%`,
+                                width: `${String(Math.ceil((listData.progress! / (!isManga ? media?.episodes : (media as any)?.chapters)!) * 100))}%`,
                             }}
                         ></div>
                     </div>}
@@ -308,12 +307,13 @@ export const AnimeListItem = ((props: AnimeListItemProps) => {
     )
 })
 
-const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link }: {
+const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link, isManga }: {
     media: BaseMediaFragment,
     listData: MediaEntryListData | undefined,
     showProgressBar: boolean
     showTrailer: boolean
     link: string
+    isManga?: boolean
 }) => {
 
     const serverStatus = useAtomValue(serverStatusAtom)
@@ -328,7 +328,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link 
 
     const Content = (
         <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2 cursor-pointer">
-            {showProgressBar && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+            {(showProgressBar && listData) && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                 <div
                     className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -337,7 +337,7 @@ const ActionPopupImage = ({ media, showProgressBar, listData, showTrailer, link 
                             "bg-gray-400": listData?.status !== "CURRENT",
                         },
                     )}
-                    style={{ width: `${String(Math.ceil(((listData?.progress || 0) / (media.episodes || 1)) * 100))}%` }}
+                    style={{ width: `${String(Math.ceil((listData?.progress! / (!isManga ? media?.episodes : (media as any)?.chapters)!) * 100))}%` }}
                 ></div>
             </div>}
 
