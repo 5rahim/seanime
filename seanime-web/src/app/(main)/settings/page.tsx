@@ -275,7 +275,7 @@ export default function Page() {
 
                         <TabsContent value="manga" className="space-y-6">
 
-                            <h3>Manga <BetaBadge /></h3>
+                            <h3>Manga</h3>
 
                             <Field.Switch
                                 name="enableManga"

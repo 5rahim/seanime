@@ -157,9 +157,9 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
                 <div
                     className={cn(
-                        "h-[20rem] lg:h-[30rem] 2xl:h-[30rem] w-full flex-none object-cover object-center absolute z-[3] top-0 overflow-hidden bg-[--background]",
+                        "h-[20rem] lg:h-[30rem] 2xl:h-[30rem] w-full flex-none object-cover object-center absolute z-[3] -top-[5rem] overflow-hidden bg-[--background]",
                         !ts.libraryScreenCustomBackgroundImage && cn(
-                            "fixed transition-opacity duration-1000",
+                            "fixed transition-opacity top-5 duration-1000",
                             y > 100 && "opacity-10",
                         ),
                     )}
