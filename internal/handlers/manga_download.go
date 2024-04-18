@@ -28,6 +28,7 @@ func HandleDownloadMangaChapters(c *RouteCtx) error {
 
 	c.App.WSEventManager.SendEvent(events.InfoToast, "Adding chapters to download queue...")
 
+	// Add chapters to the download queue
 	for _, chapterId := range b.ChapterIds {
 		err := c.App.MangaDownloader.DownloadChapter(manga.DownloadChapterOptions{
 			Provider:  b.Provider,
