@@ -47,9 +47,6 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - 🖥️ Cross-platform (Windows, macOS, Linux)
 - 🌐 Full integration with AniList
 - 🔒 No data collection
-- ✈️ **Offline mode**
-  - Use the main features as if you were online, with cached metadata and images
-  - Track your progress and manage your lists offline and sync when you’re back online
 
 ### Anime
 
@@ -85,9 +82,6 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Display and read chapters from various sources
   - Built-in, customizable **manga reader**
   - Custom reader settings for different series
-- ⬇️ **Download chapters**
-  - Easily download multiple chapters for offline reading
-  - Persistent download queue
 
 ### And more
 
