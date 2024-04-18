@@ -2,9 +2,11 @@ package handlers
 
 import "github.com/seanime-app/seanime/internal/discordrpc/presence"
 
-// HandleSetDiscordMangaActivity sets the discord rich presence activity to the manga activity.
+// HandleSetDiscordMangaActivity
 //
-//	POST /api/v1/discord/presence/manga
+//	@summary sets manga activity for discord rich presence.
+//	@route /api/v1/discord/presence/manga [POST]
+//	@returns true
 func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 
 	type body struct {
@@ -28,9 +30,11 @@ func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-// HandleCancelDiscordActivity cancels the discord rich presence activity.
+// HandleCancelDiscordActivity
 //
-//	POST /api/v1/discord/presence/cancel
+//	@summary cancels the current discord rich presence activity.
+//	@route /api/v1/discord/presence/cancel [POST]
+//	@returns true
 func HandleCancelDiscordActivity(c *RouteCtx) error {
 	c.App.DiscordPresence.Close()
 	return c.RespondWithData(true)

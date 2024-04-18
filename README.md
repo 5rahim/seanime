@@ -1,87 +1,115 @@
 <p align="center">
-<img src="docs/images/logo.png" alt="preview" width="75px"/>
+<a href="https://seanime.rahim.app/">
+<img src="docs/images/logo_2.png" alt="preview" width="150px"/>
+</a>
 </p>
 
-<h2 align="center"><b>Seanime</b></h2>
+<h1 align="center"><b>Seanime</b></h1>
 
-<h4 align="center">Self-hosted, user-friendly media server for anime and manga enthusiasts.</h4>
+<h4 align="center">
+Self-hosted anime and manga server for sea rovers.
+</h4>
 
-<h1 align="center">
-<a href="https://seanime.rahim.app/">
-<img src="docs/images/v1/rec_play.gif" alt="preview" width="100%"/>
-</a>
-</h1>
+<p align="center">
+Scan, automate and enjoy your anime collection, read manga, track your progress and more - all in one place.
+</p>
+
+<p align="center">
+<img src="docs/images/v1/showcase_1.png" alt="preview" width="100%"/>
+</p>
+
+<p align="center">
+<img src="docs/images/v1/rec_play.gif" alt="preview" width="49%"/>
+<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="48.75%"/>
+</p>
+
+<p align="center">
+  <a href="#anime">Anime features</a> •
+  <a href="#manga--manhwa">Manga features</a> •
+  <a href="https://seanime.rahim.app/docs">Documentation</a> •
+  <a href="https://github.com/5rahim/seanime/releases">Latest release</a> •
+  <a href="#screenshots">Screenshots</a>
+</p>
+
+## About
+
+Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
+It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
 Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 
-### Server + Web Interface
+### General
 
-- 🪶 **Lightweight server**
-  - Low resource usage
-  - Performant and responsive
-- 🖥️ **Cross-platform**
-  - Works on Windows, macOS, and Linux 
-- 🔥 **User-friendly**
-  - Simple and intuitive web interface
-  - Easy to set up and use 
-- 🌐 **Seamless integration with AniList**
-  - Manage your AniList collection (anime and manga)
-  - Discover new anime, browse entries, get recommendations
-- 🔒 **No data collection**
+- 🪶 Lightweight and performant server
+- 🔥 Simple and intuitive web interface
+- 🖥️ Cross-platform (Windows, macOS, Linux)
+- 🌐 Full integration with AniList
+- 🔒 No data collection
 
 ### Anime
 
-- 🏞️ **Local anime library**
-  - **Scan** your local anime library effortlessly
-  -  **No mandatory folder structure** or naming convention
+- 🗂️ **Local anime library**
+  - Powerful library scanner
+  -  **No mandatory folder structure** and **no naming conventions**
   - Browse and manage your library with metadata
   - Support for torrents with absolute episode numbers
+  - Support for specials, OVAs, movies, NCs
+  - Multiple metadata providers (AniList, AniDB, TVDB)
 - ⬇️ **Download new episodes & movies**
-    - Smart search engine powered by public trackers (AnimeTosho, Nyaa), SeaDex
+    - Search engine for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei)
     - Integration with **qBittorrent** & **Transmission**
+    - Active torrent list interface
+    - View upcoming and missing episodes
+    - SeaDex support
 - 🥱 **Automate your library**
-  - Download new episodes automatically with the use of custom filters
+  - Create custom rules and let Seanime download new episodes automatically
+  - Rules can filter by quality, release group, episode number
+  - Smart and powerful RSS feed parser
 - 🎞️ **External Players**
     - **MPV**, **VLC**, and **MPC-HC** support
-    - Sync progress to AniList (& MAL) automatically
-    - Create **playlists** and queue episodes
+    - Automatic progress tracking and syncing to AniList (& MAL)
+    - Create **playlists** to play episodes in order
 
 ### Manga / Manhwa 
 
-- 📖 **Read chapters** from various sources
-  - Built-in, customizable **reader**
-- 📕 **Browse and manage** your AniList manga/manhwa collection
+- 📕 **Browse and manage** your manga/manhwa collection
+  - Browse your AniList manga collection
+  - View manga details, and recommendations
+  - Search for new manga
+- 📖 **Read chapters**
+  - Display and read chapters from various sources
+  - Built-in, customizable **manga reader**
+  - Custom reader settings for different series
 
 ### And more
 
 - 📺 **Online streaming**
   - Stream episodes from online sources using the built-in player
   - Support for multiple sources
-- **MyAnimeList integration**
-  - Automatically update your progress on MyAnimeList
-- **Quality of life features**
-  - Customizable UI, Scan summaries, advanced anime search, and more
+- **MyAnimeList integration** for syncing progress
+- **Customizable UI**
+- **Logs and scan summaries**
+- **Advanced anime/manga search**
+- **Discord Rich Presence**
 
 ### What it is not
 
 🚨Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
 support transcoding or streaming to other devices (yet).
 
-# Setup
+# Get started
 
-[How to use Seanime.](https://seanime.rahim.app/docs)
+Read the installation guide to set up Seanime on your device.
 
-# Next releases
+<p align="center">
+<a href="https://seanime.rahim.app/docs" style="font-size:18px;" align="center">
+How to install Seanime
+</a>
+</p>
 
-- [ ] **v1.4.0** - Friday, 4/19/2024
-- [x] **v1.3.0** - Saturday, 4/6/2024
-- [x] **v1.2.0** - Monday, 4/1/2024
-- [x] **v1.1.2** - Sunday, 3/24/2024
-- [x] **v1.1.1** - Sunday, 3/24/2024
-- [x] **v1.1.0** - Thursday, 3/21/2024
-- [x] **v1.0.0** - Saturday, 3/9/2024
+
  
 ### Not planned
 
@@ -92,19 +120,19 @@ support transcoding or streaming to other devices (yet).
 
 ## Resources
 
-- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs)
-- [MAL API](https://myanimelist.net/apiconfig/references/api/v2)
 - [Chalk UI](https://chalk.rahim.app) - UI library
-- [Fiber](https://gofiber.io/) - Web framework
-- [GORM](https://gorm.io/) - ORM
+- [Fiber](https://gofiber.io/) - Go Web framework
+- [GORM](https://gorm.io/) - Go ORM
 - [gqlgenc](https://github.com/Yamashou/gqlgenc) - GraphQL codegen
 - [Next.js](https://nextjs.org/) - React framework
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 - [React Query](https://react-query.tanstack.com/) - Data fetching library
-- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Parser for anime files
+- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Filename parser
 - [ani.zip](https://api.ani.zip/mappings?anilist_id=124080) - Mappings and episode data
 - [anime-lists](https://github.com/Fribb/anime-lists) - Mappings
 - [TheTVDB](https://www.thetvdb.com/) - Episode images
+- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs) - User data, anime and manga metadata
+- [MAL API](https://myanimelist.net/apiconfig/references/api/v2)
 
 ## Acknowledgements
 
@@ -115,11 +143,11 @@ support transcoding or streaming to other devices (yet).
 # Screenshots
 
 <img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
-<img src="docs/images/v1/my-library.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/entry.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/my-library_06.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/entry_03.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
 
-<img src="docs/images/v1/manga-entry_03.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/manga-entry-2_02.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
 
 <img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>

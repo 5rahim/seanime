@@ -28,6 +28,7 @@ import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { AiOutlineColumnHeight, AiOutlineColumnWidth } from "react-icons/ai"
@@ -133,6 +134,8 @@ const defaultSettings = {
         pageStretch: MangaPageStretch.NONE,
     },
 }
+
+export const __manga__readerSettingsDrawerOpen = atom(false)
 
 export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
@@ -257,8 +260,6 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
         }
     }
 
-    const [open, setOpen] = React.useState(false)
-
     /**
      * Disabled double page on small screens
      */
@@ -284,9 +285,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
     return (
         <>
-            {open && <div className="fixed w-full top-0 left-0 h-full bg-gray-950 opacity-50 z-[10]" />}
             <Drawer
-                onOpenChange={setOpen}
                 trigger={
                     <IconButton
                         icon={<BiCog />}
@@ -295,11 +294,13 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                     />
                 }
                 title="Settings"
-                allowOutsideInteraction={true}
+                allowOutsideInteraction={false}
                 size="lg"
+                contentClass="z-[51]"
             >
                 <div className="space-y-4 py-4">
-                    <RadioGroup
+
+                <RadioGroup
                         {...radioGroupClasses}
                         label="Reading Mode"
                         options={MANGA_READING_MODE_OPTIONS}

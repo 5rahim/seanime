@@ -6,10 +6,13 @@ import (
 	"strconv"
 )
 
-// HandleRunAutoDownloader will run the auto downloader.
-// It returns true.
+// HandleRunAutoDownloader
 //
-//	POST /v1/auto-downloader/run
+//	@summary tells the AutoDownloader to check for new episodes if enabled.
+//	@desc This will run the AutoDownloader if it is enabled.
+//	@desc It does nothing if the AutoDownloader is disabled.
+//	@route /api/v1/auto-downloader/run [POST]
+//	@returns bool
 func HandleRunAutoDownloader(c *RouteCtx) error {
 
 	c.App.AutoDownloader.Run()
@@ -17,12 +20,16 @@ func HandleRunAutoDownloader(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-// HandleGetAutoDownloaderRule will return the rule with the given id (primary key).
+// HandleGetAutoDownloaderRule
 //
-//	GET /v1/auto-downloader/rule/:id
+//	@summary returns the rule with the given DB id.
+//	@desc This is used to get a specific rule, useful for editing.
+//	@route /api/v1/auto-downloader/rule/{id} [GET]
+//	@param id - int - true - "The DB id of the rule"
+//	@returns entities.AutoDownloaderRule
 func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 
-	id, err := strconv.Atoi(c.Fiber.Params("id"))
+	id, err := c.Fiber.ParamsInt("id")
 	if err != nil {
 		return c.RespondWithError(errors.New("invalid id"))
 	}
@@ -35,9 +42,12 @@ func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 	return c.RespondWithData(rule)
 }
 
-// HandleGetAutoDownloaderRules will return all rules.
+// HandleGetAutoDownloaderRules
 //
-//	GET	/v1/auto-downloader/rules
+//	@summary returns all rules.
+//	@desc This is used to list all rules. It returns an empty slice if there are no rules.
+//	@route /api/v1/auto-downloader/rules [GET]
+//	@returns []entities.AutoDownloaderRule
 func HandleGetAutoDownloaderRules(c *RouteCtx) error {
 	rules, err := c.App.Database.GetAutoDownloaderRules()
 	if err != nil {
@@ -47,10 +57,13 @@ func HandleGetAutoDownloaderRules(c *RouteCtx) error {
 	return c.RespondWithData(rules)
 }
 
-// HandleCreateAutoDownloaderRule will create a new rule.
-// It returns the created rule.
+// HandleCreateAutoDownloaderRule
 //
-//	POST /v1/auto-downloader/rule
+//	@summary creates a new rule.
+//	@desc The body should contain the same fields as entities.AutoDownloaderRule.
+//	@desc It returns the created rule.
+//	@route /api/v1/auto-downloader/rule [POST]
+//	@returns entities.AutoDownloaderRule
 func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 	rule := new(entities.AutoDownloaderRule)
 	if err := c.Fiber.BodyParser(rule); err != nil {
@@ -64,10 +77,13 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 	return c.RespondWithData(rule)
 }
 
-// HandleUpdateAutoDownloaderRule will update the rule passed in the request body.
-// It returns the updated rule.
+// HandleUpdateAutoDownloaderRule
 //
-//	POST /v1/auto-downloader/rule
+//	@summary updates a rule.
+//	@desc The body should contain the same fields as entities.AutoDownloaderRule.
+//	@desc It returns the updated rule.
+//	@route /api/v1/auto-downloader/rule [PATCH]
+//	@returns entities.AutoDownloaderRule
 func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 	rule := new(entities.AutoDownloaderRule)
 	if err := c.Fiber.BodyParser(rule); err != nil {
@@ -86,10 +102,13 @@ func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 	return c.RespondWithData(rule)
 }
 
-// HandleDeleteAutoDownloaderRule will delete the rule with the given id (primary key).
-// It returns true.
+// HandleDeleteAutoDownloaderRule
 //
-//	DELETE /v1/auto-downloader/rule/:id
+//	@summary deletes a rule.
+//	@desc It returns 'true' if the rule was deleted.
+//	@route /api/v1/auto-downloader/rule/{id} [DELETE]
+//	@param id - int - true - "The DB id of the rule"
+//	@returns bool
 func HandleDeleteAutoDownloaderRule(c *RouteCtx) error {
 	id, err := strconv.Atoi(c.Fiber.Params("id"))
 	if err != nil {
@@ -105,9 +124,13 @@ func HandleDeleteAutoDownloaderRule(c *RouteCtx) error {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleGetAutoDownloaderItems will return all items.
+// HandleGetAutoDownloaderItems
 //
-//	GET	/v1/auto-downloader/items
+//	@summary returns all queued items.
+//	@desc Queued items are episodes that are downloaded but not scanned or not yet downloaded.
+//	@desc The AutoDownloader uses these items in order to not download the same episode twice.
+//	@route /api/v1/auto-downloader/items [GET]
+//	@returns []models.AutoDownloaderItem
 func HandleGetAutoDownloaderItems(c *RouteCtx) error {
 	rules, err := c.App.Database.GetAutoDownloaderItems()
 	if err != nil {
@@ -117,10 +140,14 @@ func HandleGetAutoDownloaderItems(c *RouteCtx) error {
 	return c.RespondWithData(rules)
 }
 
-// HandleDeleteAutoDownloaderItem will delete the item with the given id (primary key).
-// It returns true.
+// HandleDeleteAutoDownloaderItem
 //
-//	DELETE /v1/auto-downloader/item
+//	@summary delete a queued item.
+//	@desc This is used to remove a queued item from the list.
+//	@desc Returns 'true' if the item was deleted.
+//	@route /api/v1/auto-downloader/item [DELETE]
+//	@param id - int - true - "The DB id of the item"
+//	@returns bool
 func HandleDeleteAutoDownloaderItem(c *RouteCtx) error {
 
 	type body struct {

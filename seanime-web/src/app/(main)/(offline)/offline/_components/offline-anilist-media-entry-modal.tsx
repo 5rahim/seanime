@@ -4,9 +4,10 @@ import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline
 import { userAtom } from "@/atoms/user"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { BaseMangaFragment, BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
+import { normalizeDate } from "@/lib/helpers/date"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
@@ -27,17 +28,22 @@ type Props = {
     type: "anime" | "manga"
 }
 
+type OfflineListData_QueryVariables = Partial<Omit<OfflineListData, "startedAt" | "completedAt">> & {
+    startDate?: string
+    endDate?: string
+}
+
 const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
-    startDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null).nullish(),
-    endDate: presets.datePicker.nullish().transform(value => value ? value.toISOString() : null).nullish(),
+    startDate: presets.datePicker.nullish(),
+    endDate: presets.datePicker.nullish(),
 }))
 
 export function useUpdateSnapshotEntryListData() {
     const qc = useQueryClient()
-    return useSeaMutation<any, InferType<typeof mediaListDataSchema> & {
+    return useSeaMutation<any, OfflineListData_QueryVariables & {
         mediaId: number,
         type: string
     }>({
@@ -110,8 +116,8 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                             status: data.status || "PLANNING",
                             score: data.score || 0,
                             progress: data.progress || 0,
-                            startDate: data.startDate,
-                            endDate: data.endDate,
+                            startDate: data.startDate ? data.startDate.toISOString() : undefined,
+                            endDate: data.endDate ? data.endDate.toISOString() : undefined,
                             type,
                         })
                     }}
@@ -125,10 +131,8 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                         status: listData?.status,
                         score: listData?.score,
                         progress: listData?.progress,
-                        //@ts-expect-error
-                        startDate: listData?.startedAt ? new Date(listData?.startedAt) : undefined,
-                        //@ts-expect-error
-                        endDate: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
+                        startDate: listData?.startedAt ? normalizeDate(listData?.startedAt) : undefined,
+                        endDate: listData?.completedAt ? normalizeDate(listData?.completedAt) : undefined,
                     }}
                 >
                     <div className="flex flex-col sm:flex-row gap-4">

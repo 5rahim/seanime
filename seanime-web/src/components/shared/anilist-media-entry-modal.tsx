@@ -7,6 +7,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
+import { normalizeDate } from "@/lib/helpers/date"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
@@ -31,16 +32,8 @@ export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
-    startedAt: presets.datePicker.nullish().transform(value => value ? ({
-        day: value.getDate(),
-        month: value.getMonth() + 1,
-        year: value.getFullYear(),
-    }) : null),
-    completedAt: presets.datePicker.nullish().transform(value => value ? ({
-        day: value.getDate(),
-        month: value.getMonth() + 1,
-        year: value.getFullYear(),
-    }) : null),
+    startedAt: presets.datePicker.nullish(),
+    completedAt: presets.datePicker.nullish(),
 }))
 
 
@@ -156,8 +149,18 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                             status: data.status || "PLANNING",
                             score: data.score ? data.score * 10 : 0,
                             progress: data.progress || 0,
-                            startedAt: data.startedAt,
-                            completedAt: data.completedAt,
+                            startedAt: data.startedAt ? {
+                                // @ts-ignore
+                                day: data.startedAt.getDate(),
+                                month: data.startedAt.getMonth() + 1,
+                                year: data.startedAt.getFullYear(),
+                            } : undefined,
+                            completedAt: data.completedAt ? {
+                                // @ts-ignore
+                                day: data.completedAt.getDate(),
+                                month: data.completedAt.getMonth() + 1,
+                                year: data.completedAt.getFullYear(),
+                            } : undefined,
                             type: type,
                         })
                     }}
@@ -171,10 +174,8 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         status: listData?.status,
                         score: listData?.score,
                         progress: listData?.progress,
-                        //@ts-expect-error
-                        startedAt: listData?.startedAt ? new Date(listData?.startedAt) : undefined,
-                        //@ts-expect-error
-                        completedAt: listData?.completedAt ? new Date(listData?.completedAt) : undefined,
+                        startedAt: listData?.startedAt ? (normalizeDate(listData?.startedAt)) : undefined,
+                        completedAt: listData?.completedAt ? (normalizeDate(listData?.completedAt)) : undefined,
                     }}
                 >
                     <div className="flex flex-col sm:flex-row gap-4">

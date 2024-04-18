@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+// HandleGetAnilistCollection
+//
+//	@summary returns the user's AniList anime collection.
+//	@desc Calling GET will return the cached data.
+//	@desc Calling POST will refetch the data from Anilist.
+//	@returns anilist.AnilistCollection
+//	@route /api/v1/anilist/collection [GET,POST]
 func HandleGetAnilistCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"
@@ -28,9 +35,14 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 
 }
 
-// HandleEditAnilistListEntry is used by the Anilist Media Entry Modal
+// HandleEditAnilistListEntry
 //
-// POST /v1/anilist/list-entry
+//	@summary updates the user's list entry on Anilist.
+//	@desc This is used to edit an entry on AniList.
+//	@desc The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.
+//	@desc The client should refetch collection-dependent queries after this mutation.
+//	@returns anilist.UpdateMediaListEntry
+//	@route /api/v1/anilist/list-entry [POST]
 func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 	type body struct {
@@ -77,7 +89,12 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 // HandleGetAnilistMediaDetails
-// GET /v1/anilist/media-details/:id
+//
+//	@summary returns more details about an AniList anime entry.
+//	@desc This fetches more fields omitted from the base queries.
+//	@param id - int - true - "The AniList anime ID"
+//	@returns anilist.MediaDetailsById_Media
+//	@route /api/v1/anilist/media-details/{id} [GET]
 func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
@@ -99,6 +116,14 @@ func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleDeleteAnilistListEntry
+//
+//	@summary deletes an entry from the user's AniList list.
+//	@desc This is used to delete an entry on AniList.
+//	@desc The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.
+//	@desc The client should refetch collection-dependent queries after this mutation.
+//	@route /api/v1/anilist/list-entry [DELETE]
+//	@returns anilist.DeleteEntry
 func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 
 	type body struct {
@@ -170,9 +195,11 @@ var (
 	anilistListRecentMediaCache = result.NewCache[string, *anilist.ListRecentMedia]() // holds 1 value
 )
 
-// HandleAnilistListAnime is used by the "Discover" page
+// HandleAnilistListAnime
 //
-//	POST /v1/anilist/list-anime
+//	@summary returns a list of anime based on the search parameters.
+//	@desc This is used by the "Discover" and "Advanced Search".
+//	@route /api/v1/anilist/list-anime [POST]
 func HandleAnilistListAnime(c *RouteCtx) error {
 
 	type body struct {
@@ -248,9 +275,11 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 	return c.RespondWithData(ret)
 }
 
-// HandleAnilistListRecentAiringAnime is used by the "Schedule" page
+// HandleAnilistListRecentAiringAnime
 //
-//	POST /v1/anilist/list-recent-anime
+//	@summary returns a list of recently aired anime.
+//	@desc This is used by the "Schedule" page to display recently aired anime.
+//	@route /api/v1/anilist/list-recent-anime [POST]
 func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	type body struct {

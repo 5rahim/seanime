@@ -14,9 +14,9 @@ type RequestBody struct {
 }
 
 // HandleTestDump
-// Returns whatever.
 //
-//	POST /v1/test-dump
+//	@summary this is a dummy handler for testing purposes.
+//	@route /api/v1/test-dump [POST]
 func HandleTestDump(c *RouteCtx) error {
 
 	c.AcceptJSON()

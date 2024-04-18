@@ -6,6 +6,7 @@ import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { serverStatusAtom } from "@/atoms/server-status"
+import { AuthWrapper } from "@/components/application/auth-wrapper"
 import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
 import { LibraryWatcher } from "@/components/application/library-watcher"
 import { MainLayout } from "@/components/application/main-layout"
@@ -23,14 +24,47 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     if (serverStatus?.isOffline) {
         return (
-            <OfflineLayout>
+            <AuthWrapper>
+                <OfflineLayout>
+                    <div className="min-h-screen">
+                        <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
+                            <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
+                                <div className="flex items-center w-full gap-2">
+                                    <AppSidebarTrigger />
+                                    <OfflineTopNavbar />
+                                    <ProgressTracking />
+                                </div>
+                            </div>
+                            <DynamicHeaderBackground />
+                        </div>
+
+                        <div>
+                            {children}
+                        </div>
+                    </div>
+                </OfflineLayout>
+            </AuthWrapper>
+        )
+    }
+
+    return (
+        <AuthWrapper>
+            <MainLayout>
+                <ScanProgressBar />
+                <LibraryWatcher />
+                <ScannerModal />
+                <PlaylistsModal />
+                <ChapterDownloadsDrawer />
                 <div className="min-h-screen">
                     <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
-                        <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
-                            <div className="flex items-center w-full gap-2">
+                        <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
+                            <div className="flex items-center w-full gap-3">
                                 <AppSidebarTrigger />
-                                <OfflineTopNavbar />
+                                <TopNavbar />
                                 <ProgressTracking />
+                                <div className="flex flex-1"></div>
+                                <ChapterDownloadsButton />
+                                <RefreshAnilistButton />
                             </div>
                         </div>
                         <DynamicHeaderBackground />
@@ -39,40 +73,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <div>
                         {children}
                     </div>
-                </div>
-            </OfflineLayout>
-        )
-    }
 
-    return (
-        <MainLayout>
-            <ScanProgressBar />
-            <LibraryWatcher />
-            <ScannerModal />
-            <PlaylistsModal />
-            <ChapterDownloadsDrawer />
-            <div className="min-h-screen">
-                <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
-                    <div className="relative z-10 px-4 w-full flex flex-row justify-between md:items-center">
-                        <div className="flex items-center w-full gap-2">
-                            <AppSidebarTrigger />
-                            <TopNavbar />
-                            <ProgressTracking />
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <ChapterDownloadsButton />
-                            <RefreshAnilistButton />
-                        </div>
-                    </div>
-                    <DynamicHeaderBackground />
                 </div>
-
-                <div>
-                    {children}
-                </div>
-
-            </div>
-        </MainLayout>
+            </MainLayout>
+        </AuthWrapper>
     )
 
 }

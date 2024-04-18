@@ -20,19 +20,19 @@ type malAuthResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-// HandleMALAuth will fetch the access and refresh tokens for the given code.
+// HandleMALAuth
 //
-// This is used to authenticate the user with MyAnimeList.
-// It will save the info in the database, effectively logging the user in.
-//
-// A new Status should be fetched after this.
-//
-//	POST /v1/mal/auth
+//	@summary fetches the access and refresh tokens for the given code.
+//	@desc This is used to authenticate the user with MyAnimeList.
+//	@desc It will save the info in the database, effectively logging the user in.
+//	@desc The client should re-fetch the server status after this.
+//	@route /api/v1/mal/auth [POST]
+//	@returns handlers.malAuthResponse
 func HandleMALAuth(c *RouteCtx) error {
 
 	type body struct {
-		Code         string
-		State        string
+		Code         string `json:"code"`
+		State        string `json:"state"`
 		CodeVerifier string `json:"code_verifier"`
 	}
 
@@ -92,9 +92,11 @@ func HandleMALAuth(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleEditMALListEntryProgress will update the progress of a MAL list entry.
+// HandleEditMALListEntryProgress
 //
-//	POST /v1/mal/list-entry/progress
+//	@summary updates the progress of a MAL list entry.
+//	@route /api/v1/mal/list-entry/progress [POST]
+//	@returns bool
 func HandleEditMALListEntryProgress(c *RouteCtx) error {
 
 	type body struct {
@@ -141,10 +143,13 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleMALLogout will delete the MAL info from the database, effectively logging the user out.
-// A new Status should be fetched after this.
+// HandleMALLogout
 //
-//	POST /mal/logout
+//	@summary logs the user out of MyAnimeList.
+//	@desc This will delete the MAL info from the database, effectively logging the user out.
+//	@desc The client should re-fetch the server status after this.
+//	@route /api/v1/mal/logout [POST]
+//	@returns bool
 func HandleMALLogout(c *RouteCtx) error {
 
 	err := c.App.Database.DeleteMalInfo()

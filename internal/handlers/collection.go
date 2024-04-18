@@ -2,11 +2,15 @@ package handlers
 
 import "github.com/seanime-app/seanime/internal/library/entities"
 
-// HandleGetLibraryCollection generates and returns the library collection.
+// HandleGetLibraryCollection
 //
-//	GET /v1/library/collection -> Uses cached Anilist collection
-//
-//	POST /v1/library/collection -> Bypasses cache and fetches Anilist collection
+//	@summary returns the main local anime collection.
+//	@desc This creates a new LibraryCollection struct and returns it.
+//	@desc This is used to get the main anime collection of the user.
+//	@desc It uses the cached Anilist anime collection for the GET method.
+//	@desc It refreshes the AniList anime collection if the POST method is used.
+//	@route /api/v1/library/collection [GET,POST]
+//	@returns entities.LibraryCollection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"

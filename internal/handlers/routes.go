@@ -13,9 +13,6 @@ import (
 	"sync"
 )
 
-// InitRoutes initializes the routes for the backend server.
-// It takes the App instance and the Fiber app instance as arguments.
-// The App instance is passed to the route handlers, so they can access the app's state.
 func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	fiberApp.Use(cors.New(cors.Config{
@@ -65,6 +62,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			return c.Next()
 		})
 	}
+
+	v1.Get("/internal/docs", makeHandler(app, HandleGetDocs))
 
 	// Image Proxy
 	imageProxy := &util2.ImageProxy{}
@@ -314,7 +313,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
 	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
 	v1Manga.Delete("/download-chapter", makeHandler(app, HandleDeleteMangaChapterDownload))
-	v1Manga.Post("/download-data/refresh", makeHandler(app, HandleRefreshMangaDownloadData))
 	v1Manga.Get("/download-queue", makeHandler(app, HandleGetMangaDownloadQueue))
 	v1Manga.Post("/download-queue/start", makeHandler(app, HandleStartMangaDownloadQueue))
 	v1Manga.Post("/download-queue/stop", makeHandler(app, HandleStopMangaDownloadQueue))

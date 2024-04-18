@@ -42,6 +42,9 @@ export default function Page() {
                         Create a snapshot of your library then enable offline mode in your <code>config.toml</code> file.
                         Your progress will be synced once you're back online.
                     </p>
+                    <p>
+                        Refer to the documentation for more information.
+                    </p>
                 </div>
 
                 {!!snapshot?.id && <ul className="text-lg">

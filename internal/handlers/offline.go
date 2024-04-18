@@ -11,7 +11,12 @@ var creatingOfflineSnapshot = false
 
 // HandleCreateOfflineSnapshot
 //
-//	POST /api/offline/snapshot
+//	@summary creates an offline snapshot.
+//	@desc This will create an offline snapshot of the given anime media ids and downloaded manga chapters.
+//	@desc It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.
+//	@desc This is a non-blocking operation.
+//	@route /api/offline/snapshot [POST]
+//	@returns bool
 func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 
 	type body struct {
@@ -38,10 +43,10 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 
 		if err != nil {
 			c.App.WSEventManager.SendEvent(events.ErrorToast, err.Error())
+		} else {
+			c.App.WSEventManager.SendEvent(events.SuccessToast, "Offline snapshot created successfully")
+			c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, true)
 		}
-
-		c.App.WSEventManager.SendEvent(events.SuccessToast, "Offline snapshot created successfully")
-		c.App.WSEventManager.SendEvent(events.OfflineSnapshotCreated, true)
 	}()
 
 	return c.RespondWithData(true)
@@ -49,7 +54,10 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 
 // HandleGetOfflineSnapshot
 //
-//	GET /api/offline/snapshot
+//	@summary retrieves the offline snapshot.
+//	@desc This will return the latest offline snapshot. (Offline only)
+//	@route /api/offline/snapshot [GET]
+//	@returns offline.Snapshot
 func HandleGetOfflineSnapshot(c *RouteCtx) error {
 	snapshot, _ := c.App.OfflineHub.GetLatestSnapshot(false)
 	return c.RespondWithData(snapshot)
@@ -57,7 +65,10 @@ func HandleGetOfflineSnapshot(c *RouteCtx) error {
 
 // HandleGetOfflineSnapshotEntry
 //
-//	GET /api/offline/snapshot-entry
+//	@summary retrieves an offline snapshot entry.
+//	@desc This will return the latest offline snapshot entry so the client can display the data.
+//	@route /api/offline/snapshot-entry [GET]
+//	@returns offline.SnapshotEntry
 func HandleGetOfflineSnapshotEntry(c *RouteCtx) error {
 	entry, _ := c.App.OfflineHub.GetLatestSnapshotEntry()
 	if entry != nil {
@@ -68,7 +79,10 @@ func HandleGetOfflineSnapshotEntry(c *RouteCtx) error {
 
 // HandleUpdateOfflineEntryListData
 //
-//	PATCH /api/offline/snapshot-entry
+//	@summary updates data for an offline entry list.
+//	@desc This will update the offline entry list data. (Offline only)
+//	@route /api/offline/snapshot-entry [PATCH]
+//	@returns bool
 func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 
 	type body struct {
@@ -103,7 +117,9 @@ func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 
 // HandleSyncOfflineData
 //
-//	POST /api/offline/sync
+//	@summary synchronizes offline data with AniList when the user is back online.
+//	@route /api/offline/sync [POST]
+//	@returns bool
 func HandleSyncOfflineData(c *RouteCtx) error {
 	err := c.App.OfflineHub.SyncListData()
 	if err != nil {

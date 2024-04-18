@@ -50,12 +50,15 @@ func NewStatus(c *RouteCtx) *Status {
 	}
 }
 
-// HandleStatus is a route handler that returns the app status.
+// HandleStatus
 //
-//	GET /v1/status
-//
-// It is called on every page load to get the most up-to-date data.
-// It is also called right after updating the settings.
+//	@summary returns the server status.
+//	@desc The server status includes app info, auth info and settings.
+//	@desc The client uses this to set the UI.
+//	@desc It is called on every page load to get the most up-to-date data.
+//	@desc It should be called right after updating the settings.
+//	@route /v1/library/media-entry/silence [POST]
+//	@returns bool
 func HandleStatus(c *RouteCtx) error {
 
 	status := NewStatus(c)

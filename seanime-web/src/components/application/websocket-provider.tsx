@@ -1,9 +1,11 @@
 import { websocketAtom, WebSocketContext } from "@/atoms/websocket"
+import { __openDrawersAtom } from "@/components/ui/drawer"
 import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { LuLoader } from "react-icons/lu"
+import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useEffectOnce } from "react-use"
 
 
@@ -19,6 +21,7 @@ export const websocketConnectedAtom = atom(false)
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
+    const openDrawers = useAtomValue(__openDrawersAtom)
 
     useEffectOnce(() => {
 
@@ -58,15 +61,18 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     })
 
     return (
-        <WebSocketContext.Provider value={socket}>
-            {!isConnected && <div
-                className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center"
-            >
-                <LuLoader className="text-brand-200 animate-spin text-lg" />
-                Establishing connection...
-            </div>}
-            {children}
-        </WebSocketContext.Provider>
+        <>
+            {openDrawers.length > 0 && <RemoveScrollBar />}
+            <WebSocketContext.Provider value={socket}>
+                {!isConnected && <div
+                    className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center"
+                >
+                    <LuLoader className="text-brand-200 animate-spin text-lg" />
+                    Establishing connection...
+                </div>}
+                {children}
+            </WebSocketContext.Provider>
+        </>
     )
 
 }

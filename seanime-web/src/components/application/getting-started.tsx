@@ -364,14 +364,14 @@ export function GettingStarted({ status }: { status: ServerStatus }) {
                                 <h4 className="text-center">Additional features</h4>
 
                                 <p className="text-[--muted] text-center">
-                                    Decide which additional features you want to use.
+                                    Select which additional features you want to use.
                                 </p>
                             </div>
 
                             <Field.Checkbox
                                 name="enableManga"
-                                label={<span>Manga <BetaBadge /></span>}
-                                help="Read manga chapters and track your progress."
+                                label={<span>Manga</span>}
+                                help="Read and download manga chapters."
                                 size="lg"
                             />
 

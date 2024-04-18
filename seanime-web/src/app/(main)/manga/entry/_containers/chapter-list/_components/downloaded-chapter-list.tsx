@@ -126,6 +126,10 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                             intent="gray-subtle"
                             size="sm"
                             onClick={() => {
+                                /**
+                                 * Set the provider to the one of the selected chapter
+                                 * This is because the provider is needed to fetch the chapter pages
+                                 */
                                 setProvider(row.original.provider)
                                 React.startTransition(() => {
                                     setSelectedChapter({
@@ -222,6 +226,12 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                     state={{
                         rowSelection,
                     }}
+                    hideColumns={[
+                        {
+                            below: 1000,
+                            hide: ["chapterId", "number", "provider"],
+                        },
+                    ]}
                     onSortingChange={console.log}
                     onRowSelect={onSelectChange}
                     onRowSelectionChange={setRowSelection}

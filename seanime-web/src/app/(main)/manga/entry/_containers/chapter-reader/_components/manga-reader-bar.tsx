@@ -24,8 +24,8 @@ import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_container
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { NativeSelect } from "@/components/ui/native-select"
 import { Popover } from "@/components/ui/popover"
+import { Select } from "@/components/ui/select"
 import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
 import { useSetAtom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -210,7 +210,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         >
                             <p
                                 className={cn(
-                                    "w-full h-full flex items-center justify-center text-transparent group-hover/bp:text-[--muted] transition",
+                                    "w-full h-full flex items-center rounded-t-md justify-center text-transparent group-hover/bp:text-[--muted] transition",
                                     "hover:text-white hover:bg-gray-800",
                                     index === currentPageIndex && "text-white hover:text-white group-hover/bp:text-white",
                                 )}
@@ -236,7 +236,8 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
                 {!!selectedChapter && <div className="flex gap-3 items-center flex-none whitespace-nowrap ">
                     <ChapterNavButton dir="left" />
-                    {`Chapter ${selectedChapter?.chapterNumber}`}
+                    <span className="hidden md:inline-block">Chapter </span>
+                    {`${selectedChapter?.chapterNumber}`}
                     <ChapterNavButton dir="right" />
                 </div>}
 
@@ -257,11 +258,11 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         </Badge>
                     }
                 >
-                    <NativeSelect
+                    <Select
                         options={pageContainer.pages?.map((_, index) => ({ label: String(index + 1), value: String(index) })) ?? []}
                         value={String(currentPageIndex)}
-                        onChange={e => {
-                            handlePageChange(Number(e.target.value))
+                        onValueChange={e => {
+                            handlePageChange(Number(e))
                         }}
                     />
                 </Popover>}

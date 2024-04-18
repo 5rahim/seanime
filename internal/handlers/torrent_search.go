@@ -6,10 +6,13 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 )
 
-// HandleTorrentSearch will search torrents.
-// It will return a list of torrents and their previews (TorrentSearchData).
+// HandleTorrentSearch
 //
-//	POST /v1/torrent/search
+//	@summary searches torrents and returns a list of torrents and their previews.
+//	@desc This will search for torrents and return a list of torrents with previews.
+//	@desc If smart search is enabled, it will filter the torrents based on search parameters.
+//	@route /v1/torrent/search [POST]
+//	@returns torrent.SearchData
 func HandleTorrentSearch(c *RouteCtx) error {
 
 	type body struct {
@@ -64,10 +67,12 @@ func HandleTorrentSearch(c *RouteCtx) error {
 
 }
 
-// HandleNsfwTorrentSearch will search NSFW torrents.
-// It will return a list of torrents without previews.
+// HandleNsfwTorrentSearch
 //
-//	POST /v1/torrent/nsfw-search
+//	@summary searches NSFW torrents and returns a list of torrents without previews.
+//	@desc This will search for NSFW torrents and return a list of torrents without previews.
+//	@route /v1/torrent/nsfw-search [POST]
+//	@returns torrent.SearchData
 func HandleNsfwTorrentSearch(c *RouteCtx) error {
 
 	type body struct {

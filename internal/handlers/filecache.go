@@ -5,9 +5,12 @@ import (
 	"strings"
 )
 
-// HandleGetFileCacheTotalSize will return the total size of the file cache.
+// HandleGetFileCacheTotalSize
 //
-//	POST /api/v1/filecache/total-size
+//	@summary returns the total size of cache files.
+//	@desc The total size of the cache files is returned in human-readable format.
+//	@route /api/v1/filecache/total-size [GET]
+//	@returns bool
 func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 	// Get the cache size
 	size, err := c.App.FileCacher.GetTotalSize(func(filename string) bool {
@@ -21,9 +24,13 @@ func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 	return c.RespondWithData(util.ToHumanReadableSize(size))
 }
 
-// HandleRemoveFileCacheBucket will remove all cache files associated with the given bucket.
+// HandleRemoveFileCacheBucket
 //
-//	DELETE /api/v1/filecache/bucket
+//	@summary deletes all buckets with the given prefix.
+//	@desc The bucket value is the prefix of the cache files that should be deleted.
+//	@desc Returns 'true' if the operation was successful.
+//	@route /api/v1/filecache/bucket [DELETE]
+//	@returns bool
 func HandleRemoveFileCacheBucket(c *RouteCtx) error {
 
 	type body struct {

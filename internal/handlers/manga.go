@@ -27,9 +27,11 @@ func checkMangaFlag(a *core.App) error {
 	return nil
 }
 
-// HandleGetAnilistMangaCollection return the user's Anilist manga collection.
+// HandleGetAnilistMangaCollection
 //
-//	POST /api/v1/manga/anilist/collection
+//	@summary returns the user's AniList manga collection.
+//	@route /api/v1/manga/anilist/collection [GET]
+//	@returns anilist.MangaCollection
 func HandleGetAnilistMangaCollection(c *RouteCtx) error {
 
 	type body struct {
@@ -55,9 +57,12 @@ func HandleGetAnilistMangaCollection(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleGetMangaCollection return the user's manga collection.
+// HandleGetMangaCollection
 //
-//	GET /api/v1/manga/collection
+//	@summary returns the user's main manga collection.
+//	@desc This is an object that contains all the user's manga entries in a structured format.
+//	@route /api/v1/manga/collection [GET]
+//	@returns manga.Collection
 func HandleGetMangaCollection(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -82,7 +87,11 @@ func HandleGetMangaCollection(c *RouteCtx) error {
 
 // HandleGetMangaEntry
 //
-//	GET /api/v1/manga/entry/:id
+//	@summary returns a manga entry for the given AniList manga id.
+//	@desc This is used by the manga media entry pages to get all the data about the anime. It includes metadata and AniList list data.
+//	@route /api/v1/manga/entry/{id} [GET]
+//	@param id - int - true - "AniList manga media ID"
+//	@returns manga.Entry
 func HandleGetMangaEntry(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -117,9 +126,13 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 	return c.RespondWithData(entry)
 }
 
-// HandleGetMangaEntryDetails return additional details for a manga entry.
+// HandleGetMangaEntryDetails
 //
-//	GET /api/v1/manga/entry/:id/details
+//	@summary returns more details about an AniList manga entry.
+//	@desc This fetches more fields omitted from the base queries.
+//	@route /api/v1/manga/entry/{id}/details [GET]
+//	@param id - int - true - "AniList manga media ID"
+//	@returns anilist.MangaDetailsById_Media
 func HandleGetMangaEntryDetails(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -147,10 +160,14 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleEmptyMangaEntryCache will empty the cache for a manga entry.
-// HandleGetMangaEntryChapters should be called after this to refresh the client.
+// HandleEmptyMangaEntryCache
 //
-//	DELETE /api/v1/manga/entry/cache
+//	@summary empties the cache for a manga entry.
+//	@desc This will empty the cache for a manga entry (chapter lists and pages), allowing the client to fetch fresh data.
+//	@desc HandleGetMangaEntryChapters should be called after this to fetch the new chapter list.
+//	@desc Returns 'true' if the operation was successful.
+//	@route /api/v1/manga/entry/cache [DELETE]
+//	@returns bool
 func HandleEmptyMangaEntryCache(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -174,9 +191,11 @@ func HandleEmptyMangaEntryCache(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-// HandleGetMangaEntryChapters return the chapters for a manga entry based on the provider.
+// HandleGetMangaEntryChapters
 //
-//	POST /api/v1/manga/entry/:id/chapters
+//	@summary returns the chapters for a manga entry based on the provider.
+//	@route /api/v1/manga/chapters [POST]
+//	@returns manga.ChapterContainer
 func HandleGetMangaEntryChapters(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -213,9 +232,16 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 	return c.RespondWithData(container)
 }
 
-// HandleGetMangaEntryPages return the pages for a manga entry chapter based on the provider.
+// HandleGetMangaEntryPages
 //
-//	POST /api/v1/manga/pages
+//	@summary returns the pages for a manga entry based on the provider and chapter id.
+//	@desc This will return the pages for a manga chapter.
+//	@desc If the app is offline and the chapter is not downloaded, it will return an error.
+//	@desc If the app is online and the chapter is not downloaded, it will return the pages from the provider.
+//	@desc If the chapter is downloaded, it will return the appropriate struct.
+//	@desc If 'double page' is requested, it will fetch image sizes and include the dimensions in the response.
+//	@route /api/v1/manga/pages [POST]
+//	@returns manga.PageContainer
 func HandleGetMangaEntryPages(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -248,6 +274,11 @@ var (
 	anilistListMangaCache = result.NewCache[string, *anilist.ListManga]()
 )
 
+// HandleAnilistListManga
+//
+//	@summary returns a list of manga based on the search parameters.
+//	@desc This is used by "Advanced Search" and search function.
+//	@route /api/v1/manga/anilist/list [POST]
 func HandleAnilistListManga(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -325,11 +356,11 @@ func HandleAnilistListManga(c *RouteCtx) error {
 	return c.RespondWithData(ret)
 }
 
-// HandleUpdateMangaProgress will update the progress of the given media entry.
+// HandleUpdateMangaProgress
 //
-// DEVOTE: MyAnimeList is not supported
-//
-//	POST /api/v1/manga/update-progress
+//	@summary updates the progress of a manga entry.
+//	@desc Note: MyAnimeList is not supported
+//	@route /api/v1/manga/update-progress [POST]
 func HandleUpdateMangaProgress(c *RouteCtx) error {
 
 	type body struct {
