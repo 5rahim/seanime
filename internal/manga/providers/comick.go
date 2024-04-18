@@ -173,10 +173,6 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	//for i, chapter := range data.Chapters {
-	//	fmt.Println(i, "`"+chapter.Title+"`", chapter.Chap, chapter.Vol, chapter.Lang, chapter.HID)
-	//}
-
 	chapters := make([]*ChapterDetails, 0)
 	chaptersMap := make(map[string]*ChapterDetails)
 	count := 0
