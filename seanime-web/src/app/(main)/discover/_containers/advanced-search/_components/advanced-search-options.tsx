@@ -60,19 +60,6 @@ export function AdvancedSearchOptions() {
                     })}
                     disabled={!!params.title && params.title.length > 0}
                 />
-                <Select
-                    leftAddon={<FaRegStar />}
-                    placeholder="All scores" className="w-full"
-                    options={[...Array(9)].map((v, idx) => 9 - idx).map(score => ({
-                        value: String(score),
-                        label: String(score),
-                    }))}
-                    value={params.minScore || ""}
-                    onValueChange={v => setParams(draft => {
-                        draft.minScore = v as any
-                        return
-                    })}
-                />
             </div>
             <div className="flex flex-col md:flex-row xl:flex-col gap-4 items-end xl:items-start flex-wrap">
                 <Combobox
@@ -134,6 +121,19 @@ export function AdvancedSearchOptions() {
                         return
                     })}
                     fieldLabelClass="hidden"
+                />
+                <Select
+                    leftAddon={<FaRegStar />}
+                    placeholder="All scores" className="w-full"
+                    options={[...Array(9)].map((v, idx) => 9 - idx).map(score => ({
+                        value: String(score),
+                        label: String(score),
+                    }))}
+                    value={params.minScore || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.minScore = v as any
+                        return
+                    })}
                 />
                 {serverStatus?.settings?.anilist?.enableAdultContent && <Switch
                     label="Adult"
