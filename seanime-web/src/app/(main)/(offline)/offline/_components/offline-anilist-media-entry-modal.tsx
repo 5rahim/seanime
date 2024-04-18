@@ -28,7 +28,7 @@ type Props = {
     type: "anime" | "manga"
 }
 
-type OfflineListData_QueryVariables = Omit<OfflineListData, "startedAt" | "completedAt"> & {
+type OfflineListData_QueryVariables = Partial<Omit<OfflineListData, "startedAt" | "completedAt">> & {
     startDate?: string
     endDate?: string
 }
