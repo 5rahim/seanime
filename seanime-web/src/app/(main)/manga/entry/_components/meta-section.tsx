@@ -171,7 +171,7 @@ export function MetaSection(props: { entry: MangaEntry | undefined, details: Man
 
                 <div
                     className={cn(
-                        "h-[20rem] lg:h-[32rem] 2xl:h-[35rem] w-full flex-none object-cover object-center absolute z-[3] -top-[5rem] overflow-hidden bg-[--background]",
+                        "h-[20rem] lg:h-[32rem] 2xl:h-[40rem] w-full flex-none object-cover object-center absolute z-[3] -top-[5rem] overflow-hidden bg-[--background]",
                         !ts.libraryScreenCustomBackgroundImage && cn(
                             "fixed transition-opacity duration-1000",
                             y > 100 && "opacity-10",

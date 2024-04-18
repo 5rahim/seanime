@@ -183,7 +183,10 @@ export function Drawer(props: DrawerProps) {
             <DialogPrimitive.Portal container={portalContainer}>
 
                 {/*<DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} />*/}
-                {open && <div className={cn(DrawerAnatomy.overlay(), overlayClass)} />}
+                {open && <div
+                    className={cn(DrawerAnatomy.overlay(), overlayClass)}
+                    data-state={open ? "open" : "closed"}
+                />}
 
                 <DialogPrimitive.Content
                     className={cn(DrawerAnatomy.content({ size, side }), contentClass)}
