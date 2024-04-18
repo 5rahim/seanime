@@ -25,8 +25,8 @@ All notable changes to this project will be documented in this file.
 - 💄 New settings page layout
 - 💄 Added fade effect to media entry banner image
 - 🦺 Scanner: Force media ID when resolving unmatched files
-- 🦺 Manga: Fix page indexing for Mangasee
-- 🦺 Fix incorrect start dates
+- 🦺 Manga: Fixed page indexing for Mangasee
+- 🦺 Fixed incorrect start dates
 - 🦺 Progress tracking: Fixed incorrect progress number being used when Episode 0 is included
 - 🦺 UI: Fixed issues related to scrollbar visibility
 - 🏗️ Core: Built-in image proxy
