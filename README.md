@@ -124,21 +124,11 @@ How to install Seanime
 - Support for other languages
 - Mobile app
 
-## Resources
+## Development and Build
 
-- [Chalk UI](https://chalk.rahim.app) - UI library
-- [Fiber](https://gofiber.io/) - Go Web framework
-- [GORM](https://gorm.io/) - Go ORM
-- [gqlgenc](https://github.com/Yamashou/gqlgenc) - GraphQL codegen
-- [Next.js](https://nextjs.org/) - React framework
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
-- [React Query](https://react-query.tanstack.com/) - Data fetching library
-- [Seanime Parser](https://github.com/5rahim/seanime/tree/main/seanime-parser) - Filename parser
-- [ani.zip](https://api.ani.zip/mappings?anilist_id=124080) - Mappings and episode data
-- [anime-lists](https://github.com/Fribb/anime-lists) - Mappings
-- [TheTVDB](https://www.thetvdb.com/) - Episode images
-- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs) - User data, anime and manga metadata
-- [MAL API](https://myanimelist.net/apiconfig/references/api/v2)
+To get started, you will need to be familiar with Go and Typescript.
+
+[Read more here](https://github.com/5rahim/seanime/blob/main/DEVELOPMENT_AND_BUILD.md)
 
 ## Acknowledgements
 
