@@ -3,7 +3,7 @@ package constants
 import "time"
 
 const (
-	Version              = "1.4.0"
+	Version              = "1.4.1"
 	VersionName          = "Laboon"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

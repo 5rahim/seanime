@@ -219,13 +219,13 @@ export function ChapterList(props: ChapterListProps) {
                             <LuffyError title="No chapters found"><p>Try another source</p></LuffyError>
                         )}
 
-                        {!!unreadChapters?.length && (
+                        {!!chapterContainer?.chapters?.length && (
                             <>
                                 <div className="flex gap-2 items-center w-full pb-2">
                                     <h3 className="px-1">Chapters</h3>
                                     <div className="flex flex-1"></div>
                                     <div>
-                                        <Button
+                                        {!!unreadChapters?.length && <Button
                                             intent="white"
                                             rounded
                                             leftIcon={<IoBookOutline />}
@@ -239,7 +239,7 @@ export function ChapterList(props: ChapterListProps) {
                                             }}
                                         >
                                             Continue reading
-                                        </Button>
+                                        </Button>}
                                     </div>
                                 </div>
 

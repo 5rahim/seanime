@@ -37,13 +37,17 @@ body:
       label: Bug Area
       description: Select the general area of the app or process during which the bug occurred.
       options:
-        - Not sure
-        - Authentication
-        - Scanning
-        - Watching
+        - Other
         - Browsing
+        - Authentication
+        - Anime - Watching
+        - Anime - Downloading
+        - Anime - Streaming
+        - Manga - Reading
+        - Manga - Downloading
         - Settings
-        - Downloading
+        - Offline mode
+        - UI
     validations:
       required: true
   - type: textarea
