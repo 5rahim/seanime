@@ -7,11 +7,11 @@ import { useAtomValue } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 
-interface TopNavbarProps {
+interface TopMenuProps {
     children?: React.ReactNode
 }
 
-export const TopNavbar: React.FC<TopNavbarProps> = (props) => {
+export const TopMenu: React.FC<TopMenuProps> = (props) => {
 
     const { children, ...rest } = props
 

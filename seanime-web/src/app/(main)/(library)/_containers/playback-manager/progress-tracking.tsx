@@ -196,7 +196,7 @@ export function ProgressTracking() {
         <>
             {shouldBeDisplayed && <Button
                 intent="primary"
-                className={cn("animate-pulse", { "animate-bounce": isCompleted })}
+                className={cn("animate-pulse")}
                 leftIcon={<PiPopcornFill />}
                 onClick={() => setShowModal(true)}
             >

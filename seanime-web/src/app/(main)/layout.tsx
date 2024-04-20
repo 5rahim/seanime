@@ -13,7 +13,7 @@ import { MainLayout } from "@/components/application/main-layout"
 import { OfflineLayout } from "@/components/application/offline-layout"
 import { OfflineTopNavbar } from "@/components/application/offline-top-navbar"
 import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
-import { TopNavbar } from "@/components/application/top-navbar"
+import { TopMenu } from "@/components/application/top-menu"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import { useAtomValue } from "jotai"
 import React from "react"
@@ -60,7 +60,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
                             <div className="flex items-center w-full gap-3">
                                 <AppSidebarTrigger />
-                                <TopNavbar />
+                                <TopMenu />
                                 <ProgressTracking />
                                 <div className="flex flex-1"></div>
                                 <ChapterDownloadsButton />
