@@ -1,10 +1,14 @@
 package docs
 
 import (
+	"cmp"
 	"fmt"
 	"github.com/goccy/go-json"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -122,43 +126,79 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string) {
 		panic("Failed to get referenced structs")
 	}
 
-	// Deduplicate referenced structs
-	for _, sharedStruct := range sharedStructs {
-		delete(referencedStructs, sharedStruct.Package+"."+sharedStruct.Name)
-	}
-	for _, otherStruct := range otherStructs {
-		delete(referencedStructs, otherStruct.Package+"."+otherStruct.Name)
-	}
+	//// Deduplicate referenced structs
+	//for _, sharedStruct := range sharedStructs {
+	//	delete(referencedStructs, sharedStruct.Package+"."+sharedStruct.Name)
+	//}
+	//for _, otherStruct := range otherStructs {
+	//	delete(referencedStructs, otherStruct.Package+"."+otherStruct.Name)
+	//}
 
 	// Keep track of written Typescript types
 	// This is to avoid name collisions
 	writtenTypes := make(map[string]*GoStruct)
 
-	file.WriteString(fmt.Sprintf("// %s\n\n", "Shared Types"))
-	// Write the shared structs first
-	for _, goStruct := range sharedStructs {
+	//file.WriteString(fmt.Sprintf("// %s\n\n", "Shared Types"))
+	//// Write the shared structs first
+	//for _, goStruct := range sharedStructs {
+	//
+	//	writeTypescriptType(file, goStruct, writtenTypes)
+	//
+	//}
+	//
+	//file.WriteString("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n")
+	//
+	//file.WriteString(fmt.Sprintf("// %s\n\n", "Returned Types"))
+	//// Write the other structs
+	//for _, goStruct := range otherStructs {
+	//
+	//	writeTypescriptType(file, goStruct, writtenTypes)
+	//
+	//}
 
-		writeTypescriptType(file, goStruct, writtenTypes)
-
-	}
-
-	file.WriteString("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n")
-
-	file.WriteString(fmt.Sprintf("// %s\n\n", "Returned Types"))
-	// Write the other structs
-	for _, goStruct := range otherStructs {
-
-		writeTypescriptType(file, goStruct, writtenTypes)
-
-	}
-
-	file.WriteString("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n")
-
+	// Group the structs by package
+	structsByPackage := make(map[string][]*GoStruct)
 	for _, goStruct := range referencedStructs {
+		if _, ok := structsByPackage[goStruct.Package]; !ok {
+			structsByPackage[goStruct.Package] = make([]*GoStruct, 0)
+		}
+		structsByPackage[goStruct.Package] = append(structsByPackage[goStruct.Package], goStruct)
+	}
 
-		writeTypescriptType(file, goStruct, writtenTypes)
+	packages := make([]string, 0)
+	for k := range structsByPackage {
+		packages = append(packages, k)
+	}
+
+	slices.SortStableFunc(packages, func(i, j string) int {
+		return cmp.Compare(i, j)
+	})
+
+	for _, pkg := range packages {
+
+		file.WriteString("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n")
+		file.WriteString(fmt.Sprintf("// %s\n", strings.ReplaceAll(cases.Title(language.English, cases.Compact).String(strings.ReplaceAll(pkg, "_", " ")), " ", "")))
+		file.WriteString("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n")
+
+		structs := structsByPackage[pkg]
+		slices.SortStableFunc(structs, func(i, j *GoStruct) int {
+			return cmp.Compare(i.FormattedName, j.FormattedName)
+		})
+
+		// Write the shared structs first
+		for _, goStruct := range structs {
+
+			writeTypescriptType(file, goStruct, writtenTypes)
+
+		}
 
 	}
+
+	//for _, goStruct := range referencedStructs {
+	//
+	//	writeTypescriptType(file, goStruct, writtenTypes)
+	//
+	//}
 
 }
 
