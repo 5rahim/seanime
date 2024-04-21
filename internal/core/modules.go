@@ -30,7 +30,7 @@ func (a *App) initModulesOnce() {
 		a.DiscordPresence.Close()
 	})
 
-	// Progress manager
+	// Playback Manager
 	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		Logger:               a.Logger,
 		WSEventManager:       a.WSEventManager,
@@ -60,7 +60,7 @@ func (a *App) initModulesOnce() {
 	// Auto scanner
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
 		Database:             a.Database,
-		Enabled:              false,
+		Enabled:              false, // Will be set in InitOrRefreshModules
 		AutoDownloader:       a.AutoDownloader,
 		AnilistClientWrapper: a.AnilistClientWrapper,
 		Logger:               a.Logger,
@@ -95,7 +95,7 @@ func (a *App) initModulesOnce() {
 //   - After settings are updated.
 func (a *App) InitOrRefreshModules() {
 	if a.cancelContext != nil {
-		a.Logger.Debug().Msg("app: Avoided concurrent refresh")
+		a.Logger.Warn().Msg("app: Concurrent module refresh")
 		return
 	}
 
@@ -157,7 +157,7 @@ func (a *App) InitOrRefreshModules() {
 		a.MediaPlayer.Mpv = mpv.New(a.Logger, settings.MediaPlayer.MpvSocket, settings.MediaPlayer.MpvPath)
 
 		// Set media player repository
-		a.MediaPlayRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
+		a.MediaPlayerRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
 			Logger:         a.Logger,
 			Default:        settings.MediaPlayer.Default,
 			VLC:            a.MediaPlayer.VLC,
@@ -166,7 +166,7 @@ func (a *App) InitOrRefreshModules() {
 			WSEventManager: a.WSEventManager,
 		})
 
-		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayRepository)
+		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}
@@ -226,7 +226,9 @@ func (a *App) InitOrRefreshModules() {
 
 	// Initialize library watcher
 	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
-		a.initLibraryWatcher(settings.Library.LibraryPath)
+		go func() {
+			a.initLibraryWatcher(settings.Library.LibraryPath)
+		}()
 	}
 
 	// +---------------------+
@@ -241,6 +243,7 @@ func (a *App) InitOrRefreshModules() {
 	// |       AniList       |
 	// +---------------------+
 
+	// Fetch Anilist collection and set account if not offline
 	if !a.IsOffline() {
 		a.initAnilistData()
 	}

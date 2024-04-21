@@ -3,7 +3,7 @@ package scanner
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -55,9 +55,9 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 			// |   Local Files       |
 			// +---------------------+
 
-			var lfs []*entities.LocalFile
+			var lfs []*anime.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, dir)
+				lf := anime.NewLocalFile(path, dir)
 				lfs = append(lfs, lf)
 			}
 

@@ -5,7 +5,7 @@ package handlers
 //	@summary updates the AniList progress of the currently playing media.
 //	@desc This is called after 'Update progress' is clicked when watching a media.
 //	@desc This route returns the media ID of the currently playing media, so the client can refetch the media entry data.
-//	@route /v1/playback-manager/sync-current-progress [POST]
+//	@route /api/v1/playback-manager/sync-current-progress [POST]
 //	@returns int
 func HandlePlaybackSyncCurrentProgress(c *RouteCtx) error {
 
@@ -24,7 +24,7 @@ func HandlePlaybackSyncCurrentProgress(c *RouteCtx) error {
 //	@summary plays the next episode of the currently playing media.
 //	@desc This will play the next episode of the currently playing media.
 //	@desc This is non-blocking so the client should prevent multiple calls until the next status is received.
-//	@route /v1/playback-manager/play-next [POST]
+//	@route /api/v1/playback-manager/play-next [POST]
 //	@returns bool
 func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 
@@ -40,7 +40,7 @@ func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 //
 //	@summary starts playing a playlist.
 //	@desc The client should refetch playlists.
-//	@route /v1/playback-manager/start-playlist [POST]
+//	@route /api/v1/playback-manager/start-playlist [POST]
 //	@returns bool
 func HandlePlaybackStartPlaylist(c *RouteCtx) error {
 
@@ -71,7 +71,7 @@ func HandlePlaybackStartPlaylist(c *RouteCtx) error {
 //
 //	@summary ends the current playlist.
 //	@desc This will stop the current playlist. This is non-blocking.
-//	@route /v1/playback-manager/cancel-playlist [POST]
+//	@route /api/v1/playback-manager/cancel-playlist [POST]
 //	@returns bool
 func HandlePlaybackCancelCurrentPlaylist(c *RouteCtx) error {
 
@@ -87,7 +87,7 @@ func HandlePlaybackCancelCurrentPlaylist(c *RouteCtx) error {
 //
 //	@summary moves to the next item in the current playlist.
 //	@desc This is non-blocking so the client should prevent multiple calls until the next status is received.
-//	@route /v1/playback-manager/playlist-next [POST]
+//	@route /api/v1/playback-manager/playlist-next [POST]
 //	@returns bool
 func HandlePlaybackPlaylistNext(c *RouteCtx) error {
 

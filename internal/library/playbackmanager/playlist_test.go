@@ -2,7 +2,7 @@ package playbackmanager_test
 
 import (
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
@@ -36,18 +36,18 @@ func TestPlaylists(t *testing.T) {
 	playbackManager.SetMediaPlayerRepository(repo)
 
 	// Test the playlist hub
-	lfs := make([]*entities.LocalFile, 0)
+	lfs := make([]*anime.LocalFile, 0)
 	for _, path := range localFilePaths {
-		lf := entities.NewLocalFile(path, "E:/ANIME")
+		lf := anime.NewLocalFile(path, "E:/ANIME")
 		epNum, _ := strconv.Atoi(lf.ParsedData.Episode)
 		lf.MediaId = mediaId
-		lf.Metadata.Type = entities.LocalFileTypeMain
+		lf.Metadata.Type = anime.LocalFileTypeMain
 		lf.Metadata.Episode = epNum
 		lf.Metadata.AniDBEpisode = lf.ParsedData.Episode
 		lfs = append(lfs, lf)
 	}
 
-	playlist := &entities.Playlist{
+	playlist := &anime.Playlist{
 		DbId:       1,
 		Name:       "test",
 		LocalFiles: lfs,

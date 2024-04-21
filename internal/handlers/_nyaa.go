@@ -6,7 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -17,14 +17,14 @@ import (
 )
 
 type (
-	// TorrentPreview is used to preview a torrent à la entities.MediaEntryEpisode.
+	// TorrentPreview is used to preview a torrent à la anime.MediaEntryEpisode.
 	TorrentPreview struct {
-		Episode       *entities.MediaEntryEpisode `json:"episode"`                 // nil if batch
-		EpisodeNumber *int                        `json:"episodeNumber,omitempty"` // nil if batch
-		IsBatch       bool                        `json:"isBatch"`
-		Resolution    string                      `json:"resolution"`
-		ReleaseGroup  string                      `json:"releaseGroup"`
-		Torrent       nyaa.DetailedTorrent        `json:"torrent"`
+		Episode       *anime.MediaEntryEpisode `json:"episode"`                 // nil if batch
+		EpisodeNumber *int                     `json:"episodeNumber,omitempty"` // nil if batch
+		IsBatch       bool                     `json:"isBatch"`
+		Resolution    string                   `json:"resolution"`
+		ReleaseGroup  string                   `json:"releaseGroup"`
+		Torrent       nyaa.DetailedTorrent     `json:"torrent"`
 	}
 	// TorrentSearchData is the struct returned by HandleNyaaSearch.
 	TorrentSearchData struct {
@@ -235,7 +235,7 @@ func createTorrentPreview(
 
 	// If the torrent is a batch, we don't need to set the episode
 	if episodeNumber != -2 {
-		ret.Episode = entities.NewMediaEntryEpisode(&entities.NewMediaEntryEpisodeOptions{
+		ret.Episode = anime.NewMediaEntryEpisode(&anime.NewMediaEntryEpisodeOptions{
 			LocalFile:            nil,
 			OptionalAniDBEpisode: strconv.Itoa(episodeNumber),
 			AnizipMedia:          anizipMedia,

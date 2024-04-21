@@ -8,7 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/database/db"
 	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/offline"
 	"sync"
@@ -36,11 +36,11 @@ type (
 		// historyMap stores PlaybackState whose state is "completed"
 		// Since PlaybackState is sent to client, once it is stored in historyMap, only the one stored in historyMap will be sent to client
 		historyMap                   map[string]PlaybackState
-		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus     // The current video playback status (can be nil)
-		currentMediaListEntry        *anilist.MediaListEntry         // List Entry for the current video playback (can be nil)
-		currentLocalFile             *entities.LocalFile             // Local file for the current video playback (can be nil)
-		currentLocalFileWrapperEntry *entities.LocalFileWrapperEntry // This contains the current media entry local file data (can be nil)
-		playlistHub                  *playlistHub                    // The playlist hub
+		currentMediaPlaybackStatus   *mediaplayer.PlaybackStatus  // The current video playback status (can be nil)
+		currentMediaListEntry        *anilist.MediaListEntry      // List Entry for the current video playback (can be nil)
+		currentLocalFile             *anime.LocalFile             // Local file for the current video playback (can be nil)
+		currentLocalFileWrapperEntry *anime.LocalFileWrapperEntry // This contains the current media entry local file data (can be nil)
+		playlistHub                  *playlistHub                 // The playlist hub
 
 		isOffline  bool
 		offlineHub *offline.Hub
@@ -196,7 +196,7 @@ func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 
 // StartPlaylist starts a playlist.
 // This action is triggered by the client.
-func (pm *PlaybackManager) StartPlaylist(playlist *entities.Playlist) error {
+func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 	pm.playlistHub.loadPlaylist(playlist)
 
 	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called

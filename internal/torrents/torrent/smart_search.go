@@ -7,7 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/torrents/seadex"
@@ -42,10 +42,10 @@ type (
 		Logger                *zerolog.Logger
 		MetadataProvider      *metadata.Provider
 	}
-	// Preview is used to preview a torrent à la entities.MediaEntryEpisode.
+	// Preview is used to preview a torrent à la anime.MediaEntryEpisode.
 	Preview struct {
-		Episode *entities.MediaEntryEpisode `json:"episode"` // nil if batch
-		Torrent *AnimeTorrent               `json:"torrent"`
+		Episode *anime.MediaEntryEpisode `json:"episode"` // nil if batch
+		Torrent *AnimeTorrent            `json:"torrent"`
 	}
 	// SearchData is the struct returned by NewSmartSearch
 	SearchData struct {
@@ -315,7 +315,7 @@ func createTorrentPreview(
 	anizipMedia, _ := anizipCache.Get(anizip.GetCacheKey("anilist", media.ID)) // can be nil
 
 	if isBestRelease && anizipMedia != nil {
-		ep := entities.NewMediaEntryEpisode(&entities.NewMediaEntryEpisodeOptions{
+		ep := anime.NewMediaEntryEpisode(&anime.NewMediaEntryEpisodeOptions{
 			LocalFile:            nil,
 			OptionalAniDBEpisode: strconv.Itoa(torrent.EpisodeNumber),
 			AnizipMedia:          anizipMedia,
@@ -325,7 +325,7 @@ func createTorrentPreview(
 			MetadataProvider:     metadataProvider,
 		})
 		ep.DisplayTitle = media.GetRomajiTitleSafe()
-		ep.EpisodeMetadata = entities.NewEpisodeMetadata(anizipMedia, nil, media, metadataProvider)
+		ep.EpisodeMetadata = anime.NewEpisodeMetadata(anizipMedia, nil, media, metadataProvider)
 		ep.EpisodeTitle = media.GetRomajiTitleSafe()
 		return &Preview{
 			Torrent: torrent,
@@ -378,7 +378,7 @@ func createTorrentPreview(
 
 	// If the torrent is a batch, we don't need to set the episode
 	if torrent.EpisodeNumber != -2 {
-		ret.Episode = entities.NewMediaEntryEpisode(&entities.NewMediaEntryEpisodeOptions{
+		ret.Episode = anime.NewMediaEntryEpisode(&anime.NewMediaEntryEpisodeOptions{
 			LocalFile:            nil,
 			OptionalAniDBEpisode: strconv.Itoa(torrent.EpisodeNumber),
 			AnizipMedia:          anizipMedia,

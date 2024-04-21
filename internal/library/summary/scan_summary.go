@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 )
 
 const (
@@ -31,8 +31,8 @@ type (
 
 	ScanSummaryLogger struct {
 		Logs              []*ScanSummaryLog
-		LocalFiles        []*entities.LocalFile
-		AllMedia          []*entities.NormalizedMedia
+		LocalFiles        []*anime.LocalFile
+		AllMedia          []*anime.NormalizedMedia
 		AnilistCollection *anilist.AnimeCollection
 	}
 
@@ -50,9 +50,9 @@ type (
 	}
 
 	ScanSummaryFile struct {
-		ID        string              `json:"id"`
-		LocalFile *entities.LocalFile `json:"localFile"`
-		Logs      []*ScanSummaryLog   `json:"logs"`
+		ID        string            `json:"id"`
+		LocalFile *anime.LocalFile  `json:"localFile"`
+		Logs      []*ScanSummaryLog `json:"logs"`
 	}
 
 	ScanSummaryGroup struct {
@@ -72,7 +72,7 @@ func NewScanSummaryLogger() *ScanSummaryLogger {
 }
 
 // HydrateData will hydrate the data needed to generate the summary.
-func (l *ScanSummaryLogger) HydrateData(lfs []*entities.LocalFile, media []*entities.NormalizedMedia, anilistCollection *anilist.AnimeCollection) {
+func (l *ScanSummaryLogger) HydrateData(lfs []*anime.LocalFile, media []*anime.NormalizedMedia, anilistCollection *anilist.AnimeCollection) {
 	l.LocalFiles = lfs
 	l.AllMedia = media
 	l.AnilistCollection = anilistCollection
@@ -151,7 +151,7 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 	return summary
 }
 
-func (l *ScanSummaryLogger) LogComparison(lf *entities.LocalFile, algo string, bestTitle string, ratingType string, rating string) {
+func (l *ScanSummaryLogger) LogComparison(lf *anime.LocalFile, algo string, bestTitle string, ratingType string, rating string) {
 	if l == nil {
 		return
 	}
@@ -160,7 +160,7 @@ func (l *ScanSummaryLogger) LogComparison(lf *entities.LocalFile, algo string, b
 	l.logType(LogComparison, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogSuccessfullyMatched(lf *entities.LocalFile, mediaId int) {
+func (l *ScanSummaryLogger) LogSuccessfullyMatched(lf *anime.LocalFile, mediaId int) {
 	if l == nil {
 		return
 	}
@@ -168,7 +168,7 @@ func (l *ScanSummaryLogger) LogSuccessfullyMatched(lf *entities.LocalFile, media
 	l.logType(LogSuccessfullyMatched, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogPanic(lf *entities.LocalFile, stackTrace string) {
+func (l *ScanSummaryLogger) LogPanic(lf *anime.LocalFile, stackTrace string) {
 	if l == nil {
 		return
 	}
@@ -176,7 +176,7 @@ func (l *ScanSummaryLogger) LogPanic(lf *entities.LocalFile, stackTrace string) 
 	l.logType(LogPanic, lf, "PANIC! "+stackTrace)
 }
 
-func (l *ScanSummaryLogger) LogFailedMatch(lf *entities.LocalFile, reason string) {
+func (l *ScanSummaryLogger) LogFailedMatch(lf *anime.LocalFile, reason string) {
 	if l == nil {
 		return
 	}
@@ -184,7 +184,7 @@ func (l *ScanSummaryLogger) LogFailedMatch(lf *entities.LocalFile, reason string
 	l.logType(LogFailedMatch, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMatchValidated(lf *entities.LocalFile, mediaId int) {
+func (l *ScanSummaryLogger) LogMatchValidated(lf *anime.LocalFile, mediaId int) {
 	if l == nil {
 		return
 	}
@@ -192,7 +192,7 @@ func (l *ScanSummaryLogger) LogMatchValidated(lf *entities.LocalFile, mediaId in
 	l.logType(LogMatchValidated, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogUnmatched(lf *entities.LocalFile, reason string) {
+func (l *ScanSummaryLogger) LogUnmatched(lf *anime.LocalFile, reason string) {
 	if l == nil {
 		return
 	}
@@ -200,7 +200,7 @@ func (l *ScanSummaryLogger) LogUnmatched(lf *entities.LocalFile, reason string) 
 	l.logType(LogUnmatched, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogFileNotMatched(lf *entities.LocalFile, reason string) {
+func (l *ScanSummaryLogger) LogFileNotMatched(lf *anime.LocalFile, reason string) {
 	if l == nil {
 		return
 	}
@@ -208,7 +208,7 @@ func (l *ScanSummaryLogger) LogFileNotMatched(lf *entities.LocalFile, reason str
 	l.logType(LogFileNotMatched, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataMediaTreeFetched(lf *entities.LocalFile, ms int64, branches int) {
+func (l *ScanSummaryLogger) LogMetadataMediaTreeFetched(lf *anime.LocalFile, ms int64, branches int) {
 	if l == nil {
 		return
 	}
@@ -216,7 +216,7 @@ func (l *ScanSummaryLogger) LogMetadataMediaTreeFetched(lf *entities.LocalFile, 
 	l.logType(LogMetadataMediaTreeFetched, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataMediaTreeFetchFailed(lf *entities.LocalFile, err error, ms int64) {
+func (l *ScanSummaryLogger) LogMetadataMediaTreeFetchFailed(lf *anime.LocalFile, err error, ms int64) {
 	if l == nil {
 		return
 	}
@@ -224,7 +224,7 @@ func (l *ScanSummaryLogger) LogMetadataMediaTreeFetchFailed(lf *entities.LocalFi
 	l.logType(LogMetadataMediaTreeFetchFailed, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataEpisodeNormalized(lf *entities.LocalFile, mediaId int, episode int, newEpisode int, newMediaId int, aniDBEpisode string) {
+func (l *ScanSummaryLogger) LogMetadataEpisodeNormalized(lf *anime.LocalFile, mediaId int, episode int, newEpisode int, newMediaId int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
@@ -232,7 +232,7 @@ func (l *ScanSummaryLogger) LogMetadataEpisodeNormalized(lf *entities.LocalFile,
 	l.logType(LogMetadataEpisodeNormalized, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *entities.LocalFile, err error, episode int, aniDBEpisode string) {
+func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *anime.LocalFile, err error, episode int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
@@ -240,7 +240,7 @@ func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *entities.L
 	l.logType(LogMetadataEpisodeNormalizationFailed, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataNC(lf *entities.LocalFile) {
+func (l *ScanSummaryLogger) LogMetadataNC(lf *anime.LocalFile) {
 	if l == nil {
 		return
 	}
@@ -248,7 +248,7 @@ func (l *ScanSummaryLogger) LogMetadataNC(lf *entities.LocalFile) {
 	l.logType(LogMetadataNC, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataSpecial(lf *entities.LocalFile, episode int, aniDBEpisode string) {
+func (l *ScanSummaryLogger) LogMetadataSpecial(lf *anime.LocalFile, episode int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
@@ -256,7 +256,7 @@ func (l *ScanSummaryLogger) LogMetadataSpecial(lf *entities.LocalFile, episode i
 	l.logType(LogMetadataSpecial, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataMain(lf *entities.LocalFile, episode int, aniDBEpisode string) {
+func (l *ScanSummaryLogger) LogMetadataMain(lf *anime.LocalFile, episode int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
@@ -264,7 +264,7 @@ func (l *ScanSummaryLogger) LogMetadataMain(lf *entities.LocalFile, episode int,
 	l.logType(LogMetadataMain, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataEpisodeZero(lf *entities.LocalFile, episode int, aniDBEpisode string) {
+func (l *ScanSummaryLogger) LogMetadataEpisodeZero(lf *anime.LocalFile, episode int, aniDBEpisode string) {
 	if l == nil {
 		return
 	}
@@ -272,7 +272,7 @@ func (l *ScanSummaryLogger) LogMetadataEpisodeZero(lf *entities.LocalFile, episo
 	l.logType(LogMetadataEpisodeZero, lf, msg)
 }
 
-func (l *ScanSummaryLogger) LogMetadataHydrated(lf *entities.LocalFile, mediaId int) {
+func (l *ScanSummaryLogger) LogMetadataHydrated(lf *anime.LocalFile, mediaId int) {
 	if l == nil {
 		return
 	}
@@ -280,7 +280,7 @@ func (l *ScanSummaryLogger) LogMetadataHydrated(lf *entities.LocalFile, mediaId 
 	l.logType(LogMetadataHydrated, lf, msg)
 }
 
-func (l *ScanSummaryLogger) logType(logType LogType, lf *entities.LocalFile, message string) {
+func (l *ScanSummaryLogger) logType(logType LogType, lf *anime.LocalFile, message string) {
 	if l == nil {
 		return
 	}
@@ -320,7 +320,7 @@ func (l *ScanSummaryLogger) logType(logType LogType, lf *entities.LocalFile, mes
 	}
 }
 
-func (l *ScanSummaryLogger) log(lf *entities.LocalFile, level string, message string) {
+func (l *ScanSummaryLogger) log(lf *anime.LocalFile, level string, message string) {
 	if l == nil {
 		return
 	}
@@ -332,7 +332,7 @@ func (l *ScanSummaryLogger) log(lf *entities.LocalFile, level string, message st
 	})
 }
 
-func (l *ScanSummaryLogger) getFileLogs(lf *entities.LocalFile) []*ScanSummaryLog {
+func (l *ScanSummaryLogger) getFileLogs(lf *anime.LocalFile) []*ScanSummaryLog {
 	logs := make([]*ScanSummaryLog, 0)
 	if l == nil {
 		return logs

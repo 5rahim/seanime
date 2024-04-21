@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"sync"
 )
 
@@ -17,12 +17,12 @@ type (
 
 		wsEventManager  events.IWSEventManager
 		logger          *zerolog.Logger
-		currentPlaylist *entities.Playlist  // The current playlist that is being played (can be nil)
-		nextLocalFile   *entities.LocalFile // The next episode that will be played (can be nil)
-		cancel          context.CancelFunc  // The cancel function for the current playlist
-		mu              sync.Mutex          // The mutex
+		currentPlaylist *anime.Playlist    // The current playlist that is being played (can be nil)
+		nextLocalFile   *anime.LocalFile   // The next episode that will be played (can be nil)
+		cancel          context.CancelFunc // The cancel function for the current playlist
+		mu              sync.Mutex         // The mutex
 
-		playingLf             *entities.LocalFile     // The currently playing local file
+		playingLf             *anime.LocalFile        // The currently playing local file
 		playingMediaListEntry *anilist.MediaListEntry // The currently playing media entry
 		completedCurrent      bool                    // Whether the current episode has been completed
 
@@ -50,7 +50,7 @@ func newPlaylistHub(logger *zerolog.Logger, wsEventManager events.IWSEventManage
 	}
 }
 
-func (h *playlistHub) loadPlaylist(playlist *entities.Playlist) {
+func (h *playlistHub) loadPlaylist(playlist *anime.Playlist) {
 	if playlist == nil {
 		h.logger.Error().Msg("playlist hub: Playlist is nil")
 		return
@@ -73,7 +73,7 @@ func (h *playlistHub) reset() {
 	return
 }
 
-func (h *playlistHub) check(currListEntry *anilist.MediaListEntry, currLf *entities.LocalFile, ps PlaybackState) bool {
+func (h *playlistHub) check(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, ps PlaybackState) bool {
 	if h.currentPlaylist == nil || currLf == nil || currListEntry == nil {
 		h.currentPlaylist = nil
 		h.playingLf = nil
@@ -83,7 +83,7 @@ func (h *playlistHub) check(currListEntry *anilist.MediaListEntry, currLf *entit
 	return true
 }
 
-func (h *playlistHub) findNextFile() (*entities.LocalFile, bool) {
+func (h *playlistHub) findNextFile() (*anime.LocalFile, bool) {
 	if h.currentPlaylist == nil || h.playingLf == nil {
 		return nil, false
 	}
@@ -100,7 +100,7 @@ func (h *playlistHub) findNextFile() (*entities.LocalFile, bool) {
 	return nil, false
 }
 
-func (h *playlistHub) playNextFile() (*entities.LocalFile, bool) {
+func (h *playlistHub) playNextFile() (*anime.LocalFile, bool) {
 	if h.currentPlaylist == nil || h.playingLf == nil || h.nextLocalFile == nil {
 		return nil, false
 	}
@@ -112,7 +112,7 @@ func (h *playlistHub) playNextFile() (*entities.LocalFile, bool) {
 	return nil, false
 }
 
-func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf *entities.LocalFile, anilistCollection *anilist.AnimeCollection, ps PlaybackState) {
+func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, anilistCollection *anilist.AnimeCollection, ps PlaybackState) {
 	if !h.check(currListEntry, currLf, ps) {
 		return
 	}
@@ -153,7 +153,7 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf
 	return
 }
 
-func (h *playlistHub) onVideoCompleted(currListEntry *anilist.MediaListEntry, currLf *entities.LocalFile, ps PlaybackState) {
+func (h *playlistHub) onVideoCompleted(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, ps PlaybackState) {
 	if !h.check(currListEntry, currLf, ps) {
 		return
 	}
@@ -163,7 +163,7 @@ func (h *playlistHub) onVideoCompleted(currListEntry *anilist.MediaListEntry, cu
 	return
 }
 
-func (h *playlistHub) onPlaybackStatus(currListEntry *anilist.MediaListEntry, currLf *entities.LocalFile, ps PlaybackState) {
+func (h *playlistHub) onPlaybackStatus(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, ps PlaybackState) {
 	if !h.check(currListEntry, currLf, ps) {
 		return
 	}

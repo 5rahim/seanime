@@ -3,10 +3,10 @@ package db
 import (
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 )
 
-func (db *Database) GetAutoDownloaderRules() ([]*entities.AutoDownloaderRule, error) {
+func (db *Database) GetAutoDownloaderRules() ([]*anime.AutoDownloaderRule, error) {
 	var res []*models.AutoDownloaderRule
 	err := db.gormdb.Find(&res).Error
 	if err != nil {
@@ -14,10 +14,10 @@ func (db *Database) GetAutoDownloaderRules() ([]*entities.AutoDownloaderRule, er
 	}
 
 	// Unmarshal the data
-	var rules []*entities.AutoDownloaderRule
+	var rules []*anime.AutoDownloaderRule
 	for _, r := range res {
 		smBytes := r.Value
-		var sm entities.AutoDownloaderRule
+		var sm anime.AutoDownloaderRule
 		if err := json.Unmarshal(smBytes, &sm); err != nil {
 			return nil, err
 		}
@@ -28,7 +28,7 @@ func (db *Database) GetAutoDownloaderRules() ([]*entities.AutoDownloaderRule, er
 	return rules, nil
 }
 
-func (db *Database) GetAutoDownloaderRule(id uint) (*entities.AutoDownloaderRule, error) {
+func (db *Database) GetAutoDownloaderRule(id uint) (*anime.AutoDownloaderRule, error) {
 	var res models.AutoDownloaderRule
 	err := db.gormdb.First(&res, id).Error
 	if err != nil {
@@ -37,7 +37,7 @@ func (db *Database) GetAutoDownloaderRule(id uint) (*entities.AutoDownloaderRule
 
 	// Unmarshal the data
 	smBytes := res.Value
-	var sm entities.AutoDownloaderRule
+	var sm anime.AutoDownloaderRule
 	if err := json.Unmarshal(smBytes, &sm); err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (db *Database) GetAutoDownloaderRule(id uint) (*entities.AutoDownloaderRule
 	return &sm, nil
 }
 
-func (db *Database) InsertAutoDownloaderRule(sm *entities.AutoDownloaderRule) error {
+func (db *Database) InsertAutoDownloaderRule(sm *anime.AutoDownloaderRule) error {
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {
@@ -63,7 +63,7 @@ func (db *Database) DeleteAutoDownloaderRule(id uint) error {
 	return db.gormdb.Delete(&models.AutoDownloaderRule{}, id).Error
 }
 
-func (db *Database) UpdateAutoDownloaderRule(id uint, sm *entities.AutoDownloaderRule) error {
+func (db *Database) UpdateAutoDownloaderRule(id uint, sm *anime.AutoDownloaderRule) error {
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {

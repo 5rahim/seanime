@@ -6,7 +6,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
@@ -34,7 +34,7 @@ type (
 	File struct {
 		index     int
 		path      string
-		localFile *entities.LocalFile
+		localFile *anime.LocalFile
 	}
 )
 
@@ -152,7 +152,7 @@ func (a *Analysis) GetUnselectedIndices(files map[int]*File) []int {
 	return indices
 }
 
-func (f *File) GetLocalFile() *entities.LocalFile {
+func (f *File) GetLocalFile() *anime.LocalFile {
 	return f.localFile
 }
 
@@ -233,12 +233,12 @@ func newFile(idx int, path string) *File {
 	return &File{
 		index:     idx,
 		path:      path,
-		localFile: entities.NewLocalFile(path, ""),
+		localFile: anime.NewLocalFile(path, ""),
 	}
 }
 
-func (a *Analyzer) getLocalFiles() []*entities.LocalFile {
-	files := make([]*entities.LocalFile, len(a.files))
+func (a *Analyzer) getLocalFiles() []*anime.LocalFile {
+	files := make([]*anime.LocalFile, len(a.files))
 	for i, f := range a.files {
 		files[i] = f.localFile
 	}

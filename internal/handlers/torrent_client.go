@@ -15,7 +15,7 @@ import (
 //	@summary returns all active torrents.
 //	@desc This handler is used by the client to display the active torrents.
 //
-//	@route /v1/torrent-client/list [GET]
+//	@route /api/v1/torrent-client/list [GET]
 //	@returns []torrent_client.Torrent
 func HandleGetActiveTorrentList(c *RouteCtx) error {
 
@@ -39,7 +39,7 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 //
 //	@summary performs an action on a torrent.
 //	@desc This handler is used to pause, resume or remove a torrent.
-//	@route /v1/torrent-client/action [POST]
+//	@route /api/v1/torrent-client/action [POST]
 //	@returns bool
 func HandleTorrentClientAction(c *RouteCtx) error {
 
@@ -90,7 +90,7 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 //	@summary adds torrents to the torrent client.
 //	@desc It fetches the magnets from the provided URLs and adds them to the torrent client.
 //	@desc If smart select is enabled, it will try to select the best torrent based on the missing episodes.
-//	@route /v1/torrent-client/download [POST]
+//	@route /api/v1/torrent-client/download [POST]
 //	@returns bool
 func HandleTorrentClientDownload(c *RouteCtx) error {
 
@@ -166,7 +166,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 //	@summary adds magnets to the torrent client based on the AutoDownloader item.
 //	@desc This is used to download torrents that were queued by the AutoDownloader.
 //	@desc The AutoDownloader items should be re-fetched after this.
-//	@route /v1/torrent-client/rule-magnet [POST]
+//	@route /api/v1/torrent-client/rule-magnet [POST]
 //	@returns bool
 func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 

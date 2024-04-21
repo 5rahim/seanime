@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime/internal/library/entities"
+import "github.com/seanime-app/seanime/internal/library/anime"
 
 // HandleGetLibraryCollection
 //
@@ -25,7 +25,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	libraryCollection, err := entities.NewLibraryCollection(&entities.NewLibraryCollectionOptions{
+	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
 		AnilistCollection:    anilistCollection,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		AnizipCache:          c.App.AnizipCache,

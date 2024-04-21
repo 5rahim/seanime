@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"testing"
@@ -55,9 +55,9 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			// |   Local Files       |
 			// +---------------------+
 
-			var lfs []*entities.LocalFile
+			var lfs []*anime.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, "E:/Anime")
+				lf := anime.NewLocalFile(path, "E:/Anime")
 				lfs = append(lfs, lf)
 			}
 

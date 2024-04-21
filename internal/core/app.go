@@ -9,13 +9,13 @@ import (
 	"github.com/seanime-app/seanime/internal/api/listsync"
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/constants"
-	_db "github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
-	"github.com/seanime-app/seanime/internal/library/entities"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
@@ -40,7 +40,7 @@ import (
 type (
 	App struct {
 		Config                  *Config
-		Database                *_db.Database
+		Database                *db.Database
 		Logger                  *zerolog.Logger
 		TorrentClientRepository *torrent_client.Repository
 		Watcher                 *scanner.Watcher
@@ -59,23 +59,23 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		MediaPlayRepository *mediaplayer.Repository
-		Version             string
-		Updater             *updater.Updater
-		Settings            *models.Settings
-		AutoScanner         *autoscanner.AutoScanner
-		PlaybackManager     *playbackmanager.PlaybackManager
-		FileCacher          *filecache.Cacher
-		Onlinestream        *onlinestream.OnlineStream
-		MangaRepository     *manga.Repository
-		MetadataProvider    *metadata.Provider
-		WD                  string // Working directory
-		DiscordPresence     *discordrpc_presence.Presence
-		MangaDownloader     *manga.Downloader
-		Cleanups            []func()
-		cancelContext       func()
-		previousVersion     string
-		OfflineHub          *offline.Hub
+		MediaPlayerRepository *mediaplayer.Repository
+		Version               string
+		Updater               *updater.Updater
+		Settings              *models.Settings
+		AutoScanner           *autoscanner.AutoScanner
+		PlaybackManager       *playbackmanager.PlaybackManager
+		FileCacher            *filecache.Cacher
+		Onlinestream          *onlinestream.OnlineStream
+		MangaRepository       *manga.Repository
+		MetadataProvider      *metadata.Provider
+		WD                    string // Working directory
+		DiscordPresence       *discordrpc_presence.Presence
+		MangaDownloader       *manga.Downloader
+		Cleanups              []func()
+		cancelContext         func()
+		previousVersion       string
+		OfflineHub            *offline.Hub
 	}
 )
 
@@ -112,24 +112,24 @@ func NewApp(configOpts *ConfigOptions) *App {
 	logger.Info().Msgf("app: Working directory: %s", pwd)
 
 	// Initialize the database
-	db, err := _db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
+	database, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize database")
 	}
 
 	// Add default local file entries if there are none
-	if _, _, err := db.GetLocalFiles(); err != nil {
-		_, err := db.InsertLocalFiles(make([]*entities.LocalFile, 0))
+	if _, _, err := database.GetLocalFiles(); err != nil {
+		_, err := database.InsertLocalFiles(make([]*anime.LocalFile, 0))
 		if err != nil {
 			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
 		}
 	}
 
-	db.TrimLocalFileEntries()
-	db.TrimScanSummaryEntries()
+	database.TrimLocalFileEntries()
+	database.TrimScanSummaryEntries()
 
 	// Get token from stored account or return empty string
-	anilistToken := db.GetAnilistToken()
+	anilistToken := database.GetAnilistToken()
 
 	// Anilist Client Wrapper
 	anilistCW := anilist.NewClientWrapper(anilistToken)
@@ -177,7 +177,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		MetadataProvider:     metadataProvider,
 		MangaRepository:      mangaRepository,
 		WSEventManager:       wsEventManager,
-		Db:                   db,
+		Database:             database,
 		FileCacher:           fileCacher,
 		Logger:               logger,
 		OfflineDir:           cfg.Offline.Dir,
@@ -187,7 +187,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 
 	app := &App{
 		Config:                  cfg,
-		Database:                db,
+		Database:                database,
 		AnilistClientWrapper:    anilistCW,
 		AnizipCache:             anizipCache,
 		NyaaSearchCache:         nyaa.NewSearchCache(),
@@ -206,7 +206,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		AutoDownloader:          nil, // Initialized in App.initModulesOnce
 		AutoScanner:             nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
-		MediaPlayRepository:     nil, // Initialized in App.InitOrRefreshModules
+		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
 		WD:                      pwd,
 		previousVersion:         previousVersion,

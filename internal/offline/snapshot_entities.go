@@ -3,14 +3,14 @@ package offline
 import (
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/manga"
 )
 
 type (
 	Snapshot struct {
 		DbId        uint              `json:"dbId"`
-		User        *entities.User    `json:"user"`
+		User        *anime.User       `json:"user"`
 		Entries     *Entries          `json:"entries"`
 		Collections *Collections      `json:"libraryCollections"`
 		AssetMap    *AssetMapImageMap `json:"assetMap"` // Key MediaId, Value: [Key: URL, Value: Local path]
@@ -39,11 +39,11 @@ type (
 	// AnimeEntry is a snapshot of an anime list entry.
 	//  - Updates are made to this struct, then saved to the database.
 	AnimeEntry struct {
-		MediaId          int                           `json:"mediaId"`
-		ListData         *ListData                     `json:"listData"`
-		Media            *anilist.BaseMedia            `json:"media"`
-		Episodes         []*entities.MediaEntryEpisode `json:"episodes"`
-		DownloadedAssets bool                          `json:"downloadedAssets"`
+		MediaId          int                        `json:"mediaId"`
+		ListData         *ListData                  `json:"listData"`
+		Media            *anilist.BaseMedia         `json:"media"`
+		Episodes         []*anime.MediaEntryEpisode `json:"episodes"`
+		DownloadedAssets bool                       `json:"downloadedAssets"`
 	}
 
 	// MangaEntry is a snapshot of a manga list entry.

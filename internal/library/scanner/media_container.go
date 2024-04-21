@@ -5,7 +5,7 @@ import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/util/comparison"
 	"strings"
 )
@@ -17,7 +17,7 @@ type (
 	}
 
 	MediaContainer struct {
-		NormalizedMedia []*entities.NormalizedMedia
+		NormalizedMedia []*anime.NormalizedMedia
 		ScanLogger      *ScanLogger
 		engTitles       []*string
 		romTitles       []*string
@@ -35,12 +35,12 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	mc := new(MediaContainer)
 	mc.ScanLogger = opts.ScanLogger
 
-	mc.NormalizedMedia = make([]*entities.NormalizedMedia, 0)
+	mc.NormalizedMedia = make([]*anime.NormalizedMedia, 0)
 
-	normalizedMediaMap := make(map[int]*entities.NormalizedMedia)
+	normalizedMediaMap := make(map[int]*anime.NormalizedMedia)
 
 	for _, m := range opts.AllMedia {
-		normalizedMediaMap[m.ID] = entities.NewNormalizedMedia(m.ToBasicMedia())
+		normalizedMediaMap[m.ID] = anime.NewNormalizedMedia(m.ToBasicMedia())
 		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
 			for _, edgeM := range m.Relations.Edges {
 				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {
@@ -62,7 +62,7 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 				// DEVNOTE: Edges fetched from the AniList AnimeCollection query do not contain NextAiringEpisode
 				// Make sure we don't overwrite the original media in the map that contains NextAiringEpisode
 				if _, found := normalizedMediaMap[edgeM.Node.ID]; !found {
-					normalizedMediaMap[edgeM.Node.ID] = entities.NewNormalizedMedia(edgeM.Node)
+					normalizedMediaMap[edgeM.Node.ID] = anime.NewNormalizedMedia(edgeM.Node)
 				}
 			}
 		}
@@ -71,19 +71,19 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 		mc.NormalizedMedia = append(mc.NormalizedMedia, m)
 	}
 
-	engTitles := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) *string {
+	engTitles := lop.Map(mc.NormalizedMedia, func(m *anime.NormalizedMedia, index int) *string {
 		if m.Title.English != nil {
 			return m.Title.English
 		}
 		return new(string)
 	})
-	romTitles := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) *string {
+	romTitles := lop.Map(mc.NormalizedMedia, func(m *anime.NormalizedMedia, index int) *string {
 		if m.Title.Romaji != nil {
 			return m.Title.Romaji
 		}
 		return new(string)
 	})
-	_synonymsArr := lop.Map(mc.NormalizedMedia, func(m *entities.NormalizedMedia, index int) []*string {
+	_synonymsArr := lop.Map(mc.NormalizedMedia, func(m *anime.NormalizedMedia, index int) []*string {
 		if m.Synonyms != nil {
 			return m.Synonyms
 		}
@@ -110,12 +110,12 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	return mc
 }
 
-func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*entities.NormalizedMedia, bool) {
+func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*anime.NormalizedMedia, bool) {
 	if title == nil {
 		return nil, false
 	}
 	t := strings.ToLower(*title)
-	res, found := lo.Find(mc.NormalizedMedia, func(m *entities.NormalizedMedia) bool {
+	res, found := lo.Find(mc.NormalizedMedia, func(m *anime.NormalizedMedia) bool {
 		if m.HasEnglishTitle() && t == strings.ToLower(*m.Title.English) {
 			return true
 		}
@@ -135,8 +135,8 @@ func (mc *MediaContainer) GetMediaFromTitleOrSynonym(title *string) (*entities.N
 	return res, found
 }
 
-func (mc *MediaContainer) GetMediaFromId(id int) (*entities.NormalizedMedia, bool) {
-	res, found := lo.Find(mc.NormalizedMedia, func(m *entities.NormalizedMedia) bool {
+func (mc *MediaContainer) GetMediaFromId(id int) (*anime.NormalizedMedia, bool) {
+	res, found := lo.Find(mc.NormalizedMedia, func(m *anime.NormalizedMedia) bool {
 		if m.ID == id {
 			return true
 		}

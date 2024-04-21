@@ -11,7 +11,7 @@ import (
 //	@summary searches torrents and returns a list of torrents and their previews.
 //	@desc This will search for torrents and return a list of torrents with previews.
 //	@desc If smart search is enabled, it will filter the torrents based on search parameters.
-//	@route /v1/torrent/search [POST]
+//	@route /api/v1/torrent/search [POST]
 //	@returns torrent.SearchData
 func HandleTorrentSearch(c *RouteCtx) error {
 
@@ -71,7 +71,7 @@ func HandleTorrentSearch(c *RouteCtx) error {
 //
 //	@summary searches NSFW torrents and returns a list of torrents without previews.
 //	@desc This will search for NSFW torrents and return a list of torrents without previews.
-//	@route /v1/torrent/nsfw-search [POST]
+//	@route /api/v1/torrent/nsfw-search [POST]
 //	@returns torrent.SearchData
 func HandleNsfwTorrentSearch(c *RouteCtx) error {
 

@@ -7,7 +7,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/summary"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -20,8 +20,8 @@ import (
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles           []*entities.LocalFile       // Local files to hydrate
-	AllMedia             []*entities.NormalizedMedia // All media used to hydrate local files
+	LocalFiles           []*anime.LocalFile       // Local files to hydrate
+	AllMedia             []*anime.NormalizedMedia // All media used to hydrate local files
 	BaseMediaCache       *anilist.BaseMediaCache
 	AnizipCache          *anizip.Cache
 	AnilistClientWrapper anilist.ClientWrapperInterface
@@ -41,7 +41,7 @@ func (fh *FileHydrator) HydrateMetadata() {
 	fh.Logger.Debug().Msg("hydrator: Starting metadata hydration")
 
 	// Group local files by media ID
-	groups := lop.GroupBy(fh.LocalFiles, func(localFile *entities.LocalFile) int {
+	groups := lop.GroupBy(fh.LocalFiles, func(localFile *anime.LocalFile) int {
 		return localFile.MediaId
 	})
 
@@ -74,12 +74,12 @@ func (fh *FileHydrator) HydrateMetadata() {
 
 func (fh *FileHydrator) hydrateGroupMetadata(
 	mId int,
-	lfs []*entities.LocalFile, // Grouped local files
+	lfs []*anime.LocalFile, // Grouped local files
 	rateLimiter *limiter.Limiter,
 ) {
 
 	// Get the media
-	media, found := lo.Find(fh.AllMedia, func(media *entities.NormalizedMedia) bool {
+	media, found := lo.Find(fh.AllMedia, func(media *anime.NormalizedMedia) bool {
 		return media.ID == mId
 	})
 	if !found {
@@ -98,7 +98,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	treeFetched := false
 
 	// Process each local file in the group sequentially
-	lo.ForEach(lfs, func(lf *entities.LocalFile, index int) {
+	lo.ForEach(lfs, func(lf *anime.LocalFile, index int) {
 
 		defer util.HandlePanicInModuleThenS("scanner/hydrator/hydrateGroupMetadata", func(stackTrace string) {
 			lf.MediaId = 0
@@ -111,7 +111,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			fh.ScanSummaryLogger.LogPanic(lf, stackTrace)
 		})
 
-		lf.Metadata.Type = entities.LocalFileTypeMain
+		lf.Metadata.Type = anime.LocalFileTypeMain
 
 		// Get episode number
 		episode := -1
@@ -125,7 +125,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		if comparison.ValueContainsNC(lf.Name) {
 			lf.Metadata.Episode = 0
 			lf.Metadata.AniDBEpisode = ""
-			lf.Metadata.Type = entities.LocalFileTypeNC
+			lf.Metadata.Type = anime.LocalFileTypeNC
 
 			/*Log */
 			if fh.ScanLogger != nil {
@@ -138,7 +138,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 		// Special metadata
 		if comparison.ValueContainsSpecial(lf.Name) {
-			lf.Metadata.Type = entities.LocalFileTypeSpecial
+			lf.Metadata.Type = anime.LocalFileTypeSpecial
 			if episode > -1 {
 				// ep14 (13 original) -> ep1 s1
 				if episode > media.GetCurrentEpisodeCount() {
@@ -243,7 +243,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		// Still no episode number and the media has more than 1 episode and is not a movie
 		// We will mark it as a special episode
 		if episode == -1 {
-			lf.Metadata.Type = entities.LocalFileTypeSpecial
+			lf.Metadata.Type = anime.LocalFileTypeSpecial
 			lf.Metadata.Episode = 1
 			lf.Metadata.AniDBEpisode = "S1"
 
@@ -391,7 +391,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 }
 
-func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *entities.LocalFile, mId int, episode int) *zerolog.Event {
+func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *anime.LocalFile, mId int, episode int) *zerolog.Event {
 	return fh.ScanLogger.LogFileHydrator(level).
 		Str("filename", lf.Name).
 		Int("mediaId", mId).
@@ -408,7 +408,7 @@ func (fh *FileHydrator) logFileHydration(level zerolog.Level, lf *entities.Local
 // If the MediaTreeAnalysis is nil, the episode number will not be normalized.
 func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 	mta *MediaTreeAnalysis,
-	lf *entities.LocalFile,
+	lf *anime.LocalFile,
 	ep int, // The absolute episode number of the media
 	maxEp int, // The maximum episode number of the media
 ) error {
@@ -418,7 +418,7 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 		// Let's consider this a special episode (it might not exist on AniDB, but it's better than setting everything to "S1")
 		lf.Metadata.Episode = diff                          // e.g. 2
 		lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(diff) // e.g. S2
-		lf.Metadata.Type = entities.LocalFileTypeSpecial
+		lf.Metadata.Type = anime.LocalFileTypeSpecial
 		return errors.New("[hydrator] could not find media tree")
 	}
 
@@ -428,7 +428,7 @@ func (fh *FileHydrator) normalizeEpisodeNumberAndHydrate(
 		// Do the same as above
 		lf.Metadata.Episode = diff
 		lf.Metadata.AniDBEpisode = "S" + strconv.Itoa(diff) // e.g. S2
-		lf.Metadata.Type = entities.LocalFileTypeSpecial
+		lf.Metadata.Type = anime.LocalFileTypeSpecial
 		return errors.New("[hydrator] could not find relative episode number from media tree")
 	}
 

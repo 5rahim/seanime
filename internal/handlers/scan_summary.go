@@ -3,7 +3,7 @@ package handlers
 // HandleGetLatestScanSummaries
 //
 //	@summary returns the latest scan summaries.
-//	@route /v1/library/scan-summaries [GET]
+//	@route /api/v1/library/scan-summaries [GET]
 //	@returns []db.ScanSummaryItem
 func HandleGetLatestScanSummaries(c *RouteCtx) error {
 

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"strconv"
 )
 
@@ -65,7 +65,7 @@ func HandleGetAutoDownloaderRules(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/rule [POST]
 //	@returns entities.AutoDownloaderRule
 func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
-	rule := new(entities.AutoDownloaderRule)
+	rule := new(anime.AutoDownloaderRule)
 	if err := c.Fiber.BodyParser(rule); err != nil {
 		return c.RespondWithError(err)
 	}
@@ -85,7 +85,7 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/rule [PATCH]
 //	@returns entities.AutoDownloaderRule
 func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
-	rule := new(entities.AutoDownloaderRule)
+	rule := new(anime.AutoDownloaderRule)
 	if err := c.Fiber.BodyParser(rule); err != nil {
 		return c.RespondWithError(err)
 	}

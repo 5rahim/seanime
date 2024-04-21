@@ -6,7 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"slices"
@@ -39,7 +39,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	if err != nil {
 		return err
 	}
-	user, err := entities.NewUser(dbAcc)
+	user, err := anime.NewUser(dbAcc)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
 	animeEntries := make([]*AnimeEntry, 0)
 
-	lfWrapper := entities.NewLocalFileWrapper(lfs)
+	lfWrapper := anime.NewLocalFileWrapper(lfs)
 	lfEntries := lfWrapper.GetLocalEntries()
 
 	anizipCache := anizip.NewCache()
@@ -97,7 +97,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		h.logger.Debug().Msgf("offline hub: Creating media entry snapshot for media %d", lfEntry.GetMediaId())
 
 		rateLimiter.Wait()
-		_mediaEntry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
+		_mediaEntry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
 			MediaId:              lfEntry.GetMediaId(),
 			LocalFiles:           lfs,
 			AnizipCache:          anizipCache,
@@ -287,7 +287,7 @@ func (h *Hub) GetLatestSnapshot(bypassCache bool) (snapshot *Snapshot, err error
 	h.logger.Debug().Msg("offline hub: Getting latest snapshot")
 
 	snapshot = &Snapshot{
-		User: &entities.User{},
+		User: &anime.User{},
 		Entries: &Entries{
 			AnimeEntries: make([]*AnimeEntry, 0),
 			MangaEntries: make([]*MangaEntry, 0),

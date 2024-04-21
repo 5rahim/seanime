@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/summary"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -17,7 +17,7 @@ import (
 )
 
 type Matcher struct {
-	LocalFiles        []*entities.LocalFile
+	LocalFiles        []*anime.LocalFile
 	MediaContainer    *MediaContainer
 	BaseMediaCache    *anilist.BaseMediaCache
 	Logger            *zerolog.Logger
@@ -29,7 +29,7 @@ var (
 	ErrNoLocalFiles = errors.New("[matcher] no local files")
 )
 
-// MatchLocalFilesWithMedia will match each entities.LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
+// MatchLocalFilesWithMedia will match each anime.LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	start := time.Now()
@@ -50,7 +50,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	m.Logger.Debug().Msg("matcher: Starting matching process")
 
 	// Parallelize the matching process
-	lop.ForEach(m.LocalFiles, func(localFile *entities.LocalFile, _ int) {
+	lop.ForEach(m.LocalFiles, func(localFile *anime.LocalFile, _ int) {
 		m.matchLocalFileWithMedia(localFile)
 	})
 
@@ -60,7 +60,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 		m.ScanLogger.LogMatcher(zerolog.InfoLevel).
 			Any("ms", time.Since(start).Milliseconds()).
 			Any("files", len(m.LocalFiles)).
-			Any("unmatched", lo.CountBy(m.LocalFiles, func(localFile *entities.LocalFile) bool {
+			Any("unmatched", lo.CountBy(m.LocalFiles, func(localFile *anime.LocalFile) bool {
 				return localFile.MediaId == 0
 			})).
 			Msg("matcher: Finished matching process")
@@ -72,7 +72,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 // matchLocalFileWithMedia finds the best match for the local file
 // If the best match is above a certain threshold, set the local file's mediaId to the best match's id
 // If the best match is below a certain threshold, leave the local file's mediaId to 0
-func (m *Matcher) matchLocalFileWithMedia(lf *entities.LocalFile) {
+func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
 
 	defer util.HandlePanicInModuleThenS("scanner/matcher/matchLocalFileWithMedia", func(stackTrace string) {
 		lf.MediaId = 0
@@ -339,7 +339,7 @@ func (m *Matcher) validateMatches() {
 	}
 
 	// Group local files by media ID
-	groups := lop.GroupBy(m.LocalFiles, func(localFile *entities.LocalFile) int {
+	groups := lop.GroupBy(m.LocalFiles, func(localFile *anime.LocalFile) int {
 		return localFile.MediaId
 	})
 
@@ -362,7 +362,7 @@ func (m *Matcher) validateMatches() {
 // validateMatchGroup compares the local files' titles under the same media
 // with the media titles and un-matches the local files that have a lower rating.
 // This is done to try and filter out wrong matches.
-func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
+func (m *Matcher) validateMatchGroup(mediaId int, lfs []*anime.LocalFile) {
 
 	media, found := m.MediaContainer.GetMediaFromId(mediaId)
 	if !found {
@@ -411,7 +411,7 @@ func (m *Matcher) validateMatchGroup(mediaId int, lfs []*entities.LocalFile) {
 
 	// Un-match files that have a lower rating than the ceiling
 	// UNLESS they are Special or NC
-	lop.ForEach(lfs, func(lf *entities.LocalFile, _ int) {
+	lop.ForEach(lfs, func(lf *anime.LocalFile, _ int) {
 		if !comparison.ValueContainsSpecial(lf.Name) && !comparison.ValueContainsNC(lf.Name) {
 			t := lf.GetParsedTitle()
 			if compRes, ok := comparison.FindBestMatchWithSorensenDice(&t, titles); ok {

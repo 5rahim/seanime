@@ -2,7 +2,7 @@ package offline
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/util/image_downloader"
 	"sync"
 	"time"
@@ -25,7 +25,7 @@ func newAssetsHandler(logger *zerolog.Logger, imageDownloader *image_downloader.
 func (h *assetsHandler) DownloadAssets(
 	animeEntries []*AnimeEntry,
 	mangaEntries []*MangaEntry,
-	user *entities.User,
+	user *anime.User,
 	ids []int, // Media to download assets for
 ) (ret *AssetMapImageMap, err error) {
 

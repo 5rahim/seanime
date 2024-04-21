@@ -8,7 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/filesystem"
 	"github.com/seanime-app/seanime/internal/library/summary"
 	"github.com/seanime-app/seanime/internal/util"
@@ -22,15 +22,15 @@ type Scanner struct {
 	AnilistClientWrapper anilist.ClientWrapperInterface
 	Logger               *zerolog.Logger
 	WSEventManager       events.IWSEventManager
-	ExistingLocalFiles   []*entities.LocalFile
+	ExistingLocalFiles   []*anime.LocalFile
 	SkipLockedFiles      bool
 	SkipIgnoredFiles     bool
 	ScanSummaryLogger    *summary.ScanSummaryLogger
 	ScanLogger           *ScanLogger
 }
 
-// Scan will scan the directory and return a list of entities.LocalFile.
-func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
+// Scan will scan the directory and return a list of anime.LocalFile.
+func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	defer util.HandlePanicWithError(&err)
 
@@ -84,7 +84,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 	// +---------------------+
 
 	// Get skipped files depending on options
-	skippedLfs := make([]*entities.LocalFile, 0)
+	skippedLfs := make([]*anime.LocalFile, 0)
 	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
 		// Retrieve skipped files from existing local files
 		for _, lf := range scn.ExistingLocalFiles {
@@ -96,7 +96,7 @@ func (scn *Scanner) Scan() (lfs []*entities.LocalFile, err error) {
 		}
 
 		// Remove skipped files from local files that will be hydrated
-		localFiles = lo.Filter(localFiles, func(lf *entities.LocalFile, _ int) bool {
+		localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
 			if lf.IsIncluded(skippedLfs) {
 				return false
 			}

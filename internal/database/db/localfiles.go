@@ -3,12 +3,12 @@ package db
 import (
 	"github.com/goccy/go-json"
 	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"gorm.io/gorm/clause"
 )
 
 // GetLocalFiles will return the latest local files and the id of the entry.
-func (db *Database) GetLocalFiles() ([]*entities.LocalFile, uint, error) {
+func (db *Database) GetLocalFiles() ([]*anime.LocalFile, uint, error) {
 	// Get the latest entry
 	var res models.LocalFiles
 	err := db.gormdb.Last(&res).Error
@@ -18,7 +18,7 @@ func (db *Database) GetLocalFiles() ([]*entities.LocalFile, uint, error) {
 
 	// Unmarshal the local files
 	lfsBytes := res.Value
-	var lfs []*entities.LocalFile
+	var lfs []*anime.LocalFile
 	if err := json.Unmarshal(lfsBytes, &lfs); err != nil {
 		return nil, 0, err
 	}
@@ -27,7 +27,7 @@ func (db *Database) GetLocalFiles() ([]*entities.LocalFile, uint, error) {
 }
 
 // SaveLocalFiles will save the local files in the database at the given id.
-func (db *Database) SaveLocalFiles(lfsId uint, lfs []*entities.LocalFile) ([]*entities.LocalFile, error) {
+func (db *Database) SaveLocalFiles(lfsId uint, lfs []*anime.LocalFile) ([]*anime.LocalFile, error) {
 	// Marshal the local files
 	marshaledLfs, err := json.Marshal(lfs)
 	if err != nil {
@@ -46,7 +46,7 @@ func (db *Database) SaveLocalFiles(lfsId uint, lfs []*entities.LocalFile) ([]*en
 	}
 
 	// Unmarshal the saved local files
-	var retLfs []*entities.LocalFile
+	var retLfs []*anime.LocalFile
 	if err := json.Unmarshal(ret.Value, &retLfs); err != nil {
 		return lfs, nil
 	}
@@ -55,7 +55,7 @@ func (db *Database) SaveLocalFiles(lfsId uint, lfs []*entities.LocalFile) ([]*en
 }
 
 // InsertLocalFiles will insert the local files in the database at a new entry.
-func (db *Database) InsertLocalFiles(lfs []*entities.LocalFile) ([]*entities.LocalFile, error) {
+func (db *Database) InsertLocalFiles(lfs []*anime.LocalFile) ([]*anime.LocalFile, error) {
 
 	// Marshal the local files
 	bytes, err := json.Marshal(lfs)

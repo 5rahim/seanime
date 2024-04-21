@@ -46,7 +46,7 @@ type (
 		WSEventManager            events.IWSEventManager
 		MetadataProvider          *metadata.Provider
 		MangaRepository           *manga.Repository
-		Db                        *db.Database
+		Database                  *db.Database
 		FileCacher                *filecache.Cacher
 		Logger                    *zerolog.Logger
 		OfflineDir                string
@@ -83,7 +83,7 @@ func NewHub(opts *NewHubOptions) *Hub {
 		wsEventManager:            opts.WSEventManager,
 		metadataProvider:          opts.MetadataProvider,
 		mangaRepository:           opts.MangaRepository,
-		db:                        opts.Db,
+		db:                        opts.Database,
 		offlineDb:                 offlineDb,
 		fileCacher:                opts.FileCacher,
 		logger:                    opts.Logger,

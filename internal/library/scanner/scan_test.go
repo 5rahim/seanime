@@ -3,7 +3,7 @@ package scanner
 import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"testing"
@@ -37,9 +37,9 @@ func TestScanner_Scan(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			existingLfs := make([]*entities.LocalFile, 0)
+			existingLfs := make([]*anime.LocalFile, 0)
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, dir)
+				lf := anime.NewLocalFile(path, dir)
 				existingLfs = append(existingLfs, lf)
 			}
 

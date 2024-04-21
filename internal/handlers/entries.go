@@ -11,7 +11,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/mal"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/seanime-app/seanime/internal/util/result"
@@ -53,7 +53,7 @@ func HandleGetMediaEntry(c *RouteCtx) error {
 	}
 
 	// Create a new media entry
-	entry, err := entities.NewMediaEntry(&entities.NewMediaEntryOptions{
+	entry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
 		MediaId:              mId,
 		LocalFiles:           lfs,
 		AnizipCache:          c.App.AnizipCache,
@@ -102,7 +102,7 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Group local files by media id
-	groupedLfs := entities.GroupLocalFilesByMediaID(lfs)
+	groupedLfs := anime.GroupLocalFilesByMediaID(lfs)
 
 	selectLfs, ok := groupedLfs[p.MediaId]
 	if !ok {
@@ -111,7 +111,7 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 	switch p.Action {
 	case "unmatch":
-		lfs = lop.Map(lfs, func(item *entities.LocalFile, _ int) *entities.LocalFile {
+		lfs = lop.Map(lfs, func(item *anime.LocalFile, _ int) *anime.LocalFile {
 			if item.MediaId == p.MediaId && p.MediaId != 0 {
 				item.MediaId = 0
 				item.Locked = false
@@ -121,8 +121,8 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 		})
 	case "toggle-lock":
 		// Flip the locked status of all the local files for the given media
-		allLocked := lo.EveryBy(selectLfs, func(item *entities.LocalFile) bool { return item.Locked })
-		lfs = lop.Map(lfs, func(item *entities.LocalFile, _ int) *entities.LocalFile {
+		allLocked := lo.EveryBy(selectLfs, func(item *anime.LocalFile) bool { return item.Locked })
+		lfs = lop.Map(lfs, func(item *anime.LocalFile, _ int) *anime.LocalFile {
 			if item.MediaId == p.MediaId && p.MediaId != 0 {
 				item.Locked = !allLocked
 			}
@@ -166,7 +166,7 @@ func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lf, found := lo.Find(lfs, func(i *entities.LocalFile) bool {
+	lf, found := lo.Find(lfs, func(i *anime.LocalFile) bool {
 		return i.MediaId == p.MediaId
 	})
 	if !found {
@@ -234,7 +234,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 	}
 
 	// Group local files by dir
-	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
+	groupedLfs := lop.GroupBy(lfs, func(item *anime.LocalFile) string {
 		return filepath.Dir(item.GetNormalizedPath())
 	})
 
@@ -244,7 +244,7 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 	}
 
 	// Filter out local files that are already matched
-	selectedLfs = lo.Filter(selectedLfs, func(item *entities.LocalFile, _ int) bool {
+	selectedLfs = lo.Filter(selectedLfs, func(item *anime.LocalFile, _ int) bool {
 		return item.MediaId == 0
 	})
 
@@ -359,7 +359,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	}
 
 	// Group local files by dir
-	groupedLfs := lop.GroupBy(lfs, func(item *entities.LocalFile) string {
+	groupedLfs := lop.GroupBy(lfs, func(item *anime.LocalFile) string {
 		return filepath.Dir(item.GetNormalizedPath())
 	})
 
@@ -370,7 +370,7 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 
 	// Add the media id to the selected local files
 	// Also, lock the files
-	selectedLfs = lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) *entities.LocalFile {
+	selectedLfs = lop.Map(selectedLfs, func(item *anime.LocalFile, _ int) *anime.LocalFile {
 		item.MediaId = b.MediaId
 		item.Locked = true
 		item.Ignored = false
@@ -396,8 +396,8 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 		AnilistRateLimiter:   limiter.NewAnilistLimiter(),
 		Logger:               c.App.Logger,
 		ScanLogger:           scanLogger,
-		AllMedia: []*entities.NormalizedMedia{
-			entities.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
+		AllMedia: []*anime.NormalizedMedia{
+			anime.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
 		},
 		ForceMediaId: mediaRes.GetMedia().GetID(),
 	}
@@ -405,8 +405,8 @@ func HandleMediaEntryManualMatch(c *RouteCtx) error {
 	fh.HydrateMetadata()
 
 	// Remove select local files from the database slice, we will add them (hydrated) later
-	selectedPaths := lop.Map(selectedLfs, func(item *entities.LocalFile, _ int) string { return item.GetNormalizedPath() })
-	lfs = lo.Filter(lfs, func(item *entities.LocalFile, _ int) bool {
+	selectedPaths := lop.Map(selectedLfs, func(item *anime.LocalFile, _ int) string { return item.GetNormalizedPath() })
+	lfs = lo.Filter(lfs, func(item *anime.LocalFile, _ int) bool {
 		if slices.Contains(selectedPaths, item.GetNormalizedPath()) {
 			return false
 		}
@@ -453,7 +453,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 	// Get the silenced media ids
 	silencedMediaIds, _ := c.App.Database.GetSilencedMediaEntryIds()
 
-	missingEps := entities.NewMissingEpisodes(&entities.NewMissingEpisodesOptions{
+	missingEps := anime.NewMissingEpisodes(&anime.NewMissingEpisodesOptions{
 		AnilistCollection: anilistCollection,
 		LocalFiles:        lfs,
 		AnizipCache:       c.App.AnizipCache,

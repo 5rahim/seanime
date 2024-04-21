@@ -12,15 +12,15 @@
 - Support for part numbers.
 - Better parsing of keywords.
 
- _                                                                                       | Seanime Parser | Anitomy | Anitogo 
-:----------------------------------------------------------------------------------------|:---------------|:--------|:--------
- Standard filename formatting                                                            | ✅              | ✅       | ✅       
- [Mobile Suit Gundam Seed Destiny HD REMASTER][07][Big5][720p][AVC_AAC][encoded by SEED] | ✅              | ❌       | ❌       
- [ReDone] Memories Off 3.5 - 04 (DVD 10-bit)                                             | ✅              | ❌       | ❌       
- Byousoku 5 Centimeter [Blu-Ray][1920x1080 H.264][2.0ch AAC][SOFTSUBS]                   | ✅              | ❌       | ❌       
- 37 [Ruberia]_Death_Note_-_37v2_[FINAL]_[XviD][6FA7D273]                                 | ✅              | ❌       | ❌       
- [Judas] Aharen-san wa Hakarenai - S01E06v2.mkv                                          | ✅              | ✅       | ❌       
- S01E05 - Episode title.mkv                                                              | ✅              | ❔       | ❌       
+| _                                                                                       | Seanime Parser | Anitomy | Anitogo |
+|:----------------------------------------------------------------------------------------|:---------------|:--------|:--------|
+| Standard filename formatting                                                            | ✅              | ✅       | ✅       |
+| [Mobile Suit Gundam Seed Destiny HD REMASTER][07][Big5][720p][AVC_AAC][encoded by SEED] | ✅              | ❌       | ❌       |
+| [ReDone] Memories Off 3.5 - 04 (DVD 10-bit)                                             | ✅              | ❌       | ❌       |
+| Byousoku 5 Centimeter [Blu-Ray][1920x1080 H.264][2.0ch AAC][SOFTSUBS]                   | ✅              | ❌       | ❌       |
+| 37 [Ruberia]_Death_Note_-_37v2_[FINAL]_[XviD][6FA7D273]                                 | ✅              | ❌       | ❌       |
+| [Judas] Aharen-san wa Hakarenai - S01E06v2.mkv                                          | ✅              | ✅       | ❌       |
+| S01E05 - Episode title.mkv                                                              | ✅              | ❔       | ❌       |
 
 # Use
 

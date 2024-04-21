@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"path/filepath"
 	"strings"
 )
@@ -17,9 +17,9 @@ func (pm *PlaybackManager) GetCurrentMediaID() (int, error) {
 	return pm.currentLocalFile.MediaId, nil
 }
 
-// getListEntryFromLocalFilePath returns the list entry from the given entities.LocalFile path.
+// getListEntryFromLocalFilePath returns the list entry from the given anime.LocalFile path.
 // This method should be called once everytime a new video is played
-func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.MediaListEntry, *entities.LocalFile, *entities.LocalFileWrapperEntry, error) {
+func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.MediaListEntry, *anime.LocalFile, *anime.LocalFileWrapperEntry, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	// Normalize path
@@ -31,7 +31,7 @@ func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.
 		return nil, nil, nil, fmt.Errorf("error getting local files: %s", err.Error())
 	}
 
-	var lf *entities.LocalFile
+	var lf *anime.LocalFile
 	// Find the local file from the path
 	for _, l := range lfs {
 		if l.GetNormalizedPath() == path {
@@ -62,7 +62,7 @@ func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.
 	}
 
 	// Create local file wrapper
-	lfw := entities.NewLocalFileWrapper(lfs)
+	lfw := anime.NewLocalFileWrapper(lfs)
 	lfe, ok := lfw.GetLocalEntryById(lf.MediaId)
 	if !ok {
 		return nil, nil, nil, errors.New("local file wrapper entry not found")

@@ -10,7 +10,7 @@ import (
 //
 //	@summary returns the silence status of a media entry.
 //	@params id - int - true - "The ID of the media entry."
-//	@route /v1/library/media-entry/silence/:id [GET]
+//	@route /api/v1/library/media-entry/silence/:id [GET]
 //	@returns models.SilencedMediaEntry
 func HandleGetMediaEntrySilenceStatus(c *RouteCtx) error {
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
@@ -34,7 +34,7 @@ func HandleGetMediaEntrySilenceStatus(c *RouteCtx) error {
 //
 //	@summary toggles the silence status of a media entry.
 //	@desc The missing episodes should be re-fetched after this.
-//	@route /v1/library/media-entry/silence [POST]
+//	@route /api/v1/library/media-entry/silence [POST]
 //	@returns bool
 func HandleToggleMediaEntrySilenceStatus(c *RouteCtx) error {
 

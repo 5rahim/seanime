@@ -10,7 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/mal"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/seanime-app/seanime/internal/util/parallel"
@@ -30,7 +30,7 @@ type MediaFetcherOptions struct {
 	Enhanced                 bool
 	Username                 string
 	AnilistClientWrapper     anilist.ClientWrapperInterface
-	LocalFiles               []*entities.LocalFile
+	LocalFiles               []*anime.LocalFile
 	BaseMediaCache           *anilist.BaseMediaCache
 	AnizipCache              *anizip.Cache
 	Logger                   *zerolog.Logger
@@ -175,7 +175,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 // It returns the scanned media and a boolean indicating whether the process was successful.
 func FetchMediaFromLocalFiles(
 	anilistClientWrapper anilist.ClientWrapperInterface,
-	localFiles []*entities.LocalFile,
+	localFiles []*anime.LocalFile,
 	baseMediaCache *anilist.BaseMediaCache,
 	anizipCache *anizip.Cache,
 	anilistRateLimiter *limiter.Limiter,
@@ -192,7 +192,7 @@ func FetchMediaFromLocalFiles(
 	rateLimiter2 := limiter.NewLimiter(time.Second, 20)
 
 	// Get titles
-	titles := entities.GetUniqueAnimeTitlesFromLocalFiles(localFiles)
+	titles := anime.GetUniqueAnimeTitlesFromLocalFiles(localFiles)
 
 	if scanLogger != nil {
 		scanLogger.LogMediaFetcher(zerolog.DebugLevel).

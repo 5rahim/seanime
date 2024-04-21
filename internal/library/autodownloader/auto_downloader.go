@@ -8,7 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -216,7 +216,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		return
 	}
 	// Create a LocalFileWrapper
-	lfWrapper := entities.NewLocalFileWrapper(lfs)
+	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
 	if ad.settings.Provider == NyaaProvider {
 		nyaaTorrents, err := ad.getCurrentTorrentsFromNyaa()
@@ -335,9 +335,9 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 func (ad *AutoDownloader) torrentFollowsRule(
 	t *NormalizedTorrent,
-	rule *entities.AutoDownloaderRule,
+	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.MediaListEntry,
-	localEntry *entities.LocalFileWrapperEntry,
+	localEntry *anime.LocalFileWrapperEntry,
 ) (int, bool) {
 
 	if ok := ad.isReleaseGroupMatch(t.ParsedData.ReleaseGroup, rule); !ok {
@@ -360,7 +360,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	return episode, true
 }
 
-func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.AutoDownloaderRule, episode int) {
+func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int) {
 	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {
 
 	})
@@ -429,7 +429,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *entities.A
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *entities.AutoDownloaderRule) (ok bool) {
+func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *anime.AutoDownloaderRule) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isReleaseGroupMatch", func() {
 		ok = false
 	})
@@ -447,7 +447,7 @@ func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *entitie
 
 // isResolutionMatch
 // DEVOTE: Improve this
-func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoDownloaderRule) (ok bool) {
+func (ad *AutoDownloader) isResolutionMatch(quality string, rule *anime.AutoDownloaderRule) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isResolutionMatch", func() {
 		ok = false
 	})
@@ -471,13 +471,13 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *entities.AutoD
 	return false
 }
 
-func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoDownloaderRule, listEntry *anilist.MediaListEntry) (ok bool) {
+func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDownloaderRule, listEntry *anilist.MediaListEntry) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isTitleMatch", func() {
 		ok = false
 	})
 
 	switch rule.TitleComparisonType {
-	case entities.AutoDownloaderRuleTitleComparisonContains:
+	case anime.AutoDownloaderRuleTitleComparisonContains:
 		// +---------------------+
 		// |   Title "Contains"  |
 		// +---------------------+
@@ -492,7 +492,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 			}
 			return false
 		}
-	case entities.AutoDownloaderRuleTitleComparisonLikely:
+	case anime.AutoDownloaderRuleTitleComparisonLikely:
 		// +---------------------+
 		// |   Title "Likely"    |
 		// +---------------------+
@@ -537,9 +537,9 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *entities.AutoD
 
 func (ad *AutoDownloader) isEpisodeMatch(
 	episodes []string,
-	rule *entities.AutoDownloaderRule,
+	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.MediaListEntry,
-	localEntry *entities.LocalFileWrapperEntry,
+	localEntry *anime.LocalFileWrapperEntry,
 ) (a int, b bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isEpisodeMatch", func() {
 		b = false
@@ -630,7 +630,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 
 	switch rule.EpisodeType {
 
-	case entities.AutoDownloaderRuleEpisodeRecent:
+	case anime.AutoDownloaderRuleEpisodeRecent:
 		// +---------------------+
 		// |  Episode "Recent"   |
 		// +---------------------+
@@ -639,7 +639,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 			return -1, false
 		}
 		return episode, true // Good to go
-	case entities.AutoDownloaderRuleEpisodeSelected:
+	case anime.AutoDownloaderRuleEpisodeSelected:
 		// +---------------------+
 		// | Episode "Selected"  |
 		// +---------------------+
@@ -654,7 +654,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	return -1, false
 }
 
-func (ad *AutoDownloader) getRuleListEntry(rule *entities.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
+func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
 	if rule == nil || rule.MediaId == 0 || ad.anilistCollection == nil {
 		return nil, false
 	}

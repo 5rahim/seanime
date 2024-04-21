@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/filesystem"
 	"github.com/sourcegraph/conc/pool"
 	"os"
@@ -89,11 +89,11 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 	type body struct {
-		Path     string                      `json:"path"`
-		Metadata *entities.LocalFileMetadata `json:"metadata"`
-		Locked   bool                        `json:"locked"`
-		Ignored  bool                        `json:"ignored"`
-		MediaId  int                         `json:"mediaId"`
+		Path     string                   `json:"path"`
+		Metadata *anime.LocalFileMetadata `json:"metadata"`
+		Locked   bool                     `json:"locked"`
+		Ignored  bool                     `json:"ignored"`
+		MediaId  int                      `json:"mediaId"`
 	}
 
 	b := new(body)
@@ -107,7 +107,7 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lf, found := lo.Find(lfs, func(i *entities.LocalFile) bool {
+	lf, found := lo.Find(lfs, func(i *anime.LocalFile) bool {
 		return i.HasSamePath(b.Path)
 	})
 	if !found {
@@ -170,7 +170,7 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 	})
 
 	// Remove the deleted files from the local files
-	newLfs := lo.Filter(lfs, func(i *entities.LocalFile, _ int) bool {
+	newLfs := lo.Filter(lfs, func(i *anime.LocalFile, _ int) bool {
 		return !lo.Contains(deletedPaths, i.Path)
 	})
 

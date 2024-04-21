@@ -4,7 +4,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
@@ -64,9 +64,9 @@ func TestNewMediaFetcher(t *testing.T) {
 			// |   Local Files       |
 			// +---------------------+
 
-			var lfs []*entities.LocalFile
+			var lfs []*anime.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, dir)
+				lf := anime.NewLocalFile(path, dir)
 				lfs = append(lfs, lf)
 			}
 
@@ -144,9 +144,9 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			// |   Local Files       |
 			// +---------------------+
 
-			var lfs []*entities.LocalFile
+			var lfs []*anime.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, dir)
+				lf := anime.NewLocalFile(path, dir)
 				lfs = append(lfs, lf)
 			}
 
@@ -223,9 +223,9 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 			// |   Local Files       |
 			// +---------------------+
 
-			var lfs []*entities.LocalFile
+			var lfs []*anime.LocalFile
 			for _, path := range tt.paths {
-				lf := entities.NewLocalFile(path, dir)
+				lf := anime.NewLocalFile(path, dir)
 				lfs = append(lfs, lf)
 			}
 

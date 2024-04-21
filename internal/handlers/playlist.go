@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"path/filepath"
 	"strings"
 )
@@ -12,7 +12,7 @@ import (
 //	@summary creates a new playlist.
 //	@desc This will create a new playlist with the given name and local file paths.
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
-//	@route /v1/playlist [POST]
+//	@route /api/v1/playlist [POST]
 //	@returns entities.Playlist
 func HandleCreatePlaylist(c *RouteCtx) error {
 
@@ -33,7 +33,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	}
 
 	// Filter the local files
-	lfs := make([]*entities.LocalFile, 0)
+	lfs := make([]*anime.LocalFile, 0)
 	for _, path := range b.Paths {
 		for _, lf := range dbLfs {
 			if lf.GetNormalizedPath() == strings.ToLower(filepath.ToSlash(path)) {
@@ -44,7 +44,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	}
 
 	// Create the playlist
-	playlist := entities.NewPlaylist(b.Name)
+	playlist := anime.NewPlaylist(b.Name)
 	playlist.SetLocalFiles(lfs)
 
 	// Save the playlist
@@ -58,7 +58,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 // HandleGetPlaylists
 //
 //	@summary returns all playlists.
-//	@route /v1/playlists [GET]
+//	@route /api/v1/playlists [GET]
 //	@returns []entities.Playlist
 func HandleGetPlaylists(c *RouteCtx) error {
 
@@ -75,7 +75,7 @@ func HandleGetPlaylists(c *RouteCtx) error {
 //	@summary updates a playlist.
 //	@returns the updated playlist
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
-//	@route /v1/playlist/{id} [PATCH]
+//	@route /api/v1/playlist/{id} [PATCH]
 //	@params id - int - true - "The ID of the playlist to update."
 //	@returns entities.Playlist
 func HandleUpdatePlaylist(c *RouteCtx) error {
@@ -98,7 +98,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	}
 
 	// Filter the local files
-	lfs := make([]*entities.LocalFile, 0)
+	lfs := make([]*anime.LocalFile, 0)
 	for _, path := range b.Paths {
 		for _, lf := range dbLfs {
 			if lf.GetNormalizedPath() == strings.ToLower(filepath.ToSlash(path)) {
@@ -109,7 +109,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	}
 
 	// Recreate playlist
-	playlist := entities.NewPlaylist(b.Name)
+	playlist := anime.NewPlaylist(b.Name)
 	playlist.DbId = b.DbId
 	playlist.Name = b.Name
 	playlist.SetLocalFiles(lfs)
@@ -125,7 +125,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 // HandleDeletePlaylist
 //
 //	@summary deletes a playlist.
-//	@route /v1/playlist [DELETE]
+//	@route /api/v1/playlist [DELETE]
 //	@returns bool
 func HandleDeletePlaylist(c *RouteCtx) error {
 
@@ -149,7 +149,7 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 // HandleGetPlaylistEpisodes
 //
 //	@summary returns all the local files of a playlist media entry that have not been watched.
-//	@route /v1/playlist/episodes/{id}/{progress} [GET]
+//	@route /api/v1/playlist/episodes/{id}/{progress} [GET]
 //	@params id - int - true - "The ID of the media entry."
 //	@params progress - int - true - "The progress of the media entry."
 func HandleGetPlaylistEpisodes(c *RouteCtx) error {
@@ -159,7 +159,7 @@ func HandleGetPlaylistEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lfw := entities.NewLocalFileWrapper(lfs)
+	lfw := anime.NewLocalFileWrapper(lfs)
 
 	// Params
 	mId, err := c.Fiber.ParamsInt("id")

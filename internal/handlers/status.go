@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/entities"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"runtime"
 )
 
@@ -10,7 +10,7 @@ import (
 // It is used by the client in various places to access necessary information.
 type Status struct {
 	OS            string           `json:"os"`
-	User          *entities.User   `json:"user"`
+	User          *anime.User      `json:"user"`
 	Settings      *models.Settings `json:"settings"`
 	Mal           *models.Mal      `json:"mal"`
 	Version       string           `json:"version"`
@@ -22,13 +22,13 @@ type Status struct {
 // It uses the RouteCtx to get the App instance containing the Database instance.
 func NewStatus(c *RouteCtx) *Status {
 	var dbAcc *models.Account
-	var user *entities.User
+	var user *anime.User
 	var settings *models.Settings
 	var theme *models.Theme
 	var mal *models.Mal
 
 	if dbAcc, _ = c.App.Database.GetAccount(); dbAcc != nil {
-		user, _ = entities.NewUser(dbAcc)
+		user, _ = anime.NewUser(dbAcc)
 	}
 
 	if settings, _ = c.App.Database.GetSettings(); settings != nil {
@@ -57,7 +57,7 @@ func NewStatus(c *RouteCtx) *Status {
 //	@desc The client uses this to set the UI.
 //	@desc It is called on every page load to get the most up-to-date data.
 //	@desc It should be called right after updating the settings.
-//	@route /v1/library/media-entry/silence [POST]
+//	@route /api/v1/library/media-entry/silence [POST]
 //	@returns bool
 func HandleStatus(c *RouteCtx) error {
 

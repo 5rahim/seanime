@@ -33,10 +33,21 @@ export function ProgressTracking() {
     const serverStatus = useAtomValue(serverStatusAtom)
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
+    /**
+     * Progress tracking states
+     * - 'True' when tracking has started
+     * - 'False' when tracking has stopped
+     */
     const [isTracking, setIsTracking] = useAtom(__pt_isTrackingAtom)
+    /**
+     * Video completion state
+     * - 'True' when the video has been completed
+     * - 'False' by default
+     */
     const [isCompleted, setIsCompleted] = useAtom(__pt_isCompletedAtom)
 
-    // \/ This means that the modal should be displayed if the user is currently tracking the progress of a video or if the video has been completed
+    // \/ Modal can be displayed when progress tracking or video is completed
+    // Basically, keep the modal visible if there's no more tracking but the video is completed
     const shouldBeDisplayed = isTracking || isCompleted
 
     const [state, setState] = useState<PlaybackManager_PlaybackState | null>(null)
@@ -47,6 +58,7 @@ export function ProgressTracking() {
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED,
         onMessage: data => {
             setIsTracking(true)
+            setIsCompleted(false)
             setShowModal(true) // Show the modal when tracking starts
             setState(data)
         },
