@@ -72,7 +72,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// General
 	//
-	v1.Get("/status", makeHandler(app, HandleStatus))
+	v1.Get("/status", makeHandler(app, HandleGetStatus))
 
 	// Auth
 	v1.Post("/auth/login", makeHandler(app, HandleLogin))
@@ -187,7 +187,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// Get the latest scan summaries
 	// GET /v1/library/scan-summaries
-	v1Library.Get("/scan-summaries", makeHandler(app, HandleGetLatestScanSummaries))
+	v1Library.Get("/scan-summaries", makeHandler(app, HandleGetScanSummaries))
 
 	// Get missing episodes
 	// GET /v1/library/missing-episodes
@@ -230,8 +230,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Torrent / Torrent Client
 	//
 
-	v1.Post("/torrent-search", makeHandler(app, HandleTorrentSearch))
-	v1.Post("/torrent-nsfw-search", makeHandler(app, HandleNsfwTorrentSearch))
+	v1.Post("/torrent-search", makeHandler(app, HandleSearchTorrent))
+	v1.Post("/torrent-nsfw-search", makeHandler(app, HandleSearchNsfwTorrent))
 	v1.Post("/torrent-client/download", makeHandler(app, HandleTorrentClientDownload))
 	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
 	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))

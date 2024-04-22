@@ -26099,7 +26099,7 @@
     "filepath": "..\\internal\\handlers\\_nyaa.go",
     "filename": "_nyaa.go",
     "name": "TorrentPreview",
-    "formattedName": "Handlers_TorrentPreview",
+    "formattedName": "TorrentPreview",
     "package": "handlers",
     "fields": [
       {
@@ -26169,7 +26169,7 @@
     "filepath": "..\\internal\\handlers\\_nyaa.go",
     "filename": "_nyaa.go",
     "name": "TorrentSearchData",
-    "formattedName": "Handlers_TorrentSearchData",
+    "formattedName": "TorrentSearchData",
     "package": "handlers",
     "fields": [
       {
@@ -26188,7 +26188,7 @@
         "name": "Previews",
         "jsonName": "previews",
         "goType": "[]TorrentPreview",
-        "typescriptType": "Array\u003cHandlers_TorrentPreview\u003e",
+        "typescriptType": "Array\u003cTorrentPreview\u003e",
         "usedStructName": "handlers.TorrentPreview",
         "required": false,
         "public": true,
@@ -26203,7 +26203,7 @@
     "filepath": "..\\internal\\handlers\\auth.go",
     "filename": "auth.go",
     "name": "AuthRequestBody",
-    "formattedName": "Handlers_AuthRequestBody",
+    "formattedName": "AuthRequestBody",
     "package": "handlers",
     "fields": [
       {
@@ -26222,7 +26222,7 @@
     "filepath": "..\\internal\\handlers\\directory_selector.go",
     "filename": "directory_selector.go",
     "name": "DirectoryInfo",
-    "formattedName": "Handlers_DirectoryInfo",
+    "formattedName": "DirectoryInfo",
     "package": "handlers",
     "fields": [
       {
@@ -26250,7 +26250,7 @@
     "filepath": "..\\internal\\handlers\\download.go",
     "filename": "download.go",
     "name": "DownloadReleaseResponse",
-    "formattedName": "Handlers_DownloadReleaseResponse",
+    "formattedName": "DownloadReleaseResponse",
     "package": "handlers",
     "fields": [
       {
@@ -26278,7 +26278,7 @@
     "filepath": "..\\internal\\handlers\\mal.go",
     "filename": "mal.go",
     "name": "MalAuthResponse",
-    "formattedName": "Handlers_MalAuthResponse",
+    "formattedName": "MalAuthResponse",
     "package": "handlers",
     "fields": [
       {
@@ -26324,7 +26324,7 @@
     "filepath": "..\\internal\\handlers\\manual_dump.go",
     "filename": "manual_dump.go",
     "name": "RequestBody",
-    "formattedName": "Handlers_RequestBody",
+    "formattedName": "RequestBody",
     "package": "handlers",
     "fields": [
       {
@@ -26349,40 +26349,10 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\handlers\\onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "OnlinestreamEpisodeListResponse",
-    "formattedName": "Handlers_OnlinestreamEpisodeListResponse",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]onlinestream.Episode",
-        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
-        "usedStructName": "onlinestream.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "..\\internal\\handlers\\response.go",
     "filename": "response.go",
     "name": "SeaResponse",
-    "formattedName": "Handlers_SeaResponse",
+    "formattedName": "SeaResponse",
     "package": "handlers",
     "fields": [
       {
@@ -26398,7 +26368,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "R",
-        "typescriptType": "Handlers_R",
+        "typescriptType": "R",
         "usedStructName": "handlers.R",
         "required": false,
         "public": true,
@@ -26414,7 +26384,7 @@
     "filepath": "..\\internal\\handlers\\routes.go",
     "filename": "routes.go",
     "name": "RouteCtx",
-    "formattedName": "Handlers_RouteCtx",
+    "formattedName": "RouteCtx",
     "package": "handlers",
     "fields": [
       {
@@ -26447,7 +26417,7 @@
     "filepath": "..\\internal\\handlers\\status.go",
     "filename": "status.go",
     "name": "Status",
-    "formattedName": "Handlers_Status",
+    "formattedName": "Status",
     "package": "handlers",
     "fields": [
       {
@@ -36242,6 +36212,36 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "..\\internal\\onlinestream\\onlinestream.go",
+    "filename": "onlinestream.go",
+    "name": "EpisodeListResponse",
+    "formattedName": "Onlinestream_EpisodeListResponse",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+        "usedStructName": "onlinestream.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
+        "required": false,
         "public": true,
         "comments": []
       }

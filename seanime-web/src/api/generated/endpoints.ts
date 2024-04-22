@@ -504,8 +504,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
         },
     },
     SCAN_SUMMARY: {
-        GetLatestScanSummaries: {
-            key: "SCAN-SUMMARY-get-latest-scan-summaries",
+        GetScanSummaries: {
+            key: "SCAN-SUMMARY-get-scan-summaries",
             methods: ["GET"],
             endpoint: "/api/v1/library/scan-summaries",
         },
@@ -533,10 +533,10 @@ export const API_ENDPOINTS: ApiEndpoints = {
         },
     },
     STATUS: {
-        Status: {
-            key: "STATUS-status",
-            methods: ["POST"],
-            endpoint: "/api/v1/library/anime-entry/silence",
+        GetStatus: {
+            key: "STATUS-get-status",
+            methods: ["GET"],
+            endpoint: "/api/v1/status",
         },
     },
     THEME: {
@@ -574,13 +574,13 @@ export const API_ENDPOINTS: ApiEndpoints = {
         },
     },
     TORRENT_SEARCH: {
-        TorrentSearch: {
-            key: "TORRENT-SEARCH-torrent-search",
+        SearchTorrent: {
+            key: "TORRENT-SEARCH-search-torrent",
             methods: ["POST"],
             endpoint: "/api/v1/torrent/search",
         },
-        NsfwTorrentSearch: {
-            key: "TORRENT-SEARCH-nsfw-torrent-search",
+        SearchNsfwTorrent: {
+            key: "TORRENT-SEARCH-search-nsfw-torrent",
             methods: ["POST"],
             endpoint: "/api/v1/torrent/nsfw-search",
         },

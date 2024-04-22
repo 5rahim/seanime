@@ -1054,6 +1054,91 @@ export type AL_UpdateMediaListEntry_SaveMediaListEntry = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/internal/library/anime/autodownloader_rule.go
+ * - Filename: autodownloader_rule.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderRule = {
+    /**
+     * Will be set when fetched from the database
+     */
+    dbId: number
+    enabled: boolean
+    mediaId: number
+    releaseGroups?: Array<string>
+    resolutions?: Array<string>
+    comparisonTitle: string
+    titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
+    episodeType: Anime_AutoDownloaderRuleEpisodeType
+    episodeNumbers?: Array<number>
+    destination: string
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/autodownloader_rule.go
+ * - Filename: autodownloader_rule.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
+
+/**
+ * - Filepath: internal/internal/library/anime/autodownloader_rule.go
+ * - Filename: autodownloader_rule.go
+ * - Package: anime
+ */
+export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
+
+/**
+ * - Filepath: internal/internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_LibraryCollection = {
+    continueWatchingList?: Array<Anime_MediaEntryEpisode>
+    lists?: Array<Anime_LibraryCollectionList>
+    unmatchedLocalFiles?: Array<Anime_LocalFile>
+    unmatchedGroups?: Array<Anime_UnmatchedGroup>
+    ignoredLocalFiles?: Array<Anime_LocalFile>
+    unknownGroups?: Array<Anime_UnknownGroup>
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_LibraryCollectionEntry = {
+    media?: AL_BaseMedia
+    mediaId: number
+    /**
+     * Library data
+     */
+    libraryData?: Anime_MediaEntryLibraryData
+    /**
+     * AniList list data
+     */
+    listData?: Anime_MediaEntryListData
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_LibraryCollectionList = {
+    type: Anime_LibraryCollectionListType
+    status?: AL_MediaListStatus
+    entries?: Array<Anime_LibraryCollectionEntry>
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_LibraryCollectionListType = "current" | "planned" | "completed" | "paused" | "dropped"
+
+/**
  * - Filepath: internal/internal/library/anime/localfile.go
  * - Filename: localfile.go
  * - Package: anime
@@ -1108,6 +1193,49 @@ export type Anime_LocalFileParsedData = {
  * - Package: anime
  */
 export type Anime_LocalFileType = "main" | "special" | "nc"
+
+/**
+ * - Filepath: internal/internal/library/anime/media_entry.go
+ * - Filename: media_entry.go
+ * - Package: anime
+ */
+export type Anime_MediaEntry = {
+    mediaId: number
+    media?: AL_BaseMedia
+    listData?: Anime_MediaEntryListData
+    libraryData?: Anime_MediaEntryLibraryData
+    downloadInfo?: Anime_MediaEntryDownloadInfo
+    episodes?: Array<Anime_MediaEntryEpisode>
+    nextEpisode?: Anime_MediaEntryEpisode
+    localFiles?: Array<Anime_LocalFile>
+    aniDBId: number
+    currentEpisodeCount: number
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/media_entry_download_info.go
+ * - Filename: media_entry_download_info.go
+ * - Package: anime
+ */
+export type Anime_MediaEntryDownloadEpisode = {
+    episodeNumber: number
+    aniDBEpisode: string
+    episode?: Anime_MediaEntryEpisode
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/media_entry_download_info.go
+ * - Filename: media_entry_download_info.go
+ * - Package: anime
+ */
+export type Anime_MediaEntryDownloadInfo = {
+    episodesToDownload?: Array<Anime_MediaEntryDownloadEpisode>
+    canBatch: boolean
+    batchAll: boolean
+    hasInaccurateSchedule: boolean
+    rewatch: boolean
+    absoluteOffset: number
+}
 
 /**
  * - Filepath: internal/internal/library/anime/episode.go
@@ -1169,6 +1297,80 @@ export type Anime_MediaEntryEpisodeMetadata = {
 }
 
 /**
+ * - Filepath: internal/internal/library/anime/media_entry_library_data.go
+ * - Filename: media_entry_library_data.go
+ * - Package: anime
+ */
+export type Anime_MediaEntryLibraryData = {
+    allFilesLocked: boolean
+    sharedPath: string
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/media_entry.go
+ * - Filename: media_entry.go
+ * - Package: anime
+ */
+export type Anime_MediaEntryListData = {
+    progress?: number
+    score?: number
+    status?: AL_MediaListStatus
+    startedAt?: string
+    completedAt?: string
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/missing_episodes.go
+ * - Filename: missing_episodes.go
+ * - Package: anime
+ */
+export type Anime_MissingEpisodes = {
+    episodes?: Array<Anime_MediaEntryEpisode>
+    silencedEpisodes?: Array<Anime_MediaEntryEpisode>
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/playlist.go
+ * - Filename: playlist.go
+ * - Package: anime
+ */
+export type Anime_Playlist = {
+    /**
+     * DbId is the database ID of the models.PlaylistEntry
+     */
+    dbId: number
+    /**
+     * Name is the name of the playlist
+     */
+    name: string
+    /**
+     * LocalFiles is a list of local files in the playlist, in order
+     */
+    localFiles?: Array<Anime_LocalFile>
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_UnknownGroup = {
+    mediaId: number
+    localFiles?: Array<Anime_LocalFile>
+}
+
+/**
+ * - Filepath: internal/internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_UnmatchedGroup = {
+    dir: string
+    localFiles?: Array<Anime_LocalFile>
+    suggestions?: Array<AL_BasicMedia>
+}
+
+/**
  * - Filepath: internal/internal/library/anime/user.go
  * - Filename: user.go
  * - Package: anime
@@ -1200,7 +1402,7 @@ export type DB_ScanSummaryItem = {
  * - Filename: directory_selector.go
  * - Package: handlers
  */
-export type Handlers_DirectoryInfo = {
+export type DirectoryInfo = {
     fullPath: string
     folderName: string
 }
@@ -1210,7 +1412,7 @@ export type Handlers_DirectoryInfo = {
  * - Filename: download.go
  * - Package: handlers
  */
-export type Handlers_DownloadReleaseResponse = {
+export type DownloadReleaseResponse = {
     destination: string
     error?: string
 }
@@ -1220,21 +1422,11 @@ export type Handlers_DownloadReleaseResponse = {
  * - Filename: mal.go
  * - Package: handlers
  */
-export type Handlers_MalAuthResponse = {
+export type MalAuthResponse = {
     access_token: string
     refresh_token: string
     expires_in: number
     token_type: string
-}
-
-/**
- * - Filepath: internal/internal/handlers/onlinestream.go
- * - Filename: onlinestream.go
- * - Package: handlers
- */
-export type Handlers_OnlinestreamEpisodeListResponse = {
-    episodes?: Array<Onlinestream_Episode>
-    media?: AL_BaseMedia
 }
 
 /**
@@ -1245,7 +1437,7 @@ export type Handlers_OnlinestreamEpisodeListResponse = {
  *  Status is a struct containing the user data, settings, and OS.
  *  It is used by the client in various places to access necessary information.
  */
-export type Handlers_Status = {
+export type Status = {
     os: string
     user?: Anime_User
     settings?: Models_Settings
@@ -1814,6 +2006,16 @@ export type Onlinestream_Episode = {
     title?: string
     image?: string
     description?: string
+}
+
+/**
+ * - Filepath: internal/internal/onlinestream/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Package: onlinestream
+ */
+export type Onlinestream_EpisodeListResponse = {
+    episodes?: Array<Onlinestream_Episode>
+    media?: AL_BaseMedia
 }
 
 /**

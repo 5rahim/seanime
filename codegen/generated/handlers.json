@@ -442,7 +442,7 @@
       "\t@desc It uses the cached Anilist anime collection for the GET method.",
       "\t@desc It refreshes the AniList anime collection if the POST method is used.",
       "\t@route /api/v1/library/collection [GET,POST]",
-      "\t@returns entities.LibraryCollection",
+      "\t@returns anime.LibraryCollection",
       ""
     ],
     "filepath": "internal/handlers/anime_collection.go",
@@ -462,9 +462,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "entities.LibraryCollection",
-      "returnGoType": "entities.LibraryCollection",
-      "returnTypescriptType": "LibraryCollection"
+      "returns": "anime.LibraryCollection",
+      "returnGoType": "anime.LibraryCollection",
+      "returnTypescriptType": "Anime_LibraryCollection"
     }
   },
   {
@@ -520,7 +520,7 @@
       "\t@desc This includes episodes and metadata (if any), AniList list data, download info...",
       "\t@route /api/v1/library/anime-entry/{id} [GET]",
       "\t@param id - int - true - \"AniList anime media ID\"",
-      "\t@returns entities.MediaEntry",
+      "\t@returns anime.MediaEntry",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -549,9 +549,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "entities.MediaEntry",
-      "returnGoType": "entities.MediaEntry",
-      "returnTypescriptType": "MediaEntry"
+      "returns": "anime.MediaEntry",
+      "returnGoType": "anime.MediaEntry",
+      "returnTypescriptType": "Anime_MediaEntry"
     }
   },
   {
@@ -564,7 +564,7 @@
       "\t@desc This is used to unmatch or toggle the lock status of all the local files for a specific media entry",
       "\t@desc The response is not used in the frontend. The client should just refetch the entire media entry data.",
       "\t@route /api/v1/library/anime-entry/bulk-action [PATCH]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -600,9 +600,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -700,7 +700,7 @@
       "\t@desc Matching involves the use of scanner.FileHydrator. It will also lock the files.",
       "\t@desc The response is not used in the frontend. The client should just refetch the entire library collection.",
       "\t@route /api/v1/library/anime-entry/manual-match [POST]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -737,9 +737,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -752,7 +752,7 @@
       "\t@desc It detects missing episodes by comparing the user's AniList collection 'next airing' data with the local files.",
       "\t@desc This route can be called multiple times, as it does not bypass the cache.",
       "\t@route /api/v1/library/missing-episodes [GET]",
-      "\t@returns entities.MissingEpisodes",
+      "\t@returns anime.MissingEpisodes",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -769,9 +769,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "entities.MissingEpisodes",
-      "returnGoType": "entities.MissingEpisodes",
-      "returnTypescriptType": "MissingEpisodes"
+      "returns": "anime.MissingEpisodes",
+      "returnGoType": "anime.MissingEpisodes",
+      "returnTypescriptType": "Anime_MissingEpisodes"
     }
   },
   {
@@ -956,7 +956,7 @@
       "bodyFields": [],
       "returns": "handlers.Status",
       "returnGoType": "handlers.Status",
-      "returnTypescriptType": "Handlers_Status"
+      "returnTypescriptType": "Status"
     }
   },
   {
@@ -988,7 +988,7 @@
       "bodyFields": [],
       "returns": "handlers.Status",
       "returnGoType": "handlers.Status",
-      "returnTypescriptType": "Handlers_Status"
+      "returnTypescriptType": "Status"
     }
   },
   {
@@ -1033,7 +1033,7 @@
       "\t@desc This is used to get a specific rule, useful for editing.",
       "\t@route /api/v1/auto-downloader/rule/{id} [GET]",
       "\t@param id - int - true - \"The DB id of the rule\"",
-      "\t@returns entities.AutoDownloaderRule",
+      "\t@returns anime.AutoDownloaderRule",
       ""
     ],
     "filepath": "internal/handlers/auto_downloader.go",
@@ -1061,9 +1061,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "entities.AutoDownloaderRule",
-      "returnGoType": "entities.AutoDownloaderRule",
-      "returnTypescriptType": "AutoDownloaderRule"
+      "returns": "anime.AutoDownloaderRule",
+      "returnGoType": "anime.AutoDownloaderRule",
+      "returnTypescriptType": "Anime_AutoDownloaderRule"
     }
   },
   {
@@ -1075,7 +1075,7 @@
       "\t@summary returns all rules.",
       "\t@desc This is used to list all rules. It returns an empty slice if there are no rules.",
       "\t@route /api/v1/auto-downloader/rules [GET]",
-      "\t@returns []entities.AutoDownloaderRule",
+      "\t@returns []anime.AutoDownloaderRule",
       ""
     ],
     "filepath": "internal/handlers/auto_downloader.go",
@@ -1091,9 +1091,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]entities.AutoDownloaderRule",
-      "returnGoType": "entities.AutoDownloaderRule",
-      "returnTypescriptType": "Array\u003cAutoDownloaderRule\u003e"
+      "returns": "[]anime.AutoDownloaderRule",
+      "returnGoType": "anime.AutoDownloaderRule",
+      "returnTypescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e"
     }
   },
   {
@@ -1106,7 +1106,7 @@
       "\t@desc The body should contain the same fields as entities.AutoDownloaderRule.",
       "\t@desc It returns the created rule.",
       "\t@route /api/v1/auto-downloader/rule [POST]",
-      "\t@returns entities.AutoDownloaderRule",
+      "\t@returns anime.AutoDownloaderRule",
       ""
     ],
     "filepath": "internal/handlers/auto_downloader.go",
@@ -1123,9 +1123,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "entities.AutoDownloaderRule",
-      "returnGoType": "entities.AutoDownloaderRule",
-      "returnTypescriptType": "AutoDownloaderRule"
+      "returns": "anime.AutoDownloaderRule",
+      "returnGoType": "anime.AutoDownloaderRule",
+      "returnTypescriptType": "Anime_AutoDownloaderRule"
     }
   },
   {
@@ -1138,7 +1138,7 @@
       "\t@desc The body should contain the same fields as entities.AutoDownloaderRule.",
       "\t@desc It returns the updated rule.",
       "\t@route /api/v1/auto-downloader/rule [PATCH]",
-      "\t@returns entities.AutoDownloaderRule",
+      "\t@returns anime.AutoDownloaderRule",
       ""
     ],
     "filepath": "internal/handlers/auto_downloader.go",
@@ -1155,9 +1155,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "entities.AutoDownloaderRule",
-      "returnGoType": "entities.AutoDownloaderRule",
-      "returnTypescriptType": "AutoDownloaderRule"
+      "returns": "anime.AutoDownloaderRule",
+      "returnGoType": "anime.AutoDownloaderRule",
+      "returnTypescriptType": "Anime_AutoDownloaderRule"
     }
   },
   {
@@ -1331,7 +1331,7 @@
       ],
       "returns": "handlers.DirectoryInfo",
       "returnGoType": "handlers.DirectoryInfo",
-      "returnTypescriptType": "Handlers_DirectoryInfo"
+      "returnTypescriptType": "DirectoryInfo"
     }
   },
   {
@@ -1550,7 +1550,7 @@
       ],
       "returns": "handlers.DownloadReleaseResponse",
       "returnGoType": "handlers.DownloadReleaseResponse",
-      "returnTypescriptType": "Handlers_DownloadReleaseResponse"
+      "returnTypescriptType": "DownloadReleaseResponse"
     }
   },
   {
@@ -1771,7 +1771,7 @@
       "\t@summary returns all local files.",
       "\t@desc Reminder that local files are scanned from the library path.",
       "\t@route /api/v1/library/local-files [GET]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/localfiles.go",
@@ -1787,9 +1787,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -1802,7 +1802,7 @@
       "\t@desc This will perform the given action on all local files.",
       "\t@desc The response is ignored, the client should refetch the entire library collection and media entry.",
       "\t@route /api/v1/library/local-files [POST]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/localfiles.go",
@@ -1829,9 +1829,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -1844,7 +1844,7 @@
       "\t@desc This will update the local file with the given path.",
       "\t@desc The response is ignored, the client should refetch the entire library collection and media entry.",
       "\t@route /api/v1/library/local-file [PATCH]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/localfiles.go",
@@ -1907,9 +1907,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -1921,7 +1921,7 @@
       "\t@summary deletes the local file with the given paths.",
       "\t@desc The response is ignored, the client should refetch the entire library collection and media entry.",
       "\t@route /api/v1/library/local-files [DELETE]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/localfiles.go",
@@ -1947,9 +1947,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -2038,7 +2038,7 @@
       ],
       "returns": "handlers.MalAuthResponse",
       "returnGoType": "handlers.MalAuthResponse",
-      "returnTypescriptType": "Handlers_MalAuthResponse"
+      "returnTypescriptType": "MalAuthResponse"
     }
   },
   {
@@ -3410,7 +3410,7 @@
       "\t@desc The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.",
       "\t@desc The episode list might be nil or empty if nothing could be found, but the media will always be returned.",
       "\t@route /api/v1/onlinestream/episode-list [POST]",
-      "\t@returns handlers.OnlinestreamEpisodeListResponse",
+      "\t@returns onlinestream.EpisodeListResponse",
       ""
     ],
     "filepath": "internal/handlers/onlinestream.go",
@@ -3457,9 +3457,9 @@
           "descriptions": []
         }
       ],
-      "returns": "handlers.OnlinestreamEpisodeListResponse",
-      "returnGoType": "handlers.OnlinestreamEpisodeListResponse",
-      "returnTypescriptType": "Handlers_OnlinestreamEpisodeListResponse"
+      "returns": "onlinestream.EpisodeListResponse",
+      "returnGoType": "onlinestream.EpisodeListResponse",
+      "returnTypescriptType": "Onlinestream_EpisodeListResponse"
     }
   },
   {
@@ -3737,7 +3737,7 @@
       "\t@desc This will create a new playlist with the given name and local file paths.",
       "\t@desc The response is ignored, the client should re-fetch the playlists after this.",
       "\t@route /api/v1/playlist [POST]",
-      "\t@returns entities.Playlist",
+      "\t@returns anime.Playlist",
       ""
     ],
     "filepath": "internal/handlers/playlist.go",
@@ -3773,9 +3773,9 @@
           "descriptions": []
         }
       ],
-      "returns": "entities.Playlist",
-      "returnGoType": "entities.Playlist",
-      "returnTypescriptType": "Playlist"
+      "returns": "anime.Playlist",
+      "returnGoType": "anime.Playlist",
+      "returnTypescriptType": "Anime_Playlist"
     }
   },
   {
@@ -3786,7 +3786,7 @@
       "",
       "\t@summary returns all playlists.",
       "\t@route /api/v1/playlists [GET]",
-      "\t@returns []entities.Playlist",
+      "\t@returns []anime.Playlist",
       ""
     ],
     "filepath": "internal/handlers/playlist.go",
@@ -3800,9 +3800,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]entities.Playlist",
-      "returnGoType": "entities.Playlist",
-      "returnTypescriptType": "Array\u003cPlaylist\u003e"
+      "returns": "[]anime.Playlist",
+      "returnGoType": "anime.Playlist",
+      "returnTypescriptType": "Array\u003cAnime_Playlist\u003e"
     }
   },
   {
@@ -3816,7 +3816,7 @@
       "\t@desc The response is ignored, the client should re-fetch the playlists after this.",
       "\t@route /api/v1/playlist/{id} [PATCH]",
       "\t@param id - int - true - \"The ID of the playlist to update.\"",
-      "\t@returns entities.Playlist",
+      "\t@returns anime.Playlist",
       ""
     ],
     "filepath": "internal/handlers/playlist.go",
@@ -3872,9 +3872,9 @@
           "descriptions": []
         }
       ],
-      "returns": "entities.Playlist",
-      "returnGoType": "entities.Playlist",
-      "returnTypescriptType": "Playlist"
+      "returns": "anime.Playlist",
+      "returnGoType": "anime.Playlist",
+      "returnTypescriptType": "Anime_Playlist"
     }
   },
   {
@@ -3924,6 +3924,7 @@
       "\t@route /api/v1/playlist/episodes/{id}/{progress} [GET]",
       "\t@param id - int - true - \"The ID of the media entry.\"",
       "\t@param progress - int - true - \"The progress of the media entry.\"",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/playlist.go",
@@ -3960,9 +3961,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
@@ -4073,7 +4074,7 @@
       "\t@desc This will scan the user's library.",
       "\t@desc The response is ignored, the client should re-fetch the library after this.",
       "\t@route /library/scan [POST]",
-      "\t@returns []entities.LocalFile",
+      "\t@returns []anime.LocalFile",
       ""
     ],
     "filepath": "internal/handlers/scan.go",
@@ -4090,16 +4091,16 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]entities.LocalFile",
-      "returnGoType": "entities.LocalFile",
-      "returnTypescriptType": "Array\u003cLocalFile\u003e"
+      "returns": "[]anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
     }
   },
   {
-    "name": "HandleGetLatestScanSummaries",
-    "trimmedName": "GetLatestScanSummaries",
+    "name": "HandleGetScanSummaries",
+    "trimmedName": "GetScanSummaries",
     "comments": [
-      "HandleGetLatestScanSummaries",
+      "HandleGetScanSummaries",
       "",
       "\t@summary returns the latest scan summaries.",
       "\t@route /api/v1/library/scan-summaries [GET]",
@@ -4224,7 +4225,7 @@
       ],
       "returns": "handlers.Status",
       "returnGoType": "handlers.Status",
-      "returnTypescriptType": "Handlers_Status"
+      "returnTypescriptType": "Status"
     }
   },
   {
@@ -4307,17 +4308,17 @@
     }
   },
   {
-    "name": "HandleStatus",
-    "trimmedName": "Status",
+    "name": "HandleGetStatus",
+    "trimmedName": "GetStatus",
     "comments": [
-      "HandleStatus",
+      "HandleGetStatus",
       "",
       "\t@summary returns the server status.",
       "\t@desc The server status includes app info, auth info and settings.",
       "\t@desc The client uses this to set the UI.",
       "\t@desc It is called on every page load to get the most up-to-date data.",
       "\t@desc It should be called right after updating the settings.",
-      "\t@route /api/v1/library/anime-entry/silence [POST]",
+      "\t@route /api/v1/status [GET]",
       "\t@returns bool",
       ""
     ],
@@ -4331,9 +4332,9 @@
         "It is called on every page load to get the most up-to-date data.",
         "It should be called right after updating the settings."
       ],
-      "endpoint": "/api/v1/library/anime-entry/silence",
+      "endpoint": "/api/v1/status",
       "methods": [
-        "POST"
+        "GET"
       ],
       "params": [],
       "bodyFields": [],
@@ -4565,6 +4566,7 @@
       "",
       "\t@summary adds magnets to the torrent client based on the AutoDownloader item.",
       "\t@desc This is used to download torrents that were queued by the AutoDownloader.",
+      "\t@desc The item will be removed from the queue if the magnet was added successfully.",
       "\t@desc The AutoDownloader items should be re-fetched after this.",
       "\t@route /api/v1/torrent-client/rule-magnet [POST]",
       "\t@returns bool",
@@ -4576,6 +4578,7 @@
       "summary": "adds magnets to the torrent client based on the AutoDownloader item.",
       "descriptions": [
         "This is used to download torrents that were queued by the AutoDownloader.",
+        "The item will be removed from the queue if the magnet was added successfully.",
         "The AutoDownloader items should be re-fetched after this."
       ],
       "endpoint": "/api/v1/torrent-client/rule-magnet",
@@ -4618,10 +4621,10 @@
     }
   },
   {
-    "name": "HandleTorrentSearch",
-    "trimmedName": "TorrentSearch",
+    "name": "HandleSearchTorrent",
+    "trimmedName": "SearchTorrent",
     "comments": [
-      "HandleTorrentSearch",
+      "HandleSearchTorrent",
       "",
       "\t@summary searches torrents and returns a list of torrents and their previews.",
       "\t@desc This will search for torrents and return a list of torrents with previews.",
@@ -4723,10 +4726,10 @@
     }
   },
   {
-    "name": "HandleNsfwTorrentSearch",
-    "trimmedName": "NsfwTorrentSearch",
+    "name": "HandleSearchNsfwTorrent",
+    "trimmedName": "SearchNsfwTorrent",
     "comments": [
-      "HandleNsfwTorrentSearch",
+      "HandleSearchNsfwTorrent",
       "",
       "\t@summary searches NSFW torrents and returns a list of torrents without previews.",
       "\t@desc This will search for NSFW torrents and return a list of torrents without previews.",

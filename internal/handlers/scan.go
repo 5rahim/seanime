@@ -18,7 +18,7 @@ type scanRequestBody struct {
 //	@desc This will scan the user's library.
 //	@desc The response is ignored, the client should re-fetch the library after this.
 //	@route /library/scan [POST]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()

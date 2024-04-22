@@ -34,7 +34,7 @@ import (
 //	@desc This includes episodes and metadata (if any), AniList list data, download info...
 //	@route /api/v1/library/anime-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
-//	@returns entities.MediaEntry
+//	@returns anime.MediaEntry
 func HandleGetAnimeEntry(c *RouteCtx) error {
 
 	mId, err := c.Fiber.ParamsInt("id")
@@ -84,7 +84,7 @@ var (
 //	@desc This is used to unmatch or toggle the lock status of all the local files for a specific media entry
 //	@desc The response is not used in the frontend. The client should just refetch the entire media entry data.
 //	@route /api/v1/library/anime-entry/bulk-action [PATCH]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 
 	type body struct {
@@ -341,7 +341,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 //	@desc Matching involves the use of scanner.FileHydrator. It will also lock the files.
 //	@desc The response is not used in the frontend. The client should just refetch the entire library collection.
 //	@route /api/v1/library/anime-entry/manual-match [POST]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	type body struct {
@@ -436,7 +436,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 //	@desc It detects missing episodes by comparing the user's AniList collection 'next airing' data with the local files.
 //	@desc This route can be called multiple times, as it does not bypass the cache.
 //	@route /api/v1/library/missing-episodes [GET]
-//	@returns entities.MissingEpisodes
+//	@returns anime.MissingEpisodes
 func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()

@@ -6,14 +6,14 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 )
 
-// HandleTorrentSearch
+// HandleSearchTorrent
 //
 //	@summary searches torrents and returns a list of torrents and their previews.
 //	@desc This will search for torrents and return a list of torrents with previews.
 //	@desc If smart search is enabled, it will filter the torrents based on search parameters.
 //	@route /api/v1/torrent/search [POST]
 //	@returns torrent.SearchData
-func HandleTorrentSearch(c *RouteCtx) error {
+func HandleSearchTorrent(c *RouteCtx) error {
 
 	type body struct {
 		SmartSearch    *bool              `json:"smartSearch"`
@@ -67,13 +67,13 @@ func HandleTorrentSearch(c *RouteCtx) error {
 
 }
 
-// HandleNsfwTorrentSearch
+// HandleSearchNsfwTorrent
 //
 //	@summary searches NSFW torrents and returns a list of torrents without previews.
 //	@desc This will search for NSFW torrents and return a list of torrents without previews.
 //	@route /api/v1/torrent/nsfw-search [POST]
 //	@returns torrent.SearchData
-func HandleNsfwTorrentSearch(c *RouteCtx) error {
+func HandleSearchNsfwTorrent(c *RouteCtx) error {
 
 	type body struct {
 		Query string `json:"query"`

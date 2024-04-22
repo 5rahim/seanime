@@ -16,12 +16,10 @@ import (
 
 type (
 	OnlineStream struct {
-		logger     *zerolog.Logger
-		gogo       *onlinestream_providers.Gogoanime
-		zoro       *onlinestream_providers.Zoro
-		fileCacher *filecache.Cacher
-		//fcEpisodeDataBucket         filecache.Bucket
-		//fcProviderEpisodeListBucket filecache.Bucket
+		logger                *zerolog.Logger
+		gogo                  *onlinestream_providers.Gogoanime
+		zoro                  *onlinestream_providers.Zoro
+		fileCacher            *filecache.Cacher
 		anizipCache           *anizip.Cache
 		anilistClientWrapper  anilist.ClientWrapperInterface
 		anilistBaseMediaCache *anilist.BaseMediaCache
@@ -51,6 +49,11 @@ type (
 		Headers map[string]string `json:"headers,omitempty"`
 		URL     string            `json:"url"`
 		Quality string            `json:"quality"`
+	}
+
+	EpisodeListResponse struct {
+		Episodes []*Episode         `json:"episodes"`
+		Media    *anilist.BaseMedia `json:"media"`
 	}
 
 	Subtitle struct {

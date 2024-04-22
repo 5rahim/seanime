@@ -50,16 +50,16 @@ func NewStatus(c *RouteCtx) *Status {
 	}
 }
 
-// HandleStatus
+// HandleGetStatus
 //
 //	@summary returns the server status.
 //	@desc The server status includes app info, auth info and settings.
 //	@desc The client uses this to set the UI.
 //	@desc It is called on every page load to get the most up-to-date data.
 //	@desc It should be called right after updating the settings.
-//	@route /api/v1/library/anime-entry/silence [POST]
+//	@route /api/v1/status [GET]
 //	@returns bool
-func HandleStatus(c *RouteCtx) error {
+func HandleGetStatus(c *RouteCtx) error {
 
 	status := NewStatus(c)
 

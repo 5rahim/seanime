@@ -770,7 +770,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
  * @description
  * Route searches torrents and returns a list of torrents and their previews.
  */
-export type TorrentSearch_Variables = {
+export type SearchTorrent_Variables = {
     smartSearch?: boolean
     query?: string
     episodeNumber?: number
@@ -788,7 +788,7 @@ export type TorrentSearch_Variables = {
  * @description
  * Route searches NSFW torrents and returns a list of torrents without previews.
  */
-export type NsfwTorrentSearch_Variables = {
+export type SearchNsfwTorrent_Variables = {
     query: string
 }
 

@@ -14,7 +14,7 @@ import (
 //	@desc It uses the cached Anilist anime collection for the GET method.
 //	@desc It refreshes the AniList anime collection if the POST method is used.
 //	@route /api/v1/library/collection [GET,POST]
-//	@returns entities.LibraryCollection
+//	@returns anime.LibraryCollection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"

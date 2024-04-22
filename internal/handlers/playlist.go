@@ -13,7 +13,7 @@ import (
 //	@desc This will create a new playlist with the given name and local file paths.
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
 //	@route /api/v1/playlist [POST]
-//	@returns entities.Playlist
+//	@returns anime.Playlist
 func HandleCreatePlaylist(c *RouteCtx) error {
 
 	type body struct {
@@ -59,7 +59,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 //
 //	@summary returns all playlists.
 //	@route /api/v1/playlists [GET]
-//	@returns []entities.Playlist
+//	@returns []anime.Playlist
 func HandleGetPlaylists(c *RouteCtx) error {
 
 	playlists, err := c.App.Database.GetPlaylists()
@@ -77,7 +77,7 @@ func HandleGetPlaylists(c *RouteCtx) error {
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
 //	@route /api/v1/playlist/{id} [PATCH]
 //	@param id - int - true - "The ID of the playlist to update."
-//	@returns entities.Playlist
+//	@returns anime.Playlist
 func HandleUpdatePlaylist(c *RouteCtx) error {
 
 	type body struct {
@@ -152,6 +152,7 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 //	@route /api/v1/playlist/episodes/{id}/{progress} [GET]
 //	@param id - int - true - "The ID of the media entry."
 //	@param progress - int - true - "The progress of the media entry."
+//	@returns []anime.LocalFile
 func HandleGetPlaylistEpisodes(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()

@@ -26,7 +26,7 @@ func HandleRunAutoDownloader(c *RouteCtx) error {
 //	@desc This is used to get a specific rule, useful for editing.
 //	@route /api/v1/auto-downloader/rule/{id} [GET]
 //	@param id - int - true - "The DB id of the rule"
-//	@returns entities.AutoDownloaderRule
+//	@returns anime.AutoDownloaderRule
 func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 
 	id, err := c.Fiber.ParamsInt("id")
@@ -47,7 +47,7 @@ func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 //	@summary returns all rules.
 //	@desc This is used to list all rules. It returns an empty slice if there are no rules.
 //	@route /api/v1/auto-downloader/rules [GET]
-//	@returns []entities.AutoDownloaderRule
+//	@returns []anime.AutoDownloaderRule
 func HandleGetAutoDownloaderRules(c *RouteCtx) error {
 	rules, err := c.App.Database.GetAutoDownloaderRules()
 	if err != nil {
@@ -63,7 +63,7 @@ func HandleGetAutoDownloaderRules(c *RouteCtx) error {
 //	@desc The body should contain the same fields as entities.AutoDownloaderRule.
 //	@desc It returns the created rule.
 //	@route /api/v1/auto-downloader/rule [POST]
-//	@returns entities.AutoDownloaderRule
+//	@returns anime.AutoDownloaderRule
 func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 	rule := new(anime.AutoDownloaderRule)
 	if err := c.Fiber.BodyParser(rule); err != nil {
@@ -83,7 +83,7 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 //	@desc The body should contain the same fields as entities.AutoDownloaderRule.
 //	@desc It returns the updated rule.
 //	@route /api/v1/auto-downloader/rule [PATCH]
-//	@returns entities.AutoDownloaderRule
+//	@returns anime.AutoDownloaderRule
 func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 	rule := new(anime.AutoDownloaderRule)
 	if err := c.Fiber.BodyParser(rule); err != nil {
