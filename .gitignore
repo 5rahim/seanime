@@ -1,7 +1,7 @@
 .idea
 logs/
 *.db
-.env
+seanime-web/.env
 .run/
 
 Dockerfile

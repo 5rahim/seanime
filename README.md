@@ -75,6 +75,14 @@ Feel free to open issues or contribute. Leave a star if you like this project!
     - Automatic progress tracking and syncing to AniList (& MAL)
     - Create **playlists** to play episodes in order
 
+<details>
+<summary>More anime features</summary>
+
+- 📺 **Online streaming**
+  - Stream episodes from online sources using the built-in player
+  - Support for multiple sources
+</details>
+
 ### Manga / Manhwa 
 
 - 📕 **Browse and manage** your manga/manhwa collection
@@ -89,16 +97,15 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Easily download multiple chapters for offline reading
   - Persistent download queue
 
-### And more
+<details>
+<summary>Other features</summary>
 
-- 📺 **Online streaming**
-  - Stream episodes from online sources using the built-in player
-  - Support for multiple sources
 - **MyAnimeList integration** for syncing progress
 - **Customizable UI**
 - **Logs and scan summaries**
 - **Advanced anime/manga search**
 - **Discord Rich Presence**
+</details>
 
 ### What it is not
 
@@ -140,6 +147,9 @@ To get started, you will need to be familiar with Go and Typescript.
 
 <img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
 <img src="docs/images/v1/my-library_06.png" alt="preview" width="100%"/>
+
+<details>
+<summary>View more</summary>
 <img src="docs/images/v1/entry_03.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
 
@@ -148,6 +158,7 @@ To get started, you will need to be familiar with Go and Typescript.
 
 <img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/online-stream.png" alt="preview" width="100%"/>
+</details>
 
 ## Disclaimer
 
