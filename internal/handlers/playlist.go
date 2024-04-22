@@ -76,7 +76,7 @@ func HandleGetPlaylists(c *RouteCtx) error {
 //	@returns the updated playlist
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
 //	@route /api/v1/playlist/{id} [PATCH]
-//	@params id - int - true - "The ID of the playlist to update."
+//	@param id - int - true - "The ID of the playlist to update."
 //	@returns entities.Playlist
 func HandleUpdatePlaylist(c *RouteCtx) error {
 
@@ -150,8 +150,8 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 //
 //	@summary returns all the local files of a playlist media entry that have not been watched.
 //	@route /api/v1/playlist/episodes/{id}/{progress} [GET]
-//	@params id - int - true - "The ID of the media entry."
-//	@params progress - int - true - "The progress of the media entry."
+//	@param id - int - true - "The ID of the media entry."
+//	@param progress - int - true - "The progress of the media entry."
 func HandleGetPlaylistEpisodes(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()

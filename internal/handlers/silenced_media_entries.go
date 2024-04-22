@@ -9,7 +9,7 @@ import (
 // HandleGetMediaEntrySilenceStatus
 //
 //	@summary returns the silence status of a media entry.
-//	@params id - int - true - "The ID of the media entry."
+//	@param id - int - true - "The ID of the media entry."
 //	@route /api/v1/library/media-entry/silence/:id [GET]
 //	@returns models.SilencedMediaEntry
 func HandleGetMediaEntrySilenceStatus(c *RouteCtx) error {

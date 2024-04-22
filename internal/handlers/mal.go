@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type malAuthResponse struct {
+type MalAuthResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int32  `json:"expires_in"`
@@ -27,7 +27,7 @@ type malAuthResponse struct {
 //	@desc It will save the info in the database, effectively logging the user in.
 //	@desc The client should re-fetch the server status after this.
 //	@route /api/v1/mal/auth [POST]
-//	@returns handlers.malAuthResponse
+//	@returns handlers.MalAuthResponse
 func HandleMALAuth(c *RouteCtx) error {
 
 	type body struct {
@@ -65,7 +65,7 @@ func HandleMALAuth(c *RouteCtx) error {
 	}
 	defer res.Body.Close()
 
-	ret := malAuthResponse{}
+	ret := MalAuthResponse{}
 	if err := json.NewDecoder(res.Body).Decode(&ret); err != nil {
 		return c.RespondWithError(err)
 	}

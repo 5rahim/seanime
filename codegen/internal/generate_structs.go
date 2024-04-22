@@ -1,4 +1,4 @@
-package docs
+package codegen
 
 import (
 	"encoding/json"
@@ -92,7 +92,7 @@ func getTypePrefix(packageName string) string {
 	return ""
 }
 
-func ExtractStructs(dir string) {
+func ExtractStructs(dir string, outDir string) {
 
 	structs := make([]*GoStruct, 0)
 
@@ -224,7 +224,7 @@ func ExtractStructs(dir string) {
 							comments := make([]string, 0)
 							if field.Comment != nil && field.Comment.List != nil && len(field.Comment.List) > 0 {
 								for _, comment := range field.Comment.List {
-									comments = append(comments, comment.Text)
+									comments = append(comments, strings.TrimPrefix(comment.Text, "//"))
 								}
 							}
 
@@ -243,6 +243,10 @@ func ExtractStructs(dir string) {
 							case *ast.StarExpr:
 								required = false
 							case *ast.ArrayType:
+								required = false
+							case *ast.MapType:
+								required = false
+							case *ast.SelectorExpr:
 								required = false
 							}
 							fieldName := field.Names[0].Name
@@ -299,7 +303,8 @@ func ExtractStructs(dir string) {
 	}
 
 	// Write structs to file
-	file, err := os.Create("public_structs.json")
+	_ = os.MkdirAll(outDir, os.ModePerm)
+	file, err := os.Create(outDir + "/public_structs.json")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -391,6 +396,61 @@ func fieldTypeToTypescriptType(fieldType ast.Expr, usedStructPkgName string) str
 		return getTypePrefix(usedStructPkgName) + t.Sel.Name
 	default:
 		return "any"
+	}
+}
+
+func stringGoTypeToTypescriptType(goType string) string {
+	switch goType {
+	case "string":
+		return "string"
+	case "uint", "uint8", "uint16", "uint32", "uint64", "int", "int8", "int16", "int32", "int64", "float", "float32", "float64":
+		return "number"
+	case "bool":
+		return "boolean"
+	}
+
+	if strings.HasPrefix(goType, "[]") {
+		return "Array<" + stringGoTypeToTypescriptType(goType[2:]) + ">"
+	}
+
+	if strings.HasPrefix(goType, "*") {
+		return stringGoTypeToTypescriptType(goType[1:])
+	}
+
+	if strings.HasPrefix(goType, "map[") {
+		s := strings.TrimPrefix(goType, "map[")
+		key := ""
+		value := ""
+		for i, c := range s {
+			if c == ']' {
+				key = s[:i]
+				value = s[i+1:]
+				break
+			}
+		}
+		return "Record<" + stringGoTypeToTypescriptType(key) + ", " + stringGoTypeToTypescriptType(value) + ">"
+	}
+
+	if strings.Contains(goType, ".") {
+		parts := strings.Split(goType, ".")
+		return getTypePrefix(parts[0]) + parts[1]
+	}
+
+	return goType
+}
+
+func goTypeToTypescriptType(goType string) string {
+	switch goType {
+	case "string":
+		return "string"
+	case "uint", "uint8", "uint16", "uint32", "uint64", "int", "int8", "int16", "int32", "int64", "float", "float32", "float64":
+		return "number"
+	case "bool":
+		return "boolean"
+	case "nil":
+		return "null"
+	default:
+		return "unknown"
 	}
 }
 

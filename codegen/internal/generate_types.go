@@ -1,9 +1,8 @@
-package docs
+package codegen
 
 import (
 	"cmp"
 	"fmt"
-	"github.com/goccy/go-json"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"os"
@@ -13,33 +12,15 @@ import (
 )
 
 const (
-	docsFilePath       = "../seanime-docs/routes.json"
 	typescriptFileName = "types.ts"
 )
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.
-func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string) {
+func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, outDir string) {
 
-	var docs *Docs
-	docsContent, err := os.ReadFile(docsFilePath)
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal(docsContent, &docs)
-	if err != nil {
-		panic(err)
-	}
+	handlers := LoadHandlers(docsFilePath)
 
-	var goStructs []*GoStruct
-	structsContent, err := os.ReadFile(publicStructsFilePath)
-	if err != nil {
-		panic(err)
-	}
-
-	err = json.Unmarshal(structsContent, &goStructs)
-	if err != nil {
-		panic(err)
-	}
+	goStructs := LoadPublicStructs(publicStructsFilePath)
 
 	// e.g. map["models.User"]*GoStruct
 	goStructsMap := make(map[string]*GoStruct)
@@ -48,7 +29,8 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string) {
 	}
 
 	// Create the typescript file
-	file, err := os.Create(typescriptFileName)
+	_ = os.MkdirAll(outDir, os.ModePerm)
+	file, err := os.Create(filepath.Join(outDir, typescriptFileName))
 	if err != nil {
 		panic(err)
 	}
@@ -60,17 +42,17 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string) {
 	// Get all the returned structs from the routes
 	// e.g. @returns models.User
 	structStrMap := make(map[string]int)
-	for _, group := range docs.RouteGroups {
-		for _, route := range group.Routes {
-			if route.Returns != "" {
-				if route.Returns == "string" || route.Returns == "int" || route.Returns == "bool" || route.Returns == "float64" {
-					continue
-				}
-				if _, ok := structStrMap[route.Returns]; ok {
-					structStrMap[route.Returns]++
-				} else {
-					structStrMap[route.Returns] = 1
-				}
+	for _, handler := range handlers {
+		if handler.Api != nil {
+			switch handler.Api.ReturnTypescriptType {
+			case "null", "string", "number", "boolean":
+				continue
+			}
+
+			if _, ok := structStrMap[handler.Api.ReturnGoType]; ok {
+				structStrMap[handler.Api.ReturnGoType]++
+			} else {
+				structStrMap[handler.Api.ReturnGoType] = 1
 			}
 		}
 	}
@@ -126,35 +108,9 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string) {
 		panic("Failed to get referenced structs")
 	}
 
-	//// Deduplicate referenced structs
-	//for _, sharedStruct := range sharedStructs {
-	//	delete(referencedStructs, sharedStruct.Package+"."+sharedStruct.Name)
-	//}
-	//for _, otherStruct := range otherStructs {
-	//	delete(referencedStructs, otherStruct.Package+"."+otherStruct.Name)
-	//}
-
 	// Keep track of written Typescript types
 	// This is to avoid name collisions
 	writtenTypes := make(map[string]*GoStruct)
-
-	//file.WriteString(fmt.Sprintf("// %s\n\n", "Shared Types"))
-	//// Write the shared structs first
-	//for _, goStruct := range sharedStructs {
-	//
-	//	writeTypescriptType(file, goStruct, writtenTypes)
-	//
-	//}
-	//
-	//file.WriteString("//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n")
-	//
-	//file.WriteString(fmt.Sprintf("// %s\n\n", "Returned Types"))
-	//// Write the other structs
-	//for _, goStruct := range otherStructs {
-	//
-	//	writeTypescriptType(file, goStruct, writtenTypes)
-	//
-	//}
 
 	// Group the structs by package
 	structsByPackage := make(map[string][]*GoStruct)
@@ -173,6 +129,8 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string) {
 	slices.SortStableFunc(packages, func(i, j string) int {
 		return cmp.Compare(i, j)
 	})
+
+	file.WriteString("export type Nullish<T> = T | null | undefined\n\n")
 
 	for _, pkg := range packages {
 
@@ -244,9 +202,15 @@ func getReferencedStructs(goStruct *GoStruct, referencedStructs map[string]*GoSt
 
 func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string]*GoStruct) {
 	f.WriteString("/**\n")
-	f.WriteString(fmt.Sprintf(" * Filepath: internal/%s\n", filepath.ToSlash(strings.TrimPrefix(goStruct.Filepath, "..\\"))))
-	f.WriteString(fmt.Sprintf(" * Filename: %s\n", goStruct.Filename))
-	f.WriteString(fmt.Sprintf(" * Package: %s\n", goStruct.Package))
+	f.WriteString(fmt.Sprintf(" * - Filepath: internal/%s\n", filepath.ToSlash(strings.TrimPrefix(goStruct.Filepath, "..\\"))))
+	f.WriteString(fmt.Sprintf(" * - Filename: %s\n", goStruct.Filename))
+	f.WriteString(fmt.Sprintf(" * - Package: %s\n", goStruct.Package))
+	if len(goStruct.Comments) > 0 {
+		f.WriteString(fmt.Sprintf(" * @description\n"))
+		for _, cmt := range goStruct.Comments {
+			f.WriteString(fmt.Sprintf(" *  %s\n", strings.TrimSpace(cmt)))
+		}
+	}
 	f.WriteString(" */\n")
 
 	if len(goStruct.Fields) > 0 {
@@ -256,7 +220,25 @@ func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string
 			if !field.Required {
 				fieldNameSuffix = "?"
 			}
-			f.WriteString(fmt.Sprintf("    %s%s: %s\n", field.JsonName, fieldNameSuffix, field.TypescriptType))
+
+			if len(field.Comments) > 0 {
+				f.WriteString(fmt.Sprintf("    /**\n"))
+				for _, cmt := range field.Comments {
+					f.WriteString(fmt.Sprintf("     * %s\n", strings.TrimSpace(cmt)))
+				}
+				f.WriteString(fmt.Sprintf("     */\n"))
+			}
+
+			typeText := field.TypescriptType
+			//if !field.Required {
+			//	switch typeText {
+			//	case "string", "number", "boolean":
+			//	default:
+			//		typeText = "Nullish<" + typeText + ">"
+			//	}
+			//}
+
+			f.WriteString(fmt.Sprintf("    %s%s: %s\n", field.JsonName, fieldNameSuffix, typeText))
 		}
 		f.WriteString("}\n\n")
 	}
@@ -277,6 +259,30 @@ func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string
 
 	// Add the struct to the written types
 	writtenTypes[goStruct.Package+"."+goStruct.Name] = goStruct
+}
+
+func getUnformattedGoType(goType string) string {
+	if strings.HasPrefix(goType, "[]") {
+		return getUnformattedGoType(goType[2:])
+	}
+
+	if strings.HasPrefix(goType, "*") {
+		return getUnformattedGoType(goType[1:])
+	}
+
+	if strings.HasPrefix(goType, "map[") {
+		s := strings.TrimPrefix(goType, "map[")
+		value := ""
+		for i, c := range s {
+			if c == ']' {
+				value = s[i+1:]
+				break
+			}
+		}
+		return getUnformattedGoType(value)
+	}
+
+	return goType
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
