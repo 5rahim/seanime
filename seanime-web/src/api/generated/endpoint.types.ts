@@ -25,20 +25,26 @@ import type {
 /**
  * - Filepath: internal/handlers/anilist.go
  * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/list-entry
+ * @description
+ * Route updates the user's list entry on Anilist.
  */
 export type EditAnilistListEntry_Variables = {
-    mediaId: number
-    status: AL_MediaListStatus
-    score: number
-    progress: number
-    startedAt: AL_FuzzyDateInput
-    completedAt: AL_FuzzyDateInput
+    mediaId?: number
+    status?: AL_MediaListStatus
+    score?: number
+    progress?: number
+    startedAt?: AL_FuzzyDateInput
+    completedAt?: AL_FuzzyDateInput
     type: string
 }
 
 /**
  * - Filepath: internal/handlers/anilist.go
  * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/media-details/{id}
+ * @description
+ * Route returns more details about an AniList anime entry.
  */
 export type GetAnilistMediaDetails_Variables = {
     /**
@@ -50,45 +56,57 @@ export type GetAnilistMediaDetails_Variables = {
 /**
  * - Filepath: internal/handlers/anilist.go
  * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/list-entry
+ * @description
+ * Route deletes an entry from the user's AniList list.
  */
 export type DeleteAnilistListEntry_Variables = {
-    mediaId: number
-    type: string
+    mediaId?: number
+    type?: string
 }
 
 /**
  * - Filepath: internal/handlers/anilist.go
  * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/list-anime
+ * @description
+ * Route returns a list of anime based on the search parameters.
  */
 export type AnilistListAnime_Variables = {
-    page: number
-    search: string
-    perPage: number
-    sort: Array<AL_MediaSort>
-    status: Array<AL_MediaStatus>
-    genres: Array<string>
-    averageScore_greater: number
-    season: AL_MediaSeason
-    seasonYear: number
-    format: AL_MediaFormat
-    isAdult: boolean
+    page?: number
+    search?: string
+    perPage?: number
+    sort?: Array<AL_MediaSort>
+    status?: Array<AL_MediaStatus>
+    genres?: Array<string>
+    averageScore_greater?: number
+    season?: AL_MediaSeason
+    seasonYear?: number
+    format?: AL_MediaFormat
+    isAdult?: boolean
 }
 
 /**
  * - Filepath: internal/handlers/anilist.go
  * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/list-recent-anime
+ * @description
+ * Route returns a list of recently aired anime.
  */
 export type AnilistListRecentAiringAnime_Variables = {
-    page: number
-    search: string
-    perPage: number
-    airingAt_greater: number
-    airingAt_lesser: number
+    page?: number
+    search?: string
+    perPage?: number
+    airingAt_greater?: number
+    airingAt_lesser?: number
 }
 
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/rule/{id}
+ * @description
+ * Route returns the rule with the given DB id.
  */
 export type GetAutoDownloaderRule_Variables = {
     /**
@@ -100,6 +118,9 @@ export type GetAutoDownloaderRule_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/rule/{id}
+ * @description
+ * Route deletes a rule.
  */
 export type DeleteAutoDownloaderRule_Variables = {
     /**
@@ -111,6 +132,9 @@ export type DeleteAutoDownloaderRule_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/item
+ * @description
+ * Route delete a queued item.
  */
 export type DeleteAutoDownloaderItem_Variables = {
     id: number
@@ -119,6 +143,9 @@ export type DeleteAutoDownloaderItem_Variables = {
 /**
  * - Filepath: internal/handlers/directory_selector.go
  * - Filename: directory_selector.go
+ * - Endpoint: /api/v1/directory-selector
+ * @description
+ * Route returns directory content based on the input path.
  */
 export type DirectorySelector_Variables = {
     input: string
@@ -127,6 +154,9 @@ export type DirectorySelector_Variables = {
 /**
  * - Filepath: internal/handlers/discord.go
  * - Filename: discord.go
+ * - Endpoint: /api/v1/discord/presence/manga
+ * @description
+ * Route sets manga activity for discord rich presence.
  */
 export type SetDiscordMangaActivity_Variables = {
     title: string
@@ -137,16 +167,22 @@ export type SetDiscordMangaActivity_Variables = {
 /**
  * - Filepath: internal/handlers/download.go
  * - Filename: download.go
+ * - Endpoint: /api/v1/download-torrent-file
+ * @description
+ * Route downloads torrent files to the destination folder
  */
 export type DownloadTorrentFile_Variables = {
     download_urls: Array<string>
     destination: string
-    media: AL_BaseMedia
+    media?: AL_BaseMedia
 }
 
 /**
  * - Filepath: internal/handlers/download.go
  * - Filename: download.go
+ * - Endpoint: /api/v1/download-release
+ * @description
+ * Route downloads selected release asset to the destination folder.
  */
 export type DownloadRelease_Variables = {
     download_url: string
@@ -156,6 +192,9 @@ export type DownloadRelease_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/library/media-entry/{id}
+ * @description
+ * Route return a media entry for the given AniList anime media id.
  */
 export type GetMediaEntry_Variables = {
     /**
@@ -167,6 +206,9 @@ export type GetMediaEntry_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/library/media-entry/bulk-action
+ * @description
+ * Route perform given action on all the local files for the given media id.
  */
 export type MediaEntryBulkAction_Variables = {
     mediaId: number
@@ -176,6 +218,9 @@ export type MediaEntryBulkAction_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/library/media-entry/open-in-explorer
+ * @description
+ * Route opens the directory of a media entry in the file explorer.
  */
 export type OpenMediaEntryInExplorer_Variables = {
     mediaId: number
@@ -184,6 +229,9 @@ export type OpenMediaEntryInExplorer_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/library/media-entry/suggestions
+ * @description
+ * Route returns a list of media suggestions for files in the given directory.
  */
 export type FindProspectiveMediaEntrySuggestions_Variables = {
     dir: string
@@ -192,6 +240,9 @@ export type FindProspectiveMediaEntrySuggestions_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/library/media-entry/manual-match
+ * @description
+ * Route matches un-matched local files in the given directory to the given media.
  */
 export type MediaEntryManualMatch_Variables = {
     dir: string
@@ -201,6 +252,9 @@ export type MediaEntryManualMatch_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/media-entry/unknown-media
+ * @description
+ * Route adds the given media to the user's AniList planning collections
  */
 export type AddUnknownMedia_Variables = {
     mediaIds: Array<number>
@@ -209,6 +263,9 @@ export type AddUnknownMedia_Variables = {
 /**
  * - Filepath: internal/handlers/entries.go
  * - Filename: entries.go
+ * - Endpoint: /api/v1/media-entry/update-progress
+ * @description
+ * Route update the progress of the given anime media entry.
  */
 export type UpdateProgress_Variables = {
     mediaId: number
@@ -220,6 +277,9 @@ export type UpdateProgress_Variables = {
 /**
  * - Filepath: internal/handlers/explorer.go
  * - Filename: explorer.go
+ * - Endpoint: /api/v1/open-in-explorer
+ * @description
+ * Route opens the given directory in the file explorer.
  */
 export type OpenInExplorer_Variables = {
     path: string
@@ -228,6 +288,9 @@ export type OpenInExplorer_Variables = {
 /**
  * - Filepath: internal/handlers/filecache.go
  * - Filename: filecache.go
+ * - Endpoint: /api/v1/filecache/bucket
+ * @description
+ * Route deletes all buckets with the given prefix.
  */
 export type RemoveFileCacheBucket_Variables = {
     bucket: string
@@ -236,6 +299,9 @@ export type RemoveFileCacheBucket_Variables = {
 /**
  * - Filepath: internal/handlers/list_sync.go
  * - Filename: list_sync.go
+ * - Endpoint: /api/v1/filecache/anime
+ * @description
+ * Route syncs the anime based on the provided diff kind
  */
 export type SyncAnime_Variables = {
     kind: ListSync_AnimeDiffKind
@@ -244,6 +310,9 @@ export type SyncAnime_Variables = {
 /**
  * - Filepath: internal/handlers/localfiles.go
  * - Filename: localfiles.go
+ * - Endpoint: /api/v1/library/local-files
+ * @description
+ * Route performs an action on all local files.
  */
 export type LocalFileBulkAction_Variables = {
     action: string
@@ -252,10 +321,13 @@ export type LocalFileBulkAction_Variables = {
 /**
  * - Filepath: internal/handlers/localfiles.go
  * - Filename: localfiles.go
+ * - Endpoint: /api/v1/library/local-file
+ * @description
+ * Route updates the local file with the given path.
  */
 export type UpdateLocalFileData_Variables = {
     path: string
-    metadata: Anime_LocalFileMetadata
+    metadata?: Anime_LocalFileMetadata
     locked: boolean
     ignored: boolean
     mediaId: number
@@ -264,6 +336,9 @@ export type UpdateLocalFileData_Variables = {
 /**
  * - Filepath: internal/handlers/localfiles.go
  * - Filename: localfiles.go
+ * - Endpoint: /api/v1/library/local-files
+ * @description
+ * Route deletes the local file with the given paths.
  */
 export type DeleteLocalFiles_Variables = {
     paths: Array<string>
@@ -272,6 +347,9 @@ export type DeleteLocalFiles_Variables = {
 /**
  * - Filepath: internal/handlers/mal.go
  * - Filename: mal.go
+ * - Endpoint: /api/v1/mal/auth
+ * @description
+ * Route fetches the access and refresh tokens for the given code.
  */
 export type MALAuth_Variables = {
     code: string
@@ -282,15 +360,21 @@ export type MALAuth_Variables = {
 /**
  * - Filepath: internal/handlers/mal.go
  * - Filename: mal.go
+ * - Endpoint: /api/v1/mal/list-entry/progress
+ * @description
+ * Route updates the progress of a MAL list entry.
  */
 export type EditMALListEntryProgress_Variables = {
-    mediaId: number
-    progress: number
+    mediaId?: number
+    progress?: number
 }
 
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/anilist/collection
+ * @description
+ * Route returns the user's AniList manga collection.
  */
 export type GetAnilistMangaCollection_Variables = {
     bypassCache: boolean
@@ -299,6 +383,9 @@ export type GetAnilistMangaCollection_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/entry/{id}
+ * @description
+ * Route returns a manga entry for the given AniList manga id.
  */
 export type GetMangaEntry_Variables = {
     /**
@@ -310,6 +397,9 @@ export type GetMangaEntry_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/entry/{id}/details
+ * @description
+ * Route returns more details about an AniList manga entry.
  */
 export type GetMangaEntryDetails_Variables = {
     /**
@@ -321,6 +411,9 @@ export type GetMangaEntryDetails_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/entry/cache
+ * @description
+ * Route empties the cache for a manga entry.
  */
 export type EmptyMangaEntryCache_Variables = {
     mediaId: number
@@ -329,6 +422,9 @@ export type EmptyMangaEntryCache_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/chapters
+ * @description
+ * Route returns the chapters for a manga entry based on the provider.
  */
 export type GetMangaEntryChapters_Variables = {
     mediaId: number
@@ -338,6 +434,9 @@ export type GetMangaEntryChapters_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/pages
+ * @description
+ * Route returns the pages for a manga entry based on the provider and chapter id.
  */
 export type GetMangaEntryPages_Variables = {
     mediaId: number
@@ -349,23 +448,29 @@ export type GetMangaEntryPages_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/anilist/list
+ * @description
+ * Route returns a list of manga based on the search parameters.
  */
 export type AnilistListManga_Variables = {
-    page: number
-    search: string
-    perPage: number
-    sort: Array<AL_MediaSort>
-    status: Array<AL_MediaStatus>
-    genres: Array<string>
-    averageScore_greater: number
-    year: number
-    isAdult: boolean
-    format: AL_MediaFormat
+    page?: number
+    search?: string
+    perPage?: number
+    sort?: Array<AL_MediaSort>
+    status?: Array<AL_MediaStatus>
+    genres?: Array<string>
+    averageScore_greater?: number
+    year?: number
+    isAdult?: boolean
+    format?: AL_MediaFormat
 }
 
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/update-progress
+ * @description
+ * Route updates the progress of a manga entry.
  */
 export type UpdateMangaProgress_Variables = {
     mediaId: number
@@ -377,6 +482,9 @@ export type UpdateMangaProgress_Variables = {
 /**
  * - Filepath: internal/handlers/manga_download.go
  * - Filename: manga_download.go
+ * - Endpoint: /api/v1/manga/download-chapters
+ * @description
+ * Route adds chapters to the download queue.
  */
 export type DownloadMangaChapters_Variables = {
     mediaId: number
@@ -388,6 +496,9 @@ export type DownloadMangaChapters_Variables = {
 /**
  * - Filepath: internal/handlers/manga_download.go
  * - Filename: manga_download.go
+ * - Endpoint: /api/v1/manga/download-data
+ * @description
+ * Route returns the download data for a specific media.
  */
 export type GetMangaDownloadData_Variables = {
     mediaId: number
@@ -397,6 +508,9 @@ export type GetMangaDownloadData_Variables = {
 /**
  * - Filepath: internal/handlers/manga_download.go
  * - Filename: manga_download.go
+ * - Endpoint: /api/v1/manga/download-chapter
+ * @description
+ * Route deletes a downloaded chapter.
  */
 export type DeleteMangaChapterDownload_Variables = {
     mediaId: number
@@ -408,6 +522,9 @@ export type DeleteMangaChapterDownload_Variables = {
 /**
  * - Filepath: internal/handlers/mediaplayer.go
  * - Filename: mediaplayer.go
+ * - Endpoint: /api/v1/media-player/play
+ * @description
+ * Route plays the video with the given path using the media player.
  */
 export type PlayVideo_Variables = {
     path: string
@@ -416,6 +533,9 @@ export type PlayVideo_Variables = {
 /**
  * - Filepath: internal/handlers/metadata.go
  * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata-provider/tvdb-episodes
+ * @description
+ * Route populate cache with TVDB episode metadata.
  */
 export type PopulateTVDBEpisodes_Variables = {
     mediaId: number
@@ -424,6 +544,9 @@ export type PopulateTVDBEpisodes_Variables = {
 /**
  * - Filepath: internal/handlers/metadata.go
  * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata-provider/tvdb-episodes
+ * @description
+ * Route empties TVDB episode metadata cache.
  */
 export type EmptyTVDBEpisodes_Variables = {
     mediaId: number
@@ -432,6 +555,9 @@ export type EmptyTVDBEpisodes_Variables = {
 /**
  * - Filepath: internal/handlers/offline.go
  * - Filename: offline.go
+ * - Endpoint: /api/offline/snapshot
+ * @description
+ * Route creates an offline snapshot.
  */
 export type CreateOfflineSnapshot_Variables = {
     animeMediaIds: Array<number>
@@ -440,20 +566,26 @@ export type CreateOfflineSnapshot_Variables = {
 /**
  * - Filepath: internal/handlers/offline.go
  * - Filename: offline.go
+ * - Endpoint: /api/offline/snapshot-entry
+ * @description
+ * Route updates data for an offline entry list.
  */
 export type UpdateOfflineEntryListData_Variables = {
-    mediaId: number
-    status: AL_MediaListStatus
-    score: number
-    progress: number
-    startDate: string
-    endDate: string
+    mediaId?: number
+    status?: AL_MediaListStatus
+    score?: number
+    progress?: number
+    startDate?: string
+    endDate?: string
     type: string
 }
 
 /**
  * - Filepath: internal/handlers/onlinestream.go
  * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/episode-list
+ * @description
+ * Route returns the episode list for the given media and provider.
  */
 export type GetOnlineStreamEpisodeList_Variables = {
     mediaId: number
@@ -464,6 +596,9 @@ export type GetOnlineStreamEpisodeList_Variables = {
 /**
  * - Filepath: internal/handlers/onlinestream.go
  * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/episode-sources
+ * @description
+ * Route returns the video sources for the given media, episode number and provider.
  */
 export type GetOnlineStreamEpisodeSource_Variables = {
     episodeNumber: number
@@ -475,6 +610,9 @@ export type GetOnlineStreamEpisodeSource_Variables = {
 /**
  * - Filepath: internal/handlers/onlinestream.go
  * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/cache
+ * @description
+ * Route empties the cache for the given media.
  */
 export type OnlineStreamEmptyCache_Variables = {
     mediaId: number
@@ -483,6 +621,9 @@ export type OnlineStreamEmptyCache_Variables = {
 /**
  * - Filepath: internal/handlers/playback_manager.go
  * - Filename: playback_manager.go
+ * - Endpoint: /api/v1/playback-manager/start-playlist
+ * @description
+ * Route starts playing a playlist.
  */
 export type PlaybackStartPlaylist_Variables = {
     dbId: number
@@ -491,6 +632,9 @@ export type PlaybackStartPlaylist_Variables = {
 /**
  * - Filepath: internal/handlers/playlist.go
  * - Filename: playlist.go
+ * - Endpoint: /api/v1/playlist
+ * @description
+ * Route creates a new playlist.
  */
 export type CreatePlaylist_Variables = {
     name: string
@@ -500,6 +644,9 @@ export type CreatePlaylist_Variables = {
 /**
  * - Filepath: internal/handlers/playlist.go
  * - Filename: playlist.go
+ * - Endpoint: /api/v1/playlist/{id}
+ * @description
+ * Route updates a playlist.
  */
 export type UpdatePlaylist_Variables = {
     dbId: number
@@ -510,6 +657,9 @@ export type UpdatePlaylist_Variables = {
 /**
  * - Filepath: internal/handlers/playlist.go
  * - Filename: playlist.go
+ * - Endpoint: /api/v1/playlist
+ * @description
+ * Route deletes a playlist.
  */
 export type DeletePlaylist_Variables = {
     dbId: number
@@ -518,6 +668,9 @@ export type DeletePlaylist_Variables = {
 /**
  * - Filepath: internal/handlers/playlist.go
  * - Filename: playlist.go
+ * - Endpoint: /api/v1/playlist/episodes/{id}/{progress}
+ * @description
+ * Route returns all the local files of a playlist media entry that have not been watched.
  */
 export type GetPlaylistEpisodes_Variables = {
     /**
@@ -533,6 +686,9 @@ export type GetPlaylistEpisodes_Variables = {
 /**
  * - Filepath: internal/handlers/settings.go
  * - Filename: settings.go
+ * - Endpoint: /api/v1/settings
+ * @description
+ * Route updates the app settings.
  */
 export type SaveSettings_Variables = {
     library: Models_LibrarySettings
@@ -545,6 +701,9 @@ export type SaveSettings_Variables = {
 /**
  * - Filepath: internal/handlers/silenced_media_entries.go
  * - Filename: silenced_media_entries.go
+ * - Endpoint: /api/v1/library/media-entry/silence/:id
+ * @description
+ * Route returns the silence status of a media entry.
  */
 export type GetMediaEntrySilenceStatus_Variables = {
     /**
@@ -556,6 +715,9 @@ export type GetMediaEntrySilenceStatus_Variables = {
 /**
  * - Filepath: internal/handlers/silenced_media_entries.go
  * - Filename: silenced_media_entries.go
+ * - Endpoint: /api/v1/library/media-entry/silence
+ * @description
+ * Route toggles the silence status of a media entry.
  */
 export type ToggleMediaEntrySilenceStatus_Variables = {
     mediaId: number
@@ -564,6 +726,9 @@ export type ToggleMediaEntrySilenceStatus_Variables = {
 /**
  * - Filepath: internal/handlers/torrent_client.go
  * - Filename: torrent_client.go
+ * - Endpoint: /api/v1/torrent-client/action
+ * @description
+ * Route performs an action on a torrent.
  */
 export type TorrentClientAction_Variables = {
     hash: string
@@ -574,17 +739,23 @@ export type TorrentClientAction_Variables = {
 /**
  * - Filepath: internal/handlers/torrent_client.go
  * - Filename: torrent_client.go
+ * - Endpoint: /api/v1/torrent-client/download
+ * @description
+ * Route adds torrents to the torrent client.
  */
 export type TorrentClientDownload_Variables = {
     urls: Array<string>
     destination: string
     smartSelect: any
-    media: AL_BaseMedia
+    media?: AL_BaseMedia
 }
 
 /**
  * - Filepath: internal/handlers/torrent_client.go
  * - Filename: torrent_client.go
+ * - Endpoint: /api/v1/torrent-client/rule-magnet
+ * @description
+ * Route adds magnets to the torrent client based on the AutoDownloader item.
  */
 export type TorrentClientAddMagnetFromRule_Variables = {
     magnetUrl: string
@@ -595,21 +766,27 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 /**
  * - Filepath: internal/handlers/torrent_search.go
  * - Filename: torrent_search.go
+ * - Endpoint: /api/v1/torrent/search
+ * @description
+ * Route searches torrents and returns a list of torrents and their previews.
  */
 export type TorrentSearch_Variables = {
-    smartSearch: boolean
-    query: string
-    episodeNumber: number
-    batch: boolean
-    media: AL_BaseMedia
-    absoluteOffset: number
-    resolution: string
-    best: boolean
+    smartSearch?: boolean
+    query?: string
+    episodeNumber?: number
+    batch?: boolean
+    media?: AL_BaseMedia
+    absoluteOffset?: number
+    resolution?: string
+    best?: boolean
 }
 
 /**
  * - Filepath: internal/handlers/torrent_search.go
  * - Filename: torrent_search.go
+ * - Endpoint: /api/v1/torrent/nsfw-search
+ * @description
+ * Route searches NSFW torrents and returns a list of torrents without previews.
  */
 export type NsfwTorrentSearch_Variables = {
     query: string

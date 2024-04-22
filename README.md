@@ -24,10 +24,10 @@ Scan, automate and enjoy your anime collection, read manga, track your progress 
 </p>
 
 <p align="center">
-  <a href="#anime">Anime features</a> •
-  <a href="#manga--manhwa">Manga features</a> •
-  <a href="https://seanime.rahim.app/docs">Documentation</a> •
-  <a href="https://github.com/5rahim/seanime/releases">Latest release</a> •
+  <a href="#anime">Anime features</a> |
+  <a href="#manga--manhwa">Manga features</a> |
+  <a href="https://seanime.rahim.app/docs">Documentation</a> |
+  <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
   <a href="#screenshots">Screenshots</a>
 </p>
 
@@ -149,7 +149,7 @@ To get started, you will need to be familiar with Go and Typescript.
 <img src="docs/images/v1/discover_02.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/online-stream.png" alt="preview" width="100%"/>
 
-# Disclaimer
+## Disclaimer
 
 - Seanime relies exclusively on the content stored by individual users on their personal devices. 
 The acquisition and legitimacy of this content are external to the developer's control.
@@ -158,3 +158,6 @@ The acquisition and legitimacy of this content are external to the developer's c
 - Seanime may, at its discretion, provide links or an interface to external websites or applications. These external websites are independently maintained by third parties, and Seanime has no control
   over the legitimacy of their content or operations. Please contact the website's owners for any concerns.
 - Seanime does not collect any kind of personal data or information from its users. You are responsible for maintaining the privacy and security of the third-party authentication tokens stored within your device.
+
+## Stargazers
+[![Stargazers over time](https://starchart.cc/5rahim/seanime.svg?variant=adaptive)](https://starchart.cc/5rahim/seanime)

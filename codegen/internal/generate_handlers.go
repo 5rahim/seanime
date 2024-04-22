@@ -184,8 +184,8 @@ func GenerateHandlers(dir string, outDir string) {
 						fieldType := field.Type
 
 						jsonName := fieldName
-						required := true
 						// Get the field tag
+						required := !jsonFieldOmitEmpty(field)
 						jsonField := jsonFieldName(field)
 						if jsonField != "" {
 							jsonName = jsonField
@@ -202,6 +202,11 @@ func GenerateHandlers(dir string, outDir string) {
 							if cmt != "" {
 								fieldComments = append(fieldComments, cmt)
 							}
+						}
+
+						switch fieldType.(type) {
+						case *ast.StarExpr:
+							required = false
 						}
 
 						goType := fieldTypeString(fieldType)

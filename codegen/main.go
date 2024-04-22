@@ -4,7 +4,6 @@ package main
 
 import (
 	"flag"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/codegen/internal"
 )
 
@@ -31,9 +30,7 @@ func main() {
 
 	if !skipTypes {
 		goStructStrs := codegen.GenerateTypescriptEndpointsFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated")
-		spew.Dump(goStructStrs)
 		codegen.GenerateTypescriptFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated", goStructStrs)
-
 	}
 
 }

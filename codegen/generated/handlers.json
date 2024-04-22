@@ -67,7 +67,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -76,7 +76,7 @@
           "goType": "anilist.MediaListStatus",
           "usedStructType": "anilist.MediaListStatus",
           "typescriptType": "AL_MediaListStatus",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -85,7 +85,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -94,7 +94,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -103,7 +103,7 @@
           "goType": "anilist.FuzzyDateInput",
           "usedStructType": "anilist.FuzzyDateInput",
           "typescriptType": "AL_FuzzyDateInput",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -112,7 +112,7 @@
           "goType": "anilist.FuzzyDateInput",
           "usedStructType": "anilist.FuzzyDateInput",
           "typescriptType": "AL_FuzzyDateInput",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -208,7 +208,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -217,7 +217,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -256,7 +256,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -265,7 +265,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -274,7 +274,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -283,7 +283,7 @@
           "goType": "[]anilist.MediaSort",
           "usedStructType": "anilist.MediaSort",
           "typescriptType": "Array\u003cAL_MediaSort\u003e",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -292,7 +292,7 @@
           "goType": "[]anilist.MediaStatus",
           "usedStructType": "anilist.MediaStatus",
           "typescriptType": "Array\u003cAL_MediaStatus\u003e",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -301,7 +301,7 @@
           "goType": "[]string",
           "usedStructType": "",
           "typescriptType": "Array\u003cstring\u003e",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -310,7 +310,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -319,7 +319,7 @@
           "goType": "anilist.MediaSeason",
           "usedStructType": "anilist.MediaSeason",
           "typescriptType": "AL_MediaSeason",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -328,7 +328,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -337,7 +337,7 @@
           "goType": "anilist.MediaFormat",
           "usedStructType": "anilist.MediaFormat",
           "typescriptType": "AL_MediaFormat",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -346,7 +346,7 @@
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -385,7 +385,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -394,7 +394,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -403,7 +403,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -412,7 +412,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -421,7 +421,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -1031,7 +1031,7 @@
           "goType": "anilist.BaseMedia",
           "usedStructType": "anilist.BaseMedia",
           "typescriptType": "AL_BaseMedia",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -1796,7 +1796,7 @@
           "goType": "anime.LocalFileMetadata",
           "usedStructType": "anime.LocalFileMetadata",
           "typescriptType": "Anime_LocalFileMetadata",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -1989,7 +1989,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -1998,7 +1998,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -2387,7 +2387,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2396,7 +2396,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2405,7 +2405,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2414,7 +2414,7 @@
           "goType": "[]anilist.MediaSort",
           "usedStructType": "anilist.MediaSort",
           "typescriptType": "Array\u003cAL_MediaSort\u003e",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2423,7 +2423,7 @@
           "goType": "[]anilist.MediaStatus",
           "usedStructType": "anilist.MediaStatus",
           "typescriptType": "Array\u003cAL_MediaStatus\u003e",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2432,7 +2432,7 @@
           "goType": "[]string",
           "usedStructType": "",
           "typescriptType": "Array\u003cstring\u003e",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2441,7 +2441,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2450,7 +2450,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2459,7 +2459,7 @@
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2468,7 +2468,7 @@
           "goType": "anilist.MediaFormat",
           "usedStructType": "anilist.MediaFormat",
           "typescriptType": "AL_MediaFormat",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -3228,7 +3228,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -3237,7 +3237,7 @@
           "goType": "anilist.MediaListStatus",
           "usedStructType": "anilist.MediaListStatus",
           "typescriptType": "AL_MediaListStatus",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -3246,7 +3246,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -3255,7 +3255,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -3264,7 +3264,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -3273,7 +3273,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4548,7 +4548,7 @@
           "goType": "anilist.BaseMedia",
           "usedStructType": "anilist.BaseMedia",
           "typescriptType": "AL_BaseMedia",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -4650,7 +4650,7 @@
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4659,7 +4659,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4668,7 +4668,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4677,7 +4677,7 @@
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4686,7 +4686,7 @@
           "goType": "anilist.BaseMedia",
           "usedStructType": "anilist.BaseMedia",
           "typescriptType": "AL_BaseMedia",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4695,7 +4695,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4704,7 +4704,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -4713,7 +4713,7 @@
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],

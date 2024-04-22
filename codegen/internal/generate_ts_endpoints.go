@@ -165,6 +165,11 @@ func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir
 			typeF.WriteString("/**\n")
 			typeF.WriteString(fmt.Sprintf(" * - Filepath: %s\n", filepath.ToSlash(strings.TrimPrefix(route.Filepath, "..\\"))))
 			typeF.WriteString(fmt.Sprintf(" * - Filename: %s\n", route.Filename))
+			typeF.WriteString(fmt.Sprintf(" * - Endpoint: %s\n", route.Api.Endpoint))
+			if len(route.Api.Summary) > 0 {
+				typeF.WriteString(fmt.Sprintf(" * @description\n"))
+				typeF.WriteString(fmt.Sprintf(" * Route %s\n", strings.TrimSpace(route.Api.Summary)))
+			}
 			typeF.WriteString(" */\n")
 			typeF.WriteString(fmt.Sprintf("export type %s_Variables = {\n", strings.TrimPrefix(route.Name, "Handle"))) // export type EditMediaEntry_Variables = {
 
@@ -226,7 +231,7 @@ func getEndpointKey(s string, groupName string) string {
 	if strings.Contains(result, "m-a-l") {
 		result = strings.Replace(result, "m-a-l", "mal", 1)
 	}
-	return groupName + "-" + result
+	return strings.ReplaceAll(groupName, "_", "-") + "-" + result
 }
 
 func writeLine(file *os.File, template string) {

@@ -505,3 +505,15 @@ func jsonFieldName(field *ast.Field) string {
 	}
 	return field.Names[0].Name
 }
+
+func jsonFieldOmitEmpty(field *ast.Field) bool {
+	if field.Tag != nil {
+		tag := reflect.StructTag(strings.ReplaceAll(field.Tag.Value[1:len(field.Tag.Value)-1], "\\\"", "\""))
+		jsonTag := tag.Get("json")
+		if jsonTag != "" {
+			jsonParts := strings.Split(jsonTag, ",")
+			return len(jsonParts) > 1 && jsonParts[1] == "omitempty"
+		}
+	}
+	return false
+}

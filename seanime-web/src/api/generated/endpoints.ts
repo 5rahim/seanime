@@ -47,42 +47,42 @@ export const API_ENDPOINTS = {
     },
     AUTO_DOWNLOADER: {
         RunAutoDownloader: {
-            key: "AUTO_DOWNLOADER-run-auto-downloader",
+            key: "AUTO-DOWNLOADER-run-auto-downloader",
             methods: ["POST"],
             endpoint: "/api/v1/auto-downloader/run",
         },
         GetAutoDownloaderRule: {
-            key: "AUTO_DOWNLOADER-get-auto-downloader-rule",
+            key: "AUTO-DOWNLOADER-get-auto-downloader-rule",
             methods: ["GET"],
             endpoint: "/api/v1/auto-downloader/rule/{id}",
         },
         GetAutoDownloaderRules: {
-            key: "AUTO_DOWNLOADER-get-auto-downloader-rules",
+            key: "AUTO-DOWNLOADER-get-auto-downloader-rules",
             methods: ["GET"],
             endpoint: "/api/v1/auto-downloader/rules",
         },
         CreateAutoDownloaderRule: {
-            key: "AUTO_DOWNLOADER-create-auto-downloader-rule",
+            key: "AUTO-DOWNLOADER-create-auto-downloader-rule",
             methods: ["POST"],
             endpoint: "/api/v1/auto-downloader/rule",
         },
         UpdateAutoDownloaderRule: {
-            key: "AUTO_DOWNLOADER-update-auto-downloader-rule",
+            key: "AUTO-DOWNLOADER-update-auto-downloader-rule",
             methods: ["PATCH"],
             endpoint: "/api/v1/auto-downloader/rule",
         },
         DeleteAutoDownloaderRule: {
-            key: "AUTO_DOWNLOADER-delete-auto-downloader-rule",
+            key: "AUTO-DOWNLOADER-delete-auto-downloader-rule",
             methods: ["DELETE"],
             endpoint: "/api/v1/auto-downloader/rule/{id}",
         },
         GetAutoDownloaderItems: {
-            key: "AUTO_DOWNLOADER-get-auto-downloader-items",
+            key: "AUTO-DOWNLOADER-get-auto-downloader-items",
             methods: ["GET"],
             endpoint: "/api/v1/auto-downloader/items",
         },
         DeleteAutoDownloaderItem: {
-            key: "AUTO_DOWNLOADER-delete-auto-downloader-item",
+            key: "AUTO-DOWNLOADER-delete-auto-downloader-item",
             methods: ["DELETE"],
             endpoint: "/api/v1/auto-downloader/item",
         },
@@ -96,7 +96,7 @@ export const API_ENDPOINTS = {
     },
     DIRECTORY_SELECTOR: {
         DirectorySelector: {
-            key: "DIRECTORY_SELECTOR-directory-selector",
+            key: "DIRECTORY-SELECTOR-directory-selector",
             methods: ["POST"],
             endpoint: "/api/v1/directory-selector",
         },
@@ -195,17 +195,17 @@ export const API_ENDPOINTS = {
     },
     LIST_SYNC: {
         DeleteListSyncCache: {
-            key: "LIST_SYNC-delete-list-sync-cache",
+            key: "LIST-SYNC-delete-list-sync-cache",
             methods: ["POST"],
             endpoint: "/api/v1/filecache/cache",
         },
         GetListSyncAnimeDiffs: {
-            key: "LIST_SYNC-get-list-sync-anime-diffs",
+            key: "LIST-SYNC-get-list-sync-anime-diffs",
             methods: ["GET"],
             endpoint: "/api/v1/filecache/anime",
         },
         SyncAnime: {
-            key: "LIST_SYNC-sync-anime",
+            key: "LIST-SYNC-sync-anime",
             methods: ["POST"],
             endpoint: "/api/v1/filecache/anime",
         },
@@ -303,54 +303,54 @@ export const API_ENDPOINTS = {
     },
     MANGA_DOWNLOAD: {
         DownloadMangaChapters: {
-            key: "MANGA_DOWNLOAD-download-manga-chapters",
+            key: "MANGA-DOWNLOAD-download-manga-chapters",
             methods: ["POST"],
             endpoint: "/api/v1/manga/download-chapters",
         },
         GetMangaDownloadData: {
-            key: "MANGA_DOWNLOAD-get-manga-download-data",
+            key: "MANGA-DOWNLOAD-get-manga-download-data",
             methods: ["POST"],
             endpoint: "/api/v1/manga/download-data",
         },
         GetMangaDownloadQueue: {
-            key: "MANGA_DOWNLOAD-get-manga-download-queue",
+            key: "MANGA-DOWNLOAD-get-manga-download-queue",
             methods: ["GET"],
             endpoint: "/api/v1/manga/download-queue",
         },
         StartMangaDownloadQueue: {
-            key: "MANGA_DOWNLOAD-start-manga-download-queue",
+            key: "MANGA-DOWNLOAD-start-manga-download-queue",
             methods: ["POST"],
             endpoint: "/api/v1/manga/download-queue/start",
         },
         StopMangaDownloadQueue: {
-            key: "MANGA_DOWNLOAD-stop-manga-download-queue",
+            key: "MANGA-DOWNLOAD-stop-manga-download-queue",
             methods: ["POST"],
             endpoint: "/api/v1/manga/download-queue/stop",
         },
         ClearAllChapterDownloadQueue: {
-            key: "MANGA_DOWNLOAD-clear-all-chapter-download-queue",
+            key: "MANGA-DOWNLOAD-clear-all-chapter-download-queue",
             methods: ["DELETE"],
             endpoint: "/api/v1/manga/download-queue",
         },
         ResetErroredChapterDownloadQueue: {
-            key: "MANGA_DOWNLOAD-reset-errored-chapter-download-queue",
+            key: "MANGA-DOWNLOAD-reset-errored-chapter-download-queue",
             methods: ["POST"],
             endpoint: "/api/v1/manga/download-queue/reset-errored",
         },
         DeleteMangaChapterDownload: {
-            key: "MANGA_DOWNLOAD-delete-manga-chapter-download",
+            key: "MANGA-DOWNLOAD-delete-manga-chapter-download",
             methods: ["DELETE"],
             endpoint: "/api/v1/manga/download-chapter",
         },
         GetMangaDownloadsList: {
-            key: "MANGA_DOWNLOAD-get-manga-downloads-list",
+            key: "MANGA-DOWNLOAD-get-manga-downloads-list",
             methods: ["GET"],
             endpoint: "/api/v1/manga/downloads",
         },
     },
     MANUAL_DUMP: {
         TestDump: {
-            key: "MANUAL_DUMP-test-dump",
+            key: "MANUAL-DUMP-test-dump",
             methods: ["POST"],
             endpoint: "/api/v1/test-dump",
         },
@@ -425,27 +425,27 @@ export const API_ENDPOINTS = {
     },
     PLAYBACK_MANAGER: {
         PlaybackSyncCurrentProgress: {
-            key: "PLAYBACK_MANAGER-playback-sync-current-progress",
+            key: "PLAYBACK-MANAGER-playback-sync-current-progress",
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/sync-current-progress",
         },
         PlaybackPlayNextEpisode: {
-            key: "PLAYBACK_MANAGER-playback-play-next-episode",
+            key: "PLAYBACK-MANAGER-playback-play-next-episode",
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/play-next",
         },
         PlaybackStartPlaylist: {
-            key: "PLAYBACK_MANAGER-playback-start-playlist",
+            key: "PLAYBACK-MANAGER-playback-start-playlist",
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/start-playlist",
         },
         PlaybackCancelCurrentPlaylist: {
-            key: "PLAYBACK_MANAGER-playback-cancel-current-playlist",
+            key: "PLAYBACK-MANAGER-playback-cancel-current-playlist",
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/cancel-playlist",
         },
         PlaybackPlaylistNext: {
-            key: "PLAYBACK_MANAGER-playback-playlist-next",
+            key: "PLAYBACK-MANAGER-playback-playlist-next",
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/playlist-next",
         },
@@ -494,7 +494,7 @@ export const API_ENDPOINTS = {
     },
     SCAN_SUMMARY: {
         GetLatestScanSummaries: {
-            key: "SCAN_SUMMARY-get-latest-scan-summaries",
+            key: "SCAN-SUMMARY-get-latest-scan-summaries",
             methods: ["GET"],
             endpoint: "/api/v1/library/scan-summaries",
         },
@@ -523,12 +523,12 @@ export const API_ENDPOINTS = {
     },
     SILENCED_MEDIA_ENTRIES: {
         GetMediaEntrySilenceStatus: {
-            key: "SILENCED_MEDIA_ENTRIES-get-media-entry-silence-status",
+            key: "SILENCED-MEDIA-ENTRIES-get-media-entry-silence-status",
             methods: ["GET"],
             endpoint: "/api/v1/library/media-entry/silence/:id",
         },
         ToggleMediaEntrySilenceStatus: {
-            key: "SILENCED_MEDIA_ENTRIES-toggle-media-entry-silence-status",
+            key: "SILENCED-MEDIA-ENTRIES-toggle-media-entry-silence-status",
             methods: ["POST"],
             endpoint: "/api/v1/library/media-entry/silence",
         },
@@ -554,34 +554,34 @@ export const API_ENDPOINTS = {
     },
     TORRENT_CLIENT: {
         GetActiveTorrentList: {
-            key: "TORRENT_CLIENT-get-active-torrent-list",
+            key: "TORRENT-CLIENT-get-active-torrent-list",
             methods: ["GET"],
             endpoint: "/api/v1/torrent-client/list",
         },
         TorrentClientAction: {
-            key: "TORRENT_CLIENT-torrent-client-action",
+            key: "TORRENT-CLIENT-torrent-client-action",
             methods: ["POST"],
             endpoint: "/api/v1/torrent-client/action",
         },
         TorrentClientDownload: {
-            key: "TORRENT_CLIENT-torrent-client-download",
+            key: "TORRENT-CLIENT-torrent-client-download",
             methods: ["POST"],
             endpoint: "/api/v1/torrent-client/download",
         },
         TorrentClientAddMagnetFromRule: {
-            key: "TORRENT_CLIENT-torrent-client-add-magnet-from-rule",
+            key: "TORRENT-CLIENT-torrent-client-add-magnet-from-rule",
             methods: ["POST"],
             endpoint: "/api/v1/torrent-client/rule-magnet",
         },
     },
     TORRENT_SEARCH: {
         TorrentSearch: {
-            key: "TORRENT_SEARCH-torrent-search",
+            key: "TORRENT-SEARCH-torrent-search",
             methods: ["POST"],
             endpoint: "/api/v1/torrent/search",
         },
         NsfwTorrentSearch: {
-            key: "TORRENT_SEARCH-nsfw-torrent-search",
+            key: "TORRENT-SEARCH-nsfw-torrent-search",
             methods: ["POST"],
             endpoint: "/api/v1/torrent/nsfw-search",
         },
