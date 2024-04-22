@@ -57,7 +57,7 @@ func NewStatus(c *RouteCtx) *Status {
 //	@desc The client uses this to set the UI.
 //	@desc It is called on every page load to get the most up-to-date data.
 //	@desc It should be called right after updating the settings.
-//	@route /api/v1/library/media-entry/silence [POST]
+//	@route /api/v1/library/anime-entry/silence [POST]
 //	@returns bool
 func HandleStatus(c *RouteCtx) error {
 

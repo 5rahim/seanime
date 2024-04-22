@@ -13,7 +13,7 @@ export function useManuallyMatchLocalFiles() {
 
     // Return data is ignored
     const { mutate, isPending } = useSeaMutation<LocalFile[], Props>({
-        endpoint: SeaEndpoints.MEDIA_ENTRY_MANUAL_MATCH,
+        endpoint: SeaEndpoints.ANIME_ENTRY_MANUAL_MATCH,
         mutationKey: ["media-entry-manual-match"],
         onSuccess: async () => {
             toast.success("Files matched")

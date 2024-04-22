@@ -16,24 +16,26 @@ import (
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"github.com/sourcegraph/conc/pool"
+	"gorm.io/gorm"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 )
 
-// HandleGetMediaEntry
+// HandleGetAnimeEntry
 //
 //	@summary return a media entry for the given AniList anime media id.
 //	@desc This is used by the anime media entry pages to get all the data about the anime.
 //	@desc This includes episodes and metadata (if any), AniList list data, download info...
-//	@route /api/v1/library/media-entry/{id} [GET]
+//	@route /api/v1/library/anime-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
 //	@returns entities.MediaEntry
-func HandleGetMediaEntry(c *RouteCtx) error {
+func HandleGetAnimeEntry(c *RouteCtx) error {
 
 	mId, err := c.Fiber.ParamsInt("id")
 	if err != nil {
@@ -76,14 +78,14 @@ var (
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleMediaEntryBulkAction
+// HandleAnimeEntryBulkAction
 //
 //	@summary perform given action on all the local files for the given media id.
 //	@desc This is used to unmatch or toggle the lock status of all the local files for a specific media entry
 //	@desc The response is not used in the frontend. The client should just refetch the entire media entry data.
-//	@route /api/v1/library/media-entry/bulk-action [PATCH]
+//	@route /api/v1/library/anime-entry/bulk-action [PATCH]
 //	@returns []entities.LocalFile
-func HandleMediaEntryBulkAction(c *RouteCtx) error {
+func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 
 	type body struct {
 		MediaId int    `json:"mediaId"`
@@ -142,14 +144,14 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleOpenMediaEntryInExplorer
+// HandleOpenAnimeEntryInExplorer
 //
 //	@summary opens the directory of a media entry in the file explorer.
 //	@desc This finds a common directory for all media entry local files and opens it in the file explorer.
 //	@desc Returns 'true' whether the operation was successful or not, errors are ignored.
-//	@route /api/v1/library/media-entry/open-in-explorer [POST]
+//	@route /api/v1/library/anime-entry/open-in-explorer [POST]
 //	@returns boolean
-func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
+func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 
 	type body struct {
 		MediaId int `json:"mediaId"`
@@ -207,14 +209,14 @@ var (
 	entriesAnilistBasicMediaCache = result.NewCache[int, *anilist.BasicMedia]()
 )
 
-// HandleFindProspectiveMediaEntrySuggestions
+// HandleFetchAnimeEntrySuggestions
 //
 //	@summary returns a list of media suggestions for files in the given directory.
 //	@desc This is used by the "Resolve unmatched media" feature to suggest media entries for the local files in the given directory.
 //	@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.
-//	@route /api/v1/library/media-entry/suggestions [POST]
+//	@route /api/v1/library/anime-entry/suggestions [POST]
 //	@returns []anilist.BasicMedia
-func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
+func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	type body struct {
 		Dir string `json:"dir"`
@@ -332,15 +334,15 @@ func HandleFindProspectiveMediaEntrySuggestions(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleMediaEntryManualMatch
+// HandleAnimeEntryManualMatch
 //
 //	@summary matches un-matched local files in the given directory to the given media.
 //	@desc It is used by the "Resolve unmatched media" feature to manually match local files to a specific media entry.
 //	@desc Matching involves the use of scanner.FileHydrator. It will also lock the files.
 //	@desc The response is not used in the frontend. The client should just refetch the entire library collection.
-//	@route /api/v1/library/media-entry/manual-match [POST]
+//	@route /api/v1/library/anime-entry/manual-match [POST]
 //	@returns []entities.LocalFile
-func HandleMediaEntryManualMatch(c *RouteCtx) error {
+func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	type body struct {
 		Dir     string `json:"dir"`
@@ -467,17 +469,40 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// HandleAddUnknownMedia
+// HandleGetAnimeEntrySilenceStatus
 //
-//	@summary adds the given media to the user's AniList planning collections
-//	@desc Since media not found in the user's AniList collection are not displayed in the library, this route is used to add them.
-//	@desc The response is ignored in the frontend, the client should just refetch the entire library collection.
-//	@route /api/v1/media-entry/unknown-media [POST]
-//	@returns anilist.AnimeCollection
-func HandleAddUnknownMedia(c *RouteCtx) error {
+//	@summary returns the silence status of a media entry.
+//	@param id - int - true - "The ID of the media entry."
+//	@route /api/v1/library/anime-entry/silence/:id [GET]
+//	@returns models.SilencedMediaEntry
+func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
+	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	if err != nil {
+		return c.RespondWithError(errors.New("invalid id"))
+	}
+
+	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.RespondWithData(false)
+		} else {
+			return c.RespondWithError(err)
+		}
+	}
+
+	return c.RespondWithData(mediaEntry)
+}
+
+// HandleToggleAnimeEntrySilenceStatus
+//
+//	@summary toggles the silence status of a media entry.
+//	@desc The missing episodes should be re-fetched after this.
+//	@route /api/v1/library/anime-entry/silence [POST]
+//	@returns bool
+func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 
 	type body struct {
-		MediaIds []int `json:"mediaIds"`
+		MediaId int `json:"mediaId"`
 	}
 
 	b := new(body)
@@ -485,32 +510,38 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Add non-added media entries to AniList collection
-	if err := c.App.AnilistClientWrapper.AddMediaToPlanning(b.MediaIds, limiter.NewAnilistLimiter(), c.App.Logger); err != nil {
-		return c.RespondWithError(errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
-	}
-
-	// Bypass the cache
-	anilistCollection, err := c.App.GetAnilistCollection(true)
+	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
 	if err != nil {
-		return c.RespondWithError(errors.New("error: Anilist responded with an error, wait one minute before refreshing"))
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = c.App.Database.InsertSilencedMediaEntry(uint(b.MediaId))
+			if err != nil {
+				return c.RespondWithError(err)
+			}
+			return c.RespondWithData(true)
+		} else {
+			return c.RespondWithError(err)
+		}
 	}
 
-	return c.RespondWithData(anilistCollection)
+	err = c.App.Database.DeleteSilencedMediaEntry(mediaEntry.ID)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
+	return c.RespondWithData(true)
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-// HandleUpdateProgress
+// HandleUpdateAnimeEntryProgress
 //
 //	@summary update the progress of the given anime media entry.
 //	@desc This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked).
 //	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
 //	@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
-//	@route /api/v1/media-entry/update-progress [POST]
+//	@route /api/v1/library/anime-entry/update-progress [POST]
 //	@returns boolean
-func HandleUpdateProgress(c *RouteCtx) error {
+func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 
 	type body struct {
 		MediaId       int `json:"mediaId"`

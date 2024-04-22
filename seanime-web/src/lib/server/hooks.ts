@@ -4,7 +4,7 @@ import { useSeaMutation } from "@/lib/server/query"
 export function useOpenMediaEntryInExplorer() {
 
     const { mutate } = useSeaMutation<boolean, { mediaId: number }>({
-        endpoint: SeaEndpoints.OPEN_MEDIA_ENTRY_IN_EXPLORER,
+        endpoint: SeaEndpoints.OPEN_ANIME_ENTRY_IN_EXPLORER,
         mutationKey: ["open-media-entry-in-explorer"],
     })
 

@@ -75,6 +75,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
 
     return (
         <PageWrapper className="p-4 space-y-8 relative z-[4]">
+            {process.env.NEXT_PUBLIC_PLATFORM}
             {collectionList.map(collection => {
                 if (collection.entries.length === 0) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} />

@@ -23987,7 +23987,7 @@
         "name": "DiscordPresence",
         "jsonName": "DiscordPresence",
         "goType": "discordrpc_presence.Presence",
-        "typescriptType": "Presence",
+        "typescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
         "required": false,
         "public": true,
@@ -25793,7 +25793,7 @@
     "filepath": "..\\internal\\discordrpc\\presence\\presence.go",
     "filename": "presence.go",
     "name": "Presence",
-    "formattedName": "Presence",
+    "formattedName": "DiscordRPC_Presence",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -25862,7 +25862,7 @@
     "filepath": "..\\internal\\discordrpc\\presence\\presence.go",
     "filename": "presence.go",
     "name": "AnimeActivity",
-    "formattedName": "AnimeActivity",
+    "formattedName": "DiscordRPC_AnimeActivity",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -25908,7 +25908,7 @@
     "filepath": "..\\internal\\discordrpc\\presence\\presence.go",
     "filename": "presence.go",
     "name": "MangaActivity",
-    "formattedName": "MangaActivity",
+    "formattedName": "DiscordRPC_MangaActivity",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -29134,7 +29134,7 @@
         "name": "discordPresence",
         "jsonName": "discordPresence",
         "goType": "discordrpc_presence.Presence",
-        "typescriptType": "Presence",
+        "typescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
         "required": false,
         "public": false,
@@ -29501,7 +29501,7 @@
         "name": "DiscordPresence",
         "jsonName": "DiscordPresence",
         "goType": "discordrpc_presence.Presence",
-        "typescriptType": "Presence",
+        "typescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
         "required": false,
         "public": true,

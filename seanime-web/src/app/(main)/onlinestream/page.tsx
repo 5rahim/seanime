@@ -224,7 +224,7 @@ export default function Page() {
         malId?: number,
         totalEpisodes: number,
     }>({
-        endpoint: SeaEndpoints.UPDATE_PROGRESS,
+        endpoint: SeaEndpoints.ANIME_ENTRY_UPDATE_PROGRESS,
         mutationKey: ["update-progress", currentEpisodeNumber],
         method: "post",
         onSuccess: () => {

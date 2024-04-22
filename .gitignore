@@ -1,7 +1,9 @@
 .idea
 logs/
 *.db
-seanime-web/.env
+seanime-web/.env.development
+seanime-web/.env.desktop
+seanime-web/.env.mobile
 .run/
 
 Dockerfile
@@ -38,7 +40,7 @@ seanime-web/out
 seanime-web/web
 seanime-web/.next
 seanime-web/.idea
-seanime-web/.env
+seanime-web/.env.development
 # dependencies
 seanime-web/.pnp
 seanime-web/.pnp.js

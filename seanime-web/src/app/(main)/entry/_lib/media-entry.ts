@@ -14,7 +14,7 @@ export function useMediaEntry(_mId: string | number | null) {
     const mId = typeof _mId === "string" ? Number(_mId) : _mId
 
     const { data, isLoading } = useSeaQuery<MediaEntry, { mediaId: number }>({
-        endpoint: SeaEndpoints.MEDIA_ENTRY.replace("{id}", String(mId)),
+        endpoint: SeaEndpoints.ANIME_ENTRY.replace("{id}", String(mId)),
         queryKey: ["get-media-entry", mId],
         enabled: !!mId,
     })
@@ -57,7 +57,7 @@ export function useMediaDetails(_mId: string | number | null) {
 export function useFetchMediaEntrySuggestions() {
 
     const { mutate, data, isPending, reset } = useSeaMutation<BasicMediaFragment[], { dir: string }>({
-        endpoint: SeaEndpoints.MEDIA_ENTRY_SUGGESTIONS,
+        endpoint: SeaEndpoints.ANIME_ENTRY_SUGGESTIONS,
         mutationKey: ["media-entry-suggestions"],
     })
 

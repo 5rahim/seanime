@@ -102,6 +102,116 @@ export type AnilistListRecentAiringAnime_Variables = {
 }
 
 /**
+ * - Filepath: internal/handlers/anime_collection.go
+ * - Filename: anime_collection.go
+ * - Endpoint: /api/v1/library/unknown-media
+ * @description
+ * Route adds the given media to the user's AniList planning collections
+ */
+export type AddUnknownMedia_Variables = {
+    mediaIds: Array<number>
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/{id}
+ * @description
+ * Route return a media entry for the given AniList anime media id.
+ */
+export type GetAnimeEntry_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/bulk-action
+ * @description
+ * Route perform given action on all the local files for the given media id.
+ */
+export type AnimeEntryBulkAction_Variables = {
+    mediaId: number
+    action: string
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/open-in-explorer
+ * @description
+ * Route opens the directory of a media entry in the file explorer.
+ */
+export type OpenAnimeEntryInExplorer_Variables = {
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/suggestions
+ * @description
+ * Route returns a list of media suggestions for files in the given directory.
+ */
+export type FetchAnimeEntrySuggestions_Variables = {
+    dir: string
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/manual-match
+ * @description
+ * Route matches un-matched local files in the given directory to the given media.
+ */
+export type AnimeEntryManualMatch_Variables = {
+    dir: string
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/silence/:id
+ * @description
+ * Route returns the silence status of a media entry.
+ */
+export type GetAnimeEntrySilenceStatus_Variables = {
+    /**
+     *  The ID of the media entry.
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/silence
+ * @description
+ * Route toggles the silence status of a media entry.
+ */
+export type ToggleAnimeEntrySilenceStatus_Variables = {
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/anime_entries.go
+ * - Filename: anime_entries.go
+ * - Endpoint: /api/v1/library/anime-entry/update-progress
+ * @description
+ * Route update the progress of the given anime media entry.
+ */
+export type UpdateAnimeEntryProgress_Variables = {
+    mediaId: number
+    malId: number
+    episodeNumber: number
+    totalEpisodes: number
+}
+
+/**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
  * - Endpoint: /api/v1/auto-downloader/rule/{id}
@@ -187,91 +297,6 @@ export type DownloadTorrentFile_Variables = {
 export type DownloadRelease_Variables = {
     download_url: string
     destination: string
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/library/media-entry/{id}
- * @description
- * Route return a media entry for the given AniList anime media id.
- */
-export type GetMediaEntry_Variables = {
-    /**
-     *  AniList anime media ID
-     */
-    id: number
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/library/media-entry/bulk-action
- * @description
- * Route perform given action on all the local files for the given media id.
- */
-export type MediaEntryBulkAction_Variables = {
-    mediaId: number
-    action: string
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/library/media-entry/open-in-explorer
- * @description
- * Route opens the directory of a media entry in the file explorer.
- */
-export type OpenMediaEntryInExplorer_Variables = {
-    mediaId: number
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/library/media-entry/suggestions
- * @description
- * Route returns a list of media suggestions for files in the given directory.
- */
-export type FindProspectiveMediaEntrySuggestions_Variables = {
-    dir: string
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/library/media-entry/manual-match
- * @description
- * Route matches un-matched local files in the given directory to the given media.
- */
-export type MediaEntryManualMatch_Variables = {
-    dir: string
-    mediaId: number
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/media-entry/unknown-media
- * @description
- * Route adds the given media to the user's AniList planning collections
- */
-export type AddUnknownMedia_Variables = {
-    mediaIds: Array<number>
-}
-
-/**
- * - Filepath: internal/handlers/entries.go
- * - Filename: entries.go
- * - Endpoint: /api/v1/media-entry/update-progress
- * @description
- * Route update the progress of the given anime media entry.
- */
-export type UpdateProgress_Variables = {
-    mediaId: number
-    malId: number
-    episodeNumber: number
-    totalEpisodes: number
 }
 
 /**
@@ -696,31 +721,6 @@ export type SaveSettings_Variables = {
     torrent: Models_TorrentSettings
     anilist: Models_AnilistSettings
     discord: Models_DiscordSettings
-}
-
-/**
- * - Filepath: internal/handlers/silenced_media_entries.go
- * - Filename: silenced_media_entries.go
- * - Endpoint: /api/v1/library/media-entry/silence/:id
- * @description
- * Route returns the silence status of a media entry.
- */
-export type GetMediaEntrySilenceStatus_Variables = {
-    /**
-     *  The ID of the media entry.
-     */
-    id: number
-}
-
-/**
- * - Filepath: internal/handlers/silenced_media_entries.go
- * - Filename: silenced_media_entries.go
- * - Endpoint: /api/v1/library/media-entry/silence
- * @description
- * Route toggles the silence status of a media entry.
- */
-export type ToggleMediaEntrySilenceStatus_Variables = {
-    mediaId: number
 }
 
 /**

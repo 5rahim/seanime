@@ -8,14 +8,14 @@ export function useMediaEntrySilenceStatus(id: number) {
 
     const { data, isLoading } = useSeaQuery({
         queryKey: ["media-entry-silence-status", id],
-        endpoint: SeaEndpoints.MEDIA_ENTRY_SILENCE_STATUS.replace("{id}", String(id)),
+        endpoint: SeaEndpoints.ANIME_ENTRY_SILENCE_STATUS.replace("{id}", String(id)),
         enabled: !!id,
         refetchOnWindowFocus: false,
     })
 
     const { mutate, isPending } = useSeaMutation<boolean, { mediaId: number }>({
         mutationKey: ["media-entry-silence", id],
-        endpoint: SeaEndpoints.MEDIA_ENTRY_SILENCE,
+        endpoint: SeaEndpoints.ANIME_ENTRY_SILENCE,
         method: "post",
         onSuccess: async () => {
             await qc.refetchQueries({ queryKey: ["media-entry-silence-status", id] })

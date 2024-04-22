@@ -12,7 +12,7 @@ export function useMediaEntryBulkAction(mId?: number) {
 
     // Return data is ignored
     const { mutate, isPending } = useSeaMutation<LocalFile[], { mediaId: number, action: MediaEntryBulkAction }>({
-        endpoint: SeaEndpoints.MEDIA_ENTRY_BULK_ACTION,
+        endpoint: SeaEndpoints.ANIME_ENTRY_BULK_ACTION,
         mutationKey: ["media-entry-bulk-action"],
         method: "patch",
         onSuccess: async () => {

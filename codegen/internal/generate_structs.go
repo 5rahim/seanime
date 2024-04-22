@@ -62,6 +62,7 @@ var typePrefixesByPackage = map[string]string{
 	"scanner":                "Scanner_",
 	"offline":                "Offline_",
 	"discordrpc":             "DiscordRPC_",
+	"discordrpc_presence":    "DiscordRPC_",
 	"anizip":                 "Anizip_",
 	"onlinestream":           "Onlinestream_",
 	"onlinestream_providers": "Onlinestream_",

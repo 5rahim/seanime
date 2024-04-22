@@ -10,7 +10,7 @@ export function useAddUnknownMedia() {
 
     // Return data is ignored
     const { mutate, isPending } = useSeaMutation<AnimeCollectionQuery, { mediaIds: number[] }>({
-        endpoint: SeaEndpoints.MEDIA_ENTRY_UNKNOWN_MEDIA,
+        endpoint: SeaEndpoints.LIBRARY_UNKNOWN_MEDIA,
         mutationKey: ["add-unknown-media"],
         onSuccess: async () => {
             // Refetch library collection

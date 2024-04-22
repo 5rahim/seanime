@@ -198,33 +198,33 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
 
 	// Retrieve MediaEntry
-	// GET /v1/library/media-entry
-	v1Library.Get("/media-entry/:id", makeHandler(app, HandleGetMediaEntry))
+	// GET /v1/library/anime-entry
+	v1Library.Get("/anime-entry/:id", makeHandler(app, HandleGetAnimeEntry))
 
 	// Get suggestions for a prospective Media Entry
 	// POST /v1/library/collection
-	v1Library.Post("/media-entry/suggestions", makeHandler(app, HandleFindProspectiveMediaEntrySuggestions))
+	v1Library.Post("/anime-entry/suggestions", makeHandler(app, HandleFetchAnimeEntrySuggestions))
 
 	// Create Media Entry from directory path and AniList media id
-	// POST /v1/library/media-entry/manual-match
-	v1Library.Post("/media-entry/manual-match", makeHandler(app, HandleMediaEntryManualMatch))
+	// POST /v1/library/anime-entry/manual-match
+	v1Library.Post("/anime-entry/manual-match", makeHandler(app, HandleAnimeEntryManualMatch))
 
 	// Media Entry Bulk Action
 	// PATCH /v1/library/entry/bulk-action
-	v1Library.Patch("/media-entry/bulk-action", makeHandler(app, HandleMediaEntryBulkAction))
+	v1Library.Patch("/anime-entry/bulk-action", makeHandler(app, HandleAnimeEntryBulkAction))
 
 	// Open Media Entry in File Explorer
-	// POST /v1/library/media-entry/open-in-explorer
-	v1Library.Post("/media-entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
+	// POST /v1/library/anime-entry/open-in-explorer
+	v1Library.Post("/anime-entry/open-in-explorer", makeHandler(app, HandleOpenAnimeEntryInExplorer))
 
 	// Add unknown media by IDs
 	// POST /v1/library/unknown-media
-	v1Library.Post("/media-entry/unknown-media", makeHandler(app, HandleAddUnknownMedia))
+	v1Library.Post("/unknown-media", makeHandler(app, HandleAddUnknownMedia))
 
-	v1Library.Post("/media-entry/update-progress", makeHandler(app, HandleUpdateProgress))
+	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
 
-	v1Library.Get("/media-entry/silence/:id", makeHandler(app, HandleGetMediaEntrySilenceStatus))
-	v1Library.Post("/media-entry/silence", makeHandler(app, HandleToggleMediaEntrySilenceStatus))
+	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
+	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
 
 	//
 	// Torrent / Torrent Client
