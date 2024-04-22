@@ -471,6 +471,19 @@ export type AL_DeleteEntry_DeleteMediaListEntry = {
 }
 
 /**
+ * - Filepath: internal/internal/api/anilist/models_gen.go
+ * - Filename: models_gen.go
+ * - Package: anilist
+ * @description
+ *  Date object that allows for incomplete date values (fuzzy)
+ */
+export type AL_FuzzyDateInput = {
+    year?: number
+    month?: number
+    day?: number
+}
+
+/**
  * - Filepath: internal/internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
@@ -890,6 +903,8 @@ export type AL_MediaDetailsById_Media_Trailer = {
  * - Filepath: internal/internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
+ * @description
+ *  The format the media was released in
  */
 export type AL_MediaFormat = "TV" |
     "TV_SHORT" |
@@ -906,6 +921,8 @@ export type AL_MediaFormat = "TV" |
  * - Filepath: internal/internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
+ * @description
+ *  Media list watching/reading status enum.
  */
 export type AL_MediaListStatus = "CURRENT" |
     "PLANNING" |
@@ -918,6 +935,8 @@ export type AL_MediaListStatus = "CURRENT" |
  * - Filepath: internal/internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
+ * @description
+ *  The type of ranking
  */
 export type AL_MediaRankType = "RATED" | "POPULAR"
 
@@ -925,6 +944,8 @@ export type AL_MediaRankType = "RATED" | "POPULAR"
  * - Filepath: internal/internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
+ * @description
+ *  Type of relation media has to its parent.
  */
 export type AL_MediaRelation = "ADAPTATION" |
     "PREQUEL" |
@@ -951,6 +972,53 @@ export type AL_MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL"
  * - Filepath: internal/internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
+ * @description
+ *  Media sort enums
+ */
+export type AL_MediaSort = "ID" |
+    "ID_DESC" |
+    "TITLE_ROMAJI" |
+    "TITLE_ROMAJI_DESC" |
+    "TITLE_ENGLISH" |
+    "TITLE_ENGLISH_DESC" |
+    "TITLE_NATIVE" |
+    "TITLE_NATIVE_DESC" |
+    "TYPE" |
+    "TYPE_DESC" |
+    "FORMAT" |
+    "FORMAT_DESC" |
+    "START_DATE" |
+    "START_DATE_DESC" |
+    "END_DATE" |
+    "END_DATE_DESC" |
+    "SCORE" |
+    "SCORE_DESC" |
+    "POPULARITY" |
+    "POPULARITY_DESC" |
+    "TRENDING" |
+    "TRENDING_DESC" |
+    "EPISODES" |
+    "EPISODES_DESC" |
+    "DURATION" |
+    "DURATION_DESC" |
+    "STATUS" |
+    "STATUS_DESC" |
+    "CHAPTERS" |
+    "CHAPTERS_DESC" |
+    "VOLUMES" |
+    "VOLUMES_DESC" |
+    "UPDATED_AT" |
+    "UPDATED_AT_DESC" |
+    "SEARCH_MATCH" |
+    "FAVOURITES" |
+    "FAVOURITES_DESC"
+
+/**
+ * - Filepath: internal/internal/api/anilist/models_gen.go
+ * - Filename: models_gen.go
+ * - Package: anilist
+ * @description
+ *  The current releasing status of the media
  */
 export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS"
 
@@ -958,6 +1026,8 @@ export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CA
  * - Filepath: internal/internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
+ * @description
+ *  Media type enum, anime or manga.
  */
 export type AL_MediaType = "ANIME" | "MANGA"
 
@@ -1136,6 +1206,16 @@ export type Handlers_DirectoryInfo = {
 }
 
 /**
+ * - Filepath: internal/internal/handlers/download.go
+ * - Filename: download.go
+ * - Package: handlers
+ */
+export type Handlers_DownloadReleaseResponse = {
+    destination: string
+    error?: string
+}
+
+/**
  * - Filepath: internal/internal/handlers/mal.go
  * - Filename: mal.go
  * - Package: handlers
@@ -1145,6 +1225,16 @@ export type Handlers_MalAuthResponse = {
     refresh_token: string
     expires_in: number
     token_type: string
+}
+
+/**
+ * - Filepath: internal/internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Package: handlers
+ */
+export type Handlers_OnlinestreamEpisodeListResponse = {
+    episodes?: Array<Onlinestream_Episode>
+    media?: AL_BaseMedia
 }
 
 /**
@@ -1713,6 +1803,18 @@ export type Offline_SnapshotEntry = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/internal/onlinestream/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Package: onlinestream
+ */
+export type Onlinestream_Episode = {
+    number?: number
+    title?: string
+    image?: string
+    description?: string
+}
 
 /**
  * - Filepath: internal/internal/onlinestream/onlinestream.go

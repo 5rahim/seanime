@@ -148,7 +148,7 @@ func HandleMediaEntryBulkAction(c *RouteCtx) error {
 //	@desc This finds a common directory for all media entry local files and opens it in the file explorer.
 //	@desc Returns 'true' whether the operation was successful or not, errors are ignored.
 //	@route /api/v1/library/media-entry/open-in-explorer [POST]
-//	@returns true
+//	@returns boolean
 func HandleOpenMediaEntryInExplorer(c *RouteCtx) error {
 
 	type body struct {
@@ -509,7 +509,7 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 //	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
 //	@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
 //	@route /api/v1/media-entry/update-progress [POST]
-//	@returns true
+//	@returns boolean
 func HandleUpdateProgress(c *RouteCtx) error {
 
 	type body struct {

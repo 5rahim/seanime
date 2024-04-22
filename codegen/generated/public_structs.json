@@ -26247,6 +26247,34 @@
     "comments": []
   },
   {
+    "filepath": "..\\internal\\handlers\\download.go",
+    "filename": "download.go",
+    "name": "DownloadReleaseResponse",
+    "formattedName": "Handlers_DownloadReleaseResponse",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "..\\internal\\handlers\\mal.go",
     "filename": "mal.go",
     "name": "MalAuthResponse",
@@ -26314,6 +26342,36 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "..\\internal\\handlers\\onlinestream.go",
+    "filename": "onlinestream.go",
+    "name": "OnlinestreamEpisodeListResponse",
+    "formattedName": "Handlers_OnlinestreamEpisodeListResponse",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]onlinestream.Episode",
+        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+        "usedStructName": "onlinestream.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
+        "required": false,
         "public": true,
         "comments": []
       }

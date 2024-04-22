@@ -14,6 +14,7 @@ import type {
     AL_MediaStatus,
     Anime_LocalFileMetadata,
     ListSync_AnimeDiffKind,
+    Manga_Provider,
     Models_AnilistSettings,
     Models_DiscordSettings,
     Models_LibrarySettings,
@@ -26,13 +27,13 @@ import type {
  * - Filename: anilist.go
  */
 export type EditAnilistListEntry_Variables = {
-    MediaId: number
-    Status: AL_MediaListStatus
-    Score: number
-    Progress: number
-    StartDate: AL_FuzzyDateInput
-    EndDate: AL_FuzzyDateInput
-    Type: string
+    mediaId: number
+    status: AL_MediaListStatus
+    score: number
+    progress: number
+    startedAt: AL_FuzzyDateInput
+    completedAt: AL_FuzzyDateInput
+    type: string
 }
 
 /**
@@ -51,8 +52,8 @@ export type GetAnilistMediaDetails_Variables = {
  * - Filename: anilist.go
  */
 export type DeleteAnilistListEntry_Variables = {
-    MediaId: number
-    Type: string
+    mediaId: number
+    type: string
 }
 
 /**
@@ -60,17 +61,17 @@ export type DeleteAnilistListEntry_Variables = {
  * - Filename: anilist.go
  */
 export type AnilistListAnime_Variables = {
-    Page: number
-    Search: string
-    PerPage: number
-    Sort: Array<AL_MediaSort>
-    Status: Array<AL_MediaStatus>
-    Genres: Array<string>
-    AverageScoreGreater: number
-    Season: AL_MediaSeason
-    SeasonYear: number
-    Format: AL_MediaFormat
-    IsAdult: boolean
+    page: number
+    search: string
+    perPage: number
+    sort: Array<AL_MediaSort>
+    status: Array<AL_MediaStatus>
+    genres: Array<string>
+    averageScore_greater: number
+    season: AL_MediaSeason
+    seasonYear: number
+    format: AL_MediaFormat
+    isAdult: boolean
 }
 
 /**
@@ -78,11 +79,11 @@ export type AnilistListAnime_Variables = {
  * - Filename: anilist.go
  */
 export type AnilistListRecentAiringAnime_Variables = {
-    Page: number
-    Search: string
-    PerPage: number
-    AiringAtGreater: number
-    AiringAtLesser: number
+    page: number
+    search: string
+    perPage: number
+    airingAt_greater: number
+    airingAt_lesser: number
 }
 
 /**
@@ -112,7 +113,7 @@ export type DeleteAutoDownloaderRule_Variables = {
  * - Filename: auto_downloader.go
  */
 export type DeleteAutoDownloaderItem_Variables = {
-    ID: number
+    id: number
 }
 
 /**
@@ -120,7 +121,7 @@ export type DeleteAutoDownloaderItem_Variables = {
  * - Filename: directory_selector.go
  */
 export type DirectorySelector_Variables = {
-    Input: string
+    input: string
 }
 
 /**
@@ -128,9 +129,9 @@ export type DirectorySelector_Variables = {
  * - Filename: discord.go
  */
 export type SetDiscordMangaActivity_Variables = {
-    Title: string
-    Image: string
-    Chapter: string
+    title: string
+    image: string
+    chapter: string
 }
 
 /**
@@ -138,9 +139,9 @@ export type SetDiscordMangaActivity_Variables = {
  * - Filename: download.go
  */
 export type DownloadTorrentFile_Variables = {
-    DownloadUrls: Array<string>
-    Destination: string
-    Media: AL_BaseMedia
+    download_urls: Array<string>
+    destination: string
+    media: AL_BaseMedia
 }
 
 /**
@@ -148,8 +149,8 @@ export type DownloadTorrentFile_Variables = {
  * - Filename: download.go
  */
 export type DownloadRelease_Variables = {
-    DownloadUrl: string
-    Destination: string
+    download_url: string
+    destination: string
 }
 
 /**
@@ -168,8 +169,8 @@ export type GetMediaEntry_Variables = {
  * - Filename: entries.go
  */
 export type MediaEntryBulkAction_Variables = {
-    MediaId: number
-    Action: string
+    mediaId: number
+    action: string
 }
 
 /**
@@ -177,7 +178,7 @@ export type MediaEntryBulkAction_Variables = {
  * - Filename: entries.go
  */
 export type OpenMediaEntryInExplorer_Variables = {
-    MediaId: number
+    mediaId: number
 }
 
 /**
@@ -185,7 +186,7 @@ export type OpenMediaEntryInExplorer_Variables = {
  * - Filename: entries.go
  */
 export type FindProspectiveMediaEntrySuggestions_Variables = {
-    Dir: string
+    dir: string
 }
 
 /**
@@ -193,8 +194,8 @@ export type FindProspectiveMediaEntrySuggestions_Variables = {
  * - Filename: entries.go
  */
 export type MediaEntryManualMatch_Variables = {
-    Dir: string
-    MediaId: number
+    dir: string
+    mediaId: number
 }
 
 /**
@@ -202,7 +203,7 @@ export type MediaEntryManualMatch_Variables = {
  * - Filename: entries.go
  */
 export type AddUnknownMedia_Variables = {
-    MediaIds: Array<number>
+    mediaIds: Array<number>
 }
 
 /**
@@ -210,10 +211,10 @@ export type AddUnknownMedia_Variables = {
  * - Filename: entries.go
  */
 export type UpdateProgress_Variables = {
-    MediaId: number
-    MalId: number
-    EpisodeNumber: number
-    TotalEpisodes: number
+    mediaId: number
+    malId: number
+    episodeNumber: number
+    totalEpisodes: number
 }
 
 /**
@@ -221,7 +222,7 @@ export type UpdateProgress_Variables = {
  * - Filename: explorer.go
  */
 export type OpenInExplorer_Variables = {
-    Path: string
+    path: string
 }
 
 /**
@@ -229,7 +230,7 @@ export type OpenInExplorer_Variables = {
  * - Filename: filecache.go
  */
 export type RemoveFileCacheBucket_Variables = {
-    Bucket: string
+    bucket: string
 }
 
 /**
@@ -237,7 +238,7 @@ export type RemoveFileCacheBucket_Variables = {
  * - Filename: list_sync.go
  */
 export type SyncAnime_Variables = {
-    Kind: ListSync_AnimeDiffKind
+    kind: ListSync_AnimeDiffKind
 }
 
 /**
@@ -245,7 +246,7 @@ export type SyncAnime_Variables = {
  * - Filename: localfiles.go
  */
 export type LocalFileBulkAction_Variables = {
-    Action: string
+    action: string
 }
 
 /**
@@ -253,11 +254,11 @@ export type LocalFileBulkAction_Variables = {
  * - Filename: localfiles.go
  */
 export type UpdateLocalFileData_Variables = {
-    Path: string
-    Metadata: Anime_LocalFileMetadata
-    Locked: boolean
-    Ignored: boolean
-    MediaId: number
+    path: string
+    metadata: Anime_LocalFileMetadata
+    locked: boolean
+    ignored: boolean
+    mediaId: number
 }
 
 /**
@@ -265,7 +266,7 @@ export type UpdateLocalFileData_Variables = {
  * - Filename: localfiles.go
  */
 export type DeleteLocalFiles_Variables = {
-    Paths: Array<string>
+    paths: Array<string>
 }
 
 /**
@@ -273,9 +274,9 @@ export type DeleteLocalFiles_Variables = {
  * - Filename: mal.go
  */
 export type MALAuth_Variables = {
-    Code: string
-    State: string
-    CodeVerifier: string
+    code: string
+    state: string
+    code_verifier: string
 }
 
 /**
@@ -283,8 +284,8 @@ export type MALAuth_Variables = {
  * - Filename: mal.go
  */
 export type EditMALListEntryProgress_Variables = {
-    MediaId: number
-    Progress: number
+    mediaId: number
+    progress: number
 }
 
 /**
@@ -292,7 +293,7 @@ export type EditMALListEntryProgress_Variables = {
  * - Filename: manga.go
  */
 export type GetAnilistMangaCollection_Variables = {
-    BypassCache: boolean
+    bypassCache: boolean
 }
 
 /**
@@ -322,7 +323,7 @@ export type GetMangaEntryDetails_Variables = {
  * - Filename: manga.go
  */
 export type EmptyMangaEntryCache_Variables = {
-    MediaId: number
+    mediaId: number
 }
 
 /**
@@ -330,8 +331,8 @@ export type EmptyMangaEntryCache_Variables = {
  * - Filename: manga.go
  */
 export type GetMangaEntryChapters_Variables = {
-    MediaId: number
-    Provider: Manga_Provider
+    mediaId: number
+    provider: Manga_Provider
 }
 
 /**
@@ -339,10 +340,10 @@ export type GetMangaEntryChapters_Variables = {
  * - Filename: manga.go
  */
 export type GetMangaEntryPages_Variables = {
-    MediaId: number
-    Provider: Manga_Provider
-    ChapterId: string
-    DoublePage: boolean
+    mediaId: number
+    provider: Manga_Provider
+    chapterId: string
+    doublePage: boolean
 }
 
 /**
@@ -350,16 +351,16 @@ export type GetMangaEntryPages_Variables = {
  * - Filename: manga.go
  */
 export type AnilistListManga_Variables = {
-    Page: number
-    Search: string
-    PerPage: number
-    Sort: Array<AL_MediaSort>
-    Status: Array<AL_MediaStatus>
-    Genres: Array<string>
-    AverageScoreGreater: number
-    Year: number
-    IsAdult: boolean
-    Format: AL_MediaFormat
+    page: number
+    search: string
+    perPage: number
+    sort: Array<AL_MediaSort>
+    status: Array<AL_MediaStatus>
+    genres: Array<string>
+    averageScore_greater: number
+    year: number
+    isAdult: boolean
+    format: AL_MediaFormat
 }
 
 /**
@@ -367,10 +368,10 @@ export type AnilistListManga_Variables = {
  * - Filename: manga.go
  */
 export type UpdateMangaProgress_Variables = {
-    MediaId: number
-    MalId: number
-    ChapterNumber: number
-    TotalChapters: number
+    mediaId: number
+    malId: number
+    chapterNumber: number
+    totalChapters: number
 }
 
 /**
@@ -378,10 +379,10 @@ export type UpdateMangaProgress_Variables = {
  * - Filename: manga_download.go
  */
 export type DownloadMangaChapters_Variables = {
-    MediaId: number
-    Provider: Manga_Provider
-    ChapterIds: Array<string>
-    StartNow: boolean
+    mediaId: number
+    provider: Manga_Provider
+    chapterIds: Array<string>
+    startNow: boolean
 }
 
 /**
@@ -389,8 +390,8 @@ export type DownloadMangaChapters_Variables = {
  * - Filename: manga_download.go
  */
 export type GetMangaDownloadData_Variables = {
-    MediaId: number
-    Cached: boolean
+    mediaId: number
+    cached: boolean
 }
 
 /**
@@ -398,10 +399,10 @@ export type GetMangaDownloadData_Variables = {
  * - Filename: manga_download.go
  */
 export type DeleteMangaChapterDownload_Variables = {
-    MediaId: number
-    Provider: string
-    ChapterId: string
-    ChapterNumber: string
+    mediaId: number
+    provider: string
+    chapterId: string
+    chapterNumber: string
 }
 
 /**
@@ -409,7 +410,7 @@ export type DeleteMangaChapterDownload_Variables = {
  * - Filename: mediaplayer.go
  */
 export type PlayVideo_Variables = {
-    Path: string
+    path: string
 }
 
 /**
@@ -417,7 +418,7 @@ export type PlayVideo_Variables = {
  * - Filename: metadata.go
  */
 export type PopulateTVDBEpisodes_Variables = {
-    MediaId: number
+    mediaId: number
 }
 
 /**
@@ -425,7 +426,7 @@ export type PopulateTVDBEpisodes_Variables = {
  * - Filename: metadata.go
  */
 export type EmptyTVDBEpisodes_Variables = {
-    MediaId: number
+    mediaId: number
 }
 
 /**
@@ -433,7 +434,7 @@ export type EmptyTVDBEpisodes_Variables = {
  * - Filename: offline.go
  */
 export type CreateOfflineSnapshot_Variables = {
-    AnimeMediaIds: Array<number>
+    animeMediaIds: Array<number>
 }
 
 /**
@@ -441,13 +442,13 @@ export type CreateOfflineSnapshot_Variables = {
  * - Filename: offline.go
  */
 export type UpdateOfflineEntryListData_Variables = {
-    MediaId: number
-    Status: AL_MediaListStatus
-    Score: number
-    Progress: number
-    StartDate: string
-    EndDate: string
-    Type: string
+    mediaId: number
+    status: AL_MediaListStatus
+    score: number
+    progress: number
+    startDate: string
+    endDate: string
+    type: string
 }
 
 /**
@@ -455,9 +456,9 @@ export type UpdateOfflineEntryListData_Variables = {
  * - Filename: onlinestream.go
  */
 export type GetOnlineStreamEpisodeList_Variables = {
-    MediaId: number
-    Dubbed: boolean
-    Provider: string
+    mediaId: number
+    dubbed: boolean
+    provider: string
 }
 
 /**
@@ -465,10 +466,10 @@ export type GetOnlineStreamEpisodeList_Variables = {
  * - Filename: onlinestream.go
  */
 export type GetOnlineStreamEpisodeSource_Variables = {
-    EpisodeNumber: number
-    MediaId: number
-    Provider: string
-    Dubbed: boolean
+    episodeNumber: number
+    mediaId: number
+    provider: string
+    dubbed: boolean
 }
 
 /**
@@ -476,7 +477,7 @@ export type GetOnlineStreamEpisodeSource_Variables = {
  * - Filename: onlinestream.go
  */
 export type OnlineStreamEmptyCache_Variables = {
-    MediaId: number
+    mediaId: number
 }
 
 /**
@@ -484,7 +485,7 @@ export type OnlineStreamEmptyCache_Variables = {
  * - Filename: playback_manager.go
  */
 export type PlaybackStartPlaylist_Variables = {
-    DbId: number
+    dbId: number
 }
 
 /**
@@ -492,8 +493,8 @@ export type PlaybackStartPlaylist_Variables = {
  * - Filename: playlist.go
  */
 export type CreatePlaylist_Variables = {
-    Name: string
-    Paths: Array<string>
+    name: string
+    paths: Array<string>
 }
 
 /**
@@ -501,9 +502,9 @@ export type CreatePlaylist_Variables = {
  * - Filename: playlist.go
  */
 export type UpdatePlaylist_Variables = {
-    DbId: number
-    Name: string
-    Paths: Array<string>
+    dbId: number
+    name: string
+    paths: Array<string>
 }
 
 /**
@@ -511,7 +512,7 @@ export type UpdatePlaylist_Variables = {
  * - Filename: playlist.go
  */
 export type DeletePlaylist_Variables = {
-    DbId: number
+    dbId: number
 }
 
 /**
@@ -534,11 +535,11 @@ export type GetPlaylistEpisodes_Variables = {
  * - Filename: settings.go
  */
 export type SaveSettings_Variables = {
-    Library: Models_LibrarySettings
-    MediaPlayer: Models_MediaPlayerSettings
-    Torrent: Models_TorrentSettings
-    Anilist: Models_AnilistSettings
-    Discord: Models_DiscordSettings
+    library: Models_LibrarySettings
+    mediaPlayer: Models_MediaPlayerSettings
+    torrent: Models_TorrentSettings
+    anilist: Models_AnilistSettings
+    discord: Models_DiscordSettings
 }
 
 /**
@@ -557,7 +558,7 @@ export type GetMediaEntrySilenceStatus_Variables = {
  * - Filename: silenced_media_entries.go
  */
 export type ToggleMediaEntrySilenceStatus_Variables = {
-    MediaId: number
+    mediaId: number
 }
 
 /**
@@ -565,9 +566,9 @@ export type ToggleMediaEntrySilenceStatus_Variables = {
  * - Filename: torrent_client.go
  */
 export type TorrentClientAction_Variables = {
-    Hash: string
-    Action: string
-    Dir: string
+    hash: string
+    action: string
+    dir: string
 }
 
 /**
@@ -575,10 +576,10 @@ export type TorrentClientAction_Variables = {
  * - Filename: torrent_client.go
  */
 export type TorrentClientDownload_Variables = {
-    Urls: Array<string>
-    Destination: string
-    SmartSelect: any
-    Media: AL_BaseMedia
+    urls: Array<string>
+    destination: string
+    smartSelect: any
+    media: AL_BaseMedia
 }
 
 /**
@@ -586,9 +587,9 @@ export type TorrentClientDownload_Variables = {
  * - Filename: torrent_client.go
  */
 export type TorrentClientAddMagnetFromRule_Variables = {
-    MagnetUrl: string
-    RuleId: number
-    QueuedItemId: number
+    magnetUrl: string
+    ruleId: number
+    queuedItemId: number
 }
 
 /**
@@ -596,14 +597,14 @@ export type TorrentClientAddMagnetFromRule_Variables = {
  * - Filename: torrent_search.go
  */
 export type TorrentSearch_Variables = {
-    SmartSearch: boolean
-    Query: string
-    EpisodeNumber: number
-    Batch: boolean
-    Media: AL_BaseMedia
-    AbsoluteOffset: number
-    Resolution: string
-    Best: boolean
+    smartSearch: boolean
+    query: string
+    episodeNumber: number
+    batch: boolean
+    media: AL_BaseMedia
+    absoluteOffset: number
+    resolution: string
+    best: boolean
 }
 
 /**
@@ -611,6 +612,6 @@ export type TorrentSearch_Variables = {
  * - Filename: torrent_search.go
  */
 export type NsfwTorrentSearch_Variables = {
-    Query: string
+    query: string
 }
 

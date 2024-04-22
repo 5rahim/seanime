@@ -884,7 +884,7 @@
       "",
       "\t@summary sets manga activity for discord rich presence.",
       "\t@route /api/v1/discord/presence/manga [POST]",
-      "\t@returns true",
+      "\t@returns boolean",
       ""
     ],
     "filepath": "internal/handlers/discord.go",
@@ -926,9 +926,9 @@
           "descriptions": []
         }
       ],
-      "returns": "true",
-      "returnGoType": "true",
-      "returnTypescriptType": "true"
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -939,7 +939,7 @@
       "",
       "\t@summary cancels the current discord rich presence activity.",
       "\t@route /api/v1/discord/presence/cancel [POST]",
-      "\t@returns true",
+      "\t@returns boolean",
       ""
     ],
     "filepath": "internal/handlers/discord.go",
@@ -953,9 +953,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "true",
-      "returnGoType": "true",
-      "returnTypescriptType": "true"
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -993,7 +993,7 @@
       "",
       "\t@summary downloads torrent files to the destination folder",
       "\t@route /api/v1/download-torrent-file [POST]",
-      "\t@returns true",
+      "\t@returns boolean",
       ""
     ],
     "filepath": "internal/handlers/download.go",
@@ -1035,9 +1035,9 @@
           "descriptions": []
         }
       ],
-      "returns": "true",
-      "returnGoType": "true",
-      "returnTypescriptType": "true"
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -1052,7 +1052,7 @@
       "\t@desc The successful response will contain the destination path of the extracted files.",
       "\t@desc It only returns an error if the download fails.",
       "\t@route /api/v1/download-release [POST]",
-      "\t@returns handlers.HandleDownloadRelease.retData",
+      "\t@returns handlers.DownloadReleaseResponse",
       ""
     ],
     "filepath": "internal/handlers/download.go",
@@ -1090,9 +1090,9 @@
           "descriptions": []
         }
       ],
-      "returns": "handlers.HandleDownloadRelease.retData",
-      "returnGoType": "handlers.HandleDownloadRelease.retData",
-      "returnTypescriptType": "Handlers_HandleDownloadRelease"
+      "returns": "handlers.DownloadReleaseResponse",
+      "returnGoType": "handlers.DownloadReleaseResponse",
+      "returnTypescriptType": "Handlers_DownloadReleaseResponse"
     }
   },
   {
@@ -1201,7 +1201,7 @@
       "\t@desc This finds a common directory for all media entry local files and opens it in the file explorer.",
       "\t@desc Returns 'true' whether the operation was successful or not, errors are ignored.",
       "\t@route /api/v1/library/media-entry/open-in-explorer [POST]",
-      "\t@returns true",
+      "\t@returns boolean",
       ""
     ],
     "filepath": "internal/handlers/entries.go",
@@ -1228,9 +1228,9 @@
           "descriptions": []
         }
       ],
-      "returns": "true",
-      "returnGoType": "true",
-      "returnTypescriptType": "true"
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -1413,7 +1413,7 @@
       "\t@desc The response is not used in the frontend, the client should just refetch the entire media entry data.",
       "\t@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.",
       "\t@route /api/v1/media-entry/update-progress [POST]",
-      "\t@returns true",
+      "\t@returns boolean",
       ""
     ],
     "filepath": "internal/handlers/entries.go",
@@ -1468,9 +1468,9 @@
           "descriptions": []
         }
       ],
-      "returns": "true",
-      "returnGoType": "true",
-      "returnTypescriptType": "true"
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -3330,7 +3330,7 @@
       "\t@desc The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.",
       "\t@desc The episode list might be nil or empty if nothing could be found, but the media will always be returned.",
       "\t@route /api/v1/onlinestream/episode-list [POST]",
-      "\t@returns {episodes: Episode[], media: BaseMedia}",
+      "\t@returns handlers.OnlinestreamEpisodeListResponse",
       ""
     ],
     "filepath": "internal/handlers/onlinestream.go",
@@ -3377,9 +3377,9 @@
           "descriptions": []
         }
       ],
-      "returns": "{episodes: Episode[], media: BaseMedia}",
-      "returnGoType": "{episodes: Episode[], media: BaseMedia}",
-      "returnTypescriptType": "{episodes: Episode[], media: BaseMedia}"
+      "returns": "handlers.OnlinestreamEpisodeListResponse",
+      "returnGoType": "handlers.OnlinestreamEpisodeListResponse",
+      "returnTypescriptType": "Handlers_OnlinestreamEpisodeListResponse"
     }
   },
   {
@@ -4079,7 +4079,7 @@
       "\t@desc This will update the app settings.",
       "\t@desc The client should re-fetch the server status after this.",
       "\t@route /api/v1/settings [POST]",
-      "\t@returns Status",
+      "\t@returns handlers.Status",
       ""
     ],
     "filepath": "internal/handlers/settings.go",
@@ -4142,9 +4142,9 @@
           "descriptions": []
         }
       ],
-      "returns": "Status",
-      "returnGoType": "Status",
-      "returnTypescriptType": "Status"
+      "returns": "handlers.Status",
+      "returnGoType": "handlers.Status",
+      "returnTypescriptType": "Handlers_Status"
     }
   },
   {

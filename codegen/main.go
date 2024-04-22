@@ -1,9 +1,10 @@
-//go:generate go run main.go --skipHandlers=false --skipStructs=true --skipTypes=true --skipEndpoints=false
+//go:generate go run main.go --skipHandlers=false --skipStructs=false --skipTypes=false
 
 package main
 
 import (
 	"flag"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/seanime-app/seanime/codegen/internal"
 )
 
@@ -18,9 +19,6 @@ func main() {
 	var skipTypes bool
 	flag.BoolVar(&skipTypes, "skipTypes", false, "Skip generating types")
 
-	var skipEndpoints bool
-	flag.BoolVar(&skipEndpoints, "skipEndpoints", false, "Skip generating endpoints")
-
 	flag.Parse()
 
 	if !skipHandlers {
@@ -32,11 +30,10 @@ func main() {
 	}
 
 	if !skipTypes {
-		codegen.GenerateTypescriptFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated")
-	}
+		goStructStrs := codegen.GenerateTypescriptEndpointsFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated")
+		spew.Dump(goStructStrs)
+		codegen.GenerateTypescriptFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated", goStructStrs)
 
-	if !skipEndpoints {
-		codegen.GenerateTypescriptEndpointsFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated")
 	}
 
 }

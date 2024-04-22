@@ -16,7 +16,7 @@ import (
 //
 //	@summary downloads torrent files to the destination folder
 //	@route /api/v1/download-torrent-file [POST]
-//	@returns true
+//	@returns boolean
 func HandleDownloadTorrentFile(c *RouteCtx) error {
 
 	type body struct {
@@ -92,6 +92,11 @@ func downloadTorrentFile(url string, dest string) (err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+type DownloadReleaseResponse struct {
+	Destination string `json:"destination"`
+	Error       string `json:"error,omitempty"`
+}
+
 // HandleDownloadRelease
 //
 //	@summary downloads selected release asset to the destination folder.
@@ -100,13 +105,8 @@ func downloadTorrentFile(url string, dest string) (err error) {
 //	@desc The successful response will contain the destination path of the extracted files.
 //	@desc It only returns an error if the download fails.
 //	@route /api/v1/download-release [POST]
-//	@returns handlers.HandleDownloadRelease.retData
+//	@returns handlers.DownloadReleaseResponse
 func HandleDownloadRelease(c *RouteCtx) error {
-
-	type retData struct {
-		Destination string `json:"destination"`
-		Error       string `json:"error,omitempty"`
-	}
 
 	type body struct {
 		DownloadUrl string `json:"download_url"`
@@ -122,11 +122,11 @@ func HandleDownloadRelease(c *RouteCtx) error {
 
 	if err != nil {
 		if errors.Is(err, updater.ErrExtractionFailed) {
-			return c.RespondWithData(retData{Destination: path, Error: err.Error()})
+			return c.RespondWithData(DownloadReleaseResponse{Destination: path, Error: err.Error()})
 		}
 		return c.RespondWithError(err)
 	}
 
-	return c.RespondWithData(retData{Destination: path})
+	return c.RespondWithData(DownloadReleaseResponse{Destination: path})
 
 }

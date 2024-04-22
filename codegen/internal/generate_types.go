@@ -16,7 +16,7 @@ const (
 )
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.
-func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, outDir string) {
+func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, outDir string, goStructStrs []string) {
 
 	handlers := LoadHandlers(docsFilePath)
 
@@ -42,6 +42,13 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, o
 	// Get all the returned structs from the routes
 	// e.g. @returns models.User
 	structStrMap := make(map[string]int)
+	for _, str := range goStructStrs {
+		if _, ok := structStrMap[str]; ok {
+			structStrMap[str]++
+		} else {
+			structStrMap[str] = 1
+		}
+	}
 	for _, handler := range handlers {
 		if handler.Api != nil {
 			switch handler.Api.ReturnTypescriptType {

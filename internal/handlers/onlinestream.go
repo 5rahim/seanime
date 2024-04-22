@@ -6,6 +6,11 @@ import (
 	"github.com/seanime-app/seanime/internal/onlinestream"
 )
 
+type OnlinestreamEpisodeListResponse struct {
+	Episodes []*onlinestream.Episode `json:"episodes"`
+	Media    *anilist.BaseMedia      `json:"media"`
+}
+
 // HandleGetOnlineStreamEpisodeList
 //
 //	@summary returns the episode list for the given media and provider.
@@ -14,7 +19,7 @@ import (
 //	@desc The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
 //	@desc The episode list might be nil or empty if nothing could be found, but the media will always be returned.
 //	@route /api/v1/onlinestream/episode-list [POST]
-//	@returns {episodes: Episode[], media: BaseMedia}
+//	@returns handlers.OnlinestreamEpisodeListResponse
 func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 	type body struct {
@@ -50,10 +55,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 	//	return c.RespondWithError(err)
 	//}
 
-	ret := struct {
-		Episodes []*onlinestream.Episode `json:"episodes"`
-		Media    *anilist.BaseMedia      `json:"media"`
-	}{
+	ret := OnlinestreamEpisodeListResponse{
 		Episodes: episodes,
 		Media:    media,
 	}
