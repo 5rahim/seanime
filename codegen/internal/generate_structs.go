@@ -13,14 +13,15 @@ import (
 )
 
 type GoStruct struct {
-	Filepath      string           `json:"filepath"`
-	Filename      string           `json:"filename"`
-	Name          string           `json:"name"`
-	FormattedName string           `json:"formattedName"` // name with package prefix e.g. models.User => Models_User
-	Package       string           `json:"package"`
-	Fields        []*GoStructField `json:"fields"`
-	AliasOf       *GoAlias         `json:"aliasOf,omitempty"`
-	Comments      []string         `json:"comments"`
+	Filepath            string           `json:"filepath"`
+	Filename            string           `json:"filename"`
+	Name                string           `json:"name"`
+	FormattedName       string           `json:"formattedName"` // name with package prefix e.g. models.User => Models_User
+	Package             string           `json:"package"`
+	Fields              []*GoStructField `json:"fields"`
+	AliasOf             *GoAlias         `json:"aliasOf,omitempty"`
+	Comments            []string         `json:"comments"`
+	EmbeddedStructTypes []string         `json:"embeddedStructNames,omitempty"`
 }
 
 type GoAlias struct {
@@ -207,18 +208,25 @@ func ExtractStructs(dir string, outDir string) {
 						}
 
 						goStruct := &GoStruct{
-							Filepath:      path,
-							Filename:      info.Name(),
-							Name:          typeSpec.Name.Name,
-							FormattedName: getTypePrefix(packageName) + typeSpec.Name.Name,
-							Package:       packageName,
-							Fields:        make([]*GoStructField, 0),
-							Comments:      comments,
+							Filepath:            path,
+							Filename:            info.Name(),
+							Name:                typeSpec.Name.Name,
+							FormattedName:       getTypePrefix(packageName) + typeSpec.Name.Name,
+							Package:             packageName,
+							Fields:              make([]*GoStructField, 0),
+							EmbeddedStructTypes: make([]string, 0),
+							Comments:            comments,
 						}
 
 						// Get fields
 						for _, field := range structType.Fields.List {
 							if field.Names == nil || len(field.Names) == 0 {
+								if len(field.Names) == 0 {
+									if _, ok := field.Type.(*ast.Ident); ok {
+										usedStructType, _ := getUsedStructType(field.Type, packageName)
+										goStruct.EmbeddedStructTypes = append(goStruct.EmbeddedStructTypes, usedStructType)
+									}
+								}
 								continue
 							}
 							// Get fields comments

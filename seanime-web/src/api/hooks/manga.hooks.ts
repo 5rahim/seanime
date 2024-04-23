@@ -38,7 +38,7 @@ export function useGetMangaCollection() {
 
 export function useGetMangaEntry(id: Nullish<string | number>) {
     return useServerQuery<Manga_Entry>({
-        endpoint: API_ENDPOINTS.MANGA.GetMangaEntry.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.MANGA.GetMangaEntry.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.MANGA.GetMangaEntry.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key],
         enabled: true,
@@ -47,7 +47,7 @@ export function useGetMangaEntry(id: Nullish<string | number>) {
 
 export function useGetMangaEntryDetails(id: Nullish<string | number>) {
     return useServerQuery<AL_MangaDetailsById_Media>({
-        endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDetails.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDetails.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.MANGA.GetMangaEntryDetails.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryDetails.key],
         enabled: true,

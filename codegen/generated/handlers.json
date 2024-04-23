@@ -1134,7 +1134,89 @@
         "POST"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "Enabled",
+          "jsonName": "enabled",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ReleaseGroups",
+          "jsonName": "releaseGroups",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Resolutions",
+          "jsonName": "resolutions",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ComparisonTitle",
+          "jsonName": "comparisonTitle",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "TitleComparisonType",
+          "jsonName": "titleComparisonType",
+          "goType": "anime.AutoDownloaderRuleTitleComparisonType",
+          "usedStructType": "anime.AutoDownloaderRuleTitleComparisonType",
+          "typescriptType": "Anime_AutoDownloaderRuleTitleComparisonType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeType",
+          "jsonName": "episodeType",
+          "goType": "anime.AutoDownloaderRuleEpisodeType",
+          "usedStructType": "anime.AutoDownloaderRuleEpisodeType",
+          "typescriptType": "Anime_AutoDownloaderRuleEpisodeType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumbers",
+          "jsonName": "episodeNumbers",
+          "goType": "[]int",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cnumber\u003e",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Destination",
+          "jsonName": "destination",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "anime.AutoDownloaderRule",
       "returnGoType": "anime.AutoDownloaderRule",
       "returnTypescriptType": "Anime_AutoDownloaderRule"
@@ -1166,7 +1248,17 @@
         "PATCH"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "Rule",
+          "jsonName": "rule",
+          "goType": "anime.AutoDownloaderRule",
+          "usedStructType": "anime.AutoDownloaderRule",
+          "typescriptType": "Anime_AutoDownloaderRule",
+          "required": false,
+          "descriptions": []
+        }
+      ],
       "returns": "anime.AutoDownloaderRule",
       "returnGoType": "anime.AutoDownloaderRule",
       "returnTypescriptType": "Anime_AutoDownloaderRule"
@@ -4294,7 +4386,26 @@
         "PATCH"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "Automatic",
+          "jsonName": "automatic",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Origin",
+          "jsonName": "origin",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
@@ -4321,7 +4432,35 @@
         "PATCH"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "Interval",
+          "jsonName": "interval",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Enabled",
+          "jsonName": "enabled",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "DownloadAutomatically",
+          "jsonName": "downloadAutomatically",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"

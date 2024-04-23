@@ -256,7 +256,7 @@ func generateHooksFile(f *os.File, groupedHandlers map[string][]*RouteHandler, f
 //         endpoint: API_ENDPOINTS.{groupName}.{handlerName}.endpoint{endpointSuffix},
 //         method: API_ENDPOINTS.{groupName}.{handlerName}.methods[%d],
 //         queryKey: [API_ENDPOINTS.{groupName}.{handlerName}.key],
-// 		   enabled: true,
+//         enabled: true,
 //     })
 // }
 
@@ -266,7 +266,7 @@ func generateHooksFile(f *os.File, groupedHandlers map[string][]*RouteHandler, f
 //         endpoint: API_ENDPOINTS.{groupName}.{handlerName}.endpoint{endpointSuffix},
 //         method: API_ENDPOINTS.{groupName}.{handlerName}.methods[%d],
 //         mutationKey: [API_ENDPOINTS.{groupName}.{handlerName}.key],
-// 		   onSuccess: async () => {
+//         onSuccess: async () => {
 // 
 //         },
 //     })
@@ -340,7 +340,7 @@ func generateHooksFile(f *os.File, groupedHandlers map[string][]*RouteHandler, f
 					tmpl = strings.ReplaceAll(tmpl, "{props}", props[:len(props)-2])
 					endpointSuffix := ""
 					for _, param := range route.Api.Params {
-						endpointSuffix += fmt.Sprintf(`.replace("%s", String(%s))`, param.JsonName, param.JsonName)
+						endpointSuffix += fmt.Sprintf(`.replace("{%s}", String(%s))`, param.JsonName, param.JsonName)
 					}
 					tmpl = strings.ReplaceAll(tmpl, "{endpointSuffix}", endpointSuffix)
 				}

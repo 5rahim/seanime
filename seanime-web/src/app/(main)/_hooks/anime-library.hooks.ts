@@ -1,6 +1,6 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
-import { useSetAtom } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 
 /**
@@ -20,4 +20,8 @@ export function useLibraryCollectionLoader() {
     }, [data, status])
 
     return null
+}
+
+export function useLibraryCollection() {
+    return useAtomValue(libraryCollectionAtom)
 }

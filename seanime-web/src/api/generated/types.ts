@@ -1822,6 +1822,9 @@ export type Models_AutoDownloaderItem = {
     magnet: string
     torrentName: string
     downloaded: boolean
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**
@@ -1851,6 +1854,9 @@ export type Models_ChapterDownloadQueueItem = {
      */
     pageData?: string
     status: string
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**
@@ -1901,6 +1907,9 @@ export type Models_Mal = {
     accessToken: string
     refreshToken: string
     tokenExpiresAt?: string
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**
@@ -1937,6 +1946,9 @@ export type Models_Settings = {
     listSync?: Models_ListSyncSettings
     autoDownloader?: Models_AutoDownloaderSettings
     discord?: Models_DiscordSettings
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**
@@ -1944,6 +1956,12 @@ export type Models_Settings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_SilencedMediaEntry = {
+    id: number
+    createdAt?: string
+    updatedAt?: string
+}
+
 /**
  * - Filepath: internal/internal/database/models/models.go
  * - Filename: models.go
@@ -1961,6 +1979,9 @@ export type Models_Theme = {
     libraryScreenCustomBannerOpacity: number
     libraryScreenCustomBackgroundImage: string
     libraryScreenCustomBackgroundOpacity: number
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**

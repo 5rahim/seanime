@@ -1,4 +1,4 @@
-import { AutoDownloaderItem } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"
+import { Models_AutoDownloaderItem } from "@/api/generated/types"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { SeaEndpoints } from "@/lib/server/endpoints"
@@ -11,7 +11,7 @@ import { toast } from "sonner"
 
 type AutoDownloaderItemsProps = {
     children?: React.ReactNode
-    items: AutoDownloaderItem[] | undefined
+    items: Models_AutoDownloaderItem[] | undefined
     isLoading: boolean
 }
 
@@ -68,7 +68,7 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
                             <p className="text-base text-gray-400 flex gap-2 items-center">
                                 {item.downloaded && <span className="text-green-200">File downloaded </span>}
                                 {!item.downloaded && <span className="text-brand-300 italic">Queued </span>}
-                                {formatDateAndTimeShort(item.createdAt)}
+                                {item.createdAt && formatDateAndTimeShort(item.createdAt)}
                             </p>
                             {item.downloaded && (
                                 <p className="text-sm text-[--muted]">

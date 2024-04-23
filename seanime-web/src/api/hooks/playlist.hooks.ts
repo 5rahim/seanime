@@ -33,7 +33,7 @@ export function useUpdatePlaylist(id: Nullish<number>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<Anime_Playlist, UpdatePlaylist_Variables>({
-        endpoint: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.methods[0],
         mutationKey: [API_ENDPOINTS.PLAYLIST.UpdatePlaylist.key],
         onSuccess: async () => {
@@ -59,7 +59,7 @@ export function useDeletePlaylist() {
 
 export function useGetPlaylistEpisodes(id: Nullish<number>, progress: Nullish<number>) {
     return useServerQuery<Array<Anime_LocalFile>>({
-        endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("id", String(id)).replace("progress", String(progress || 0)),
+        endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("{id}", String(id)).replace("{progress}", String(progress || 0)),
         method: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.methods[0],
         queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key],
         enabled: !!id,

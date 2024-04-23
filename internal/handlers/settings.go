@@ -93,9 +93,14 @@ func HandleSaveSettings(c *RouteCtx) error {
 //	@returns bool
 func HandleSaveListSyncSettings(c *RouteCtx) error {
 
-	body := new(models.ListSyncSettings)
+	type body struct {
+		Automatic bool   `json:"automatic"`
+		Origin    string `json:"origin"`
+	}
 
-	if err := c.Fiber.BodyParser(body); err != nil {
+	var b body
+
+	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -116,8 +121,8 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 		AutoDownloader: prevSettings.AutoDownloader,
 		Discord:        prevSettings.Discord,
 		ListSync: &models.ListSyncSettings{
-			Automatic: body.Automatic,
-			Origin:    body.Origin,
+			Automatic: b.Automatic,
+			Origin:    b.Origin,
 		},
 	})
 
@@ -139,9 +144,15 @@ func HandleSaveListSyncSettings(c *RouteCtx) error {
 //	@returns bool
 func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 
-	body := new(models.AutoDownloaderSettings)
+	type body struct {
+		Interval              int  `json:"interval"`
+		Enabled               bool `json:"enabled"`
+		DownloadAutomatically bool `json:"downloadAutomatically"`
+	}
 
-	if err := c.Fiber.BodyParser(body); err != nil {
+	var b body
+
+	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -151,15 +162,15 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	// Validation
-	if body.Interval < 2 {
+	if b.Interval < 2 {
 		return c.RespondWithError(errors.New("interval must be at least 2 minutes"))
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
 		Provider:              prevSettings.Library.TorrentProvider,
-		Interval:              body.Interval,
-		Enabled:               body.Enabled,
-		DownloadAutomatically: body.DownloadAutomatically,
+		Interval:              b.Interval,
+		Enabled:               b.Enabled,
+		DownloadAutomatically: b.DownloadAutomatically,
 	}
 
 	_, err = c.App.Database.UpsertSettings(&models.Settings{

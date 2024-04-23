@@ -1,6 +1,6 @@
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
 import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
-import { useSetAtom } from "jotai/react"
+import { useAtomValue, useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 
 /**
@@ -21,4 +21,8 @@ export function useAnilistCollectionLoader() {
     }, [data])
 
     return null
+}
+
+export function useAnilistUserMedia() {
+    return useAtomValue(anilistUserMediaAtom)
 }

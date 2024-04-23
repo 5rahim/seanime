@@ -24300,7 +24300,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24337,7 +24340,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24356,7 +24362,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24436,7 +24445,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24887,7 +24899,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24906,7 +24921,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24925,7 +24943,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25007,7 +25028,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25062,7 +25086,10 @@
     "formattedName": "Models_SilencedMediaEntry",
     "package": "models",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25171,7 +25198,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25199,7 +25229,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25265,7 +25298,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\discordrpc\\client\\activity.go",
@@ -31100,7 +31136,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "chapter_downloader.DownloadID"
+    ]
   },
   {
     "filepath": "..\\internal\\manga\\downloader\\queue.go",
@@ -31237,7 +31276,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "chapter_downloader.DownloadID"
+    ]
   },
   {
     "filepath": "..\\internal\\manga\\manga_chapter.go",
@@ -38203,7 +38245,10 @@
         ]
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "nyaa.Torrent"
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\qbittorrent\\application\\client.go",
@@ -40511,7 +40556,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "qbittorrent_model.TransferInfo"
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\qbittorrent\\model\\sync_main_data.go",
@@ -42487,7 +42535,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "torrent.SmartSearchQueryOptions"
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\torrent\\smart_search.go",

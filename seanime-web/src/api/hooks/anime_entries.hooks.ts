@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query"
 
 export function useGetAnimeEntry(id: Nullish<string | number>) {
     return useServerQuery<Anime_MediaEntry>({
-        endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, id],
         enabled: !!id,
@@ -80,7 +80,7 @@ export function useGetMissingEpisodes(enabled?: boolean) {
 
 export function useGetAnimeEntrySilenceStatus(id: Nullish<string | number>) {
     const { data, ...rest } = useServerQuery({
-        endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntrySilenceStatus.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntrySilenceStatus.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntrySilenceStatus.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntrySilenceStatus.key],
         enabled: !!id,

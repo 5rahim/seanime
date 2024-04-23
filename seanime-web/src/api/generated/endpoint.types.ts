@@ -8,6 +8,9 @@ import type {
     AL_MediaSeason,
     AL_MediaSort,
     AL_MediaStatus,
+    Anime_AutoDownloaderRule,
+    Anime_AutoDownloaderRuleEpisodeType,
+    Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
     ListSync_AnimeDiffKind,
     Manga_Provider,
@@ -250,6 +253,36 @@ export type GetAutoDownloaderRule_Variables = {
      *  The DB id of the rule
      */
     id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/rule
+ * @description
+ * Route creates a new rule.
+ */
+export type CreateAutoDownloaderRule_Variables = {
+    enabled: boolean
+    mediaId: number
+    releaseGroups: Array<string>
+    resolutions: Array<string>
+    comparisonTitle: string
+    titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
+    episodeType: Anime_AutoDownloaderRuleEpisodeType
+    episodeNumbers?: Array<number>
+    destination: string
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/rule
+ * @description
+ * Route updates a rule.
+ */
+export type UpdateAutoDownloaderRule_Variables = {
+    rule?: Anime_AutoDownloaderRule
 }
 
 /**
@@ -853,6 +886,31 @@ export type SaveSettings_Variables = {
     torrent: Models_TorrentSettings
     anilist: Models_AnilistSettings
     discord: Models_DiscordSettings
+}
+
+/**
+ * - Filepath: internal/handlers/settings.go
+ * - Filename: settings.go
+ * - Endpoint: /api/v1/settings/list-sync
+ * @description
+ * Route updates the list sync settings
+ */
+export type SaveListSyncSettings_Variables = {
+    automatic: boolean
+    origin: string
+}
+
+/**
+ * - Filepath: internal/handlers/settings.go
+ * - Filename: settings.go
+ * - Endpoint: /api/v1/settings/auto-downloader
+ * @description
+ * Route updates the auto-downloader settings.
+ */
+export type SaveAutoDownloaderSettings_Variables = {
+    interval: number
+    enabled: boolean
+    downloadAutomatically: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

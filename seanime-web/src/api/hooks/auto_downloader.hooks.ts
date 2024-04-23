@@ -1,23 +1,33 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { DeleteAutoDownloaderItem_Variables } from "@/api/generated/endpoint.types"
+import {
+    CreateAutoDownloaderRule_Variables,
+    DeleteAutoDownloaderItem_Variables,
+    UpdateAutoDownloaderRule_Variables,
+} from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Anime_AutoDownloaderRule, Models_AutoDownloaderItem } from "@/api/generated/types"
+import { Anime_AutoDownloaderRule, Models_AutoDownloaderItem, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export function useRunAutoDownloader() {
+    const queryClient = useQueryClient()
+
     return useServerMutation<boolean>({
         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloader.endpoint,
         method: API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloader.methods[0],
         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.RunAutoDownloader.key],
         onSuccess: async () => {
-
+            toast.success("Auto downloader started")
+            setTimeout(() => {
+                queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+            }, 1000)
         },
     })
 }
 
 export function useGetAutoDownloaderRule(id: number) {
     return useServerQuery<Anime_AutoDownloaderRule>({
-        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRule.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRule.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRule.methods[0],
         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRule.key],
         enabled: true,
@@ -36,12 +46,13 @@ export function useGetAutoDownloaderRules() {
 export function useCreateAutoDownloaderRule() {
     const queryClient = useQueryClient()
 
-    return useServerMutation<Anime_AutoDownloaderRule>({
+    return useServerMutation<Anime_AutoDownloaderRule, CreateAutoDownloaderRule_Variables>({
         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderRule.endpoint,
         method: API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderRule.methods[0],
         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.CreateAutoDownloaderRule.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+            toast.success("Rule created")
         },
     })
 }
@@ -49,25 +60,27 @@ export function useCreateAutoDownloaderRule() {
 export function useUpdateAutoDownloaderRule() {
     const queryClient = useQueryClient()
 
-    return useServerMutation<Anime_AutoDownloaderRule>({
+    return useServerMutation<Anime_AutoDownloaderRule, UpdateAutoDownloaderRule_Variables>({
         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderRule.endpoint,
         method: API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderRule.methods[0],
         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.UpdateAutoDownloaderRule.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+            toast.success("Rule updated")
         },
     })
 }
 
-export function useDeleteAutoDownloaderRule(id: number) {
+export function useDeleteAutoDownloaderRule(id: Nullish<number>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean>({
-        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.methods[0],
         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderRule.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+            toast.success("Rule deleted")
         },
     })
 }
@@ -85,10 +98,11 @@ export function useDeleteAutoDownloaderItem(id: number) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, DeleteAutoDownloaderItem_Variables>({
-        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.methods[0],
         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.key],
         onSuccess: async () => {
+            toast.success("Item deleted")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key] })
         },
     })

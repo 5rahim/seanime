@@ -46,7 +46,7 @@ export function useEditAnilistListEntry() {
 
 export function useGetAnilistMediaDetails(id: number) {
     return useServerQuery<AL_MediaDetailsById_Media>({
-        endpoint: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.endpoint.replace("id", String(id)),
+        endpoint: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.key],
         enabled: true,

@@ -1,4 +1,4 @@
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
+import { AL_BaseMedia } from "@/api/generated/types"
 import { atom } from "jotai/index"
 
-export const anilistUserMediaAtom = atom<BaseMediaFragment[] | undefined>(undefined)
+export const anilistUserMediaAtom = atom<AL_BaseMedia[] | undefined>(undefined)

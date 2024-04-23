@@ -1,18 +1,20 @@
-import { Anime_LibraryCollection } from "@/api/generated/types"
-import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
-import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
-import { AutoDownloaderRule } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"
+import {
+    AL_BaseMedia,
+    Anime_AutoDownloaderRule,
+    Anime_AutoDownloaderRuleEpisodeType,
+    Anime_AutoDownloaderRuleTitleComparisonType,
+    Anime_LibraryCollection,
+} from "@/api/generated/types"
+import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
+import { useAnilistUserMedia } from "@/app/(main)/_hooks/anilist-collection.hooks"
+import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library.hooks"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
-import { useAtomValue } from "jotai/react"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
@@ -25,7 +27,7 @@ import { toast } from "sonner"
 
 type RuleFormProps = {
     type: "create" | "edit"
-    rule?: AutoDownloaderRule
+    rule?: Anime_AutoDownloaderRule
     onRuleCreatedOrDeleted?: () => void
 }
 
@@ -50,8 +52,8 @@ export function RuleForm(props: RuleFormProps) {
     } = props
 
     const qc = useQueryClient()
-    const userMedia = useAtomValue(anilistUserMediaAtom)
-    const libraryCollection = useAtomValue(libraryCollectionAtom)
+    const userMedia = useAnilistUserMedia()
+    const libraryCollection = useLibraryCollection()
 
     const allMedia = React.useMemo(() => {
         return userMedia ?? []
@@ -62,38 +64,11 @@ export function RuleForm(props: RuleFormProps) {
         return allMedia.filter(media => media.status !== "FINISHED")
     }, [allMedia])
 
-    // Create a new rule
-    const { mutate: createRule, isPending: creatingRule } = useSeaMutation<null, InferType<typeof schema>>({
-        mutationKey: ["create-auto-downloader-rule"],
-        endpoint: SeaEndpoints.AUTO_DOWNLOADER_RULE,
-        method: "post",
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["auto-downloader-rules"] })
-            toast.success("Rule created")
-            onRuleCreatedOrDeleted?.()
-        },
-    })
-    // Update a rule
-    const { mutate: updateRule, isPending: updatingRule } = useSeaMutation<null, AutoDownloaderRule>({
-        mutationKey: ["update-auto-downloader-rule"],
-        endpoint: SeaEndpoints.AUTO_DOWNLOADER_RULE,
-        method: "patch",
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["auto-downloader-rules"] })
-            toast.success("Rule updated")
-        },
-    })
-    // Delete a rule
-    const { mutate: deleteRule, isPending: deletingRule } = useSeaMutation({
-        mutationKey: ["delete-auto-downloader-rule", rule?.dbId],
-        endpoint: SeaEndpoints.AUTO_DOWNLOADER_RULE_DETAILS.replace("{id}", String(rule?.dbId)),
-        method: "delete",
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["auto-downloader-rules"] })
-            toast.success("Rule deleted")
-            onRuleCreatedOrDeleted?.()
-        },
-    })
+    const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
+
+    const { mutate: updateRule, isPending: updatingRule } = useUpdateAutoDownloaderRule()
+
+    const { mutate: deleteRule, isPending: deletingRule } = useDeleteAutoDownloaderRule(rule?.dbId)
 
     const isPending = creatingRule || updatingRule || deletingRule
 
@@ -102,10 +77,25 @@ export function RuleForm(props: RuleFormProps) {
             return toast.error("You must specify at least one episode number")
         }
         if (type === "create") {
-            createRule(data)
+            createRule({
+                ...data,
+                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
+            }, {
+                onSuccess: () => onRuleCreatedOrDeleted?.(),
+            })
         }
         if (type === "edit" && rule?.dbId) {
-            updateRule({ ...data, dbId: rule?.dbId })
+            updateRule({
+                rule: {
+                    ...data,
+                    dbId: rule.dbId || 0,
+                    titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                    episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
+                },
+            }, {
+                onSuccess: () => onRuleCreatedOrDeleted?.(),
+            })
         }
     }
 
@@ -157,12 +147,12 @@ export function RuleForm(props: RuleFormProps) {
 
 type RuleFormFormProps = {
     form: UseFormReturn<InferType<typeof schema>>
-    allMedia: BaseMediaFragment[]
+    allMedia: AL_BaseMedia[]
     type: "create" | "edit"
     isPending: boolean
-    notFinishedMedia: BaseMediaFragment[]
+    notFinishedMedia: AL_BaseMedia[]
     libraryCollection?: Anime_LibraryCollection | undefined
-    rule?: AutoDownloaderRule
+    rule?: Anime_AutoDownloaderRule
 }
 
 export function RuleFormForm(props: RuleFormFormProps) {

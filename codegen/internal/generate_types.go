@@ -28,6 +28,19 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, o
 		goStructsMap[goStruct.Package+"."+goStruct.Name] = goStruct
 	}
 
+	// Expand the structs with embedded structs
+	for _, goStruct := range goStructs {
+		for _, embeddedStructType := range goStruct.EmbeddedStructTypes {
+			if embeddedStructType != "" {
+				if usedStruct, ok := goStructsMap[embeddedStructType]; ok {
+					for _, usedField := range usedStruct.Fields {
+						goStruct.Fields = append(goStruct.Fields, usedField)
+					}
+				}
+			}
+		}
+	}
+
 	// Create the typescript file
 	_ = os.MkdirAll(outDir, os.ModePerm)
 	file, err := os.Create(filepath.Join(outDir, typescriptFileName))

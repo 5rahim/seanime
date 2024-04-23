@@ -1,5 +1,5 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { SaveSettings_Variables } from "@/api/generated/endpoint.types"
+import { SaveAutoDownloaderSettings_Variables, SaveListSyncSettings_Variables, SaveSettings_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Models_Settings, Status } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -32,7 +32,7 @@ export function useSaveSettings() {
 export function useSaveListSyncSettings() {
     const queryClient = useQueryClient()
 
-    return useServerMutation<boolean>({
+    return useServerMutation<boolean, SaveListSyncSettings_Variables>({
         endpoint: API_ENDPOINTS.SETTINGS.SaveListSyncSettings.endpoint,
         method: API_ENDPOINTS.SETTINGS.SaveListSyncSettings.methods[0],
         mutationKey: [API_ENDPOINTS.SETTINGS.SaveListSyncSettings.key],
@@ -47,7 +47,7 @@ export function useSaveListSyncSettings() {
 export function useSaveAutoDownloaderSettings() {
     const queryClient = useQueryClient()
 
-    return useServerMutation<boolean>({
+    return useServerMutation<boolean, SaveAutoDownloaderSettings_Variables>({
         endpoint: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.endpoint,
         method: API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.methods[0],
         mutationKey: [API_ENDPOINTS.SETTINGS.SaveAutoDownloaderSettings.key],
