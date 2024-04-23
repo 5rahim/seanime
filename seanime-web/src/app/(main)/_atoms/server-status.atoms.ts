@@ -1,4 +1,4 @@
-import { ServerStatus } from "@/lib/types/server-status.types"
+import { Status } from "@/api/generated/types"
 import { atomWithImmer } from "jotai-immer"
 
-export const serverStatusAtom = atomWithImmer<ServerStatus | undefined>(undefined)
+export const serverStatusAtom = atomWithImmer<Status | undefined>(undefined)

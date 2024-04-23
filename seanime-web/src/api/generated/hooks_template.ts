@@ -212,7 +212,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useLogin() {
-//     return useServerMutation<Status>({
+//     return useServerMutation<Status, Login_Variables>({
 //         endpoint: API_ENDPOINTS.AUTH.Login.endpoint,
 //         method: API_ENDPOINTS.AUTH.Login.methods[0],
 //         mutationKey: [API_ENDPOINTS.AUTH.Login.key],

@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type AuthRequestBody struct {
-	Token string
-}
-
 // HandleLogin
 //
 //	@summary logs in the user by saving the JWT token in the database.
@@ -22,17 +18,18 @@ type AuthRequestBody struct {
 //	@returns handlers.Status
 func HandleLogin(c *RouteCtx) error {
 
-	c.Fiber.Accepts("application/json")
+	type body struct {
+		Token string `json:"token"`
+	}
 
-	// Body data
-	body := new(AuthRequestBody)
+	var b body
 
-	if err := c.Fiber.BodyParser(body); err != nil {
+	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.Fiber.JSON(NewErrorResponse(err))
 	}
 
 	// Set a new AniList client by passing to JWT token
-	c.App.UpdateAnilistClientToken(body.Token)
+	c.App.UpdateAnilistClientToken(b.Token)
 
 	// Get viewer data from AniList
 	getViewer, err := c.App.AnilistClientWrapper.GetViewer(context.Background())
@@ -58,7 +55,7 @@ func HandleLogin(c *RouteCtx) error {
 			UpdatedAt: time.Now(),
 		},
 		Username: getViewer.Viewer.Name,
-		Token:    body.Token,
+		Token:    b.Token,
 		Viewer:   bytes,
 	})
 

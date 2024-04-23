@@ -26200,25 +26200,6 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\handlers\\auth.go",
-    "filename": "auth.go",
-    "name": "AuthRequestBody",
-    "formattedName": "AuthRequestBody",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "Token",
-        "jsonName": "Token",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "..\\internal\\handlers\\directory_selector.go",
     "filename": "directory_selector.go",
     "name": "DirectoryInfo",
