@@ -1126,7 +1126,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useGetStatus() {
-//     return useServerQuery<boolean>({
+//     return useServerQuery<Status>({
 //         endpoint: API_ENDPOINTS.STATUS.GetStatus.endpoint,
 //         method: API_ENDPOINTS.STATUS.GetStatus.methods[0],
 //         queryKey: [API_ENDPOINTS.STATUS.GetStatus.key],

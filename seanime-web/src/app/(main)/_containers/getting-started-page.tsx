@@ -1,3 +1,5 @@
+import { Status } from "@/api/generated/types"
+import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
@@ -5,46 +7,41 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
-import { ServerStatus } from "@/lib/types/server-status.types"
-import { DEFAULT_DOH_PROVIDER, DEFAULT_TORRENT_PROVIDER, Settings } from "@/lib/types/settings.types"
+import { DEFAULT_DOH_PROVIDER, DEFAULT_TORRENT_PROVIDER } from "@/lib/types/settings.types"
 import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
-import React, { useEffect, useMemo } from "react"
+import React from "react"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
 import { ImDownload } from "react-icons/im"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
-export function GettingStarted({ status }: { status: ServerStatus }) {
+/**
+ * @description
+ * - Page to set up the initial settings for the application
+ */
+export function GettingStartedPage({ status }: { status: Status }) {
     const router = useRouter()
     const { getDefaultVlcPath, getDefaultQBittorrentPath, getDefaultTransmissionPath } = useDefaultSettingsPaths()
     const setServerStatus = useSetAtom(serverStatusAtom)
 
-    const { mutate, data, isPending, isSuccess } = useSeaMutation<ServerStatus, Settings>({
-        endpoint: SeaEndpoints.SETTINGS,
-        mutationKey: ["patch-settings"],
-        method: "patch",
-    })
-    useEffect(() => {
+    const { mutate, data, isPending, isSuccess } = useSaveSettings()
+
+    /**
+     * If the settings are returned, redirect to the home page
+     */
+    React.useEffect(() => {
         if (!isPending && !!data?.settings) {
             setServerStatus(data)
             router.push("/")
         }
     }, [data, isPending])
 
-    useEffect(() => {
-        if (isSuccess) {
-            router.push("/")
-        }
-    }, [isSuccess])
-
-    const vlcDefaultPath = useMemo(() => getDefaultVlcPath(status.os), [status.os])
-    const qbittorrentDefaultPath = useMemo(() => getDefaultQBittorrentPath(status.os), [status.os])
-    const transmissionDefaultPath = useMemo(() => getDefaultTransmissionPath(status.os), [status.os])
-    const mpvSocketPath = useMemo(() => getDefaultMpcSocket(status.os), [status.os])
+    const vlcDefaultPath = React.useMemo(() => getDefaultVlcPath(status.os), [status.os])
+    const qbittorrentDefaultPath = React.useMemo(() => getDefaultQBittorrentPath(status.os), [status.os])
+    const transmissionDefaultPath = React.useMemo(() => getDefaultTransmissionPath(status.os), [status.os])
+    const mpvSocketPath = React.useMemo(() => getDefaultMpcSocket(status.os), [status.os])
 
     if (isPending) return <LoadingOverlayWithLogo />
 

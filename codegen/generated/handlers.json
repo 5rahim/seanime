@@ -4333,7 +4333,7 @@
       "\t@desc It is called on every page load to get the most up-to-date data.",
       "\t@desc It should be called right after updating the settings.",
       "\t@route /api/v1/status [GET]",
-      "\t@returns bool",
+      "\t@returns handlers.Status",
       ""
     ],
     "filepath": "internal/handlers/status.go",
@@ -4352,9 +4352,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
+      "returns": "handlers.Status",
+      "returnGoType": "handlers.Status",
+      "returnTypescriptType": "Status"
     }
   },
   {

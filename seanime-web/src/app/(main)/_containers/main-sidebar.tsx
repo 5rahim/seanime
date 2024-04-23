@@ -1,10 +1,11 @@
 "use client"
+import { useLogout } from "@/api/hooks/auth.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { __globalSearch_isOpenAtom } from "@/app/(main)/_containers/global-search"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
-import { __globalSearch_isOpenAtom } from "@/components/application/global-search"
 import { UpdateModal } from "@/components/application/update-modal"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
@@ -16,10 +17,7 @@ import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ANILIST_OAUTH_URL } from "@/lib/anilist/config"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import { ServerStatus } from "@/lib/types/server-status.types"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
@@ -33,7 +31,12 @@ import { LuLayoutDashboard } from "react-icons/lu"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiMyanimelist } from "react-icons/si"
 
-
+/**
+ * @description
+ * - Displays navigation items
+ * - Button to logout
+ * - Shows count of missing episodes and auto downloader queue
+ */
 export function MainSidebar() {
 
     const ctx = useAppSidebarContext()
@@ -52,10 +55,7 @@ export function MainSidebar() {
     const autoDownloaderQueueCount = useAutoDownloaderQueueCount()
 
     // Logout
-    const { mutate: logout, data, isPending } = useSeaMutation<ServerStatus>({
-        endpoint: SeaEndpoints.LOGOUT,
-        mutationKey: ["logout"],
-    })
+    const { mutate: logout, data, isPending } = useLogout()
 
     React.useEffect(() => {
         if (!isPending) {

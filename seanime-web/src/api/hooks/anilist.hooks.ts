@@ -64,13 +64,13 @@ export function useDeleteAnilistListEntry() {
     })
 }
 
-// TODO
-export function useAnilistListAnime() {
+export function useAnilistListAnime(variables: AnilistListAnime_Variables, enabled: boolean, ...keys: any) {
     return useServerQuery<AL_ListMedia, AnilistListAnime_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.AnilistListAnime.endpoint,
         method: API_ENDPOINTS.ANILIST.AnilistListAnime.methods[0],
-        queryKey: [API_ENDPOINTS.ANILIST.AnilistListAnime.key],
-
+        queryKey: [API_ENDPOINTS.ANILIST.AnilistListAnime.key, ...keys],
+        data: variables,
+        enabled: enabled ?? true,
     })
 }
 

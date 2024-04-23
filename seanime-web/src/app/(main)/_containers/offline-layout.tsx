@@ -1,9 +1,8 @@
 import { OfflineSnapshotProvider } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { OfflineSidebar } from "@/components/application/offline-sidebar"
+import { OfflineSidebar } from "@/app/(main)/_containers/offline-sidebar"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
-import { useAtomValue } from "jotai"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 
@@ -19,7 +18,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
     } = props
 
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const pathname = usePathname()
     const router = useRouter()
 
@@ -45,21 +44,19 @@ export function OfflineLayout(props: OfflineLayoutProps) {
     if (!cont) return <LoadingOverlayWithLogo />
 
     return (
-        <>
-            <OfflineSnapshotProvider>
-                <AppSidebarProvider>
-                    <AppLayout withSidebar sidebarSize="slim">
-                        <AppLayoutSidebar>
-                            <OfflineSidebar />
-                        </AppLayoutSidebar>
-                        <AppLayout>
-                            <AppLayoutContent>
-                                {children}
-                            </AppLayoutContent>
-                        </AppLayout>
+        <OfflineSnapshotProvider>
+            <AppSidebarProvider>
+                <AppLayout withSidebar sidebarSize="slim">
+                    <AppLayoutSidebar>
+                        <OfflineSidebar />
+                    </AppLayoutSidebar>
+                    <AppLayout>
+                        <AppLayoutContent>
+                            {children}
+                        </AppLayoutContent>
                     </AppLayout>
-                </AppSidebarProvider>
-            </OfflineSnapshotProvider>
-        </>
+                </AppLayout>
+            </AppSidebarProvider>
+        </OfflineSnapshotProvider>
     )
 }

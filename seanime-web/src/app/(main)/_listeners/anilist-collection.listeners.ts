@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 
 /**
  * @description
- * Listens to REFRESHED_ANILIST_COLLECTION events and re-fetches queries associated with AniList collection.
+ * - Listens to REFRESHED_ANILIST_COLLECTION events and re-fetches queries associated with AniList collection.
  */
 export function useAnilistCollectionListener() {
 

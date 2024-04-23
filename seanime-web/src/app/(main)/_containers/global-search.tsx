@@ -1,11 +1,9 @@
 "use client"
+import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useDebounce } from "@/hooks/use-debounce"
-import { ListMediaQuery } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { buildSeaQuery, useSeaQuery } from "@/lib/server/query"
 import { Combobox, Dialog, Transition } from "@headlessui/react"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -19,43 +17,24 @@ import { FiSearch } from "react-icons/fi"
 
 export const __globalSearch_isOpenAtom = atom(false)
 
-interface GlobalSearchProps {
-    children?: React.ReactNode
-}
-
-export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
-
-    const { children, ...rest } = props
+export function GlobalSearch() {
 
     const [inputValue, setInputValue] = useState("")
-    const query = useDebounce(inputValue, 500)
+    const debouncedQuery = useDebounce(inputValue, 500)
 
     const router = useRouter()
 
     const [open, setOpen] = useAtom(__globalSearch_isOpenAtom)
 
-    const { data: media, isLoading, isFetching, fetchStatus } = useSeaQuery({
-        queryKey: ["global-search", query, query.length],
-        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-        method: "post",
-        queryFn: async () => {
-            const res = await buildSeaQuery<ListMediaQuery>({
-                endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-                method: "post",
-                data: {
-                    search: query,
-                    page: 1,
-                    perPage: 10,
-                    status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
-                    sort: ["SEARCH_MATCH"],
-                },
-            })
-            return res?.Page?.media?.filter(Boolean) ?? []
-        },
-        enabled: query.length > 0,
-        refetchOnWindowFocus: false,
-        retry: 0,
-    })
+    const { data, isLoading, isFetching } = useAnilistListAnime({
+        search: debouncedQuery,
+        page: 1,
+        perPage: 10,
+        status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
+        sort: ["SEARCH_MATCH"],
+    }, debouncedQuery.length > 0, [debouncedQuery])
+
+    const media = React.useMemo(() => data?.Page?.media?.filter(Boolean), [data])
 
     return (
         <>
@@ -216,11 +195,11 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = (props) => {
                                                 </Combobox.Options>
                                             )}
 
-                                            {(query !== "" && (!media || media.length === 0) && (isLoading || isFetching)) && (
+                                            {(debouncedQuery !== "" && (!media || media.length === 0) && (isLoading || isFetching)) && (
                                                 <LoadingSpinner />
                                             )}
 
-                                            {query !== "" && !isLoading && !isFetching && (!media || media.length === 0) && (
+                                            {debouncedQuery !== "" && !isLoading && !isFetching && (!media || media.length === 0) && (
                                                 <div className="py-14 px-6 text-center text-sm sm:px-14">
                                                     {<div
                                                         className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden"

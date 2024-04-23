@@ -58,7 +58,7 @@ func NewStatus(c *RouteCtx) *Status {
 //	@desc It is called on every page load to get the most up-to-date data.
 //	@desc It should be called right after updating the settings.
 //	@route /api/v1/status [GET]
-//	@returns bool
+//	@returns handlers.Status
 func HandleGetStatus(c *RouteCtx) error {
 
 	status := NewStatus(c)

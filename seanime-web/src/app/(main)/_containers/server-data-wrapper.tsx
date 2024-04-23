@@ -1,54 +1,53 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { GettingStarted } from "@/components/application/getting-started"
+import { useGetStatus } from "@/api/hooks/status.hooks"
+import { GettingStartedPage } from "@/app/(main)/_containers/getting-started-page"
+import { useSetServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/anilist/config"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
-import { ServerStatus } from "@/lib/types/server-status.types"
-import { useAtom } from "jotai/react"
-import Cookies from "js-cookie"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 
-type AuthWrapperProps = {
+type ServerDataWrapperProps = {
     children?: React.ReactNode
 }
 
-export function AuthWrapper(props: AuthWrapperProps) {
-    const { children } = props
+export function ServerDataWrapper(props: ServerDataWrapperProps) {
+
+    const {
+        children,
+        ...rest
+    } = props
 
     const pathname = usePathname()
     const router = useRouter()
-    const [serverStatus, setServerStatus] = useAtom(serverStatusAtom)
-
-    const { data, isLoading } = useSeaQuery<ServerStatus>({
-        endpoint: SeaEndpoints.STATUS,
-        queryKey: ["status"],
-    })
+    const setServerStatus = useSetServerStatus()
+    const { data: serverStatus, isLoading } = useGetStatus()
 
     React.useEffect(() => {
-        if (!isLoading) {
-            if (data?.user) {
-                Cookies.set("anilistToken", data?.user?.token ?? "", {
-                    expires: 30 * 24 * 60 * 60,
-                })
-            } else {
-                Cookies.remove("anilistToken")
-            }
-            setServerStatus(data)
+        if (serverStatus) {
+            setServerStatus(serverStatus)
         }
-    }, [data])
+    }, [serverStatus])
 
-    if (pathname.startsWith("/auth/callback")) return children
 
+    /**
+     * If the server status is loading or doesn't exist, show the loading overlay
+     */
     if (isLoading || !serverStatus) return <LoadingOverlayWithLogo />
 
+    /**
+     * If the pathname is /auth/callback, show the callback page
+     */
+    if (pathname.startsWith("/auth/callback")) return children
+
+    /**
+     * If the server status doesn't have settings, show the getting started page
+     */
     if (!serverStatus?.settings) {
-        return <GettingStarted status={serverStatus} />
+        return <GettingStartedPage status={serverStatus} />
     }
 
     if (!serverStatus?.user && window?.location?.host === "127.0.0.1:43211") {
@@ -125,7 +124,5 @@ export function AuthWrapper(props: AuthWrapperProps) {
         </div>
     }
 
-
     return children
-
 }

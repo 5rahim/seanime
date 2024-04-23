@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 
 /**
  * @description
- * Listens to DOWNLOADED_CHAPTER events and re-fetches queries associated with media ID
+ * - Listens to DOWNLOADED_CHAPTER events and re-fetches queries associated with media ID
  */
 export function useMangaListener() {
 
