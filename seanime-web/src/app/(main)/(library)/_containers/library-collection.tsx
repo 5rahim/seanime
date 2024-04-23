@@ -1,5 +1,5 @@
-import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
-import { LibraryCollectionEntry, LibraryCollectionList } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
+import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_containers/discover-sections/header"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
@@ -9,17 +9,17 @@ import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
 import { useSetAtom } from "jotai"
-import React, { memo, useMemo } from "react"
+import React from "react"
 import { FiSearch } from "react-icons/fi"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
-    collectionList: LibraryCollectionList[],
+    collectionList: Anime_LibraryCollectionList[],
     isLoading: boolean
 }) {
 
-    const setScannerModalOpen = useSetAtom(_scannerModalIsOpen)
+    const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
 
-    const hasScanned = useMemo(() => collectionList.some(n => n.entries.length > 0), [collectionList])
+    const hasScanned = React.useMemo(() => collectionList.some(n => n.entries?.length), [collectionList])
 
     if (isLoading) return <React.Fragment>
         <div className="p-4 space-y-4 relative z-[4]">
@@ -77,7 +77,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
         <PageWrapper className="p-4 space-y-8 relative z-[4]">
             {process.env.NEXT_PUBLIC_PLATFORM}
             {collectionList.map(collection => {
-                if (collection.entries.length === 0) return null
+                if (!collection.entries?.length) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} />
             })}
         </PageWrapper>
@@ -85,7 +85,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
 
 }
 
-export const LibraryCollectionListItem = memo(({ list }: { list: LibraryCollectionList }) => {
+export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCollectionList }) => {
     return (
         <React.Fragment key={list.type}>
             <h2>{getLibraryCollectionTitle(list.type)}</h2>
@@ -99,7 +99,8 @@ export const LibraryCollectionListItem = memo(({ list }: { list: LibraryCollecti
         </React.Fragment>
     )
 })
-export const LibraryCollectionEntryItem = memo(({ entry }: { entry: LibraryCollectionEntry }) => {
+
+export const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
     return (
         <AnimeListItem
             media={entry.media!}

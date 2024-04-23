@@ -1,4 +1,4 @@
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntry } from "@/api/generated/types"
 import { useTVDBMetadata } from "@/app/(main)/entry/_lib/media-entry"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -9,7 +9,7 @@ import React from "react"
 import { IoReloadCircle } from "react-icons/io5"
 
 type MetadataManagerProps = {
-    entry: MediaEntry
+    entry: Anime_MediaEntry
 }
 
 export const __metadataManager_isOpenAtom = atom(false)

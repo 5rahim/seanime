@@ -1,10 +1,9 @@
-import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
-import { useAddUnknownMedia } from "@/app/(main)/(library)/_containers/unknown-media/_lib/add-unknown-media"
+import { Anime_UnknownGroup } from "@/api/generated/types"
+import { useAddUnknownMedia } from "@/api/hooks/anime_collection.hooks"
+import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
-
-import { UnknownGroup } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
@@ -12,33 +11,45 @@ import React, { useCallback } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 import { TbDatabasePlus } from "react-icons/tb"
 
-export const _unknownMediaManagerIsOpen = atom(false)
+export const __unknownMedia_drawerIsOpen = atom(false)
 
 type UnknownMediaManagerProps = {
-    unknownGroups: UnknownGroup[]
+    unknownGroups: Anime_UnknownGroup[]
 }
 
 export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
     const { unknownGroups } = props
 
-    const [isOpen, setIsOpen] = useAtom(_unknownMediaManagerIsOpen)
+    const [isOpen, setIsOpen] = useAtom(__unknownMedia_drawerIsOpen)
 
-    const { addUnknownMedia, isPending: isAdding } = useAddUnknownMedia()
-    const { unmatchAll, isPending: isUnmatching } = useMediaEntryBulkAction()
+    const { mutate: addUnknownMedia, isPending: isAdding } = useAddUnknownMedia()
+    const { mutate: unmatchAll, isPending: isUnmatching } = useAnimeEntryBulkAction()
 
+    /**
+     * Add all unknown media to AniList
+     */
     const handleAddUnknownMedia = useCallback(() => {
         addUnknownMedia({ mediaIds: unknownGroups.map(n => n.mediaId) })
     }, [unknownGroups])
 
+    /**
+     * Close the drawer if there are no unknown groups
+     */
     React.useEffect(() => {
         if (unknownGroups.length === 0) {
             setIsOpen(false)
         }
     }, [unknownGroups])
 
+    /**
+     * Unmatch all files for a media
+     */
     const handleUnmatchMedia = useCallback((mediaId: number) => {
-        unmatchAll(mediaId)
+        unmatchAll({
+            mediaId,
+            action: "unmatch",
+        })
     }, [])
 
     if (unknownGroups.length === 0) return null
@@ -102,7 +113,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                     </div>
                                 </div>
                                 <div className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 overflow-y-auto text-sm">
-                                    {group.localFiles.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
+                                    {group.localFiles?.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
                                         .map(lf => {
                                             return <p key={lf.path} className="text-[--muted] line-clamp-1 tracking-wide">
                                                 {lf.path}

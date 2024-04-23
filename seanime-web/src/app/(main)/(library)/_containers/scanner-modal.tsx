@@ -1,51 +1,29 @@
-import { LocalFile } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import React, { useEffect } from "react"
+import React from "react"
 import { FiSearch } from "react-icons/fi"
 import { HiOutlineSparkles } from "react-icons/hi"
-import { toast } from "sonner"
 
-export const _scannerModalIsOpen = atom(false)
-export const _scannerIsScanningAtom = atom(false)
+export const __scanner_modalIsOpen = atom(false)
+export const __scanner_isScanningAtom = atom(false)
 
-type ScanLibraryProps = {
-    enhanced: boolean,
-    skipLockedFiles: boolean,
-    skipIgnoredFiles: boolean
-}
 
 export function ScannerModal() {
-    const qc = useQueryClient()
-
-    const [isOpen, setOpen] = useAtom(_scannerModalIsOpen)
-    const [, setScannerIsScanning] = useAtom(_scannerIsScanningAtom)
+    const [isOpen, setOpen] = useAtom(__scanner_modalIsOpen)
+    const [, setScannerIsScanning] = useAtom(__scanner_isScanningAtom)
     const enhanced = useBoolean(false)
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
 
-    // Return data is ignored
-    const { mutate: scanLibrary, isPending: isScanning } = useSeaMutation<LocalFile[], ScanLibraryProps>({
-        endpoint: SeaEndpoints.SCAN_LIBRARY,
-        mutationKey: ["scan-library"],
-        onSuccess: async () => {
-            toast.success("Library scanned")
-            await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
-            await qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
-            setOpen(false)
-        },
-    })
+    const { mutate: scanLibrary, isPending: isScanning } = useScanLocalFiles()
 
-    useEffect(() => {
+    React.useEffect(() => {
         setScannerIsScanning(isScanning)
     }, [isScanning])
 

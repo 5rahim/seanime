@@ -1052,7 +1052,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useScanLocalFiles() {
-//     return useServerMutation<Array<Anime_LocalFile>>({
+//     return useServerMutation<Array<Anime_LocalFile>, ScanLocalFiles_Variables>({
 //         endpoint: API_ENDPOINTS.SCAN.ScanLocalFiles.endpoint,
 //         method: API_ENDPOINTS.SCAN.ScanLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.SCAN.ScanLocalFiles.key],

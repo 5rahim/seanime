@@ -1,5 +1,6 @@
-import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
-import { MediaEntryLibraryData, MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_BaseMedia, Anime_MediaEntryLibraryData, Anime_MediaEntryListData } from "@/api/generated/types"
+import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
+import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
@@ -27,9 +28,9 @@ import { RiSignalTowerLine } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
 
 type AnimeListItemProps = {
-    media: BaseMediaFragment,
-    listData?: MediaEntryListData
-    libraryData?: MediaEntryLibraryData
+    media: AL_BaseMedia,
+    listData?: Anime_MediaEntryListData
+    libraryData?: Anime_MediaEntryLibraryData
     showLibraryBadge?: boolean
     overlay?: React.ReactNode
     showListDataButton?: boolean
@@ -421,7 +422,7 @@ const MainActionButton = (props: { media: BaseMediaFragment, listData?: MediaEnt
 
 const LockFilesButton = memo(({ mediaId, allFilesLocked }: { mediaId: number, allFilesLocked: boolean }) => {
 
-    const { toggleLock, isPending } = useMediaEntryBulkAction()
+    const { mutate: performBulkAction, isPending } = useAnimeEntryBulkAction(mediaId)
 
     return (
         <Tooltip
@@ -432,7 +433,10 @@ const LockFilesButton = memo(({ mediaId, allFilesLocked }: { mediaId: number, al
                     size="sm"
                     className="hover:opacity-60"
                     loading={isPending}
-                    onClick={() => toggleLock(mediaId)}
+                    onClick={() => performBulkAction({
+                        mediaId,
+                        action: allFilesLocked ? "unlock" : "lock",
+                    })}
                 />
             }
         >

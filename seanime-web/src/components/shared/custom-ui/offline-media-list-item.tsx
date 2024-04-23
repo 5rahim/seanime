@@ -1,4 +1,4 @@
-import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
+import { AL_BaseMedia } from "@/api/generated/types"
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
 import { OfflineAssetMap, OfflineListData } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
@@ -7,22 +7,19 @@ import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-sec
 import { AnimeListItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Badge } from "@/components/ui/badge"
-import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Tooltip } from "@/components/ui/tooltip"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import Image from "next/image"
 import Link from "next/link"
-import React, { memo } from "react"
-import { BiCalendarAlt, BiLockOpenAlt, BiStar } from "react-icons/bi"
+import React from "react"
+import { BiCalendarAlt, BiStar } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
-import { VscVerified } from "react-icons/vsc"
 
 type OfflineMediaListItemProps = {
-    media: BaseMediaFragment,
+    media: AL_BaseMedia,
     listData: OfflineListData | undefined
     overlay?: React.ReactNode
     isManga?: boolean
@@ -227,29 +224,6 @@ export const OfflineMediaListAtom = ((props: OfflineMediaListItemProps) => {
             </div>
 
         </div>
-    )
-})
-
-
-const LockFilesButton = memo(({ mediaId, allFilesLocked }: { mediaId: number, allFilesLocked: boolean }) => {
-
-    const { toggleLock, isPending } = useMediaEntryBulkAction()
-
-    return (
-        <Tooltip
-            trigger={
-                <IconButton
-                    icon={allFilesLocked ? <VscVerified /> : <BiLockOpenAlt />}
-                    intent={allFilesLocked ? "success" : "warning-subtle"}
-                    size="sm"
-                    className="hover:opacity-60"
-                    loading={isPending}
-                    onClick={() => toggleLock(mediaId)}
-                />
-            }
-        >
-            {allFilesLocked ? "Unlock all files" : "Lock all files"}
-        </Tooltip>
     )
 })
 

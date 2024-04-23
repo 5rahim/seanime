@@ -1,7 +1,7 @@
-import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_LibraryCollection } from "@/api/generated/types"
 import { atom } from "jotai/index"
 
-export const libraryCollectionAtom = atom<LibraryCollection | undefined>(undefined)
+export const libraryCollectionAtom = atom<Anime_LibraryCollection | undefined>(undefined)
 
 export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom),
     (get, set, payload: number) => {
@@ -9,6 +9,6 @@ export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom),
         if (!lists) {
             return undefined
         }
-        return lists.flatMap(n => n.entries).find(n => n.mediaId === payload)
+        return lists.flatMap(n => n.entries)?.filter(Boolean).find(n => n.mediaId === payload)
     },
 )

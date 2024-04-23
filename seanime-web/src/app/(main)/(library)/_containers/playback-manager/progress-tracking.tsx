@@ -1,9 +1,9 @@
+import { usePlaybackCancelCurrentPlaylist, usePlaybackPlaylistNext, usePlaybackPlayNextEpisode } from "@/api/hooks/playback_manager.hooks"
 import {
     PlaybackManager_PlaybackState,
     PlaybackManager_PlaylistState,
 } from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
@@ -15,7 +15,7 @@ import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom } from "jotai/react"
 import Image from "next/image"
 import React, { useState } from "react"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
@@ -31,7 +31,7 @@ const __pt_isCompletedAtom = atom(false)
 export function ProgressTracking() {
 
     const qc = useQueryClient()
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
     /**
@@ -143,32 +143,11 @@ export function ProgressTracking() {
         },
     })
 
-    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = useSeaMutation({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_PLAYLIST_NEXT,
-        method: "post",
-        mutationKey: ["playback-playlist-next", playlistState?.current?.name],
-        onSuccess: async () => {
-            toast.info("Loading next file")
-        },
-    })
+    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
 
-    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = useSeaMutation({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_CANCEL_PLAYLIST,
-        method: "post",
-        mutationKey: ["playback-cancel-playlist", playlistState?.current?.name],
-        onSuccess: async () => {
-            toast.info("Cancelling playlist")
-        },
-    })
+    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = usePlaybackCancelCurrentPlaylist([playlistState?.current?.name])
 
-    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = useSeaMutation({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_NEXT_EPISODE,
-        method: "post",
-        mutationKey: ["playback-next-episode", state?.filename],
-        onSuccess: async () => {
-
-        },
-    })
+    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = usePlaybackPlayNextEpisode([state?.filename])
 
     const confirmPlayNext = useConfirmationDialog({
         title: "Play next episode",

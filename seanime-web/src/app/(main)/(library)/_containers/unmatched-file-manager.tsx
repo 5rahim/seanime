@@ -1,5 +1,6 @@
-import { useManuallyMatchLocalFiles } from "@/app/(main)/(library)/_containers/unmatched-files/_lib/manually-match-local-files"
-import { useFetchMediaEntrySuggestions } from "@/app/(main)/entry/_lib/media-entry"
+import { Anime_UnmatchedGroup } from "@/api/generated/types"
+import { useAnimeEntryManualMatch, useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
+import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -8,9 +9,6 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
-import { useOpenInExplorer } from "@/lib/server/hooks"
-
-import { UnmatchedGroup } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
@@ -20,36 +18,40 @@ import { FcFolder } from "react-icons/fc"
 import { FiSearch } from "react-icons/fi"
 import { toast } from "sonner"
 
-export const _unmatchedFileManagerIsOpen = atom(false)
+export const __unmatchedFileManagerIsOpen = atom(false)
 
 type UnmatchedFileManagerProps = {
-    unmatchedGroups: UnmatchedGroup[]
+    unmatchedGroups: Anime_UnmatchedGroup[]
 }
 
 export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
     const { unmatchedGroups } = props
 
-    const [isOpen, setIsOpen] = useAtom(_unmatchedFileManagerIsOpen)
+    const [isOpen, setIsOpen] = useAtom(__unmatchedFileManagerIsOpen)
     const [page, setPage] = useState(0)
     const maxPage = unmatchedGroups.length - 1
     const [currentGroup, setCurrentGroup] = useState(unmatchedGroups?.[0])
 
     const [anilistId, setAnilistId] = useState(0)
 
-    const { openInExplorer } = useOpenInExplorer()
+    const { mutate: openInExplorer } = useOpenInExplorer()
+
     const {
-        suggestions,
-        fetchSuggestions,
+        data: suggestions,
+        mutate: fetchSuggestions,
         isPending: suggestionsLoading,
-        resetSuggestions,
-    } = useFetchMediaEntrySuggestions()
-    const { manuallyMatchEntry, isPending: matchingLoading } = useManuallyMatchLocalFiles()
+        reset: resetSuggestions,
+    } = useFetchAnimeEntrySuggestions()
+
+    const { mutate: manuallyMatchEntry, isPending: matchingLoading } = useAnimeEntryManualMatch()
 
     const [_r, setR] = useState(0)
 
     const handleFetchSuggestions = useCallback(() => {
-        fetchSuggestions(currentGroup.dir)
+        fetchSuggestions({
+            dir: currentGroup.dir,
+        })
     }, [currentGroup?.dir, fetchSuggestions])
 
     const handleSelectAnime = useCallback((value: string | null) => {
@@ -80,19 +82,25 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         />
     }, [currentGroup?.dir, _r])
 
+    /**
+     * Manually match the current group with the specified Anilist ID.
+     * If the current group is the last group and there are no more unmatched groups, close the drawer.
+     */
     function handleManuallyMatchEntry() {
         if (!!currentGroup && anilistId > 0) {
             manuallyMatchEntry({
                 dir: currentGroup?.dir,
                 mediaId: anilistId,
-            }, () => {
-                if (page === 0 && unmatchedGroups.length === 1) {
-                    setIsOpen(false)
-                }
-                setAnilistId(0)
-                resetSuggestions()
-                setPage(0)
-                setCurrentGroup(unmatchedGroups[0])
+            }, {
+                onSuccess: () => {
+                    if (page === 0 && unmatchedGroups.length === 1) {
+                        setIsOpen(false)
+                    }
+                    setAnilistId(0)
+                    resetSuggestions()
+                    setPage(0)
+                    setCurrentGroup(unmatchedGroups[0])
+                },
             })
         } else {
             toast.error("Invalid Anilist ID")
@@ -140,18 +148,21 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                 <div
                     className="bg-gray-800 border  p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
-                    onClick={() => openInExplorer(currentGroup.dir)}
+                    onClick={() => openInExplorer({
+                        path: currentGroup.dir,
+                    })}
                 >
                     <FcFolder className="text-2xl" />
                     {currentGroup.dir}
                 </div>
 
                 <ul className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 overflow-y-auto text-sm">
-                    {currentGroup.localFiles.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0)))).map(lf => {
-                        return <li key={lf.path} className="text-sm tracking-wide line-clamp-1">
-                            {lf.path}
-                        </li>
-                    })}
+                    {currentGroup.localFiles?.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
+                        .map(lf => {
+                            return <li key={lf.path} className="text-sm tracking-wide line-clamp-1">
+                                {lf.path}
+                            </li>
+                        })}
                 </ul>
 
                 {/*<Separator />*/}
@@ -178,14 +189,14 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                 {suggestionsLoading && <LoadingSpinner />}
 
-                {(!suggestionsLoading && suggestions.length > 0) && <RadioGroup
+                {(!suggestionsLoading && !!suggestions?.length) && <RadioGroup
                     defaultValue="1"
                     fieldClass="w-full"
                     fieldLabelClass="text-md"
                     label="Select Anime"
                     value={String(anilistId)}
                     onValueChange={handleSelectAnime}
-                    options={suggestions.map((media) => (
+                    options={suggestions?.map((media) => (
                         {
                             label: <div>
                                 <p className="text-base md:text-md font-medium !-mt-1.5 line-clamp-1">{media.title?.userPreferred || media.title?.english || media.title?.romaji || "N/A"}</p>

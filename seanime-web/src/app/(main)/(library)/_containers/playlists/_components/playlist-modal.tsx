@@ -1,7 +1,6 @@
+import { Anime_Playlist } from "@/api/generated/types"
+import { useCreatePlaylist, useDeletePlaylist, useUpdatePlaylist } from "@/api/hooks/playlist.hooks"
 import { PlaylistManager } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-manager"
-import { useCreatePlaylist, useDeletePlaylist, useUpdatePlaylist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist-actions"
-
-import { Playlist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist.types"
 import { Button } from "@/components/ui/button"
 import { DangerZone } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
@@ -11,28 +10,28 @@ import React from "react"
 import { toast } from "sonner"
 
 type PlaylistModalProps = {
-    playlist?: Playlist
+    playlist?: Anime_Playlist
     trigger: React.ReactElement
 }
 
 export function PlaylistModal(props: PlaylistModalProps) {
 
     const {
+        playlist,
         trigger,
-        ...rest
     } = props
 
     const [isOpen, setIsOpen] = React.useState(false)
-    const [name, setName] = React.useState(props.playlist?.name ?? "")
-    const [paths, setPaths] = React.useState<string[]>(props.playlist?.localFiles?.map(l => l.path) ?? [])
+    const [name, setName] = React.useState(playlist?.name ?? "")
+    const [paths, setPaths] = React.useState<string[]>(playlist?.localFiles?.map(l => l.path) ?? [])
 
-    const isUpdate = !!props.playlist
+    const isUpdate = !!playlist
 
-    const { createPlaylist, isCreating } = useCreatePlaylist()
+    const { mutate: createPlaylist, isPending: isCreating } = useCreatePlaylist()
 
-    const { deletePlaylist, isDeleting } = useDeletePlaylist()
+    const { mutate: deletePlaylist, isPending: isDeleting } = useDeletePlaylist()
 
-    const { updatePlaylist, isUpdating } = useUpdatePlaylist()
+    const { mutate: updatePlaylist, isPending: isUpdating } = useUpdatePlaylist(playlist?.dbId)
 
     function reset() {
         setName("")
@@ -40,19 +39,19 @@ export function PlaylistModal(props: PlaylistModalProps) {
     }
 
     React.useEffect(() => {
-        if (isUpdate && !!props.playlist) {
-            setName(props.playlist.name)
-            setPaths(props.playlist.localFiles.map(l => l.path))
+        if (isUpdate && !!playlist && !!playlist.localFiles) {
+            setName(playlist.name)
+            setPaths(playlist.localFiles.map(l => l.path))
         }
-    }, [props.playlist, isOpen])
+    }, [playlist, isOpen])
 
     function handleSubmit() {
         if (name.length === 0) {
             toast.error("Please enter a name for the playlist")
             return
         }
-        if (isUpdate && !!props.playlist) {
-            updatePlaylist({ dbId: props.playlist.dbId, name, paths }, {
+        if (isUpdate && !!playlist) {
+            updatePlaylist({ dbId: playlist.dbId, name, paths }, {
                 onSuccess: () => {
                 },
             })
@@ -98,8 +97,8 @@ export function PlaylistModal(props: PlaylistModalProps) {
 
                 {isUpdate && <DangerZone
                     actionText="Delete playlist" onDelete={() => {
-                    if (isUpdate && !!props.playlist) {
-                        deletePlaylist({ dbId: props.playlist.dbId }, {
+                    if (isUpdate && !!playlist) {
+                        deletePlaylist({ dbId: playlist.dbId }, {
                             onSuccess: () => {
                                 setIsOpen(false)
                             },

@@ -1,10 +1,10 @@
-import { LibraryCollectionEntry, LocalFile } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_BaseMedia, Anime_LibraryCollectionEntry, Anime_LocalFile } from "@/api/generated/types"
+import { useGetLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
 import { DndContext, DragEndEvent } from "@dnd-kit/core"
@@ -33,10 +33,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
 
     const libraryCollection = useAtomValue(libraryCollectionAtom)
 
-    const { data: localFiles } = useSeaQuery<LocalFile[]>({
-        endpoint: SeaEndpoints.LOCAL_FILES,
-        queryKey: ["get-local-files"],
-    })
+    const { data: localFiles } = useGetLocalFiles()
 
     const firstRender = React.useRef(true)
 
@@ -84,6 +81,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {libraryCollection?.lists?.filter(n => n.type === "planned" || n.type === "paused" || n.type === "current")
                             ?.flatMap(n => n.entries)
+                            ?.filter(Boolean)
                             ?.map(entry => {
                                 return (
                                     <Modal
@@ -132,13 +130,14 @@ export function PlaylistManager(props: PlaylistManagerProps) {
                 >
                     <div className="space-y-2">
                         <ul className="space-y-2">
-                            {paths.map((path, index) => (
+                            {paths.map(path => localFiles?.find(n => n.path === path))?.filter(Boolean).map((lf, index) => (
                                 <SortableItem
-                                    key={path}
-                                    id={path}
-                                    localFile={localFiles?.find(n => n.path === path)}
+                                    key={lf.path}
+                                    id={lf.path}
+                                    localFile={lf}
                                     media={libraryCollection?.lists?.flatMap(n => n.entries)
-                                        ?.find(n => localFiles?.find(n => n.path === path)?.mediaId === n.mediaId)?.media}
+                                        ?.filter(Boolean)
+                                        ?.find(n => lf?.mediaId === n.mediaId)?.media}
                                     setPaths={setPaths}
                                 />
                             ))}
@@ -152,8 +151,8 @@ export function PlaylistManager(props: PlaylistManagerProps) {
 
 function SortableItem({ localFile, id, media, setPaths }: {
     id: string,
-    localFile: LocalFile | undefined,
-    media: BaseMediaFragment | undefined,
+    localFile: Anime_LocalFile | undefined,
+    media: AL_BaseMedia | undefined,
     setPaths: any
 }) {
     const {
@@ -238,9 +237,9 @@ function SortableItem({ localFile, id, media, setPaths }: {
                 </div>
                 <div>
                     <p className="text-lg text-white font-semibold">
-                        <span>
-                            {media?.format !== "MOVIE" ? `Episode ${localFile.metadata.episode}` : "Movie"}
-                        </span>
+                        {localFile.metadata && <span>
+                            {media?.format !== "MOVIE" ? `Episode ${localFile.metadata?.episode}` : "Movie"}
+                        </span>}
                         <span className="text-gray-400 font-medium max-w-lg truncate">
                             {" - "}{media?.title?.userPreferred || media?.title?.romaji}
                         </span>
@@ -254,7 +253,7 @@ function SortableItem({ localFile, id, media, setPaths }: {
 
 
 type EntryEpisodeListProps = {
-    entry: LibraryCollectionEntry
+    entry: Anime_LibraryCollectionEntry
     selectedPaths: string[]
     setSelectedPaths: React.Dispatch<React.SetStateAction<string[]>>
 }
@@ -268,7 +267,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
         ...rest
     } = props
 
-    const { data } = useSeaQuery<LocalFile[]>({
+    const { data } = useSeaQuery<Anime_LocalFile[]>({
         endpoint: SeaEndpoints.PLAYLIST_EPISODES.replace("{id}", String(entry.mediaId)).replace("{progress}", String(entry.listData?.progress || 0)),
         queryKey: ["playlist-episodes", entry.mediaId],
     })
@@ -288,7 +287,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
 
     return (
         <div className="flex flex-col gap-2 overflow-auto p-1">
-            {data?.sort((a, b) => a.metadata.episode - b.metadata.episode)?.map(lf => {
+            {data?.filter(n => !!n.metadata)?.sort((a, b) => a.metadata!.episode - b.metadata!.episode)?.map(lf => {
                 return (
                     <div
                         key={lf.path}
@@ -299,7 +298,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                         )}
                         onClick={() => handleSelect(lf.path)}
                     >
-                        <p className="">{entry.media?.format !== "MOVIE" ? `Episode ${lf.metadata.episode}` : "Movie"}</p>
+                        <p className="">{entry.media?.format !== "MOVIE" ? `Episode ${lf.metadata!.episode}` : "Movie"}</p>
                         <p className="text-sm text-[--muted] font-normal italic max-w-lg line-clamp-1">{lf.name}</p>
                     </div>
                 )

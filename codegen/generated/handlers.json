@@ -4104,7 +4104,35 @@
         "POST"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "Enhanced",
+          "jsonName": "enhanced",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "SkipLockedFiles",
+          "jsonName": "skipLockedFiles",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "SkipIgnoredFiles",
+          "jsonName": "skipIgnoredFiles",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "[]anime.LocalFile",
       "returnGoType": "anime.LocalFile",
       "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"

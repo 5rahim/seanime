@@ -1,4 +1,4 @@
-import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
+import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
@@ -34,7 +34,7 @@ export function LibraryWatcher(props: LibraryWatcherProps) {
     const autoScanning = useBoolean(false)
     const [progress, setProgress] = useState(0)
 
-    const setScannerModalOpen = useSetAtom(_scannerModalIsOpen)
+    const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
 
     useWebsocketMessageListener<string>({
         type: WSEvents.LIBRARY_WATCHER_FILE_ADDED,

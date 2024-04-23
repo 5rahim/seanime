@@ -1,4 +1,4 @@
-import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { EpisodeItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { cn } from "@/components/ui/core/styling"
@@ -7,7 +7,7 @@ import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 
 type SliderEpisodeItemProps = {
-    episode: MediaEntryEpisode
+    episode: Anime_MediaEntryEpisode
     onPlay?: ({ path }: { path: string }) => void
 } & Omit<React.ComponentPropsWithoutRef<"div">, "onPlay">
 

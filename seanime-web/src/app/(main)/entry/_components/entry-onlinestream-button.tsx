@@ -1,4 +1,4 @@
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntry } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai/react"
@@ -8,7 +8,7 @@ import { FiPlayCircle } from "react-icons/fi"
 
 type EntryOnlinestreamButtonProps = {
     children?: React.ReactNode
-    entry: MediaEntry | undefined
+    entry: Anime_MediaEntry | undefined
 }
 
 export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {

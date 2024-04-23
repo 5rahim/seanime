@@ -1,10 +1,10 @@
 "use client"
-import { bulkActionModalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-actions/bulk-action-modal"
+import { Anime_LibraryCollectionList, Anime_LocalFile, Anime_UnknownGroup } from "@/api/generated/types"
+import { __bulkAction_modalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
-import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
-import { _unknownMediaManagerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
-import { _unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
-import { LibraryCollectionList, LocalFile, UnknownGroup } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
+import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
+import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -19,10 +19,10 @@ import { IoLibrarySharp } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 
 export type LibraryToolbarProps = {
-    collectionList: LibraryCollectionList[]
-    ignoredLocalFiles: LocalFile[]
-    unmatchedLocalFiles: LocalFile[]
-    unknownGroups: UnknownGroup[]
+    collectionList: Anime_LibraryCollectionList[]
+    ignoredLocalFiles: Anime_LocalFile[]
+    unmatchedLocalFiles: Anime_LocalFile[]
+    unknownGroups: Anime_UnknownGroup[]
     isLoading: boolean
 }
 
@@ -30,15 +30,15 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
     const { collectionList, ignoredLocalFiles, unmatchedLocalFiles, unknownGroups } = props
 
-    const setBulkActionIsOpen = useSetAtom(bulkActionModalAtomIsOpen)
+    const setBulkActionIsOpen = useSetAtom(__bulkAction_modalAtomIsOpen)
 
     const status = useAtomValue(serverStatusAtom)
-    const setScannerModalOpen = useSetAtom(_scannerModalIsOpen)
-    const setUnmatchedFileManagerOpen = useSetAtom(_unmatchedFileManagerIsOpen)
-    const setUnknownMediaManagerOpen = useSetAtom(_unknownMediaManagerIsOpen)
+    const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
+    const setUnmatchedFileManagerOpen = useSetAtom(__unmatchedFileManagerIsOpen)
+    const setUnknownMediaManagerOpen = useSetAtom(__unknownMedia_drawerIsOpen)
     const setPlaylistsModalOpen = useSetAtom(__playlists_modalOpenAtom)
 
-    const hasScanned = collectionList.some(n => n.entries.length > 0)
+    const hasScanned = collectionList.some(n => !!n.entries?.length)
 
     const { openInExplorer } = useOpenInExplorer()
 

@@ -1,7 +1,7 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { DeleteLocalFiles_Variables, LocalFileBulkAction_Variables, UpdateLocalFileData_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Anime_LocalFile } from "@/api/generated/types"
+import { Anime_LocalFile, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -22,7 +22,7 @@ export function useLocalFileBulkAction() {
         method: API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.methods[0],
         mutationKey: [API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.key],
         onSuccess: async () => {
-            toast.success("Done")
+            toast.success("Action completed")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry] })
         },
@@ -44,7 +44,7 @@ export function useUpdateLocalFileData() {
     })
 }
 
-export function useDeleteLocalFiles() {
+export function useDeleteLocalFiles(id: Nullish<number>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<Array<Anime_LocalFile>, DeleteLocalFiles_Variables>({
@@ -54,7 +54,9 @@ export function useDeleteLocalFiles() {
         onSuccess: async () => {
             toast.success("Files deleted")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry] })
+            if (id) {
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry, id] })
+            }
         },
     })
 }

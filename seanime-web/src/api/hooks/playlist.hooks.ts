@@ -29,7 +29,7 @@ export function useGetPlaylists() {
     })
 }
 
-export function useUpdatePlaylist(id: number) {
+export function useUpdatePlaylist(id: Nullish<number>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<Anime_Playlist, UpdatePlaylist_Variables>({

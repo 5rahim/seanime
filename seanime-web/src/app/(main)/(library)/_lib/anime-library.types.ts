@@ -3,40 +3,6 @@
  */
 import { BaseMediaFragment, BasicMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 
-export type LibraryCollection = {
-    continueWatchingList: MediaEntryEpisode[]
-    lists: LibraryCollectionList[]
-    unmatchedLocalFiles: LocalFile[]
-    ignoredLocalFiles: LocalFile[]
-    unmatchedGroups: UnmatchedGroup[]
-    unknownGroups: UnknownGroup[]
-}
-
-export type LibraryCollectionListType = "current" | "planned" | "completed" | "paused" | "dropped"
-
-export type LibraryCollectionList = {
-    type: LibraryCollectionListType
-    status: MediaListStatus
-    entries: LibraryCollectionEntry[]
-}
-
-export type LibraryCollectionEntry = {
-    media?: BaseMediaFragment
-    mediaId: number
-    listData?: MediaEntryListData
-    libraryData?: MediaEntryLibraryData
-}
-
-export type UnmatchedGroup = {
-    dir: string
-    localFiles: LocalFile[]
-    suggestions: BasicMediaFragment[]
-}
-
-export type UnknownGroup = {
-    mediaId: number
-    localFiles: LocalFile[]
-}
 
 /**
  * Media

@@ -1,4 +1,4 @@
-import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_LibraryCollection } from "@/api/generated/types"
 import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { AutoDownloaderRule } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"
@@ -161,7 +161,7 @@ type RuleFormFormProps = {
     type: "create" | "edit"
     isPending: boolean
     notFinishedMedia: BaseMediaFragment[]
-    libraryCollection?: LibraryCollection | undefined
+    libraryCollection?: Anime_LibraryCollection | undefined
     rule?: AutoDownloaderRule
 }
 
@@ -182,7 +182,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
 
     React.useEffect(() => {
         const id = Number(form.watch("mediaId"))
-        const destination = libraryCollection?.lists?.flatMap(list => list.entries)?.find(entry => entry.media?.id === id)?.libraryData?.sharedPath
+        const destination = libraryCollection?.lists?.flatMap(list => list.entries)?.find(entry => entry?.media?.id === id)?.libraryData?.sharedPath
         if (!isNaN(id) && !rule?.comparisonTitle) {
             const media = allMedia.find(media => media.id === id)
             if (media) {

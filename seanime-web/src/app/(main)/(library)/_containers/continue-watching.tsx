@@ -1,6 +1,6 @@
 "use client"
-import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_containers/library-header"
-import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
@@ -12,10 +12,10 @@ import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useDeferredValue, useEffect } from "react"
 
-export const __libraryHeaderEpisodeAtom = atom<MediaEntryEpisode | null>(null)
+export const __libraryHeaderEpisodeAtom = atom<Anime_MediaEntryEpisode | null>(null)
 
-export function ContinueWatching({ list, isLoading, linkTemplate }: {
-    list: MediaEntryEpisode[],
+export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
+    episodes: Anime_MediaEntryEpisode[],
     isLoading: boolean
     linkTemplate?: string
 }) {
@@ -33,8 +33,8 @@ export function ContinueWatching({ list, isLoading, linkTemplate }: {
 
     // Create refs for each episode
     useEffect(() => {
-        setEpisodeRefs(list.map(() => React.createRef()))
-    }, [list])
+        setEpisodeRefs(episodes.map(() => React.createRef()))
+    }, [episodes])
 
     // Observe each episode
     useEffect(() => {
@@ -75,7 +75,7 @@ export function ContinueWatching({ list, isLoading, linkTemplate }: {
         debounceTimeout.current = setTimeout(() => {
             if (inViewEpisodes.length > 0) {
                 const randomIndex = inViewEpisodes[Math.floor(Math.random() * inViewEpisodes.length)]
-                const episode = list[randomIndex]
+                const episode = episodes[randomIndex]
                 if (episode) {
                     setHeaderImage(episode.basicMedia?.bannerImage || episode.episodeMetadata?.image || null)
                 }
@@ -86,9 +86,9 @@ export function ContinueWatching({ list, isLoading, linkTemplate }: {
                 clearTimeout(debounceTimeout.current)
             }
         }
-    }, [debouncedInViewEpisodes, list])
+    }, [debouncedInViewEpisodes, episodes])
 
-    if (list.length > 0) return (
+    if (episodes.length > 0) return (
         <PageWrapper className="space-y-3 lg:space-y-6 p-4 relative z-[4]">
             <h2>Continue watching</h2>
             {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.basicMedia?.title?.userPreferred}</h1>*/}
@@ -107,7 +107,7 @@ export function ContinueWatching({ list, isLoading, linkTemplate }: {
             >
                 <CarouselDotButtons />
                 <CarouselContent>
-                    {list.map((episode, idx) => (
+                    {episodes.map((episode, idx) => (
                         <CarouselItem
                             key={episode?.localFile?.path || idx}
                             className={cn(
@@ -130,7 +130,7 @@ export function ContinueWatching({ list, isLoading, linkTemplate }: {
 }
 
 const EpisodeItem = React.memo(({ episode, mRef, overrideLink }: {
-    episode: MediaEntryEpisode,
+    episode: Anime_MediaEntryEpisode,
     mRef: React.RefObject<any>,
     overrideLink?: string
 }) => {

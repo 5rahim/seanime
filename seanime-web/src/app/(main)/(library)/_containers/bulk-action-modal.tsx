@@ -1,4 +1,4 @@
-import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/local-file-bulk-actions"
+import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/api/hooks/localfiles.hooks"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -6,30 +6,53 @@ import { Modal } from "@/components/ui/modal"
 import { atom, useAtom } from "jotai"
 import React from "react"
 import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi"
+import { toast } from "sonner"
 
-export const bulkActionModalAtomIsOpen = atom<boolean>(false)
+export const __bulkAction_modalAtomIsOpen = atom<boolean>(false)
 
 export function BulkActionModal() {
 
-    const [isOpen, setIsOpen] = useAtom(bulkActionModalAtomIsOpen)
+    const [isOpen, setIsOpen] = useAtom(__bulkAction_modalAtomIsOpen)
 
-    const { lockFiles, unlockFiles, isPending } = useLocalFileBulkAction({
-        onSuccess: () => {
-            setIsOpen(false)
-        },
-    })
+    const { mutate: performBulkAction, isPending } = useLocalFileBulkAction()
 
-    const { removeEmptyDirectories, isPending: isRemoving } = useRemoveEmptyDirectories({
-        onSuccess: () => {
-            setIsOpen(false)
-        },
-    })
+    function handleLockFiles() {
+        performBulkAction({
+            action: "lock",
+        }, {
+            onSuccess: () => {
+                setIsOpen(false)
+                toast.success("Files locked")
+            },
+        })
+    }
+
+    function handleUnlockFiles() {
+        performBulkAction({
+            action: "unlock",
+        }, {
+            onSuccess: () => {
+                setIsOpen(false)
+                toast.success("Files unlocked")
+            },
+        })
+    }
+
+    const { mutate: removeEmptyDirectories, isPending: isRemoving } = useRemoveEmptyDirectories()
+
+    function handleRemoveEmptyDirectories() {
+        removeEmptyDirectories(undefined, {
+            onSuccess: () => {
+                setIsOpen(false)
+            },
+        })
+    }
 
     const confirmRemoveEmptyDirs = useConfirmationDialog({
         title: "Remove empty directories",
         description: "This action will remove all empty directories in the library. Are you sure you want to continue?",
         onConfirm: () => {
-            removeEmptyDirectories()
+            handleRemoveEmptyDirectories()
         },
     })
 
@@ -45,7 +68,7 @@ export function BulkActionModal() {
                     intent="gray-outline"
                     className="w-full"
                     disabled={isPending || isRemoving}
-                    onClick={lockFiles}
+                    onClick={handleLockFiles}
                 >
                     Lock all files
                 </Button>
@@ -54,7 +77,7 @@ export function BulkActionModal() {
                     intent="gray-outline"
                     className="w-full"
                     disabled={isPending || isRemoving}
-                    onClick={unlockFiles}
+                    onClick={handleUnlockFiles}
                 >
                     Unlock all files
                 </Button>

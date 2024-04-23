@@ -1468,6 +1468,7 @@ export type Anime_User = {
  */
 export type DB_ScanSummaryItem = {
     createdAt?: string
+    scanSummary?: Summary_ScanSummary
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2143,6 +2144,61 @@ export type Onlinestream_VideoSource = {
     headers?: Record<string, string>
     url: string
     quality: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Summary
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummary = {
+    id: string
+    groups?: Array<Summary_ScanSummaryGroup>
+    unmatchedFiles?: Array<Summary_ScanSummaryFile>
+}
+
+/**
+ * - Filepath: internal/internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryFile = {
+    id: string
+    localFile?: Anime_LocalFile
+    logs?: Array<Summary_ScanSummaryLog>
+}
+
+/**
+ * - Filepath: internal/internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryGroup = {
+    id: string
+    files?: Array<Summary_ScanSummaryFile>
+    mediaId: number
+    mediaTitle: string
+    mediaImage: string
+    /**
+     * Whether the media is in the user's AniList collection
+     */
+    mediaIsInCollection: boolean
+}
+
+/**
+ * - Filepath: internal/internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryLog = {
+    id: string
+    filePath: string
+    level: string
+    message: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

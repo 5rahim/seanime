@@ -1,5 +1,5 @@
 "use client"
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
@@ -21,7 +21,6 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai/react"
@@ -33,7 +32,7 @@ import { BiCalendarAlt, BiChevronDown } from "react-icons/bi"
 import { useWindowScroll } from "react-use"
 
 
-export function MetaSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
+export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media }) {
 
     const { entry, details } = props
 

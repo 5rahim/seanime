@@ -24230,6 +24230,16 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ScanSummary",
+        "jsonName": "scanSummary",
+        "goType": "summary.ScanSummary",
+        "typescriptType": "Summary_ScanSummary",
+        "usedStructName": "summary.ScanSummary",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

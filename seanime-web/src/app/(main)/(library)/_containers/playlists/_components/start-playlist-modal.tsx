@@ -1,16 +1,13 @@
-import { Playlist } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist.types"
+import { Anime_Playlist } from "@/api/generated/types"
+import { usePlaybackStartPlaylist } from "@/api/hooks/playback_manager.hooks"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { FaPlay } from "react-icons/fa"
-import { toast } from "sonner"
 
 type StartPlaylistModalProps = {
     trigger?: React.ReactElement
-    playlist: Playlist
+    playlist: Anime_Playlist
     canStart?: boolean
     onPlaylistLoaded: () => void
 }
@@ -25,17 +22,9 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
         ...rest
     } = props
 
-    const qc = useQueryClient()
+    const { mutate: startPlaylist, isPending } = usePlaybackStartPlaylist()
 
-    const { mutate: startPlaylist, isPending } = useSeaMutation<void, { dbId: number }>({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_START_PLAYLIST,
-        method: "post",
-        onSuccess: async () => {
-            toast.success("Playlist loaded")
-            onPlaylistLoaded()
-            await qc.refetchQueries({ queryKey: ["get-playlists"] })
-        },
-    })
+    if (!playlist?.localFiles?.length) return null
 
     return (
         <Modal

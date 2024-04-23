@@ -1,35 +1,38 @@
-import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
-import { useAtomValue, useSetAtom } from "jotai/react"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useSetAtom } from "jotai/react"
 import React, { useEffect, useMemo } from "react"
 
-export function useLibraryCollection() {
-    const serverStatus = useAtomValue(serverStatusAtom)
+export function useHandleLibraryCollection() {
+    const serverStatus = useServerStatus()
 
-    const setLibraryCollectionAtom = useSetAtom(libraryCollectionAtom)
+    const atom_setLibraryCollection = useSetAtom(libraryCollectionAtom)
 
-    const { data, isLoading } = useSeaQuery<LibraryCollection>({
-        endpoint: SeaEndpoints.LIBRARY_COLLECTION,
-        queryKey: ["get-library-collection"],
-    })
+    /**
+     * Fetch the library collection data
+     */
+    const { data, isLoading } = useGetLibraryCollection()
 
-    // Store the received data in `libraryCollectionAtom`
+    /**
+     * Store the received data in `libraryCollectionAtom`
+     */
     useEffect(() => {
         if (!!data) {
-            setLibraryCollectionAtom(data)
+            atom_setLibraryCollection(data)
         }
     }, [data])
 
+    /**
+     * Sort and filter the collection data
+     */
     const sortedCollection = useMemo(() => {
         if (!data || !data.lists) return []
 
         let _lists = data.lists
         if (!serverStatus?.settings?.anilist?.enableAdultContent) {
             _lists = _lists.map(list => {
-                list.entries = list.entries.filter(entry => !entry.media?.isAdult)
+                list.entries = list.entries?.filter(entry => !entry.media?.isAdult) ?? []
                 return list
             })
         }

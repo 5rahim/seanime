@@ -1,6 +1,6 @@
 "use client"
+import { Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/continue-watching"
-import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { cn } from "@/components/ui/core/styling"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { Transition } from "@headlessui/react"
@@ -13,7 +13,7 @@ import { useWindowScroll } from "react-use"
 
 export const __libraryHeaderImageAtom = atom<string | null>(null)
 
-export function LibraryHeader({ list }: { list: MediaEntryEpisode[] }) {
+export function LibraryHeader({ list }: { list: Anime_MediaEntryEpisode[] }) {
 
     const ts = useThemeSettings()
 

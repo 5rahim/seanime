@@ -1,7 +1,5 @@
-import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 
@@ -13,10 +11,7 @@ export function useLibraryCollectionLoader() {
 
     const setter = useSetAtom(libraryCollectionAtom)
 
-    const { data, status } = useSeaQuery<LibraryCollection>({
-        endpoint: SeaEndpoints.LIBRARY_COLLECTION,
-        queryKey: ["get-library-collection"],
-    })
+    const { data, status } = useGetLibraryCollection()
 
     useEffect(() => {
         if (status === "success") {

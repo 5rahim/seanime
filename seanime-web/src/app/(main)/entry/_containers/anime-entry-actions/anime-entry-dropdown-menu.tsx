@@ -1,9 +1,8 @@
 "use client"
-import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk-actions/_lib/media-entry-bulk-actions"
-
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntry } from "@/api/generated/types"
+import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { _bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-delete-files-modal"
+import { __bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-delete-files-modal"
 import { __metadataManager_isOpenAtom, MetadataManager } from "@/app/(main)/entry/_containers/metadata-manager/metadata-manager"
 import { useOpenDefaultMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
@@ -15,7 +14,7 @@ import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 
-export function AnimeEntryDropdownMenu({ entry }: { entry: MediaEntry }) {
+export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
 
     const serverStatus = useAtomValue(serverStatusAtom)
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
@@ -23,17 +22,20 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: MediaEntry }) {
     const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
     const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
 
-    const { unmatchAll, isPending } = useMediaEntryBulkAction(entry.mediaId)
+    const { mutate: performBulkAction, isPending } = useAnimeEntryBulkAction(entry.mediaId)
 
     const confirmDeleteFiles = useConfirmationDialog({
         title: "Unmatch all files",
         description: "Are you sure you want to unmatch all files?",
         onConfirm: () => {
-            unmatchAll(entry.mediaId)
+            performBulkAction({
+                mediaId: entry.mediaId,
+                action: "unmatch",
+            })
         },
     })
 
-    const setBulkDeleteFilesModalOpen = useSetAtom(_bulkDeleteFilesModalIsOpenAtom)
+    const setBulkDeleteFilesModalOpen = useSetAtom(__bulkDeleteFilesModalIsOpenAtom)
 
 
     return (

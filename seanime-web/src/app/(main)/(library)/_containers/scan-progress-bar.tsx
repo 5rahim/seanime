@@ -1,5 +1,5 @@
 "use client"
-import { _scannerIsScanningAtom } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
+import { __scanner_isScanningAtom } from "@/app/(main)/(library)/_containers/scanner-modal"
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { Spinner } from "@/components/ui/loading-spinner"
@@ -9,7 +9,7 @@ import { useState } from "react"
 
 export function ScanProgressBar() {
 
-    const [isScanning] = useAtom(_scannerIsScanningAtom)
+    const [isScanning] = useAtom(__scanner_isScanningAtom)
 
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState("Scanning...")

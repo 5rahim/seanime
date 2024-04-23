@@ -1,6 +1,6 @@
+import { useGetPlaylists } from "@/api/hooks/playlist.hooks"
 import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-modal"
 import { StartPlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/start-playlist-modal"
-import { useGetPlaylists } from "@/app/(main)/(library)/_containers/playlists/_lib/playlist-actions"
 import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
@@ -17,18 +17,13 @@ import { BiEditAlt } from "react-icons/bi"
 import { FaCirclePlay } from "react-icons/fa6"
 import { PiMonitorPlayFill } from "react-icons/pi"
 
-type PlaylistsListProps = {
-    children?: React.ReactNode
-}
+type PlaylistsListProps = {}
 
 export function PlaylistsList(props: PlaylistsListProps) {
 
-    const {
-        children,
-        ...rest
-    } = props
+    const {} = props
 
-    const { playlists, isLoading } = useGetPlaylists()
+    const { data: playlists, isLoading } = useGetPlaylists()
     const userMedia = useAtomValue(anilistUserMediaAtom)
     const serverStatus = useAtomValue(serverStatusAtom)
 
@@ -38,11 +33,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
         setOpen(false)
     }, [])
 
-    if (isLoading) {
-        return (
-            <LoadingSpinner />
-        )
-    }
+    if (isLoading) <LoadingSpinner />
 
     if (!playlists?.length) {
         return (
@@ -69,7 +60,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
             <CarouselContent>
                 {playlists.map(p => {
 
-                    const mainMedia = userMedia?.find(m => m.id === p.localFiles[0]?.mediaId)
+                    const mainMedia = userMedia?.find(m => m.id === p.localFiles?.[0]?.mediaId)
 
                     return (
                         <CarouselItem
@@ -114,54 +105,14 @@ export function PlaylistsList(props: PlaylistsListProps) {
                                 <div className="absolute w-full bottom-0 h-fit z-[6]">
                                     <div className="space-y-0 pb-3 items-center">
                                         <p className="text-md font-bold text-white max-w-lg truncate text-center">{p.name}</p>
-                                        <p className="text-sm text-[--muted] font-normal line-clamp-1 text-center">{p.localFiles.length} episode{p.localFiles.length > 1
-                                            ? `s`
-                                            : ""}</p>
+                                        {p.localFiles &&
+                                            <p className="text-sm text-[--muted] font-normal line-clamp-1 text-center">{p.localFiles.length} episode{p.localFiles.length > 1
+                                                ? `s`
+                                                : ""}</p>}
                                     </div>
                                 </div>
 
                                 <AnimeListItemBottomGradient />
-                                {/*<div*/}
-                                {/*    className={cn(*/}
-                                {/*        "absolute w-full bottom-0 h-fit bg-gray-950 transition-opacity",*/}
-                                {/*        "opacity-100 z-[2] p-2 space-y-3",*/}
-                                {/*        "flex flex-col",*/}
-                                {/*    )}*/}
-                                {/*>*/}
-                                {/*    <StartPlaylistModal*/}
-                                {/*        canStart={serverStatus?.settings?.library?.autoUpdateProgress}*/}
-                                {/*        trigger={<div className="w-full h-full rounded-md overflow-hidden relative cursor-pointer">*/}
-                                {/*            {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image*/}
-                                {/*                src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}*/}
-                                {/*                placeholder={imageShimmer(700, 475)}*/}
-                                {/*                sizes="10rem"*/}
-                                {/*                fill*/}
-                                {/*                alt=""*/}
-                                {/*                className="object-center object-cover"*/}
-                                {/*            />}*/}
-                                {/*            <div className="absolute inset-0 bg-gray-900 opacity-50 hover:opacity-70 transition-opacity flex items-center justify-center">*/}
-                                {/*                <FaCirclePlay className="block text-4xl" />*/}
-                                {/*            </div>*/}
-                                {/*        </div>}*/}
-                                {/*        playlist={p}*/}
-                                {/*        onPlaylistLoaded={handlePlaylistLoaded}*/}
-                                {/*    />*/}
-                                {/*    <div className="space-y-1 items-center">*/}
-                                {/*        <p className="text-md font-bold text-white max-w-lg truncate text-center">{p.name}</p>*/}
-                                {/*        <p className="text-lg font-normal line-clamp-1 text-center">{p.localFiles.length} episode{p.localFiles.length > 1*/}
-                                {/*            ? `s`*/}
-                                {/*            : ""}</p>*/}
-                                {/*    </div>*/}
-                                {/*    <PlaylistModal*/}
-                                {/*        trigger={<Button*/}
-                                {/*            className="w-full flex-none"*/}
-                                {/*            // leftIcon={<FaRegEye />}*/}
-                                {/*            intent="white-subtle"*/}
-                                {/*            size="sm"*/}
-
-                                {/*        >Edit</Button>} playlist={p}*/}
-                                {/*    />*/}
-                                {/*</div>*/}
                             </div>
                         </CarouselItem>
                     )

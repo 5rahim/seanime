@@ -20,13 +20,13 @@ export function useGetAnimeEntry(id: Nullish<string | number>) {
     })
 }
 
-export function useAnimeEntryBulkAction() {
+export function useAnimeEntryBulkAction(id?: Nullish<number>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<Array<Anime_LocalFile>, AnimeEntryBulkAction_Variables>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.endpoint,
         method: API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.methods[0],
-        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.key],
+        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.key, id],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
         },
@@ -64,6 +64,7 @@ export function useAnimeEntryManualMatch() {
         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryManualMatch.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
         },
     })
 }

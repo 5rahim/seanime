@@ -1,13 +1,11 @@
 "use client"
-import { LocalFile } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { ScanSummary, ScanSummaryFile, ScanSummaryLog } from "@/app/(main)/scan-summaries/_lib/scan-summary.types"
+import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from "@/api/generated/types"
+import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,20 +20,24 @@ export const dynamic = "force-static"
 
 export default function Page() {
 
-    const [selectedSummaryId, setSelectedSummaryId] = React.useState<string | null>(null)
+    const [selectedSummaryId, setSelectedSummaryId] = React.useState<string | undefined | null>(undefined)
 
-    const { data, isLoading } = useSeaQuery<ScanSummary[] | null>({
-        queryKey: ["scan-summaries"],
-        endpoint: SeaEndpoints.SCAN_SUMMARIES,
-    })
+    const { data, isLoading } = useGetScanSummaries()
 
     React.useEffect(() => {
         if (!!data?.length) {
-            setSelectedSummaryId(data[data.length - 1].id)
+            setSelectedSummaryId(data[data.length - 1]?.scanSummary?.id)
         }
     }, [data])
 
-    const selectSummary = React.useMemo(() => data?.find(summary => summary.id === selectedSummaryId), [selectedSummaryId, data])
+    const selectedSummary = React.useMemo(() => {
+        const summary = data?.find(summary => summary.scanSummary?.id === selectedSummaryId)
+        if (!summary || !summary?.createdAt || !summary?.scanSummary?.id || !summary.scanSummary?.groups?.length) return undefined
+        return {
+            createdAt: summary?.createdAt,
+            ...summary.scanSummary,
+        }
+    }, [selectedSummaryId, data])
 
     return (
         <PageWrapper
@@ -57,37 +59,38 @@ export default function Page() {
                     <div>
                         <Select
                             value={selectedSummaryId || "-"}
-                            options={data.map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt), value: summary.id || "-" }))
+                            options={data?.filter(n => !!n.scanSummary)
+                                .map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt!), value: summary.scanSummary!.id || "-" }))
                                 .toReversed()}
                             onValueChange={v => setSelectedSummaryId(v)}
                         />
-                        {!!selectSummary && (
+                        {!!selectedSummary && (
                             <div className="mt-4 space-y-4 rounded-[--radius] ">
                                 <div>
-                                    <p className="text-[--muted]">Seanime successfully scanned {selectSummary.groups?.length} media</p>
-                                    {!!selectSummary?.unmatchedFiles?.length && (
-                                        <p className="text-orange-300">{selectSummary?.unmatchedFiles?.length} file{selectSummary?.unmatchedFiles?.length > 1
+                                    <p className="text-[--muted]">Seanime successfully scanned {selectedSummary.groups?.length} media</p>
+                                    {!!selectedSummary?.unmatchedFiles?.length && (
+                                        <p className="text-orange-300">{selectedSummary?.unmatchedFiles?.length} file{selectedSummary?.unmatchedFiles?.length > 1
                                             ? "s were "
                                             : " was "}not matched</p>
                                     )}
                                 </div>
 
-                                {!!selectSummary?.unmatchedFiles?.length && <div className="space-y-2">
+                                {!!selectedSummary?.unmatchedFiles?.length && <div className="space-y-2">
                                     <h5>Unmatched files</h5>
                                     <Accordion type="single" collapsible>
                                         <div className="grid grid-cols-1 gap-4">
-                                            {selectSummary?.unmatchedFiles?.map(file => (
+                                            {selectedSummary?.unmatchedFiles?.map(file => (
                                                 <ScanSummaryGroupItem file={file} key={file.id} />
                                             ))}
                                         </div>
                                     </Accordion>
                                 </div>}
 
-                                {!!selectSummary?.groups?.length && <div>
+                                {!!selectedSummary?.groups?.length && <div>
                                     <h5>Media scanned</h5>
 
                                     <div className="space-y-4 divide-y">
-                                        {selectSummary?.groups?.map(group => (
+                                        {selectedSummary?.groups?.map(group => !!group?.files?.length ? (
                                             <div className="space-y-4 pt-4" key={group.id}>
                                                 <div className="flex gap-2">
 
@@ -123,11 +126,11 @@ export default function Page() {
 
                                                 </div>
 
-                                                {group.files.flatMap(n => n.logs).some(n => n.level === "error") &&
+                                                {group.files.flatMap(n => n.logs).some(n => n?.level === "error") &&
                                                     <p className="text-sm flex gap-1 text-red-300 items-center text-[--muted]">
                                                         <span className="text-base"><BiXCircle className="" /></span> Errors found
                                                     </p>}
-                                                {group.files.flatMap(n => n.logs).some(n => n.level === "warning") &&
+                                                {group.files.flatMap(n => n.logs).some(n => n?.level === "warning") &&
                                                     <p className="text-sm flex gap-1 text-orange-300 items-center text-[--muted]">
                                                         <span className="text-base"><AiFillWarning className="" /></span> Warnings found
                                                     </p>}
@@ -155,7 +158,7 @@ export default function Page() {
                                                     </Accordion>
                                                 </div>
                                             </div>
-                                        ))}
+                                        ) : null)}
                                     </div>
                                 </div>}
                             </div>
@@ -169,14 +172,16 @@ export default function Page() {
 }
 
 type ScanSummaryFileItem = {
-    file: ScanSummaryFile
+    file: Summary_ScanSummaryFile
 }
 
 function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
     const { file } = props
 
-    const hasErrors = file.logs.some(log => log.level === "error")
-    const hasWarnings = file.logs.some(log => log.level === "warning")
+    const hasErrors = file.logs?.some(log => log.level === "error")
+    const hasWarnings = file.logs?.some(log => log.level === "warning")
+
+    if (!file.localFile || !file.logs) return null
 
     return (
         <AccordionItem value={file.localFile.path} className="bg-gray-950 overflow-x-auto">
@@ -211,7 +216,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
 
 }
 
-function ScanSummaryFileParsedData(props: { localFile: LocalFile }) {
+function ScanSummaryFileParsedData(props: { localFile: Anime_LocalFile }) {
     const { localFile } = props
 
     const folderTitles = localFile.parsedFolderInfo?.map(i => i.title).filter(Boolean).map(n => `"${n}"`).join(", ")
@@ -238,7 +243,7 @@ function ScanSummaryFileParsedData(props: { localFile: LocalFile }) {
     )
 }
 
-function ScanSummaryLog(props: { log: ScanSummaryLog }) {
+function ScanSummaryLog(props: { log: Summary_ScanSummaryLog }) {
     const { log } = props
 
     return (
