@@ -1,5 +1,6 @@
 "use client"
-import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MissingEpisodes } from "@/api/generated/types"
+import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_hooks/use-handle-missing-episodes"
 import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
 import { GenericSliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -12,12 +13,13 @@ import { AiOutlineDownload } from "react-icons/ai"
 import { IoLibrary } from "react-icons/io5"
 import { LuBellOff } from "react-icons/lu"
 
-export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }: {
-    missingEpisodes: MediaEntryEpisode[] | undefined,
-    silencedEpisodes: MediaEntryEpisode[],
+export function MissingEpisodes({ isLoading, data }: {
+    data: Anime_MissingEpisodes | undefined
     isLoading: boolean
 }) {
     const router = useRouter()
+
+    const { missingEpisodes, silencedEpisodes } = useHandleMissingEpisodes(data)
 
     if (!missingEpisodes?.length && !silencedEpisodes?.length) return null
 
@@ -63,7 +65,7 @@ export function MissingEpisodes({ isLoading, missingEpisodes, silencedEpisodes }
                     </>
                 )}
 
-                {!!silencedEpisodes.length && (
+                {!!silencedEpisodes?.length && (
                     <>
 
                         <Accordion

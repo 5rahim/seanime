@@ -1,7 +1,7 @@
 "use client"
 import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { userAtom } from "@/app/(main)/_atoms/user"
 import { MangaEntryListData } from "@/app/(main)/manga/_lib/manga.types"
-import { userAtom } from "@/atoms/user"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"

@@ -1,21 +1,23 @@
-import { useAnilistCollection } from "@/app/(main)/_lib/anilist-anime-collection"
-import { serverStatusAtom } from "@/atoms/server-status"
+import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { addSeconds, formatDistanceToNow } from "date-fns"
-import { useAtomValue } from "jotai/index"
 import Image from "next/image"
 import Link from "next/link"
 import React from "react"
 
+/**
+ * @description
+ * Displays a carousel of upcoming episodes based on the user's anime list.
+ */
 export function ComingUpNext() {
-    const serverStatus = useAtomValue(serverStatusAtom)
-    const { anilistLists } = useAnilistCollection()
+    const serverStatus = useServerStatus()
+    const { data: anilistCollection } = useGetAnilistCollection()
     const _media = React.useMemo(() => {
-        const collectionEntries = anilistLists?.map(n => n?.entries).flat() ?? []
-        return collectionEntries.filter(Boolean).map(entry => entry.media) as BaseMediaFragment[]
-    }, [anilistLists])
+        const collectionEntries = anilistCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []
+        return collectionEntries?.map(entry => entry?.media)?.filter(Boolean)
+    }, [anilistCollection])
 
     const media = React.useMemo(() => {
         let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)

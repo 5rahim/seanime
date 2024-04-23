@@ -2,8 +2,8 @@ import {
     PlaybackManager_PlaybackState,
     PlaybackManager_PlaylistState,
 } from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
-import { serverStatusAtom } from "@/atoms/server-status"
-import { useWebsocketMessageListener } from "@/atoms/websocket"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { useWebsocketMessageListener } from "@/app/(main)/_atoms/websocket"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"

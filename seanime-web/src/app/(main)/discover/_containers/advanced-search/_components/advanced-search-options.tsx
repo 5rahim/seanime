@@ -1,4 +1,5 @@
 "use client"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import {
     ADVANCED_SEARCH_FORMATS,
     ADVANCED_SEARCH_MEDIA_GENRES,
@@ -9,7 +10,6 @@ import {
     ADVANCED_SEARCH_TYPE,
 } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
 import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"

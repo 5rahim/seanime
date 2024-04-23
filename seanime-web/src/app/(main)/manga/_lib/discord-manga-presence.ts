@@ -1,5 +1,5 @@
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"

@@ -1,7 +1,7 @@
 "use client"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diffs"
 import { ListSyncAnimeDiff, ListSyncOrigin } from "@/app/(main)/list-sync/_lib/list-sync.types"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { tabsListClass, tabsTriggerClass } from "@/components/shared/styling/classnames"

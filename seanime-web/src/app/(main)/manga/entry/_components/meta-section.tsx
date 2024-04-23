@@ -1,4 +1,5 @@
 "use client"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import {
     AnimeEntryAudienceScore,
     AnimeEntryGenres,
@@ -6,7 +7,6 @@ import {
 } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { Badge } from "@/components/ui/badge"

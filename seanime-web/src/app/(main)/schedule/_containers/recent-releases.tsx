@@ -1,11 +1,8 @@
 "use client"
+import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
 import { GenericSliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { ListRecentMediaQuery } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
-import { keepPreviousData } from "@tanstack/react-query"
 import { addSeconds, formatDistanceToNow, subDays } from "date-fns"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -14,17 +11,11 @@ export function RecentReleases() {
 
     const router = useRouter()
 
-    const { data } = useSeaQuery<ListRecentMediaQuery>({
-        queryKey: ["recent-airing-anime"],
-        endpoint: SeaEndpoints.ANILIST_LIST_RECENT_ANIME,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 50,
-            airingAt_lesser: Math.floor(new Date().getTime() / 1000),
-            airingAt_greater: Math.floor(subDays(new Date(), 14).getTime() / 1000),
-        },
-        placeholderData: keepPreviousData,
+    const { data } = useAnilistListRecentAiringAnime({
+        page: 1,
+        perPage: 50,
+        airingAt_lesser: Math.floor(new Date().getTime() / 1000),
+        airingAt_greater: Math.floor(subDays(new Date(), 14).getTime() / 1000),
     })
 
     const media = data?.Page?.airingSchedules?.filter(item => item?.media?.isAdult === false

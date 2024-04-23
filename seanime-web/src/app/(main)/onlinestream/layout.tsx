@@ -1,6 +1,6 @@
 "use client"
 
-import { serverStatusAtom } from "@/atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"

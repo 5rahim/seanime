@@ -1,5 +1,6 @@
 "use client"
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import {
@@ -11,7 +12,6 @@ import {
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section/_components/torrent-search-button"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { TrailerModal } from "@/components/shared/trailer-modal"

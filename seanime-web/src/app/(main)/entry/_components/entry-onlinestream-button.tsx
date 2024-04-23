@@ -1,5 +1,5 @@
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai/react"
 import Link from "next/link"

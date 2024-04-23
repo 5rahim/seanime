@@ -74,13 +74,12 @@ export function useAnilistListAnime() {
     })
 }
 
-// TODO
-export function useAnilistListRecentAiringAnime() {
+export function useAnilistListRecentAiringAnime(variables: AnilistListRecentAiringAnime_Variables) {
     return useServerQuery<AL_ListRecentMedia, AnilistListRecentAiringAnime_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.endpoint,
         method: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.key],
-
+        data: variables,
     })
 }
 

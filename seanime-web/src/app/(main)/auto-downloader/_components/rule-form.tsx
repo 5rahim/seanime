@@ -1,6 +1,6 @@
 import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { anilistUserMediaAtom } from "@/app/(main)/_lib/anilist-user-media"
-import { libraryCollectionAtom } from "@/app/(main)/_lib/anime-library-collection.atoms"
+import { anilistUserMediaAtom } from "@/app/(main)/_hooks/anilist-user-media"
+import { libraryCollectionAtom } from "@/app/(main)/_hooks/anime-library-collection.atoms"
 import { AutoDownloaderRule } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

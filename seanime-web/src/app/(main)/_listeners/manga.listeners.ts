@@ -1,4 +1,4 @@
-import { useWebsocketMessageListener } from "@/atoms/websocket"
+import { useWebsocketMessageListener } from "@/app/(main)/_atoms/websocket"
 import { WSEvents } from "@/lib/server/endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 

@@ -1,18 +1,12 @@
-import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
+import { Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { useGetMissingEpisodes } from "@/api/hooks/anime_entries.hooks"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
-export type MediaEntryMissingEpisodes = {
-    episodes: MediaEntryEpisode[]
-    silencedEpisodes: MediaEntryEpisode[]
-}
-
-export const missingEpisodesAtom = atom<MediaEntryEpisode[]>([])
-export const missingSilencedEpisodesAtom = atom<MediaEntryEpisode[]>([])
+export const missingEpisodesAtom = atom<Anime_MediaEntryEpisode[]>([])
+export const missingSilencedEpisodesAtom = atom<Anime_MediaEntryEpisode[]>([])
 
 const missingEpisodeCount = atom(get => get(missingEpisodesAtom).length)
 
@@ -29,11 +23,7 @@ export function useMissingEpisodeListener() {
     const setter = useSetAtom(missingEpisodesAtom)
     const silencedSetter = useSetAtom(missingSilencedEpisodesAtom)
 
-    const { data } = useSeaQuery<MediaEntryMissingEpisodes>({
-        endpoint: SeaEndpoints.MISSING_EPISODES,
-        queryKey: ["get-missing-episodes"],
-        enabled: pathname !== "/schedule",
-    })
+    const { data } = useGetMissingEpisodes(pathname !== "/schedule")
 
     useEffect(() => {
         setter(data?.episodes ?? [])

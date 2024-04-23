@@ -68,12 +68,12 @@ export function useAnimeEntryManualMatch() {
     })
 }
 
-export function useGetMissingEpisodes() {
+export function useGetMissingEpisodes(enabled?: boolean) {
     return useServerQuery<Anime_MissingEpisodes>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.endpoint,
         method: API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key],
-        enabled: true,
+        enabled: enabled ?? true, // Default to true if not provided
     })
 }
 

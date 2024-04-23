@@ -1,7 +1,7 @@
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { GetViewerQuery } from "@/lib/anilist/gql/graphql"
-import { useAtom } from "jotai/react"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 
 export const userAtom = atom<GetViewerQuery["Viewer"]>((get) => {
     const data = get(serverStatusAtom)

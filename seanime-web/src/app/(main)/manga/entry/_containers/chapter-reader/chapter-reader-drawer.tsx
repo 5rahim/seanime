@@ -1,5 +1,6 @@
 import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { useUpdateSnapshotEntryListData } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
 import { useMangaPageContainer, useUpdateMangaProgress } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaChapterContainer } from "@/app/(main)/manga/_lib/manga.types"
@@ -19,7 +20,6 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-chapter-reader.atoms"
 import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/entry/_containers/chapter-reader/_lib/manga-reader.hooks"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader } from "@/components/ui/card"

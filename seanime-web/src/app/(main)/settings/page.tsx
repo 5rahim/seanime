@@ -1,6 +1,6 @@
 "use client"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"

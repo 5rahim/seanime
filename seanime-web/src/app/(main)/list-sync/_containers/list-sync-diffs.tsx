@@ -1,6 +1,6 @@
 "use client"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { ListSyncAnimeDiff, ListSyncAnimeDiffKind, ListSyncAnimeMetadataDiffKind } from "@/app/(main)/list-sync/_lib/list-sync.types"
-import { serverStatusAtom } from "@/atoms/server-status"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

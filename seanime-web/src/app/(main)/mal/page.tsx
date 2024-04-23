@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
 import { Button } from "@/components/ui/button"
 import { MAL_CLIENT_ID } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
