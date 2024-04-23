@@ -73,7 +73,7 @@ export function useServerMutation<R = void, V = void>(
 
 type ServerQueryProps<R, V> = UseQueryOptions<R | undefined, SeaError, R | undefined> & {
     endpoint: SeaEndpoints | string
-    method: "POST" | "GET" | "PATCH" | "DELETE"
+    method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT"
     params?: V
     data?: V
     muteError?: boolean

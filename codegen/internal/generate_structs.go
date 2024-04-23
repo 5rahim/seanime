@@ -378,6 +378,8 @@ func fieldTypeToTypescriptType(fieldType ast.Expr, usedStructPkgName string) str
 			return "number"
 		case "bool":
 			return "boolean"
+		case "nil":
+			return "null"
 		default:
 			return getTypePrefix(usedStructPkgName) + t.Name
 		}
@@ -406,6 +408,8 @@ func stringGoTypeToTypescriptType(goType string) string {
 		return "string"
 	case "uint", "uint8", "uint16", "uint32", "uint64", "int", "int8", "int16", "int32", "int64", "float", "float32", "float64":
 		return "number"
+	case "nil":
+		return "null"
 	case "bool":
 		return "boolean"
 	}

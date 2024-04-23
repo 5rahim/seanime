@@ -2,11 +2,15 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 
-export function useTemplateQuery() {
+type QueryHookProps = {
+    key: any[]
+}
+
+export function useTemplateQuery(props: QueryHookProps) {
     return useServerQuery({
         endpoint: API_ENDPOINTS.DOCS.GetDocs.endpoint,
         method: API_ENDPOINTS.DOCS.GetDocs.methods[0],
-        queryKey: [API_ENDPOINTS.DOCS.GetDocs.key],
+        queryKey: [API_ENDPOINTS.DOCS.GetDocs.key, ...props.key],
     })
 }
 
@@ -14,7 +18,7 @@ export function useTemplateQuery() {
 //     onSuccess
 // }
 
-export function useTemplateMutation(props: {}) {
+export function useTemplateMutation() {
     const queryClient = useQueryClient()
     return useServerMutation({
         endpoint: API_ENDPOINTS.DOCS.GetDocs.endpoint,

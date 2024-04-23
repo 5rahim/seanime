@@ -8,7 +8,7 @@
       "\t@summary returns the user's AniList anime collection.",
       "\t@desc Calling GET will return the cached data.",
       "\t@desc Calling POST will refetch the data from Anilist.",
-      "\t@returns anilist.AnilistCollection",
+      "\t@returns anilist.AnimeCollection",
       "\t@route /api/v1/anilist/collection [GET,POST]",
       ""
     ],
@@ -27,9 +27,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "anilist.AnilistCollection",
-      "returnGoType": "anilist.AnilistCollection",
-      "returnTypescriptType": "AL_AnilistCollection"
+      "returns": "anilist.AnimeCollection",
+      "returnGoType": "anilist.AnimeCollection",
+      "returnTypescriptType": "AL_AnimeCollection"
     }
   },
   {
@@ -235,6 +235,7 @@
       "\t@summary returns a list of anime based on the search parameters.",
       "\t@desc This is used by the \"Discover\" and \"Advanced Search\".",
       "\t@route /api/v1/anilist/list-anime [POST]",
+      "\t@returns anilist.ListMedia",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -350,9 +351,9 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
+      "returns": "anilist.ListMedia",
+      "returnGoType": "anilist.ListMedia",
+      "returnTypescriptType": "AL_ListMedia"
     }
   },
   {
@@ -364,6 +365,7 @@
       "\t@summary returns a list of recently aired anime.",
       "\t@desc This is used by the \"Schedule\" page to display recently aired anime.",
       "\t@route /api/v1/anilist/list-recent-anime [POST]",
+      "\t@returns anilist.ListRecentMedia",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -425,9 +427,9 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
+      "returns": "anilist.ListRecentMedia",
+      "returnGoType": "anilist.ListRecentMedia",
+      "returnTypescriptType": "AL_ListRecentMedia"
     }
   },
   {
@@ -2746,7 +2748,7 @@
       "",
       "\t@summary returns the items in the download queue.",
       "\t@route /api/v1/manga/download-queue [GET]",
-      "\t@returns []manga.ChapterDownloadQueueItem",
+      "\t@returns []models.ChapterDownloadQueueItem",
       ""
     ],
     "filepath": "internal/handlers/manga_download.go",
@@ -2760,9 +2762,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]manga.ChapterDownloadQueueItem",
-      "returnGoType": "manga.ChapterDownloadQueueItem",
-      "returnTypescriptType": "Array\u003cManga_ChapterDownloadQueueItem\u003e"
+      "returns": "[]models.ChapterDownloadQueueItem",
+      "returnGoType": "models.ChapterDownloadQueueItem",
+      "returnTypescriptType": "Array\u003cModels_ChapterDownloadQueueItem\u003e"
     }
   },
   {
@@ -3034,8 +3036,9 @@
       "",
       "\t@summary plays the video with the given path using the media player.",
       "\t@desc This tells the Playback Manager to play the video using the media player and start tracking progress.",
+      "\t@desc This returns 'true' if the video was successfully played.",
       "\t@route /api/v1/media-player/play [POST]",
-      "\t@returns nil",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/mediaplayer.go",
@@ -3043,7 +3046,8 @@
     "api": {
       "summary": "plays the video with the given path using the media player.",
       "descriptions": [
-        "This tells the Playback Manager to play the video using the media player and start tracking progress."
+        "This tells the Playback Manager to play the video using the media player and start tracking progress.",
+        "This returns 'true' if the video was successfully played."
       ],
       "endpoint": "/api/v1/media-player/play",
       "methods": [
@@ -3061,9 +3065,9 @@
           "descriptions": []
         }
       ],
-      "returns": "nil",
-      "returnGoType": "nil",
-      "returnTypescriptType": "nil"
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {

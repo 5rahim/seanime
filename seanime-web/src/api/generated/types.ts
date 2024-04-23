@@ -522,6 +522,83 @@ export type AL_GetViewer_Viewer_Options = {
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_ListMedia = {
+    Page?: AL_ListMedia_Page
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListMedia_Page = {
+    pageInfo?: AL_ListMedia_Page_PageInfo
+    media?: Array<AL_BasicMedia>
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListMedia_Page_PageInfo = {
+    hasNextPage?: boolean
+    total?: number
+    perPage?: number
+    currentPage?: number
+    lastPage?: number
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListRecentMedia = {
+    Page?: AL_ListRecentMedia_Page
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListRecentMedia_Page = {
+    pageInfo?: AL_ListRecentMedia_Page_PageInfo
+    airingSchedules?: Array<AL_ListRecentMedia_Page_AiringSchedules>
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListRecentMedia_Page_AiringSchedules = {
+    id: number
+    airingAt: number
+    episode: number
+    timeUntilAiring: number
+    media?: AL_BasicMedia
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListRecentMedia_Page_PageInfo = {
+    hasNextPage?: boolean
+    total?: number
+    perPage?: number
+    currentPage?: number
+    lastPage?: number
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_MangaCollection = {
     MediaListCollection?: AL_MangaCollection_MediaListCollection
 }
@@ -1756,6 +1833,23 @@ export type Models_AutoDownloaderSettings = {
     interval: number
     enabled: boolean
     downloadAutomatically: boolean
+}
+
+/**
+ * - Filepath: internal/internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_ChapterDownloadQueueItem = {
+    provider: string
+    mediaId: number
+    chapterId: string
+    chapterNumber: string
+    /**
+     * Contains map of page index to page details
+     */
+    pageData?: string
+    status: string
 }
 
 /**

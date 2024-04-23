@@ -13,7 +13,7 @@ import (
 //	@summary returns the user's AniList anime collection.
 //	@desc Calling GET will return the cached data.
 //	@desc Calling POST will refetch the data from Anilist.
-//	@returns anilist.AnilistCollection
+//	@returns anilist.AnimeCollection
 //	@route /api/v1/anilist/collection [GET,POST]
 func HandleGetAnilistCollection(c *RouteCtx) error {
 
@@ -200,6 +200,7 @@ var (
 //	@summary returns a list of anime based on the search parameters.
 //	@desc This is used by the "Discover" and "Advanced Search".
 //	@route /api/v1/anilist/list-anime [POST]
+//	@returns anilist.ListMedia
 func HandleAnilistListAnime(c *RouteCtx) error {
 
 	type body struct {
@@ -280,6 +281,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 //	@summary returns a list of recently aired anime.
 //	@desc This is used by the "Schedule" page to display recently aired anime.
 //	@route /api/v1/anilist/list-recent-anime [POST]
+//	@returns anilist.ListRecentMedia
 func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	type body struct {
