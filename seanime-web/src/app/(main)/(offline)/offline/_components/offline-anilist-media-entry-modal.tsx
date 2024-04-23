@@ -1,7 +1,7 @@
 "use client"
 import { OfflineAssetMap, OfflineListData } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { userAtom } from "@/app/(main)/_atoms/user"
+import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
@@ -11,7 +11,6 @@ import { normalizeDate } from "@/lib/helpers/date"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
-import { useAtomValue } from "jotai/react"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiFillEdit } from "react-icons/ai"
@@ -59,12 +58,12 @@ export function useUpdateSnapshotEntryListData() {
 
 
 export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
-    const [open, toggle] = useToggle(false)
 
     const { children, media, listData, hideButton, assetMap, type = "anime", ...rest } = props
 
-    const user = useAtomValue(userAtom)
+    const user = useCurrentUser()
 
+    const [open, toggle] = useToggle(false)
 
     const { mutate, isPending, isSuccess } = useUpdateSnapshotEntryListData()
 

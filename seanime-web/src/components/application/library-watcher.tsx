@@ -1,6 +1,7 @@
 import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
-import { useWebsocketMessageListener } from "@/app/(main)/_atoms/websocket"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button, CloseButton } from "@/components/ui/button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"

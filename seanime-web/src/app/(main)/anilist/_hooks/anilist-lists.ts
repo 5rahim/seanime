@@ -1,6 +1,6 @@
 import { AL_AnimeCollection_MediaListCollection_Lists_Entries } from "@/api/generated/types"
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { MediaListStatus } from "@/lib/anilist/gql/graphql"
 import sortBy from "lodash/sortBy"
 import React, { useCallback } from "react"

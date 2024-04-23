@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { TorrentClientTorrent, TorrentClientTorrentActionProps } from "@/app/(main)/torrent-list/_lib/torrent-client.types"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"

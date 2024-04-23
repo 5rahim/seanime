@@ -1,12 +1,7 @@
+import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { WSEvents } from "@/lib/server/endpoints"
-
 import { SeaWebsocketEvent } from "@/lib/types/queries.types"
-import { atom } from "jotai"
-import { createContext, useContext, useEffect } from "react"
-
-export const WebSocketContext = createContext<WebSocket | null>(null)
-
-export const websocketAtom = atom<WebSocket | null>(null)
+import { useContext, useEffect } from "react"
 
 export function useWebsocketSender() {
     const socket = useContext(WebSocketContext)
@@ -63,7 +58,8 @@ export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }
                     if (!!parsed.type && parsed.type === type) {
                         onMessage(parsed.payload)
                     }
-                } catch (e) {
+                }
+                catch (e) {
 
                 }
             }

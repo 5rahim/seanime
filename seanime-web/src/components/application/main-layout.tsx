@@ -1,7 +1,7 @@
 "use client"
-import { useMissingEpisodeListener } from "@/app/(main)/_atoms/missing-episodes"
-import { useAnilistUserMediaLoader } from "@/app/(main)/_hooks/anilist-user-media"
-import { useLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection"
+import { useAnilistCollectionLoader } from "@/app/(main)/_hooks/anilist-collection.hooks"
+import { useLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library.hooks"
+import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes.hooks"
 import { useAnilistCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
@@ -14,9 +14,9 @@ import React from "react"
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
     useLibraryCollectionLoader()
-    useAnilistUserMediaLoader()
+    useAnilistCollectionLoader()
 
-    useMissingEpisodeListener()
+    useMissingEpisodesLoader()
     useAutoDownloaderItemListener()
     useAnilistCollectionListener()
     useMangaListener()

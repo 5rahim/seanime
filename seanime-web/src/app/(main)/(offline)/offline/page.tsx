@@ -3,7 +3,7 @@ import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-l
 import { OfflineAnimeLists } from "@/app/(main)/(offline)/offline/_components/offline-anime-lists"
 import { OfflineMangaLists } from "@/app/(main)/(offline)/offline/_components/offline-manga-lists"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { Separator } from "@/components/ui/separator"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { useAtomValue } from "jotai"

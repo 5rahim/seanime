@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { ListSyncDiffs } from "@/app/(main)/list-sync/_containers/list-sync-diffs"
 import { ListSyncAnimeDiff, ListSyncOrigin } from "@/app/(main)/list-sync/_lib/list-sync.types"
 import { BetaBadge } from "@/components/application/beta-badge"

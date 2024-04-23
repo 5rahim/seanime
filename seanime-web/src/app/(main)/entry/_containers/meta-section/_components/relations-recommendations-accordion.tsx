@@ -1,5 +1,5 @@
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"

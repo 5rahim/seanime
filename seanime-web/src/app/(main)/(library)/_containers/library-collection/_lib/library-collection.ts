@@ -1,6 +1,6 @@
 import { LibraryCollection } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
-import { libraryCollectionAtom } from "@/app/(main)/_hooks/anime-library-collection.atoms"
+import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"
 import { useAtomValue, useSetAtom } from "jotai/react"

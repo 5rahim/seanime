@@ -1,4 +1,4 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"

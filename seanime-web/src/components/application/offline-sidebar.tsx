@@ -1,7 +1,7 @@
 "use client"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/components/ui/core/styling"

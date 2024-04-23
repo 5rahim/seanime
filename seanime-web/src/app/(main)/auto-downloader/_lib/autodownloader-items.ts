@@ -1,4 +1,4 @@
-import { useWebsocketMessageListener } from "@/app/(main)/_atoms/websocket"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { AutoDownloaderItem } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaQuery } from "@/lib/server/query"

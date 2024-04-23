@@ -1,6 +1,6 @@
 "use client"
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
 import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-actions/anime-entry-dropdown-menu"

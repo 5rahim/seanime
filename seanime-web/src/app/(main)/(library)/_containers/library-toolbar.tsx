@@ -5,7 +5,7 @@ import { _scannerModalIsOpen } from "@/app/(main)/(library)/_containers/scanner/
 import { _unknownMediaManagerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media/unknown-media-manager"
 import { _unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-files/unmatched-file-manager"
 import { LibraryCollectionList, LocalFile, UnknownGroup } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"

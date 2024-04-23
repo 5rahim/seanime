@@ -2,7 +2,7 @@ import { useMediaEntryBulkAction } from "@/app/(main)/(library)/_containers/bulk
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
 import { OfflineAssetMap, OfflineListData } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
 import { AnimeListItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"

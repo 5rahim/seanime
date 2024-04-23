@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
 import { useAtomValue } from "jotai/react"
 import { usePathname } from "next/navigation"

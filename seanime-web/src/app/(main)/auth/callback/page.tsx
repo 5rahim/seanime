@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { websocketConnectedAtom } from "@/components/application/websocket-provider"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { __DEV_SERVER_PORT } from "@/lib/anilist/config"

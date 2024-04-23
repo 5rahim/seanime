@@ -1,6 +1,6 @@
 import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { useUpdateSnapshotEntryListData } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
 import { useMangaPageContainer, useUpdateMangaProgress } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaChapterContainer } from "@/app/(main)/manga/_lib/manga.types"

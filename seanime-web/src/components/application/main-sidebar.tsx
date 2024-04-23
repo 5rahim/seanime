@@ -1,7 +1,7 @@
 "use client"
-import { useMissingEpisodeCount } from "@/app/(main)/_atoms/missing-episodes"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
-import { useCurrentUser } from "@/app/(main)/_atoms/user"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes.hooks"
+import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/auto-downloader/_lib/autodownloader-items"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { __globalSearch_isOpenAtom } from "@/components/application/global-search"
@@ -44,9 +44,9 @@ export function MainSidebar() {
     // const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
-    const { user } = useCurrentUser()
     const pathname = usePathname()
     const [serverStatus, setServerStatus] = useAtom(serverStatusAtom)
+    const user = useCurrentUser()
 
     const missingEpisodeCount = useMissingEpisodeCount()
     const autoDownloaderQueueCount = useAutoDownloaderQueueCount()

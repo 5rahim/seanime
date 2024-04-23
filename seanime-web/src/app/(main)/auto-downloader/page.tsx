@@ -1,6 +1,6 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
-import { anilistUserMediaAtom } from "@/app/(main)/_hooks/anilist-user-media"
+import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { AutoDownloaderItems } from "@/app/(main)/auto-downloader/_components/items"
 import { RuleForm } from "@/app/(main)/auto-downloader/_components/rule-form"
 import { AutoDownloaderItem, AutoDownloaderRule } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"

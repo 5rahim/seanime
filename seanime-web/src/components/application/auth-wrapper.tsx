@@ -1,4 +1,4 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { GettingStarted } from "@/components/application/getting-started"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayoutStack } from "@/components/ui/app-layout"

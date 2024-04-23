@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useAtomValue } from "jotai"
 
 export const dynamic = "force-static"

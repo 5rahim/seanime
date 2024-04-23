@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

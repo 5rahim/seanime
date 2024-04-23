@@ -1,5 +1,5 @@
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { useTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent-search.hooks"
 import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"

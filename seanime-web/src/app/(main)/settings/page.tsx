@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache"
 import { BetaBadge } from "@/components/application/beta-badge"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"

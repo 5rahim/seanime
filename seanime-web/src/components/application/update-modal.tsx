@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

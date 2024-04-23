@@ -1,4 +1,4 @@
-import { useWebsocketMessageListener } from "@/app/(main)/_atoms/websocket"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { AnimeCollectionQuery, MangaCollectionQuery } from "@/lib/anilist/gql/graphql"
 import { WSEvents } from "@/lib/server/endpoints"
 import { useQueryClient } from "@tanstack/react-query"

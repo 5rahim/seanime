@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import {
     ADVANCED_SEARCH_FORMATS,
     ADVANCED_SEARCH_MEDIA_GENRES,

@@ -1,4 +1,4 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 
 import { ThemeSettings } from "@/lib/types/settings.types"
 import { useAtomValue } from "jotai/react"

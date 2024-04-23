@@ -1,5 +1,5 @@
 import { OfflineSnapshotProvider } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { OfflineSidebar } from "@/components/application/offline-sidebar"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"

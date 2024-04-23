@@ -1,4 +1,4 @@
-import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket"
+import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { __openDrawersAtom } from "@/components/ui/drawer"
 import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
 import { atom, useAtomValue } from "jotai"

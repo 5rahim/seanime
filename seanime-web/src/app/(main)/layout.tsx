@@ -3,7 +3,7 @@ import { ProgressTracking } from "@/app/(main)/(library)/_containers/playback-ma
 import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scanner/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner/scanner-modal"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AuthWrapper } from "@/components/application/auth-wrapper"

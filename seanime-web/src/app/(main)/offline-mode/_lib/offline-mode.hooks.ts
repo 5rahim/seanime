@@ -1,4 +1,4 @@
-import { useWebsocketMessageListener } from "@/app/(main)/_atoms/websocket"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
 import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"

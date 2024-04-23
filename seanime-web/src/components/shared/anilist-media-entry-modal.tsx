@@ -1,6 +1,6 @@
 "use client"
 import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { userAtom } from "@/app/(main)/_atoms/user"
+import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { MangaEntryListData } from "@/app/(main)/manga/_lib/manga.types"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -11,7 +11,6 @@ import { normalizeDate } from "@/lib/helpers/date"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
-import { useAtomValue } from "jotai/react"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiFillEdit } from "react-icons/ai"
@@ -42,7 +41,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const { children, media, listData, hideButton, type = "anime", ...rest } = props
 
-    const user = useAtomValue(userAtom)
+    const user = useCurrentUser()
 
     const qc = useQueryClient()
 

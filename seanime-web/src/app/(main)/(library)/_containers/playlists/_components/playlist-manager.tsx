@@ -1,5 +1,5 @@
 import { LibraryCollectionEntry, LocalFile } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { libraryCollectionAtom } from "@/app/(main)/_hooks/anime-library-collection.atoms"
+import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/styling/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
