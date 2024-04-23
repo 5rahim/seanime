@@ -332,57 +332,80 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		// Absolute episode count with forced media ID
 		if fh.ForceMediaId != 0 && episode > media.GetCurrentEpisodeCount() {
 
-			azm, err := anizip.FetchAniZipMedia("anilist", fh.ForceMediaId)
+			// When we encounter a file with an episode number higher than the media's episode count
+			// we have a forced media ID, we will fetch the media from AniList and get the offset
+			azm, err := anizip.FetchAniZipMediaC("anilist", fh.ForceMediaId, fh.AnizipCache)
 			if err != nil {
 				/*Log */
 				if fh.ScanLogger != nil {
 					fh.logFileHydration(zerolog.ErrorLevel, lf, mId, episode).
 						Str("error", err.Error()).
-						Msg("Could not fetch AniZip media")
+						Msg("Could not fetch AniDB metadata")
 				}
 				lf.Metadata.Episode = episode
 				lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
 				lf.MediaId = fh.ForceMediaId
+				fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, errors.New("could not fetch AniDB metadata"), lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 				return
 			}
 
-			// Get the offset
-			found := false
-			for _, ep := range azm.Episodes {
-				epI, _ := strconv.Atoi(ep.Episode)
-				if epI != ep.EpisodeNumber && ep.EpisodeNumber == episode {
-
-					if fh.ScanLogger != nil {
-						fh.logFileHydration(zerolog.DebugLevel, lf, mId, episode).
-							Dict("normalization", zerolog.Dict().
-								Bool("normalized", true),
-							).
-							Msg("File has been marked as main")
-					}
-					lf.Metadata.Episode = epI
-					lf.Metadata.AniDBEpisode = strconv.Itoa(epI)
-					lf.MediaId = fh.ForceMediaId
-					found = true
-					break
+			// Get the first episode to calculate the offset
+			firstEp, ok := azm.Episodes["1"]
+			if !ok {
+				/*Log */
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.ErrorLevel, lf, mId, episode).
+						Msg("Could not find absolute episode offset")
 				}
+				lf.Metadata.Episode = episode
+				lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
+				lf.MediaId = fh.ForceMediaId
+				fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, errors.New("could not find absolute episode offset"), lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
+				return
 			}
 
-			if found {
+			// ref: media_tree_analysis.go
+			shouldUseEpisodeNumber := firstEp.EpisodeNumber > 1 && firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber == 1
+			absoluteEpisodeNumber := firstEp.AbsoluteEpisodeNumber
+			if shouldUseEpisodeNumber {
+				absoluteEpisodeNumber = firstEp.AbsoluteEpisodeNumber - 1 // we offset by one
+			}
+
+			// Calculate the relative episode number
+			// Let's say the media has 12 episodes and the file has episode 13
+			// The [absoluteEpisodeNumber] will be 13 and the [relativeEp] will be 1
+			epI, _ := strconv.Atoi(lf.ParsedData.Episode)
+			// e.g. 13 - (13-1) = 1
+			relativeEp := epI - (absoluteEpisodeNumber - 1)
+
+			if relativeEp < 1 {
+				if fh.ScanLogger != nil {
+					fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
+						Dict("normalization", zerolog.Dict().
+							Bool("normalized", false).
+							Str("reason", "Episode normalization failed"),
+						).
+						Msg("File has been marked as main")
+				}
+				lf.Metadata.Episode = episode
+				lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
+				lf.MediaId = fh.ForceMediaId
+				fh.ScanSummaryLogger.LogMetadataEpisodeNormalizationFailed(lf, errors.New("episode normalization failed"), lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 				return
 			}
 
 			if fh.ScanLogger != nil {
-				fh.logFileHydration(zerolog.WarnLevel, lf, mId, episode).
-					Dict("normalization", zerolog.Dict().
-						Bool("normalized", false).
-						Str("error", err.Error()).
-						Str("reason", "Episode normalization failed"),
+				fh.logFileHydration(zerolog.DebugLevel, lf, mId, epI).
+					Dict("mediaTreeAnalysis", zerolog.Dict().
+						Bool("normalized", true).
+						Int("forcedMediaId", fh.ForceMediaId),
 					).
 					Msg("File has been marked as main")
 			}
-			lf.Metadata.Episode = episode
-			lf.Metadata.AniDBEpisode = strconv.Itoa(episode)
+			lf.Metadata.Episode = relativeEp
+			lf.Metadata.AniDBEpisode = strconv.Itoa(relativeEp)
 			lf.MediaId = fh.ForceMediaId
+			fh.ScanSummaryLogger.LogMetadataMain(lf, lf.Metadata.Episode, lf.Metadata.AniDBEpisode)
 			return
 
 		}

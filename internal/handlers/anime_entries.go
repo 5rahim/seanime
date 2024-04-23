@@ -13,6 +13,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/scanner"
+	"github.com/seanime-app/seanime/internal/library/summary"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"github.com/sourcegraph/conc/pool"
@@ -354,6 +355,11 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	anilistCollection, err := c.App.GetAnilistCollection(false)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
 	// Retrieve local files
 	lfs, lfsId, err := c.App.Database.GetLocalFiles()
 	if err != nil {
@@ -385,10 +391,18 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	// Create a slice of normalized media
+	normalizedMedia := []*anime.NormalizedMedia{
+		anime.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
+	}
+
 	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	// Create scan summary logger
+	scanSummaryLogger := summary.NewScanSummaryLogger()
 
 	fh := scanner.FileHydrator{
 		LocalFiles:           selectedLfs,
@@ -398,13 +412,20 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		AnilistRateLimiter:   limiter.NewAnilistLimiter(),
 		Logger:               c.App.Logger,
 		ScanLogger:           scanLogger,
-		AllMedia: []*anime.NormalizedMedia{
-			anime.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
-		},
-		ForceMediaId: mediaRes.GetMedia().GetID(),
+		ScanSummaryLogger:    scanSummaryLogger,
+		AllMedia:             normalizedMedia,
+		ForceMediaId:         mediaRes.GetMedia().GetID(),
 	}
 
 	fh.HydrateMetadata()
+
+	// Hydrate the summary logger before merging files
+	fh.ScanSummaryLogger.HydrateData(selectedLfs, normalizedMedia, anilistCollection)
+
+	// Save the scan summary
+	go func() {
+		err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+	}()
 
 	// Remove select local files from the database slice, we will add them (hydrated) later
 	selectedPaths := lop.Map(selectedLfs, func(item *anime.LocalFile, _ int) string { return item.GetNormalizedPath() })
