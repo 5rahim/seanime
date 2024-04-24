@@ -1,21 +1,19 @@
 import { Models_AutoDownloaderItem } from "@/api/generated/types"
+import { useDeleteAutoDownloaderItem } from "@/api/hooks/auto_downloader.hooks"
+import { useTorrentClientAddMagnetFromRule } from "@/api/hooks/torrent_client.hooks"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
-import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { BiDownload, BiTrash } from "react-icons/bi"
-import { toast } from "sonner"
 
-type AutoDownloaderItemsProps = {
+type AutoDownloaderItemListProps = {
     children?: React.ReactNode
     items: Models_AutoDownloaderItem[] | undefined
     isLoading: boolean
 }
 
-export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
+export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
 
     const {
         children,
@@ -24,27 +22,9 @@ export function AutoDownloaderItems(props: AutoDownloaderItemsProps) {
         ...rest
     } = props
 
-    const qc = useQueryClient()
+    const { mutate: deleteItem, isPending } = useDeleteAutoDownloaderItem()
 
-    const { mutate: deleteItem, isPending } = useSeaMutation<void, { id: number }>({
-        mutationKey: ["delete-auto-downloader-items"],
-        method: "delete",
-        endpoint: SeaEndpoints.AUTO_DOWNLOADER_ITEM,
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
-            toast.success("Item deleted")
-        },
-    })
-
-    const { mutate: addMagnet, isPending: isAdding } = useSeaMutation<void, { magnetUrl: string, ruleId: number, queuedItemId: number }>({
-        mutationKey: ["torrent-client-add-rule-magnet"],
-        method: "post",
-        endpoint: SeaEndpoints.TORRENT_CLIENT_RULE_MAGNET,
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
-            toast.success("Magnet added")
-        },
-    })
+    const { mutate: addMagnet, isPending: isAdding } = useTorrentClientAddMagnetFromRule()
 
     if (isLoading) return <LoadingSpinner />
 

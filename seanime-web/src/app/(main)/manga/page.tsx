@@ -1,10 +1,10 @@
 "use client"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
-import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
-import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
 import { useMangaCollection } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaCollectionList } from "@/app/(main)/manga/_lib/manga.types"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/constants"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
@@ -85,7 +85,7 @@ const CollectionListItem = memo(({ list }: { list: MangaCollectionList }) => {
                 className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
             >
                 {list.entries?.map(entry => {
-                    return <AnimeListItem
+                    return <MediaEntryCard
                         key={entry.media.id}
                         media={entry.media!}
                         listData={entry.listData}
@@ -129,14 +129,14 @@ function TrendingManga() {
             <CarouselContent className="px-6">
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-                        <AnimeListItem
+                        <MediaEntryCard
                             key={media.id}
                             media={media}
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                             isManga
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )
@@ -184,14 +184,14 @@ function SearchManga() {
                 <CarouselContent className="px-6">
                     {!(isLoading || isFetching) ? data?.Page?.media?.filter(Boolean).map(media => {
                         return (
-                            <AnimeListItem
+                            <MediaEntryCard
                                 key={media.id}
                                 media={media}
                                 containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                                 isManga
                             />
                         )
-                    }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                    }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
                 </CarouselContent>
             </Carousel>}
         </div>

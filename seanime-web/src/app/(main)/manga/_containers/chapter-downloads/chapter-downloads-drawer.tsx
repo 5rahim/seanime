@@ -1,7 +1,7 @@
 "use client"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
 import { useMangaChapterDownloadQueue, useMangaChapterDownloads } from "@/app/(main)/manga/_lib/manga.hooks"
 import { MangaCollection } from "@/app/(main)/manga/_lib/manga.types"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -270,7 +270,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                     .map(item => {
                                         const nb = Object.values(item.downloadData).flatMap(n => n).length
                                         return <div key={item.media?.id!} className="col-span-1">
-                                            <AnimeListItem
+                                            <MediaEntryCard
                                                 media={item.media!}
                                                 showLibraryBadge
                                                 showTrailer

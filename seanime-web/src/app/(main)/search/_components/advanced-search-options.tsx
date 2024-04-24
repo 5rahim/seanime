@@ -8,8 +8,8 @@ import {
     ADVANCED_SEARCH_SORTING_MANGA,
     ADVANCED_SEARCH_STATUS,
     ADVANCED_SEARCH_TYPE,
-} from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
-import { __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
+} from "@/app/(main)/search/_lib/constants"
+import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/parameters"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"

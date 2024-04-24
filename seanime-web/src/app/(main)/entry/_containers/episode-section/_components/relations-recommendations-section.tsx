@@ -1,6 +1,6 @@
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
@@ -43,7 +43,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                     <h2>Relations</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4">
                         {!!sourceManga && <div className="col-span-1">
-                            <AnimeListItem
+                            <MediaEntryCard
                                 media={sourceManga!}
                                 overlay={<Badge
                                     className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -54,7 +54,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                             /></div>}
                         {relations.slice(0, 4).map(edge => {
                             return <div key={edge.node?.id} className="col-span-1">
-                                <AnimeListItem
+                                <MediaEntryCard
                                     media={edge.node!}
                                     overlay={<Badge
                                         className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -76,7 +76,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4">
                     {recommendations.map(media => {
                         return <div key={media.id} className="col-span-1">
-                            <AnimeListItem
+                            <MediaEntryCard
                                 media={media!}
                                 showLibraryBadge
                                 showTrailer

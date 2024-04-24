@@ -1,8 +1,8 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
-import { DiscoverPageHeader } from "@/app/(main)/discover/_containers/discover-sections/header"
-import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-sections/trending"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
+import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -102,12 +102,13 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
 
 export const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
     return (
-        <AnimeListItem
+        <MediaEntryCard
             media={entry.media!}
             listData={entry.listData}
             libraryData={entry.libraryData}
             showListDataButton
             withAudienceScore={false}
+            type="anime"
         />
     )
 })

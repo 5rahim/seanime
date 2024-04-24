@@ -44,12 +44,15 @@ export function useTorrentClientDownload() {
 }
 
 export function useTorrentClientAddMagnetFromRule() {
+    const queryClient = useQueryClient()
+
     return useServerMutation<boolean, TorrentClientAddMagnetFromRule_Variables>({
         endpoint: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAddMagnetFromRule.endpoint,
         method: API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAddMagnetFromRule.methods[0],
         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAddMagnetFromRule.key],
         onSuccess: async () => {
             toast.success("Download started")
+            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key] })
         },
     })
 }

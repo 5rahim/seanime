@@ -1,5 +1,5 @@
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
 import { MangaEntry } from "@/app/(main)/manga/_lib/manga.types"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Badge } from "@/components/ui/badge"
 import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import capitalize from "lodash/capitalize"
@@ -35,7 +35,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
                             ? -1
                             : (a.node?.format !== "TV" && b.node?.format === "TV") ? 1 : 0).map(edge => {
                             return <div key={edge?.node?.id!} className="col-span-1">
-                                <AnimeListItem
+                                <MediaEntryCard
                                     media={edge?.node!}
                                     showLibraryBadge
                                     showTrailer
@@ -56,7 +56,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
                 {recommendations.map(media => {
                     return <div key={media.id} className="col-span-1">
-                        <AnimeListItem
+                        <MediaEntryCard
                             media={media!}
                             isManga
                         />

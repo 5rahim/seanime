@@ -1,8 +1,8 @@
-import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
-import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/discover/_containers/advanced-search/_lib/constants"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
+import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
 import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
-import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_containers/discover-sections/header"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/constants"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { StaticTabs } from "@/components/ui/tabs"
@@ -69,7 +69,7 @@ export function DiscoverTrending() {
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
 
-                        <AnimeListItem
+                        <MediaEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -77,7 +77,7 @@ export function DiscoverTrending() {
                             showTrailer
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )

@@ -1,19 +1,14 @@
+import { useGetAutoDownloaderItems } from "@/api/hooks/auto_downloader.hooks"
+import { autoDownloaderItemCountAtom, autoDownloaderItemsAtom } from "@/app/(main)/_atoms/autodownloader.atoms"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
-import { AutoDownloaderItem } from "@/app/(main)/auto-downloader/_lib/autodownloader.types"
-import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
+import { WSEvents } from "@/lib/server/endpoints"
 import { useQueryClient } from "@tanstack/react-query"
-import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
-export const autoDownloaderItemsAtom = atom<AutoDownloaderItem[]>([])
-
-const countAtom = atom(get => get(autoDownloaderItemsAtom).length)
-
 export function useAutoDownloaderQueueCount() {
-    return useAtomValue(countAtom)
+    return useAtomValue(autoDownloaderItemCountAtom)
 }
 
 /**
@@ -25,11 +20,7 @@ export function useAutoDownloaderItemListener() {
     const setter = useSetAtom(autoDownloaderItemsAtom)
     const qc = useQueryClient()
 
-    const { data, refetch } = useSeaQuery<AutoDownloaderItem[]>({
-        queryKey: ["auto-downloader-items"],
-        endpoint: SeaEndpoints.AUTO_DOWNLOADER_ITEMS,
-        enabled: pathname !== "/auto-downloader",
-    })
+    const { data } = useGetAutoDownloaderItems(pathname !== "/auto-downloader")
 
     useWebsocketMessageListener<string>({
         type: WSEvents.AUTO_DOWNLOADER_ITEM_ADDED,

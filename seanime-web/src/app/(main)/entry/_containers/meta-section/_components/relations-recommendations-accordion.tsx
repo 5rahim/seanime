@@ -1,6 +1,6 @@
 import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
@@ -51,7 +51,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                         <AccordionContent className="pt-6 px-0">
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-3 min-[2000px]:grid-cols-4 gap-4">
                                 {sourceManga && <div className="col-span-1">
-                                    <AnimeListItem
+                                    <MediaEntryCard
                                         media={sourceManga}
                                         overlay={<Badge
                                             className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -63,7 +63,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                 </div>}
                                 {relations.slice(0, 4).map(edge => {
                                     return <div key={edge.node?.id} className="col-span-1">
-                                        <AnimeListItem
+                                        <MediaEntryCard
                                             media={edge.node!}
                                             overlay={<Badge
                                                 className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -89,7 +89,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-3 min-[2000px]:grid-cols-4 gap-4">
                             {recommendations.map(media => {
                                 return <div key={media.id} className="col-span-1">
-                                    <AnimeListItem
+                                    <MediaEntryCard
                                         media={media!}
                                         showLibraryBadge
                                         showTrailer

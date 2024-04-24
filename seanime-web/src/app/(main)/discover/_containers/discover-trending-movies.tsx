@@ -1,6 +1,6 @@
-import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
 import { useDiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import React from "react"
 
@@ -24,7 +24,7 @@ export function DiscoverTrendingMovies() {
                 {!!data ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
 
-                        <AnimeListItem
+                        <MediaEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -32,7 +32,7 @@ export function DiscoverTrendingMovies() {
                             showTrailer
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )

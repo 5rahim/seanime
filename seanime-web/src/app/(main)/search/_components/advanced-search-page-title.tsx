@@ -1,4 +1,4 @@
-import { __advancedSearch_getValue, __advancedSearch_paramsAtom } from "@/app/(main)/discover/_containers/advanced-search/_lib/parameters"
+import { __advancedSearch_getValue, __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/parameters"
 import { useAtomValue } from "jotai/react"
 import startCase from "lodash/startCase"
 import React from "react"

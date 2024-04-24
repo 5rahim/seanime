@@ -25,7 +25,7 @@ import { LuTextCursorInput } from "react-icons/lu"
 import { MdVerified } from "react-icons/md"
 import { toast } from "sonner"
 
-type RuleFormProps = {
+type AutoDownloaderRuleFormProps = {
     type: "create" | "edit"
     rule?: Anime_AutoDownloaderRule
     onRuleCreatedOrDeleted?: () => void
@@ -43,7 +43,7 @@ const schema = defineSchema(({ z }) => z.object({
     destination: z.string().min(1),
 }))
 
-export function RuleForm(props: RuleFormProps) {
+export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
 
     const {
         type,

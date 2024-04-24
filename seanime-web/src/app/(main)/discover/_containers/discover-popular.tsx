@@ -1,6 +1,6 @@
-import { AnimeSliderSkeletonItem } from "@/app/(main)/discover/_components/anime-slider-skeleton-item"
+import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
 import { useDiscoverPastSeasonAnime, useDiscoverPopularAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import React from "react"
 
@@ -23,7 +23,7 @@ export function DiscoverPopular() {
             <CarouselContent className="px-6" ref={ref}>
                 {!!data ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-                        <AnimeListItem
+                        <MediaEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -31,7 +31,7 @@ export function DiscoverPopular() {
                             showTrailer
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )
@@ -40,7 +40,7 @@ export function DiscoverPopular() {
 export function DiscoverPastSeason() {
 
     const ref = React.useRef<HTMLDivElement>(null)
-    const { data, isLoading } = useDiscoverPastSeasonAnime(ref)
+    const { data } = useDiscoverPastSeasonAnime(ref)
 
     return (
         <Carousel
@@ -56,7 +56,7 @@ export function DiscoverPastSeason() {
             <CarouselContent className="px-6" ref={ref}>
                 {!!data ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-                        <AnimeListItem
+                        <MediaEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -64,7 +64,7 @@ export function DiscoverPastSeason() {
                             showTrailer
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <AnimeSliderSkeletonItem key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )

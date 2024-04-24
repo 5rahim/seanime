@@ -85,20 +85,20 @@ export function useDeleteAutoDownloaderRule(id: Nullish<number>) {
     })
 }
 
-export function useGetAutoDownloaderItems() {
+export function useGetAutoDownloaderItems(enabled: boolean = true) {
     return useServerQuery<Array<Models_AutoDownloaderItem>>({
         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.endpoint,
         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.methods[0],
         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key],
-        enabled: true,
+        enabled: enabled,
     })
 }
 
-export function useDeleteAutoDownloaderItem(id: number) {
+export function useDeleteAutoDownloaderItem() {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, DeleteAutoDownloaderItem_Variables>({
-        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.endpoint.replace("{id}", String(id)),
+        endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.endpoint,
         method: API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.methods[0],
         mutationKey: [API_ENDPOINTS.AUTO_DOWNLOADER.DeleteAutoDownloaderItem.key],
         onSuccess: async () => {
