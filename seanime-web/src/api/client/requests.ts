@@ -29,7 +29,7 @@ export async function buildSeaQuery<T, D extends any = any>(
     const res = await axios<T>({
         url: typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development"
             ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-            : window?.location?.host) + endpoint + "?new") : "",
+            : window?.location?.host) + endpoint) : "",
         method,
         data,
         params,

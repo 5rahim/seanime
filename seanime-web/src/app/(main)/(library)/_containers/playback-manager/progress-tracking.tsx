@@ -35,7 +35,6 @@ const __pt_isCompletedAtom = atom(false)
 
 export function ProgressTracking() {
 
-    const qc = useQueryClient()
     const serverStatus = useServerStatus()
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)

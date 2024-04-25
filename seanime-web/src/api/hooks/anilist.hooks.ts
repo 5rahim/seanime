@@ -65,7 +65,7 @@ export function useGetAnilistMediaDetails(id: Nullish<number | string>) {
     })
 }
 
-export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "anime" | "manga") {
+export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "anime" | "manga", onSuccess: () => void) {
     const queryClient = useQueryClient()
 
     return useServerMutation<AL_DeleteEntry, DeleteAnilistListEntry_Variables>({
@@ -82,6 +82,7 @@ export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "a
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key, String(id)] })
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetAnilistMangaCollection.key] })
             }
+            onSuccess()
         },
     })
 }

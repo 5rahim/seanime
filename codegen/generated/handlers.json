@@ -3712,7 +3712,7 @@
       "\t@summary plays the next episode of the currently playing media.",
       "\t@desc This will play the next episode of the currently playing media.",
       "\t@desc This is non-blocking so the client should prevent multiple calls until the next status is received.",
-      "\t@route /api/v1/playback-manager/play-next [POST]",
+      "\t@route /api/v1/playback-manager/next-episode [POST]",
       "\t@returns bool",
       ""
     ],
@@ -3724,7 +3724,7 @@
         "This will play the next episode of the currently playing media.",
         "This is non-blocking so the client should prevent multiple calls until the next status is received."
       ],
-      "endpoint": "/api/v1/playback-manager/play-next",
+      "endpoint": "/api/v1/playback-manager/next-episode",
       "methods": [
         "POST"
       ],
@@ -3922,7 +3922,7 @@
       "\t@summary updates a playlist.",
       "\t@returns the updated playlist",
       "\t@desc The response is ignored, the client should re-fetch the playlists after this.",
-      "\t@route /api/v1/playlist/{id} [PATCH]",
+      "\t@route /api/v1/playlist [PATCH]",
       "\t@param id - int - true - \"The ID of the playlist to update.\"",
       "\t@returns anime.Playlist",
       ""
@@ -3934,7 +3934,7 @@
       "descriptions": [
         "The response is ignored, the client should re-fetch the playlists after this."
       ],
-      "endpoint": "/api/v1/playlist/{id}",
+      "endpoint": "/api/v1/playlist",
       "methods": [
         "PATCH"
       ],

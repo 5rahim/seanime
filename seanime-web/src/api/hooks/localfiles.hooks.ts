@@ -22,7 +22,6 @@ export function useLocalFileBulkAction() {
         method: API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.methods[0],
         mutationKey: [API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.key],
         onSuccess: async () => {
-            toast.success("Action completed")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
         },

@@ -131,7 +131,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                     }}
                     ref={ref}
                 />
-                {(data && (data?.content && data.content.length > 0)) &&
+                {(data && !!data?.content?.length) &&
                     <div
                         className="w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"
                     >

@@ -29,11 +29,11 @@ export function useGetPlaylists() {
     })
 }
 
-export function useUpdatePlaylist(id: Nullish<number>) {
+export function useUpdatePlaylist() {
     const queryClient = useQueryClient()
 
     return useServerMutation<Anime_Playlist, UpdatePlaylist_Variables>({
-        endpoint: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.endpoint.replace("{id}", String(id)),
+        endpoint: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.endpoint,
         method: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.methods[0],
         mutationKey: [API_ENDPOINTS.PLAYLIST.UpdatePlaylist.key],
         onSuccess: async () => {

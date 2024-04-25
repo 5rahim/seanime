@@ -824,7 +824,7 @@ export const API_ENDPOINTS = {
         PlaybackPlayNextEpisode: {
             key: "PLAYBACK-MANAGER-playback-play-next-episode",
             methods: ["POST"],
-            endpoint: "/api/v1/playback-manager/play-next",
+            endpoint: "/api/v1/playback-manager/next-episode",
         },
         /**
          *  @description
@@ -882,7 +882,7 @@ export const API_ENDPOINTS = {
         UpdatePlaylist: {
             key: "PLAYLIST-update-playlist",
             methods: ["PATCH"],
-            endpoint: "/api/v1/playlist/{id}",
+            endpoint: "/api/v1/playlist",
         },
         DeletePlaylist: {
             key: "PLAYLIST-delete-playlist",

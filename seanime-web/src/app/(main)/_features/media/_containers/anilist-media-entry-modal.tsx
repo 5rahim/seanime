@@ -40,7 +40,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const { mutate, isPending, isSuccess } = useEditAnilistListEntry(media?.id, type)
 
-    const { mutate: deleteEntry, isPending: isDeleting } = useDeleteAnilistListEntry(media?.id, type)
+    const { mutate: deleteEntry, isPending: isDeleting } = useDeleteAnilistListEntry(media?.id, type, () => {
+        toggle(false)
+    })
 
     if (!user) return null
 

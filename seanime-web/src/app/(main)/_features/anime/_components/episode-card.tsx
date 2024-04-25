@@ -56,6 +56,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 className,
                 containerClass,
             )}
+            onClick={onClick}
             {...rest}
         >
             <div className="absolute w-full h-full overflow-hidden z-[1]">

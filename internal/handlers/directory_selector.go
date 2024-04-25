@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,9 +62,7 @@ func HandleDirectorySelector(c *RouteCtx) error {
 
 	suggestions, err := getAutocompletionSuggestions(input)
 	if err != nil {
-		return c.Fiber.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Error generating suggestions: " + err.Error(),
-		})
+		return c.RespondWithError(err)
 	}
 
 	return c.RespondWithData(DirectorySelectorResponse{
@@ -86,7 +83,7 @@ func checkDirectoryExists(path string) (bool, error) {
 }
 
 func getAutocompletionSuggestions(input string) ([]DirectoryInfo, error) {
-	suggestions := []DirectoryInfo{}
+	var suggestions []DirectoryInfo
 	baseDir := filepath.Dir(input)
 	prefix := filepath.Base(input)
 
@@ -108,7 +105,7 @@ func getAutocompletionSuggestions(input string) ([]DirectoryInfo, error) {
 }
 
 func getDirectoryContent(path string) ([]DirectoryInfo, error) {
-	content := []DirectoryInfo{}
+	var content []DirectoryInfo
 
 	entries, err := os.ReadDir(path)
 	if err != nil {

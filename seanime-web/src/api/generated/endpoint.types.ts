@@ -802,7 +802,7 @@ export type CreatePlaylist_Variables = {
 /**
  * - Filepath: internal/handlers/playlist.go
  * - Filename: playlist.go
- * - Endpoint: /api/v1/playlist/{id}
+ * - Endpoint: /api/v1/playlist
  * @description
  * Route updates a playlist.
  */

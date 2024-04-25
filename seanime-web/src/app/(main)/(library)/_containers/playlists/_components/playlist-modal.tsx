@@ -31,7 +31,7 @@ export function PlaylistModal(props: PlaylistModalProps) {
 
     const { mutate: deletePlaylist, isPending: isDeleting } = useDeletePlaylist()
 
-    const { mutate: updatePlaylist, isPending: isUpdating } = useUpdatePlaylist(playlist?.dbId)
+    const { mutate: updatePlaylist, isPending: isUpdating } = useUpdatePlaylist()
 
     function reset() {
         setName("")
@@ -51,10 +51,7 @@ export function PlaylistModal(props: PlaylistModalProps) {
             return
         }
         if (isUpdate && !!playlist) {
-            updatePlaylist({ dbId: playlist.dbId, name, paths }, {
-                onSuccess: () => {
-                },
-            })
+            updatePlaylist({ dbId: playlist.dbId, name, paths })
         } else {
             setIsOpen(false)
             createPlaylist({ name, paths }, {

@@ -75,7 +75,7 @@ func HandleGetPlaylists(c *RouteCtx) error {
 //	@summary updates a playlist.
 //	@returns the updated playlist
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
-//	@route /api/v1/playlist/{id} [PATCH]
+//	@route /api/v1/playlist [PATCH]
 //	@param id - int - true - "The ID of the playlist to update."
 //	@returns anime.Playlist
 func HandleUpdatePlaylist(c *RouteCtx) error {

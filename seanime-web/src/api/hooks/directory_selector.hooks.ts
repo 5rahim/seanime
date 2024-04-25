@@ -7,8 +7,10 @@ export function useDirectorySelector(debouncedInput: string) {
     return useServerQuery<DirectorySelectorResponse, DirectorySelector_Variables>({
         endpoint: API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.endpoint,
         method: API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.methods[0],
-        queryKey: [API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.key],
+        queryKey: [API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.key, debouncedInput],
+        data: { input: debouncedInput },
         enabled: debouncedInput.length > 0,
+        muteError: true,
     })
 }
 
