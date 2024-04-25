@@ -1,6 +1,5 @@
-import { AL_BaseMedia, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseMedia, Anime_LocalFileType, Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
-import { LocalFileType } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
@@ -127,7 +126,7 @@ function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
                         updateLocalFile(episode.localFile, {
                             metadata: {
                                 ...episode.localFile?.metadata,
-                                type: data.type as LocalFileType,
+                                type: data.type as Anime_LocalFileType,
                                 episode: data.episode,
                                 aniDBEpisode: data.aniDBEpisode,
                             },

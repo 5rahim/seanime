@@ -4,6 +4,7 @@ import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { MediaPageHeaderScoreAndProgress } from "@/app/(main)/_features/media/_components/media-page-header-components"
+import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
 import {
     OnlinestreamParametersButton,
@@ -18,7 +19,6 @@ import {
     __onlinestream_selectedEpisodeNumberAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
-import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"

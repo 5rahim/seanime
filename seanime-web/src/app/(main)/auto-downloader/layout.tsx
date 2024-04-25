@@ -1,5 +1,5 @@
 "use client"
-import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
+import { CustomBackgroundImage } from "@/app/(main)/_features/custom-ui/custom-background-image"
 import React from "react"
 
 

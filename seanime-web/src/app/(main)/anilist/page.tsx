@@ -1,7 +1,7 @@
 "use client"
 
 import { AnilistCollectionLists } from "@/app/(main)/anilist/_containers/anilist-collection-lists"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
 export const dynamic = "force-static"

@@ -1,6 +1,6 @@
 import { useLogin } from "@/api/hooks/auth.hooks"
-import { websocketConnectedAtom } from "@/components/application/websocket-provider"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
+import { websocketConnectedAtom } from "@/components/websocket-provider"
 import { useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"

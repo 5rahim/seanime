@@ -11,13 +11,14 @@ export function useGetFileCacheTotalSize() {
     })
 }
 
-export function useRemoveFileCacheBucket() {
+export function useRemoveFileCacheBucket(onSuccess?: () => void) {
     return useServerMutation<boolean, RemoveFileCacheBucket_Variables>({
         endpoint: API_ENDPOINTS.FILECACHE.RemoveFileCacheBucket.endpoint,
         method: API_ENDPOINTS.FILECACHE.RemoveFileCacheBucket.methods[0],
         mutationKey: [API_ENDPOINTS.FILECACHE.RemoveFileCacheBucket.key],
         onSuccess: async () => {
             toast.success("Cache cleared")
+            onSuccess?.()
         },
     })
 }

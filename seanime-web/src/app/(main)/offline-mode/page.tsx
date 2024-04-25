@@ -1,7 +1,7 @@
 "use client"
 import { SnapshotAnimeSelector } from "@/app/(main)/offline-mode/_components/snapshot-anime-selector"
 import { useHandleOfflineSnapshotEntry } from "@/app/(main)/offline-mode/_lib/handle-offline-snapshot-entry"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator"

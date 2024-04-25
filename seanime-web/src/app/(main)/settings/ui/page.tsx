@@ -1,6 +1,6 @@
 "use client"
 import { useUpdateTheme } from "@/api/hooks/theme.hooks"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"

@@ -1,7 +1,7 @@
 import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
+import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"

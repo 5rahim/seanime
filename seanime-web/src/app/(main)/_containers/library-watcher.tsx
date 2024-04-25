@@ -1,13 +1,14 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button, CloseButton } from "@/components/ui/button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/loading-spinner"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { WSEvents } from "@/lib/server/endpoints"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import React, { useState } from "react"
@@ -89,9 +90,9 @@ export function LibraryWatcher(props: LibraryWatcherProps) {
         onMessage: _ => {
             autoScanning.off()
             toast.success("Library scanned")
-            qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
-            qc.refetchQueries({ queryKey: ["auto-downloader-items"] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems] })
         },
     })
 

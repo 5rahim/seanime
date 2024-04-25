@@ -1,6 +1,6 @@
 import { Anime_LocalFile, Anime_MediaEntry } from "@/api/generated/types"
 import { useDeleteLocalFiles } from "@/api/hooks/localfiles.hooks"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Modal } from "@/components/ui/modal"

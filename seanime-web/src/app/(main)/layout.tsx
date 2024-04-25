@@ -1,14 +1,14 @@
 "use client"
 import { ProgressTracking } from "@/app/(main)/(library)/_containers/playback-manager/progress-tracking"
-import { MainLayout } from "@/app/(main)/_containers/main-layout"
-import { OfflineLayout } from "@/app/(main)/_containers/offline-layout"
-import { ServerDataWrapper } from "@/app/(main)/_containers/server-data-wrapper"
+import { OfflineTopNavbar } from "@/app/(main)/(offline)/offline/_components/offline-top-navbar"
+import { RefreshAnilistButton } from "@/app/(main)/_containers/refresh-anilist-button"
+import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
+import { MainLayout } from "@/app/(main)/_features/layout/main-layout"
+import { OfflineLayout } from "@/app/(main)/_features/layout/offline-layout"
+import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
-import { DynamicHeaderBackground } from "@/components/application/dynamic-header-background"
-import { OfflineTopNavbar } from "@/components/application/offline-top-navbar"
-import { RefreshAnilistButton } from "@/components/application/refresh-anilist-button"
-import { TopMenu } from "@/components/application/top-menu"
+import { ServerDataWrapper } from "@/components/server-data-wrapper"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import React from "react"
 
@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                     <ProgressTracking />
                                 </div>
                             </div>
-                            <DynamicHeaderBackground />
+                            <LayoutHeaderBackground />
                         </div>
 
                         <div>
@@ -56,7 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 <RefreshAnilistButton />
                             </div>
                         </div>
-                        <DynamicHeaderBackground />
+                        <LayoutHeaderBackground />
                     </div>
 
                     <div>

@@ -1,10 +1,8 @@
 "use client"
+import { useMALLogout } from "@/api/hooks/mal.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { Button } from "@/components/ui/button"
-import { MAL_CLIENT_ID } from "@/lib/anilist/config"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
+import { MAL_CLIENT_ID } from "@/lib/server/config"
 import React from "react"
 import { BiCheckCircle, BiLogOut, BiXCircle } from "react-icons/bi"
 import { SiMyanimelist } from "react-icons/si"
@@ -13,7 +11,6 @@ export const dynamic = "force-static"
 
 export default function Page() {
     const status = useServerStatus()
-    const qc = useQueryClient()
 
     const OAUTH_URL = React.useMemo(() => {
         const challenge = generateRandomString(50)
@@ -22,12 +19,7 @@ export default function Page() {
         return `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${MAL_CLIENT_ID}&state=${state}&code_challenge=${challenge}&code_challenge_method=plain`
     }, [])
 
-    const { mutate: logout, isPending, isSuccess } = useSeaMutation<boolean>({
-        endpoint: SeaEndpoints.MAL_LOGOUT,
-        onSuccess: () => {
-            qc.refetchQueries({ queryKey: ["status"] })
-        },
-    })
+    const { mutate: logout, isPending, isSuccess } = useMALLogout()
 
     if (!status?.mal && window?.location?.host === "127.0.0.1:43211") return (
         <div className="p-12 text-center">

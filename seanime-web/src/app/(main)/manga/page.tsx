@@ -7,7 +7,7 @@ import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-e
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { useMangaCollection } from "@/app/(main)/manga/_lib/handle-manga"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Skeleton } from "@/components/ui/skeleton"

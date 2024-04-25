@@ -8,7 +8,7 @@ import {
     AnimeEntryBulkDeleteFilesModal,
 } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-bulk-delete-files-modal"
 import { __metadataManager_isOpenAtom, AnimeEntryMetadataManager } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-metadata-manager"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useSetAtom } from "jotai"

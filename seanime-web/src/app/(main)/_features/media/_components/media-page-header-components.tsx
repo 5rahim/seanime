@@ -7,9 +7,9 @@ import {
     Nullish,
     Offline_ListData,
 } from "@/api/generated/types"
+import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
-import { AnilistMediaEntryModal } from "@/components/shared/anilist-media-entry-modal"
-import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
+import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { cn, defineStyleAnatomy } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"

@@ -1,5 +1,5 @@
 "use client"
-import { PAGE_TRANSITION } from "@/components/shared/styling/page-transition"
+import { PAGE_TRANSITION } from "@/components/shared/page-transition"
 import { cn } from "@/components/ui/core/styling"
 import { motion } from "framer-motion"
 import React from "react"

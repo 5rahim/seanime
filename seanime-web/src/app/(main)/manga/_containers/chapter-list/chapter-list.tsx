@@ -10,9 +10,9 @@ import {
     useMangaChapterListRowSelection,
     useMangaDownloadDataUtils,
 } from "@/app/(main)/manga/_lib/manga.utils"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
+import { primaryPillCheckboxClass } from "@/components/shared/classnames"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { primaryPillCheckboxClass } from "@/components/shared/styling/classnames"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"

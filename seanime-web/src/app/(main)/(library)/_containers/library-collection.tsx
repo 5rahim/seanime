@@ -3,7 +3,7 @@ import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanne
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"

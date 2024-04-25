@@ -1,12 +1,11 @@
 import { AL_BaseMedia, Anime_LibraryCollectionEntry, Anime_LocalFile } from "@/api/generated/types"
 import { useGetLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
-import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { DndContext, DragEndEvent } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
@@ -267,10 +266,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
         ...rest
     } = props
 
-    const { data } = useSeaQuery<Anime_LocalFile[]>({
-        endpoint: SeaEndpoints.PLAYLIST_EPISODES.replace("{id}", String(entry.mediaId)).replace("{progress}", String(entry.listData?.progress || 0)),
-        queryKey: ["playlist-episodes", entry.mediaId],
-    })
+    const { data } = useGetPlaylistEpisodes(entry.mediaId, entry.listData?.progress || 0)
 
     const handleSelect = (value: string) => {
         if (selectedPaths.length <= 10) {

@@ -10,7 +10,7 @@ import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episod
 import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"

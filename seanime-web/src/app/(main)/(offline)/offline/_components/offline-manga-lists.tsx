@@ -2,7 +2,7 @@ import { Offline_MangaEntry } from "@/api/generated/types"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { OfflineMediaEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
 export function OfflineMangaLists() {

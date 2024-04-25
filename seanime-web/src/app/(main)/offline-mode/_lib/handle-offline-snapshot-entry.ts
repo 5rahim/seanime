@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useCreateOfflineSnapshot, useGetOfflineSnapshotEntry, useSyncOfflineData } from "@/api/hooks/offline.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
-import { WSEvents } from "@/lib/server/endpoints"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 
 export function useHandleOfflineSnapshotEntry() {

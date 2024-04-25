@@ -1,7 +1,7 @@
 "use client"
 import { Manga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
-import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
+import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 

@@ -8,7 +8,6 @@
     "build": "next build",
     "build:desktop": "env-cmd -f .env.desktop next build",
     "start": "next start",
-    "codegen": "graphql-codegen --config codegen.ts",
     "lint": "next lint"
   },
   "dependencies": {

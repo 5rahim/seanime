@@ -61,7 +61,7 @@ export function useGetPlaylistEpisodes(id: Nullish<number>, progress: Nullish<nu
     return useServerQuery<Array<Anime_LocalFile>>({
         endpoint: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.endpoint.replace("{id}", String(id)).replace("{progress}", String(progress || 0)),
         method: API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.methods[0],
-        queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key],
+        queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylistEpisodes.key, String(id), String(progress || 0)],
         enabled: !!id,
     })
 }

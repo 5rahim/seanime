@@ -1,5 +1,6 @@
 "use client"
 import { Anime_LibraryCollectionList, Anime_LocalFile, Anime_UnknownGroup } from "@/api/generated/types"
+import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { __bulkAction_modalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
@@ -9,7 +10,6 @@ import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { useOpenInExplorer } from "@/lib/server/hooks"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
@@ -40,7 +40,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
     const hasScanned = collectionList.some(n => !!n.entries?.length)
 
-    const { openInExplorer } = useOpenInExplorer()
+    const { mutate: openInExplorer } = useOpenInExplorer()
 
     return (
         <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[4]">
@@ -80,7 +80,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     disabled={!status?.settings?.library?.libraryPath}
                     className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
                     onClick={() => {
-                        openInExplorer(status?.settings?.library?.libraryPath ?? "")
+                        openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
                     }}
                 >
                     <BiFolder />

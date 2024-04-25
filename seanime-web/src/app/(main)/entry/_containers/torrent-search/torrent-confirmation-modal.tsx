@@ -1,4 +1,6 @@
 import { AL_BaseMedia, Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
+import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -6,8 +8,6 @@ import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
@@ -83,28 +83,16 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
 
     // download via torrent client
-    const { mutate, isPending } = useSeaMutation<boolean, TorrentDownloadProps>({
-        endpoint: SeaEndpoints.TORRENT_CLIENT_DOWNLOAD,
-        method: "post",
-        mutationKey: ["download-torrent"],
-        onSuccess: () => {
-            toast.success("Download started")
-            setIsOpen(false)
-            setTorrentDrawerIsOpen(false)
-            router.push("/torrent-list")
-        },
+    const { mutate, isPending } = useTorrentClientDownload(() => {
+        setIsOpen(false)
+        setTorrentDrawerIsOpen(false)
+        router.push("/torrent-list")
     })
 
     // download torrent file
-    const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useSeaMutation<boolean, TorrentDownloadFileProps>({
-        endpoint: SeaEndpoints.DOWNLOAD_TORRENT_FILE,
-        method: "post",
-        mutationKey: ["download-torrent-files"],
-        onSuccess: () => {
-            toast.success("Downloaded torrent files")
-            setIsOpen(false)
-            setTorrentDrawerIsOpen(false)
-        },
+    const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useDownloadTorrentFile(() => {
+        setIsOpen(false)
+        setTorrentDrawerIsOpen(false)
     })
 
     const isDisabled = isPending || isDownloadingFiles

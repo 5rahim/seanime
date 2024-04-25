@@ -1,9 +1,6 @@
+import { useGetFileCacheTotalSize, useRemoveFileCacheBucket } from "@/api/hooks/filecache.hooks"
 import { Button } from "@/components/ui/button"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
-import { toast } from "sonner"
 
 type FilecacheSettingsProps = {
     children?: React.ReactNode
@@ -16,29 +13,11 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
         ...rest
     } = props
 
-    const qc = useQueryClient()
 
-    const [totalSize, setTotalSize] = React.useState<string>("")
+    const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheTotalSize()
 
-    const { mutate: getTotalSize, isPending: isFetchingSize } = useSeaMutation<string>({
-        endpoint: SeaEndpoints.FILECACHE_TOTAL_SIZE,
-        mutationKey: ["get-filecache-total-size"],
-        method: "get",
-        onSuccess: data => {
-            if (data) {
-                setTotalSize(data)
-            }
-        },
-    })
-
-    const { mutate: clearBucket, isPending: isClearing } = useSeaMutation<void, { bucket: string }>({
-        endpoint: SeaEndpoints.FILECACHE_BUCKET,
-        mutationKey: ["clear-filecache-bucket"],
-        method: "delete",
-        onSuccess: async () => {
-            toast.success("Cache cleared")
-            getTotalSize()
-        },
+    const { mutate: clearBucket, isPending: isClearing } = useRemoveFileCacheBucket(() => {
+        getTotalSize()
     })
 
     return (

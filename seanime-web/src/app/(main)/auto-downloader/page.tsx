@@ -1,6 +1,6 @@
 "use client"
 import { AutoDownloaderPage } from "@/app/(main)/auto-downloader/_containers/autodownloader-page"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
 export const dynamic = "force-static"

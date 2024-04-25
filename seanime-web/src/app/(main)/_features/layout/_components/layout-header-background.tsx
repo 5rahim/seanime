@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
 
-export function DynamicHeaderBackground() {
+export function LayoutHeaderBackground() {
 
     const pathname = usePathname()
 

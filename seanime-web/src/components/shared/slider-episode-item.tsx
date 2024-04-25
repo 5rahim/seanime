@@ -1,6 +1,6 @@
 import { Anime_MediaEntryEpisode } from "@/api/generated/types"
-import { EpisodeItemBottomGradient } from "@/components/shared/custom-ui/item-bottom-gradients"
-import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import Image from "next/image"
 import React from "react"

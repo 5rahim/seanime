@@ -1,5 +1,6 @@
 "use client"
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import {
     AnimeEntryStudio,
@@ -17,7 +18,6 @@ import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-act
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section/_components/torrent-search-button"
-import { TrailerModal } from "@/components/shared/trailer-modal"
 import { Button, IconButton } from "@/components/ui/button"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import Link from "next/link"

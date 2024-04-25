@@ -1,12 +1,8 @@
 "use client"
+import { useRefreshLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { Button } from "@/components/ui/button"
-import { AnimeCollectionQuery } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { IoReload } from "react-icons/io5"
-import { toast } from "sonner"
 
 interface RefreshAnilistButtonProps {
     children?: React.ReactNode
@@ -16,24 +12,12 @@ export const RefreshAnilistButton: React.FC<RefreshAnilistButtonProps> = (props)
 
     const { children, ...rest } = props
 
-    const qc = useQueryClient()
-
     /**
      * @description
      * - Asks the server to fetch an up-to-date version of the user's AniList collection.
      * - When the request succeeds, we refetch queries related to the AniList collection.
      */
-    const { mutate, isPending } = useSeaMutation<AnimeCollectionQuery>({ // Ignore return data
-        endpoint: SeaEndpoints.ANILIST_COLLECTION, // POST bypasses the cache
-        mutationKey: ["refresh-anilist-collection"],
-        onSuccess: async () => {
-            // Refetch library collection
-            toast.success("AniList is up-to-date")
-            await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
-        },
-    })
+    const { mutate, isPending } = useRefreshLibraryCollection()
 
     return (
         <>

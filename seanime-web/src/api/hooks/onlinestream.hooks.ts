@@ -6,6 +6,8 @@ import {
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Nullish, Onlinestream_EpisodeListResponse, Onlinestream_EpisodeSource } from "@/api/generated/types"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export function useGetOnlineStreamEpisodeList(id: Nullish<string | number>, provider: string, dubbed: boolean) {
     return useServerQuery<Onlinestream_EpisodeListResponse, GetOnlineStreamEpisodeList_Variables>({
@@ -42,12 +44,15 @@ export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
 }
 
 export function useOnlineStreamEmptyCache() {
+    const queryClient = useQueryClient()
+
     return useServerMutation<boolean, OnlineStreamEmptyCache_Variables>({
         endpoint: API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.endpoint,
         method: API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.methods[0],
         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlineStreamEmptyCache.key],
         onSuccess: async () => {
-
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.key] })
+            toast.info("Stream cache emptied")
         },
     })
 }

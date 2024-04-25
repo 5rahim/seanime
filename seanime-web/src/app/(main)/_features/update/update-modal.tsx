@@ -1,4 +1,7 @@
 "use client"
+import { Updater_Release } from "@/api/generated/types"
+import { useDownloadRelease } from "@/api/hooks/download.hooks"
+import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
@@ -6,10 +9,6 @@ import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useOpenInExplorer } from "@/lib/server/hooks"
-import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
-import { Release, Update } from "@/lib/types/latest-release.types"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
@@ -30,11 +29,7 @@ export function UpdateModal(props: UpdateModalProps) {
     const [updateModalOpen, setUpdateModalOpen] = useAtom(updateModalOpenAtom)
     const [downloaderOpen, setDownloaderOpen] = useAtom(downloaderOpenAtom)
 
-    const { data: updateData, isLoading } = useSeaQuery<Update>({
-        queryKey: ["get-last-update"],
-        endpoint: SeaEndpoints.LATEST_UPDATE,
-        enabled: !!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck,
-    })
+    const { data: updateData, isLoading } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
 
     React.useEffect(() => {
         if (updateData && updateData.release) {
@@ -135,7 +130,7 @@ export function UpdateModal(props: UpdateModalProps) {
 
 type DownloaderProps = {
     children?: React.ReactNode
-    release?: Release
+    release?: Updater_Release
 }
 
 export function Downloader(props: DownloaderProps) {
@@ -150,30 +145,17 @@ export function Downloader(props: DownloaderProps) {
         ...rest
     } = props
 
-    const { openInExplorer } = useOpenInExplorer()
-
-    const { mutate, isPending } = useSeaMutation<{ destination: string, error: string }, { destination: string, download_url: string }>({
-        endpoint: SeaEndpoints.DOWNLOAD_RELEASE,
-        mutationKey: ["download-release"],
-        onSuccess: data => {
-            toast.success("Update downloaded successfully!")
-            if (data?.error) {
-                toast.error(data.error)
-            }
-            if (data?.destination) {
-                setTimeout(() => {
-                    openInExplorer(data?.destination)
-                }, 1000)
-            }
-            setDownloaderOpen(false)
-        },
-    })
+    const { mutate, isPending } = useDownloadRelease()
 
     function handleDownloadRelease() {
         if (!asset || !destination) {
             return toast.error("Missing options")
         }
-        mutate({ destination, download_url: asset })
+        mutate({ destination, download_url: asset }, {
+            onSuccess: () => {
+                setDownloaderOpen(false)
+            },
+        })
     }
 
     if (!release) return null
@@ -203,10 +185,10 @@ export function Downloader(props: DownloaderProps) {
                     )}
                     value={asset}
                     onValueChange={v => !!v ? setAsset(v) : {}}
-                    options={release.assets.filter(n => !n.name.endsWith(".txt")).map((asset) => ({
+                    options={release.assets?.filter(n => !n.name.endsWith(".txt")).map((asset) => ({
                         label: asset.name,
                         value: asset.browser_download_url,
-                    }))}
+                    })) || []}
                 />
             </div>
             <DirectorySelector

@@ -1,17 +1,16 @@
-import { Anime_AutoDownloaderRule } from "@/api/generated/types"
+import { AL_BaseMedia, Anime_AutoDownloaderRule } from "@/api/generated/types"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import React from "react"
 import { BiChevronRight } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
 
 export type AutoDownloaderRuleItemProps = {
     rule: Anime_AutoDownloaderRule
-    userMedia: BaseMediaFragment[] | undefined
+    userMedia: AL_BaseMedia[] | undefined
 }
 
 export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {

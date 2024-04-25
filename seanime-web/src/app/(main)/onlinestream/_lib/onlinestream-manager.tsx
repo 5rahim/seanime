@@ -10,7 +10,6 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
@@ -184,7 +183,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         onFatalError,
         url,
         episodes,
-        media: media as BaseMediaFragment,
+        media: media!,
         episodeSource,
         loadPage: !isFetching && !isLoading,
         currentEpisodeNumber: episodeSource?.number ?? 0,

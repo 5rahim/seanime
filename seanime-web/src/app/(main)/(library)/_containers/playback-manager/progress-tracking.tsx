@@ -1,18 +1,22 @@
-import { usePlaybackCancelCurrentPlaylist, usePlaybackPlaylistNext, usePlaybackPlayNextEpisode } from "@/api/hooks/playback_manager.hooks"
+import {
+    usePlaybackCancelCurrentPlaylist,
+    usePlaybackPlaylistNext,
+    usePlaybackPlayNextEpisode,
+    usePlaybackSyncCurrentProgress,
+} from "@/api/hooks/playback_manager.hooks"
 import {
     PlaybackManager_PlaybackState,
     PlaybackManager_PlaylistState,
 } from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
-import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
-import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -128,20 +132,7 @@ export function ProgressTracking() {
         },
     })
 
-    const { mutate: syncProgress, isPending } = useSeaMutation<number>({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS,
-        method: "post",
-        mutationKey: ["playback-sync-current-progress"],
-        onSuccess: async (mediaId: number | undefined) => {
-            if (!serverStatus?.isOffline) {
-                qc.refetchQueries({ queryKey: ["get-media-entry", mediaId] })
-                qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            } else {
-                qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
-            }
-        },
-    })
+    const { mutate: syncProgress, isPending } = usePlaybackSyncCurrentProgress()
 
     const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
 

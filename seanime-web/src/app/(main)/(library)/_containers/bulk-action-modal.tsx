@@ -1,5 +1,5 @@
 import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/api/hooks/localfiles.hooks"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"

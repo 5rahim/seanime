@@ -4,7 +4,7 @@ import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"

@@ -3,7 +3,7 @@ import { __scanner_isScanningAtom } from "@/app/(main)/(library)/_containers/sca
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { Spinner } from "@/components/ui/loading-spinner"
-import { WSEvents } from "@/lib/server/endpoints"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useAtom } from "jotai/react"
 import { useState } from "react"
 

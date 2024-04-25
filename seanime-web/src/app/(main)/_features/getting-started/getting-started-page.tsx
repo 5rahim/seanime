@@ -1,7 +1,7 @@
 import { Status } from "@/api/generated/types"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { BetaBadge } from "@/components/application/beta-badge"
+import { BetaBadge } from "@/components/shared/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"

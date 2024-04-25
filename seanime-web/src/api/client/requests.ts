@@ -1,6 +1,5 @@
 "use client"
-import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
-import { SeaEndpoints } from "@/lib/server/endpoints"
+import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import axios, { AxiosError } from "axios"
 import { useEffect } from "react"
@@ -40,7 +39,7 @@ export async function buildSeaQuery<T, D extends any = any>(
 }
 
 type ServerMutationProps<R, V = void> = UseMutationOptions<R | undefined, SeaError, V, unknown> & {
-    endpoint: SeaEndpoints | string
+    endpoint: string
     method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT"
 }
 
@@ -72,7 +71,7 @@ export function useServerMutation<R = void, V = void>(
 
 
 type ServerQueryProps<R, V> = UseQueryOptions<R | undefined, SeaError, R | undefined> & {
-    endpoint: SeaEndpoints | string
+    endpoint: string
     method: "POST" | "GET" | "PATCH" | "DELETE" | "PUT"
     params?: V
     data?: V
