@@ -22,11 +22,16 @@ type (
 	}
 
 	MediaTreeAnalysisBranch struct {
-		media              *anilist.BaseMedia
-		anizipMedia        *anizip.Media
-		minAbsoluteEpisode int
-		maxAbsoluteEpisode int
-		totalEpisodeCount  int
+		media       *anilist.BaseMedia
+		anizipMedia *anizip.Media
+		// The second absolute episode number of the first episode
+		// Sometimes, the metadata provider may have a 'true' absolute episode number and a 'part' absolute episode number
+		// 'part' absolute episode numbers might be used for "Part 2s" of a season
+		minPartAbsoluteEpisodeNumber int
+		maxPartAbsoluteEpisodeNumber int
+		minAbsoluteEpisode           int
+		maxAbsoluteEpisode           int
+		totalEpisodeCount            int
 	}
 )
 
@@ -48,7 +53,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 	for _, rel := range relations {
 		p.Go(func() (*MediaTreeAnalysisBranch, error) {
 			opts.rateLimiter.Wait()
-			azm, err := anizip.FetchAniZipMedia("anilist", rel.ID)
+			azm, err := anizip.FetchAniZipMediaC("anilist", rel.ID, opts.anizipCache)
 			if err != nil {
 				return nil, err
 			}
@@ -62,24 +67,27 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 			// this happens when the media has a separate entry but is technically the same season
 			// when we detect this, we should use the "episodeNumber" as the absoluteEpisodeNumber
 			// this is a hacky fix, but it works for the cases I've seen so far
-			shouldUseEpisodeNumber := firstEp.EpisodeNumber > 1 && firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber == 1
-
-			absoluteEpisodeNumber := firstEp.AbsoluteEpisodeNumber
-			if shouldUseEpisodeNumber {
-				absoluteEpisodeNumber = firstEp.AbsoluteEpisodeNumber - 1 // we offset by one
+			usePartEpisodeNumber := firstEp.EpisodeNumber > 1 && firstEp.AbsoluteEpisodeNumber-firstEp.EpisodeNumber > 1
+			partAbsoluteEpisodeNumber := 0
+			maxPartAbsoluteEpisodeNumber := 0
+			if usePartEpisodeNumber {
+				partAbsoluteEpisodeNumber = firstEp.EpisodeNumber
+				maxPartAbsoluteEpisodeNumber = partAbsoluteEpisodeNumber + azm.GetMainEpisodeCount() - 1
 			}
 
 			// If the first episode exists and has a valid absolute episode number, create a new MediaTreeAnalysisBranch
 			if azm.Episodes != nil && firstEp.AbsoluteEpisodeNumber > 0 {
 				return &MediaTreeAnalysisBranch{
-					media:              rel,
-					anizipMedia:        azm,
-					minAbsoluteEpisode: absoluteEpisodeNumber,
+					media:                        rel,
+					anizipMedia:                  azm,
+					minPartAbsoluteEpisodeNumber: partAbsoluteEpisodeNumber,
+					maxPartAbsoluteEpisodeNumber: maxPartAbsoluteEpisodeNumber,
+					minAbsoluteEpisode:           firstEp.AbsoluteEpisodeNumber,
 					// The max absolute episode number is the first episode's absolute episode number plus the total episode count minus 1
 					// We subtract 1 because the first episode's absolute episode number is already included in the total episode count
 					// e.g, if the first episode's absolute episode number is 13 and the total episode count is 12, the max absolute episode number is 24
-					maxAbsoluteEpisode: (absoluteEpisodeNumber - 1) + rel.GetTotalEpisodeCount(),
-					totalEpisodeCount:  rel.GetTotalEpisodeCount(),
+					maxAbsoluteEpisode: firstEp.AbsoluteEpisodeNumber + (azm.GetMainEpisodeCount() - 1),
+					totalEpisodeCount:  azm.GetMainEpisodeCount(),
 				}, nil
 			}
 
@@ -99,8 +107,22 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 
 // getRelativeEpisodeNumber uses the MediaTreeAnalysis to get the relative episode number for an absolute episode number
 func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, mediaId int, ok bool) {
+
+	isPartAbsolute := false
+
 	// Find the MediaTreeAnalysisBranch that contains the absolute episode number
 	branch, ok := lo.Find(o.branches, func(n *MediaTreeAnalysisBranch) bool {
+		// First check if the partAbsoluteEpisodeNumber is set
+		if n.minPartAbsoluteEpisodeNumber > 0 && n.maxPartAbsoluteEpisodeNumber > 0 {
+			// If it is, check if the absolute episode number given is the same as the partAbsoluteEpisodeNumber
+			// If it is, return true
+			if n.minPartAbsoluteEpisodeNumber <= abs && n.maxPartAbsoluteEpisodeNumber >= abs {
+				isPartAbsolute = true
+				return true
+			}
+		}
+
+		// Else, check if the absolute episode number given is within the min and max absolute episode numbers of the branch
 		if n.minAbsoluteEpisode <= abs && n.maxAbsoluteEpisode >= abs {
 			return true
 		}
@@ -110,7 +132,18 @@ func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, m
 		return 0, 0, false
 	}
 
-	relativeEp = abs - (branch.minAbsoluteEpisode - 1)
+	if isPartAbsolute {
+		// Let's say the media has 12 episodes and the file is "episode 13"
+		// If the [partAbsoluteEpisodeNumber] is 13, then the [relativeEp] will be 1, we can safely ignore the [absoluteEpisodeNumber]
+		// e.g. 13 - (13-1) = 1
+		relativeEp = abs - (branch.minPartAbsoluteEpisodeNumber - 1)
+	} else {
+		// Let's say the media has 12 episodes and the file is "episode 38"
+		// The [minAbsoluteEpisode] will be 38 and the [relativeEp] will be 1
+		// e.g. 38 - (38-1) = 1
+		relativeEp = abs - (branch.minAbsoluteEpisode - 1)
+	}
+
 	mediaId = branch.media.ID
 
 	return

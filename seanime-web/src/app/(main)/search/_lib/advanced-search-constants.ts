@@ -39,7 +39,7 @@ export const ADVANCED_SEARCH_FORMATS: { value: MediaFormat, label: string }[] = 
 
 export const ADVANCED_SEARCH_STATUS = [
     { value: "FINISHED", label: "Finished" },
-    { value: "RELEASING", label: "Airing" },
+    { value: "RELEASING", label: "Releasing" },
     { value: "NOT_YET_RELEASED", label: "Upcoming" },
     { value: "HIATUS", label: "Hiatus" },
     { value: "CANCELLED", label: "Cancelled" },

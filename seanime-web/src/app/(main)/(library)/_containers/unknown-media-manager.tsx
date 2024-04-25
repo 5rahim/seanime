@@ -24,7 +24,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
     const [isOpen, setIsOpen] = useAtom(__unknownMedia_drawerIsOpen)
 
     const { mutate: addUnknownMedia, isPending: isAdding } = useAddUnknownMedia()
-    const { mutate: unmatchAll, isPending: isUnmatching } = useAnimeEntryBulkAction()
+    const { mutate: performBulkAction, isPending: isUnmatching } = useAnimeEntryBulkAction()
 
     /**
      * Add all unknown media to AniList
@@ -46,7 +46,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
      * Unmatch all files for a media
      */
     const handleUnmatchMedia = useCallback((mediaId: number) => {
-        unmatchAll({
+        performBulkAction({
             mediaId,
             action: "unmatch",
         })

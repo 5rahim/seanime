@@ -236,7 +236,7 @@ func (l *ScanSummaryLogger) LogMetadataEpisodeNormalizationFailed(lf *anime.Loca
 	if l == nil {
 		return
 	}
-	msg := fmt.Sprintf("Episode normalization failed, file marked as Special episode. Reason \"%s\". Episode %d. AniDB episode %s", err.Error(), episode, aniDBEpisode)
+	msg := fmt.Sprintf("Episode normalization failed. Reason \"%s\". Episode %d. AniDB episode %s", err.Error(), episode, aniDBEpisode)
 	l.logType(LogMetadataEpisodeNormalizationFailed, lf, msg)
 }
 

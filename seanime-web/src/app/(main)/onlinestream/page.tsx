@@ -3,7 +3,7 @@ import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
-import { ScoreProgressBadges } from "@/app/(main)/_features/media/_components/media-page-header-components"
+import { MediaPageHeaderScoreAndProgress } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
 import {
     OnlinestreamParametersButton,
@@ -274,6 +274,8 @@ export default function Page() {
                                         mediaId: media.id,
                                         totalEpisodes: media.episodes || 0,
                                         malId: media.idMal || undefined,
+                                    }, {
+                                        onSuccess: () => setProgressItem(undefined),
                                     })
                                     setCurrentProgress(progressItem.episodeNumber)
                                 }}
@@ -490,7 +492,7 @@ export default function Page() {
 
                                     {/*PROGRESS*/}
                                     <div className="flex gap-2 md:gap-4 items-center">
-                                        <ScoreProgressBadges
+                                        <MediaPageHeaderScoreAndProgress
                                             score={mediaEntry?.listData?.score}
                                             progress={mediaEntry?.listData?.progress}
                                             episodes={media.episodes}

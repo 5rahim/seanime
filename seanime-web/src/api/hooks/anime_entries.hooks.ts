@@ -10,6 +10,7 @@ import {
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { AL_BasicMedia, Anime_LocalFile, Anime_MediaEntry, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export function useGetAnimeEntry(id: Nullish<string | number>) {
     return useServerQuery<Anime_MediaEntry>({
@@ -30,6 +31,7 @@ export function useAnimeEntryBulkAction(id?: Nullish<number>) {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            toast.success("Action completed successfully")
         },
     })
 }
@@ -66,6 +68,7 @@ export function useAnimeEntryManualMatch() {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            toast.success("Manual match completed successfully")
         },
     })
 }
@@ -117,6 +120,7 @@ export function useUpdateAnimeEntryProgress(id: Nullish<string | number>) {
             if (id) {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
             }
+            toast.success("Progress updated successfully")
         },
     })
 }

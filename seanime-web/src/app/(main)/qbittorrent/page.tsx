@@ -1,12 +1,11 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { useAtomValue } from "jotai"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 
 export const dynamic = "force-static"
 
 export default function Page() {
 
-    const status = useAtomValue(serverStatusAtom)
+    const status = useServerStatus()
     const settings = status?.settings
 
     if (!settings) return null
