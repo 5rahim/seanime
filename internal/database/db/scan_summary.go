@@ -8,8 +8,8 @@ import (
 )
 
 type ScanSummaryItem struct {
-	CreatedAt time.Time `json:"createdAt"`
-	*summary.ScanSummary
+	CreatedAt   time.Time            `json:"createdAt"`
+	ScanSummary *summary.ScanSummary `json:"scanSummary"`
 }
 
 func (db *Database) GetLastScanSummary() (*summary.ScanSummary, uint, error) {

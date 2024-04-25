@@ -4,7 +4,7 @@ import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_comp
 import { OfflineChapterList } from "@/app/(main)/(offline)/offline/(entry)/manga/_components/offline-chapter-list"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"

@@ -1,20 +1,20 @@
 "use client"
-import { TorrentClientTorrent, TorrentClientTorrentActionProps } from "@/app/(main)/torrent-list/_lib/torrent-client.types"
-import { serverStatusAtom } from "@/atoms/server-status"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
+import { TorrentClientAction_Variables } from "@/api/generated/endpoint.types"
+import { TorrentClient_Torrent } from "@/api/generated/types"
+import { useGetActiveTorrentList, useTorrentClientAction } from "@/api/hooks/torrent_client.hooks"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { PageWrapper } from "@/components/shared/styling/page-wrapper"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation, useSeaQuery } from "@/lib/server/query"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
-import React, { useCallback } from "react"
+import React from "react"
 import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
 import * as upath from "upath"
 
@@ -52,22 +52,10 @@ export default function Page() {
 function Content() {
     const [enabled, setEnabled] = React.useState(true)
 
-    const { data, isLoading, status, refetch } = useSeaQuery<TorrentClientTorrent[]>({
-        endpoint: SeaEndpoints.TORRENT_CLIENT_LIST,
-        queryKey: ["torrents"],
-        refetchInterval: 2500,
-        gcTime: 0,
-        retry: false,
-        refetchOnWindowFocus: false,
-        enabled: enabled,
-    })
+    const { data, isLoading, status, refetch } = useGetActiveTorrentList(enabled)
 
-    const { mutate, isPending } = useSeaMutation<boolean, TorrentClientTorrentActionProps>({
-        endpoint: SeaEndpoints.TORRENT_CLIENT_ACTION,
-        mutationKey: ["torrent-action"],
-        onSuccess: () => {
-            refetch()
-        },
+    const { mutate, isPending } = useTorrentClientAction(() => {
+        refetch()
     })
 
     React.useEffect(() => {
@@ -76,7 +64,7 @@ function Content() {
         }
     }, [status])
 
-    const handleTorrentAction = useCallback((props: TorrentClientTorrentActionProps) => {
+    const handleTorrentAction = React.useCallback((props: TorrentClientAction_Variables) => {
         mutate(props)
     }, [mutate])
 
@@ -111,8 +99,8 @@ function Content() {
 
 
 type TorrentItemProps = {
-    torrent: TorrentClientTorrent
-    onTorrentAction: (props: TorrentClientTorrentActionProps) => void
+    torrent: TorrentClient_Torrent
+    onTorrentAction: (props: TorrentClientAction_Variables) => void
     isPending?: boolean
 }
 

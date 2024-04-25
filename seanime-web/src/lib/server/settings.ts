@@ -1,5 +1,10 @@
-import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER } from "@/lib/types/settings.types"
 import { z } from "zod"
+
+export const DEFAULT_TORRENT_PROVIDER = "animetosho"
+
+export const DEFAULT_TORRENT_CLIENT = "qbittorrent"
+
+export const DEFAULT_DOH_PROVIDER = ""
 
 export const settingsSchema = z.object({
     libraryPath: z.string().min(1),

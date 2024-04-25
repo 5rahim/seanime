@@ -1,0 +1,89 @@
+"use client"
+import { Manga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
+import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
+import { __DEV_SERVER_PORT } from "@/lib/server/config"
+import { RowSelectionState } from "@tanstack/react-table"
+import React from "react"
+
+export const MANGA_PROVIDER_OPTIONS = [
+    { value: "mangasee", label: "Mangasee" },
+    { value: "mangadex", label: "Mangadex" },
+    { value: "mangapill", label: "Mangapill" },
+    { value: "manganato", label: "Manganato" },
+    { value: "comick", label: "ComicK" },
+]
+
+export function getChapterNumberFromChapter(chapter: string): number {
+    const chapterNumber = chapter.match(/(\d+(\.\d+)?)/)?.[0]
+    return chapterNumber ? Math.floor(parseFloat(chapterNumber)) : 0
+
+}
+
+export function useMangaReaderUtils() {
+
+    const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined, headers?: Record<string, string>) => {
+        if (!isDownloaded) {
+            if (headers && Object.keys(headers).length > 0) {
+                return process.env.NODE_ENV === "development"
+                    ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
+                        JSON.stringify(headers))}`
+                    : `http://${window?.location?.host}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(JSON.stringify(
+                        headers))}`
+            }
+            return url
+        }
+
+        return process.env.NODE_ENV === "development"
+            ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/manga-downloads/${url}`
+            : `http://${window?.location?.host}/manga-downloads/${url}`
+    }, [])
+    return {
+        getChapterPageUrl,
+    }
+
+}
+
+export function useMangaDownloadDataUtils(data: Manga_MediaDownloadData | undefined, loading: boolean) {
+
+    const isChapterDownloaded = React.useCallback((chapter: Manga_ChapterDetails | undefined) => {
+        if (!data || !chapter) return false
+        return (data?.downloaded[chapter.provider]?.findIndex(n => n.chapterId === chapter.id) ?? -1) !== -1
+    }, [data])
+
+    const isChapterQueued = React.useCallback((chapter: Manga_ChapterDetails | undefined) => {
+        if (!data || !chapter) return false
+        return (data?.queued[chapter.provider]?.findIndex(n => n.chapterId === chapter.id) ?? -1) !== -1
+    }, [data])
+
+    const getProviderNumberOfDownloadedChapters = React.useCallback((provider: string) => {
+        if (!data) return 0
+        return Object.keys(data.downloaded[provider] || {}).length
+    }, [data])
+    return {
+        isChapterDownloaded,
+        isChapterQueued,
+        getProviderNumberOfDownloadedChapters,
+        showActionButtons: !loading,
+    }
+
+}
+
+export function useMangaChapterListRowSelection() {
+
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
+
+    const [selectedChapters, setSelectedChapters] = React.useState<Manga_ChapterDetails[]>([])
+
+    const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<Manga_ChapterDetails>) => {
+        setSelectedChapters(event.data)
+    }, [])
+    return {
+        rowSelection, setRowSelection,
+        rowSelectedChapters: selectedChapters,
+        onRowSelectionChange: onSelectChange,
+        resetRowSelection: () => {
+            setRowSelection({})
+            setSelectedChapters([])
+        },
+    }
+}

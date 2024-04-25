@@ -1,8 +1,7 @@
 "use client"
-import { MalAuthResponse } from "@/app/(main)/mal/_lib/mal.types"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { useMALAuth } from "@/api/hooks/mal.hooks"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -20,22 +19,12 @@ export default function Page() {
         return { code, state, challenge }
     }, [])
 
-    const { data, isError } = useSeaQuery<MalAuthResponse>({
-        queryKey: ["mal-auth"],
-        endpoint: SeaEndpoints.MAL_AUTH,
-        method: "post",
-        data: {
-            code: code,
-            state: state,
-            code_verifier: challenge,
-        },
-        enabled: !!code && !!state && !!challenge,
-    })
+    const { data, isError } = useMALAuth(!!code && !!state && !!challenge)
 
     React.useEffect(() => {
         if (!!data?.access_token) {
             (async function () {
-                await qc.refetchQueries({ queryKey: ["status"] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
                 router.push("/mal")
             })()
         }

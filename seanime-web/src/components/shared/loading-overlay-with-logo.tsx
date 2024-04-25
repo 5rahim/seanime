@@ -1,4 +1,4 @@
-import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
+import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import Image from "next/image"
 import React from "react"

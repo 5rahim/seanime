@@ -1,5 +1,5 @@
-import { libraryCollectionAtom } from "@/app/(main)/_lib/anime-library-collection.atoms"
-import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import { useAtomValue } from "jotai/react"
 import Image from "next/image"
@@ -26,7 +26,7 @@ export function SnapshotAnimeSelector(props: SnapshotAnimeSelectorProps) {
         <>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {libraryCollection?.lists?.filter(n => n.type === "planned" || n.type === "paused" || n.type === "current")
-                    ?.flatMap(n => n.entries)
+                    ?.flatMap(n => n.entries)?.filter(Boolean)
                     ?.map(entry => {
                         return (
                             <div

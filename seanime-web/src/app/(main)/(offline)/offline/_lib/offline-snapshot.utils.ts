@@ -1,7 +1,7 @@
-import { OfflineAssetMap } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
-import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
+import { Offline_AssetMapImageMap } from "@/api/generated/types"
+import { __DEV_SERVER_PORT } from "@/lib/server/config"
 
-export function offline_getAssetUrl(url: string | null | undefined, assetMap: OfflineAssetMap | undefined) {
+export function offline_getAssetUrl(url: string | null | undefined, assetMap: Offline_AssetMapImageMap | undefined) {
     if (!url) return undefined
     const filename = assetMap?.[url]
     if (!filename) return "/no-cover.png"

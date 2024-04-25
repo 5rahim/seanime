@@ -279,6 +279,7 @@ var (
 //	@summary returns a list of manga based on the search parameters.
 //	@desc This is used by "Advanced Search" and search function.
 //	@route /api/v1/manga/anilist/list [POST]
+//	@returns anilist.ListManga
 func HandleAnilistListManga(c *RouteCtx) error {
 
 	if err := checkMangaFlag(c.App); err != nil {
@@ -361,11 +362,12 @@ func HandleAnilistListManga(c *RouteCtx) error {
 //	@summary updates the progress of a manga entry.
 //	@desc Note: MyAnimeList is not supported
 //	@route /api/v1/manga/update-progress [POST]
+//	@returns bool
 func HandleUpdateMangaProgress(c *RouteCtx) error {
 
 	type body struct {
 		MediaId       int `json:"mediaId"`
-		MalId         int `json:"malId"`
+		MalId         int `json:"malId,omitempty"`
 		ChapterNumber int `json:"chapterNumber"`
 		TotalChapters int `json:"totalChapters"`
 	}

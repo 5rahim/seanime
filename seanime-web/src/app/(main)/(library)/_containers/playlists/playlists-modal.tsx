@@ -1,27 +1,22 @@
 import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-modal"
 import { PlaylistsList } from "@/app/(main)/(library)/_containers/playlists/_components/playlists-list"
-import { serverStatusAtom } from "@/atoms/server-status"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { atom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom } from "jotai/react"
 import React from "react"
 
-type PlaylistsModalProps = {
-    children?: React.ReactNode
-}
+type PlaylistsModalProps = {}
 
 export const __playlists_modalOpenAtom = atom(false)
 
 export function PlaylistsModal(props: PlaylistsModalProps) {
 
-    const {
-        children,
-        ...rest
-    } = props
+    const {} = props
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const [isOpen, setIsOpen] = useAtom(__playlists_modalOpenAtom)
 
     return (

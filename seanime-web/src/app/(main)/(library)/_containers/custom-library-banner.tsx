@@ -12,7 +12,6 @@ export function CustomLibraryBanner() {
     const ts = useThemeSettings()
     const image = React.useMemo(() => getAssetUrl(ts.libraryScreenCustomBannerImage), [ts.libraryScreenCustomBannerImage])
 
-
     return (
         <>
             <div className="py-20"></div>

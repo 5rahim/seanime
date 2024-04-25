@@ -72,7 +72,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// General
 	//
-	v1.Get("/status", makeHandler(app, HandleStatus))
+	v1.Get("/status", makeHandler(app, HandleGetStatus))
 
 	// Auth
 	v1.Post("/auth/login", makeHandler(app, HandleLogin))
@@ -103,19 +103,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Other
 	v1.Post("/test-dump", makeHandler(app, HandleTestDump))
 
-	// Directory selector input
-	// POST /v1/directory-selector
 	v1.Post("/directory-selector", makeHandler(app, HandleDirectorySelector))
 
-	// Open directory in explorer
-	// POST /v1/open-in-explorer
 	v1.Post("/open-in-explorer", makeHandler(app, HandleOpenInExplorer))
 
-	// Open Media Player
-	// POST /v1/media-player/start
 	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultMediaPlayer))
 
-	// POST /v1/media-player/play
 	v1.Post("/media-player/play", makeHandler(app, HandlePlayVideo))
 
 	//
@@ -124,39 +117,26 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Anilist := v1.Group("/anilist")
 
-	// Get "cached" AniList collection
-	// GET /v1/anilist/collection
 	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnilistCollection))
 
-	// Get (up-to-date) AniList collection
-	// This refreshes the collection held by the app
-	// POST /v1/anilist/collection
 	v1Anilist.Post("/collection", makeHandler(app, HandleGetAnilistCollection))
 
-	// Get details for AniList media
-	// GET /v1/anilist/media-details
 	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
 
-	// Edit AniList List Entry
-	// POST /v1/anilist/list-entry
 	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
 
-	// Delete AniList List Entry
-	// POST /v1/anilist/list-entry
 	v1Anilist.Delete("/list-entry", makeHandler(app, HandleDeleteAnilistListEntry))
 
 	v1Anilist.Post("/list-anime", makeHandler(app, HandleAnilistListAnime))
+
 	v1Anilist.Post("/list-recent-anime", makeHandler(app, HandleAnilistListRecentAiringAnime))
 
 	//
 	// MAL
 	//
 
-	// Authenticate user with MAL
-	// POST /v1/mal/auth
 	v1.Post("/mal/auth", makeHandler(app, HandleMALAuth))
-	// Logout from MAL
-	// POST /v1/mal/logout
+
 	v1.Post("/mal/logout", makeHandler(app, HandleMALLogout))
 
 	//
@@ -165,73 +145,48 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Library := v1.Group("/library")
 
-	// Scan the library
 	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
 
-	// DELETE /v1/library/empty-directories
 	v1Library.Delete("/empty-directories", makeHandler(app, HandleRemoveEmptyDirectories))
 
-	// Get all the local files from the database
-	// GET /v1/library/local-files
 	v1Library.Get("/local-files", makeHandler(app, HandleGetLocalFiles))
 
-	// POST /v1/library/local-files
 	v1Library.Post("/local-files", makeHandler(app, HandleLocalFileBulkAction))
 
-	// DELETE /v1/library/local-files
 	v1Library.Delete("/local-files", makeHandler(app, HandleDeleteLocalFiles))
 
-	// Get the library collection
-	// GET /v1/library/collection
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 
-	// Get the latest scan summaries
-	// GET /v1/library/scan-summaries
-	v1Library.Get("/scan-summaries", makeHandler(app, HandleGetLatestScanSummaries))
+	v1Library.Get("/scan-summaries", makeHandler(app, HandleGetScanSummaries))
 
-	// Get missing episodes
-	// GET /v1/library/missing-episodes
 	v1Library.Get("/missing-episodes", makeHandler(app, HandleGetMissingEpisodes))
 
-	// Update local file data
-	// PATCH /v1/library/local-file
 	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
 
-	// Retrieve MediaEntry
-	// GET /v1/library/media-entry
-	v1Library.Get("/media-entry/:id", makeHandler(app, HandleGetMediaEntry))
+	v1Library.Get("/anime-entry/:id", makeHandler(app, HandleGetAnimeEntry))
 
-	// Get suggestions for a prospective Media Entry
-	// POST /v1/library/collection
-	v1Library.Post("/media-entry/suggestions", makeHandler(app, HandleFindProspectiveMediaEntrySuggestions))
+	v1Library.Post("/anime-entry/suggestions", makeHandler(app, HandleFetchAnimeEntrySuggestions))
 
-	// Create Media Entry from directory path and AniList media id
-	// POST /v1/library/media-entry/manual-match
-	v1Library.Post("/media-entry/manual-match", makeHandler(app, HandleMediaEntryManualMatch))
+	v1Library.Post("/anime-entry/manual-match", makeHandler(app, HandleAnimeEntryManualMatch))
 
-	// Media Entry Bulk Action
-	// PATCH /v1/library/entry/bulk-action
-	v1Library.Patch("/media-entry/bulk-action", makeHandler(app, HandleMediaEntryBulkAction))
+	v1Library.Patch("/anime-entry/bulk-action", makeHandler(app, HandleAnimeEntryBulkAction))
 
-	// Open Media Entry in File Explorer
-	// POST /v1/library/media-entry/open-in-explorer
-	v1Library.Post("/media-entry/open-in-explorer", makeHandler(app, HandleOpenMediaEntryInExplorer))
+	v1Library.Post("/anime-entry/open-in-explorer", makeHandler(app, HandleOpenAnimeEntryInExplorer))
 
-	// Add unknown media by IDs
-	// POST /v1/library/unknown-media
-	v1Library.Post("/media-entry/unknown-media", makeHandler(app, HandleAddUnknownMedia))
+	v1Library.Post("/unknown-media", makeHandler(app, HandleAddUnknownMedia))
 
-	v1Library.Post("/media-entry/update-progress", makeHandler(app, HandleUpdateProgress))
+	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
 
-	v1Library.Get("/media-entry/silence/:id", makeHandler(app, HandleGetMediaEntrySilenceStatus))
-	v1Library.Post("/media-entry/silence", makeHandler(app, HandleToggleMediaEntrySilenceStatus))
+	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
+
+	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
 
 	//
 	// Torrent / Torrent Client
 	//
 
-	v1.Post("/torrent-search", makeHandler(app, HandleTorrentSearch))
-	v1.Post("/torrent-nsfw-search", makeHandler(app, HandleNsfwTorrentSearch))
+	v1.Post("/torrent/search", makeHandler(app, HandleSearchTorrent))
+	v1.Post("/torrent/nsfw-search", makeHandler(app, HandleSearchNsfwTorrent))
 	v1.Post("/torrent-client/download", makeHandler(app, HandleTorrentClientDownload))
 	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
 	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))

@@ -6,22 +6,24 @@ import (
 	"github.com/seanime-app/seanime/internal/library/summary"
 )
 
-type scanRequestBody struct {
-	Enhanced         bool `json:"enhanced"`
-	SkipLockedFiles  bool `json:"skipLockedFiles"`
-	SkipIgnoredFiles bool `json:"skipIgnoredFiles"`
-}
-
 // HandleScanLocalFiles
 //
 //	@summary scans the user's library.
 //	@desc This will scan the user's library.
 //	@desc The response is ignored, the client should re-fetch the library after this.
-//	@route /library/scan [POST]
-//	@returns []entities.LocalFile
+//	@route /api/v1/library/scan [POST]
+//	@returns []anime.LocalFile
 func HandleScanLocalFiles(c *RouteCtx) error {
 
 	c.AcceptJSON()
+
+	type body struct {
+		Enhanced         bool `json:"enhanced"`
+		SkipLockedFiles  bool `json:"skipLockedFiles"`
+		SkipIgnoredFiles bool `json:"skipIgnoredFiles"`
+	}
+
+	var b body
 
 	// Retrieve the user's library path
 	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()
@@ -29,9 +31,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Body
-	body := new(scanRequestBody)
-	if err := c.Fiber.BodyParser(body); err != nil {
+	if err = c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -69,13 +69,13 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	sc := scanner.Scanner{
 		DirPath:              libraryPath,
 		Username:             acc.Username,
-		Enhanced:             body.Enhanced,
+		Enhanced:             b.Enhanced,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		Logger:               c.App.Logger,
 		WSEventManager:       c.App.WSEventManager,
 		ExistingLocalFiles:   existingLfs,
-		SkipLockedFiles:      body.SkipLockedFiles,
-		SkipIgnoredFiles:     body.SkipIgnoredFiles,
+		SkipLockedFiles:      b.SkipLockedFiles,
+		SkipIgnoredFiles:     b.SkipIgnoredFiles,
 		ScanSummaryLogger:    scanSummaryLogger,
 		ScanLogger:           scanLogger,
 	}

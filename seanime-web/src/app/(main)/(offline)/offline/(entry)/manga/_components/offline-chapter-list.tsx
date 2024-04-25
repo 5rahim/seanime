@@ -1,9 +1,8 @@
-import { OfflineMangaEntry } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
-import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MangaChapterContainer, MangaChapterDetails } from "@/app/(main)/manga/_lib/manga.types"
-import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
-import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
-import { primaryPillCheckboxClass } from "@/components/shared/styling/classnames"
+import { Manga_ChapterContainer, Manga_ChapterDetails, Offline_MangaEntry } from "@/api/generated/types"
+import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
+import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
+import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
+import { primaryPillCheckboxClass } from "@/components/shared/classnames"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -12,7 +11,7 @@ import React from "react"
 import { GiOpenBook } from "react-icons/gi"
 
 type OfflineChapterListProps = {
-    entry: OfflineMangaEntry | undefined
+    entry: Offline_MangaEntry | undefined
     children?: React.ReactNode
 }
 
@@ -46,9 +45,9 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
         return map
     }, [entry?.chapterContainers])
 
-    const [selectedChapterContainer, setSelectedChapterContainer] = React.useState<MangaChapterContainer | undefined>(undefined)
+    const [selectedChapterContainer, setSelectedChapterContainer] = React.useState<Manga_ChapterContainer | undefined>(undefined)
 
-    const columns = React.useMemo(() => defineDataGridColumns<MangaChapterDetails>(() => [
+    const columns = React.useMemo(() => defineDataGridColumns<Manga_ChapterDetails>(() => [
         {
             accessorKey: "title",
             header: "Name",
@@ -102,7 +101,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
     const [showUnreadChapter, setShowUnreadChapter] = React.useState(false)
 
-    const retainUnreadChapters = React.useCallback((chapter: MangaChapterDetails) => {
+    const retainUnreadChapters = React.useCallback((chapter: Manga_ChapterDetails) => {
         if (!entry?.listData || !chapterNumbersMap.has(chapter.id) || !entry?.listData?.progress) return true
 
         const chapterNumber = chapterNumbersMap.get(chapter.id)
@@ -136,7 +135,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                     />
                 </div>
 
-                <DataGrid<MangaChapterDetails>
+                <DataGrid<Manga_ChapterDetails>
                     columns={columns}
                     data={tableChapters}
                     rowCount={tableChapters?.length || 0}

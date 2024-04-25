@@ -168,6 +168,14 @@ func (pm *PlaybackManager) autoSyncCurrentProgress(_ps *PlaybackState) {
 	}
 
 	if shouldUpdate, err := pm.Database.AutoUpdateProgressIsEnabled(); err == nil && shouldUpdate {
+
+		// Check if we should update the progress
+		// If the current progress is lower than the episode progress number
+		epProgressNum := pm.currentLocalFileWrapperEntry.GetProgressNumber(pm.currentLocalFile)
+		if *pm.currentMediaListEntry.Progress >= epProgressNum {
+			return
+		}
+
 		// Update the progress on AniList
 		pm.Logger.Debug().Msg("playback manager: Updating progress on AniList")
 		err := pm.updateProgress()

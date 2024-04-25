@@ -1,5 +1,5 @@
-import { useWebsocketMessageListener } from "@/atoms/websocket"
-import { WSEvents } from "@/lib/server/endpoints"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { WSEvents } from "@/lib/server/ws-events"
 import { toast } from "sonner"
 
 export function useToastEventListeners() {

@@ -4,8 +4,9 @@ package handlers
 //
 //	@summary plays the video with the given path using the media player.
 //	@desc This tells the Playback Manager to play the video using the media player and start tracking progress.
+//	@desc This returns 'true' if the video was successfully played.
 //	@route /api/v1/media-player/play [POST]
-//	@returns nil
+//	@returns bool
 func HandlePlayVideo(c *RouteCtx) error {
 
 	type body struct {
@@ -21,7 +22,7 @@ func HandlePlayVideo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	return nil
+	return c.RespondWithData(true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------

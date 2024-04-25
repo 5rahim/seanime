@@ -1,20 +1,26 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import {
+    usePlaybackCancelCurrentPlaylist,
+    usePlaybackPlaylistNext,
+    usePlaybackPlayNextEpisode,
+    usePlaybackSyncCurrentProgress,
+} from "@/api/hooks/playback_manager.hooks"
 import {
     PlaybackManager_PlaybackState,
     PlaybackManager_PlaylistState,
 } from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
-import { serverStatusAtom } from "@/atoms/server-status"
-import { useWebsocketMessageListener } from "@/atoms/websocket"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
-import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
-import { SeaEndpoints, WSEvents } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom } from "jotai/react"
 import Image from "next/image"
 import React, { useState } from "react"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
@@ -29,8 +35,7 @@ const __pt_isCompletedAtom = atom(false)
 
 export function ProgressTracking() {
 
-    const qc = useQueryClient()
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
     /**
@@ -102,17 +107,19 @@ export function ProgressTracking() {
         },
     })
 
+    const queryClient = useQueryClient()
+
     // Progress has been updated
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATED,
         onMessage: data => {
             if (data) {
                 if (!serverStatus?.isOffline) {
-                    qc.refetchQueries({ queryKey: ["get-media-entry", data.mediaId] })
-                    qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                    qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(data.mediaId)] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
                 } else {
-                    qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.OFFLINE.GetOfflineSnapshot.key] })
                 }
                 setState(data)
                 toast.success("Progress updated")
@@ -127,47 +134,13 @@ export function ProgressTracking() {
         },
     })
 
-    const { mutate: syncProgress, isPending } = useSeaMutation<number>({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_SYNC_CURRENT_PROGRESS,
-        method: "post",
-        mutationKey: ["playback-sync-current-progress"],
-        onSuccess: async (mediaId: number | undefined) => {
-            if (!serverStatus?.isOffline) {
-                qc.refetchQueries({ queryKey: ["get-media-entry", mediaId] })
-                qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            } else {
-                qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
-            }
-        },
-    })
+    const { mutate: syncProgress, isPending } = usePlaybackSyncCurrentProgress()
 
-    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = useSeaMutation({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_PLAYLIST_NEXT,
-        method: "post",
-        mutationKey: ["playback-playlist-next", playlistState?.current?.name],
-        onSuccess: async () => {
-            toast.info("Loading next file")
-        },
-    })
+    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
 
-    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = useSeaMutation({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_CANCEL_PLAYLIST,
-        method: "post",
-        mutationKey: ["playback-cancel-playlist", playlistState?.current?.name],
-        onSuccess: async () => {
-            toast.info("Cancelling playlist")
-        },
-    })
+    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = usePlaybackCancelCurrentPlaylist([playlistState?.current?.name])
 
-    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = useSeaMutation({
-        endpoint: SeaEndpoints.PLAYBACK_MANAGER_NEXT_EPISODE,
-        method: "post",
-        mutationKey: ["playback-next-episode", state?.filename],
-        onSuccess: async () => {
-
-        },
-    })
+    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = usePlaybackPlayNextEpisode([state?.filename])
 
     const confirmPlayNext = useConfirmationDialog({
         title: "Play next episode",

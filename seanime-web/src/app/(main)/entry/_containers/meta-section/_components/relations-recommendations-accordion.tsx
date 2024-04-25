@@ -1,16 +1,15 @@
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { serverStatusAtom } from "@/atoms/server-status"
-import { AnimeListItem } from "@/components/shared/anime-list-item"
+import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
 type RelationsRecommendationsAccordionProps = {
-    entry: MediaEntry | undefined
-    details: MediaDetailsByIdQuery["Media"] | undefined
+    entry: Anime_MediaEntry | undefined
+    details: AL_MediaDetailsById_Media | undefined
 }
 
 export function RelationsRecommendationsAccordion(props: RelationsRecommendationsAccordionProps) {
@@ -51,19 +50,19 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                         <AccordionContent className="pt-6 px-0">
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-3 min-[2000px]:grid-cols-4 gap-4">
                                 {sourceManga && <div className="col-span-1">
-                                    <AnimeListItem
+                                    <MediaEntryCard
                                         media={sourceManga}
                                         overlay={<Badge
                                             className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
                                             intent="gray"
                                             size="lg"
                                         >Source (Manga)</Badge>}
-                                        isManga
+                                        type="manga"
                                     />
                                 </div>}
                                 {relations.slice(0, 4).map(edge => {
                                     return <div key={edge.node?.id} className="col-span-1">
-                                        <AnimeListItem
+                                        <MediaEntryCard
                                             media={edge.node!}
                                             overlay={<Badge
                                                 className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -74,6 +73,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                                 : capitalize(edge.relationType || "").replace("_", " ")}</Badge>}
                                             showLibraryBadge
                                             showTrailer
+                                            type="anime"
                                         />
                                     </div>
                                 })}
@@ -89,10 +89,11 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-3 min-[2000px]:grid-cols-4 gap-4">
                             {recommendations.map(media => {
                                 return <div key={media.id} className="col-span-1">
-                                    <AnimeListItem
+                                    <MediaEntryCard
                                         media={media!}
                                         showLibraryBadge
                                         showTrailer
+                                        type="anime"
                                     />
                                 </div>
                             })}

@@ -1,12 +1,12 @@
-import { imageShimmer } from "@/components/shared/styling/image-helpers"
+import { AL_BaseMedia } from "@/api/generated/types"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
 type EpisodeListItemProps = {
-    media: BaseMediaFragment,
+    media: AL_BaseMedia,
     children?: React.ReactNode
     action?: React.ReactNode
     image?: string | null

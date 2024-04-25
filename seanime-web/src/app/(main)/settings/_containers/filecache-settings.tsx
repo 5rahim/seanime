@@ -1,0 +1,48 @@
+import { useGetFileCacheTotalSize, useRemoveFileCacheBucket } from "@/api/hooks/filecache.hooks"
+import { Button } from "@/components/ui/button"
+import React from "react"
+
+type FilecacheSettingsProps = {
+    children?: React.ReactNode
+}
+
+export function FilecacheSettings(props: FilecacheSettingsProps) {
+
+    const {
+        children,
+        ...rest
+    } = props
+
+
+    const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheTotalSize()
+
+    const { mutate: clearBucket, isPending: isClearing } = useRemoveFileCacheBucket(() => {
+        getTotalSize()
+    })
+
+    return (
+        <div className="space-y-4">
+            <div className="flex gap-2 items-center">
+                <Button intent="white-subtle" size="sm" onClick={() => getTotalSize()} disabled={isFetchingSize}>
+                    Show total size
+                </Button>
+                {!!totalSize && (
+                    <p>
+                        {totalSize}
+                    </p>
+                )}
+            </div>
+            <div className="flex gap-2 flex-wrap items-center">
+                <Button intent="alert-subtle" size="sm" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
+                    Clear manga cache
+                </Button>
+                <Button intent="alert-subtle" size="sm" onClick={() => clearBucket({ bucket: "onlinestream" })} disabled={isClearing}>
+                    Clear streaming cache
+                </Button>
+                <Button intent="alert-subtle" size="sm" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>
+                    Clear TVDB metadata
+                </Button>
+            </div>
+        </div>
+    )
+}

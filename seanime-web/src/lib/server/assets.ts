@@ -1,4 +1,4 @@
-import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
+import { __DEV_SERVER_PORT } from "@/lib/server/config"
 
 export function getAssetUrl(path: string) {
     let p = path.replaceAll("\\", "/")

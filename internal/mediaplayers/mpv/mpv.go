@@ -107,14 +107,16 @@ func (m *Mpv) execCmd(mode int, args ...string) (*exec.Cmd, error) {
 func (m *Mpv) launchPlayer(start int, filePath string) error {
 	// Cancel previous context
 	// This is done so that we only have one connection open at a time
-	if m.cancel != nil {
-		m.cancel()
-	}
+	//if m.cancel != nil {
+	//	m.Logger.Debug().Msg("mpv: Cancelling previous context")
+	//	m.cancel()
+	//}
 
 	switch start {
 	case StartExecPath, StartExecCommand, StartExec:
 		// If no connection exists, start the player and play the file
 		if m.conn == nil || m.conn.IsClosed() {
+			m.Logger.Debug().Msg("mpv: Starting player")
 			cmd, err := m.execCmd(start, "--input-ipc-server="+m.SocketName, filePath)
 			if err != nil {
 				return err
@@ -125,6 +127,7 @@ func (m *Mpv) launchPlayer(start int, filePath string) error {
 				return err
 			}
 		} else {
+			m.Logger.Debug().Msg("mpv: Replacing file")
 			// If the connection is still open, just play the file
 			_, err := m.conn.Call("loadfile", filePath, "replace")
 			if err != nil {
@@ -159,7 +162,11 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
-	// Establish new connection
+	// Establish new connection, only if it doesn't exist
+	if m.conn != nil {
+		return nil
+	}
+
 	m.conn = mpvipc.NewConnection(m.SocketName)
 	err = m.conn.Open()
 	if err != nil {

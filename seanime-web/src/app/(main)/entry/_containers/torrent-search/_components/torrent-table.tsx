@@ -1,6 +1,5 @@
+import { Torrent_AnimeTorrent } from "@/api/generated/types"
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
-
-import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -10,14 +9,14 @@ import React, { memo, useMemo } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 
 type TorrentTable = {
-    torrents: AnimeTorrent[]
-    selectedTorrents: AnimeTorrent[]
+    torrents: Torrent_AnimeTorrent[]
+    selectedTorrents: Torrent_AnimeTorrent[]
     globalFilter: string,
     setGlobalFilter: React.Dispatch<React.SetStateAction<string>>
     smartSearch: boolean
     isLoading: boolean
     isFetching: boolean
-    onToggleTorrent: (t: AnimeTorrent) => void
+    onToggleTorrent: (t: Torrent_AnimeTorrent) => void
 }
 
 export const TorrentTable = memo((
@@ -32,7 +31,7 @@ export const TorrentTable = memo((
         onToggleTorrent,
     }: TorrentTable) => {
 
-    const columns = useMemo(() => defineDataGridColumns<AnimeTorrent>(() => [
+    const columns = useMemo(() => defineDataGridColumns<Torrent_AnimeTorrent>(() => [
         {
             accessorKey: "name",
             header: "Name",
@@ -85,7 +84,7 @@ export const TorrentTable = memo((
     ]), [torrents, selectedTorrents])
 
     return (
-        <DataGrid<AnimeTorrent>
+        <DataGrid<Torrent_AnimeTorrent>
             columns={columns}
             data={torrents?.slice(0, 20)}
             rowCount={torrents?.length ?? 0}

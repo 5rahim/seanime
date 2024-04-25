@@ -55,7 +55,9 @@ func (a *App) initModulesOnce() {
 		AnizipCache:             a.AnizipCache,
 	})
 
-	a.AutoDownloader.Start()
+	if !a.IsOffline() {
+		a.AutoDownloader.Start()
+	}
 
 	// Auto scanner
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
@@ -78,7 +80,9 @@ func (a *App) initModulesOnce() {
 		Repository:     a.MangaRepository,
 	})
 
-	a.MangaDownloader.Start()
+	if !a.IsOffline() {
+		a.MangaDownloader.Start()
+	}
 
 	//
 

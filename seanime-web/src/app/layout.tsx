@@ -1,4 +1,4 @@
-import { ClientProviders } from "@/components/client-providers"
+import { ClientProviders } from "@/app/client-providers"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"

@@ -1,3 +1,5 @@
+import { useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
+import { ONLINESTREAM_PROVIDERS } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
     __onlinestream_autoNextAtom,
@@ -5,7 +7,6 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { ONLINESTREAM_PROVIDERS } from "@/app/(main)/onlinestream/_lib/onlinestream.hooks"
 import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -13,9 +14,6 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import { Menu, Tooltip, useCaptionOptions, usePlaybackRateOptions, useVideoQualityOptions } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
@@ -25,7 +23,6 @@ import { FaClosedCaptioning } from "react-icons/fa"
 import { IoMdSettings } from "react-icons/io"
 import { MdHighQuality, MdPlaylistPlay, MdVideoSettings } from "react-icons/md"
 import { SlSpeedometer } from "react-icons/sl"
-import { toast } from "sonner"
 
 type OnlinestreamServerButtonProps = {
     children?: React.ReactNode
@@ -230,18 +227,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
-    const qc = useQueryClient()
-    const { mutate: emptyCache, isPending } = useSeaMutation<boolean, { mediaId: number }>({
-        endpoint: SeaEndpoints.ONLINESTREAM_CACHE,
-        mutationKey: ["onlinestream-empty-cache"],
-        method: "delete",
-        onSuccess: async () => {
-            await qc.refetchQueries({
-                queryKey: ["onlinestream-episode-list"],
-            })
-            toast.info("Stream cache emptied")
-        },
-    })
+    const { mutate: emptyCache, isPending } = useOnlineStreamEmptyCache()
 
     return (
         <Modal

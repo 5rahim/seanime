@@ -13,14 +13,15 @@ import (
 )
 
 type GoStruct struct {
-	Filepath      string           `json:"filepath"`
-	Filename      string           `json:"filename"`
-	Name          string           `json:"name"`
-	FormattedName string           `json:"formattedName"` // name with package prefix e.g. models.User => Models_User
-	Package       string           `json:"package"`
-	Fields        []*GoStructField `json:"fields"`
-	AliasOf       *GoAlias         `json:"aliasOf,omitempty"`
-	Comments      []string         `json:"comments"`
+	Filepath            string           `json:"filepath"`
+	Filename            string           `json:"filename"`
+	Name                string           `json:"name"`
+	FormattedName       string           `json:"formattedName"` // name with package prefix e.g. models.User => Models_User
+	Package             string           `json:"package"`
+	Fields              []*GoStructField `json:"fields"`
+	AliasOf             *GoAlias         `json:"aliasOf,omitempty"`
+	Comments            []string         `json:"comments"`
+	EmbeddedStructTypes []string         `json:"embeddedStructNames,omitempty"`
 }
 
 type GoAlias struct {
@@ -62,6 +63,7 @@ var typePrefixesByPackage = map[string]string{
 	"scanner":                "Scanner_",
 	"offline":                "Offline_",
 	"discordrpc":             "DiscordRPC_",
+	"discordrpc_presence":    "DiscordRPC_",
 	"anizip":                 "Anizip_",
 	"onlinestream":           "Onlinestream_",
 	"onlinestream_providers": "Onlinestream_",
@@ -74,7 +76,7 @@ var typePrefixesByPackage = map[string]string{
 	"metadata":               "Metadata_",
 	"mappings":               "Mappings_",
 	"mal":                    "MAL_",
-	"handlers":               "Handlers_",
+	"handlers":               "",
 	"animetosho":             "AnimeTosho_",
 	"updater":                "Updater_",
 	"anime":                  "Anime_",
@@ -206,18 +208,26 @@ func ExtractStructs(dir string, outDir string) {
 						}
 
 						goStruct := &GoStruct{
-							Filepath:      path,
-							Filename:      info.Name(),
-							Name:          typeSpec.Name.Name,
-							FormattedName: getTypePrefix(packageName) + typeSpec.Name.Name,
-							Package:       packageName,
-							Fields:        make([]*GoStructField, 0),
-							Comments:      comments,
+							Filepath:            path,
+							Filename:            info.Name(),
+							Name:                typeSpec.Name.Name,
+							FormattedName:       getTypePrefix(packageName) + typeSpec.Name.Name,
+							Package:             packageName,
+							Fields:              make([]*GoStructField, 0),
+							EmbeddedStructTypes: make([]string, 0),
+							Comments:            comments,
 						}
 
 						// Get fields
 						for _, field := range structType.Fields.List {
 							if field.Names == nil || len(field.Names) == 0 {
+								if len(field.Names) == 0 {
+									switch field.Type.(type) {
+									case *ast.Ident, *ast.StarExpr, *ast.SelectorExpr:
+										usedStructType, _ := getUsedStructType(field.Type, packageName)
+										goStruct.EmbeddedStructTypes = append(goStruct.EmbeddedStructTypes, usedStructType)
+									}
+								}
 								continue
 							}
 							// Get fields comments
@@ -377,6 +387,8 @@ func fieldTypeToTypescriptType(fieldType ast.Expr, usedStructPkgName string) str
 			return "number"
 		case "bool":
 			return "boolean"
+		case "nil":
+			return "null"
 		default:
 			return getTypePrefix(usedStructPkgName) + t.Name
 		}
@@ -405,6 +417,8 @@ func stringGoTypeToTypescriptType(goType string) string {
 		return "string"
 	case "uint", "uint8", "uint16", "uint32", "uint64", "int", "int8", "int16", "int32", "int64", "float", "float32", "float64":
 		return "number"
+	case "nil":
+		return "null"
 	case "bool":
 		return "boolean"
 	}

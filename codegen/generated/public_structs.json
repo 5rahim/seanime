@@ -9834,7 +9834,10 @@
     "formattedName": "AL_BaseMediaCache",
     "package": "anilist",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\anilist\\media_tree.go",
@@ -9843,7 +9846,10 @@
     "formattedName": "AL_BaseMediaRelationTree",
     "package": "anilist",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\anilist\\media_tree.go",
@@ -21601,7 +21607,10 @@
     "formattedName": "Anizip_Cache",
     "package": "anizip",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\listsync\\providers.go",
@@ -21690,7 +21699,10 @@
     "formattedName": "ListSync_Cache",
     "package": "listsync",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\listsync\\types.go",
@@ -22669,7 +22681,10 @@
     "formattedName": "MAL_SearchCache",
     "package": "mal",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\mal\\types.go",
@@ -23987,7 +24002,7 @@
         "name": "DiscordPresence",
         "jsonName": "DiscordPresence",
         "goType": "discordrpc_presence.Presence",
-        "typescriptType": "Presence",
+        "typescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
         "required": false,
         "public": true,
@@ -24230,6 +24245,16 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ScanSummary",
+        "jsonName": "scanSummary",
+        "goType": "summary.ScanSummary",
+        "typescriptType": "Summary_ScanSummary",
+        "usedStructName": "summary.ScanSummary",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -24290,7 +24315,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24327,7 +24355,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24346,7 +24377,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24426,7 +24460,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24877,7 +24914,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24896,7 +24936,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24915,7 +24958,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -24997,7 +25043,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25052,7 +25101,10 @@
     "formattedName": "Models_SilencedMediaEntry",
     "package": "models",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25161,7 +25213,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25189,7 +25244,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\database\\models\\models.go",
@@ -25255,7 +25313,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\discordrpc\\client\\activity.go",
@@ -25400,6 +25461,9 @@
     "fields": [],
     "comments": [
       " Epoch wrapper around time.Time to ensure times are sent as a unix epoch int"
+    ],
+    "embeddedStructNames": [
+      "time.Time"
     ]
   },
   {
@@ -25787,13 +25851,16 @@
     "fields": [],
     "comments": [
       " Socket extends net.Conn methods"
+    ],
+    "embeddedStructNames": [
+      "net.Conn"
     ]
   },
   {
     "filepath": "..\\internal\\discordrpc\\presence\\presence.go",
     "filename": "presence.go",
     "name": "Presence",
-    "formattedName": "Presence",
+    "formattedName": "DiscordRPC_Presence",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -25862,7 +25929,7 @@
     "filepath": "..\\internal\\discordrpc\\presence\\presence.go",
     "filename": "presence.go",
     "name": "AnimeActivity",
-    "formattedName": "AnimeActivity",
+    "formattedName": "DiscordRPC_AnimeActivity",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -25908,7 +25975,7 @@
     "filepath": "..\\internal\\discordrpc\\presence\\presence.go",
     "filename": "presence.go",
     "name": "MangaActivity",
-    "formattedName": "MangaActivity",
+    "formattedName": "DiscordRPC_MangaActivity",
     "package": "discordrpc_presence",
     "fields": [
       {
@@ -26099,7 +26166,7 @@
     "filepath": "..\\internal\\handlers\\_nyaa.go",
     "filename": "_nyaa.go",
     "name": "TorrentPreview",
-    "formattedName": "Handlers_TorrentPreview",
+    "formattedName": "TorrentPreview",
     "package": "handlers",
     "fields": [
       {
@@ -26169,7 +26236,7 @@
     "filepath": "..\\internal\\handlers\\_nyaa.go",
     "filename": "_nyaa.go",
     "name": "TorrentSearchData",
-    "formattedName": "Handlers_TorrentSearchData",
+    "formattedName": "TorrentSearchData",
     "package": "handlers",
     "fields": [
       {
@@ -26188,7 +26255,7 @@
         "name": "Previews",
         "jsonName": "previews",
         "goType": "[]TorrentPreview",
-        "typescriptType": "Array\u003cHandlers_TorrentPreview\u003e",
+        "typescriptType": "Array\u003cTorrentPreview\u003e",
         "usedStructName": "handlers.TorrentPreview",
         "required": false,
         "public": true,
@@ -26200,29 +26267,10 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\handlers\\auth.go",
-    "filename": "auth.go",
-    "name": "AuthRequestBody",
-    "formattedName": "Handlers_AuthRequestBody",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "Token",
-        "jsonName": "Token",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "..\\internal\\handlers\\directory_selector.go",
     "filename": "directory_selector.go",
     "name": "DirectoryInfo",
-    "formattedName": "Handlers_DirectoryInfo",
+    "formattedName": "DirectoryInfo",
     "package": "handlers",
     "fields": [
       {
@@ -26247,10 +26295,49 @@
     "comments": []
   },
   {
+    "filepath": "..\\internal\\handlers\\directory_selector.go",
+    "filename": "directory_selector.go",
+    "name": "DirectorySelectorResponse",
+    "formattedName": "DirectorySelectorResponse",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Exists",
+        "jsonName": "exists",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Suggestions",
+        "jsonName": "suggestions",
+        "goType": "[]DirectoryInfo",
+        "typescriptType": "Array\u003cDirectoryInfo\u003e",
+        "usedStructName": "handlers.DirectoryInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "[]DirectoryInfo",
+        "typescriptType": "Array\u003cDirectoryInfo\u003e",
+        "usedStructName": "handlers.DirectoryInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "..\\internal\\handlers\\download.go",
     "filename": "download.go",
     "name": "DownloadReleaseResponse",
-    "formattedName": "Handlers_DownloadReleaseResponse",
+    "formattedName": "DownloadReleaseResponse",
     "package": "handlers",
     "fields": [
       {
@@ -26278,7 +26365,7 @@
     "filepath": "..\\internal\\handlers\\mal.go",
     "filename": "mal.go",
     "name": "MalAuthResponse",
-    "formattedName": "Handlers_MalAuthResponse",
+    "formattedName": "MalAuthResponse",
     "package": "handlers",
     "fields": [
       {
@@ -26324,7 +26411,7 @@
     "filepath": "..\\internal\\handlers\\manual_dump.go",
     "filename": "manual_dump.go",
     "name": "RequestBody",
-    "formattedName": "Handlers_RequestBody",
+    "formattedName": "RequestBody",
     "package": "handlers",
     "fields": [
       {
@@ -26349,40 +26436,10 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\handlers\\onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "OnlinestreamEpisodeListResponse",
-    "formattedName": "Handlers_OnlinestreamEpisodeListResponse",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]onlinestream.Episode",
-        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
-        "usedStructName": "onlinestream.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "..\\internal\\handlers\\response.go",
     "filename": "response.go",
     "name": "SeaResponse",
-    "formattedName": "Handlers_SeaResponse",
+    "formattedName": "SeaResponse",
     "package": "handlers",
     "fields": [
       {
@@ -26398,7 +26455,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "R",
-        "typescriptType": "Handlers_R",
+        "typescriptType": "R",
         "usedStructName": "handlers.R",
         "required": false,
         "public": true,
@@ -26414,7 +26471,7 @@
     "filepath": "..\\internal\\handlers\\routes.go",
     "filename": "routes.go",
     "name": "RouteCtx",
-    "formattedName": "Handlers_RouteCtx",
+    "formattedName": "RouteCtx",
     "package": "handlers",
     "fields": [
       {
@@ -26447,7 +26504,7 @@
     "filepath": "..\\internal\\handlers\\status.go",
     "filename": "status.go",
     "name": "Status",
-    "formattedName": "Handlers_Status",
+    "formattedName": "Status",
     "package": "handlers",
     "fields": [
       {
@@ -28379,7 +28436,10 @@
     "formattedName": "Anime_NormalizedMedia",
     "package": "anime",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "anilist.BasicMedia"
+    ]
   },
   {
     "filepath": "..\\internal\\library\\anime\\normalized_media.go",
@@ -28388,7 +28448,10 @@
     "formattedName": "Anime_NormalizedMediaCache",
     "package": "anime",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\library\\anime\\playlist.go",
@@ -29134,7 +29197,7 @@
         "name": "discordPresence",
         "jsonName": "discordPresence",
         "goType": "discordrpc_presence.Presence",
-        "typescriptType": "Presence",
+        "typescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
         "required": false,
         "public": false,
@@ -29501,7 +29564,7 @@
         "name": "DiscordPresence",
         "jsonName": "DiscordPresence",
         "goType": "discordrpc_presence.Presence",
-        "typescriptType": "Presence",
+        "typescriptType": "DiscordRPC_Presence",
         "usedStructName": "discordrpc_presence.Presence",
         "required": false,
         "public": true,
@@ -30140,6 +30203,24 @@
         "typescriptType": "Anizip_Media",
         "usedStructName": "anizip.Media",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "minPartAbsoluteEpisodeNumber",
+        "jsonName": "minPartAbsoluteEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "maxPartAbsoluteEpisodeNumber",
+        "jsonName": "maxPartAbsoluteEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": false,
         "comments": []
       },
@@ -31139,7 +31220,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "chapter_downloader.DownloadID"
+    ]
   },
   {
     "filepath": "..\\internal\\manga\\downloader\\queue.go",
@@ -31276,7 +31360,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "chapter_downloader.DownloadID"
+    ]
   },
   {
     "filepath": "..\\internal\\manga\\manga_chapter.go",
@@ -35629,7 +35716,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\offline\\models.go",
@@ -35692,7 +35782,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\offline\\snapshot.go",
@@ -36129,7 +36222,7 @@
         "jsonName": "number",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -36242,6 +36335,36 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "..\\internal\\onlinestream\\onlinestream.go",
+    "filename": "onlinestream.go",
+    "name": "EpisodeListResponse",
+    "formattedName": "Onlinestream_EpisodeListResponse",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+        "usedStructName": "onlinestream.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -37463,7 +37586,10 @@
     "formattedName": "AnimeTosho_SearchCache",
     "package": "animetosho",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\animetosho\\smart_search.go",
@@ -38000,7 +38126,10 @@
     "formattedName": "SearchCache",
     "package": "nyaa",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\nyaa\\torrent.go",
@@ -38212,7 +38341,10 @@
         ]
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "nyaa.Torrent"
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\qbittorrent\\application\\client.go",
@@ -40520,7 +40652,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "qbittorrent_model.TransferInfo"
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\qbittorrent\\model\\sync_main_data.go",
@@ -42496,7 +42631,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "torrent.SmartSearchQueryOptions"
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\torrent\\smart_search.go",

@@ -76,7 +76,7 @@ func HandleGetMangaDownloadData(c *RouteCtx) error {
 //
 //	@summary returns the items in the download queue.
 //	@route /api/v1/manga/download-queue [GET]
-//	@returns []manga.ChapterDownloadQueueItem
+//	@returns []models.ChapterDownloadQueueItem
 func HandleGetMangaDownloadQueue(c *RouteCtx) error {
 
 	data, err := c.App.Database.GetChapterDownloadQueue()

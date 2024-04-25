@@ -1,9 +1,7 @@
+import { useDirectorySelector } from "@/api/hooks/directory_selector.hooks"
 import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
-import { __DEV_SERVER_PORT } from "@/lib/anilist/config"
-import { useQuery } from "@tanstack/react-query"
-import axios from "axios"
 import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"
 import { BiCheck, BiFolderOpen, BiFolderPlus, BiX } from "react-icons/bi"
 import { FaFolder } from "react-icons/fa"
@@ -17,12 +15,6 @@ export type DirectorySelectorProps = {
     shouldExist?: boolean
     value: string
 } & Omit<TextInputProps, "onSelect" | "value">
-
-type DirectorySelectorResponse = {
-    exists: boolean,
-    suggestions: { fullPath: string, folderName: string }[],
-    content?: { fullPath: string, folderName: string }[]
-}
 
 export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, DirectorySelectorProps>(function (props: DirectorySelectorProps, ref) {
 
@@ -41,18 +33,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
     const selectorState = useBoolean(false)
     const prevState = useRef<string>(input)
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["directory-settings", debouncedInput],
-        queryFn: async () => {
-            const res = await axios.post<DirectorySelectorResponse>("http://" + (process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host) + "/api/v1/directory-selector", {
-                input: debouncedInput,
-            })
-            return res.data
-        },
-        enabled: debouncedInput.length > 0,
-    })
+    const { data, isLoading, error } = useDirectorySelector(debouncedInput)
 
     React.useEffect(() => {
         if (firstRender.current) {
@@ -150,7 +131,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                     }}
                     ref={ref}
                 />
-                {(data && (data?.content && data.content.length > 0)) &&
+                {(data && !!data?.content?.length) &&
                     <div
                         className="w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"
                     >

@@ -165,6 +165,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 //
 //	@summary adds magnets to the torrent client based on the AutoDownloader item.
 //	@desc This is used to download torrents that were queued by the AutoDownloader.
+//	@desc The item will be removed from the queue if the magnet was added successfully.
 //	@desc The AutoDownloader items should be re-fetched after this.
 //	@route /api/v1/torrent-client/rule-magnet [POST]
 //	@returns bool

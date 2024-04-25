@@ -1,6 +1,6 @@
-import { MediaEntry, MediaEntryDownloadEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntry, Anime_MediaEntryDownloadEpisode } from "@/api/generated/types"
+import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { Drawer } from "@/components/ui/drawer"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Separator } from "@/components/ui/separator"
@@ -9,14 +9,14 @@ import { useAtom } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
-export const torrentSearchDrawerIsOpenAtom = atom(false)
-export const torrentSearchDrawerEpisodeAtom = atom<number | undefined>(undefined)
+export const __torrentSearch_drawerIsOpenAtom = atom(false)
+export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefined)
 
-export function TorrentSearchDrawer(props: { entry: MediaEntry }) {
+export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
 
     const { entry } = props
 
-    const [isOpen, setter] = useAtom(torrentSearchDrawerIsOpenAtom)
+    const [isOpen, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
     const searchParams = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()
@@ -53,7 +53,7 @@ export function TorrentSearchDrawer(props: { entry: MediaEntry }) {
 
 }
 
-function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | undefined }) {
+function EpisodeList({ episodes }: { episodes: Anime_MediaEntryDownloadEpisode[] | undefined }) {
 
     if (!episodes || !episodes.length) return null
 
@@ -64,7 +64,7 @@ function EpisodeList({ episodes }: { episodes: MediaEntryDownloadEpisode[] | und
             <HorizontalDraggableScroll>
                 {episodes.filter(Boolean).map(item => {
                     return (
-                        <EpisodeListItem
+                        <EpisodeGridItem
                             key={item.episode + item.aniDBEpisode}
                             media={item.episode?.basicMedia as any}
                             title={item.episode?.displayTitle || item.episode?.basicMedia?.title?.userPreferred || ""}

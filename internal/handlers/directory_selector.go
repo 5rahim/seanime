@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,6 +11,12 @@ type DirectoryInfo struct {
 	FolderName string `json:"folderName"`
 }
 
+type DirectorySelectorResponse struct {
+	Exists      bool            `json:"exists"`
+	Suggestions []DirectoryInfo `json:"suggestions"`
+	Content     []DirectoryInfo `json:"content"`
+}
+
 // HandleDirectorySelector
 //
 //	@summary returns directory content based on the input path.
@@ -19,7 +24,7 @@ type DirectoryInfo struct {
 //	@desc It returns subdirectories based on the input path.
 //	@desc It returns 500 error if the directory does not exist (or cannot be accessed).
 //	@route /api/v1/directory-selector [POST]
-//	@returns handlers.DirectoryInfo
+//	@returns handlers.DirectorySelectorResponse
 func HandleDirectorySelector(c *RouteCtx) error {
 
 	type body struct {
@@ -28,51 +33,41 @@ func HandleDirectorySelector(c *RouteCtx) error {
 	var request body
 
 	if err := c.Fiber.BodyParser(&request); err != nil {
-		return c.Fiber.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request format",
-		})
+		return c.RespondWithError(err)
 	}
 
 	input := request.Input
 	directoryExists, err := checkDirectoryExists(input)
 	if err != nil {
-		return c.Fiber.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Error checking directory: " + err.Error(),
-		})
+		return c.RespondWithError(err)
 	}
 
 	if directoryExists {
 		suggestions, err := getAutocompletionSuggestions(input)
 		if err != nil {
-			return c.Fiber.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Error generating suggestions: " + err.Error(),
-			})
+			return c.RespondWithError(err)
 		}
 
 		content, err := getDirectoryContent(input)
 		if err != nil {
-			return c.Fiber.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Error retrieving directory content: " + err.Error(),
-			})
+			return c.RespondWithError(err)
 		}
 
-		return c.Fiber.JSON(fiber.Map{
-			"exists":      true,
-			"suggestions": suggestions,
-			"content":     content,
+		return c.RespondWithData(DirectorySelectorResponse{
+			Exists:      true,
+			Suggestions: suggestions,
+			Content:     content,
 		})
 	}
 
 	suggestions, err := getAutocompletionSuggestions(input)
 	if err != nil {
-		return c.Fiber.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Error generating suggestions: " + err.Error(),
-		})
+		return c.RespondWithError(err)
 	}
 
-	return c.Fiber.JSON(fiber.Map{
-		"exists":      false,
-		"suggestions": suggestions,
+	return c.RespondWithData(DirectorySelectorResponse{
+		Exists:      false,
+		Suggestions: suggestions,
 	})
 }
 
@@ -88,7 +83,7 @@ func checkDirectoryExists(path string) (bool, error) {
 }
 
 func getAutocompletionSuggestions(input string) ([]DirectoryInfo, error) {
-	suggestions := []DirectoryInfo{}
+	var suggestions []DirectoryInfo
 	baseDir := filepath.Dir(input)
 	prefix := filepath.Base(input)
 
@@ -110,7 +105,7 @@ func getAutocompletionSuggestions(input string) ([]DirectoryInfo, error) {
 }
 
 func getDirectoryContent(path string) ([]DirectoryInfo, error) {
-	content := []DirectoryInfo{}
+	var content []DirectoryInfo
 
 	entries, err := os.ReadDir(path)
 	if err != nil {

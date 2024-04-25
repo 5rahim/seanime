@@ -24,7 +24,7 @@ func HandlePlaybackSyncCurrentProgress(c *RouteCtx) error {
 //	@summary plays the next episode of the currently playing media.
 //	@desc This will play the next episode of the currently playing media.
 //	@desc This is non-blocking so the client should prevent multiple calls until the next status is received.
-//	@route /api/v1/playback-manager/play-next [POST]
+//	@route /api/v1/playback-manager/next-episode [POST]
 //	@returns bool
 func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 

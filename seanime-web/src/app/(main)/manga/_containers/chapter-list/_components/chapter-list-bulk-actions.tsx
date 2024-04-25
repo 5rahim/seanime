@@ -1,0 +1,42 @@
+import { Manga_ChapterDetails } from "@/api/generated/types"
+import { Button } from "@/components/ui/button"
+import React from "react"
+import { FaDownload } from "react-icons/fa"
+
+type ChapterListBulkActionsProps = {
+    rowSelectedChapters: Manga_ChapterDetails[] | undefined
+    onDownloadSelected: (chapters: Manga_ChapterDetails[]) => void
+}
+
+export function ChapterListBulkActions(props: ChapterListBulkActionsProps) {
+
+    const {
+        rowSelectedChapters,
+        onDownloadSelected,
+        ...rest
+    } = props
+
+    const handleDownloadSelected = React.useCallback(() => {
+        onDownloadSelected(rowSelectedChapters || [])
+    }, [onDownloadSelected, rowSelectedChapters])
+
+    if (rowSelectedChapters?.length === 0) return null
+
+    return (
+        <>
+            <div
+                className=""
+            >
+                <Button
+                    onClick={handleDownloadSelected}
+                    intent="white"
+                    size="sm"
+                    leftIcon={<FaDownload />}
+                    className="animate-pulse"
+                >
+                    Download selected chapters ({rowSelectedChapters?.length})
+                </Button>
+            </div>
+        </>
+    )
+}

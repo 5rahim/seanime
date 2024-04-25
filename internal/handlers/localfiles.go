@@ -14,7 +14,7 @@ import (
 //	@summary returns all local files.
 //	@desc Reminder that local files are scanned from the library path.
 //	@route /api/v1/library/local-files [GET]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleGetLocalFiles(c *RouteCtx) error {
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
@@ -34,7 +34,7 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 //	@desc This will perform the given action on all local files.
 //	@desc The response is ignored, the client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-files [POST]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleLocalFileBulkAction(c *RouteCtx) error {
 
 	type body struct {
@@ -85,7 +85,7 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 //	@desc This will update the local file with the given path.
 //	@desc The response is ignored, the client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-file [PATCH]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 	type body struct {
@@ -135,7 +135,7 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 //	@summary deletes the local file with the given paths.
 //	@desc The response is ignored, the client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-files [DELETE]
-//	@returns []entities.LocalFile
+//	@returns []anime.LocalFile
 func HandleDeleteLocalFiles(c *RouteCtx) error {
 
 	type body struct {
