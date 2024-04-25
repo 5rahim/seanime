@@ -1405,7 +1405,7 @@
       "\t@desc It returns subdirectories based on the input path.",
       "\t@desc It returns 500 error if the directory does not exist (or cannot be accessed).",
       "\t@route /api/v1/directory-selector [POST]",
-      "\t@returns handlers.DirectoryInfo",
+      "\t@returns handlers.DirectorySelectorResponse",
       ""
     ],
     "filepath": "internal/handlers/directory_selector.go",
@@ -1433,9 +1433,9 @@
           "descriptions": []
         }
       ],
-      "returns": "handlers.DirectoryInfo",
-      "returnGoType": "handlers.DirectoryInfo",
-      "returnTypescriptType": "DirectoryInfo"
+      "returns": "handlers.DirectorySelectorResponse",
+      "returnGoType": "handlers.DirectorySelectorResponse",
+      "returnTypescriptType": "DirectorySelectorResponse"
     }
   },
   {

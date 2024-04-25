@@ -1518,6 +1518,17 @@ export type DirectoryInfo = {
 }
 
 /**
+ * - Filepath: internal/internal/handlers/directory_selector.go
+ * - Filename: directory_selector.go
+ * - Package: handlers
+ */
+export type DirectorySelectorResponse = {
+    exists: boolean
+    suggestions?: Array<DirectoryInfo>
+    content?: Array<DirectoryInfo>
+}
+
+/**
  * - Filepath: internal/internal/handlers/download.go
  * - Filename: download.go
  * - Package: handlers

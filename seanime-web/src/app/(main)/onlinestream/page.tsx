@@ -217,12 +217,6 @@ export default function Page() {
     }, [])
 
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId)
-    // qc.refetchQueries({ queryKey: ["get-media-entry", Number(mediaId)] })
-    // qc.refetchQueries({ queryKey: ["get-library-collection"] })
-    // qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-    // toast.success("Progress updated")
-    // setProgressItem(undefined)
-
 
     if (!loadPage || !media || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
         <div className="flex gap-4 items-center relative">

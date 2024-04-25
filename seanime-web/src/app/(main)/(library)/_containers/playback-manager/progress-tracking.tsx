@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     usePlaybackCancelCurrentPlaylist,
     usePlaybackPlaylistNext,
@@ -107,17 +108,19 @@ export function ProgressTracking() {
         },
     })
 
+    const queryClient = useQueryClient()
+
     // Progress has been updated
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_UPDATED,
         onMessage: data => {
             if (data) {
                 if (!serverStatus?.isOffline) {
-                    qc.refetchQueries({ queryKey: ["get-media-entry", data.mediaId] })
-                    qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                    qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(data.mediaId)] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
                 } else {
-                    qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
+                    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.OFFLINE.GetOfflineSnapshot.key] })
                 }
                 setState(data)
                 toast.success("Progress updated")

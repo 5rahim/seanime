@@ -324,7 +324,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useDirectorySelector() {
-//     return useServerMutation<DirectoryInfo, DirectorySelector_Variables>({
+//     return useServerMutation<DirectorySelectorResponse, DirectorySelector_Variables>({
 //         endpoint: API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.endpoint,
 //         method: API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.methods[0],
 //         mutationKey: [API_ENDPOINTS.DIRECTORY_SELECTOR.DirectorySelector.key],

@@ -26295,6 +26295,45 @@
     "comments": []
   },
   {
+    "filepath": "..\\internal\\handlers\\directory_selector.go",
+    "filename": "directory_selector.go",
+    "name": "DirectorySelectorResponse",
+    "formattedName": "DirectorySelectorResponse",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Exists",
+        "jsonName": "exists",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Suggestions",
+        "jsonName": "suggestions",
+        "goType": "[]DirectoryInfo",
+        "typescriptType": "Array\u003cDirectoryInfo\u003e",
+        "usedStructName": "handlers.DirectoryInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "[]DirectoryInfo",
+        "typescriptType": "Array\u003cDirectoryInfo\u003e",
+        "usedStructName": "handlers.DirectoryInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "..\\internal\\handlers\\download.go",
     "filename": "download.go",
     "name": "DownloadReleaseResponse",
@@ -30164,6 +30203,24 @@
         "typescriptType": "Anizip_Media",
         "usedStructName": "anizip.Media",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "minPartAbsoluteEpisodeNumber",
+        "jsonName": "minPartAbsoluteEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "maxPartAbsoluteEpisodeNumber",
+        "jsonName": "maxPartAbsoluteEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": false,
         "comments": []
       },
