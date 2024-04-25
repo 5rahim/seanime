@@ -7,7 +7,7 @@ import { useEffect } from "react"
  * @description
  * - Fetches the library collection and sets it in the atom
  */
-export function useLibraryCollectionLoader() {
+export function useAnimeLibraryCollectionLoader() {
 
     const setter = useSetAtom(libraryCollectionAtom)
 

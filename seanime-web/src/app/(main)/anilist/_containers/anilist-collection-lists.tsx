@@ -1,5 +1,5 @@
 import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
-import { getUserAnilistLists } from "@/app/(main)/anilist/_hooks/anilist-lists"
+import { useHandleUserAnilistLists } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -28,7 +28,7 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         pausedList,
         completedList,
         droppedList,
-    } = getUserAnilistLists(debouncedSearchInput)
+    } = useHandleUserAnilistLists(debouncedSearchInput)
 
     return (
         <>

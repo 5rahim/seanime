@@ -1,6 +1,6 @@
 import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-modal"
 import { PlaylistsList } from "@/app/(main)/(library)/_containers/playlists/_components/playlists-list"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"

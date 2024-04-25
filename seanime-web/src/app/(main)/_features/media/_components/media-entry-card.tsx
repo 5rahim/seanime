@@ -18,7 +18,7 @@ import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_component
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"

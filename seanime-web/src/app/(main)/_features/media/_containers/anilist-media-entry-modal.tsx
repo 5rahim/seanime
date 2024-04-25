@@ -1,7 +1,7 @@
 "use client"
 import { AL_BaseManga, AL_BaseMedia, AL_MediaListStatus, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
-import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
+import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"

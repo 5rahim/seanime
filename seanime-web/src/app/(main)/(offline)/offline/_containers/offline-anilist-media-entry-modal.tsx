@@ -2,7 +2,7 @@
 import { AL_BaseManga, AL_BaseMedia, AL_MediaListStatus, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
+import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"

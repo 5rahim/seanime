@@ -1,6 +1,6 @@
 import { OfflineSnapshotProvider } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { OfflineSidebar } from "@/app/(main)/_features/navigation/offline-sidebar"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { usePathname, useRouter } from "next/navigation"

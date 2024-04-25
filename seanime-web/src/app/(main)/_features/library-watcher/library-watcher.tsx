@@ -2,7 +2,7 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button, CloseButton } from "@/components/ui/button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"

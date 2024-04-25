@@ -1,5 +1,5 @@
 import { Models_Theme } from "@/api/generated/types"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 
 export type ThemeSettings = Omit<Models_Theme, "id">
 export const THEME_DEFAULT_VALUES: ThemeSettings = {

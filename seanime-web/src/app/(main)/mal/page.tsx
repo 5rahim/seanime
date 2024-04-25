@@ -1,6 +1,6 @@
 "use client"
 import { useMALLogout } from "@/api/hooks/mal.hooks"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import { MAL_CLIENT_ID } from "@/lib/server/config"
 import React from "react"

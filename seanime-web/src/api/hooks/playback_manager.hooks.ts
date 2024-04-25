@@ -1,7 +1,7 @@
 import { useServerMutation } from "@/api/client/requests"
 import { PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 

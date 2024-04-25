@@ -1,7 +1,7 @@
 import { Manga_ChapterContainer, Manga_ChapterDetails, Offline_MangaEntry } from "@/api/generated/types"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
-import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
+import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClass } from "@/components/shared/classnames"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"

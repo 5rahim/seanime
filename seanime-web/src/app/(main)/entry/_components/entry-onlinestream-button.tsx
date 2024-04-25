@@ -1,5 +1,5 @@
 import { Anime_MediaEntry } from "@/api/generated/types"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import React from "react"

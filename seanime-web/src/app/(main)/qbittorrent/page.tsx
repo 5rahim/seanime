@@ -1,5 +1,5 @@
 "use client"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 
 export const dynamic = "force-static"
 

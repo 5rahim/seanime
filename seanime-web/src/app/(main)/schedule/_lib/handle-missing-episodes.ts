@@ -1,6 +1,6 @@
 import { Anime_MissingEpisodes } from "@/api/generated/types"
 import { missingEpisodesAtom, missingSilencedEpisodesAtom } from "@/app/(main)/_atoms/missing-episodes.atoms"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useSetAtom } from "jotai/react"
 import { useEffect } from "react"
 

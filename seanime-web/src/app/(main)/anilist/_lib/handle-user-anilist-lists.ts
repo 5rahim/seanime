@@ -1,10 +1,10 @@
 import { AL_AnimeCollection_MediaListCollection_Lists_Entries, AL_MediaListStatus } from "@/api/generated/types"
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import sortBy from "lodash/sortBy"
 import React, { useCallback } from "react"
 
-export function getUserAnilistLists(debouncedSearchInput: string) {
+export function useHandleUserAnilistLists(debouncedSearchInput: string) {
 
     const serverStatus = useServerStatus()
     const { data } = useGetAnilistCollection()

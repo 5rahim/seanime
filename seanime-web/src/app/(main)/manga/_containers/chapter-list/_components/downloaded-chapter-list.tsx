@@ -7,7 +7,7 @@ import { Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/gene
 import { useDeleteMangaChapterDownload } from "@/api/hooks/manga_download.hooks"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
-import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/manga.utils"
+import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClass } from "@/components/shared/classnames"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"

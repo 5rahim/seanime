@@ -9,8 +9,8 @@ import {
     PlaybackManager_PlaybackState,
     PlaybackManager_PlaylistState,
 } from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"

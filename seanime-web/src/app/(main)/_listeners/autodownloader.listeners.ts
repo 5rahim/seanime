@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useGetAutoDownloaderItems } from "@/api/hooks/auto_downloader.hooks"
 import { autoDownloaderItemsAtom } from "@/app/(main)/_atoms/autodownloader.atoms"
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSetAtom } from "jotai/react"

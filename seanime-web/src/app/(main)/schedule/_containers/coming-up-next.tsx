@@ -1,5 +1,5 @@
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow } from "date-fns"

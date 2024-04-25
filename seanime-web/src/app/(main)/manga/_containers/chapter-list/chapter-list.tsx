@@ -9,7 +9,7 @@ import {
     MANGA_PROVIDER_OPTIONS,
     useMangaChapterListRowSelection,
     useMangaDownloadDataUtils,
-} from "@/app/(main)/manga/_lib/manga.utils"
+} from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClass } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"

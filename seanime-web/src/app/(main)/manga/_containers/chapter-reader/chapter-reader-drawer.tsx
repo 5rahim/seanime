@@ -5,7 +5,7 @@ import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
 import { MangaReaderBar } from "@/app/(main)/manga/_containers/chapter-reader/_components/manga-reader-bar"
-import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
+import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/handle-discord-manga-presence"
 import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/_lib/handle-manga-reader"
 import {
     __manga_currentPageIndexAtom,

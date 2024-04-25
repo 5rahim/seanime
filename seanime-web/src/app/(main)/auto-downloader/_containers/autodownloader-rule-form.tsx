@@ -6,8 +6,8 @@ import {
     Anime_LibraryCollection,
 } from "@/api/generated/types"
 import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
-import { useAnilistUserMedia } from "@/app/(main)/_hooks/anilist-collection.hooks"
-import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library.hooks"
+import { useAnilistUserMedia } from "@/app/(main)/_hooks/anilist-collection-loader"
+import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"

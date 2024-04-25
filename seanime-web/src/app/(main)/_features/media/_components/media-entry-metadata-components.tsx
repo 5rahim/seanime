@@ -1,5 +1,5 @@
 import { AL_MangaDetailsById_Media_Rankings, AL_MediaDetailsById_Media_Rankings } from "@/api/generated/types"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"

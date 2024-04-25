@@ -1,6 +1,6 @@
 "use client"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes.hooks"
+import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { Badge } from "@/components/ui/badge"
 import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
 import { useAtomValue } from "jotai/react"

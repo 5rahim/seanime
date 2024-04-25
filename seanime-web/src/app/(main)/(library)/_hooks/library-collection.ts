@@ -1,6 +1,6 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
-import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useSetAtom } from "jotai/react"
 import React, { useEffect, useMemo } from "react"
 

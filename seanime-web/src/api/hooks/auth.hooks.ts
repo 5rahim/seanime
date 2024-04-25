@@ -2,7 +2,7 @@ import { useServerMutation } from "@/api/client/requests"
 import { Login_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Status } from "@/api/generated/types"
-import { useSetServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 

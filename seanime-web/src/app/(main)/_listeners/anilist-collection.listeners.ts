@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 

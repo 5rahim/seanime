@@ -1,7 +1,7 @@
 "use client"
 import { __scanner_isScanningAtom } from "@/app/(main)/(library)/_containers/scanner-modal"
 
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { Spinner } from "@/components/ui/loading-spinner"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useAtom } from "jotai/react"

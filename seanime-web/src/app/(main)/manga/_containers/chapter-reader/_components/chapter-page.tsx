@@ -1,5 +1,5 @@
 import { Manga_ChapterPage, Manga_PageContainer } from "@/api/generated/types"
-import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/manga.utils"
+import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"

@@ -1,6 +1,6 @@
 import { useGetStatus } from "@/api/hooks/status.hooks"
 import { GettingStartedPage } from "@/app/(main)/_features/getting-started/getting-started-page"
-import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"

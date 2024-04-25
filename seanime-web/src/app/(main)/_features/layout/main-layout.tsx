@@ -2,12 +2,12 @@
 import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
-import { LibraryWatcher } from "@/app/(main)/_containers/library-watcher"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
+import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
-import { useAnilistCollectionLoader } from "@/app/(main)/_hooks/anilist-collection.hooks"
-import { useLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library.hooks"
-import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes.hooks"
+import { useAnilistCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
+import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
+import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useAnilistCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
@@ -21,7 +21,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     /**
      * Data loaders
      */
-    useLibraryCollectionLoader()
+    useAnimeLibraryCollectionLoader()
     useAnilistCollectionLoader()
     useMissingEpisodesLoader()
 
