@@ -30,7 +30,7 @@ func HandleGetSettings(c *RouteCtx) error {
 //	@summary updates the app settings.
 //	@desc This will update the app settings.
 //	@desc The client should re-fetch the server status after this.
-//	@route /api/v1/settings [POST]
+//	@route /api/v1/settings [PATCH]
 //	@returns handlers.Status
 func HandleSaveSettings(c *RouteCtx) error {
 

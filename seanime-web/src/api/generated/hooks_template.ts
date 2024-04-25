@@ -1148,7 +1148,7 @@
 // }
 
 // export function useUpdateTheme() {
-//     return useServerMutation<Models_Theme>({
+//     return useServerMutation<Models_Theme, UpdateTheme_Variables>({
 //         endpoint: API_ENDPOINTS.THEME.UpdateTheme.endpoint,
 //         method: API_ENDPOINTS.THEME.UpdateTheme.methods[0],
 //         mutationKey: [API_ENDPOINTS.THEME.UpdateTheme.key],

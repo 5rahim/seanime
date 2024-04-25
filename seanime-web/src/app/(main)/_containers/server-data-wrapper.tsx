@@ -1,6 +1,6 @@
 import { useGetStatus } from "@/api/hooks/status.hooks"
 import { GettingStartedPage } from "@/app/(main)/_containers/getting-started-page"
-import { useSetServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -23,14 +23,15 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
 
     const pathname = usePathname()
     const router = useRouter()
+    const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
-    const { data: serverStatus, isLoading } = useGetStatus()
+    const { data: _serverStatus, isLoading } = useGetStatus()
 
     React.useEffect(() => {
-        if (serverStatus) {
-            setServerStatus(serverStatus)
+        if (_serverStatus) {
+            setServerStatus(_serverStatus)
         }
-    }, [serverStatus])
+    }, [_serverStatus])
 
 
     /**

@@ -1,13 +1,14 @@
 "use client"
 
 import { AL_BaseMedia, Anime_MediaEntryEpisode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
+import { usePlayVideo } from "@/api/hooks/mediaplayer.hooks"
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_components/offline-meta-section"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
-import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-section/episode-item"
-import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
+import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-list/episode-item"
+import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { IconButton } from "@/components/ui/button"
@@ -94,7 +95,7 @@ function EpisodeLists(props: EpisodeListsProps) {
         })
     }, [mainEpisodes, entry.listData?.progress])
 
-    const { playVideo } = useMediaPlayer()
+    const { mutate: playVideo } = usePlayVideo()
 
     usePlayNextVideoOnMount({
         onPlay: () => {

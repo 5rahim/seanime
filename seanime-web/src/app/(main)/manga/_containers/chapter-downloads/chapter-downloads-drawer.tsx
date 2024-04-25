@@ -1,5 +1,6 @@
 "use client"
 import { Manga_Collection } from "@/api/generated/types"
+import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
 import { useGetMangaDownloadsList } from "@/api/hooks/manga_download.hooks"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useHandleMangaChapterDownloadQueue } from "@/app/(main)/manga/_lib/manga.hooks"
@@ -12,8 +13,6 @@ import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
@@ -32,10 +31,7 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
 
     const [isOpen, setIsOpen] = useAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
 
-    const { data: mangaCollection } = useSeaQuery<Manga_Collection>({
-        endpoint: SeaEndpoints.MANGA_COLLECTION,
-        queryKey: ["get-manga-collection"],
-    })
+    const { data: mangaCollection } = useGetMangaCollection()
 
     return (
         <>

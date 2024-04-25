@@ -22,21 +22,26 @@ func HandleGetTheme(c *RouteCtx) error {
 //	@route /api/v1/theme [PATCH]
 //	@returns models.Theme
 func HandleUpdateTheme(c *RouteCtx) error {
-	var theme models.Theme
-	if err := c.Fiber.BodyParser(&theme); err != nil {
+	type body struct {
+		Theme models.Theme `json:"theme"`
+	}
+
+	var b body
+
+	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Set the theme ID to 1, so we overwrite the previous settings
-	theme.BaseModel = models.BaseModel{
+	b.Theme.BaseModel = models.BaseModel{
 		ID: 1,
 	}
 
 	// Update the theme settings
-	if _, err := c.App.Database.UpsertTheme(&theme); err != nil {
+	if _, err := c.App.Database.UpsertTheme(&b.Theme); err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Send the new theme to the client
-	return c.RespondWithData(theme)
+	return c.RespondWithData(b.Theme)
 }

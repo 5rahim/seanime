@@ -1,12 +1,12 @@
 import { Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
-import { useTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent-search.hooks"
+import { useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent-search"
 import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
-import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/torrent-preview-list"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
@@ -45,7 +45,7 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
         isLoading,
         isFetching,
         soughtEpisode,
-    } = useTorrentSearch({
+    } = useHandleTorrentSearch({
         isAdult,
         hasEpisodesToDownload,
         shouldLookForBatches,

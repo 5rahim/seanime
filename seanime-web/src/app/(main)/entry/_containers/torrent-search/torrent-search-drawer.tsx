@@ -9,14 +9,14 @@ import { useAtom } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
-export const torrentSearchDrawerIsOpenAtom = atom(false)
-export const torrentSearchDrawerEpisodeAtom = atom<number | undefined>(undefined)
+export const __torrentSearch_drawerIsOpenAtom = atom(false)
+export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefined)
 
 export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
 
     const { entry } = props
 
-    const [isOpen, setter] = useAtom(torrentSearchDrawerIsOpenAtom)
+    const [isOpen, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
     const searchParams = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()

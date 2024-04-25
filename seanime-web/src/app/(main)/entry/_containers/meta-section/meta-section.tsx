@@ -9,8 +9,8 @@ import {
     MediaEntryRankings,
 } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
-import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-dropdown-menu"
-import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/anime-entry-silence-toggle"
+import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-dropdown-menu"
+import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section/_components/torrent-search-button"

@@ -1,9 +1,8 @@
-import { Anime_MediaEntry, Anime_MediaEntryDownloadInfo, Torrent_SearchData } from "@/api/generated/types"
+import { Anime_MediaEntry, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
+import { useSearchNsfwTorrent, useSearchTorrent } from "@/api/hooks/torrent_search.hooks"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useDebounceWithSet } from "@/hooks/use-debounce"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
 
@@ -15,7 +14,7 @@ type TorrentSearchHookProps = {
     isAdult: boolean
 }
 
-export function useTorrentSearch(props: TorrentSearchHookProps) {
+export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
 
     const {
         hasEpisodesToDownload,
@@ -25,7 +24,7 @@ export function useTorrentSearch(props: TorrentSearchHookProps) {
         isAdult,
     } = props
 
-    const [soughtEpisode, setSoughtEpisode] = useAtom(torrentSearchDrawerEpisodeAtom)
+    const [soughtEpisode, setSoughtEpisode] = useAtom(__torrentSearch_drawerEpisodeAtom)
 
     // Smart search is not enabled for adult content
     const [smartSearch, setSmartSearch] = React.useState(!isAdult)
@@ -41,42 +40,23 @@ export function useTorrentSearch(props: TorrentSearchHookProps) {
     /**
      * Fetch torrent search data
      */
-    const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSeaQuery<Torrent_SearchData | undefined>({
-        endpoint: SeaEndpoints.TORRENT_SEARCH,
-        queryKey: ["torrent-search", entry?.mediaId, dSmartSearchEpisode, globalFilter, smartSearchBatch, smartSearchResolution, smartSearch,
-            downloadInfo?.absoluteOffset, smartSearchBest],
-        method: "post",
-        data: {
-            query: globalFilter,
-            episodeNumber: dSmartSearchEpisode,
-            batch: smartSearchBatch,
-            media: entry?.media,
-            absoluteOffset: downloadInfo?.absoluteOffset || 0,
-            resolution: smartSearchResolution,
-            smartSearch: smartSearch,
-            best: smartSearch && smartSearchBest,
-        },
-        refetchOnWindowFocus: false,
-        retry: 0,
-        retryDelay: 1000,
-        enabled: !(smartSearchEpisode === undefined && globalFilter.length === 0) && !isAdult,
-    })
+    const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
+        query: globalFilter,
+        episodeNumber: dSmartSearchEpisode,
+        batch: smartSearchBatch,
+        media: entry?.media,
+        absoluteOffset: downloadInfo?.absoluteOffset || 0,
+        resolution: smartSearchResolution,
+        smartSearch: smartSearch,
+        best: smartSearch && smartSearchBest,
+    }, !(smartSearchEpisode === undefined && globalFilter.length === 0) && !isAdult)
 
     /**
      * Fetch NSFW torrent search data
      */
-    const { data: _nsfw_data, isLoading: _nsfw_isLoading, isFetching: _nsfw_isFetching } = useSeaQuery<Torrent_SearchData | undefined>({
-        endpoint: SeaEndpoints.TORRENT_NSFW_SEARCH,
-        queryKey: ["torrent-nsfw-search", globalFilter],
-        method: "post",
-        data: {
-            query: globalFilter,
-        },
-        refetchOnWindowFocus: false,
-        retry: 0,
-        retryDelay: 1000,
-        enabled: isAdult,
-    })
+    const { data: _nsfw_data, isLoading: _nsfw_isLoading, isFetching: _nsfw_isFetching } = useSearchNsfwTorrent({
+        query: globalFilter,
+    }, isAdult)
 
     React.useLayoutEffect(() => {
         if (soughtEpisode !== undefined) {

@@ -8,7 +8,7 @@ export function useSearchTorrent(variables: SearchTorrent_Variables, enabled: bo
         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.endpoint,
         method: API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.methods[0],
         data: variables,
-        queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key],
+        queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key, variables],
         enabled: enabled,
     })
 }
@@ -18,7 +18,7 @@ export function useSearchNsfwTorrent(variables: SearchNsfwTorrent_Variables, ena
         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.endpoint,
         method: API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.methods[0],
         data: variables,
-        queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.key],
+        queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.key, variables],
         enabled: enabled,
     })
 }

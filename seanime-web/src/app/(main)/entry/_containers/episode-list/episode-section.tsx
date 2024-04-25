@@ -1,11 +1,12 @@
 "use client"
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { usePlayVideo } from "@/api/hooks/mediaplayer.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
-import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
-import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
-import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
+import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
+import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
+import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -17,7 +18,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
     const { entry, details } = props
     const media = entry.media
 
-    const { playVideo } = useMediaPlayer()
+    const { mutate: playVideo } = usePlayVideo()
 
     usePlayNextVideoOnMount({
         onPlay: () => {

@@ -1,7 +1,6 @@
 import { Anime_MediaEntry } from "@/api/generated/types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { Button } from "@/components/ui/button"
-import { useAtomValue } from "jotai/react"
 import Link from "next/link"
 import React from "react"
 import { FiPlayCircle } from "react-icons/fi"
@@ -19,7 +18,7 @@ export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {
         ...rest
     } = props
 
-    const status = useAtomValue(serverStatusAtom)
+    const status = useServerStatus()
 
     if (
         !entry ||

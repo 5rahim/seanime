@@ -1,5 +1,5 @@
 import { Anime_MediaEntry } from "@/api/generated/types"
-import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { Button } from "@/components/ui/button"
 import { useSetAtom } from "jotai/react"
 import React, { useMemo } from "react"
@@ -8,7 +8,7 @@ import { FiSearch } from "react-icons/fi"
 
 export function TorrentSearchButton({ entry }: { entry: Anime_MediaEntry }) {
 
-    const setter = useSetAtom(torrentSearchDrawerIsOpenAtom)
+    const setter = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const count = entry.downloadInfo?.episodesToDownload?.length
     const isMovie = useMemo(() => entry.media?.format === "MOVIE", [entry.media?.format])
 

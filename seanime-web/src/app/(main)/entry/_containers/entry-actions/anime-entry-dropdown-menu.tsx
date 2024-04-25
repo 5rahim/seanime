@@ -1,14 +1,16 @@
 "use client"
 import { Anime_MediaEntry } from "@/api/generated/types"
-import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
+import { useAnimeEntryBulkAction, useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
+import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { __bulkDeleteFilesModalIsOpenAtom, BulkDeleteFilesModal } from "@/app/(main)/entry/_containers/bulk-delete-files-modal"
-import { __metadataManager_isOpenAtom, MetadataManager } from "@/app/(main)/entry/_containers/metadata-manager"
-import { useOpenDefaultMediaPlayer } from "@/app/(main)/entry/_lib/media-player"
+import {
+    __bulkDeleteFilesModalIsOpenAtom,
+    AnimeEntryBulkDeleteFilesModal,
+} from "@/app/(main)/entry/_containers/entry-actions/anime-entry-bulk-delete-files-modal"
+import { __metadataManager_isOpenAtom, AnimeEntryMetadataManager } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-metadata-manager"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/application/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { useOpenMediaEntryInExplorer } from "@/lib/server/hooks"
 import { useSetAtom } from "jotai"
 import { useAtomValue } from "jotai/react"
 import React from "react"
@@ -19,8 +21,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
     const serverStatus = useAtomValue(serverStatusAtom)
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
 
-    const { startDefaultMediaPlayer } = useOpenDefaultMediaPlayer()
-    const { openEntryInExplorer } = useOpenMediaEntryInExplorer()
+    const { mutate: startDefaultMediaPlayer } = useStartDefaultMediaPlayer()
+    const { mutate: openEntryInExplorer } = useOpenAnimeEntryInExplorer()
 
     const { mutate: performBulkAction, isPending } = useAnimeEntryBulkAction(entry.mediaId)
 
@@ -43,13 +45,13 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
             <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="lg" />}>
 
                 <DropdownMenuItem
-                    onClick={() => openEntryInExplorer(entry.mediaId)}
+                    onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
                 >
                     Open folder
                 </DropdownMenuItem>
 
                 {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
-                    onClick={startDefaultMediaPlayer}
+                    onClick={() => startDefaultMediaPlayer}
                 >
                     Start video player
                 </DropdownMenuItem>}
@@ -79,9 +81,9 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
                 </DropdownMenuItem>
             </DropdownMenu>
 
-            <MetadataManager entry={entry} />
+            <AnimeEntryMetadataManager entry={entry} />
             <ConfirmationDialog {...confirmDeleteFiles} />
-            <BulkDeleteFilesModal entry={entry} />
+            <AnimeEntryBulkDeleteFilesModal entry={entry} />
         </>
     )
 }

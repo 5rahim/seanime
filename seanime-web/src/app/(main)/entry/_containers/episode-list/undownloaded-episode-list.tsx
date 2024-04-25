@@ -1,7 +1,10 @@
 import { AL_BaseMedia, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
-import { torrentSearchDrawerEpisodeAtom, torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import {
+    __torrentSearch_drawerEpisodeAtom,
+    __torrentSearch_drawerIsOpenAtom,
+} from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"
@@ -13,8 +16,8 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
 
     const episodes = downloadInfo?.episodesToDownload
 
-    const setTorrentSearchIsOpen = useSetAtom(torrentSearchDrawerIsOpenAtom)
-    const setTorrentSearchEpisode = useSetAtom(torrentSearchDrawerEpisodeAtom)
+    const setTorrentSearchIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
+    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
 
     if (!episodes?.length) return null
 
@@ -43,7 +46,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                                             setTorrentSearchIsOpen(true)
                                         })
                                     }}
-                                    className="inline-block cursor-pointer text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
+                                    className="inline-block text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
                                 >
                                     <BiDownload/>
                                 </div>

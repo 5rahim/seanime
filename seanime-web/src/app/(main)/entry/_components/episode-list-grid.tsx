@@ -7,7 +7,7 @@ type EpisodeListGridProps = {
 
 type ContainerSize = "half" | "expanded"
 
-const __GridSizeContext = React.createContext<{ container: ContainerSize }>({ container: "half" })
+const __GridSizeContext = React.createContext<{ container: ContainerSize }>({ container: "expanded" })
 
 export function EpisodeListGrid(props: EpisodeListGridProps) {
 

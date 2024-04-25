@@ -1,7 +1,6 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 
 import { ThemeSettings } from "@/lib/types/settings.types"
-import { useAtomValue } from "jotai/react"
 
 export const THEME_DEFAULT_VALUES: ThemeSettings = {
     animeEntryScreenLayout: "stacked",
@@ -31,7 +30,7 @@ export type ThemeSettingsHook = {
  * This hook will return the default values if some values are not set
  */
 export function useThemeSettings(): ThemeSettingsHook {
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     return {
         animeEntryScreenLayout: getThemeValue("animeEntryScreenLayout", serverStatus?.themeSettings),
         smallerEpisodeCarouselSize: getThemeValue("smallerEpisodeCarouselSize", serverStatus?.themeSettings),

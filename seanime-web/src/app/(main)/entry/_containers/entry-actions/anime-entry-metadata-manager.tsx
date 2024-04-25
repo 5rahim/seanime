@@ -8,13 +8,13 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import { IoReloadCircle } from "react-icons/io5"
 
-type MetadataManagerProps = {
+type AnimeEntryMetadataManagerProps = {
     entry: Anime_MediaEntry
 }
 
 export const __metadataManager_isOpenAtom = atom(false)
 
-export function MetadataManager(props: MetadataManagerProps) {
+export function AnimeEntryMetadataManager(props: AnimeEntryMetadataManagerProps) {
 
     const { entry } = props
 

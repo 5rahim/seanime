@@ -942,7 +942,7 @@ export const API_ENDPOINTS = {
          */
         SaveSettings: {
             key: "SETTINGS-save-settings",
-            methods: ["POST"],
+            methods: ["PATCH"],
             endpoint: "/api/v1/settings",
         },
         /**

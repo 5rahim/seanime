@@ -11,7 +11,7 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import * as upath from "upath"
 
-export type BulkDeleteFilesModalProps = {
+export type AnimeEntryBulkDeleteFilesModalProps = {
     entry: Anime_MediaEntry
 }
 
@@ -19,7 +19,7 @@ export const __bulkDeleteFilesModalIsOpenAtom = atom(false)
 const __episodeDeleteActionFilesAtom = atomWithImmer<{ file: Anime_LocalFile, selected: boolean }[]>([])
 
 
-export function BulkDeleteFilesModal({ entry }: BulkDeleteFilesModalProps) {
+export function AnimeEntryBulkDeleteFilesModal({ entry }: AnimeEntryBulkDeleteFilesModalProps) {
 
     const [open, setOpen] = useAtom(__bulkDeleteFilesModalIsOpenAtom)
 

@@ -4295,7 +4295,7 @@
       "\t@summary updates the app settings.",
       "\t@desc This will update the app settings.",
       "\t@desc The client should re-fetch the server status after this.",
-      "\t@route /api/v1/settings [POST]",
+      "\t@route /api/v1/settings [PATCH]",
       "\t@returns handlers.Status",
       ""
     ],
@@ -4309,7 +4309,7 @@
       ],
       "endpoint": "/api/v1/settings",
       "methods": [
-        "POST"
+        "PATCH"
       ],
       "params": [],
       "bodyFields": [
@@ -4577,7 +4577,17 @@
         "PATCH"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "Theme",
+          "jsonName": "theme",
+          "goType": "models.Theme",
+          "usedStructType": "models.Theme",
+          "typescriptType": "Models_Theme",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "models.Theme",
       "returnGoType": "models.Theme",
       "returnTypescriptType": "Models_Theme"

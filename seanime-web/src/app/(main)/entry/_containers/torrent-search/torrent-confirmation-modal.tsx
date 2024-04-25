@@ -1,7 +1,7 @@
 import { AL_BaseMedia, Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -57,7 +57,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const [destination, setDestination] = useState(defaultPath)
 
     const [isOpen, setIsOpen] = useAtom(isOpenAtom)
-    const setTorrentDrawerIsOpen = useSetAtom(torrentSearchDrawerIsOpenAtom)
+    const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const selectedTorrents = useAtomValue(__torrentSearch_selectedTorrentsAtom)
 
     /**
