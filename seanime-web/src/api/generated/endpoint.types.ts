@@ -746,7 +746,7 @@ export type GetOnlineStreamEpisodeList_Variables = {
 /**
  * - Filepath: internal/handlers/onlinestream.go
  * - Filename: onlinestream.go
- * - Endpoint: /api/v1/onlinestream/episode-sources
+ * - Endpoint: /api/v1/onlinestream/episode-source
  * @description
  * Route returns the video sources for the given media, episode number and provider.
  */

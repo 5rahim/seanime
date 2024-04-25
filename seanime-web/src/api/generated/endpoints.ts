@@ -795,7 +795,7 @@ export const API_ENDPOINTS = {
         GetOnlineStreamEpisodeSource: {
             key: "ONLINESTREAM-get-online-stream-episode-source",
             methods: ["POST"],
-            endpoint: "/api/v1/onlinestream/episode-sources",
+            endpoint: "/api/v1/onlinestream/episode-source",
         },
         OnlineStreamEmptyCache: {
             key: "ONLINESTREAM-online-stream-empty-cache",

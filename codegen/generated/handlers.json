@@ -3577,7 +3577,7 @@
       "HandleGetOnlineStreamEpisodeSource",
       "",
       "\t@summary returns the video sources for the given media, episode number and provider.",
-      "\t@route /api/v1/onlinestream/episode-sources [POST]",
+      "\t@route /api/v1/onlinestream/episode-source [POST]",
       "\t@returns onlinestream.EpisodeSource",
       ""
     ],
@@ -3586,7 +3586,7 @@
     "api": {
       "summary": "returns the video sources for the given media, episode number and provider.",
       "descriptions": [],
-      "endpoint": "/api/v1/onlinestream/episode-sources",
+      "endpoint": "/api/v1/onlinestream/episode-source",
       "methods": [
         "POST"
       ],

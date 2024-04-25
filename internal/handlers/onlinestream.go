@@ -61,7 +61,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 // HandleGetOnlineStreamEpisodeSource
 //
 //	@summary returns the video sources for the given media, episode number and provider.
-//	@route /api/v1/onlinestream/episode-sources [POST]
+//	@route /api/v1/onlinestream/episode-source [POST]
 //	@returns onlinestream.EpisodeSource
 func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 
