@@ -1,7 +1,6 @@
-import { AL_AnimeCollection_MediaListCollection_Lists_Entries } from "@/api/generated/types"
+import { AL_AnimeCollection_MediaListCollection_Lists_Entries, AL_MediaListStatus } from "@/api/generated/types"
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
-import { MediaListStatus } from "@/lib/anilist/gql/graphql"
 import sortBy from "lodash/sortBy"
 import React, { useCallback } from "react"
 
@@ -25,7 +24,7 @@ export function getUserAnilistLists(debouncedSearchInput: string) {
         })
     }, [lists])
 
-    const getList = useCallback((status: MediaListStatus) => {
+    const getList = useCallback((status: AL_MediaListStatus) => {
         let obj = structuredClone(sortedLists?.find(n => n?.status === status))
         if (!obj || !obj.entries) return undefined
         if (!serverStatus?.settings?.anilist?.enableAdultContent) {

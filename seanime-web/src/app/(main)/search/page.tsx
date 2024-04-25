@@ -1,4 +1,5 @@
 "use client"
+import { AL_MediaFormat, AL_MediaSeason, AL_MediaSort, AL_MediaStatus } from "@/api/generated/types"
 import { AdvancedSearchList } from "@/app/(main)/search/_components/advanced-search-list"
 import { AdvancedSearchOptions } from "@/app/(main)/search/_components/advanced-search-options"
 import { AdvancedSearchPageTitle } from "@/app/(main)/search/_components/advanced-search-page-title"
@@ -6,7 +7,6 @@ import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-s
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutGrid } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
-import { MediaFormat, MediaSeason, MediaSort, MediaStatus } from "@/lib/anilist/gql/graphql"
 import { useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
@@ -17,11 +17,11 @@ export const dynamic = "force-static"
 
 export default function Page({ params: urlParams }: {
     params: {
-        sorting?: MediaSort,
+        sorting?: AL_MediaSort,
         genre?: string,
-        format?: MediaFormat,
-        season?: MediaSeason,
-        status?: MediaStatus,
+        format?: AL_MediaFormat,
+        season?: AL_MediaSeason,
+        status?: AL_MediaStatus,
         year?: string
     }
 }) {

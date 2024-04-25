@@ -1,6 +1,6 @@
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
+import { SeaWebsocketEvent } from "@/lib/server/queries.types"
 import { WSEvents } from "@/lib/server/ws-events"
-import { SeaWebsocketEvent } from "@/lib/types/queries.types"
 import { useContext, useEffect } from "react"
 
 export function useWebsocketSender() {

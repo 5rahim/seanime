@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseManga, AL_BaseMedia, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseManga, AL_BaseMedia, AL_MediaListStatus, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { Button, IconButton } from "@/components/ui/button"
@@ -7,7 +7,6 @@ import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
-import { MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { normalizeDate } from "@/lib/helpers/date"
 import Image from "next/image"
 import React, { Fragment } from "react"
@@ -24,7 +23,7 @@ type AnilistMediaEntryModalProps = {
 }
 
 export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
-    status: z.custom<MediaListStatus>().nullish(),
+    status: z.custom<AL_MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
     startedAt: presets.datePicker.nullish(),

@@ -1,14 +1,14 @@
-import { MediaFormat, MediaSeason, MediaSort, MediaStatus } from "@/lib/anilist/gql/graphql"
+import { AL_MediaFormat, AL_MediaSeason, AL_MediaSort, AL_MediaStatus } from "@/api/generated/types"
 import { atomWithImmer } from "jotai-immer"
 
 type Params = {
     active: boolean
     title: string | null
-    sorting: MediaSort[] | null
+    sorting: AL_MediaSort[] | null
     genre: string[] | null
-    status: MediaStatus[] | null
-    format: MediaFormat | null
-    season: MediaSeason | null
+    status: AL_MediaStatus[] | null
+    format: AL_MediaFormat | null
+    season: AL_MediaSeason | null
     year: string | null
     minScore: string | null
     isAdult: boolean

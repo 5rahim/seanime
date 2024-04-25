@@ -1,6 +1,5 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
-import { MangaCollectionQuery } from "@/lib/anilist/gql/graphql"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -23,7 +22,7 @@ export function useAnilistCollectionListener() {
         },
     })
 
-    useWebsocketMessageListener<MangaCollectionQuery>({
+    useWebsocketMessageListener({
         type: WSEvents.REFRESHED_ANILIST_MANGA_COLLECTION,
         onMessage: data => {
             (async () => {

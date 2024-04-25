@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseManga, AL_BaseMedia, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
+import { AL_BaseManga, AL_BaseMedia, AL_MediaListStatus, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
@@ -7,7 +7,6 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
-import { MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { normalizeDate } from "@/lib/helpers/date"
 import Image from "next/image"
 import React, { Fragment } from "react"
@@ -25,7 +24,7 @@ type Props = {
 }
 
 const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
-    status: z.custom<MediaListStatus>().nullish(),
+    status: z.custom<AL_MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
     progress: z.number().min(0).nullish(),
     startDate: presets.datePicker.nullish(),

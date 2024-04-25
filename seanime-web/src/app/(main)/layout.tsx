@@ -8,7 +8,7 @@ import { OfflineLayout } from "@/app/(main)/_features/layout/offline-layout"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
-import { ServerDataWrapper } from "@/components/server-data-wrapper"
+import { ServerDataWrapper } from "@/app/(main)/server-data-wrapper"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
 import React from "react"
 

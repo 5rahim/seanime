@@ -1,4 +1,4 @@
-import { Manga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
+import { AL_MangaDetailsById_Media, Manga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
 import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/_components/downloaded-chapter-list"
@@ -18,7 +18,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
-import { MangaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { FaDownload, FaRedo } from "react-icons/fa"
@@ -28,7 +27,7 @@ import { IoBookOutline, IoLibrary } from "react-icons/io5"
 type ChapterListProps = {
     mediaId: string | null
     entry: Manga_Entry
-    details: MangaDetailsByIdQuery["Media"] | undefined
+    details: AL_MangaDetailsById_Media | undefined
     downloadData: Manga_MediaDownloadData | undefined
     downloadDataLoading: boolean
 }

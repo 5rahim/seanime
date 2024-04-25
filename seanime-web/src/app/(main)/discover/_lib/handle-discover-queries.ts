@@ -1,5 +1,5 @@
+import { AL_MediaSeason } from "@/api/generated/types"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
-import { MediaSeason } from "@/lib/anilist/gql/graphql"
 import { useInView } from "framer-motion"
 import { atom } from "jotai"
 import { useAtomValue } from "jotai/react"
@@ -28,7 +28,7 @@ export function useDiscoverPastSeasonAnime(ref: any) {
     }, [_isInView])
     const currentMonth = new Date().getMonth() + 1
     const currentYear = new Date().getFullYear()
-    let season: MediaSeason = "SUMMER"
+    let season: AL_MediaSeason = "SUMMER"
     switch (currentMonth) {
         case 1:
         case 2:

@@ -1,7 +1,7 @@
+import { Models_Theme } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 
-import { ThemeSettings } from "@/lib/types/settings.types"
-
+export type ThemeSettings = Omit<Models_Theme, "id">
 export const THEME_DEFAULT_VALUES: ThemeSettings = {
     animeEntryScreenLayout: "stacked",
     smallerEpisodeCarouselSize: false,

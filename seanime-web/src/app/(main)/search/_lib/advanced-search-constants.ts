@@ -1,4 +1,4 @@
-import { MediaFormat } from "@/lib/anilist/gql/graphql"
+import { AL_MediaFormat } from "@/api/generated/types"
 
 export const ADVANCED_SEARCH_MEDIA_GENRES = [
     "Action",
@@ -28,7 +28,7 @@ export const ADVANCED_SEARCH_SEASONS = [
     "Fall",
 ]
 
-export const ADVANCED_SEARCH_FORMATS: { value: MediaFormat, label: string }[] = [
+export const ADVANCED_SEARCH_FORMATS: { value: AL_MediaFormat, label: string }[] = [
     { value: "TV", label: "TV" },
     { value: "MOVIE", label: "Movie" },
     { value: "ONA", label: "ONA" },
