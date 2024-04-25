@@ -8,7 +8,7 @@ import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-list/episode-item"
-import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
+import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { IconButton } from "@/components/ui/button"

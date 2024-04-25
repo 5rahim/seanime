@@ -15,7 +15,7 @@ var creatingOfflineSnapshot = false
 //	@desc This will create an offline snapshot of the given anime media ids and downloaded manga chapters.
 //	@desc It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.
 //	@desc This is a non-blocking operation.
-//	@route /api/offline/snapshot [POST]
+//	@route /api/v1/offline/snapshot [POST]
 //	@returns bool
 func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 
@@ -56,7 +56,7 @@ func HandleCreateOfflineSnapshot(c *RouteCtx) error {
 //
 //	@summary retrieves the offline snapshot.
 //	@desc This will return the latest offline snapshot. (Offline only)
-//	@route /api/offline/snapshot [GET]
+//	@route /api/v1/offline/snapshot [GET]
 //	@returns offline.Snapshot
 func HandleGetOfflineSnapshot(c *RouteCtx) error {
 	snapshot, _ := c.App.OfflineHub.GetLatestSnapshot(false)
@@ -67,7 +67,7 @@ func HandleGetOfflineSnapshot(c *RouteCtx) error {
 //
 //	@summary retrieves an offline snapshot entry.
 //	@desc This will return the latest offline snapshot entry so the client can display the data.
-//	@route /api/offline/snapshot-entry [GET]
+//	@route /api/v1/offline/snapshot-entry [GET]
 //	@returns offline.SnapshotEntry
 func HandleGetOfflineSnapshotEntry(c *RouteCtx) error {
 	entry, _ := c.App.OfflineHub.GetLatestSnapshotEntry()
@@ -81,7 +81,7 @@ func HandleGetOfflineSnapshotEntry(c *RouteCtx) error {
 //
 //	@summary updates data for an offline entry list.
 //	@desc This will update the offline entry list data. (Offline only)
-//	@route /api/offline/snapshot-entry [PATCH]
+//	@route /api/v1/offline/snapshot-entry [PATCH]
 //	@returns bool
 func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 
@@ -118,7 +118,7 @@ func HandleUpdateOfflineEntryListData(c *RouteCtx) error {
 // HandleSyncOfflineData
 //
 //	@summary synchronizes offline data with AniList when the user is back online.
-//	@route /api/offline/sync [POST]
+//	@route /api/v1/offline/sync [POST]
 //	@returns bool
 func HandleSyncOfflineData(c *RouteCtx) error {
 	err := c.App.OfflineHub.SyncListData()

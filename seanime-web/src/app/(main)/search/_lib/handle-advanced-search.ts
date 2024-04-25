@@ -1,7 +1,7 @@
+import { buildSeaQuery } from "@/api/client/requests"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { AL_ListMedia } from "@/api/generated/types"
-import { __advancedSearch_getValue, __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/parameters"
-import { buildSeaQuery } from "@/lib/server/query"
+import { __advancedSearch_getValue, __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-search.atoms"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
 import React from "react"
@@ -34,7 +34,7 @@ export function useAnilistAdvancedSearch() {
 
             return buildSeaQuery<AL_ListMedia>({
                 endpoint: API_ENDPOINTS.ANILIST.AnilistListAnime.endpoint,
-                method: "post",
+                method: "POST",
                 data: variables,
             })
         },
@@ -71,7 +71,7 @@ export function useAnilistAdvancedSearch() {
 
             return buildSeaQuery<AL_ListMedia>({
                 endpoint: API_ENDPOINTS.MANGA.AnilistListManga.endpoint,
-                method: "post",
+                method: "POST",
                 data: variables,
             })
         },

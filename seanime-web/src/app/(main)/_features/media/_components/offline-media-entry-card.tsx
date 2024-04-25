@@ -1,5 +1,5 @@
 import { AL_BaseManga, AL_BaseMedia, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
-import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
+import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import {
@@ -152,7 +152,6 @@ export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: Offlin
                     {withAudienceScore &&
                         <MediaEntryAudienceScore
                             meanScore={media.meanScore}
-                            hideAudienceScore={serverStatus?.settings?.anilist?.hideAudienceScore}
                         />}
 
                 </MediaEntryCardHoverPopupFooter>
@@ -177,7 +176,7 @@ export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: Offlin
             >
                 <div className="absolute z-[10] right-1 bottom-1">
                     <MediaEntryScoreBadge
-                        score={media.meanScore}
+                        score={listData?.score}
                     />
                 </div>
                 <div className="absolute z-[10] left-1 bottom-1">

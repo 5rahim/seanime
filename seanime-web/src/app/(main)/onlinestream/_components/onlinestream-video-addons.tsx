@@ -1,3 +1,4 @@
+import { ONLINESTREAM_PROVIDERS } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
     __onlinestream_autoNextAtom,
@@ -5,7 +6,6 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { ONLINESTREAM_PROVIDERS } from "@/app/(main)/onlinestream/_lib/onlinestream.hooks"
 import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"

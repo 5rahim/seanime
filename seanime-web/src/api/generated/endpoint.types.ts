@@ -701,7 +701,7 @@ export type EmptyTVDBEpisodes_Variables = {
 /**
  * - Filepath: internal/handlers/offline.go
  * - Filename: offline.go
- * - Endpoint: /api/offline/snapshot
+ * - Endpoint: /api/v1/offline/snapshot
  * @description
  * Route creates an offline snapshot.
  */
@@ -712,7 +712,7 @@ export type CreateOfflineSnapshot_Variables = {
 /**
  * - Filepath: internal/handlers/offline.go
  * - Filename: offline.go
- * - Endpoint: /api/offline/snapshot-entry
+ * - Endpoint: /api/v1/offline/snapshot-entry
  * @description
  * Route updates data for an offline entry list.
  */
@@ -856,7 +856,7 @@ export type GetPlaylistEpisodes_Variables = {
 /**
  * - Filepath: internal/handlers/scan.go
  * - Filename: scan.go
- * - Endpoint: /library/scan
+ * - Endpoint: /api/v1/library/scan
  * @description
  * Route scans the user's library.
  */

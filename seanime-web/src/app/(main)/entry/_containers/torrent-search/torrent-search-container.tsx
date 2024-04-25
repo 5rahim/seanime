@@ -2,7 +2,7 @@ import { Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
-import { useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent-search"
+import { useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
 import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,

@@ -1,4 +1,4 @@
-import { OnlinestreamProvider } from "@/app/(main)/onlinestream/_lib/onlinestream.types"
+import { OnlinestreamProvider } from "@/app/(main)/onlinestream/_lib/onlinestream.enums"
 import { atom } from "jotai/index"
 import { atomWithStorage } from "jotai/utils"
 

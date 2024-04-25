@@ -1,6 +1,6 @@
 "use client"
 import { SnapshotAnimeSelector } from "@/app/(main)/offline-mode/_components/snapshot-anime-selector"
-import { useOfflineSnapshotEntry } from "@/app/(main)/offline-mode/_lib/offline-mode.hooks"
+import { useHandleOfflineSnapshotEntry } from "@/app/(main)/offline-mode/_lib/handle-offline-snapshot-entry"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
@@ -23,7 +23,7 @@ export default function Page() {
         isCreating,
         sync,
         isSyncing,
-    } = useOfflineSnapshotEntry()
+    } = useHandleOfflineSnapshotEntry()
 
     return (
         <PageWrapper
@@ -47,7 +47,7 @@ export default function Page() {
                     </p>
                 </div>
 
-                {!!snapshot?.id && <ul className="text-lg">
+                {(!!snapshot?.id && !!snapshot.createdAt) && <ul className="text-lg">
                     <li className="flex gap-2 items-center">
                         <IoCloudOfflineOutline className="text-green-300 text-xl" /> Snapshot <span className="text-[--muted]">
                         ({format(snapshot.createdAt, "P HH:mm")})
@@ -57,7 +57,7 @@ export default function Page() {
                             rounded
                             intent="white"
                             size="sm"
-                            disabled={!snapshot.used}
+                            disabled={!snapshot.used || isSyncing || isCreating || isLoading}
                             loading={isSyncing}
                             onClick={() => sync()}
                         >

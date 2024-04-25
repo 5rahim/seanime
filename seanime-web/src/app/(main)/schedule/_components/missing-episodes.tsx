@@ -1,7 +1,7 @@
 "use client"
 import { Anime_MissingEpisodes } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
-import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_hooks/use-handle-missing-episodes"
+import { handleMissingEpisodes } from "@/app/(main)/schedule/_lib/handle-missing-episodes"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -18,7 +18,7 @@ export function MissingEpisodes({ isLoading, data }: {
 }) {
     const router = useRouter()
 
-    const { missingEpisodes, silencedEpisodes } = useHandleMissingEpisodes(data)
+    const { missingEpisodes, silencedEpisodes } = handleMissingEpisodes(data)
 
     if (!missingEpisodes?.length && !silencedEpisodes?.length) return null
 

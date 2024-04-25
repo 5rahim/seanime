@@ -207,7 +207,6 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     {withAudienceScore &&
                         <MediaEntryAudienceScore
                             meanScore={media.meanScore}
-                            hideAudienceScore={serverStatus?.settings?.anilist?.hideAudienceScore}
                         />}
 
                 </MediaEntryCardHoverPopupFooter>

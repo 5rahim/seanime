@@ -9834,7 +9834,10 @@
     "formattedName": "AL_BaseMediaCache",
     "package": "anilist",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\anilist\\media_tree.go",
@@ -9843,7 +9846,10 @@
     "formattedName": "AL_BaseMediaRelationTree",
     "package": "anilist",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\anilist\\media_tree.go",
@@ -21601,7 +21607,10 @@
     "formattedName": "Anizip_Cache",
     "package": "anizip",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\listsync\\providers.go",
@@ -21690,7 +21699,10 @@
     "formattedName": "ListSync_Cache",
     "package": "listsync",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\listsync\\types.go",
@@ -22669,7 +22681,10 @@
     "formattedName": "MAL_SearchCache",
     "package": "mal",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\api\\mal\\types.go",
@@ -25446,6 +25461,9 @@
     "fields": [],
     "comments": [
       " Epoch wrapper around time.Time to ensure times are sent as a unix epoch int"
+    ],
+    "embeddedStructNames": [
+      "time.Time"
     ]
   },
   {
@@ -25833,6 +25851,9 @@
     "fields": [],
     "comments": [
       " Socket extends net.Conn methods"
+    ],
+    "embeddedStructNames": [
+      "net.Conn"
     ]
   },
   {
@@ -28376,7 +28397,10 @@
     "formattedName": "Anime_NormalizedMedia",
     "package": "anime",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "anilist.BasicMedia"
+    ]
   },
   {
     "filepath": "..\\internal\\library\\anime\\normalized_media.go",
@@ -28385,7 +28409,10 @@
     "formattedName": "Anime_NormalizedMediaCache",
     "package": "anime",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\library\\anime\\playlist.go",
@@ -35632,7 +35659,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\offline\\models.go",
@@ -35695,7 +35725,10 @@
         "comments": []
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
   },
   {
     "filepath": "..\\internal\\offline\\snapshot.go",
@@ -37496,7 +37529,10 @@
     "formattedName": "AnimeTosho_SearchCache",
     "package": "animetosho",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\animetosho\\smart_search.go",
@@ -38033,7 +38069,10 @@
     "formattedName": "SearchCache",
     "package": "nyaa",
     "fields": [],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
   },
   {
     "filepath": "..\\internal\\torrents\\nyaa\\torrent.go",

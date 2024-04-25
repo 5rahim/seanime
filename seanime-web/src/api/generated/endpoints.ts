@@ -740,7 +740,7 @@ export const API_ENDPOINTS = {
         CreateOfflineSnapshot: {
             key: "OFFLINE-create-offline-snapshot",
             methods: ["POST"],
-            endpoint: "/api/offline/snapshot",
+            endpoint: "/api/v1/offline/snapshot",
         },
         /**
          *  @description
@@ -750,7 +750,7 @@ export const API_ENDPOINTS = {
         GetOfflineSnapshot: {
             key: "OFFLINE-get-offline-snapshot",
             methods: ["GET"],
-            endpoint: "/api/offline/snapshot",
+            endpoint: "/api/v1/offline/snapshot",
         },
         /**
          *  @description
@@ -760,7 +760,7 @@ export const API_ENDPOINTS = {
         GetOfflineSnapshotEntry: {
             key: "OFFLINE-get-offline-snapshot-entry",
             methods: ["GET"],
-            endpoint: "/api/offline/snapshot-entry",
+            endpoint: "/api/v1/offline/snapshot-entry",
         },
         /**
          *  @description
@@ -770,12 +770,12 @@ export const API_ENDPOINTS = {
         UpdateOfflineEntryListData: {
             key: "OFFLINE-update-offline-entry-list-data",
             methods: ["PATCH"],
-            endpoint: "/api/offline/snapshot-entry",
+            endpoint: "/api/v1/offline/snapshot-entry",
         },
         SyncOfflineData: {
             key: "OFFLINE-sync-offline-data",
             methods: ["POST"],
-            endpoint: "/api/offline/sync",
+            endpoint: "/api/v1/offline/sync",
         },
     },
     ONLINESTREAM: {
@@ -918,7 +918,7 @@ export const API_ENDPOINTS = {
         ScanLocalFiles: {
             key: "SCAN-scan-local-files",
             methods: ["POST"],
-            endpoint: "/library/scan",
+            endpoint: "/api/v1/library/scan",
         },
     },
     SCAN_SUMMARY: {

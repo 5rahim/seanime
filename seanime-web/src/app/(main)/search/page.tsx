@@ -2,7 +2,7 @@
 import { AdvancedSearchList } from "@/app/(main)/search/_components/advanced-search-list"
 import { AdvancedSearchOptions } from "@/app/(main)/search/_components/advanced-search-options"
 import { AdvancedSearchPageTitle } from "@/app/(main)/search/_components/advanced-search-page-title"
-import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/parameters"
+import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-search.atoms"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { AppLayoutGrid } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"

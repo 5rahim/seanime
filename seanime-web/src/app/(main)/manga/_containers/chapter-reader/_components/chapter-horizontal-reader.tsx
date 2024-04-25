@@ -1,5 +1,6 @@
 import { Manga_PageContainer } from "@/api/generated/types"
 import { ChapterPage } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-page"
+import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-manga-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -16,7 +17,6 @@ import {
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
-import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/manga-reader.hooks"
 import { cn } from "@/components/ui/core/styling"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"

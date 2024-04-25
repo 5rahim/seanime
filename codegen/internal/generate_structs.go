@@ -222,7 +222,8 @@ func ExtractStructs(dir string, outDir string) {
 						for _, field := range structType.Fields.List {
 							if field.Names == nil || len(field.Names) == 0 {
 								if len(field.Names) == 0 {
-									if _, ok := field.Type.(*ast.Ident); ok {
+									switch field.Type.(type) {
+									case *ast.Ident, *ast.StarExpr, *ast.SelectorExpr:
 										usedStructType, _ := getUsedStructType(field.Type, packageName)
 										goStruct.EmbeddedStructTypes = append(goStruct.EmbeddedStructTypes, usedStructType)
 									}

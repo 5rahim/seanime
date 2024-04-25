@@ -1,5 +1,5 @@
 "use client"
-import { useHandleOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.hooks"
+import { useHandleOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/handle-offline-snapshot"
 import React from "react"
 import { undefined } from "zod"
 

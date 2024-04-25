@@ -10,7 +10,7 @@ import { useEffect } from "react"
  * - Filters out adult content if the user has it disabled
  * @param data
  */
-export function useHandleMissingEpisodes(data: Anime_MissingEpisodes | undefined) {
+export function handleMissingEpisodes(data: Anime_MissingEpisodes | undefined) {
     const serverStatus = useServerStatus()
     const setAtom = useSetAtom(missingEpisodesAtom)
     const setSilencedAtom = useSetAtom(missingSilencedEpisodesAtom)

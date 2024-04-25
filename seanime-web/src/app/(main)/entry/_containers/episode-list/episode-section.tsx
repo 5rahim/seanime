@@ -6,7 +6,7 @@ import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-gri
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
-import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
+import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"

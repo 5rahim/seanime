@@ -1,5 +1,6 @@
 "use client"
 import { AL_BaseManga, AL_BaseMedia, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
+import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { IconButton } from "@/components/ui/button"
@@ -8,15 +9,11 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { normalizeDate } from "@/lib/helpers/date"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiFillEdit } from "react-icons/ai"
 import { BiListPlus, BiStar } from "react-icons/bi"
 import { useToggle } from "react-use"
-import { toast } from "sonner"
 
 type Props = {
     children?: React.ReactNode
@@ -27,11 +24,6 @@ type Props = {
     type: "anime" | "manga"
 }
 
-type OfflineListData_QueryVariables = Partial<Omit<Offline_ListData, "startedAt" | "completedAt">> & {
-    startDate?: string
-    endDate?: string
-}
-
 const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<MediaListStatus>().nullish(),
     score: z.number().min(0).max(1000).nullish(),
@@ -39,23 +31,6 @@ const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     startDate: presets.datePicker.nullish(),
     endDate: presets.datePicker.nullish(),
 }))
-
-export function useUpdateSnapshotEntryListData() {
-    const qc = useQueryClient()
-    return useSeaMutation<any, OfflineListData_QueryVariables & {
-        mediaId: number,
-        type: string
-    }>({
-        endpoint: SeaEndpoints.OFFLINE_SNAPSHOT_ENTRY,
-        method: "patch",
-        mutationKey: ["update-offline-anilist-list-entry"],
-        onSuccess: async () => {
-            await qc.refetchQueries({ queryKey: ["get-offline-snapshot"] })
-            toast.success("Entry updated")
-        },
-    })
-}
-
 
 export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
 
@@ -65,7 +40,7 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
 
     const [open, toggle] = useToggle(false)
 
-    const { mutate, isPending, isSuccess } = useUpdateSnapshotEntryListData()
+    const { mutate, isPending, isSuccess } = useUpdateOfflineEntryListData()
 
     if (!user) return null
 

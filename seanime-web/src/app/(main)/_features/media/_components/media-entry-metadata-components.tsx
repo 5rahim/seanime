@@ -1,10 +1,11 @@
 import { AL_MangaDetailsById_Media_Rankings, AL_MediaDetailsById_Media_Rankings } from "@/api/generated/types"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { Tooltip } from "@/components/ui/tooltip"
 import capitalize from "lodash/capitalize"
-import React from "react"
+import React, { useMemo } from "react"
 import { AiFillStar, AiOutlineHeart, AiOutlineStar } from "react-icons/ai"
 import { BiHeart, BiHide } from "react-icons/bi"
 
@@ -33,16 +34,17 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
 
 type MediaEntryAudienceScoreProps = {
     meanScore?: number | null
-    hideAudienceScore?: boolean
 }
 
 export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
 
     const {
         meanScore,
-        hideAudienceScore,
         ...rest
     } = props
+
+    const status = useServerStatus()
+    const hideAudienceScore = useMemo(() => status?.settings?.anilist?.hideAudienceScore ?? false, [status?.settings?.anilist?.hideAudienceScore])
 
     if (!meanScore) return null
 

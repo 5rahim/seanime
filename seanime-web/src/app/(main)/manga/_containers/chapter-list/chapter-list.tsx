@@ -3,7 +3,7 @@ import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/m
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/_components/downloaded-chapter-list"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
-import { __manga_selectedProviderAtom, useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/manga.hooks"
+import { __manga_selectedProviderAtom, useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga"
 import {
     getChapterNumberFromChapter,
     MANGA_PROVIDER_OPTIONS,

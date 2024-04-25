@@ -1,11 +1,12 @@
 import { AL_BaseManga, AL_MediaListStatus, Manga_ChapterContainer, Manga_EntryListData, Manga_Provider } from "@/api/generated/types"
 import { useGetMangaEntryPages, useUpdateMangaProgress } from "@/api/hooks/manga.hooks"
-import { useUpdateSnapshotEntryListData } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
+import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
 import { MangaReaderBar } from "@/app/(main)/manga/_containers/chapter-reader/_components/manga-reader-bar"
 import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/discord-manga-presence"
+import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/_lib/handle-manga-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -18,7 +19,6 @@ import {
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
-import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/_lib/manga-reader.hooks"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader } from "@/components/ui/card"
@@ -90,7 +90,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
      * Update the progress when the user confirms
      */
     const { mutate: updateProgress, isPending: _isUpdatingProgress } = useUpdateMangaProgress(entry.mediaId)
-    const { mutate: updateProgressOffline, isPending: isUpdatingProgressOffline } = useUpdateSnapshotEntryListData()
+    const { mutate: updateProgressOffline, isPending: isUpdatingProgressOffline } = useUpdateOfflineEntryListData()
     const isUpdatingProgress = _isUpdatingProgress || isUpdatingProgressOffline
 
     /**

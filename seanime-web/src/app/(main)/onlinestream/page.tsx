@@ -3,7 +3,7 @@ import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
-import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
+import { ScoreProgressBadges } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
 import {
     OnlinestreamParametersButton,

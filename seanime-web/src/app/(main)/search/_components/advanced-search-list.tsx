@@ -1,5 +1,5 @@
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
-import { useAnilistAdvancedSearch } from "@/app/(main)/search/_lib/queries"
+import { useAnilistAdvancedSearch } from "@/app/(main)/search/_lib/handle-advanced-search"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import React from "react"

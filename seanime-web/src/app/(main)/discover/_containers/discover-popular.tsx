@@ -1,6 +1,6 @@
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
-import { useDiscoverPastSeasonAnime, useDiscoverPopularAnime } from "@/app/(main)/discover/_lib/queries"
+import { useDiscoverPastSeasonAnime, useDiscoverPopularAnime } from "@/app/(main)/discover/_lib/handle-discover-queries"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import React from "react"
 

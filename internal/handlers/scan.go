@@ -11,7 +11,7 @@ import (
 //	@summary scans the user's library.
 //	@desc This will scan the user's library.
 //	@desc The response is ignored, the client should re-fetch the library after this.
-//	@route /library/scan [POST]
+//	@route /api/v1/library/scan [POST]
 //	@returns []anime.LocalFile
 func HandleScanLocalFiles(c *RouteCtx) error {
 

@@ -3291,7 +3291,7 @@
       "\t@desc This will create an offline snapshot of the given anime media ids and downloaded manga chapters.",
       "\t@desc It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.",
       "\t@desc This is a non-blocking operation.",
-      "\t@route /api/offline/snapshot [POST]",
+      "\t@route /api/v1/offline/snapshot [POST]",
       "\t@returns bool",
       ""
     ],
@@ -3304,7 +3304,7 @@
         "It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.",
         "This is a non-blocking operation."
       ],
-      "endpoint": "/api/offline/snapshot",
+      "endpoint": "/api/v1/offline/snapshot",
       "methods": [
         "POST"
       ],
@@ -3333,7 +3333,7 @@
       "",
       "\t@summary retrieves the offline snapshot.",
       "\t@desc This will return the latest offline snapshot. (Offline only)",
-      "\t@route /api/offline/snapshot [GET]",
+      "\t@route /api/v1/offline/snapshot [GET]",
       "\t@returns offline.Snapshot",
       ""
     ],
@@ -3344,7 +3344,7 @@
       "descriptions": [
         "This will return the latest offline snapshot. (Offline only)"
       ],
-      "endpoint": "/api/offline/snapshot",
+      "endpoint": "/api/v1/offline/snapshot",
       "methods": [
         "GET"
       ],
@@ -3363,7 +3363,7 @@
       "",
       "\t@summary retrieves an offline snapshot entry.",
       "\t@desc This will return the latest offline snapshot entry so the client can display the data.",
-      "\t@route /api/offline/snapshot-entry [GET]",
+      "\t@route /api/v1/offline/snapshot-entry [GET]",
       "\t@returns offline.SnapshotEntry",
       ""
     ],
@@ -3374,7 +3374,7 @@
       "descriptions": [
         "This will return the latest offline snapshot entry so the client can display the data."
       ],
-      "endpoint": "/api/offline/snapshot-entry",
+      "endpoint": "/api/v1/offline/snapshot-entry",
       "methods": [
         "GET"
       ],
@@ -3393,7 +3393,7 @@
       "",
       "\t@summary updates data for an offline entry list.",
       "\t@desc This will update the offline entry list data. (Offline only)",
-      "\t@route /api/offline/snapshot-entry [PATCH]",
+      "\t@route /api/v1/offline/snapshot-entry [PATCH]",
       "\t@returns bool",
       ""
     ],
@@ -3404,7 +3404,7 @@
       "descriptions": [
         "This will update the offline entry list data. (Offline only)"
       ],
-      "endpoint": "/api/offline/snapshot-entry",
+      "endpoint": "/api/v1/offline/snapshot-entry",
       "methods": [
         "PATCH"
       ],
@@ -3486,7 +3486,7 @@
       "HandleSyncOfflineData",
       "",
       "\t@summary synchronizes offline data with AniList when the user is back online.",
-      "\t@route /api/offline/sync [POST]",
+      "\t@route /api/v1/offline/sync [POST]",
       "\t@returns bool",
       ""
     ],
@@ -3495,7 +3495,7 @@
     "api": {
       "summary": "synchronizes offline data with AniList when the user is back online.",
       "descriptions": [],
-      "endpoint": "/api/offline/sync",
+      "endpoint": "/api/v1/offline/sync",
       "methods": [
         "POST"
       ],
@@ -4181,7 +4181,7 @@
       "\t@summary scans the user's library.",
       "\t@desc This will scan the user's library.",
       "\t@desc The response is ignored, the client should re-fetch the library after this.",
-      "\t@route /library/scan [POST]",
+      "\t@route /api/v1/library/scan [POST]",
       "\t@returns []anime.LocalFile",
       ""
     ],
@@ -4193,7 +4193,7 @@
         "This will scan the user's library.",
         "The response is ignored, the client should re-fetch the library after this."
       ],
-      "endpoint": "/library/scan",
+      "endpoint": "/api/v1/library/scan",
       "methods": [
         "POST"
       ],

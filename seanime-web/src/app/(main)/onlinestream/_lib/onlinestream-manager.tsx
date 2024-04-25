@@ -1,15 +1,15 @@
 import {
+    useOnlinestreamEpisodeList,
+    useOnlinestreamEpisodeSource,
+    useOnlinestreamVideoSource,
+} from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
+import {
     __onlinestream_autoPlayAtom,
     __onlinestream_qualityAtom,
     __onlinestream_selectedEpisodeNumberAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import {
-    useOnlinestreamEpisodeList,
-    useOnlinestreamEpisodeSource,
-    useOnlinestreamVideoSource,
-} from "@/app/(main)/onlinestream/_lib/onlinestream.hooks"
 import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
