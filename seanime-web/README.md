@@ -1,32 +1,45 @@
 <p align="center">
-<img src="images/logo.png" alt="preview" width="75px"/>
+<img src="public/logo_2.png" alt="preview" width="150px"/>
 </p>
 
 <h2 align="center"><b>Seanime Web</b></h2>
 
-<h4 align="center">Web interface for <a href="https://github.com/5rahim/seanime/">Seanime Server</a></h4>
+<h4 align="center">Web interface</h4>
 
 ```txt
-app/(main)
-├── 📁 _atoms			
-├── 📁 _containers						<- shared smart components
-├── 📁 _hooks							<- top-level queries and global state hooks
-├── 📁 _features						<- shared dumb components
-└── 📁 {route}
-    ├── 📁 _containers					<- route specific containers
-    │   ├── 📁 {container1}				<- group of smart components (e.g. list of items)
-    │   │   ├── 📁 _components	
-    │	│   └── 📄 {container1}.tsx	
-    │   └── 📄 {container2}.tsx			<- standalone smart component (e.g. form)
-    ├── 📁 _components					<- route specific dumb components (e.g. card)			
-    ├── 📁 _lib							<- route specific utility functions / hooks / states
-    └── 📄 page.tsx
+📁 api
+    ├── 📁 client
+    ├── 📁 generated
+    └── 📁 hooks
+📁 app/(main)	
+    ├── 📁 _atoms
+    ├── 📁 _features
+    ├── 📁 _hooks
+    ├── 📁 _listeners
+    └── 📁 {route}
+    	├── 📁 _containers
+    	├── 📁 _components
+    	├── 📁 _lib
+    	└── 📄 page.tsx
+📁 components
 ```
 
-- **_atoms**: where global states (jotai atoms) are defined.
-- **_containers**: contains "smart" components or groups of components.
-  - "Smart" components are components that interact with local/global state, fetch data or do mutations.
+- `api`: API related code.
+  - `client`: React-Query and Axios related code.
+  - `generated`: Generated types and endpoints.
+  - `hooks`: Data-fetching hooks.
+
+
+- `app/_atoms`: Global Jotai atoms
   - Related groups of components should be placed in the same folder and standalone components should be placed in the root.
-- **_hooks**: top-level queries and global state hooks.
-- **_features**: reusable "dumb" components that are used across multiple pages.
-  - "Dumb" components are components that only receive props and render UI.
+- `app/_hooks`: Top-level queries (loaders) and global state hooks.
+- `app/_features`: Specialized components that are used across multiple pages.
+- `app/_listeners`: Websocket listeners.
+
+
+- `app/{route}/_components`: Route-specific components that only depend on props.
+- `app/{route}/_containers`: Route-specific components that interact with global state and API.
+- `app/{route}/_lib`: Route-specific utility functions, hooks, constants, and data-related functions.
+
+
+- `components`: Primitive components, not tied to any feature or route.
