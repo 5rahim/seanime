@@ -1,30 +1,29 @@
+import { Offline_MangaEntry } from "@/api/generated/types"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { OfflineMangaEntry } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
-import { OfflineMediaListAtom } from "@/components/shared/custom-ui/offline-media-list-item"
+import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
+import { OfflineMediaEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import React from "react"
 
 export function OfflineMangaLists() {
     const { snapshot, mangaLists: lists } = useOfflineSnapshot()
 
-    const Grid = React.useCallback(({ entries }: { entries: OfflineMangaEntry[] }) => {
+    const Grid = React.useCallback(({ entries }: { entries: Offline_MangaEntry[] }) => {
         return (
-            <div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
-            >
+            <MediaCardGrid>
                 {entries?.map(entry => {
                     if (!entry) return null
 
-                    return <OfflineMediaListAtom
+                    return <OfflineMediaEntryCard
                         key={entry.mediaId}
                         media={entry.media!}
                         listData={entry.listData}
                         withAudienceScore={false}
                         assetMap={snapshot?.assetMap}
-                        isManga
+                        type="manga"
                     />
                 })}
-            </div>
+            </MediaCardGrid>
         )
     }, [])
 

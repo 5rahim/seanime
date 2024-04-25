@@ -23,25 +23,43 @@ export function useLocalFileBulkAction() {
         mutationKey: [API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.key],
         onSuccess: async () => {
             toast.success("Action completed")
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
         },
     })
 }
 
-export function useUpdateLocalFileData() {
+export function useUpdateLocalFileData(id: Nullish<number>) {
     const queryClient = useQueryClient()
 
-    return useServerMutation<Array<Anime_LocalFile>, UpdateLocalFileData_Variables>({
+    const opts = useServerMutation<Array<Anime_LocalFile>, UpdateLocalFileData_Variables>({
         endpoint: API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.endpoint,
         method: API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.methods[0],
         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFileData.key],
         onSuccess: async () => {
             toast.success("File metadata updated")
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            if (id) {
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
+            }
         },
     })
+
+    return {
+        updateLocalFile: (lf: Anime_LocalFile, variables: Partial<UpdateLocalFileData_Variables>, onSuccess?: () => void) => {
+            opts.mutate({
+                path: lf.path,
+                metadata: lf.metadata,
+                locked: lf.locked,
+                ignored: lf.ignored,
+                mediaId: lf.mediaId,
+                ...variables,
+            }, {
+                onSuccess: () => onSuccess?.(),
+            })
+        },
+        ...opts,
+    }
 }
 
 export function useDeleteLocalFiles(id: Nullish<number>) {
@@ -53,9 +71,9 @@ export function useDeleteLocalFiles(id: Nullish<number>) {
         mutationKey: [API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.key],
         onSuccess: async () => {
             toast.success("Files deleted")
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             if (id) {
-                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry, id] })
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
             }
         },
     })

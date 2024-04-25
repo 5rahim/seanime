@@ -1,8 +1,8 @@
+import { Offline_AnimeEntry } from "@/api/generated/types"
 import { LibraryHeader } from "@/app/(main)/(library)/_components/library-header"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { OfflineAnimeEntry } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
-import { OfflineMediaListAtom } from "@/components/shared/custom-ui/offline-media-list-item"
+import { OfflineMediaEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
@@ -11,7 +11,7 @@ export function OfflineAnimeLists() {
     const { snapshot, animeLists: lists, continueWatchingEpisodeList } = useOfflineSnapshot()
     const ts = useThemeSettings()
 
-    const Grid = React.useCallback(({ entries }: { entries: OfflineAnimeEntry[] }) => {
+    const Grid = React.useCallback(({ entries }: { entries: Offline_AnimeEntry[] }) => {
         return (
             <div
                 className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
@@ -19,12 +19,13 @@ export function OfflineAnimeLists() {
                 {entries?.map(entry => {
                     if (!entry) return null
 
-                    return <OfflineMediaListAtom
+                    return <OfflineMediaEntryCard
                         key={entry.mediaId}
                         media={entry.media!}
                         listData={entry.listData}
                         withAudienceScore={false}
                         assetMap={snapshot?.assetMap}
+                        type="anime"
                     />
                 })}
             </div>
@@ -39,7 +40,7 @@ export function OfflineAnimeLists() {
             >
                 <div className="space-y-6">
                     <ContinueWatching
-                        list={continueWatchingEpisodeList}
+                        episodes={continueWatchingEpisodeList}
                         isLoading={false}
                         linkTemplate={"/offline/anime?id={id}&playNext=true"}
                     />

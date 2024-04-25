@@ -1,5 +1,6 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
-import { AnimeCollectionQuery, MangaCollectionQuery } from "@/lib/anilist/gql/graphql"
+import { MangaCollectionQuery } from "@/lib/anilist/gql/graphql"
 import { WSEvents } from "@/lib/server/endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -11,13 +12,13 @@ export function useAnilistCollectionListener() {
 
     const qc = useQueryClient()
 
-    useWebsocketMessageListener<AnimeCollectionQuery>({
+    useWebsocketMessageListener({
         type: WSEvents.REFRESHED_ANILIST_COLLECTION,
         onMessage: data => {
             (async () => {
-                await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-                await qc.refetchQueries({ queryKey: ["get-missing-episodes"] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
             })()
         },
     })
@@ -26,7 +27,7 @@ export function useAnilistCollectionListener() {
         type: WSEvents.REFRESHED_ANILIST_MANGA_COLLECTION,
         onMessage: data => {
             (async () => {
-                await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetAnilistMangaCollection.key] })
             })()
         },
     })

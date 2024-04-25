@@ -1,16 +1,14 @@
+import { AL_BaseMedia, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
+import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { torrentSearchDrawerEpisodeAtom, torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { EpisodeListItem } from "@/components/shared/episode-list-item"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
-
-import { MediaEntryDownloadInfo } from "@/app/(main)/(library)/_lib/anime-library.types"
 import { useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"
 
 export function UndownloadedEpisodeList({ downloadInfo, media }: {
-    downloadInfo: MediaEntryDownloadInfo | undefined,
-    media: BaseMediaFragment
+    downloadInfo: Anime_MediaEntryDownloadInfo | undefined,
+    media: AL_BaseMedia
 }) {
 
     const episodes = downloadInfo?.episodesToDownload
@@ -30,7 +28,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                     if (!ep.episode) return null
                     const episode = ep.episode
                     return (
-                        <EpisodeListItem
+                        <EpisodeGridItem
                             key={ep.episode.localFile?.path || idx}
                             media={media}
                             image={episode.episodeMetadata?.image}
@@ -56,7 +54,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                                     <BiCalendarAlt/> {episode.episodeMetadata?.airDate ? `Aired on ${new Date(episode.episodeMetadata?.airDate).toLocaleDateString()}` : "Aired"}
                                 </p>
                             </div>
-                        </EpisodeListItem>
+                        </EpisodeGridItem>
                     )
                 })}
             </EpisodeListGrid>

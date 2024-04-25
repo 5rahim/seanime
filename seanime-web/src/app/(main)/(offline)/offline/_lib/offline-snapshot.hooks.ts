@@ -1,19 +1,12 @@
-import { OfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
+import { AL_BasicMedia, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { useGetOfflineSnapshot } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { BasicMediaFragment } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import { groupBy } from "lodash"
 import React from "react"
 
-export function useGetOfflineSnapshot() {
-    const qc = useQueryClient()
+export function useHandleOfflineSnapshot() {
 
-    const { data: snapshot, isLoading } = useSeaQuery<OfflineSnapshot>({
-        endpoint: SeaEndpoints.OFFLINE_SNAPSHOT,
-        queryKey: ["get-offline-snapshot"],
-    })
+    const { data: snapshot, isLoading } = useGetOfflineSnapshot()
 
     const animeLists = React.useMemo(() => {
         if (!snapshot) return {}
@@ -66,9 +59,9 @@ export function useGetOfflineSnapshot() {
                         large: offline_getAssetUrl(entry.media?.coverImage?.large, snapshot.assetMap),
                         medium: offline_getAssetUrl(entry.media?.coverImage?.medium, snapshot.assetMap),
                     },
-                } as BasicMediaFragment,
+                } as AL_BasicMedia,
             }
-        })?.filter(Boolean) || []
+        })?.filter(Boolean) || [] as Anime_MediaEntryEpisode[]
     }, [snapshot?.entries?.animeEntries])
 
     return {

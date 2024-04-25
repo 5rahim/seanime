@@ -186,7 +186,7 @@ export type AnimeEntryManualMatch_Variables = {
 /**
  * - Filepath: internal/handlers/anime_entries.go
  * - Filename: anime_entries.go
- * - Endpoint: /api/v1/library/anime-entry/silence/:id
+ * - Endpoint: /api/v1/library/anime-entry/silence/{id}
  * @description
  * Route returns the silence status of a media entry.
  */
@@ -217,7 +217,7 @@ export type ToggleAnimeEntrySilenceStatus_Variables = {
  */
 export type UpdateAnimeEntryProgress_Variables = {
     mediaId: number
-    malId: number
+    malId?: number
     episodeNumber: number
     totalEpisodes: number
 }
@@ -599,7 +599,7 @@ export type AnilistListManga_Variables = {
  */
 export type UpdateMangaProgress_Variables = {
     mediaId: number
-    malId: number
+    malId?: number
     chapterNumber: number
     totalChapters: number
 }

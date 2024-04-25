@@ -15,7 +15,7 @@ export function useGetAnimeEntry(id: Nullish<string | number>) {
     return useServerQuery<Anime_MediaEntry>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.methods[0],
-        queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, id],
+        queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)],
         enabled: !!id,
     })
 }
@@ -26,8 +26,9 @@ export function useAnimeEntryBulkAction(id?: Nullish<number>) {
     return useServerMutation<Array<Anime_LocalFile>, AnimeEntryBulkAction_Variables>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.endpoint,
         method: API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.methods[0],
-        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.key, id],
+        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.key, String(id)],
         onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
         },
     })
@@ -103,7 +104,7 @@ export function useToggleAnimeEntrySilenceStatus() {
     })
 }
 
-export function useUpdateAnimeEntryProgress() {
+export function useUpdateAnimeEntryProgress(id: Nullish<string | number>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, UpdateAnimeEntryProgress_Variables>({
@@ -111,7 +112,11 @@ export function useUpdateAnimeEntryProgress() {
         method: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.methods[0],
         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.key],
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            if (id) {
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
+            }
         },
     })
 }

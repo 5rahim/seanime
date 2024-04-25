@@ -1,27 +1,16 @@
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { __manga_selectedChapterAtom } from "@/app/(main)/manga/entry/_containers/chapter-reader/chapter-reader-drawer"
-import { BaseMangaFragment } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
+import { AL_BaseManga } from "@/api/generated/types"
+import { useCancelDiscordActivity, useSetDiscordMangaActivity } from "@/api/hooks/discord.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
+import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { useAtomValue } from "jotai/react"
 import React from "react"
 
-export type DiscordPresenceRoute_QueryVariables = {
-    title: string
-    image: string
-    chapter: string
-}
-
-export function useDiscordMangaPresence(entry: { media: BaseMangaFragment | undefined } | undefined) {
-    const serverStatus = useAtomValue(serverStatusAtom)
+export function useDiscordMangaPresence(entry: { media?: AL_BaseManga } | undefined) {
+    const serverStatus = useServerStatus()
     const currentChapter = useAtomValue(__manga_selectedChapterAtom)
 
-    const { mutate } = useSeaMutation<boolean, DiscordPresenceRoute_QueryVariables>({
-        endpoint: SeaEndpoints.DISCORD_PRESENCE_MANGA,
-    })
-    const { mutate: cancelActivity } = useSeaMutation({
-        endpoint: SeaEndpoints.DISCORD_PRESENCE_CANCEL,
-    })
+    const { mutate } = useSetDiscordMangaActivity()
+    const { mutate: cancelActivity } = useCancelDiscordActivity()
 
     const prevChapter = React.useRef<any>()
 

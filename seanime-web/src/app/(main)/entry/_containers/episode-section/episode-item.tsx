@@ -1,12 +1,12 @@
-import { LocalFileType, MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { useUpdateLocalFile } from "@/app/(main)/entry/_lib/update-local-file"
-import { EpisodeListItem } from "@/components/shared/episode-list-item"
+import { AL_BaseMedia, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
+import { LocalFileType } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
 import Image from "next/image"
@@ -24,17 +24,17 @@ export const __episodeItem_infoModalIsOpenAtom = atom(false)
 
 
 export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
-    episode: MediaEntryEpisode,
-    media: BaseMediaFragment,
+    episode: Anime_MediaEntryEpisode,
+    media: AL_BaseMedia,
     onPlay: ({ path }: { path: string }) => void,
     isWatched?: boolean
 }) => {
 
-    const { updateLocalFile, isPending } = useUpdateLocalFile(media.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
 
     return (
         <EpisodeItemIsolation.Provider>
-            <EpisodeListItem
+            <EpisodeGridItem
                 media={media}
                 image={episode.episodeMetadata?.image}
                 onClick={() => onPlay({ path: episode.localFile?.path ?? "" })}
@@ -45,7 +45,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                 isWatched={episode.progressNumber > 0 && isWatched}
                 action={<>
                     <IconButton
-                        icon={episode.localFile?.locked ? <VscVerified/> : <BiLockOpenAlt/>}
+                        icon={episode.localFile?.locked ? <VscVerified /> : <BiLockOpenAlt />}
                         intent={episode.localFile?.locked ? "success-basic" : "warning-basic"}
                         size="md"
                         className="hover:opacity-60"
@@ -59,14 +59,16 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                         }}
                     />
 
-                    <DropdownMenu trigger={
-                        <IconButton
-                            icon={<BiDotsHorizontal/>}
-                            intent="gray-basic"
-                            size="xs"
-                        />
-                    }>
-                        <MetadataModalButton/>
+                    <DropdownMenu
+                        trigger={
+                            <IconButton
+                                icon={<BiDotsHorizontal />}
+                                intent="gray-basic"
+                                size="xs"
+                            />
+                        }
+                    >
+                        <MetadataModalButton />
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="!text-red-300 !dark:text-red-200"
@@ -81,7 +83,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                     </DropdownMenu>
 
                     {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.aniDBId &&
-                        <EpisodeItemInfoModalButton/>}
+                        <EpisodeItemInfoModalButton />}
                 </>}
             />
             <MetadataModal
@@ -102,11 +104,11 @@ const metadataSchema = defineSchema(({ z }) => z.object({
     type: z.string().min(0),
 }))
 
-function MetadataModal({ episode }: { episode: MediaEntryEpisode }) {
+function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
-    const { updateLocalFile, isPending } = useUpdateLocalFile(episode.basicMedia?.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.basicMedia?.id)
 
     return (
         <Modal
@@ -182,7 +184,7 @@ function EpisodeItemInfoModalButton() {
     />
 }
 
-function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
+function EpisodeItemInfoModal(props: { episode: Anime_MediaEntryEpisode, }) {
 
     const {
         episode,
@@ -201,7 +203,8 @@ function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
             >
 
                 {episode.episodeMetadata?.image && <div
-                    className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]">
+                    className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+                >
                     <Image
                         src={episode.episodeMetadata?.image}
                         alt="banner"
@@ -219,7 +222,7 @@ function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
                 <div className="space-y-4">
                     <p className="text-lg line-clamp-2 font-semibold">
                         {episode.episodeTitle}
-                        {episode.isInvalid && <AiFillWarning/>}
+                        {episode.isInvalid && <AiFillWarning />}
                     </p>
                     <p className="text-[--muted]">
                         {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
@@ -232,9 +235,10 @@ function EpisodeItemInfoModal(props: { episode: MediaEntryEpisode, }) {
                             <Separator />
                             <div className="w-full flex justify-between">
                                 <p>AniDB Episode: {episode.fileMetadata?.aniDBEpisode}</p>
-                                <a href={"https://anidb.net/episode/" + episode.episodeMetadata?.aniDBId + "#layout-footer"}
-                                   target="_blank"
-                                   className="text-brand-200"
+                                <a
+                                    href={"https://anidb.net/episode/" + episode.episodeMetadata?.aniDBId + "#layout-footer"}
+                                    target="_blank"
+                                    className="text-brand-200"
                                 >Open on AniDB
                                 </a>
                             </div>

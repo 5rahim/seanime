@@ -522,6 +522,38 @@ export type AL_GetViewer_Viewer_Options = {
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_ListManga = {
+    Page?: AL_ListManga_Page
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListManga_Page = {
+    pageInfo?: AL_ListManga_Page_PageInfo
+    media?: Array<AL_BasicManga>
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_ListManga_Page_PageInfo = {
+    hasNextPage?: boolean
+    total?: number
+    perPage?: number
+    currentPage?: number
+    lastPage?: number
+}
+
+/**
+ * - Filepath: internal/internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_ListMedia = {
     Page?: AL_ListMedia_Page
 }
@@ -2118,7 +2150,7 @@ export type Offline_SnapshotEntry = {
  * - Package: onlinestream
  */
 export type Onlinestream_Episode = {
-    number?: number
+    number: number
     title?: string
     image?: string
     description?: string

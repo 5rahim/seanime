@@ -1,9 +1,11 @@
 "use client"
+import { Manga_CollectionList } from "@/api/generated/types"
+import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
-import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
+import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { useMangaCollection } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MangaCollectionList } from "@/app/(main)/manga/_lib/manga.types"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/constants"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
@@ -12,9 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { StaticTabs } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
-import { ListMangaQuery } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { getMangaCollectionTitle } from "@/lib/server/utils"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai/index"
@@ -58,7 +57,7 @@ export default function Page() {
                 >
 
                     <div className="space-y-8">
-                        {mangaCollection.lists.map(list => {
+                        {mangaCollection.lists?.map(list => {
                             return <CollectionListItem key={list.type} list={list} />
                         })}
 
@@ -77,24 +76,22 @@ export default function Page() {
     )
 }
 
-const CollectionListItem = memo(({ list }: { list: MangaCollectionList }) => {
+const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     return (
         <React.Fragment key={list.type}>
             <h2>{getMangaCollectionTitle(list.type)}</h2>
-            <div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
-            >
+            <MediaCardGrid>
                 {list.entries?.map(entry => {
                     return <MediaEntryCard
-                        key={entry.media.id}
+                        key={entry.media?.id}
                         media={entry.media!}
                         listData={entry.listData}
                         showListDataButton
                         withAudienceScore={false}
-                        isManga
+                        type="manga"
                     />
                 })}
-            </div>
+            </MediaCardGrid>
         </React.Fragment>
     )
 })
@@ -103,16 +100,11 @@ const trendingGenresAtom = atom<string[]>([])
 
 function TrendingManga() {
     const genres = useAtomValue(trendingGenresAtom)
-    const { data, isLoading } = useSeaQuery<ListMangaQuery>({
-        queryKey: ["discover-trending-manga", genres],
-        endpoint: SeaEndpoints.MANGA_ANILIST_LIST_MANGA,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 20,
-            sort: ["TRENDING_DESC"],
-            genres: genres.length > 0 ? genres : undefined,
-        },
+    const { data, isLoading } = useAnilistListManga({
+        page: 1,
+        perPage: 20,
+        sort: ["TRENDING_DESC"],
+        genres: genres.length > 0 ? genres : undefined,
     })
 
     return (
@@ -133,7 +125,7 @@ function TrendingManga() {
                             key={media.id}
                             media={media}
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
-                            isManga
+                            type="manga"
                         />
                     )
                 }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
@@ -148,15 +140,10 @@ function SearchManga() {
     const [searchInput, setSearchInput] = useAtom(mangaSearchInputAtom)
     const search = useDebounce(searchInput, 500)
 
-    const { data, isLoading, isFetching } = useSeaQuery<ListMangaQuery>({
-        queryKey: ["search-manga", search],
-        endpoint: SeaEndpoints.MANGA_ANILIST_LIST_MANGA,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 10,
-            search: search,
-        },
+    const { data, isLoading, isFetching } = useAnilistListManga({
+        page: 1,
+        perPage: 10,
+        search: search,
     })
 
     return (
@@ -188,7 +175,7 @@ function SearchManga() {
                                 key={media.id}
                                 media={media}
                                 containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
-                                isManga
+                                type="manga"
                             />
                         )
                     }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}

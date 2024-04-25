@@ -1,9 +1,9 @@
+import { AL_BaseMedia } from "@/api/generated/types"
 import { Badge } from "@/components/ui/badge"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { addSeconds, format, formatDistanceToNow } from "date-fns"
 import React from "react"
 
-export function NextAiringEpisode(props: { media: BaseMediaFragment }) {
+export function NextAiringEpisode(props: { media: AL_BaseMedia }) {
     const distance = formatDistanceToNow(addSeconds(new Date(), props.media.nextAiringEpisode?.timeUntilAiring || 0), { addSuffix: true })
     const day = format(addSeconds(new Date(), props.media.nextAiringEpisode?.timeUntilAiring || 0), "EEEE")
     return <>

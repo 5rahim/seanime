@@ -1,16 +1,15 @@
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
 type RelationsRecommendationsAccordionProps = {
-    entry: MediaEntry | undefined
-    details: MediaDetailsByIdQuery["Media"] | undefined
+    entry: Anime_MediaEntry | undefined
+    details: AL_MediaDetailsById_Media | undefined
 }
 
 export function RelationsRecommendationsAccordion(props: RelationsRecommendationsAccordionProps) {
@@ -58,7 +57,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                             intent="gray"
                                             size="lg"
                                         >Source (Manga)</Badge>}
-                                        isManga
+                                        type="manga"
                                     />
                                 </div>}
                                 {relations.slice(0, 4).map(edge => {
@@ -74,6 +73,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                                 : capitalize(edge.relationType || "").replace("_", " ")}</Badge>}
                                             showLibraryBadge
                                             showTrailer
+                                            type="anime"
                                         />
                                     </div>
                                 })}
@@ -93,6 +93,7 @@ export function RelationsRecommendationsAccordion(props: RelationsRecommendation
                                         media={media!}
                                         showLibraryBadge
                                         showTrailer
+                                        type="anime"
                                     />
                                 </div>
                             })}

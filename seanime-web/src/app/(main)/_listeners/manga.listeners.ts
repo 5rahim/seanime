@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/websocket.hooks"
 import { WSEvents } from "@/lib/server/endpoints"
 import { useQueryClient } from "@tanstack/react-query"
@@ -14,8 +15,8 @@ export function useMangaListener() {
         type: WSEvents.DOWNLOADED_CHAPTER,
         onMessage: mediaId => {
             (async () => {
-                await qc.refetchQueries({ queryKey: ["get-manga-download-data"] })
-                await qc.refetchQueries({ queryKey: ["get-manga-downloads"] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadsList.key] })
             })()
         },
     })
@@ -24,9 +25,9 @@ export function useMangaListener() {
         type: WSEvents.CHAPTER_DOWNLOAD_QUEUE_UPDATED,
         onMessage: data => {
             (async () => {
-                await qc.refetchQueries({ queryKey: ["get-manga-download-data"] })
-                await qc.refetchQueries({ queryKey: ["get-manga-chapter-download-queue"] })
-                await qc.refetchQueries({ queryKey: ["get-manga-downloads"] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadQueue.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadsList.key] })
             })()
         },
     })

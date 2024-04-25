@@ -1,6 +1,6 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"

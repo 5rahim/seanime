@@ -1,13 +1,11 @@
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_BaseMedia, Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { AnimeTorrent } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { torrentSearchDrawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { Tooltip } from "@/components/ui/tooltip"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { atom } from "jotai"
@@ -28,19 +26,19 @@ type TorrentDownloadProps = {
         enabled: boolean
         missingEpisodeNumbers: number[]
     }
-    media?: BaseMediaFragment
+    media?: AL_BaseMedia
 }
 
 type TorrentDownloadFileProps = {
     download_urls: string[]
     destination: string
-    media?: BaseMediaFragment
+    media?: AL_BaseMedia
 }
 
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
-    onToggleTorrent: (t: AnimeTorrent) => void,
-    media: BaseMediaFragment,
-    entry: MediaEntry
+    onToggleTorrent: (t: Torrent_AnimeTorrent) => void,
+    media: AL_BaseMedia,
+    entry: Anime_MediaEntry
 }) {
 
     const router = useRouter()

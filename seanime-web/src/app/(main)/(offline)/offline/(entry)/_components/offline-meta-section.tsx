@@ -1,9 +1,9 @@
 "use client"
+import { Offline_AnimeEntry, Offline_AssetMapImageMap, Offline_MangaEntry } from "@/api/generated/types"
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_components/offline-anilist-media-entry-modal"
-import { OfflineAnimeEntry, OfflineAssetMap, OfflineMangaEntry } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { AnimeEntryAudienceScore } from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
+import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { cn } from "@/components/ui/core/styling"
@@ -19,8 +19,8 @@ import { useWindowScroll } from "react-use"
 
 type OfflineMetaSectionProps<T extends "anime" | "manga"> = {
     type: T,
-    entry: T extends "anime" ? OfflineAnimeEntry : OfflineMangaEntry
-    assetMap: OfflineAssetMap | undefined
+    entry: T extends "anime" ? Offline_AnimeEntry : Offline_MangaEntry
+    assetMap: Offline_AssetMapImageMap | undefined
 }
 
 export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMetaSectionProps<T>) {
@@ -142,7 +142,7 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
 
                             <div className="flex gap-2 items-center">
-                                <AnimeEntryAudienceScore meanScore={entry.media?.meanScore} hideAudienceScore={hideAudienceScore} />
+                                <MediaEntryAudienceScore meanScore={entry.media?.meanScore} hideAudienceScore={hideAudienceScore} />
 
                             </div>
 

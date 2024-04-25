@@ -32,7 +32,7 @@ var (
 
 type (
 	Episode struct {
-		Number      int    `json:"number,omitempty"`
+		Number      int    `json:"number"`
 		Title       string `json:"title,omitempty"`
 		Image       string `json:"image,omitempty"`
 		Description string `json:"description,omitempty"`

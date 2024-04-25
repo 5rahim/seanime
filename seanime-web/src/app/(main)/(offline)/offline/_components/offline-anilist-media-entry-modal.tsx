@@ -1,12 +1,12 @@
 "use client"
-import { OfflineAssetMap, OfflineListData } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
+import { AL_BaseManga, AL_BaseMedia, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
-import { BaseMangaFragment, BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
+import { MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { normalizeDate } from "@/lib/helpers/date"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
@@ -20,14 +20,14 @@ import { toast } from "sonner"
 
 type Props = {
     children?: React.ReactNode
-    listData: OfflineListData | undefined
-    assetMap: OfflineAssetMap | undefined
-    media: BaseMediaFragment | BaseMangaFragment
+    listData: Offline_ListData | undefined
+    assetMap: Offline_AssetMapImageMap | undefined
+    media: AL_BaseMedia | AL_BaseManga
     hideButton?: boolean
     type: "anime" | "manga"
 }
 
-type OfflineListData_QueryVariables = Partial<Omit<OfflineListData, "startedAt" | "completedAt">> & {
+type OfflineListData_QueryVariables = Partial<Omit<Offline_ListData, "startedAt" | "completedAt">> & {
     startDate?: string
     endDate?: string
 }

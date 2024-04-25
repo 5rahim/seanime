@@ -51,7 +51,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
     // Get the list of servers
     const servers = React.useMemo(() => {
         if (!episodeSource) return []
-        return uniq(episodeSource.videoSources.map((source) => source.server))
+        return uniq(episodeSource.videoSources?.map((source) => source.server))
     }, [episodeSource])
 
     React.useEffect(() => {

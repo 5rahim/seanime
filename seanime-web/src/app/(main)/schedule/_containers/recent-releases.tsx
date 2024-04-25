@@ -1,6 +1,6 @@
 "use client"
 import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
-import { GenericSliderEpisodeItem } from "@/components/shared/slider-episode-item"
+import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow, subDays } from "date-fns"
@@ -45,7 +45,7 @@ export function RecentReleases() {
                                 key={item.id}
                                 className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                             >
-                                <GenericSliderEpisodeItem
+                                <EpisodeCard
                                     key={item.id}
                                     title={`Episode ${item.episode}`}
                                     image={item.media?.bannerImage || item.media?.coverImage?.large}

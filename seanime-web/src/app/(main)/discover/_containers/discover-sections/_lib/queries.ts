@@ -1,6 +1,5 @@
-import { ListMediaQuery, ListMediaQueryVariables, MediaSeason } from "@/lib/anilist/gql/graphql"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
+import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
+import { MediaSeason } from "@/lib/anilist/gql/graphql"
 import { useInView } from "framer-motion"
 import { atom } from "jotai"
 import { useAtomValue } from "jotai/react"
@@ -11,17 +10,12 @@ export const __discover_trendingGenresAtom = atom<string[]>([])
 export function useDiscoverTrendingAnime() {
     const genres = useAtomValue(__discover_trendingGenresAtom)
 
-    return useSeaQuery<ListMediaQuery>({
-        queryKey: ["discover-trending-anime", genres],
-        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 20,
-            sort: ["TRENDING_DESC"],
-            genres: genres.length > 0 ? genres : undefined,
-        },
-    })
+    return useAnilistListAnime({
+        page: 1,
+        perPage: 20,
+        sort: ["TRENDING_DESC"],
+        genres: genres.length > 0 ? genres : undefined,
+    }, true)
 
 }
 
@@ -60,19 +54,13 @@ export function useDiscoverPastSeasonAnime(ref: any) {
     const pastSeason = season === "WINTER" ? "FALL" : season === "SPRING" ? "WINTER" : season === "SUMMER" ? "SPRING" : "SUMMER"
     const pastYear = season === "WINTER" ? currentYear - 1 : currentYear
 
-    return useSeaQuery<ListMediaQuery, ListMediaQueryVariables>({
-        queryKey: ["discover-highest-rating-last-season-anime"],
-        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 20,
-            sort: ["SCORE_DESC"],
-            season: pastSeason,
-            seasonYear: pastYear,
-        },
-        enabled: isInView,
-    })
+    return useAnilistListAnime({
+        page: 1,
+        perPage: 20,
+        sort: ["SCORE_DESC"],
+        season: pastSeason,
+        seasonYear: pastYear,
+    }, isInView)
 }
 
 export function useDiscoverUpcomingAnime(ref: any) {
@@ -82,18 +70,12 @@ export function useDiscoverUpcomingAnime(ref: any) {
         if (isInView) return
         setIsInView(_isInView)
     }, [_isInView])
-    return useSeaQuery<ListMediaQuery>({
-        queryKey: ["discover-upcoming-anime"],
-        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 20,
-            sort: ["TRENDING_DESC"],
-            status: ["NOT_YET_RELEASED"],
-        },
-        enabled: isInView,
-    })
+    return useAnilistListAnime({
+        page: 1,
+        perPage: 20,
+        sort: ["TRENDING_DESC"],
+        status: ["NOT_YET_RELEASED"],
+    }, isInView)
 }
 
 export function useDiscoverPopularAnime(ref: any) {
@@ -103,17 +85,11 @@ export function useDiscoverPopularAnime(ref: any) {
         if (isInView) return
         setIsInView(_isInView)
     }, [_isInView])
-    return useSeaQuery<ListMediaQuery>({
-        queryKey: ["discover-popular-anime"],
-        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 20,
-            sort: ["POPULARITY_DESC"],
-        },
-        enabled: isInView,
-    })
+    return useAnilistListAnime({
+        page: 1,
+        perPage: 20,
+        sort: ["POPULARITY_DESC"],
+    }, isInView)
 }
 
 export function useDiscoverTrendingMovies(ref: any) {
@@ -123,16 +99,10 @@ export function useDiscoverTrendingMovies(ref: any) {
         if (isInView) return
         setIsInView(_isInView)
     }, [_isInView])
-    return useSeaQuery<ListMediaQuery>({
-        queryKey: ["discover-trending-movies"],
-        endpoint: SeaEndpoints.ANILIST_LIST_ANIME,
-        method: "post",
-        data: {
-            page: 1,
-            perPage: 20,
-            format: "MOVIE",
-            sort: ["TRENDING_DESC"],
-        },
-        enabled: isInView,
-    })
+    return useAnilistListAnime({
+        page: 1,
+        perPage: 20,
+        format: "MOVIE",
+        sort: ["TRENDING_DESC"],
+    }, isInView)
 }

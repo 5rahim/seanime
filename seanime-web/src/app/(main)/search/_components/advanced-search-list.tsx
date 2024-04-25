@@ -1,4 +1,4 @@
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useAnilistAdvancedSearch } from "@/app/(main)/search/_lib/queries"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -19,7 +19,7 @@ export function AdvancedSearchList() {
                     media={media}
                     showLibraryBadge={true}
                     showTrailer
-                    isManga={type === "manga"}
+                    type={type}
                 />
             ))}
             {((data?.pages.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean) || []).length > 0 && hasNextPage) &&

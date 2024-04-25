@@ -36132,7 +36132,7 @@
         "jsonName": "number",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },

@@ -1,5 +1,5 @@
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
-import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { useDiscoverUpcomingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import React from "react"
@@ -30,6 +30,7 @@ export function DiscoverUpcoming() {
                             showLibraryBadge
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                             showTrailer
+                            type="anime"
                         />
                     )
                 }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}

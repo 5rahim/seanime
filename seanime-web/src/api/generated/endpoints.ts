@@ -171,7 +171,7 @@ export const API_ENDPOINTS = {
         GetAnimeEntrySilenceStatus: {
             key: "ANIME-ENTRIES-get-anime-entry-silence-status",
             methods: ["GET"],
-            endpoint: "/api/v1/library/anime-entry/silence/:id",
+            endpoint: "/api/v1/library/anime-entry/silence/{id}",
         },
         /**
          *  @description

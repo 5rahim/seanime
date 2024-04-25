@@ -32,7 +32,7 @@ export function GlobalSearch() {
         perPage: 10,
         status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
         sort: ["SEARCH_MATCH"],
-    }, debouncedQuery.length > 0, [debouncedQuery])
+    }, debouncedQuery.length > 0)
 
     const media = React.useMemo(() => data?.Page?.media?.filter(Boolean), [data])
 

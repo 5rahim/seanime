@@ -1,20 +1,19 @@
 "use client"
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
-import { RelationsRecommendationsSection } from "@/app/(main)/entry/_containers/episode-section/_components/relations-recommendations-section"
+import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
-import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 import React, { useMemo } from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 
 
-export function EpisodeSection(props: { entry: MediaEntry, details: MediaDetailsByIdQuery["Media"] }) {
+export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media | undefined }) {
     const { entry, details } = props
     const media = entry.media
 
@@ -98,10 +97,17 @@ export function EpisodeSection(props: { entry: MediaEntry, details: MediaDetails
                                         key={episode?.localFile?.path || idx}
                                         className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
                                     >
-                                        <SliderEpisodeItem
+                                        <EpisodeCard
                                             key={episode.localFile?.path || ""}
-                                            episode={episode}
-                                            onPlay={playVideo}
+                                            image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
+                                            topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
+                                            title={episode.displayTitle}
+                                            meta={episode.episodeMetadata?.airDate ?? undefined}
+                                            isInvalid={episode.isInvalid}
+                                            progressTotal={episode.basicMedia?.episodes}
+                                            progressNumber={episode.progressNumber}
+                                            episodeNumber={episode.episodeNumber}
+                                            onClick={() => playVideo({ path: episode.localFile?.path ?? "" })}
                                         />
                                     </CarouselItem>
                                 ))}

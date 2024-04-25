@@ -1,8 +1,9 @@
 "use client"
-import { useMangaDownloadData, useMangaEntry, useMangaEntryDetails } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MangaRecommendations } from "@/app/(main)/manga/entry/_components/manga-recommendations"
-import { MetaSection } from "@/app/(main)/manga/entry/_components/meta-section"
-import { ChapterList } from "@/app/(main)/manga/entry/_containers/chapter-list/chapter-list"
+import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
+import { useGetMangaDownloadData } from "@/api/hooks/manga_download.hooks"
+import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
+import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
+import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -14,9 +15,11 @@ export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
-    const { mangaEntry, mangaEntryLoading } = useMangaEntry(mediaId)
-    const { mangaDetails, mangaDetailsLoading } = useMangaEntryDetails(mediaId)
-    const { mangaDownloadData, mangaDownloadDataLoading } = useMangaDownloadData(mediaId, mangaEntry)
+    const { data: mangaEntry, isLoading: mangaEntryLoading } = useGetMangaEntry(mediaId)
+    const { data: mangaDetails, isLoading: mangaDetailsLoading } = useGetMangaEntryDetails(mediaId)
+    const { data: mangaDownloadData, isLoading: mangaDownloadDataLoading } = useGetMangaDownloadData({
+        mediaId: mediaId ? Number(mediaId) : undefined,
+    })
 
     React.useEffect(() => {
         if (!mediaId) {

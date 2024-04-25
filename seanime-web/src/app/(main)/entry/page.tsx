@@ -1,5 +1,7 @@
 "use client"
 
+import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
+import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { EntryHeaderBackground } from "@/app/(main)/entry/_components/entry-header-background"
 import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-section/episode-section"
@@ -8,7 +10,6 @@ import { RelationsRecommendationsAccordion } from "@/app/(main)/entry/_container
 import { LegacyMetaSection } from "@/app/(main)/entry/_containers/meta-section/legacy-meta-section"
 import { MetaSection } from "@/app/(main)/entry/_containers/meta-section/meta-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
 import { CustomBackgroundImage } from "@/components/shared/custom-ui/custom-background-image"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
@@ -24,8 +25,8 @@ export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
-    const { mediaEntry, mediaEntryLoading } = useMediaEntry(mediaId)
-    const { mediaDetails, mediaDetailsLoading } = useMediaDetails(mediaId)
+    const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
+    const { data: mediaDetails, isLoading: mediaDetailsLoading } = useGetAnilistMediaDetails(mediaId)
 
     // [CUSTOM UI]
     const ts = useThemeSettings()

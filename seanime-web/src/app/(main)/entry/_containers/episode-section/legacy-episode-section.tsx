@@ -1,8 +1,8 @@
 "use client"
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntry } from "@/api/generated/types"
+import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
-import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-actions/anime-entry-dropdown-menu"
-import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-toggle-lock-button"
+import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-dropdown-menu"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-section/undownloaded-episode-list"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
@@ -16,7 +16,7 @@ import React, { useMemo } from "react"
 import { FiPlayCircle } from "react-icons/fi"
 import { IoLibrarySharp } from "react-icons/io5"
 
-export function LegacyEpisodeSection(props: { entry: MediaEntry }) {
+export function LegacyEpisodeSection(props: { entry: Anime_MediaEntry }) {
     const { entry } = props
     const media = entry.media
 
@@ -95,7 +95,10 @@ export function LegacyEpisodeSection(props: { entry: MediaEntry }) {
                     </div>
 
                     {!!entry.libraryData && <div className="space-x-4 flex justify-center items-center mt-4 md:mt-0">
-                        <BulkToggleLockButton entry={entry} />
+                        <ToggleLockFilesButton
+                            allFilesLocked={entry.libraryData.allFilesLocked}
+                            mediaId={entry.mediaId}
+                        />
                         <AnimeEntryDropdownMenu entry={entry} />
                     </div>}
 

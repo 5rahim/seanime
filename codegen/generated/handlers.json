@@ -784,7 +784,7 @@
       "",
       "\t@summary returns the silence status of a media entry.",
       "\t@param id - int - true - \"The ID of the media entry.\"",
-      "\t@route /api/v1/library/anime-entry/silence/:id [GET]",
+      "\t@route /api/v1/library/anime-entry/silence/{id} [GET]",
       "\t@returns models.SilencedMediaEntry",
       ""
     ],
@@ -793,7 +793,7 @@
     "api": {
       "summary": "returns the silence status of a media entry.",
       "descriptions": [],
-      "endpoint": "/api/v1/library/anime-entry/silence/:id",
+      "endpoint": "/api/v1/library/anime-entry/silence/{id}",
       "methods": [
         "GET"
       ],
@@ -900,7 +900,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2550,6 +2550,7 @@
       "\t@summary returns a list of manga based on the search parameters.",
       "\t@desc This is used by \"Advanced Search\" and search function.",
       "\t@route /api/v1/manga/anilist/list [POST]",
+      "\t@returns anilist.ListManga",
       ""
     ],
     "filepath": "internal/handlers/manga.go",
@@ -2656,9 +2657,9 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
+      "returns": "anilist.ListManga",
+      "returnGoType": "anilist.ListManga",
+      "returnTypescriptType": "AL_ListManga"
     }
   },
   {
@@ -2670,6 +2671,7 @@
       "\t@summary updates the progress of a manga entry.",
       "\t@desc Note: MyAnimeList is not supported",
       "\t@route /api/v1/manga/update-progress [POST]",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/manga.go",
@@ -2700,7 +2702,7 @@
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
-          "required": true,
+          "required": false,
           "descriptions": []
         },
         {
@@ -2722,8 +2724,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },

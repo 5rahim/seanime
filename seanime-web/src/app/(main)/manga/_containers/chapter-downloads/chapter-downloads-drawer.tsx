@@ -1,7 +1,8 @@
 "use client"
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
-import { useMangaChapterDownloadQueue, useMangaChapterDownloads } from "@/app/(main)/manga/_lib/manga.hooks"
-import { MangaCollection } from "@/app/(main)/manga/_lib/manga.types"
+import { Manga_Collection } from "@/api/generated/types"
+import { useGetMangaDownloadsList } from "@/api/hooks/manga_download.hooks"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { useHandleMangaChapterDownloadQueue } from "@/app/(main)/manga/_lib/manga.hooks"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,13 +28,11 @@ type ChapterDownloadQueueDrawerProps = {}
 
 export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
 
-    const {
-        ...rest
-    } = props
+    const {} = props
 
     const [isOpen, setIsOpen] = useAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
 
-    const { data: mangaCollection } = useSeaQuery<MangaCollection>({
+    const { data: mangaCollection } = useSeaQuery<Manga_Collection>({
         endpoint: SeaEndpoints.MANGA_COLLECTION,
         queryKey: ["get-manga-collection"],
     })
@@ -58,10 +57,10 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
     )
 }
 
-/////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type ChapterDownloadQueueProps = {
-    mangaCollection: MangaCollection | undefined
+    mangaCollection: Manga_Collection | undefined
 }
 
 export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
@@ -83,7 +82,7 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
         isResettingErroredChapters,
         clearDownloadQueue,
         isClearingDownloadQueue,
-    } = useMangaChapterDownloadQueue()
+    } = useHandleMangaChapterDownloadQueue()
 
     const isMutating = isStartingDownloadQueue || isStoppingDownloadQueue || isResettingErroredChapters || isClearingDownloadQueue
 
@@ -158,7 +157,7 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                             <div className="space-y-2">
                                 {downloadQueue.map(item => {
 
-                                    const media = mangaCollection?.lists?.flatMap(n => n.entries)?.find(n => n.media?.id === item.mediaId)?.media
+                                    const media = mangaCollection?.lists?.flatMap(n => n.entries)?.find(n => n?.media?.id === item.mediaId)?.media
 
                                     return (
                                         <Card
@@ -210,15 +209,9 @@ type ChapterDownloadListProps = {}
 
 export function ChapterDownloadList(props: ChapterDownloadListProps) {
 
-    const {
-        ...rest
-    } = props
+    const {} = props
 
-    const {
-        data,
-        isLoading,
-        isError,
-    } = useMangaChapterDownloads()
+    const { data, isLoading, isError } = useGetMangaDownloadsList()
 
     return (
         <>
@@ -272,9 +265,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                         return <div key={item.media?.id!} className="col-span-1">
                                             <MediaEntryCard
                                                 media={item.media!}
-                                                showLibraryBadge
-                                                showTrailer
-                                                isManga
+                                                type="manga"
                                                 overlay={<Badge
                                                     className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
                                                     intent="gray"

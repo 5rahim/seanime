@@ -1,7 +1,7 @@
 "use client"
 import { Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
-import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
+import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/styling/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -115,7 +115,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                                 ts.smallerEpisodeCarouselSize && "md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5",
                             )}
                         >
-                            <EpisodeItem
+                            <_EpisodeItem
                                 key={episode.localFile?.path || ""}
                                 episode={episode}
                                 mRef={episodeRefs[idx]}
@@ -129,7 +129,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     )
 }
 
-const EpisodeItem = React.memo(({ episode, mRef, overrideLink }: {
+const _EpisodeItem = React.memo(({ episode, mRef, overrideLink }: {
     episode: Anime_MediaEntryEpisode,
     mRef: React.RefObject<any>,
     overrideLink?: string
@@ -154,15 +154,22 @@ const EpisodeItem = React.memo(({ episode, mRef, overrideLink }: {
     }, [])
 
     return (
-        <SliderEpisodeItem
+        <EpisodeCard
             key={episode.localFile?.path || ""}
-            episode={episode}
+            image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
+            topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
+            title={episode.displayTitle}
+            meta={episode.episodeMetadata?.airDate ?? undefined}
+            isInvalid={episode.isInvalid}
+            progressTotal={episode.basicMedia?.episodes}
+            progressNumber={episode.progressNumber}
+            episodeNumber={episode.episodeNumber}
             onMouseEnter={() => {
                 React.startTransition(() => {
                     setHeaderImage(episode.basicMedia?.bannerImage || episode.episodeMetadata?.image || null)
                 })
             }}
-            ref={mRef}
+            mRef={mRef}
             onClick={() => {
                 if (!overrideLink) {
                     router.push(`/entry?id=${episode.basicMedia?.id}&playNext=true`)

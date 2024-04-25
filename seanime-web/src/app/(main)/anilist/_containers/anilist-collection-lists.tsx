@@ -1,4 +1,4 @@
-import { AnilistEntryList } from "@/app/(main)/anilist/_components/anilist-entry-list"
+import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { getUserAnilistLists } from "@/app/(main)/anilist/_hooks/anilist-lists"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
@@ -15,9 +15,7 @@ type AnilistCollectionListsProps = {}
 
 export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
 
-    const {
-        ...rest
-    } = props
+    const {} = props
 
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
     const [pending, startTransition] = useTransition()
@@ -67,19 +65,19 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
 
                 <div className="py-6">
                     <TabsContent value="current">
-                        <AnilistEntryList list={currentList} />
+                        <AnilistMediaEntryList list={currentList} />
                     </TabsContent>
                     <TabsContent value="planning">
-                        <AnilistEntryList list={planningList} />
+                        <AnilistMediaEntryList list={planningList} />
                     </TabsContent>
                     <TabsContent value="paused">
-                        <AnilistEntryList list={pausedList} />
+                        <AnilistMediaEntryList list={pausedList} />
                     </TabsContent>
                     <TabsContent value="completed">
-                        <AnilistEntryList list={completedList} />
+                        <AnilistMediaEntryList list={completedList} />
                     </TabsContent>
                     <TabsContent value="dropped">
-                        <AnilistEntryList list={droppedList} />
+                        <AnilistMediaEntryList list={droppedList} />
                     </TabsContent>
                 </div>
             </Tabs>
@@ -110,7 +108,3 @@ const SearchInput = () => {
         </div>
     )
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-

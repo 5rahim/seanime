@@ -1,11 +1,10 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/server-status.hooks"
 import { Button } from "@/components/ui/button"
 import { MAL_CLIENT_ID } from "@/lib/anilist/config"
 import { SeaEndpoints } from "@/lib/server/endpoints"
 import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
-import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiCheckCircle, BiLogOut, BiXCircle } from "react-icons/bi"
 import { SiMyanimelist } from "react-icons/si"
@@ -13,7 +12,7 @@ import { SiMyanimelist } from "react-icons/si"
 export const dynamic = "force-static"
 
 export default function Page() {
-    const status = useAtomValue(serverStatusAtom)
+    const status = useServerStatus()
     const qc = useQueryClient()
 
     const OAUTH_URL = React.useMemo(() => {
@@ -81,7 +80,7 @@ export default function Page() {
                     <li><BiXCircle className="text-red-400" /> List synchronization
                         <span className="text-[--muted] italic text-base">
                             To sync your lists, use a third-party service like MAL-Sync.
-                    </span>
+                        </span>
                     </li>
                     <li><BiXCircle className="text-red-400" /> List management <span className="text-[--muted] italic text-base">
                         To manage your MyAnimeList lists, use the official MAL website or app.

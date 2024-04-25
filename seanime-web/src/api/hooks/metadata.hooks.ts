@@ -13,9 +13,9 @@ export function usePopulateTVDBEpisodes() {
         method: API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.methods[0],
         mutationKey: [API_ENDPOINTS.METADATA.PopulateTVDBEpisodes.key],
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
             toast.success("Metadata updated")
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
         },
     })
 }
@@ -28,9 +28,9 @@ export function useEmptyTVDBEpisodes() {
         method: API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.methods[0],
         mutationKey: [API_ENDPOINTS.METADATA.EmptyTVDBEpisodes.key],
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
             toast.success("TheTVDB Metadata emptied")
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
         },
     })
 }

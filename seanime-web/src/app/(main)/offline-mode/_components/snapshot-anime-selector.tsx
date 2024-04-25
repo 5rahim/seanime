@@ -26,7 +26,7 @@ export function SnapshotAnimeSelector(props: SnapshotAnimeSelectorProps) {
         <>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                 {libraryCollection?.lists?.filter(n => n.type === "planned" || n.type === "paused" || n.type === "current")
-                    ?.flatMap(n => n.entries)
+                    ?.flatMap(n => n.entries)?.filter(Boolean)
                     ?.map(entry => {
                         return (
                             <div

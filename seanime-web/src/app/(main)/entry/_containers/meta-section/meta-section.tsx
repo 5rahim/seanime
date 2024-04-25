@@ -1,16 +1,16 @@
 "use client"
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
-import { MediaEntrySilenceToggle } from "@/app/(main)/entry/_components/media-entry-silence-toggle"
-import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-actions/anime-entry-dropdown-menu"
-import { BulkToggleLockButton } from "@/app/(main)/entry/_containers/anime-entry-actions/bulk-toggle-lock-button"
+import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import {
-    AnimeEntryAudienceScore,
-    AnimeEntryGenres,
-    AnimeEntryRanks,
     AnimeEntryStudio,
-} from "@/app/(main)/entry/_containers/meta-section/_components/anime-entry-metadata-components"
+    MediaEntryAudienceScore,
+    MediaEntryGenresList,
+    MediaEntryRankings,
+} from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
+import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
+import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/anime-entry-dropdown-menu"
+import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/anime-entry-silence-toggle"
 import { NextAiringEpisode } from "@/app/(main)/entry/_containers/meta-section/_components/next-airing-episode"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/meta-section/_components/torrent-search-button"
@@ -32,7 +32,7 @@ import { BiCalendarAlt, BiChevronDown } from "react-icons/bi"
 import { useWindowScroll } from "react-use"
 
 
-export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media }) {
+export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media | undefined }) {
 
     const { entry, details } = props
 
@@ -147,9 +147,9 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
                             <DisclosureItem value="item-1" className="space-y-2">
 
                                 <div className="flex gap-2 items-center">
-                                    <AnimeEntryAudienceScore meanScore={details?.meanScore} hideAudienceScore={hideAudienceScore} />
+                                    <MediaEntryAudienceScore meanScore={details?.meanScore} hideAudienceScore={hideAudienceScore} />
 
-                                    <AnimeEntryStudio details={details} />
+                                    <AnimeEntryStudio studios={details?.studios} />
 
                                     <DisclosureTrigger>
                                         <IconButton className="rounded-full" size="sm" intent="gray-basic" icon={<BiChevronDown />} />
@@ -157,9 +157,9 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
                                 </div>
 
                                 <DisclosureContent className="space-y-2">
-                                    <AnimeEntryGenres genres={details?.genres} />
+                                    <MediaEntryGenresList genres={details?.genres} />
 
-                                    <AnimeEntryRanks details={details} />
+                                    <MediaEntryRankings rankings={details?.rankings} />
                                 </DisclosureContent>
                             </DisclosureItem>
                         </Disclosure>
@@ -195,8 +195,12 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
                             <div className="flex flex-1"></div>
 
                             {!!entry.libraryData && <>
-                                <MediaEntrySilenceToggle mediaId={entry.mediaId} />
-                                <BulkToggleLockButton entry={entry} />
+                                <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
+                                <ToggleLockFilesButton
+                                    allFilesLocked={entry.libraryData.allFilesLocked}
+                                    mediaId={entry.mediaId}
+                                    size="lg"
+                                />
                                 <AnimeEntryDropdownMenu entry={entry} />
                             </>}
                         </div>

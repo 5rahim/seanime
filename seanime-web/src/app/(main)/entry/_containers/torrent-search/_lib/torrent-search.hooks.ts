@@ -1,5 +1,4 @@
-import { MediaEntry, MediaEntryDownloadInfo } from "@/app/(main)/(library)/_lib/anime-library.types"
-import { TorrentSearchData } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
+import { Anime_MediaEntry, Anime_MediaEntryDownloadInfo, Torrent_SearchData } from "@/api/generated/types"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { torrentSearchDrawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useDebounceWithSet } from "@/hooks/use-debounce"
@@ -11,8 +10,8 @@ import React, { startTransition } from "react"
 type TorrentSearchHookProps = {
     hasEpisodesToDownload: boolean
     shouldLookForBatches: boolean
-    downloadInfo: MediaEntryDownloadInfo | undefined
-    entry: MediaEntry | undefined
+    downloadInfo: Anime_MediaEntryDownloadInfo | undefined
+    entry: Anime_MediaEntry | undefined
     isAdult: boolean
 }
 
@@ -42,7 +41,7 @@ export function useTorrentSearch(props: TorrentSearchHookProps) {
     /**
      * Fetch torrent search data
      */
-    const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSeaQuery<TorrentSearchData | undefined>({
+    const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSeaQuery<Torrent_SearchData | undefined>({
         endpoint: SeaEndpoints.TORRENT_SEARCH,
         queryKey: ["torrent-search", entry?.mediaId, dSmartSearchEpisode, globalFilter, smartSearchBatch, smartSearchResolution, smartSearch,
             downloadInfo?.absoluteOffset, smartSearchBest],
@@ -66,7 +65,7 @@ export function useTorrentSearch(props: TorrentSearchHookProps) {
     /**
      * Fetch NSFW torrent search data
      */
-    const { data: _nsfw_data, isLoading: _nsfw_isLoading, isFetching: _nsfw_isFetching } = useSeaQuery<TorrentSearchData | undefined>({
+    const { data: _nsfw_data, isLoading: _nsfw_isLoading, isFetching: _nsfw_isFetching } = useSeaQuery<Torrent_SearchData | undefined>({
         endpoint: SeaEndpoints.TORRENT_NSFW_SEARCH,
         queryKey: ["torrent-nsfw-search", globalFilter],
         method: "post",

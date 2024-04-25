@@ -1,6 +1,6 @@
 import { MediaDetailsByIdQuery } from "@/lib/anilist/gql/graphql"
 
-export function getMediaDetailsStats(details: MediaDetailsByIdQuery["Media"] | undefined) {
+export function getMediaEntryRankings(details: MediaDetailsByIdQuery["Media"] | undefined) {
 
     const seasonMostPopular = details?.rankings?.find(r => (!!r?.season || !!r?.year) && r?.type === "POPULAR" && r.rank <= 10)
     const allTimeHighestRated = details?.rankings?.find(r => !!r?.allTime && r?.type === "RATED" && r.rank <= 100)

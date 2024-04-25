@@ -1,4 +1,5 @@
 "use client"
+import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache"
 import { BetaBadge } from "@/components/application/beta-badge"
@@ -9,11 +10,8 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
-import { ServerStatus } from "@/lib/types/server-status.types"
-import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, Settings } from "@/lib/types/settings.types"
+import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER } from "@/lib/types/settings.types"
 import { useAtom } from "jotai/react"
 import Link from "next/link"
 import React, { useEffect } from "react"
@@ -30,7 +28,6 @@ import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
-import { toast } from "sonner"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
@@ -50,14 +47,7 @@ export const dynamic = "force-static"
 export default function Page() {
     const [status, setServerStatus] = useAtom(serverStatusAtom)
 
-    const { mutate, data, isPending } = useSeaMutation<ServerStatus, Settings>({
-        endpoint: SeaEndpoints.SETTINGS,
-        mutationKey: ["patch-settings"],
-        method: "patch",
-        onSuccess: () => {
-            toast.success("Settings updated")
-        },
-    })
+    const { mutate, data, isPending } = useSaveSettings()
 
     useEffect(() => {
         if (!isPending && !!data?.settings) {

@@ -1,27 +1,23 @@
 "use client"
-import { MediaEntryListData } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/server-status.hooks"
-import { MangaEntryListData } from "@/app/(main)/manga/_lib/manga.types"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
-import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
+import { defineSchema, Field, Form } from "@/components/ui/form"
 import { BaseMediaFragment, MediaListStatus } from "@/lib/anilist/gql/graphql"
 import { normalizeDate } from "@/lib/helpers/date"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
-import { useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiFillEdit } from "react-icons/ai"
 import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
 import { useToggle } from "react-use"
-import { toast } from "sonner"
 import { Modal } from "../ui/modal"
 
 type AnilistMediaEntryModalProps = {
     children?: React.ReactNode
-    listData?: MediaEntryListData | MangaEntryListData
+    listData?: Anime_MediaEntryListData | Manga_EntryListData
     media?: BaseMediaFragment
     hideButton?: boolean
     type?: "anime" | "manga"
@@ -43,44 +39,9 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const user = useCurrentUser()
 
-    const qc = useQueryClient()
+    const { mutate, isPending, isSuccess } = useEditAnilistListEntry(media?.id, type)
 
-    const { mutate, isPending, isSuccess } = useSeaMutation<any, InferType<typeof mediaListDataSchema> & {
-        mediaId: number,
-        type: "anime" | "manga"
-    }>({
-        endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
-        mutationKey: ["update-anilist-list-entry"],
-        onSuccess: async () => {
-            toast.success("Entry updated")
-            if (type === "anime") {
-                await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
-                await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            } else if (type === "manga") {
-                await qc.refetchQueries({ queryKey: ["get-manga-entry", media?.id] })
-                await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
-            }
-        },
-    })
-
-    const { mutate: deleteEntry, isPending: isDeleting } = useSeaMutation<any, { mediaId: number, type: "anime" | "manga" }>({
-        endpoint: SeaEndpoints.ANILIST_LIST_ENTRY,
-        mutationKey: ["delete-anilist-list-entry"],
-        method: "delete",
-        onSuccess: async () => {
-            toast.success("Entry removed")
-            toggle(false)
-            if (type === "anime") {
-                await qc.refetchQueries({ queryKey: ["get-media-entry", media?.id] })
-                await qc.refetchQueries({ queryKey: ["get-library-collection"] })
-                await qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            } else if (type === "manga") {
-                await qc.refetchQueries({ queryKey: ["get-manga-entry", media?.id] })
-                await qc.refetchQueries({ queryKey: ["get-manga-collection"] })
-            }
-        },
-    })
+    const { mutate: deleteEntry, isPending: isDeleting } = useDeleteAnilistListEntry(media?.id, type)
 
     if (!user) return null
 
@@ -108,8 +69,8 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         status: "PLANNING",
                         score: 0,
                         progress: 0,
-                        startedAt: null,
-                        completedAt: null,
+                        startedAt: undefined,
+                        completedAt: undefined,
                         type: type,
                     })}
                 />}

@@ -1,10 +1,10 @@
 "use client"
-import { MediaEntry } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { Anime_MediaEntry } from "@/api/generated/types"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
-export function EntryHeaderBackground({ entry }: { entry: MediaEntry }) {
+export function EntryHeaderBackground({ entry }: { entry: Anime_MediaEntry }) {
     return (
         <motion.div
             initial={{ opacity: 0 }}

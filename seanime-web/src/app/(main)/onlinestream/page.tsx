@@ -1,8 +1,9 @@
 "use client"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
+import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
+import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { ScoreProgressBadges } from "@/app/(main)/entry/_containers/meta-section/_components/score-progress-badges"
-import { useMediaDetails, useMediaEntry } from "@/app/(main)/entry/_lib/media-entry"
 import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
 import {
     OnlinestreamParametersButton,
@@ -24,8 +25,6 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaMutation } from "@/lib/server/query"
 import { useQueryClient } from "@tanstack/react-query"
 import {
     isHLSProvider,
@@ -50,7 +49,6 @@ import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { BiCalendarAlt } from "react-icons/bi"
 import { useUpdateEffect } from "react-use"
-import { toast } from "sonner"
 
 const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
 type ProgressItem = {
@@ -68,8 +66,8 @@ export default function Page() {
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const urlEpNumber = searchParams.get("episode")
-    const { mediaEntry, mediaEntryLoading } = useMediaEntry(mediaId)
-    const { mediaDetails } = useMediaDetails(mediaId)
+    const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
+    const { data: mediaDetails } = useGetAnilistMediaDetails(mediaId)
 
     const ref = React.useRef<MediaPlayerInstance>(null)
 
@@ -218,23 +216,12 @@ export default function Page() {
         return ret
     }, [])
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useSeaMutation<boolean, {
-        episodeNumber: number,
-        mediaId: number,
-        malId?: number,
-        totalEpisodes: number,
-    }>({
-        endpoint: SeaEndpoints.ANIME_ENTRY_UPDATE_PROGRESS,
-        mutationKey: ["update-progress", currentEpisodeNumber],
-        method: "post",
-        onSuccess: () => {
-            qc.refetchQueries({ queryKey: ["get-media-entry", Number(mediaId)] })
-            qc.refetchQueries({ queryKey: ["get-library-collection"] })
-            qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
-            toast.success("Progress updated")
-            setProgressItem(undefined)
-        },
-    })
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId)
+    // qc.refetchQueries({ queryKey: ["get-media-entry", Number(mediaId)] })
+    // qc.refetchQueries({ queryKey: ["get-library-collection"] })
+    // qc.refetchQueries({ queryKey: ["get-anilist-collection"] })
+    // toast.success("Progress updated")
+    // setProgressItem(undefined)
 
 
     if (!loadPage || !media || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
@@ -533,7 +520,7 @@ export default function Page() {
                                 {(!episodes?.length && !loadPage) && <p>
                                     No episodes found
                                 </p>}
-                                {episodes?.sort((a, b) => a.number - b.number)?.map((episode, idx) => {
+                                {episodes?.filter(Boolean)?.sort((a, b) => a!.number - b!.number)?.map((episode, idx) => {
                                     return (
                                         <div
                                             key={idx + (episode.title || "") + episode.number}

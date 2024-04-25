@@ -1,17 +1,17 @@
-import { MediaEntryCard } from "@/app/(main)/_components/features/media/media-entry-card"
-import { MediaEntryCardSkeleton } from "@/app/(main)/_components/features/media/media-entry-card-skeleton"
+import { AL_BaseMedia } from "@/api/generated/types"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
 import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_containers/discover-sections/_lib/queries"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/constants"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { StaticTabs } from "@/components/ui/tabs"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useEffect, useState } from "react"
 
-export const __discover_randomTrendingAtom = atom<BaseMediaFragment | undefined>(undefined)
+export const __discover_randomTrendingAtom = atom<AL_BaseMedia | undefined>(undefined)
 export const __discover_headerIsTransitioningAtom = atom(false)
 
 export function DiscoverTrending() {
@@ -75,6 +75,7 @@ export function DiscoverTrending() {
                             showLibraryBadge
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                             showTrailer
+                            type="anime"
                         />
                     )
                 }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}

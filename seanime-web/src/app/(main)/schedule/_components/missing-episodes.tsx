@@ -1,8 +1,7 @@
 "use client"
 import { Anime_MissingEpisodes } from "@/api/generated/types"
+import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_hooks/use-handle-missing-episodes"
-import { LargeEpisodeListItem } from "@/components/shared/large-episode-list-item"
-import { GenericSliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -46,9 +45,9 @@ export function MissingEpisodes({ isLoading, data }: {
                                         key={episode?.basicMedia?.id + episode.displayTitle}
                                         className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                                     >
-                                        <GenericSliderEpisodeItem
+                                        <EpisodeCard
                                             key={episode.displayTitle + episode.basicMedia?.id}
-                                            image={episode.episodeMetadata?.image}
+                                            image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
                                             topTitle={episode.basicMedia?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
@@ -80,14 +79,15 @@ export function MissingEpisodes({ isLoading, data }: {
                                 <AccordionContent className="bg-gray-950 rounded-[--radius]">
                                     <HorizontalDraggableScroll>
                                         {!isLoading && silencedEpisodes?.map(episode => {
-                                            return <LargeEpisodeListItem
+                                            return <EpisodeCard
                                                 key={episode.displayTitle + episode.basicMedia?.id}
-                                                image={episode.episodeMetadata?.image}
+                                                image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
                                                 topTitle={episode.basicMedia?.title?.userPreferred}
                                                 title={episode.displayTitle}
                                                 meta={episode.episodeMetadata?.airDate ?? undefined}
                                                 actionIcon={<AiOutlineDownload />}
                                                 isInvalid={episode.isInvalid}
+                                                type="grid"
                                                 onClick={() => {
                                                     router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
                                                 }}

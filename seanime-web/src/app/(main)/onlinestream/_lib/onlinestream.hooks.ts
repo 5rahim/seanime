@@ -1,3 +1,5 @@
+import { Onlinestream_EpisodeSource } from "@/api/generated/types"
+import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import {
     __onlinestream_qualityAtom,
     __onlinestream_selectedDubbedAtom,
@@ -5,9 +7,6 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { Onlinestream_EpisodeListResponse, Onlinestream_EpisodeSource } from "@/app/(main)/onlinestream/_lib/onlinestream.types"
-import { SeaEndpoints } from "@/lib/server/endpoints"
-import { useSeaQuery } from "@/lib/server/query"
 import { useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -22,21 +21,7 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const dubbed = useAtomValue(__onlinestream_selectedDubbedAtom)
 
-    const { data, isLoading, isFetching, isSuccess, isError } = useSeaQuery<Onlinestream_EpisodeListResponse, {
-        mediaId: number,
-        provider: string,
-        dubbed: boolean
-    }>({
-        endpoint: SeaEndpoints.ONLINESTREAM_EPISODE_LIST,
-        method: "post",
-        queryKey: ["onlinestream-episode-list", mId, provider, dubbed],
-        data: {
-            mediaId: Number(mId),
-            dubbed,
-            provider: provider,
-        },
-        enabled: !!mId,
-    })
+    const { data, isLoading, isFetching, isSuccess, isError } = useGetOnlineStreamEpisodeList(mId, provider, dubbed)
 
     React.useEffect(() => {
         if (isError) {
@@ -61,23 +46,12 @@ export function useOnlinestreamEpisodeSource(mId: string | null, isSuccess: bool
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
     const dubbed = useAtomValue(__onlinestream_selectedDubbedAtom)
 
-    const { data, isLoading, isFetching, isError } = useSeaQuery<Onlinestream_EpisodeSource, {
-        mediaId: number,
-        episodeNumber: number,
-        provider: string,
-        dubbed: boolean
-    }>({
-        endpoint: SeaEndpoints.ONLINESTREAM_EPISODE_SOURCE,
-        method: "post",
-        queryKey: ["onlinestream-episode-source", mId, provider, episodeNumber, dubbed],
-        data: {
-            mediaId: Number(mId),
-            episodeNumber: episodeNumber!,
-            dubbed,
-            provider: provider,
-        },
-        enabled: !!mId && episodeNumber !== undefined && isSuccess,
-    })
+    const { data, isLoading, isFetching, isError } = useGetOnlineStreamEpisodeSource(
+        mId,
+        provider,
+        episodeNumber,
+        dubbed, !!mId && episodeNumber !== undefined && isSuccess,
+    )
 
     return {
         episodeSource: data,
@@ -94,7 +68,7 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
     const selectedServer = useAtomValue(__onlinestream_selectedServerAtom)
 
     const videoSource = React.useMemo(() => {
-        if (!episodeSource) return undefined
+        if (!episodeSource || !episodeSource.videoSources) return undefined
 
         let videoSources = episodeSource.videoSources
 

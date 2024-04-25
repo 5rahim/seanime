@@ -494,7 +494,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 //
 //	@summary returns the silence status of a media entry.
 //	@param id - int - true - "The ID of the media entry."
-//	@route /api/v1/library/anime-entry/silence/:id [GET]
+//	@route /api/v1/library/anime-entry/silence/{id} [GET]
 //	@returns models.SilencedMediaEntry
 func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
@@ -566,7 +566,7 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 
 	type body struct {
 		MediaId       int `json:"mediaId"`
-		MalId         int `json:"malId"`
+		MalId         int `json:"malId,omitempty"`
 		EpisodeNumber int `json:"episodeNumber"`
 		TotalEpisodes int `json:"totalEpisodes"`
 	}

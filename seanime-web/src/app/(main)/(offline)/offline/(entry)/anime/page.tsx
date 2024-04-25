@@ -1,21 +1,19 @@
 "use client"
 
-import { MediaEntryEpisode } from "@/app/(main)/(library)/_lib/anime-library.types"
+import { AL_BaseMedia, Anime_MediaEntryEpisode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_components/offline-meta-section"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { OfflineAnimeEntry, OfflineAssetMap } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.types"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
+import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-section/episode-item"
 import { useMediaPlayer, usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/media-player"
-import { EpisodeListItem } from "@/components/shared/episode-list-item"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { SliderEpisodeItem } from "@/components/shared/slider-episode-item"
 import { PageWrapper } from "@/components/shared/styling/page-wrapper"
 import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { BaseMediaFragment } from "@/lib/anilist/gql/graphql"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { memo } from "react"
@@ -51,8 +49,8 @@ export default function Page() {
 
 type EpisodeListsProps = {
     children?: React.ReactNode
-    entry: OfflineAnimeEntry
-    assetMap: OfflineAssetMap | undefined
+    entry: Offline_AnimeEntry
+    assetMap: Offline_AssetMapImageMap | undefined
 }
 
 function EpisodeLists(props: EpisodeListsProps) {
@@ -124,10 +122,17 @@ function EpisodeLists(props: EpisodeListsProps) {
                                     key={episode?.localFile?.path || idx}
                                     className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
                                 >
-                                    <SliderEpisodeItem
+                                    <EpisodeCard
                                         key={episode.localFile?.path || ""}
-                                        episode={episode}
-                                        onPlay={playVideo}
+                                        image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
+                                        topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
+                                        title={episode.displayTitle}
+                                        meta={episode.episodeMetadata?.airDate ?? undefined}
+                                        isInvalid={episode.isInvalid}
+                                        progressTotal={episode.basicMedia?.episodes}
+                                        progressNumber={episode.progressNumber}
+                                        episodeNumber={episode.episodeNumber}
+                                        onClick={() => playVideo({ path: episode.localFile?.path ?? "" })}
                                     />
                                 </CarouselItem>
                             ))}
@@ -184,15 +189,15 @@ function EpisodeLists(props: EpisodeListsProps) {
 }
 
 const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
-    episode: MediaEntryEpisode,
-    media: BaseMediaFragment,
+    episode: Anime_MediaEntryEpisode,
+    media: AL_BaseMedia,
     onPlay: ({ path }: { path: string }) => void,
     isWatched?: boolean
 }) => {
 
     return (
         <EpisodeItemIsolation.Provider>
-            <EpisodeListItem
+            <EpisodeGridItem
                 media={media}
                 image={episode.episodeMetadata?.image}
                 onClick={() => onPlay({ path: episode.localFile?.path ?? "" })}

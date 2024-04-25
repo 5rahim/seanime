@@ -1,6 +1,6 @@
+import { Torrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
-import { AnimeTorrent, TorrentPreview } from "@/app/(main)/entry/_containers/torrent-search/_lib/torrent.types"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -9,10 +9,10 @@ import React from "react"
 import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
 type TorrentPreviewList = {
-    previews: TorrentPreview[],
+    previews: Torrent_Preview[],
     isLoading: boolean
-    selectedTorrents: AnimeTorrent[]
-    onToggleTorrent: (t: AnimeTorrent) => void
+    selectedTorrents: Torrent_AnimeTorrent[]
+    onToggleTorrent: (t: Torrent_AnimeTorrent) => void
 }
 
 export const TorrentPreviewList = React.memo((
@@ -28,6 +28,7 @@ export const TorrentPreviewList = React.memo((
     return (
         <div className="space-y-2">
             {previews.filter(Boolean).map(item => {
+                if (!item.torrent) return null
                 return (
                     <TorrentPreviewItem
                         key={item.torrent.link}
@@ -36,14 +37,14 @@ export const TorrentPreviewList = React.memo((
                         filename={item.torrent.name}
                         isBatch={item.torrent.isBatch}
                         image={item.episode?.episodeMetadata?.image || item.episode?.basicMedia?.coverImage?.large}
-                        isSelected={selectedTorrents.findIndex(n => n.link === item.torrent.link) !== -1}
-                        onClick={() => onToggleTorrent(item.torrent)}
+                        isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
+                        onClick={() => onToggleTorrent(item.torrent!)}
                         action={<Tooltip
                             trigger={<IconButton
                                 icon={<BiLinkExternal />}
                                 intent="primary-basic"
                                 size="sm"
-                                onClick={() => window.open(item.torrent.link, "_blank")}
+                                onClick={() => window.open(item.torrent!.link, "_blank")}
                             />}
                         >Open in browser</Tooltip>}
                     >
