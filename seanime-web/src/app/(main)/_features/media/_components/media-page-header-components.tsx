@@ -254,19 +254,19 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <TextGenerateEffect
-                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center md:text-left text-pretty text-3xl 2xl:text-5xl"
+                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl"
                             words={title || ""}
                         />
                         {(!!englishTitle && title?.toLowerCase() !== englishTitle?.toLowerCase()) &&
-                            <h4 className="text-gray-400 line-clamp-2 text-center md:text-left">{englishTitle}</h4>}
+                            <h4 className="text-gray-400 line-clamp-2 text-center lg:text-left">{englishTitle}</h4>}
                         {(!!romajiTitle && title?.toLowerCase() !== romajiTitle?.toLowerCase()) &&
-                            <h4 className="text-gray-400 line-clamp-2 text-center md:text-left">{romajiTitle}</h4>}
+                            <h4 className="text-gray-400 line-clamp-2 text-center lg:text-left">{romajiTitle}</h4>}
                     </div>
 
                     {/*DATE*/}
                     {!!startDate?.year && (
-                        <div>
-                            <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
+                        <div className="flex gap-4 items-center flex-wrap justify-center lg:justify-start">
+                            <p className="text-lg text-gray-200 flex gap-1 items-center">
                                 <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                 year: "numeric",
                                 month: "short",
@@ -274,12 +274,19 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                 ? ` - ${capitalize(season)}`
                                 : ""}
                             </p>
+
+                            {((status !== "FINISHED" && type === "anime") || type === "manga") && <Badge
+                                size="lg"
+                                intent={status === "RELEASING" ? "success" : "gray"}
+                            >
+                                {capitalize(status || "")?.replaceAll("_", " ")}
+                            </Badge>}
                         </div>
                     )}
 
 
                     {/*LIST*/}
-                    <div className="flex gap-2 md:gap-4 items-center">
+                    <div className="flex gap-2 md:gap-4 items-center justify-center lg:justify-start">
 
                         <MediaPageHeaderScoreAndProgress
                             score={listData?.score}
