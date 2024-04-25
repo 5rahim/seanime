@@ -16,7 +16,7 @@ export function useHandleOfflineSnapshotEntry() {
     useWebsocketMessageListener({
         type: WSEvents.OFFLINE_SNAPSHOT_CREATED,
         onMessage: _ => {
-            qc.refetchQueries({ queryKey: [API_ENDPOINTS.OFFLINE.GetOfflineSnapshotEntry.key] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.OFFLINE.GetOfflineSnapshotEntry.key] })
         },
     })
 

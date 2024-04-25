@@ -56,7 +56,7 @@ export function useTorrentClientAddMagnetFromRule() {
         mutationKey: [API_ENDPOINTS.TORRENT_CLIENT.TorrentClientAddMagnetFromRule.key],
         onSuccess: async () => {
             toast.success("Download started")
-            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key] })
         },
     })
 }

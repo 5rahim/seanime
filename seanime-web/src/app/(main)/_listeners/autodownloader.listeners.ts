@@ -22,7 +22,7 @@ export function useAutoDownloaderItemListener() {
     useWebsocketMessageListener<string>({
         type: WSEvents.AUTO_DOWNLOADER_ITEM_ADDED,
         onMessage: data => {
-            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems] })
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key] })
         },
     })
 

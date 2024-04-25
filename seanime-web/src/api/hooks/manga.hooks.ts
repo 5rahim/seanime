@@ -108,8 +108,8 @@ export function useUpdateMangaProgress(id: Nullish<string | number>) {
         method: API_ENDPOINTS.MANGA.UpdateMangaProgress.methods[0],
         mutationKey: [API_ENDPOINTS.MANGA.UpdateMangaProgress.key],
         onSuccess: async () => {
-            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key, String(id)] })
-            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key, String(id)] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
         },
     })
 }

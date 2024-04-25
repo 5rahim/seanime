@@ -42,7 +42,7 @@ export function useUpdateOfflineEntryListData() {
         method: API_ENDPOINTS.OFFLINE.UpdateOfflineEntryListData.methods[0],
         mutationKey: [API_ENDPOINTS.OFFLINE.UpdateOfflineEntryListData.key],
         onSuccess: async () => {
-            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.OFFLINE.GetOfflineSnapshot.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.OFFLINE.GetOfflineSnapshot.key] })
             toast.success("Entry updated")
         },
     })
