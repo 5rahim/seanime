@@ -5,7 +5,7 @@ import { Anime_LocalFile } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useScanLocalFiles() {
+export function useScanLocalFiles(onSuccess?: () => void) {
     const queryClient = useQueryClient()
 
     return useServerMutation<Array<Anime_LocalFile>, ScanLocalFiles_Variables>({
@@ -17,6 +17,7 @@ export function useScanLocalFiles() {
             toast.success("Library scanned")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderItems.key] })
+            onSuccess?.()
         },
     })
 }

@@ -9,7 +9,7 @@ import (
 //
 //	@summary deletes the list sync cache.
 //	@desc This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.
-//	@route /api/v1/filecache/cache [POST]
+//	@route /api/v1/list-sync/cache [POST]
 //	@returns bool
 func HandleDeleteListSyncCache(c *RouteCtx) error {
 
@@ -22,7 +22,7 @@ func HandleDeleteListSyncCache(c *RouteCtx) error {
 //
 //	@summary returns the anime diffs from the list sync instance.
 //	@desc If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes
-//	@route /api/v1/filecache/anime [GET]
+//	@route /api/v1/list-sync/anime-diffs [GET]
 //	@returns []listsync.AnimeDiff
 func HandleGetListSyncAnimeDiffs(c *RouteCtx) error {
 	// Fetch the list sync instance from the cache
@@ -46,7 +46,7 @@ func HandleGetListSyncAnimeDiffs(c *RouteCtx) error {
 // HandleSyncAnime
 //
 //	@summary syncs the anime based on the provided diff kind
-//	@route /api/v1/filecache/anime [POST]
+//	@route /api/v1/list-sync/anime [POST]
 //	@returns []listsync.AnimeDiff
 func HandleSyncAnime(c *RouteCtx) error {
 

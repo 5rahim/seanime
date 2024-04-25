@@ -21,7 +21,9 @@ export function ScannerModal() {
     const skipLockedFiles = useBoolean(true)
     const skipIgnoredFiles = useBoolean(true)
 
-    const { mutate: scanLibrary, isPending: isScanning } = useScanLocalFiles()
+    const { mutate: scanLibrary, isPending: isScanning } = useScanLocalFiles(() => {
+        setOpen(false)
+    })
 
     React.useEffect(() => {
         setScannerIsScanning(isScanning)
