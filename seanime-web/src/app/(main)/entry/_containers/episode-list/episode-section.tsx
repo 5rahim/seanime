@@ -1,6 +1,7 @@
 "use client"
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
-import { usePlayVideo } from "@/api/hooks/mediaplayer.hooks"
+
+import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -18,7 +19,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
     const { entry, details } = props
     const media = entry.media
 
-    const { mutate: playVideo } = usePlayVideo()
+    const { mutate: playVideo } = usePlaybackPlayVideo()
 
     usePlayNextVideoOnMount({
         onPlay: () => {

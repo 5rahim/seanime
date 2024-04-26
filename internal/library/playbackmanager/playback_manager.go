@@ -159,15 +159,8 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
 	pm.playlistHub.reset()
-
-	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
-	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.anilistCollection == nil {
-		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-		if !found {
-			return errors.New("could not retrieve anime collection")
-		}
-		pm.anilistCollection = snapshot.Collections.AnimeCollection
+	if err := pm.checkAnilistCollection(); err != nil {
+		return err
 	}
 
 	err := pm.MediaPlayerRepository.Play(videopath)
@@ -273,5 +266,20 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 		pm.Logger.Debug().Str("name", playlist.Name).Msgf("playback manager: Deleted playlist")
 	}()
 
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (pm *PlaybackManager) checkAnilistCollection() error {
+	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
+	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
+	if pm.isOffline && pm.anilistCollection == nil {
+		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
+		if !found {
+			return errors.New("could not retrieve anime collection")
+		}
+		pm.anilistCollection = snapshot.Collections.AnimeCollection
+	}
 	return nil
 }

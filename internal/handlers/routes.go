@@ -109,8 +109,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultMediaPlayer))
 
-	v1.Post("/media-player/play", makeHandler(app, HandlePlayVideo))
-
 	//
 	// AniList
 	//
@@ -221,6 +219,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playback-manager/playlist-next", makeHandler(app, HandlePlaybackPlaylistNext))
 	v1.Post("/playback-manager/cancel-playlist", makeHandler(app, HandlePlaybackCancelCurrentPlaylist))
 	v1.Post("/playback-manager/next-episode", makeHandler(app, HandlePlaybackPlayNextEpisode))
+	v1.Post("/playback-manager/play", makeHandler(app, HandlePlaybackPlayVideo))
+	v1.Post("/playback-manager/play-random", makeHandler(app, HandlePlaybackPlayRandomVideo))
 
 	//
 	// Playlists

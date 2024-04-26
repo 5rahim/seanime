@@ -780,17 +780,6 @@
 // mediaplayer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// export function usePlayVideo() {
-//     return useServerMutation<boolean, PlayVideo_Variables>({
-//         endpoint: API_ENDPOINTS.MEDIAPLAYER.PlayVideo.endpoint,
-//         method: API_ENDPOINTS.MEDIAPLAYER.PlayVideo.methods[0],
-//         mutationKey: [API_ENDPOINTS.MEDIAPLAYER.PlayVideo.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
 // export function useStartDefaultMediaPlayer() {
 //     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.MEDIAPLAYER.StartDefaultMediaPlayer.endpoint,
@@ -923,6 +912,28 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // playback_manager
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function usePlaybackPlayVideo() {
+//     return useServerMutation<boolean, PlaybackPlayVideo_Variables>({
+//         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.endpoint,
+//         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.methods[0],
+//         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function usePlaybackPlayRandomVideo() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.endpoint,
+//         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.methods[0],
+//         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
 
 // export function usePlaybackSyncCurrentProgress() {
 //     return useServerMutation<number>({

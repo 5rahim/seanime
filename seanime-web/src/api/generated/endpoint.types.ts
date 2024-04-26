@@ -413,7 +413,7 @@ export type RemoveFileCacheBucket_Variables = {
 /**
  * - Filepath: internal/handlers/list_sync.go
  * - Filename: list_sync.go
- * - Endpoint: /api/v1/filecache/anime
+ * - Endpoint: /api/v1/list-sync/anime
  * @description
  * Route syncs the anime based on the provided diff kind
  */
@@ -657,17 +657,6 @@ export type DeleteMangaChapterDownload_Variables = {
 // mediaplayer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * - Filepath: internal/handlers/mediaplayer.go
- * - Filename: mediaplayer.go
- * - Endpoint: /api/v1/media-player/play
- * @description
- * Route plays the video with the given path using the media player.
- */
-export type PlayVideo_Variables = {
-    path: string
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // metadata
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -771,6 +760,17 @@ export type OnlineStreamEmptyCache_Variables = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // playback_manager
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/playback_manager.go
+ * - Filename: playback_manager.go
+ * - Endpoint: /api/v1/playback-manager/play
+ * @description
+ * Route plays the video with the given path using the default media player.
+ */
+export type PlaybackPlayVideo_Variables = {
+    path: string
+}
 
 /**
  * - Filepath: internal/handlers/playback_manager.go

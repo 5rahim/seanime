@@ -1,7 +1,8 @@
 "use client"
 
 import { AL_BaseMedia, Anime_MediaEntryEpisode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
-import { usePlayVideo } from "@/api/hooks/mediaplayer.hooks"
+
+import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_components/offline-meta-section"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
@@ -95,7 +96,7 @@ function EpisodeLists(props: EpisodeListsProps) {
         })
     }, [mainEpisodes, entry.listData?.progress])
 
-    const { mutate: playVideo } = usePlayVideo()
+    const { mutate: playVideo } = usePlaybackPlayVideo()
 
     usePlayNextVideoOnMount({
         onPlay: () => {

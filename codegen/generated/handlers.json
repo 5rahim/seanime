@@ -1777,7 +1777,7 @@
       "",
       "\t@summary deletes the list sync cache.",
       "\t@desc This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.",
-      "\t@route /api/v1/filecache/cache [POST]",
+      "\t@route /api/v1/list-sync/cache [POST]",
       "\t@returns bool",
       ""
     ],
@@ -1788,7 +1788,7 @@
       "descriptions": [
         "This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request."
       ],
-      "endpoint": "/api/v1/filecache/cache",
+      "endpoint": "/api/v1/list-sync/cache",
       "methods": [
         "POST"
       ],
@@ -1807,7 +1807,7 @@
       "",
       "\t@summary returns the anime diffs from the list sync instance.",
       "\t@desc If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes",
-      "\t@route /api/v1/filecache/anime [GET]",
+      "\t@route /api/v1/list-sync/anime-diffs [GET]",
       "\t@returns []listsync.AnimeDiff",
       ""
     ],
@@ -1818,7 +1818,7 @@
       "descriptions": [
         "If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes"
       ],
-      "endpoint": "/api/v1/filecache/anime",
+      "endpoint": "/api/v1/list-sync/anime-diffs",
       "methods": [
         "GET"
       ],
@@ -1836,7 +1836,7 @@
       "HandleSyncAnime",
       "",
       "\t@summary syncs the anime based on the provided diff kind",
-      "\t@route /api/v1/filecache/anime [POST]",
+      "\t@route /api/v1/list-sync/anime [POST]",
       "\t@returns []listsync.AnimeDiff",
       ""
     ],
@@ -1845,7 +1845,7 @@
     "api": {
       "summary": "syncs the anime based on the provided diff kind",
       "descriptions": [],
-      "endpoint": "/api/v1/filecache/anime",
+      "endpoint": "/api/v1/list-sync/anime",
       "methods": [
         "POST"
       ],
@@ -3133,48 +3133,6 @@
     }
   },
   {
-    "name": "HandlePlayVideo",
-    "trimmedName": "PlayVideo",
-    "comments": [
-      "HandlePlayVideo",
-      "",
-      "\t@summary plays the video with the given path using the media player.",
-      "\t@desc This tells the Playback Manager to play the video using the media player and start tracking progress.",
-      "\t@desc This returns 'true' if the video was successfully played.",
-      "\t@route /api/v1/media-player/play [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/mediaplayer.go",
-    "filename": "mediaplayer.go",
-    "api": {
-      "summary": "plays the video with the given path using the media player.",
-      "descriptions": [
-        "This tells the Playback Manager to play the video using the media player and start tracking progress.",
-        "This returns 'true' if the video was successfully played."
-      ],
-      "endpoint": "/api/v1/media-player/play",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Path",
-          "jsonName": "path",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
     "name": "HandleStartDefaultMediaPlayer",
     "trimmedName": "StartDefaultMediaPlayer",
     "comments": [
@@ -3666,6 +3624,82 @@
           "descriptions": []
         }
       ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandlePlaybackPlayVideo",
+    "trimmedName": "PlaybackPlayVideo",
+    "comments": [
+      "HandlePlaybackPlayVideo",
+      "",
+      "\t@summary plays the video with the given path using the default media player.",
+      "\t@desc This tells the Playback Manager to play the video using the default media player and start tracking progress.",
+      "\t@desc This returns 'true' if the video was successfully played.",
+      "\t@route /api/v1/playback-manager/play [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "plays the video with the given path using the default media player.",
+      "descriptions": [
+        "This tells the Playback Manager to play the video using the default media player and start tracking progress.",
+        "This returns 'true' if the video was successfully played."
+      ],
+      "endpoint": "/api/v1/playback-manager/play",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Path",
+          "jsonName": "path",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandlePlaybackPlayRandomVideo",
+    "trimmedName": "PlaybackPlayRandomVideo",
+    "comments": [
+      "HandlePlaybackPlayRandomVideo",
+      "",
+      "\t@summary plays a random, unwatched video using the default media player.",
+      "\t@desc This tells the Playback Manager to play a random, unwatched video using the media player and start tracking progress.",
+      "\t@desc It respects the user's progress data and will prioritize \"current\" and \"repeating\" media if they are many of them.",
+      "\t@desc This returns 'true' if the video was successfully played.",
+      "\t@route /api/v1/playback-manager/play-random [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "plays a random, unwatched video using the default media player.",
+      "descriptions": [
+        "This tells the Playback Manager to play a random, unwatched video using the media player and start tracking progress.",
+        "It respects the user's progress data and will prioritize \"current\" and \"repeating\" media if they are many of them.",
+        "This returns 'true' if the video was successfully played."
+      ],
+      "endpoint": "/api/v1/playback-manager/play-random",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"

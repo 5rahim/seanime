@@ -1,5 +1,5 @@
 import { useServerMutation } from "@/api/client/requests"
-import { PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
+import { PlaybackPlayVideo_Variables, PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useQueryClient } from "@tanstack/react-query"
@@ -71,3 +71,24 @@ export function usePlaybackPlaylistNext(...keys: any) {
     })
 }
 
+export function usePlaybackPlayVideo() {
+    return useServerMutation<boolean, PlaybackPlayVideo_Variables>({
+        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.endpoint,
+        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.methods[0],
+        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayVideo.key],
+        onSuccess: async () => {
+
+        },
+    })
+}
+
+export function usePlaybackPlayRandomVideo() {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.endpoint,
+        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.methods[0],
+        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.key],
+        onSuccess: async () => {
+            toast.success("Playing random episode")
+        },
+    })
+}

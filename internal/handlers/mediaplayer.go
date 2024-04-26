@@ -1,32 +1,5 @@
 package handlers
 
-// HandlePlayVideo
-//
-//	@summary plays the video with the given path using the media player.
-//	@desc This tells the Playback Manager to play the video using the media player and start tracking progress.
-//	@desc This returns 'true' if the video was successfully played.
-//	@route /api/v1/media-player/play [POST]
-//	@returns bool
-func HandlePlayVideo(c *RouteCtx) error {
-
-	type body struct {
-		Path string `json:"path"`
-	}
-	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	err := c.App.PlaybackManager.StartPlayingUsingMediaPlayer(b.Path)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	return c.RespondWithData(true)
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 // HandleStartDefaultMediaPlayer
 //
 //	@summary launches the default media player (vlc or mpc-hc).

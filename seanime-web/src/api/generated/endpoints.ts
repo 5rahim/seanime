@@ -405,7 +405,7 @@ export const API_ENDPOINTS = {
         DeleteListSyncCache: {
             key: "LIST-SYNC-delete-list-sync-cache",
             methods: ["POST"],
-            endpoint: "/api/v1/filecache/cache",
+            endpoint: "/api/v1/list-sync/cache",
         },
         /**
          *  @description
@@ -415,12 +415,12 @@ export const API_ENDPOINTS = {
         GetListSyncAnimeDiffs: {
             key: "LIST-SYNC-get-list-sync-anime-diffs",
             methods: ["GET"],
-            endpoint: "/api/v1/filecache/anime",
+            endpoint: "/api/v1/list-sync/anime-diffs",
         },
         SyncAnime: {
             key: "LIST-SYNC-sync-anime",
             methods: ["POST"],
-            endpoint: "/api/v1/filecache/anime",
+            endpoint: "/api/v1/list-sync/anime",
         },
     },
     LOCALFILES: {
@@ -690,17 +690,6 @@ export const API_ENDPOINTS = {
         },
     },
     MEDIAPLAYER: {
-        /**
-         *  @description
-         *  Route plays the video with the given path using the media player.
-         *  This tells the Playback Manager to play the video using the media player and start tracking progress.
-         *  This returns 'true' if the video was successfully played.
-         */
-        PlayVideo: {
-            key: "MEDIAPLAYER-play-video",
-            methods: ["POST"],
-            endpoint: "/api/v1/media-player/play",
-        },
         StartDefaultMediaPlayer: {
             key: "MEDIAPLAYER-start-default-media-player",
             methods: ["POST"],
@@ -804,6 +793,29 @@ export const API_ENDPOINTS = {
         },
     },
     PLAYBACK_MANAGER: {
+        /**
+         *  @description
+         *  Route plays the video with the given path using the default media player.
+         *  This tells the Playback Manager to play the video using the default media player and start tracking progress.
+         *  This returns 'true' if the video was successfully played.
+         */
+        PlaybackPlayVideo: {
+            key: "PLAYBACK-MANAGER-playback-play-video",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/play",
+        },
+        /**
+         *  @description
+         *  Route plays a random, unwatched video using the default media player.
+         *  This tells the Playback Manager to play a random, unwatched video using the media player and start tracking progress.
+         *  It respects the user's progress data and will prioritize "current" and "repeating" media if they are many of them.
+         *  This returns 'true' if the video was successfully played.
+         */
+        PlaybackPlayRandomVideo: {
+            key: "PLAYBACK-MANAGER-playback-play-random-video",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/play-random",
+        },
         /**
          *  @description
          *  Route updates the AniList progress of the currently playing media.
