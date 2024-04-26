@@ -282,17 +282,24 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                     <AnimeListItemBottomGradient />
 
-                    {(showProgressBar && progress && progressTotal) && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                    {(showProgressBar && progress && progressTotal) && (
                         <div
                             className={cn(
-                                "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                                (listStatus === "CURRENT" || listStatus === "COMPLETED") ? "bg-brand-400" : "bg-gray-400",
+                                "absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0",
+                                listStatus === "COMPLETED" && "hidden",
                             )}
-                            style={{
-                                width: `${String(Math.ceil((progress / progressTotal) * 100))}%`,
-                            }}
-                        ></div>
-                    </div>}
+                        >
+                            <div
+                                className={cn(
+                                    "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                                    (listStatus === "CURRENT") ? "bg-brand-400" : "bg-gray-400",
+                                )}
+                                style={{
+                                    width: `${String(Math.ceil((progress / progressTotal) * 100))}%`,
+                                }}
+                            ></div>
+                        </div>
+                    )}
 
                     {(showLibraryBadge) &&
                         <div className="absolute z-[1] left-0 top-0">
@@ -303,34 +310,12 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         </div>}
 
                     {/*RELEASING BADGE*/}
-                    {status === "RELEASING" && <div className="absolute z-[10] right-1 top-2">
-                        <Tooltip
-                            trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
-                        >
-                            Airing
-                        </Tooltip>
-                    </div>}
-
-                    {/*NOT YET RELEASED BADGE*/}
-                    {status === "NOT_YET_RELEASED" && <div className="absolute z-[10] right-1 top-1">
-                        {(!!startDate && !!startDate?.year) && <Tooltip
-                            trigger={<Badge intent="gray-solid" size="lg"><RiSignalTowerLine /></Badge>}
-                        >
-                            {!!startDate?.year ?
-                                new Intl.DateTimeFormat("en-US", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                }).format(new Date(startDate.year, startDate?.month || 0, startDate?.day || 0))
-                                : "-"
-                            }
-                        </Tooltip>}
+                    {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
+                        <Badge intent={status === "RELEASING" ? "primary-solid" : "gray-solid"} size="lg"><RiSignalTowerLine /></Badge>
                     </div>}
 
 
                     {children}
-                    {/*<ProgressBadge media={media} listData={listData} />*/}
-                    {/*<ScoreBadge listData={listData} />*/}
 
                     <Image
                         src={bannerImage || ""}
@@ -403,6 +388,7 @@ export const MediaEntryCardHoverPopupBanner = ({
     blurAdultContent,
     link,
     listStatus,
+    status,
 }: {
     mediaId: number
     trailerId?: string
@@ -416,6 +402,7 @@ export const MediaEntryCardHoverPopupBanner = ({
     blurAdultContent?: boolean
     isAdult?: boolean
     listStatus?: AL_MediaListStatus
+    status?: AL_MediaStatus
 }) => {
 
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
@@ -437,6 +424,25 @@ export const MediaEntryCardHoverPopupBanner = ({
                     )}
                     style={{ width: `${String(Math.ceil((progress / progressTotal) * 100))}%` }}
                 ></div>
+            </div>}
+
+            {/*RELEASING BADGE*/}
+            {<div className="absolute z-[10] right-1 top-2">
+                <Tooltip
+                    trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
+                >
+                    Releasing
+                </Tooltip>
+            </div>}
+            {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
+                <Badge intent={status === "RELEASING" ? "primary-solid" : "gray-solid"} size="lg"><RiSignalTowerLine /></Badge>
+            </div>}
+            {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
+                <Tooltip
+                    trigger={<Badge intent={status === "RELEASING" ? "primary-solid" : "gray-solid"} size="lg"><RiSignalTowerLine /></Badge>}
+                >
+                    {status === "RELEASING" ? "Releasing" : "Not yet released"}
+                </Tooltip>
             </div>}
 
             {(!!bannerImage) ? <Image

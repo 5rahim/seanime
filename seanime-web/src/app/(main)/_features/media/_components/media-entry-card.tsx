@@ -146,6 +146,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
                         link={link}
                         listStatus={listData?.status}
+                        status={media.status}
                     />
 
                     <MediaEntryCardHoverPopupTitleSection
@@ -191,7 +192,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     </Link>}
 
                     {(listData?.status) &&
-                        <p className="text-center">
+                        <p className="text-center text-sm text-[--muted]">
                             {listData?.status === "CURRENT" ? type === "anime" ? "Watching" : "Reading"
                                 : capitalize(listData?.status ?? "")}
                         </p>}

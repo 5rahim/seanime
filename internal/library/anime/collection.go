@@ -211,15 +211,19 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	})
 
 	// Merge repeating to current (no need to show repeating as a separate list)
-	repeat, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
+	repeatingList, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
 		return item.Status == anilist.MediaListStatusRepeating
 	})
 	if ok {
-		current, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
+		currentList, ok := lo.Find(lists, func(item *LibraryCollectionList) bool {
 			return item.Status == anilist.MediaListStatusCurrent
 		})
-		if len(repeat.Entries) > 0 && ok {
-			current.Entries = append(current.Entries, repeat.Entries...)
+		if len(repeatingList.Entries) > 0 && ok {
+			currentList.Entries = append(currentList.Entries, repeatingList.Entries...)
+		} else if len(repeatingList.Entries) > 0 {
+			newCurrentList := repeatingList
+			newCurrentList.Type = LibraryCollectionEntryCurrent
+			lists = append(lists, newCurrentList)
 		}
 		// Remove repeating from lists
 		lists = lo.Filter(lists, func(item *LibraryCollectionList, index int) bool {

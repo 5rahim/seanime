@@ -33,7 +33,6 @@
 
 - `app`
   - `_atoms`: Global Jotai atoms
-		- Related groups of components should be placed in the same folder and standalone components should be placed in the root.
   - `_hooks`: Top-level queries (loaders) and global state hooks.
   - `_features`: Specialized components that are used across multiple pages.
   - `_listeners`: Websocket listeners.

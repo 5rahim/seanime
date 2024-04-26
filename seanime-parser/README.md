@@ -1,5 +1,5 @@
 <p align="center">
-<img src="../docs/images/logo.png" alt="preview" width="75px"/>
+<img src="../docs/images/logo_2.png" alt="preview" width="150px"/>
 </p>
 
 <h2 align="center"><b>Seanime Parser</b></h2>
@@ -8,19 +8,32 @@
 
 # Features
 
-- Fixes some of the issues with Anitomy-based parsers by using new parsing algorithms.
-- Support for part numbers.
-- Better parsing of keywords.
+- No regression (passes more tests than Anitomy).
+- Not regex-based, context-aware parsing.
+- Support for parts.
 
-| _                                                                                       | Seanime Parser | Anitomy | Anitogo |
-|:----------------------------------------------------------------------------------------|:---------------|:--------|:--------|
-| Standard filename formatting                                                            | ✅              | ✅       | ✅       |
-| [Mobile Suit Gundam Seed Destiny HD REMASTER][07][Big5][720p][AVC_AAC][encoded by SEED] | ✅              | ❌       | ❌       |
-| [ReDone] Memories Off 3.5 - 04 (DVD 10-bit)                                             | ✅              | ❌       | ❌       |
-| Byousoku 5 Centimeter [Blu-Ray][1920x1080 H.264][2.0ch AAC][SOFTSUBS]                   | ✅              | ❌       | ❌       |
-| 37 [Ruberia]_Death_Note_-_37v2_[FINAL]_[XviD][6FA7D273]                                 | ✅              | ❌       | ❌       |
-| [Judas] Aharen-san wa Hakarenai - S01E06v2.mkv                                          | ✅              | ✅       | ❌       |
-| S01E05 - Episode title.mkv                                                              | ✅              | ❔       | ❌       |
+```
+# Seanime Parser
+
+[Mobile Suit Gundam Seed Destiny HD REMASTER][07][Big5][720p][AVC_AAC][encoded by SEED] ✅
+[ReDone] Memories Off 3.5 - 04 (DVD 10-bit) ✅
+Byousoku 5 Centimeter [Blu-Ray][1920x1080 H.264][2.0ch AAC][SOFTSUBS] ✅
+37 [Ruberia]_Death_Note_-_37v2_[FINAL]_[XviD][6FA7D273] ✅
+[Judas] Aharen-san wa Hakarenai - S01E06v2.mkv ✅
+S01E05 - Episode title.mkv ✅
+```
+
+```
+# Anitomy
+
+[Mobile Suit Gundam Seed Destiny HD REMASTER][07][Big5][720p][AVC_AAC][encoded by SEED] ❌
+[ReDone] Memories Off 3.5 - 04 (DVD 10-bit) ❌
+Byousoku 5 Centimeter [Blu-Ray][1920x1080 H.264][2.0ch AAC][SOFTSUBS] ❌
+37 [Ruberia]_Death_Note_-_37v2_[FINAL]_[XviD][6FA7D273] ❌
+[Judas] Aharen-san wa Hakarenai - S01E06v2.mkv ❌
+S01E05 - Episode title.mkv ❌
+```
+
 
 # Use
 
