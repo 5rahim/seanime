@@ -20,6 +20,7 @@
     	├── 📁 _containers
     	├── 📁 _components
     	├── 📁 _lib
+    	├── 📄 layout.tsx
     	└── 📄 page.tsx
 📁 components
 ```
@@ -30,16 +31,16 @@
   - `hooks`: Data-fetching hooks.
 
 
-- `app/_atoms`: Global Jotai atoms
-  - Related groups of components should be placed in the same folder and standalone components should be placed in the root.
-- `app/_hooks`: Top-level queries (loaders) and global state hooks.
-- `app/_features`: Specialized components that are used across multiple pages.
-- `app/_listeners`: Websocket listeners.
-
-
-- `app/{route}/_components`: Route-specific components that only depend on props.
-- `app/{route}/_containers`: Route-specific components that interact with global state and API.
-- `app/{route}/_lib`: Route-specific utility functions, hooks, constants, and data-related functions.
+- `app`
+  - `_atoms`: Global Jotai atoms
+		- Related groups of components should be placed in the same folder and standalone components should be placed in the root.
+  - `_hooks`: Top-level queries (loaders) and global state hooks.
+  - `_features`: Specialized components that are used across multiple pages.
+  - `_listeners`: Websocket listeners.
+  - `{route}`: Route directory.
+    - `_components`: Route-specific components that only depend on props.
+    - `_containers`: Route-specific components that interact with global state and API.
+    - `_lib`: Route-specific utility functions, hooks, constants, and data-related functions.
 
 
 - `components`: Primitive components, not tied to any feature or route.
