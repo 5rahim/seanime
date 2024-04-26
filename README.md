@@ -133,15 +133,9 @@ How to install Seanime
 
 ## Development and Build
 
-To get started, you will need to be familiar with Go and Typescript.
+To get started, you will need to be familiar with Go and React.
 
 [Read more here](https://github.com/5rahim/seanime/blob/main/DEVELOPMENT_AND_BUILD.md)
-
-## Acknowledgements
-
-- [Anikki](https://github.com/Kylart/Anikki/) - Inspired GraphQL fragments
-- [Lunarr](https://github.com/lunarr-app/lunarr-go/) - Inspired the use of GORM
-- [Mangal](https://github.com/metafates/mangal) - Release note script
 
 # Screenshots
 

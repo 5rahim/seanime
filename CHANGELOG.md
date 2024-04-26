@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.4.1
+
+- ⚡️ Scanner: Improved absolute episode detection and normalization
+- 💄 **BREAKING**: Removed legacy anime page layout
+- 🦺 MPV: Fixed multiple instances launching when using 'Play next episode'
+- 🦺 Progress tracking: Fixed progress overwriting when viewing already watched episodes with 'Auto update' on
+- 🦺 Manga: Fixed disappearing chapter table
+- 🦺 Scanner: Fixed panic caused by failed episode normalization
+- 🦺 Offline: Disable Auto Downloader when offline
+- 🏗️ Scanner: Generate scan summary after manual match
+- 🏗️ Core: Refactored web interface codebase
+  - New code structure
+  - More maintainable and less bloated code
+  - Code generation for API routes and types
+  - Fewer inconsistencies
+
 ## v1.4.0
 
 - 🎉 New feature: Offline mode
