@@ -1,5 +1,5 @@
 import { Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
@@ -13,13 +13,12 @@ import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { atom } from "jotai"
-import { useAtomValue } from "jotai/react"
 import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
     const shouldLookForBatches = React.useMemo(() => !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length,
         [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length])

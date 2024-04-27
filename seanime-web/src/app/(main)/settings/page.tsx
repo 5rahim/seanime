@@ -1,6 +1,6 @@
 "use client"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -11,7 +11,6 @@ import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
-import { useAtom } from "jotai/react"
 import Link from "next/link"
 import React, { useEffect } from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
@@ -44,7 +43,8 @@ const tabsListClass = cn(
 export const dynamic = "force-static"
 
 export default function Page() {
-    const [status, setServerStatus] = useAtom(serverStatusAtom)
+    const status = useServerStatus()
+    const setServerStatus = useSetServerStatus()
 
     const { mutate, data, isPending } = useSaveSettings()
 

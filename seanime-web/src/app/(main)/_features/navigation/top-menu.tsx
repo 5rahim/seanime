@@ -1,9 +1,8 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
-import { useAtomValue } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 
@@ -15,7 +14,7 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
 
     const { children, ...rest } = props
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     const pathname = usePathname()
 

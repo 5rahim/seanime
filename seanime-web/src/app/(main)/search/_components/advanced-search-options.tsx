@@ -1,5 +1,5 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     ADVANCED_SEARCH_FORMATS,
     ADVANCED_SEARCH_MEDIA_GENRES,
@@ -19,7 +19,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { getYear } from "date-fns"
 import { useSetAtom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom } from "jotai/react"
 import React, { useState } from "react"
 import { BiTrash } from "react-icons/bi"
 import { FaRegStar, FaSortAmountDown } from "react-icons/fa"
@@ -32,7 +32,7 @@ import { useUpdateEffect } from "react-use"
 
 export function AdvancedSearchOptions() {
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const [params, setParams] = useAtom(__advancedSearch_paramsAtom)
 
     return (

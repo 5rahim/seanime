@@ -1,8 +1,8 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button, CloseButton } from "@/components/ui/button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/loading-spinner"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
-import { useAtomValue, useSetAtom } from "jotai/react"
+import { useSetAtom } from "jotai/react"
 import React, { useState } from "react"
 import { BiSolidBinoculars } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
@@ -28,7 +28,7 @@ export function LibraryWatcher(props: LibraryWatcherProps) {
     } = props
 
     const qc = useQueryClient()
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const [fileEvent, setFileEvent] = useState<string | null>(null)
     const fileAdded = useBoolean(false)
     const fileRemoved = useBoolean(false)

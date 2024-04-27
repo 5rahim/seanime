@@ -1,7 +1,6 @@
 import { AL_BaseManga, AL_BaseMedia, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import {
     MediaEntryCardBody,
     MediaEntryCardContainer,
@@ -17,8 +16,8 @@ import {
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
-import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
 import React from "react"
@@ -40,7 +39,7 @@ type OfflineMediaEntryCardProps<T extends "anime" | "manga"> = {
 
 export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: OfflineMediaEntryCardProps<T>) {
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const {
         media,
         listData,

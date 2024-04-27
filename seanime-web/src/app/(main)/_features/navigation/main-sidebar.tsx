@@ -1,11 +1,10 @@
 "use client"
 import { useLogout } from "@/api/hooks/auth.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { UpdateModal } from "@/app/(main)/_features/update/update-modal"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-queue-count"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
-import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
+import { useCurrentUser, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
@@ -19,7 +18,6 @@ import { useDisclosure } from "@/hooks/use-disclosure"
 import { ANILIST_OAUTH_URL } from "@/lib/server/config"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
-import { useAtom } from "jotai/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
@@ -48,7 +46,8 @@ export function MainSidebar() {
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
     const pathname = usePathname()
-    const [serverStatus, setServerStatus] = useAtom(serverStatusAtom)
+    const serverStatus = useServerStatus()
+    const setServerStatus = useSetServerStatus()
     const user = useCurrentUser()
 
     const missingEpisodeCount = useMissingEpisodeCount()

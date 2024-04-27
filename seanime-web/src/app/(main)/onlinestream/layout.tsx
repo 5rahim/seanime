@@ -1,14 +1,13 @@
 "use client"
 
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
-import { useAtomValue } from "jotai/react"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useRouter } from "next/navigation"
 import React from "react"
 
 export default function Layout({ children }: { children?: React.ReactNode }) {
 
     const router = useRouter()
-    const status = useAtomValue(serverStatusAtom)
+    const status = useServerStatus()
 
     React.useEffect(() => {
         if (!status?.settings?.library?.enableOnlinestream) {

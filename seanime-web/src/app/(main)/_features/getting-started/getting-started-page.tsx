@@ -1,6 +1,6 @@
 import { Status } from "@/api/generated/types"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -8,7 +8,6 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
 import { DEFAULT_DOH_PROVIDER, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
-import { useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
@@ -23,7 +22,7 @@ import { RiFolderDownloadFill } from "react-icons/ri"
 export function GettingStartedPage({ status }: { status: Status }) {
     const router = useRouter()
     const { getDefaultVlcPath, getDefaultQBittorrentPath, getDefaultTransmissionPath } = useDefaultSettingsPaths()
-    const setServerStatus = useSetAtom(serverStatusAtom)
+    const setServerStatus = useSetServerStatus()
 
     const { mutate, data, isPending, isSuccess } = useSaveSettings()
 
@@ -47,7 +46,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
     if (!data) return (
         <div className="container max-w-5xl py-10">
             <div className="mb-4 flex justify-center w-full">
-                <img src="/logo.png" alt="logo" className="w-24 h-auto" />
+                <img src="/logo_2.png" alt="logo" className="w-36 h-auto" />
             </div>
             <Card className="relative p-4">
                 <AppLayoutStack>
@@ -82,7 +81,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         mpvPath: data.mpvPath || "",
                                     },
                                     discord: {
-                                        enableRichPresence: false,
+                                        enableRichPresence: data.enableRichPresence,
                                         enableAnimeRichPresence: true,
                                         enableMangaRichPresence: true,
                                     },
@@ -101,7 +100,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     },
                                     anilist: {
                                         hideAudienceScore: false,
-                                        enableAdultContent: false,
+                                        enableAdultContent: data.enableAdultContent,
                                         blurAdultContent: false,
                                     },
                                 })
@@ -121,9 +120,10 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
                                 torrentProvider: DEFAULT_TORRENT_PROVIDER,
                                 mpvSocket: mpvSocketPath,
+                                enableRichPresence: true,
                                 autoScan: false,
                                 enableOnlinestream: false,
-                                enableManga: false,
+                                enableManga: true,
                             }}
                             stackClass="space-y-4"
                         >
@@ -274,6 +274,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             <Field.Select
                                 name="defaultTorrentClient"
                                 // label="Default torrent client"
+                                leftIcon={<ImDownload className="text-blue-400" />}
                                 options={[
                                     { label: "qBittorrent", value: "qbittorrent" },
                                     { label: "Transmission", value: "transmission" },
@@ -290,7 +291,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             >
                                 <AccordionItem value="qbittorrent">
                                     <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center"><ImDownload className="text-blue-400" /> qBittorrent</h4>
+                                        <h4 className="flex gap-2 items-center">qBittorrent</h4>
                                     </AccordionTrigger>
                                     <AccordionContent className="px-1 py-4 space-y-4">
                                         <Field.Text
@@ -323,7 +324,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 </AccordionItem>
                                 <AccordionItem value="transmission">
                                     <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center"><ImDownload className="text-orange-200" /> Transmission</h4>
+                                        <h4 className="flex gap-2 items-center">Transmission</h4>
                                     </AccordionTrigger>
                                     <AccordionContent className="px-1 py-4 space-y-4">
                                         <Field.Text
@@ -375,6 +376,24 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 name="enableOnlinestream"
                                 label={<span>Online streaming <BetaBadge /></span>}
                                 help="Stream anime episodes from online sources."
+                                size="lg"
+                            />
+
+                            <Field.Checkbox
+                                name="enableRichPresence"
+                                label={<span>Discord Rich Presence</span>}
+                                help="Show what you're watching/reading on Discord."
+                                size="lg"
+                            />
+
+
+                            <Field.Checkbox
+                                name="enableAdultContent"
+                                label={<span>NSFW</span>}
+                                help={<div>
+                                    <p>Show adult content in your library and search results.</p>
+                                    <p>Note that this is different from blurring content, which can be enabled in the settings.</p>
+                                </div>}
                                 size="lg"
                             />
 

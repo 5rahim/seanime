@@ -2,7 +2,7 @@
 import { TorrentClientAction_Variables } from "@/api/generated/endpoint.types"
 import { TorrentClient_Torrent } from "@/api/generated/types"
 import { useGetActiveTorrentList, useTorrentClientAction } from "@/api/hooks/torrent_client.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -11,7 +11,6 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
-import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
 import React from "react"
@@ -21,7 +20,7 @@ import * as upath from "upath"
 export const dynamic = "force-static"
 
 export default function Page() {
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     return (
         <PageWrapper

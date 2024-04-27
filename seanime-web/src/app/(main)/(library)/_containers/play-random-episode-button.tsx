@@ -21,7 +21,7 @@ export function PlayRandomEpisodeButton(props: PlayRandomEpisodeButtonProps) {
         <>
             <Tooltip
                 trigger={<IconButton
-                    intent={"success-subtle"}
+                    intent={"white-subtle"}
                     icon={<LiaRandomSolid className="text-2xl" />}
                     loading={isPending}
                     onClick={() => playRandom()}

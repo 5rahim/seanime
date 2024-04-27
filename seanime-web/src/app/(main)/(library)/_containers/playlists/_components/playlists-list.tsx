@@ -3,8 +3,8 @@ import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_com
 import { StartPlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/start-playlist-modal"
 import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -25,7 +25,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
 
     const { data: playlists, isLoading } = useGetPlaylists()
     const userMedia = useAtomValue(anilistUserMediaAtom)
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     const setOpen = useSetAtom(__playlists_modalOpenAtom)
 

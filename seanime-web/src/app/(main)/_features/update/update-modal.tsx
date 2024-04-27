@@ -2,7 +2,7 @@
 import { Updater_Release } from "@/api/generated/types"
 import { useDownloadRelease } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -10,7 +10,7 @@ import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { atom } from "jotai"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom } from "jotai/react"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiDownload } from "react-icons/bi"
@@ -25,7 +25,7 @@ export const updateModalOpenAtom = atom<boolean>(false)
 const downloaderOpenAtom = atom<boolean>(false)
 
 export function UpdateModal(props: UpdateModalProps) {
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const [updateModalOpen, setUpdateModalOpen] = useAtom(updateModalOpenAtom)
     const [downloaderOpen, setDownloaderOpen] = useAtom(downloaderOpenAtom)
 

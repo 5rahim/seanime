@@ -5,8 +5,12 @@ import (
 )
 
 func RefreshAnilistCollectionJob(c *JobCtx) {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
 
-	if c.App.Settings == nil {
+	if c.App.Settings == nil || c.App.Settings.Library == nil {
 		return
 	}
 

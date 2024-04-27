@@ -1,13 +1,12 @@
 "use client"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/components/ui/core/styling"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import { useAtomValue } from "jotai"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { FaBookReader } from "react-icons/fa"
@@ -17,7 +16,7 @@ import { LuLayoutDashboard } from "react-icons/lu"
 
 
 export function OfflineSidebar() {
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const ctx = useAppSidebarContext()
     const ts = useThemeSettings()
     const { snapshot } = useOfflineSnapshot()

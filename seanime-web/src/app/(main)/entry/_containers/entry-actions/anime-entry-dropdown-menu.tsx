@@ -2,7 +2,7 @@
 import { Anime_MediaEntry } from "@/api/generated/types"
 import { useAnimeEntryBulkAction, useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __bulkDeleteFilesModalIsOpenAtom,
     AnimeEntryBulkDeleteFilesModal,
@@ -12,13 +12,12 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/c
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useSetAtom } from "jotai"
-import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
 
     const { mutate: startDefaultMediaPlayer } = useStartDefaultMediaPlayer()

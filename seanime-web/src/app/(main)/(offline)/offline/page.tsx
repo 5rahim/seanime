@@ -3,16 +3,15 @@ import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-l
 import { OfflineAnimeLists } from "@/app/(main)/(offline)/offline/_components/offline-anime-lists"
 import { OfflineMangaLists } from "@/app/(main)/(offline)/offline/_components/offline-manga-lists"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Separator } from "@/components/ui/separator"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
-import { useAtomValue } from "jotai"
 import React from "react"
 
 export const dynamic = "force-static"
 
 export default function Page() {
-    const status = useAtomValue(serverStatusAtom)
+    const status = useServerStatus()
     const ts = useThemeSettings()
 
     const { snapshot } = useOfflineSnapshot()

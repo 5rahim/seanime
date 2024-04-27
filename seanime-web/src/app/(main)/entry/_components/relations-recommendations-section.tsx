@@ -1,10 +1,9 @@
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
@@ -21,7 +20,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
         ...rest
     } = props
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     const sourceManga = serverStatus?.settings?.library?.enableManga
         ? entry?.media?.relations?.edges?.find(edge => (edge?.relationType === "SOURCE" || edge?.relationType === "ADAPTATION") && edge?.node?.format === "MANGA")?.node

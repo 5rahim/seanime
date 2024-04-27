@@ -1,7 +1,7 @@
 import { AL_BaseManga, AL_MediaListStatus, Manga_ChapterContainer, Manga_EntryListData, Manga_Provider } from "@/api/generated/types"
 import { useGetMangaEntryPages, useUpdateMangaProgress } from "@/api/hooks/manga.hooks"
 import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
 import { MangaReaderBar } from "@/app/(main)/manga/_containers/chapter-reader/_components/manga-reader-bar"
@@ -59,7 +59,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         ...rest
     } = props
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     // Discord rich presence
     useDiscordMangaPresence(entry)

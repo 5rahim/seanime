@@ -95,6 +95,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
             cell: info => <span>Chapter {info.getValue<string>()}</span>,
         },
         {
+            id: "number",
             header: "Number",
             size: 10,
             enableSorting: true,
@@ -220,7 +221,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                         },
                         sorting: [
                             {
-                                id: "chapterNumber",
+                                id: "number",
                                 desc: false,
                             },
                         ],

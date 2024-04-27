@@ -1,7 +1,6 @@
 "use client"
-import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
-import { useAtomValue } from "jotai/react"
 import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 
@@ -13,7 +12,7 @@ export const OfflineTopNavbar: React.FC<OfflineTopNavbarProps> = (props) => {
 
     const { children, ...rest } = props
 
-    const serverStatus = useAtomValue(serverStatusAtom)
+    const serverStatus = useServerStatus()
 
     const pathname = usePathname()
 
