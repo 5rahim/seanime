@@ -11,9 +11,10 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import Link from "next/link"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
-import { BiDownload } from "react-icons/bi"
+import { BiDownload, BiLinkExternal } from "react-icons/bi"
 import { toast } from "sonner"
 
 type UpdateModalProps = {
@@ -54,7 +55,7 @@ export function UpdateModal(props: UpdateModalProps) {
         if (body.includes("---")) {
             body = body.split("---")[0]
         }
-        return body.split(/\s+-\s+/).filter((line) => line.trim() !== "").map(n => (n.startsWith("-") || n.startsWith("##")) ? n : "- " + n)
+        return body.split(/\n/).filter((line) => line.trim() !== "" && line.trim().startsWith("-"))
     }, [updateData])
 
     if (serverStatus?.settings?.library?.disableUpdateCheck) return null
@@ -89,12 +90,12 @@ export function UpdateModal(props: UpdateModalProps) {
                 </div>
                 <div className="space-y-2">
                     <h3>Seanime {updateData.release.version} is out!</h3>
-                    <p className="text-[--muted]">A new version of Seanime is available on the GitHub repository.</p>
+                    <p className="text-[--muted]">A new version of Seanime has been released.</p>
                     {body.some(n => n.includes("🚑️")) &&
                         <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
                     <div className="rounded-[--radius] space-y-1.5">
+                        <h5>What's new?</h5>
                         {body.map((line, index) => {
-                            if (line.startsWith("##")) return <h5 key={index}>What's new?</h5>
                             if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
                                 <AiFillExclamationCircle /></p>
                             if (line.includes("🎉")) return <p key={index} className="text-white">{line}</p>
@@ -117,7 +118,11 @@ export function UpdateModal(props: UpdateModalProps) {
                             )
                         })}
                     </div>
-                    <div className="flex gap-2 justify-end mt-2">
+                    <div className="flex gap-2 w-full !mt-4">
+                        <Link href={updateData?.release?.html_url || ""} target="_blank">
+                            <Button intent="white-subtle" rightIcon={<BiLinkExternal />}>See on GitHub</Button>
+                        </Link>
+                        <div className="flex flex-1" />
                         <Button intent="white" leftIcon={<BiDownload />} onClick={() => setDownloaderOpen(true)}>Download now</Button>
                         <Button intent="white-subtle" onClick={() => ignoreUpdate()}>Ignore</Button>
                     </div>
