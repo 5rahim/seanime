@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Scanner: Fixed panic caused by failed episode normalization
 - 🦺 Offline: Disable Auto Downloader when offline
 - 🦺 Manga: Fixed download list not updating properly
+- 🦺 Offline: Fixed crash when snapshotting entries with missing metadata
 - 💄 Removed legacy anime page layout
 - 💄 Fixed some design inconsistencies
 - 🏗️ Scanner: Generate scan summary after manual match
