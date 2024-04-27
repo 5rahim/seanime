@@ -5,11 +5,12 @@ import { MalAuthResponse } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useMALAuth(enabled: boolean) {
+export function useMALAuth(variables: Partial<MALAuth_Variables>, enabled: boolean) {
     return useServerQuery<MalAuthResponse, MALAuth_Variables>({
         endpoint: API_ENDPOINTS.MAL.MALAuth.endpoint,
         method: API_ENDPOINTS.MAL.MALAuth.methods[0],
         queryKey: [API_ENDPOINTS.MAL.MALAuth.key],
+        data: variables as MALAuth_Variables,
         enabled: enabled,
     })
 }

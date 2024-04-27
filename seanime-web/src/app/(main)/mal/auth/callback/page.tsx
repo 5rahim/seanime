@@ -13,13 +13,17 @@ export default function Page() {
 
     const { code, state, challenge } = React.useMemo(() => {
         const urlParams = new URLSearchParams(window?.location?.search || "")
-        const code = urlParams.get("code")
-        const state = urlParams.get("state")
-        const challenge = sessionStorage.getItem("mal-" + state)
+        const code = urlParams.get("code") || undefined
+        const state = urlParams.get("state") || undefined
+        const challenge = sessionStorage.getItem("mal-" + state) || undefined
         return { code, state, challenge }
     }, [])
 
-    const { data, isError } = useMALAuth(!!code && !!state && !!challenge)
+    const { data, isError } = useMALAuth({
+        code: code,
+        state: state,
+        code_verifier: challenge,
+    }, !!code && !!state && !!challenge)
 
     React.useEffect(() => {
         if (!!data?.access_token) {

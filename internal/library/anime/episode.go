@@ -267,7 +267,7 @@ func NewEpisodeMetadata(
 		md.Summary = epMetadata.Summary
 		md.Overview = epMetadata.Overview
 	} else {
-		md.Image = *media.GetBannerImage()
+		md.Image = media.GetBannerImageSafe()
 	}
 
 	return md
@@ -332,7 +332,7 @@ func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaE
 			}
 		}
 
-		entryEp.EpisodeMetadata.Image = *opts.Media.GetCoverImage().GetLarge()
+		entryEp.EpisodeMetadata.Image = opts.Media.GetCoverImageSafe()
 
 	}
 
