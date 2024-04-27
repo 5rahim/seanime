@@ -87,7 +87,7 @@ func TestQueue(t *testing.T) {
 						//
 						// TEST
 						//
-						err := downloader.Download(DownloadOptions{
+						err := downloader.AddToQueue(DownloadOptions{
 							DownloadID: DownloadID{
 								Provider:      string(tt.providerName),
 								MediaId:       tt.mediaId,

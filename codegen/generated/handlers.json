@@ -6,8 +6,9 @@
       "HandleGetAnilistCollection",
       "",
       "\t@summary returns the user's AniList anime collection.",
-      "\t@desc Calling GET will return the cached data.",
-      "\t@desc Calling POST will refetch the data from Anilist.",
+      "\t@desc Calling GET will return the cached anime collection.",
+      "\t@desc The manga collection is also refreshed in the background, and upon completion, a WebSocket event is sent.",
+      "\t@desc Calling POST will refetch both the anime and manga collections.",
       "\t@returns anilist.AnimeCollection",
       "\t@route /api/v1/anilist/collection [GET,POST]",
       ""
@@ -17,8 +18,9 @@
     "api": {
       "summary": "returns the user's AniList anime collection.",
       "descriptions": [
-        "Calling GET will return the cached data.",
-        "Calling POST will refetch the data from Anilist."
+        "Calling GET will return the cached anime collection.",
+        "The manga collection is also refreshed in the background, and upon completion, a WebSocket event is sent.",
+        "Calling POST will refetch both the anime and manga collections."
       ],
       "endpoint": "/api/v1/anilist/collection",
       "methods": [
@@ -3004,14 +3006,14 @@
     }
   },
   {
-    "name": "HandleDeleteMangaChapterDownload",
-    "trimmedName": "DeleteMangaChapterDownload",
+    "name": "HandleDeleteMangaDownloadedChapters",
+    "trimmedName": "DeleteMangaDownloadedChapters",
     "comments": [
-      "HandleDeleteMangaChapterDownload",
+      "HandleDeleteMangaDownloadedChapters",
       "",
-      "\t@summary deletes a downloaded chapter.",
-      "\t@desc This will delete a downloaded chapter from the filesystem.",
-      "\t@desc Returns 'true' whether the chapter was deleted or not.",
+      "\t@summary deletes downloaded chapters.",
+      "\t@desc This will delete downloaded chapters from the filesystem.",
+      "\t@desc Returns 'true' whether the chapters were deleted or not.",
       "\t@desc The client should refetch the download data after this.",
       "\t@route /api/v1/manga/download-chapter [DELETE]",
       "\t@returns bool",
@@ -3020,10 +3022,10 @@
     "filepath": "internal/handlers/manga_download.go",
     "filename": "manga_download.go",
     "api": {
-      "summary": "deletes a downloaded chapter.",
+      "summary": "deletes downloaded chapters.",
       "descriptions": [
-        "This will delete a downloaded chapter from the filesystem.",
-        "Returns 'true' whether the chapter was deleted or not.",
+        "This will delete downloaded chapters from the filesystem.",
+        "Returns 'true' whether the chapters were deleted or not.",
         "The client should refetch the download data after this."
       ],
       "endpoint": "/api/v1/manga/download-chapter",
@@ -3033,38 +3035,11 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Provider",
-          "jsonName": "provider",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "ChapterId",
-          "jsonName": "chapterId",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "ChapterNumber",
-          "jsonName": "chapterNumber",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
+          "name": "DownloadIds",
+          "jsonName": "downloadIds",
+          "goType": "[]chapter_downloader.DownloadID",
+          "usedStructType": "chapter_downloader.DownloadID",
+          "typescriptType": "Array\u003cChapterDownloader_DownloadID\u003e",
           "required": true,
           "descriptions": []
         }

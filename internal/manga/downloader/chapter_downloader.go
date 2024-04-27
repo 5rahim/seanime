@@ -124,9 +124,9 @@ func (cd *Downloader) ChapterDownloaded() <-chan DownloadID {
 	return cd.chapterDownloadedCh
 }
 
-// Download adds a chapter to the download queue.
+// AddToQueue adds a chapter to the download queue.
 // If the chapter is already downloaded (i.e. a folder already exists), it will delete the previous data and re-download it.
-func (cd *Downloader) Download(opts DownloadOptions) error {
+func (cd *Downloader) AddToQueue(opts DownloadOptions) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
 

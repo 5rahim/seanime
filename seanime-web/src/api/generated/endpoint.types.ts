@@ -12,6 +12,7 @@ import type {
     Anime_AutoDownloaderRuleEpisodeType,
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
+    ChapterDownloader_DownloadID,
     ListSync_AnimeDiffKind,
     Manga_Provider,
     Models_AnilistSettings,
@@ -640,13 +641,10 @@ export type GetMangaDownloadData_Variables = {
  * - Filename: manga_download.go
  * - Endpoint: /api/v1/manga/download-chapter
  * @description
- * Route deletes a downloaded chapter.
+ * Route deletes downloaded chapters.
  */
-export type DeleteMangaChapterDownload_Variables = {
-    mediaId: number
-    provider: string
-    chapterId: string
-    chapterNumber: string
+export type DeleteMangaDownloadedChapters_Variables = {
+    downloadIds: Array<ChapterDownloader_DownloadID>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"strconv"
 	"time"
@@ -11,8 +12,9 @@ import (
 // HandleGetAnilistCollection
 //
 //	@summary returns the user's AniList anime collection.
-//	@desc Calling GET will return the cached data.
-//	@desc Calling POST will refetch the data from Anilist.
+//	@desc Calling GET will return the cached anime collection.
+//	@desc The manga collection is also refreshed in the background, and upon completion, a WebSocket event is sent.
+//	@desc Calling POST will refetch both the anime and manga collections.
 //	@returns anilist.AnimeCollection
 //	@route /api/v1/anilist/collection [GET,POST]
 func HandleGetAnilistCollection(c *RouteCtx) error {
@@ -28,11 +30,11 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 	go func() {
 		if c.App.Settings.Library.EnableManga {
 			_, _ = c.App.GetMangaCollection(bypassCache)
+			c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 		}
 	}()
 
 	return c.RespondWithData(anilistCollection)
-
 }
 
 // HandleEditAnilistListEntry

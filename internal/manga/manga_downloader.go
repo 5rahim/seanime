@@ -33,6 +33,8 @@ type (
 	}
 
 	// MediaMap is created after reading the download directory.
+	// It is used to store all downloaded chapters for each media.
+	// The key is the media ID and the value is a map of provider to a list of chapters.
 	//
 	//	e.g., downloadDir/comick_1234_abc_13/
 	//	      downloadDir/comick_1234_def_13.5/
@@ -132,7 +134,7 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	}
 
 	// Add the chapter to the download queue
-	return d.chapterDownloader.Download(chapter_downloader.DownloadOptions{
+	return d.chapterDownloader.AddToQueue(chapter_downloader.DownloadOptions{
 		DownloadID: chapter_downloader.DownloadID{
 			Provider:      string(opts.Provider),
 			MediaId:       opts.MediaId,
@@ -151,6 +153,25 @@ func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId strin
 		ChapterId:     chapterId,
 		ChapterNumber: chapterNumber,
 	})
+	if err != nil {
+		return err
+	}
+
+	d.refreshMediaMap()
+
+	return nil
+}
+
+// DeleteChapters is called by the client to delete downloaded chapters.
+func (d *Downloader) DeleteChapters(ids []chapter_downloader.DownloadID) (err error) {
+	for _, id := range ids {
+		err = d.chapterDownloader.DeleteChapter(chapter_downloader.DownloadID{
+			Provider:      id.Provider,
+			MediaId:       id.MediaId,
+			ChapterId:     id.ChapterId,
+			ChapterNumber: id.ChapterNumber,
+		})
+	}
 	if err != nil {
 		return err
 	}
@@ -365,5 +386,5 @@ func (d *Downloader) refreshMediaMap() {
 	d.mediaMap = &ret
 
 	// When done refreshing, send a message to the client to refetch the download data
-	d.wsEventManager.SendEvent(events.ChapterDownloaded, nil)
+	d.wsEventManager.SendEvent(events.RefreshedMangaDownloadData, nil)
 }

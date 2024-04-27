@@ -108,7 +108,7 @@ func (q *Queue) HasCompleted(queueInfo *QueueInfo) {
 	}
 
 	q.wsEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
-	q.wsEventManager.SendEvent(events.ChapterDownloaded, nil)
+	q.wsEventManager.SendEvent(events.RefreshedMangaDownloadData, nil)
 
 	// Reset current item
 	q.current = nil

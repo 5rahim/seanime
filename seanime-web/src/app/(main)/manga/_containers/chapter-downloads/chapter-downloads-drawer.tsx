@@ -229,6 +229,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                     {!!data?.length ? (
                         <>
                             {data?.filter(n => !n.media)
+                                .sort((a, b) => a.mediaId - b.mediaId)
                                 .sort((a, b) => Object.values(b.downloadData).flatMap(n => n).length - Object.values(a.downloadData)
                                     .flatMap(n => n).length)
                                 .map(item => {
@@ -254,6 +255,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
 
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
                                 {data?.filter(n => !!n.media)
+                                    .sort((a, b) => a.mediaId - b.mediaId)
                                     .sort((a, b) => Object.values(b.downloadData).flatMap(n => n).length - Object.values(a.downloadData)
                                         .flatMap(n => n).length)
                                     .map(item => {

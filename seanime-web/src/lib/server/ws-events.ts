@@ -14,12 +14,11 @@ export const enum WSEvents {
     PLAYBACK_MANAGER_PROGRESS_PLAYBACK_STATE = "playback-manager-progress-playback-state",
     PLAYBACK_MANAGER_PROGRESS_UPDATED = "playback-manager-progress-updated",
     PLAYBACK_MANAGER_PLAYLIST_STATE = "playback-manager-playlist-state",
-    MANGA_DOWNLOADER_DOWNLOADING_PROGRESS = "manga-downloader-downloading-progress",
     ERROR_TOAST = "error-toast",
     SUCCESS_TOAST = "success-toast",
     INFO_TOAST = "info-toast",
     WARNING_TOAST = "warning-toast",
-    DOWNLOADED_CHAPTER = "downloaded-chapter",
+    REFRESHED_MANGA_DOWNLOAD_DATA = "refreshed-manga-download-data",
     CHAPTER_DOWNLOAD_QUEUE_UPDATED = "chapter-download-queue-updated",
     OFFLINE_SNAPSHOT_CREATED = "offline-snapshot-created",
 }

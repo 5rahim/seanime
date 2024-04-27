@@ -27,13 +27,24 @@ export function useGetAnilistCollection() {
     })
 }
 
-// export function useGetAnilistCollection() {
-//     return useServerQuery<AL_AnimeCollection>({
-//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistCollection.endpoint,
-//         method: API_ENDPOINTS.ANILIST.GetAnilistCollection.methods[1],
-//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key],
-//     })
-// }
+export function useRefreshAnilistCollection() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<AL_AnimeCollection>({
+        endpoint: API_ENDPOINTS.ANILIST.GetAnilistCollection.endpoint,
+        method: API_ENDPOINTS.ANILIST.GetAnilistCollection.methods[1],
+        mutationKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key],
+        onSuccess: async () => {
+            toast.success("AniList is up-to-date")
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key] })
+        },
+    })
+}
 
 export function useEditAnilistListEntry(id: Nullish<string | number>, type: "anime" | "manga") {
     const queryClient = useQueryClient()

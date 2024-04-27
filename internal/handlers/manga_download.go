@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
+	chapter_downloader "github.com/seanime-app/seanime/internal/manga/downloader"
 	"github.com/seanime-app/seanime/internal/manga/providers"
 	"time"
 )
@@ -156,21 +157,18 @@ func HandleResetErroredChapterDownloadQueue(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
-// HandleDeleteMangaChapterDownload
+// HandleDeleteMangaDownloadedChapters
 //
-//	@summary deletes a downloaded chapter.
-//	@desc This will delete a downloaded chapter from the filesystem.
-//	@desc Returns 'true' whether the chapter was deleted or not.
+//	@summary deletes downloaded chapters.
+//	@desc This will delete downloaded chapters from the filesystem.
+//	@desc Returns 'true' whether the chapters were deleted or not.
 //	@desc The client should refetch the download data after this.
 //	@route /api/v1/manga/download-chapter [DELETE]
 //	@returns bool
-func HandleDeleteMangaChapterDownload(c *RouteCtx) error {
+func HandleDeleteMangaDownloadedChapters(c *RouteCtx) error {
 
 	type body struct {
-		MediaId       int    `json:"mediaId"`
-		Provider      string `json:"provider"`
-		ChapterId     string `json:"chapterId"`
-		ChapterNumber string `json:"chapterNumber"`
+		DownloadIds []chapter_downloader.DownloadID `json:"downloadIds"`
 	}
 
 	var b body
@@ -178,7 +176,7 @@ func HandleDeleteMangaChapterDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err := c.App.MangaDownloader.DeleteChapter(b.Provider, b.MediaId, b.ChapterId, b.ChapterNumber)
+	err := c.App.MangaDownloader.DeleteChapters(b.DownloadIds)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

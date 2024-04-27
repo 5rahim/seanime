@@ -11,8 +11,9 @@ export const API_ENDPOINTS = {
         /**
          *  @description
          *  Route returns the user's AniList anime collection.
-         *  Calling GET will return the cached data.
-         *  Calling POST will refetch the data from Anilist.
+         *  Calling GET will return the cached anime collection.
+         *  The manga collection is also refreshed in the background, and upon completion, a WebSocket event is sent.
+         *  Calling POST will refetch both the anime and manga collections.
          */
         GetAnilistCollection: {
             key: "ANILIST-get-anilist-collection",
@@ -660,13 +661,13 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
-         *  Route deletes a downloaded chapter.
-         *  This will delete a downloaded chapter from the filesystem.
-         *  Returns 'true' whether the chapter was deleted or not.
+         *  Route deletes downloaded chapters.
+         *  This will delete downloaded chapters from the filesystem.
+         *  Returns 'true' whether the chapters were deleted or not.
          *  The client should refetch the download data after this.
          */
-        DeleteMangaChapterDownload: {
-            key: "MANGA-DOWNLOAD-delete-manga-chapter-download",
+        DeleteMangaDownloadedChapters: {
+            key: "MANGA-DOWNLOAD-delete-manga-downloaded-chapters",
             methods: ["DELETE"],
             endpoint: "/api/v1/manga/download-chapter",
         },

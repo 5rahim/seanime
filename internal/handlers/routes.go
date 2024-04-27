@@ -267,7 +267,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Get("/downloads", makeHandler(app, HandleGetMangaDownloadsList))
 	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
 	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
-	v1Manga.Delete("/download-chapter", makeHandler(app, HandleDeleteMangaChapterDownload))
+	v1Manga.Delete("/download-chapter", makeHandler(app, HandleDeleteMangaDownloadedChapters))
 	v1Manga.Get("/download-queue", makeHandler(app, HandleGetMangaDownloadQueue))
 	v1Manga.Post("/download-queue/start", makeHandler(app, HandleStartMangaDownloadQueue))
 	v1Manga.Post("/download-queue/stop", makeHandler(app, HandleStopMangaDownloadQueue))

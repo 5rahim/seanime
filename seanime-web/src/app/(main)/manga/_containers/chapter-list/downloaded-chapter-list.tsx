@@ -4,7 +4,7 @@
 
 
 import { Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
-import { useDeleteMangaChapterDownload } from "@/api/hooks/manga_download.hooks"
+import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hooks"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
@@ -45,7 +45,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
     const [showQueued, setShowQueued] = React.useState(false)
 
-    const { mutate: deleteChapter, isPending: isDeletingChapter } = useDeleteMangaChapterDownload(String(entry.mediaId), provider)
+    const { mutate: deleteChapters, isPending: isDeletingChapter } = useDeleteMangaDownloadedChapters(String(entry.mediaId), provider)
 
     // Transforms {downloaded: Record<string, { chapterId: string, chapterNumber: string }[]>,
     //                            queued: Record<string, { chapterId: string, chapterNumber: string }[]>}
@@ -161,14 +161,17 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
     const handleDeleteSelectedChapters = React.useCallback(() => {
         if (!!selectedChapters.length) {
-            for (const chapter of selectedChapters) {
-                deleteChapter({
+            deleteChapters({
+                downloadIds: selectedChapters.map(chapter => ({
                     mediaId: entry.mediaId,
                     provider: chapter.provider,
                     chapterId: chapter.chapterId,
                     chapterNumber: chapter.chapterNumber,
-                })
-            }
+                })),
+            }, {
+                onSuccess: () => {
+                },
+            })
             setRowSelection({})
             setSelectedChapters([])
         }

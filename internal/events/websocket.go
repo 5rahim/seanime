@@ -64,6 +64,8 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 	//	return
 	//}
 
+	m.Logger.Trace().Str("type", t).Msg("ws: Sending message")
+
 	for _, conn := range m.Conns {
 		err := conn.Conn.WriteJSON(WSEvent{
 			Type:    t,

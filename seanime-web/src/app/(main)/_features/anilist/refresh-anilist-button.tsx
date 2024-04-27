@@ -1,5 +1,5 @@
 "use client"
-import { useRefreshLibraryCollection } from "@/api/hooks/anime_collection.hooks"
+import { useRefreshAnilistCollection } from "@/api/hooks/anilist.hooks"
 import { Button } from "@/components/ui/button"
 import React from "react"
 import { IoReload } from "react-icons/io5"
@@ -15,9 +15,8 @@ export const RefreshAnilistButton: React.FC<RefreshAnilistButtonProps> = (props)
     /**
      * @description
      * - Asks the server to fetch an up-to-date version of the user's AniList collection.
-     * - When the request succeeds, we refetch queries related to the AniList collection.
      */
-    const { mutate, isPending } = useRefreshLibraryCollection()
+    const { mutate, isPending } = useRefreshAnilistCollection()
 
     return (
         <>

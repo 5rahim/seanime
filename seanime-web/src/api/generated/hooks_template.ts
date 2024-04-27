@@ -741,11 +741,11 @@
 //     })
 // }
 
-// export function useDeleteMangaChapterDownload() {
-//     return useServerMutation<boolean, DeleteMangaChapterDownload_Variables>({
-//         endpoint: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaChapterDownload.endpoint,
-//         method: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaChapterDownload.methods[0],
-//         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaChapterDownload.key],
+// export function useDeleteMangaDownloadedChapters() {
+//     return useServerMutation<boolean, DeleteMangaDownloadedChapters_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.endpoint,
+//         method: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.key],
 //         onSuccess: async () => {
 // 
 //         },

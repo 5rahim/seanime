@@ -12,10 +12,11 @@ export function useMangaListener() {
     const qc = useQueryClient()
 
     useWebsocketMessageListener<number>({
-        type: WSEvents.DOWNLOADED_CHAPTER,
+        type: WSEvents.REFRESHED_MANGA_DOWNLOAD_DATA,
         onMessage: mediaId => {
             (async () => {
-                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key] })
+                // \/ Causes infinite loop, oops
+                // await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key] })
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadsList.key] })
             })()
         },

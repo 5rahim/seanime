@@ -16,12 +16,11 @@ const (
 	PlaybackManagerProgressPlaybackState   = "playback-manager-progress-playback-state"   // Dispatches the current playback state
 	PlaybackManagerProgressUpdated         = "playback-manager-progress-updated"          // Signals that the progress has been updated
 	PlaybackManagerPlaylistState           = "playback-manager-playlist-state"            // Dispatches the current playlist state
-	MangaDownloaderDownloadingProgress     = "manga-downloader-downloading-progress"
 	InfoToast                              = "info-toast"
 	ErrorToast                             = "error-toast"
 	WarningToast                           = "warning-toast"
 	SuccessToast                           = "success-toast"
-	ChapterDownloaded                      = "chapter-downloaded"
+	RefreshedMangaDownloadData             = "refreshed-manga-download-data"
 	ChapterDownloadQueueUpdated            = "chapter-download-queue-updated"
 	OfflineSnapshotCreated                 = "offline-snapshot-created"
 )

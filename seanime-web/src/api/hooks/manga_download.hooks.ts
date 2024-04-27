@@ -1,5 +1,9 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { DeleteMangaChapterDownload_Variables, DownloadMangaChapters_Variables, GetMangaDownloadData_Variables } from "@/api/generated/endpoint.types"
+import {
+    DeleteMangaDownloadedChapters_Variables,
+    DownloadMangaChapters_Variables,
+    GetMangaDownloadData_Variables,
+} from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Manga_DownloadListItem, Manga_MediaDownloadData, Manga_Provider, Models_ChapterDownloadQueueItem, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -93,12 +97,12 @@ export function useResetErroredChapterDownloadQueue() {
     })
 }
 
-export function useDeleteMangaChapterDownload(id: Nullish<string | number>, provider: Manga_Provider) {
+export function useDeleteMangaDownloadedChapters(id: Nullish<string | number>, provider: Manga_Provider) {
     const queryClient = useQueryClient()
-    return useServerMutation<boolean, DeleteMangaChapterDownload_Variables>({
-        endpoint: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaChapterDownload.endpoint,
-        method: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaChapterDownload.methods[0],
-        mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaChapterDownload.key, String(id), provider],
+    return useServerMutation<boolean, DeleteMangaDownloadedChapters_Variables>({
+        endpoint: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.endpoint,
+        method: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.key, String(id), provider],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key] })
         },
