@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparato
 import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
+import { toast } from "sonner"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
 
@@ -32,6 +33,11 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
             performBulkAction({
                 mediaId: entry.mediaId,
                 action: "unmatch",
+            }, {
+                onSuccess: () => {
+                    setIsMetadataManagerOpen(false)
+                    toast.success("Files unmatched")
+                },
             })
         },
     })

@@ -10,6 +10,7 @@ import Link from "next/link"
 import React, { useCallback } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 import { TbDatabasePlus } from "react-icons/tb"
+import { toast } from "sonner"
 
 export const __unknownMedia_drawerIsOpen = atom(false)
 
@@ -49,6 +50,11 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
         performBulkAction({
             mediaId,
             action: "unmatch",
+        }, {
+            onSuccess: () => {
+                toast.success("Media unmatched")
+                setIsOpen(false)
+            },
         })
     }, [])
 
