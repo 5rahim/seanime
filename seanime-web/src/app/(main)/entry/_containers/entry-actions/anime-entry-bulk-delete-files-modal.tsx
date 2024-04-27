@@ -42,6 +42,7 @@ function Content({ entry }: { entry: Anime_MediaEntry }) {
 
     const [state, setState] = useAtom(__bulkDeleteFilesModalIsOpenAtom)
     const [files, setFiles] = useAtom(__episodeDeleteActionFilesAtom)
+    const [open, setOpen] = useAtom(__bulkDeleteFilesModalIsOpenAtom)
 
     const media = entry.media
     const localFiles = entry.localFiles
@@ -62,7 +63,11 @@ function Content({ entry }: { entry: Anime_MediaEntry }) {
         title: "Delete files",
         description: "This action cannot be undone.",
         onConfirm: () => {
-            deleteFiles({ paths: files.filter(({ selected }) => selected).map(({ file }) => file.path) })
+            deleteFiles({ paths: files.filter(({ selected }) => selected).map(({ file }) => file.path) }, {
+                onSuccess: () => {
+                    setOpen(false)
+                },
+            })
         },
     })
 

@@ -1,13 +1,13 @@
 import { AL_BaseManga, Manga_ChapterDetails, Manga_PageContainer } from "@/api/generated/types"
+import { ___manga_scrollSignalAtom } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
+import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import {
     ChapterReaderSettings,
     MANGA_PAGE_FIT_OPTIONS,
     MANGA_PAGE_STRETCH_OPTIONS,
     MANGA_READING_DIRECTION_OPTIONS,
     MANGA_READING_MODE_OPTIONS,
-} from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-reader-settings"
-import { ___manga_scrollSignalAtom } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
-import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
+} from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-settings"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,

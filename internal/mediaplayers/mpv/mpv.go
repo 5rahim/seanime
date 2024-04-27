@@ -163,7 +163,7 @@ func (m *Mpv) OpenAndPlay(filePath string, start int) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// Establish new connection, only if it doesn't exist
-	if m.conn != nil {
+	if m.conn != nil && !m.conn.IsClosed() {
 		return nil
 	}
 

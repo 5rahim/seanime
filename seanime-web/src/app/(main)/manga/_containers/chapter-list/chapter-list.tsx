@@ -1,7 +1,7 @@
 import { AL_MangaDetailsById_Media, Manga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
 import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
-import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/_components/downloaded-chapter-list"
+import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedProviderAtom, useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga"
 import {
