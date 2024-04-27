@@ -5,12 +5,13 @@ All notable changes to this project will be documented in this file.
 ## v1.4.1
 
 - ✨ Play random episode button
-- ⚡️ Scanner: Improved absolute episode detection and normalization
+- ⚡️ Scanner: Improved absolute episode number detection and normalization
 - 🦺 MPV: Fixed multiple instances launching when using 'Play next episode'
 - 🦺 Progress tracking: Fixed progress overwriting when viewing already watched episodes with 'Auto update' on
 - 🦺 Manga: Fixed disappearing chapter table
 - 🦺 Scanner: Fixed panic caused by failed episode normalization
 - 🦺 Offline: Disable Auto Downloader when offline
+- 🦺 Manga: Fixed download list not updating properly
 - 💄 Removed legacy anime page layout
 - 💄 Fixed some design inconsistencies
 - 🏗️ Scanner: Generate scan summary after manual match
