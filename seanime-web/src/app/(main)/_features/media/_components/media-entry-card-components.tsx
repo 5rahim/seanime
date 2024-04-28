@@ -426,17 +426,6 @@ export const MediaEntryCardHoverPopupBanner = ({
                 ></div>
             </div>}
 
-            {/*RELEASING BADGE*/}
-            {<div className="absolute z-[10] right-1 top-2">
-                <Tooltip
-                    trigger={<Badge intent="primary-solid" size="lg"><RiSignalTowerLine /></Badge>}
-                >
-                    Releasing
-                </Tooltip>
-            </div>}
-            {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
-                <Badge intent={status === "RELEASING" ? "primary-solid" : "gray-solid"} size="lg"><RiSignalTowerLine /></Badge>
-            </div>}
             {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
                 <Tooltip
                     trigger={<Badge intent={status === "RELEASING" ? "primary-solid" : "gray-solid"} size="lg"><RiSignalTowerLine /></Badge>}
