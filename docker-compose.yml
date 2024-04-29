@@ -1,0 +1,17 @@
+version: '3.3'
+services:
+  seanime:
+    image: 5rahim/seanime
+    container_name: seanime
+    volumes:
+      - /Users/rahim/Documents/collection:/collection
+      - /Users/rahim/Documents/seanime-data:/seanimedata
+    ports:
+      - 43211:43211
+    environment:
+      - SEANIME_DATA_DIR=/seanimedata
+      - SEANIME_SERVER_HOST=0.0.0.0
+      - SEANIME_SERVER_PORT=43211
+      - PUID=1000
+      - PGID=1000
+    restart: unless-stopped

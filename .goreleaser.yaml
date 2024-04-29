@@ -90,3 +90,14 @@ release:
     ---
     [Open an issue](https://github.com/5rahim/seanime/issues/new/choose)
     Compare: https://github.com/5rahim/seanime/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+#dockers:
+#  - goos: linux
+#    goarch: amd64
+#    image_templates:
+#      - "5rahim/seanime:latest"
+#    skip_push: false
+#    use: docker
+#    dockerfile: goreleaser.dockerfile
+#    extra_files:
+#      - web
