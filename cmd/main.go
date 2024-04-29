@@ -37,11 +37,14 @@ func main() {
 	// Parse flags
 	var dataDir string
 	flag.StringVar(&dataDir, "datadir", "", "Directory that contains all Seanime data")
+	var webDir string
+	flag.StringVar(&webDir, "webdir", "", "Directory that contains the Seanime web directory")
 	flag.Parse()
 
 	// Create the app instance
 	app := core.NewApp(&core.ConfigOptions{
 		DataDir: strings.TrimSpace(dataDir),
+		WebDir:  strings.TrimSpace(webDir),
 	})
 	defer app.Cleanup()
 

@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type Config struct {
@@ -45,6 +46,7 @@ type Config struct {
 
 type ConfigOptions struct {
 	DataDir         string // The path to the Seanime data directory, if any
+	WebDir          string // The path to the Seanime web directory, if any
 	OnVersionChange []func(oldVersion string, newVersion string)
 }
 
@@ -53,14 +55,33 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 
 	logger.Debug().Msg("app: Initializing config")
 
+	// Set Seanime's environment variables
+	if os.Getenv("SEANIME_DATA_DIR") != "" {
+		options.DataDir = os.Getenv("SEANIME_DATA_DIR")
+	}
+
+	defaultHost := "127.0.0.1"
+	defaultPort := 43211
+
+	if os.Getenv("SEANIME_SERVER_HOST") != "" {
+		defaultHost = os.Getenv("SEANIME_SERVER_HOST")
+	}
+	if os.Getenv("SEANIME_SERVER_PORT") != "" {
+		var err error
+		defaultPort, err = strconv.Atoi(os.Getenv("SEANIME_SERVER_PORT"))
+		if err != nil {
+			return nil, fmt.Errorf("invalid SEANIME_SERVER_PORT environment variable: %s", os.Getenv("SEANIME_SERVER_PORT"))
+		}
+	}
+
 	// Initialize the app data directory
 	dataDir, configPath, err := initAppDataDir(options.DataDir, logger)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set Seanime's custom environment variables
-	if err = setEnvironmentVariables(dataDir); err != nil {
+	// Set Seanime's default custom environment variables
+	if err = setDefaultEnvironmentVariables(dataDir); err != nil {
 		return nil, err
 	}
 
@@ -71,8 +92,8 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 
 	// Set default values
 	viper.SetDefault("version", constants.Version)
-	viper.SetDefault("server.host", "127.0.0.1")
-	viper.SetDefault("server.port", 43211)
+	viper.SetDefault("server.host", defaultHost)
+	viper.SetDefault("server.port", defaultPort)
 	viper.SetDefault("server.offline", false)
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.dir", "$SEANIME_WORKING_DIR/web")
@@ -134,7 +155,7 @@ func (cfg *Config) GetServerURI(df ...string) string {
 	return pAddr
 }
 
-func setEnvironmentVariables(dataDir string) error {
+func setDefaultEnvironmentVariables(dataDir string) error {
 	if os.Getenv("SEANIME_DATA_DIR") == "" {
 		if err := os.Setenv("SEANIME_DATA_DIR", dataDir); err != nil {
 			return err
