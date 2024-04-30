@@ -9,6 +9,8 @@ seanime-web/.env.mobile
 Dockerfile
 .dockerignore
 
+_docker-compose.yml
+
 logs
 web/
 out/
