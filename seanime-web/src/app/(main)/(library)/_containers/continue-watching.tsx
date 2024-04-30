@@ -2,10 +2,10 @@
 import { Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { cn } from "@/components/ui/core/styling"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -110,12 +110,9 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                     {episodes.map((episode, idx) => (
                         <CarouselItem
                             key={episode?.localFile?.path || idx}
-                            className={cn(
-                                !ts.smallerEpisodeCarouselSize && "md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4",
-                                ts.smallerEpisodeCarouselSize && "md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5",
-                            )}
+                            className={episodeCardCarouselItemClass(ts.smallerEpisodeCarouselSize)}
                         >
-                            <_EpisodeItem
+                            <_EpisodeCard
                                 key={episode.localFile?.path || ""}
                                 episode={episode}
                                 mRef={episodeRefs[idx]}
@@ -129,7 +126,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     )
 }
 
-const _EpisodeItem = React.memo(({ episode, mRef, overrideLink }: {
+const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
     episode: Anime_MediaEntryEpisode,
     mRef: React.RefObject<any>,
     overrideLink?: string

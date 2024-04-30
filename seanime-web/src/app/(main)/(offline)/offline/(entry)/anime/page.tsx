@@ -10,12 +10,14 @@ import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-ca
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
+import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { memo } from "react"
@@ -63,6 +65,8 @@ function EpisodeLists(props: EpisodeListsProps) {
         assetMap,
         ...rest
     } = props
+
+    const ts = useThemeSettings()
 
     const episodes = React.useMemo(() => {
         if (!entry.episodes) return []
@@ -122,7 +126,7 @@ function EpisodeLists(props: EpisodeListsProps) {
                             {episodesToWatch.map((episode, idx) => (
                                 <CarouselItem
                                     key={episode?.localFile?.path || idx}
-                                    className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
+                                    className={episodeCardCarouselItemClass(ts.smallerEpisodeCarouselSize)}
                                 >
                                     <EpisodeCard
                                         key={episode.localFile?.path || ""}

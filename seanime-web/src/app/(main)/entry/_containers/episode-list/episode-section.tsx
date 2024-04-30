@@ -8,9 +8,11 @@ import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
+import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import React, { useMemo } from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 
@@ -18,6 +20,8 @@ import { IoLibrarySharp } from "react-icons/io5"
 export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media | undefined }) {
     const { entry, details } = props
     const media = entry.media
+
+    const ts = useThemeSettings()
 
     const { mutate: playVideo } = usePlaybackPlayVideo()
 
@@ -97,7 +101,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                 {episodesToWatch.map((episode, idx) => (
                                     <CarouselItem
                                         key={episode?.localFile?.path || idx}
-                                        className="md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4"
+                                        className={episodeCardCarouselItemClass(ts.smallerEpisodeCarouselSize)}
                                     >
                                         <EpisodeCard
                                             key={episode.localFile?.path || ""}

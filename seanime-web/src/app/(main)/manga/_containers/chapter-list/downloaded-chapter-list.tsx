@@ -8,7 +8,7 @@ import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hoo
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
-import { primaryPillCheckboxClass } from "@/components/shared/classnames"
+import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { Button, IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -191,7 +191,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                         value={showQueued}
                         onValueChange={v => setShowQueued(v as boolean)}
                         fieldClass="w-fit"
-                        {...primaryPillCheckboxClass}
+                        {...primaryPillCheckboxClasses}
                     />
                 </div>
 

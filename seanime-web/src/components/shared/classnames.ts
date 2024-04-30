@@ -5,7 +5,7 @@ export const tabsTriggerClass = cn(
 
 export const tabsListClass = cn("w-full flex flex-wrap md:flex-nowrap h-fit md:h-12")
 
-export const monochromeCheckboxClass = {
+export const monochromeCheckboxClasses = {
     className: "hidden",
     labelClass: cn(
         "items-start cursor-pointer transition border-transparent rounded-[--radius] py-1.5 px-3 w-full",
@@ -16,7 +16,7 @@ export const monochromeCheckboxClass = {
         "w-fit",
     ),
 }
-export const primaryPillCheckboxClass = {
+export const primaryPillCheckboxClasses = {
     className: "hidden",
     labelClass: cn(
         "text-gray-300 data-[checked=true]:text-white hover:!bg-[--highlight]",
@@ -27,4 +27,11 @@ export const primaryPillCheckboxClass = {
         "border border-transparent data-[checked=true]:border-[--brand] data-[checked=true]:ring-offset-0",
         "w-fit",
     ),
+}
+
+export const episodeCardCarouselItemClass = (smaller: boolean) => {
+    return cn(
+        !smaller && "md:basis-1/2 lg:basis-1/2 2xl:basis-1/3 min-[2000px]:basis-1/4",
+        smaller && "md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5",
+    )
 }

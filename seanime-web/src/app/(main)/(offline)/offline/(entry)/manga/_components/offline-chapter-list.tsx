@@ -2,7 +2,7 @@ import { Manga_ChapterContainer, Manga_ChapterDetails, Offline_MangaEntry } from
 import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
-import { primaryPillCheckboxClass } from "@/components/shared/classnames"
+import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -131,7 +131,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                         value={showUnreadChapter}
                         onValueChange={v => setShowUnreadChapter(v as boolean)}
                         fieldClass="w-fit"
-                        {...primaryPillCheckboxClass}
+                        {...primaryPillCheckboxClasses}
                     />
                 </div>
 
