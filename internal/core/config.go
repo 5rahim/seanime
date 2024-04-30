@@ -47,7 +47,6 @@ type Config struct {
 
 type ConfigOptions struct {
 	DataDir         string // The path to the Seanime data directory, if any
-	WebDir          string // The path to the Seanime web directory, if any
 	OnVersionChange []func(oldVersion string, newVersion string)
 	TrueWd          bool
 }

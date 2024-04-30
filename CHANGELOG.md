@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## v1.4.2
 
-- ✨ Customize UI colors
+- 🎉 Customize UI colors
   - You can now easily customize the background and accent colors of the UI
 - ✨ Docker image
   - Seanime is now available as a Docker image. Check DOCKER.md for more information

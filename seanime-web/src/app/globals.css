@@ -64,7 +64,7 @@
         --foreground: theme('colors.gray.800');
         --background: white;
 
-        --brand: 199 194 255;
+        --brand: theme('colors.brand.300');
         --slate: theme('colors.slate.500');
         --gray: theme('colors.gray.500');
         --zinc: theme('colors.zinc.500');
