@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.4.2
+
+- ✨ Customize UI colors
+  - You can now easily customize the background and accent colors of the UI
+- ✨ Docker image
+  - Seanime is now available as a Docker image. Check DOCKER.md for more information
+- ⚡️ Added '--truewd' flag to force to Seanime use the binary's directory as the working directory
+  - This solves issues encountered on macOS
+- ⚡️ Environment variables are now read before initializing the config file
+	- This solves issues with setting up Docker containers
+- 🦺 Fixed episode card size setting being ignored in anime page
+- 🦺 Fixed incorrect 'releasing' badge being shown in media cards when hovering
+
 ## v1.4.1
 
 - ✨ Play random episode button

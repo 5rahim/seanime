@@ -220,7 +220,7 @@ function EpisodeItemInfoModal(props: { episode: Anime_MediaEntryEpisode, }) {
 
                 <div className="space-y-4">
                     <p className="text-lg line-clamp-2 font-semibold">
-                        {episode.episodeTitle}
+                        {episode.episodeTitle?.replaceAll("`", "'")}
                         {episode.isInvalid && <AiFillWarning />}
                     </p>
                     <p className="text-[--muted]">

@@ -6,9 +6,11 @@ import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { THEME_DEFAULT_VALUES, ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { colord } from "colord"
 import Link from "next/link"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
+import { toast } from "sonner"
 
 const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
@@ -56,6 +58,11 @@ export default function Page() {
             <Form
                 schema={themeSchema}
                 onSubmit={data => {
+                    if (colord(data.backgroundColor).isLight()) {
+                        toast.error("Seanime does not support light themes")
+                        return
+                    }
+
                     mutate({
                         theme: {
                             id: 0,
@@ -84,13 +91,13 @@ export default function Page() {
                         <h3>Main</h3>
 
                         <div className="flex flex-col md:flex-row gap-3">
-                            {/*<div className="flex flex-col md:flex-row gap-4 w-full">*/}
-                            {/*    <Field.ColorPicker*/}
-                            {/*        name="backgroundColor"*/}
-                            {/*        label="Background color"*/}
-                            {/*        help="Default: #0c0c0c"*/}
-                            {/*    />*/}
-                            {/*</div>*/}
+                            <div className="flex flex-col md:flex-row gap-4 w-full">
+                                <Field.ColorPicker
+                                    name="backgroundColor"
+                                    label="Background color"
+                                    help="Default: #0c0c0c"
+                                />
+                            </div>
                             <Field.Text
                                 label="Background image path"
                                 name="libraryScreenCustomBackgroundImage"
@@ -117,7 +124,7 @@ export default function Page() {
 
                         <h3>Library page</h3>
 
-                        <h5>Continue Watching</h5>
+                        <h5>Anime</h5>
 
                         <Field.Switch
                             label="Smaller episode carousel size"

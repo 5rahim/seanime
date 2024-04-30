@@ -36,9 +36,9 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
     return (
         <div
             className={cn(
-                "border  p-3 pr-12 rounded-lg relative transition hover:bg-gray-900 group/episode-list-item",
+                "border p-3 pr-12 rounded-lg relative transition hover:bg-[var(--hover-from-background-color)] group/episode-list-item",
                 {
-                    "border-brand-200 bg-gray-800 hover:bg-gray-800": isSelected,
+                    "border-brand-200": isSelected,
                     "hover:border-gray-500": !isSelected,
                     "border-red-700": isInvalid,
                     // "opacity-50": isWatched && !isSelected,

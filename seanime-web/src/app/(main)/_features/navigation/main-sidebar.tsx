@@ -85,14 +85,6 @@ export function MainSidebar() {
         },
     })
 
-    // shelved
-    // React.useEffect(() => {
-    //     let r = document.querySelector(":root") as any
-    //
-    //     r.style.setProperty("--background", ts.backgroundColor)
-    //     r.style.setProperty("--paper", ts.backgroundColor !== "#0c0c0c" ? "rgba(0,0,0,0.2)" : "#101010")
-    // }, [ts.backgroundColor])
-
     return (
         <>
             <AppSidebar
