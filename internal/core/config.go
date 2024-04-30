@@ -41,6 +41,7 @@ type Config struct {
 	}
 	Data struct { // Hydrated after config is loaded
 		AppDataDir string
+		WorkingDir string
 	}
 }
 
@@ -48,6 +49,7 @@ type ConfigOptions struct {
 	DataDir         string // The path to the Seanime data directory, if any
 	WebDir          string // The path to the Seanime web directory, if any
 	OnVersionChange []func(oldVersion string, newVersion string)
+	TrueWd          bool
 }
 
 // NewConfig initializes the config
@@ -81,7 +83,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	}
 
 	// Set Seanime's default custom environment variables
-	if err = setDefaultEnvironmentVariables(dataDir); err != nil {
+	if err = setDefaultEnvironmentVariables(dataDir, options.TrueWd); err != nil {
 		return nil, err
 	}
 
@@ -129,6 +131,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	// Expand the values, replacing environment variables
 	expandEnvironmentValues(cfg)
 	cfg.Data.AppDataDir = dataDir
+	cfg.Data.WorkingDir = os.Getenv("SEANIME_WORKING_DIR")
 
 	// Check validity of the config
 	if err := validateConfig(cfg); err != nil {
@@ -155,18 +158,37 @@ func (cfg *Config) GetServerURI(df ...string) string {
 	return pAddr
 }
 
-func setDefaultEnvironmentVariables(dataDir string) error {
+func setDefaultEnvironmentVariables(dataDir string, trueWd bool) error {
 	if os.Getenv("SEANIME_DATA_DIR") == "" {
 		if err := os.Setenv("SEANIME_DATA_DIR", dataDir); err != nil {
 			return err
 		}
 	}
-	if os.Getenv("SEANIME_WORKING_DIR") == "" {
-		wd, err := os.Getwd()
-		if err != nil {
-			return err
+
+	var useGetwd bool
+	if trueWd {
+		if os.Getenv("SEANIME_WORKING_DIR") == "" {
+			wd, err := os.Executable()
+			if err != nil {
+				useGetwd = true
+			}
+			wd, err = filepath.EvalSymlinks(wd)
+			if err != nil {
+				useGetwd = true
+			}
+			wd = filepath.Dir(wd)
+			if err = os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
+				return err
+			}
+			useGetwd = false
 		}
-		if err = os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
+	} else {
+		useGetwd = true
+	}
+
+	if useGetwd {
+		wd, _ := os.Getwd()
+		if err := os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
 			return err
 		}
 	}

@@ -39,12 +39,15 @@ func main() {
 	flag.StringVar(&dataDir, "datadir", "", "Directory that contains all Seanime data")
 	var webDir string
 	flag.StringVar(&webDir, "webdir", "", "Directory that contains the Seanime web directory")
+	var truewd bool
+	flag.BoolVar(&truewd, "truewd", false, "Force Seanime to use the binary's directory as the working directory")
 	flag.Parse()
 
 	// Create the app instance
 	app := core.NewApp(&core.ConfigOptions{
 		DataDir: strings.TrimSpace(dataDir),
 		WebDir:  strings.TrimSpace(webDir),
+		TrueWd:  truewd,
 	})
 	defer app.Cleanup()
 

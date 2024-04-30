@@ -32,7 +32,6 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"log"
-	"os"
 	"runtime"
 	"strings"
 )
@@ -105,11 +104,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 	logger.Info().Msgf("app: Data directory: %s", cfg.Data.AppDataDir)
 
 	// Print working directory
-	pwd, err := os.Getwd()
-	if err != nil {
-		logger.Fatal().Err(err).Msg("app: Failed to get working directory")
-	}
-	logger.Info().Msgf("app: Working directory: %s", pwd)
+	logger.Info().Msgf("app: Working directory: %s", cfg.Data.WorkingDir)
 
 	// Initialize the database
 	database, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
@@ -208,7 +203,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
-		WD:                      pwd,
+		WD:                      cfg.Data.WorkingDir,
 		previousVersion:         previousVersion,
 		OfflineHub:              offlineHub,
 	}
