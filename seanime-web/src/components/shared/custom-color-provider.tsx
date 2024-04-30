@@ -1,4 +1,4 @@
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/hooks"
 import { colord, RgbColor } from "colord"
 import React from "react"
 
@@ -26,7 +26,7 @@ export function CustomColorProvider(props: CustomColorProviderProps) {
     const ts = useThemeSettings()
 
     const data: ThemeColors = React.useMemo(() => {
-        if (ts.backgroundColor === "#0c0c0c") return defaultThemeColors
+        if (ts.backgroundColor === THEME_DEFAULT_VALUES.backgroundColor) return defaultThemeColors
         return {
             mediaCardPopupBackground: colord(ts.backgroundColor).lighten(0.025).toHex(),
         }
@@ -52,7 +52,7 @@ export function CustomColorProvider(props: CustomColorProviderProps) {
     React.useEffect(() => {
         let r = document.querySelector(":root") as any
 
-        if (ts.backgroundColor === "#0c0c0c") {
+        if (ts.backgroundColor === THEME_DEFAULT_VALUES.backgroundColor) {
             return
         }
 
@@ -67,11 +67,30 @@ export function CustomColorProvider(props: CustomColorProviderProps) {
         setColor(r, "--color-gray-800", null, colord(ts.backgroundColor).lighten(0.06).desaturate(0.2).toRgb())
         setColor(r, "--color-gray-700", null, colord(ts.backgroundColor).lighten(0.08).desaturate(0.2).toRgb())
         setColor(r, "--color-gray-600", null, colord(ts.backgroundColor).lighten(0.1).desaturate(0.2).toRgb())
-        setColor(r, "--color-gray-500", null, colord(ts.backgroundColor).lighten(0.14).desaturate(0.2).toRgb())
+        setColor(r, "--color-gray-500", null, colord(ts.backgroundColor).lighten(0.15).desaturate(0.2).toRgb())
         setColor(r, "--color-gray-400", null, colord(ts.backgroundColor).lighten(0.3).desaturate(0.2).toRgb())
         // setColor(r, "--color-gray-300", null, colord(ts.backgroundColor).lighten(0.4).desaturate(0.2).toRgb())
 
     }, [ts.backgroundColor])
+
+    React.useEffect(() => {
+        let r = document.querySelector(":root") as any
+
+        if (ts.accentColor === THEME_DEFAULT_VALUES.accentColor) {
+            return
+        }
+
+        setColor(r, "--color-brand-200", null, colord(ts.accentColor).lighten(0.2).toRgb())
+        setColor(r, "--color-brand-300", null, colord(ts.accentColor).lighten(0.15).toRgb())
+        setColor(r, "--color-brand-400", null, colord(ts.accentColor).lighten(0.1).toRgb())
+        setColor(r, "--color-brand-500", null, colord(ts.accentColor).toRgb())
+        setColor(r, "--color-brand-600", null, colord(ts.accentColor).darken(0.1).toRgb())
+        setColor(r, "--color-brand-700", null, colord(ts.accentColor).darken(0.15).toRgb())
+        setColor(r, "--color-brand-800", null, colord(ts.accentColor).darken(0.2).toRgb())
+        setColor(r, "--color-brand-900", null, colord(ts.accentColor).darken(0.25).toRgb())
+        setColor(r, "--color-brand-950", null, colord(ts.accentColor).darken(0.3).toRgb())
+        setColor(r, "--brand", null, colord(ts.accentColor).lighten(0.4).desaturate(0.2).toHex())
+    }, [ts.accentColor])
 
     return (
         <__ThemeColorsContext.Provider value={data}>

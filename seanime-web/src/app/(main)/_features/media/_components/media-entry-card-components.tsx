@@ -296,7 +296,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                             <div
                                 className={cn(
                                     "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                                    (listStatus === "CURRENT") ? "bg-brand-400" : "bg-gray-400",
+                                    (listStatus === "CURRENT") ? "bg-[var(--brand)]" : "bg-gray-400",
                                 )}
                                 style={{
                                     width: `${String(Math.ceil((progress / progressTotal) * 100))}%`,
@@ -424,7 +424,7 @@ export const MediaEntryCardHoverPopupBanner = ({
                 <div
                     className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                        (listStatus === "CURRENT" || listStatus === "COMPLETED") ? "bg-brand-400" : "bg-gray-400",
+                        (listStatus === "CURRENT" || listStatus === "COMPLETED") ? "bg-[var(--brand)]" : "bg-gray-400",
                     )}
                     style={{ width: `${String(Math.ceil((progress / progressTotal) * 100))}%` }}
                 ></div>

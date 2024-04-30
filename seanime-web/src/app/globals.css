@@ -64,7 +64,7 @@
         --foreground: theme('colors.gray.800');
         --background: white;
 
-        --brand: theme('colors.brand.500');
+        --brand: 199 194 255;
         --slate: theme('colors.slate.500');
         --gray: theme('colors.gray.500');
         --zinc: theme('colors.zinc.500');
@@ -107,7 +107,7 @@
         --foreground: theme('colors.gray.200');
         --background: #0c0c0c;
 
-        --brand: theme('colors.brand.300');
+        /*--brand: theme('colors.brand.300');*/
         --slate: theme('colors.slate.300');
         --gray: theme('colors.gray.300');
         --zinc: theme('colors.zinc.300');
@@ -189,7 +189,7 @@ h6 {
 
 /* Track */
 ::-webkit-scrollbar-track {
-    background: var(--background-color);
+    background: var(--background);
 }
 
 /* Handle */

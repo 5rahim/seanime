@@ -168,6 +168,7 @@ type Theme struct {
 	SmallerEpisodeCarouselSize bool   `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
 	ExpandSidebarOnHover       bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
 	BackgroundColor            string `gorm:"column:background_color" json:"backgroundColor"`
+	AccentColor                string `gorm:"column:accent_color" json:"accentColor"`
 	SidebarBackgroundColor     string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`
 	// Library Screen Banner
 	LibraryScreenBannerType              string `gorm:"column:library_screen_banner_type" json:"libraryScreenBannerType"`

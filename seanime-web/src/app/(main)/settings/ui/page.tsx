@@ -17,6 +17,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     smallerEpisodeCarouselSize: z.boolean().default(THEME_DEFAULT_VALUES.smallerEpisodeCarouselSize),
     expandSidebarOnHover: z.boolean().default(THEME_DEFAULT_VALUES.expandSidebarOnHover),
     backgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.backgroundColor),
+    accentColor: z.string().min(0).default(THEME_DEFAULT_VALUES.accentColor),
     sidebarBackgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.sidebarBackgroundColor),
 
     libraryScreenBannerType: z.string().default(THEME_DEFAULT_VALUES.libraryScreenBannerType),
@@ -76,6 +77,7 @@ export default function Page() {
                     smallerEpisodeCarouselSize: themeSettings?.smallerEpisodeCarouselSize,
                     expandSidebarOnHover: themeSettings?.expandSidebarOnHover,
                     backgroundColor: themeSettings?.backgroundColor,
+                    accentColor: themeSettings?.accentColor,
                     sidebarBackgroundColor: themeSettings?.sidebarBackgroundColor,
                     libraryScreenBannerType: themeSettings?.libraryScreenBannerType,
                     libraryScreenCustomBannerImage: themeSettings?.libraryScreenCustomBannerImage,
@@ -91,13 +93,19 @@ export default function Page() {
                         <h3>Main</h3>
 
                         <div className="flex flex-col md:flex-row gap-3">
-                            <div className="flex flex-col md:flex-row gap-4 w-full">
-                                <Field.ColorPicker
-                                    name="backgroundColor"
-                                    label="Background color"
-                                    help="Default: #0c0c0c"
-                                />
-                            </div>
+                            <Field.ColorPicker
+                                name="backgroundColor"
+                                label="Background color"
+                                help="Default: #0c0c0c"
+                            />
+                            <Field.ColorPicker
+                                name="accentColor"
+                                label="Accent color"
+                                help="Default: #6152d"
+                            />
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-3">
                             <Field.Text
                                 label="Background image path"
                                 name="libraryScreenCustomBackgroundImage"

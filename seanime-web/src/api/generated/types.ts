@@ -2031,6 +2031,7 @@ export type Models_Theme = {
     smallerEpisodeCarouselSize: boolean
     expandSidebarOnHover: boolean
     backgroundColor: string
+    accentColor: string
     sidebarBackgroundColor: string
     libraryScreenBannerType: string
     libraryScreenCustomBannerImage: string

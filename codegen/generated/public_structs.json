@@ -24168,11 +24168,31 @@
         ]
       },
       {
+        "name": "WebDir",
+        "jsonName": "WebDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The path to the Seanime web directory, if any"
+        ]
+      },
+      {
         "name": "OnVersionChange",
         "jsonName": "OnVersionChange",
         "goType": "[]",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrueWd",
+        "jsonName": "TrueWd",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -25143,6 +25163,15 @@
       {
         "name": "BackgroundColor",
         "jsonName": "backgroundColor",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AccentColor",
+        "jsonName": "accentColor",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
