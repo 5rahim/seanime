@@ -258,9 +258,9 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             words={title || ""}
                         />
                         {(!!englishTitle && title?.toLowerCase() !== englishTitle?.toLowerCase()) &&
-                            <h4 className="text-gray-400 line-clamp-2 text-center lg:text-left">{englishTitle}</h4>}
+                            <h4 className="text-[--muted] line-clamp-2 text-center lg:text-left">{englishTitle}</h4>}
                         {(!!romajiTitle && title?.toLowerCase() !== romajiTitle?.toLowerCase()) &&
-                            <h4 className="text-gray-400 line-clamp-2 text-center lg:text-left">{romajiTitle}</h4>}
+                            <h4 className="text-[--muted] line-clamp-2 text-center lg:text-left">{romajiTitle}</h4>}
                     </div>
 
                     {/*DATE*/}

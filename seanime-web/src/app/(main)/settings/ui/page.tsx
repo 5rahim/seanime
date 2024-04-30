@@ -6,6 +6,7 @@ import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { THEME_DEFAULT_VALUES, ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
 import { colord } from "colord"
 import Link from "next/link"
 import React from "react"
@@ -16,8 +17,9 @@ const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
     smallerEpisodeCarouselSize: z.boolean().default(THEME_DEFAULT_VALUES.smallerEpisodeCarouselSize),
     expandSidebarOnHover: z.boolean().default(THEME_DEFAULT_VALUES.expandSidebarOnHover),
-    backgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.backgroundColor),
-    accentColor: z.string().min(0).default(THEME_DEFAULT_VALUES.accentColor),
+    enableColorSettings: z.boolean().default(false),
+    backgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.backgroundColor).transform(n => n.trim()),
+    accentColor: z.string().min(0).default(THEME_DEFAULT_VALUES.accentColor).transform(n => n.trim()),
     sidebarBackgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.sidebarBackgroundColor),
 
     libraryScreenBannerType: z.string().default(THEME_DEFAULT_VALUES.libraryScreenBannerType),
@@ -64,15 +66,24 @@ export default function Page() {
                         return
                     }
 
+                    const prevEnableColorSettings = themeSettings?.enableColorSettings
+
                     mutate({
                         theme: {
                             id: 0,
                             ...themeSettings,
                             ...data,
                         },
+                    }, {
+                        onSuccess() {
+                            if (data.enableColorSettings !== prevEnableColorSettings && !data.enableColorSettings) {
+                                window.location.reload()
+                            }
+                        },
                     })
                 }}
                 defaultValues={{
+                    enableColorSettings: themeSettings?.enableColorSettings,
                     animeEntryScreenLayout: themeSettings?.animeEntryScreenLayout,
                     smallerEpisodeCarouselSize: themeSettings?.smallerEpisodeCarouselSize,
                     expandSidebarOnHover: themeSettings?.expandSidebarOnHover,
@@ -92,18 +103,63 @@ export default function Page() {
                     <>
                         <h3>Main</h3>
 
+                        <Field.Switch
+                            label="Enable color settings"
+                            name="enableColorSettings"
+                        />
                         <div className="flex flex-col md:flex-row gap-3">
                             <Field.ColorPicker
                                 name="backgroundColor"
                                 label="Background color"
                                 help="Default: #0c0c0c"
+                                disabled={!f.watch("enableColorSettings")}
                             />
                             <Field.ColorPicker
                                 name="accentColor"
                                 label="Accent color"
-                                help="Default: #6152d"
+                                help="Default: #6152df"
+                                disabled={!f.watch("enableColorSettings")}
                             />
                         </div>
+
+                        {f.watch("enableColorSettings") && (
+                            <div className="flex flex-wrap gap-3 w-full">
+                                {THEME_COLOR_BANK.map((opt) => (
+                                    <div
+                                        key={opt.name}
+                                        className={cn(
+                                            "flex gap-3 items-center w-fit rounded-full border p-1 cursor-pointer",
+                                            themeSettings.backgroundColor === opt.backgroundColor && themeSettings.accentColor === opt.accentColor && "border-[--brand] ring-[--brand] ring-offset-1 ring-offset-[--background]",
+                                        )}
+                                        onClick={() => {
+                                            f.setValue("backgroundColor", opt.backgroundColor)
+                                            f.setValue("accentColor", opt.accentColor)
+                                            mutate({
+                                                theme: {
+                                                    id: 0,
+                                                    ...themeSettings,
+                                                    backgroundColor: opt.backgroundColor,
+                                                    accentColor: opt.accentColor,
+                                                },
+                                            })
+                                        }}
+                                    >
+                                        <div
+                                            className="flex gap-1"
+                                        >
+                                            <div
+                                                className="w-6 h-6 rounded-full border"
+                                                style={{ backgroundColor: opt.backgroundColor }}
+                                            />
+                                            <div
+                                                className="w-6 h-6 rounded-full border"
+                                                style={{ backgroundColor: opt.accentColor }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <div className="flex flex-col md:flex-row gap-3">
                             <Field.Text

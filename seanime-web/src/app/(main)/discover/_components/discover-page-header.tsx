@@ -43,7 +43,7 @@ export function DiscoverPageHeader() {
                 />
                 <div
                     className={cn(
-                        "opacity-0 duration-1000 bg-[#0c0c0c] w-full h-full absolute z-[2]",
+                        "opacity-0 duration-1000 bg-[var(--background)] w-full h-full absolute z-[2]",
                         isTransitioning && "opacity-70",
                     )}
                 />

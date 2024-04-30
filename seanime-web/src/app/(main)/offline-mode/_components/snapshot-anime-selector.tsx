@@ -32,7 +32,7 @@ export function SnapshotAnimeSelector(props: SnapshotAnimeSelectorProps) {
                             <div
                                 key={entry.mediaId}
                                 className={cn(
-                                    "col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative bg-[#0c0c0c] cursor-pointer transition-opacity",
+                                    "col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative bg-[var(--background)] cursor-pointer transition-opacity",
                                     !animeMediaIds.includes(entry.mediaId) && "opacity-80",
                                 )}
                                 onClick={() => {

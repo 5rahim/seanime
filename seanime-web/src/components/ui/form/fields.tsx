@@ -7,6 +7,7 @@ import { colord } from "colord"
 import React, { forwardRef, useMemo } from "react"
 import { HexColorPicker } from "react-colorful"
 import { Controller, FormState, get, useController, useFormContext } from "react-hook-form"
+import { useUpdateEffect } from "react-use"
 import { AddressInput, AddressInputProps } from "../address-input"
 import { Autocomplete, AutocompleteProps } from "../autocomplete"
 import { BasicFieldOptions } from "../basic-field"
@@ -190,6 +191,8 @@ const ColorPickerField = React.memo(withControlledInput(forwardRef<HTMLInputElem
         const [value, setValue] = React.useState(get(context.formState.defaultValues, props.name) || "#000")
         const deferredValue = useDebounce(value, 200)
 
+        const valueRef = React.useRef(value)
+
         React.useEffect(() => {
             controller.field.onChange(deferredValue)
             if (colord(deferredValue).isValid()) {
@@ -203,7 +206,16 @@ const ColorPickerField = React.memo(withControlledInput(forwardRef<HTMLInputElem
             } else {
                 setValue(value)
             }
+            valueRef.current = value
         }, [validColorRef.current, value])
+
+
+        useUpdateEffect(() => {
+            if (controller.field.value !== valueRef.current) {
+                setValue(controller.field.value)
+                valueRef.current = controller.field.value
+            }
+        }, [controller.field.value])
 
         return <TextInput
                 {...props}

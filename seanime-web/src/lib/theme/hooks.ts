@@ -3,6 +3,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 
 export type ThemeSettings = Omit<Models_Theme, "id">
 export const THEME_DEFAULT_VALUES: ThemeSettings = {
+    enableColorSettings: false,
     animeEntryScreenLayout: "stacked",
     smallerEpisodeCarouselSize: false,
     expandSidebarOnHover: false,
@@ -33,6 +34,7 @@ export type ThemeSettingsHook = {
 export function useThemeSettings(): ThemeSettingsHook {
     const serverStatus = useServerStatus()
     return {
+        enableColorSettings: getThemeValue("enableColorSettings", serverStatus?.themeSettings),
         animeEntryScreenLayout: getThemeValue("animeEntryScreenLayout", serverStatus?.themeSettings),
         smallerEpisodeCarouselSize: getThemeValue("smallerEpisodeCarouselSize", serverStatus?.themeSettings),
         expandSidebarOnHover: getThemeValue("expandSidebarOnHover", serverStatus?.themeSettings),

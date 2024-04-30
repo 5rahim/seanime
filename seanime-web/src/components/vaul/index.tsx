@@ -45,7 +45,7 @@ const VaulContent = React.forwardRef<
             <VaulPrimitive.Content
                 ref={ref}
                 className={cn(
-                    "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-[#0c0c0c]",
+                    "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-[var(--background)]",
                     className,
                 )}
                 {...props}

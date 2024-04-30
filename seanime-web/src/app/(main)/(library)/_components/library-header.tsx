@@ -69,7 +69,7 @@ export function LibraryHeader({ list }: { list: Anime_MediaEntryEpisode[] }) {
         <>
             {!!ts.libraryScreenCustomBackgroundImage && (
                 <div
-                    className="LIB_HEADER_FADE_BG w-full absolute z-[1] top-0 h-[40rem] opacity-100 bg-gradient-to-b from-[#0c0c0c] via-[#0c0c0c] to-transparent via"
+                    className="LIB_HEADER_FADE_BG w-full absolute z-[1] top-0 h-[40rem] opacity-100 bg-gradient-to-b from-[var(--background)] via-[var(--background)] to-transparent via"
                 />
             )}
             <div
@@ -88,7 +88,7 @@ export function LibraryHeader({ list }: { list: Anime_MediaEntryEpisode[] }) {
                 >
 
                     <div
-                        className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[#0c0c0c] to-transparent via"
+                        className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"
                     />
                     <Transition
                         show={!!actualImage}

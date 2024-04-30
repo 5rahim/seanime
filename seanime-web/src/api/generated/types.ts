@@ -2030,6 +2030,7 @@ export type Models_Theme = {
     animeEntryScreenLayout: string
     smallerEpisodeCarouselSize: boolean
     expandSidebarOnHover: boolean
+    enableColorSettings: boolean
     backgroundColor: string
     accentColor: string
     sidebarBackgroundColor: string
