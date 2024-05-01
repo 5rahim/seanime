@@ -79,7 +79,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                         className="text-lg text-red-500"/> Unidentified</p>}
                     <h4 className={cn("font-medium transition line-clamp-2")}>{isBatch ? "Batch" : title}</h4>
 
-                    {!!filename && <p className={cn("text-sm text-gray-400 line-clamp-2 mb-2")}>{filename}</p>}
+                    {!!filename && <p className={cn("text-sm text-[--muted] line-clamp-2 mb-2")}>{filename}</p>}
 
                     <div className="flex items-center gap-2">
                         {children && children}

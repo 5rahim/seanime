@@ -1,6 +1,10 @@
 import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/hooks"
-import { colord, RgbColor } from "colord"
+import { colord, extend, RgbColor } from "colord"
+import mixPlugin from "colord/plugins/mix"
 import React from "react"
+
+extend([mixPlugin])
+
 
 type CustomColorProviderProps = {}
 
@@ -44,10 +48,6 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
 
         if (!ts.enableColorSettings) return
 
-        // if (ts.backgroundColor === THEME_DEFAULT_VALUES.backgroundColor) {
-        //     return
-        // }
-
         setBgColor(r, "--background", "#0c0c0c", ts.backgroundColor)
         setBgColor(r, "--paper", "#101010", colord(ts.backgroundColor).lighten(0.025).toHex())
         setBgColor(r, "--media-card-popup-background", colord("rgb(16 16 16)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
@@ -55,6 +55,7 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
             "--hover-from-background-color",
             colord("rgb(23 23 23)").toHex(),
             colord(ts.backgroundColor).lighten(0.025).desaturate(0.05).toHex())
+
 
 
         setBgColor(r, "--color-gray-950", "16 16 16", colord(ts.backgroundColor).lighten(0.008).desaturate(0.05).toRgb())
@@ -73,12 +74,8 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
 
         if (!ts.enableColorSettings) return
 
-        // if (ts.accentColor === THEME_DEFAULT_VALUES.accentColor) {
-        //     return
-        // }
-
-        setColor(r, "--color-brand-200", "212 208 255", colord(ts.accentColor).lighten(0.2).toRgb())
-        setColor(r, "--color-brand-300", "199 194 255", colord(ts.accentColor).lighten(0.15).toRgb())
+        setColor(r, "--color-brand-200", "212 208 255", colord(ts.accentColor).lighten(0.35).desaturate(0.05).toRgb())
+        setColor(r, "--color-brand-300", "199 194 255", colord(ts.accentColor).lighten(0.3).desaturate(0.05).toRgb())
         setColor(r, "--color-brand-400", "159 146 255", colord(ts.accentColor).lighten(0.1).toRgb())
         setColor(r, "--color-brand-500", "97 82 223", colord(ts.accentColor).toRgb())
         setColor(r, "--color-brand-600", "82 67 203", colord(ts.accentColor).darken(0.1).toRgb())

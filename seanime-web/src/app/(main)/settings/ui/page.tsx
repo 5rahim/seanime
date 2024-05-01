@@ -138,6 +138,7 @@ export default function Page() {
                                                 theme: {
                                                     id: 0,
                                                     ...themeSettings,
+                                                    enableColorSettings: true,
                                                     backgroundColor: opt.backgroundColor,
                                                     accentColor: opt.accentColor,
                                                 },

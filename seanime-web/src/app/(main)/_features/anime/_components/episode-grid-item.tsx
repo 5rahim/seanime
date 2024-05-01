@@ -118,9 +118,9 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         )}
                     >{title?.replaceAll("`", "'")}</h4>
 
-                    {!!episodeTitle && <p className={cn("text-md text-[--muted] line-clamp-2")}>{episodeTitle?.replaceAll("`", "'")}</p>}
+                    {!!episodeTitle && <p className={cn("text-md text-gray-300 line-clamp-2")}>{episodeTitle?.replaceAll("`", "'")}</p>}
 
-                    {!!fileName && <p className="text-sm text-gray-600 line-clamp-1">{fileName}</p>}
+                    {!!fileName && <p className="text-sm text-[--muted] line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-gray-500 line-clamp-2">{description}</p>}
                     {children && children}
                 </div>
