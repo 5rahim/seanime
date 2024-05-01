@@ -15,7 +15,7 @@ export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
         score < 5 ? "bg-gray-500" :
             score < 7 ? "bg-gray-500" :
                 score < 9 ? "bg-green-500" :
-                    "bg-indigo text-white bg-opacity-80"
+                    "bg-indigo-500 text-white bg-opacity-80"
     ) : ""
 
     return (
