@@ -7,7 +7,7 @@ export type Nullish<T> = T | null | undefined
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -16,7 +16,7 @@ export type AL_AnimeCollection = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -25,7 +25,7 @@ export type AL_AnimeCollection_MediaListCollection = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -35,7 +35,7 @@ export type AL_AnimeCollection_MediaListCollection_Lists = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -53,7 +53,7 @@ export type AL_AnimeCollection_MediaListCollection_Lists_Entries = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -64,7 +64,7 @@ export type AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -75,7 +75,7 @@ export type AL_AnimeCollection_MediaListCollection_Lists_Entries_StartedAt = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -103,7 +103,7 @@ export type AL_BaseManga = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -115,7 +115,7 @@ export type AL_BaseManga_CoverImage = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -126,7 +126,7 @@ export type AL_BaseManga_EndDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -135,7 +135,7 @@ export type AL_BaseManga_Relations = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -145,7 +145,7 @@ export type AL_BaseManga_Relations_Edges = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -156,7 +156,7 @@ export type AL_BaseManga_StartDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -168,7 +168,7 @@ export type AL_BaseManga_Title = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -197,7 +197,7 @@ export type AL_BaseMedia = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -209,7 +209,7 @@ export type AL_BaseMedia_CoverImage = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -220,7 +220,7 @@ export type AL_BaseMedia_EndDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -231,7 +231,7 @@ export type AL_BaseMedia_NextAiringEpisode = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -240,7 +240,7 @@ export type AL_BaseMedia_Relations = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -250,7 +250,7 @@ export type AL_BaseMedia_Relations_Edges = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -261,7 +261,7 @@ export type AL_BaseMedia_StartDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -273,7 +273,7 @@ export type AL_BaseMedia_Title = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -284,7 +284,7 @@ export type AL_BaseMedia_Trailer = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -311,7 +311,7 @@ export type AL_BasicManga = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -323,7 +323,7 @@ export type AL_BasicManga_CoverImage = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -334,7 +334,7 @@ export type AL_BasicManga_EndDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -345,7 +345,7 @@ export type AL_BasicManga_StartDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -357,7 +357,7 @@ export type AL_BasicManga_Title = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -385,7 +385,7 @@ export type AL_BasicMedia = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -397,7 +397,7 @@ export type AL_BasicMedia_CoverImage = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -408,7 +408,7 @@ export type AL_BasicMedia_EndDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -419,7 +419,7 @@ export type AL_BasicMedia_NextAiringEpisode = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -430,7 +430,7 @@ export type AL_BasicMedia_StartDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -442,7 +442,7 @@ export type AL_BasicMedia_Title = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -453,7 +453,7 @@ export type AL_BasicMedia_Trailer = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -462,7 +462,7 @@ export type AL_DeleteEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -471,7 +471,7 @@ export type AL_DeleteEntry_DeleteMediaListEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -484,7 +484,7 @@ export type AL_FuzzyDateInput = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -497,7 +497,7 @@ export type AL_GetViewer_Viewer = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -507,7 +507,7 @@ export type AL_GetViewer_Viewer_Avatar = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -518,7 +518,7 @@ export type AL_GetViewer_Viewer_Options = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -527,7 +527,7 @@ export type AL_ListManga = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -537,7 +537,7 @@ export type AL_ListManga_Page = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -550,7 +550,7 @@ export type AL_ListManga_Page_PageInfo = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -559,7 +559,7 @@ export type AL_ListMedia = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -569,7 +569,7 @@ export type AL_ListMedia_Page = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -582,7 +582,7 @@ export type AL_ListMedia_Page_PageInfo = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -591,7 +591,7 @@ export type AL_ListRecentMedia = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -601,7 +601,7 @@ export type AL_ListRecentMedia_Page = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -614,7 +614,7 @@ export type AL_ListRecentMedia_Page_AiringSchedules = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -627,7 +627,7 @@ export type AL_ListRecentMedia_Page_PageInfo = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -636,7 +636,7 @@ export type AL_MangaCollection = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -645,7 +645,7 @@ export type AL_MangaCollection_MediaListCollection = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -655,7 +655,7 @@ export type AL_MangaCollection_MediaListCollection_Lists = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -673,7 +673,7 @@ export type AL_MangaCollection_MediaListCollection_Lists_Entries = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -684,7 +684,7 @@ export type AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -695,7 +695,7 @@ export type AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -709,7 +709,7 @@ export type AL_MangaDetailsById_Media = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -724,7 +724,7 @@ export type AL_MangaDetailsById_Media_Rankings = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -733,7 +733,7 @@ export type AL_MangaDetailsById_Media_Recommendations = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -742,7 +742,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -751,7 +751,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges_Node = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -778,7 +778,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -790,7 +790,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -801,7 +801,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -812,7 +812,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -824,7 +824,7 @@ export type AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -846,7 +846,7 @@ export type AL_MediaDetailsById_Media = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -857,7 +857,7 @@ export type AL_MediaDetailsById_Media_EndDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -872,7 +872,7 @@ export type AL_MediaDetailsById_Media_Rankings = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -881,7 +881,7 @@ export type AL_MediaDetailsById_Media_Recommendations = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -890,7 +890,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -899,7 +899,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -923,7 +923,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -935,7 +935,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -946,7 +946,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -958,7 +958,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -969,7 +969,7 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -980,7 +980,7 @@ export type AL_MediaDetailsById_Media_StartDate = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -989,7 +989,7 @@ export type AL_MediaDetailsById_Media_Studios = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -998,7 +998,7 @@ export type AL_MediaDetailsById_Media_Studios_Nodes = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -1009,7 +1009,7 @@ export type AL_MediaDetailsById_Media_Trailer = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1027,7 +1027,7 @@ export type AL_MediaFormat = "TV" |
     "ONE_SHOT"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1041,7 +1041,7 @@ export type AL_MediaListStatus = "CURRENT" |
     "REPEATING"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1050,7 +1050,7 @@ export type AL_MediaListStatus = "CURRENT" |
 export type AL_MediaRankType = "RATED" | "POPULAR"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1071,14 +1071,14 @@ export type AL_MediaRelation = "ADAPTATION" |
     "CONTAINS"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  */
 export type AL_MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1123,7 +1123,7 @@ export type AL_MediaSort = "ID" |
     "FAVOURITES_DESC"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1132,7 +1132,7 @@ export type AL_MediaSort = "ID" |
 export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS"
 
 /**
- * - Filepath: internal/../internal/api/anilist/models_gen.go
+ * - Filepath: internal/api/anilist/models_gen.go
  * - Filename: models_gen.go
  * - Package: anilist
  * @description
@@ -1141,7 +1141,7 @@ export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CA
 export type AL_MediaType = "ANIME" | "MANGA"
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -1150,7 +1150,7 @@ export type AL_UpdateMediaListEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/api/anilist/client_gen.go
+ * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist
  */
@@ -1163,7 +1163,7 @@ export type AL_UpdateMediaListEntry_SaveMediaListEntry = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/library/anime/autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_rule.go
  * - Filename: autodownloader_rule.go
  * - Package: anime
  */
@@ -1184,21 +1184,21 @@ export type Anime_AutoDownloaderRule = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_rule.go
  * - Filename: autodownloader_rule.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
 
 /**
- * - Filepath: internal/../internal/library/anime/autodownloader_rule.go
+ * - Filepath: internal/library/anime/autodownloader_rule.go
  * - Filename: autodownloader_rule.go
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
 
 /**
- * - Filepath: internal/../internal/library/anime/collection.go
+ * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
@@ -1212,7 +1212,7 @@ export type Anime_LibraryCollection = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/collection.go
+ * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
@@ -1230,7 +1230,7 @@ export type Anime_LibraryCollectionEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/collection.go
+ * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
@@ -1241,14 +1241,14 @@ export type Anime_LibraryCollectionList = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/collection.go
+ * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
 export type Anime_LibraryCollectionListType = "current" | "planned" | "completed" | "paused" | "dropped"
 
 /**
- * - Filepath: internal/../internal/library/anime/localfile.go
+ * - Filepath: internal/library/anime/localfile.go
  * - Filename: localfile.go
  * - Package: anime
  */
@@ -1267,7 +1267,7 @@ export type Anime_LocalFile = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/localfile.go
+ * - Filepath: internal/library/anime/localfile.go
  * - Filename: localfile.go
  * - Package: anime
  */
@@ -1278,7 +1278,7 @@ export type Anime_LocalFileMetadata = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/localfile.go
+ * - Filepath: internal/library/anime/localfile.go
  * - Filename: localfile.go
  * - Package: anime
  */
@@ -1297,14 +1297,14 @@ export type Anime_LocalFileParsedData = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/localfile.go
+ * - Filepath: internal/library/anime/localfile.go
  * - Filename: localfile.go
  * - Package: anime
  */
 export type Anime_LocalFileType = "main" | "special" | "nc"
 
 /**
- * - Filepath: internal/../internal/library/anime/media_entry.go
+ * - Filepath: internal/library/anime/media_entry.go
  * - Filename: media_entry.go
  * - Package: anime
  */
@@ -1322,7 +1322,7 @@ export type Anime_MediaEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/media_entry_download_info.go
+ * - Filepath: internal/library/anime/media_entry_download_info.go
  * - Filename: media_entry_download_info.go
  * - Package: anime
  */
@@ -1333,7 +1333,7 @@ export type Anime_MediaEntryDownloadEpisode = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/media_entry_download_info.go
+ * - Filepath: internal/library/anime/media_entry_download_info.go
  * - Filename: media_entry_download_info.go
  * - Package: anime
  */
@@ -1347,7 +1347,7 @@ export type Anime_MediaEntryDownloadInfo = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/episode.go
+ * - Filepath: internal/library/anime/episode.go
  * - Filename: episode.go
  * - Package: anime
  */
@@ -1392,7 +1392,7 @@ export type Anime_MediaEntryEpisode = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/episode.go
+ * - Filepath: internal/library/anime/episode.go
  * - Filename: episode.go
  * - Package: anime
  */
@@ -1406,7 +1406,7 @@ export type Anime_MediaEntryEpisodeMetadata = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/media_entry_library_data.go
+ * - Filepath: internal/library/anime/media_entry_library_data.go
  * - Filename: media_entry_library_data.go
  * - Package: anime
  */
@@ -1416,7 +1416,7 @@ export type Anime_MediaEntryLibraryData = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/media_entry.go
+ * - Filepath: internal/library/anime/media_entry.go
  * - Filename: media_entry.go
  * - Package: anime
  */
@@ -1429,7 +1429,7 @@ export type Anime_MediaEntryListData = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/missing_episodes.go
+ * - Filepath: internal/library/anime/missing_episodes.go
  * - Filename: missing_episodes.go
  * - Package: anime
  */
@@ -1439,7 +1439,7 @@ export type Anime_MissingEpisodes = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/playlist.go
+ * - Filepath: internal/library/anime/playlist.go
  * - Filename: playlist.go
  * - Package: anime
  */
@@ -1459,7 +1459,7 @@ export type Anime_Playlist = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/collection.go
+ * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
@@ -1469,7 +1469,7 @@ export type Anime_UnknownGroup = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/collection.go
+ * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
@@ -1480,7 +1480,7 @@ export type Anime_UnmatchedGroup = {
 }
 
 /**
- * - Filepath: internal/../internal/library/anime/user.go
+ * - Filepath: internal/library/anime/user.go
  * - Filename: user.go
  * - Package: anime
  */
@@ -1494,7 +1494,7 @@ export type Anime_User = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/manga/downloader/chapter_downloader.go
+ * - Filepath: internal/manga/downloader/chapter_downloader.go
  * - Filename: chapter_downloader.go
  * - Package: chapter_downloader
  */
@@ -1510,7 +1510,7 @@ export type ChapterDownloader_DownloadID = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/database/db/scan_summary.go
+ * - Filepath: internal/database/db/scan_summary.go
  * - Filename: scan_summary.go
  * - Package: db
  */
@@ -1524,7 +1524,7 @@ export type DB_ScanSummaryItem = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/handlers/directory_selector.go
+ * - Filepath: internal/handlers/directory_selector.go
  * - Filename: directory_selector.go
  * - Package: handlers
  */
@@ -1534,7 +1534,7 @@ export type DirectoryInfo = {
 }
 
 /**
- * - Filepath: internal/../internal/handlers/directory_selector.go
+ * - Filepath: internal/handlers/directory_selector.go
  * - Filename: directory_selector.go
  * - Package: handlers
  */
@@ -1545,7 +1545,7 @@ export type DirectorySelectorResponse = {
 }
 
 /**
- * - Filepath: internal/../internal/handlers/download.go
+ * - Filepath: internal/handlers/download.go
  * - Filename: download.go
  * - Package: handlers
  */
@@ -1555,7 +1555,7 @@ export type DownloadReleaseResponse = {
 }
 
 /**
- * - Filepath: internal/../internal/handlers/mal.go
+ * - Filepath: internal/handlers/mal.go
  * - Filename: mal.go
  * - Package: handlers
  */
@@ -1567,7 +1567,7 @@ export type MalAuthResponse = {
 }
 
 /**
- * - Filepath: internal/../internal/handlers/status.go
+ * - Filepath: internal/handlers/status.go
  * - Filename: status.go
  * - Package: handlers
  * @description
@@ -1589,7 +1589,7 @@ export type Status = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/api/listsync/types.go
+ * - Filepath: internal/api/listsync/types.go
  * - Filename: types.go
  * - Package: listsync
  */
@@ -1606,14 +1606,14 @@ export type ListSync_AnimeDiff = {
 }
 
 /**
- * - Filepath: internal/../internal/api/listsync/types.go
+ * - Filepath: internal/api/listsync/types.go
  * - Filename: types.go
  * - Package: listsync
  */
 export type ListSync_AnimeDiffKind = "missing_in_origin" | "missing_in_target" | "metadata"
 
 /**
- * - Filepath: internal/../internal/api/listsync/types.go
+ * - Filepath: internal/api/listsync/types.go
  * - Filename: types.go
  * - Package: listsync
  */
@@ -1634,7 +1634,7 @@ export type ListSync_AnimeEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/api/listsync/types.go
+ * - Filepath: internal/api/listsync/types.go
  * - Filename: types.go
  * - Package: listsync
  */
@@ -1646,14 +1646,14 @@ export type ListSync_AnimeListStatus = "watching" |
     "unknown"
 
 /**
- * - Filepath: internal/../internal/api/listsync/types.go
+ * - Filepath: internal/api/listsync/types.go
  * - Filename: types.go
  * - Package: listsync
  */
 export type ListSync_AnimeMetadataDiffKind = "score" | "progress" | "status"
 
 /**
- * - Filepath: internal/../internal/api/listsync/types.go
+ * - Filepath: internal/api/listsync/types.go
  * - Filename: types.go
  * - Package: listsync
  */
@@ -1664,7 +1664,7 @@ export type ListSync_Source = "anilist" | "mal"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/manga/manga_chapter.go
+ * - Filepath: internal/manga/manga_chapter.go
  * - Filename: manga_chapter.go
  * - Package: manga
  */
@@ -1675,7 +1675,7 @@ export type Manga_ChapterContainer = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/collection.go
+ * - Filepath: internal/manga/collection.go
  * - Filename: collection.go
  * - Package: manga
  */
@@ -1684,7 +1684,7 @@ export type Manga_Collection = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/collection.go
+ * - Filepath: internal/manga/collection.go
  * - Filename: collection.go
  * - Package: manga
  */
@@ -1698,7 +1698,7 @@ export type Manga_CollectionEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/collection.go
+ * - Filepath: internal/manga/collection.go
  * - Filename: collection.go
  * - Package: manga
  */
@@ -1709,14 +1709,14 @@ export type Manga_CollectionList = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/collection.go
+ * - Filepath: internal/manga/collection.go
  * - Filename: collection.go
  * - Package: manga
  */
 export type Manga_CollectionStatusType = "current" | "planned" | "completed" | "paused" | "dropped"
 
 /**
- * - Filepath: internal/../internal/manga/manga_downloader.go
+ * - Filepath: internal/manga/manga_downloader.go
  * - Filename: manga_downloader.go
  * - Package: manga
  */
@@ -1727,7 +1727,7 @@ export type Manga_DownloadListItem = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/manga_entry.go
+ * - Filepath: internal/manga/manga_entry.go
  * - Filename: manga_entry.go
  * - Package: manga
  */
@@ -1738,7 +1738,7 @@ export type Manga_Entry = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/manga_entry.go
+ * - Filepath: internal/manga/manga_entry.go
  * - Filename: manga_entry.go
  * - Package: manga
  */
@@ -1751,7 +1751,7 @@ export type Manga_EntryListData = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/manga_downloader.go
+ * - Filepath: internal/manga/manga_downloader.go
  * - Filename: manga_downloader.go
  * - Package: manga
  */
@@ -1761,7 +1761,7 @@ export type Manga_MediaDownloadData = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/manga_chapter.go
+ * - Filepath: internal/manga/manga_chapter.go
  * - Filename: manga_chapter.go
  * - Package: manga
  */
@@ -1781,7 +1781,7 @@ export type Manga_PageContainer = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/manga_chapter.go
+ * - Filepath: internal/manga/manga_chapter.go
  * - Filename: manga_chapter.go
  * - Package: manga
  */
@@ -1791,14 +1791,14 @@ export type Manga_PageDimension = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/manga_downloader.go
+ * - Filepath: ..\internal\manga\manga_downloader.go
  * - Filename: manga_downloader.go
  * - Package: manga
  */
 export type Manga_ProviderDownloadMap = Record<string, Array<Manga_ProviderDownloadMapChapterInfo>>
 
 /**
- * - Filepath: internal/../internal/manga/manga_downloader.go
+ * - Filepath: internal/manga/manga_downloader.go
  * - Filename: manga_downloader.go
  * - Package: manga
  */
@@ -1812,7 +1812,7 @@ export type Manga_ProviderDownloadMapChapterInfo = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/manga/providers/providers.go
+ * - Filepath: internal/manga/providers/providers.go
  * - Filename: providers.go
  * - Package: manga_providers
  */
@@ -1834,7 +1834,7 @@ export type Manga_ChapterDetails = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/providers/providers.go
+ * - Filepath: internal/manga/providers/providers.go
  * - Filename: providers.go
  * - Package: manga_providers
  */
@@ -1846,7 +1846,7 @@ export type Manga_ChapterPage = {
 }
 
 /**
- * - Filepath: internal/../internal/manga/providers/providers.go
+ * - Filepath: internal/manga/providers/providers.go
  * - Filename: providers.go
  * - Package: manga_providers
  */
@@ -1857,7 +1857,7 @@ export type Manga_Provider = "mangasee" | "mangadex" | "comick" | "mangapill" | 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1868,7 +1868,7 @@ export type Models_AnilistSettings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1887,7 +1887,7 @@ export type Models_AutoDownloaderItem = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1899,7 +1899,7 @@ export type Models_AutoDownloaderSettings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1919,7 +1919,7 @@ export type Models_ChapterDownloadQueueItem = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1930,7 +1930,7 @@ export type Models_DiscordSettings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1947,7 +1947,7 @@ export type Models_LibrarySettings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1957,7 +1957,7 @@ export type Models_ListSyncSettings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1972,7 +1972,7 @@ export type Models_Mal = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -1993,7 +1993,7 @@ export type Models_MediaPlayerSettings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -2011,7 +2011,7 @@ export type Models_Settings = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -2022,7 +2022,7 @@ export type Models_SilencedMediaEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -2046,7 +2046,7 @@ export type Models_Theme = {
 }
 
 /**
- * - Filepath: internal/../internal/database/models/models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -2069,7 +2069,7 @@ export type Models_TorrentSettings = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
@@ -2082,14 +2082,14 @@ export type Offline_AnimeEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: ..\internal\offline\snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
 export type Offline_AssetMapImageMap = Record<string, string>
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
@@ -2099,7 +2099,7 @@ export type Offline_Collections = {
 }
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
@@ -2115,7 +2115,7 @@ export type Offline_Entries = {
 }
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
@@ -2128,7 +2128,7 @@ export type Offline_ListData = {
 }
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
@@ -2141,7 +2141,7 @@ export type Offline_MangaEntry = {
 }
 
 /**
- * - Filepath: internal/../internal/offline/snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */
@@ -2157,7 +2157,7 @@ export type Offline_Snapshot = {
 }
 
 /**
- * - Filepath: internal/../internal/offline/models.go
+ * - Filepath: internal/offline/models.go
  * - Filename: models.go
  * - Package: offline
  */
@@ -2177,7 +2177,7 @@ export type Offline_SnapshotEntry = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/onlinestream/onlinestream.go
+ * - Filepath: internal/onlinestream/onlinestream.go
  * - Filename: onlinestream.go
  * - Package: onlinestream
  */
@@ -2189,7 +2189,7 @@ export type Onlinestream_Episode = {
 }
 
 /**
- * - Filepath: internal/../internal/onlinestream/onlinestream.go
+ * - Filepath: internal/onlinestream/onlinestream.go
  * - Filename: onlinestream.go
  * - Package: onlinestream
  */
@@ -2199,7 +2199,7 @@ export type Onlinestream_EpisodeListResponse = {
 }
 
 /**
- * - Filepath: internal/../internal/onlinestream/onlinestream.go
+ * - Filepath: internal/onlinestream/onlinestream.go
  * - Filename: onlinestream.go
  * - Package: onlinestream
  */
@@ -2210,7 +2210,7 @@ export type Onlinestream_EpisodeSource = {
 }
 
 /**
- * - Filepath: internal/../internal/onlinestream/onlinestream.go
+ * - Filepath: internal/onlinestream/onlinestream.go
  * - Filename: onlinestream.go
  * - Package: onlinestream
  */
@@ -2220,7 +2220,7 @@ export type Onlinestream_Subtitle = {
 }
 
 /**
- * - Filepath: internal/../internal/onlinestream/onlinestream.go
+ * - Filepath: internal/onlinestream/onlinestream.go
  * - Filename: onlinestream.go
  * - Package: onlinestream
  */
@@ -2236,7 +2236,7 @@ export type Onlinestream_VideoSource = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/library/summary/scan_summary.go
+ * - Filepath: internal/library/summary/scan_summary.go
  * - Filename: scan_summary.go
  * - Package: summary
  */
@@ -2247,7 +2247,7 @@ export type Summary_ScanSummary = {
 }
 
 /**
- * - Filepath: internal/../internal/library/summary/scan_summary.go
+ * - Filepath: internal/library/summary/scan_summary.go
  * - Filename: scan_summary.go
  * - Package: summary
  */
@@ -2258,7 +2258,7 @@ export type Summary_ScanSummaryFile = {
 }
 
 /**
- * - Filepath: internal/../internal/library/summary/scan_summary.go
+ * - Filepath: internal/library/summary/scan_summary.go
  * - Filename: scan_summary.go
  * - Package: summary
  */
@@ -2275,7 +2275,7 @@ export type Summary_ScanSummaryGroup = {
 }
 
 /**
- * - Filepath: internal/../internal/library/summary/scan_summary.go
+ * - Filepath: internal/library/summary/scan_summary.go
  * - Filename: scan_summary.go
  * - Package: summary
  */
@@ -2291,7 +2291,7 @@ export type Summary_ScanSummaryLog = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/torrents/torrent/torrent.go
+ * - Filepath: internal/torrents/torrent/torrent.go
  * - Filename: torrent.go
  * - Package: torrent
  */
@@ -2315,7 +2315,7 @@ export type Torrent_AnimeTorrent = {
 }
 
 /**
- * - Filepath: internal/../internal/torrents/torrent/smart_search.go
+ * - Filepath: internal/torrents/torrent/smart_search.go
  * - Filename: smart_search.go
  * - Package: torrent
  */
@@ -2328,7 +2328,7 @@ export type Torrent_Preview = {
 }
 
 /**
- * - Filepath: internal/../internal/torrents/torrent/smart_search.go
+ * - Filepath: internal/torrents/torrent/smart_search.go
  * - Filename: smart_search.go
  * - Package: torrent
  */
@@ -2348,7 +2348,7 @@ export type Torrent_SearchData = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/torrents/torrent_client/torrent.go
+ * - Filepath: internal/torrents/torrent_client/torrent.go
  * - Filename: torrent.go
  * - Package: torrent_client
  */
@@ -2366,7 +2366,7 @@ export type TorrentClient_Torrent = {
 }
 
 /**
- * - Filepath: internal/../internal/torrents/torrent_client/torrent.go
+ * - Filepath: internal/torrents/torrent_client/torrent.go
  * - Filename: torrent.go
  * - Package: torrent_client
  */
@@ -2377,7 +2377,7 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/api/tvdb/types.go
+ * - Filepath: internal/api/tvdb/types.go
  * - Filename: types.go
  * - Package: tvdb
  */
@@ -2393,7 +2393,7 @@ export type TVDB_Episode = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/../internal/updater/updater.go
+ * - Filepath: internal/updater/updater.go
  * - Filename: updater.go
  * - Package: updater
  */
@@ -2411,7 +2411,7 @@ export type Updater_Release = {
 }
 
 /**
- * - Filepath: internal/../internal/updater/updater.go
+ * - Filepath: internal/updater/updater.go
  * - Filename: updater.go
  * - Package: updater
  */
@@ -2427,7 +2427,7 @@ export type Updater_ReleaseAsset = {
 }
 
 /**
- * - Filepath: internal/../internal/updater/updater.go
+ * - Filepath: internal/updater/updater.go
  * - Filename: updater.go
  * - Package: updater
  */

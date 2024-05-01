@@ -222,7 +222,7 @@ func getReferencedStructs(goStruct *GoStruct, referencedStructs map[string]*GoSt
 
 func writeTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string]*GoStruct) {
 	f.WriteString("/**\n")
-	f.WriteString(fmt.Sprintf(" * - Filepath: internal/%s\n", filepath.ToSlash(strings.TrimPrefix(goStruct.Filepath, "..\\"))))
+	f.WriteString(fmt.Sprintf(" * - Filepath: %s\n", strings.TrimPrefix(goStruct.Filepath, "../")))
 	f.WriteString(fmt.Sprintf(" * - Filename: %s\n", goStruct.Filename))
 	f.WriteString(fmt.Sprintf(" * - Package: %s\n", goStruct.Package))
 	if len(goStruct.Comments) > 0 {

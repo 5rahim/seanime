@@ -208,7 +208,7 @@ func ExtractStructs(dir string, outDir string) {
 						}
 
 						goStruct := &GoStruct{
-							Filepath:            path,
+							Filepath:            filepath.ToSlash(path),
 							Filename:            info.Name(),
 							Name:                typeSpec.Name.Name,
 							FormattedName:       getTypePrefix(packageName) + typeSpec.Name.Name,

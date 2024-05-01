@@ -24168,17 +24168,6 @@
         ]
       },
       {
-        "name": "WebDir",
-        "jsonName": "WebDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " The path to the Seanime web directory, if any"
-        ]
-      },
-      {
         "name": "OnVersionChange",
         "jsonName": "OnVersionChange",
         "goType": "[]",
@@ -31104,7 +31093,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/manga/downloader/chapter_downloader.go",
+    "filepath": "..\\internal\\manga\\downloader\\chapter_downloader.go",
     "filename": "chapter_downloader.go",
     "name": "Registry",
     "formattedName": "ChapterDownloader_Registry",
@@ -31649,7 +31638,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/manga/manga_downloader.go",
+    "filepath": "..\\internal\\manga\\manga_downloader.go",
     "filename": "manga_downloader.go",
     "name": "MediaMap",
     "formattedName": "Manga_MediaMap",
@@ -31664,7 +31653,7 @@
     "comments": null
   },
   {
-    "filepath": "../internal/manga/manga_downloader.go",
+    "filepath": "..\\internal\\manga\\manga_downloader.go",
     "filename": "manga_downloader.go",
     "name": "ProviderDownloadMap",
     "formattedName": "Manga_ProviderDownloadMap",
@@ -35919,7 +35908,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/offline/snapshot_entities.go",
+    "filepath": "..\\internal\\offline\\snapshot_entities.go",
     "filename": "snapshot_entities.go",
     "name": "AssetMapImageMap",
     "formattedName": "Offline_AssetMapImageMap",
