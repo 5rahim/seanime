@@ -2,35 +2,14 @@ import { THEME_DEFAULT_VALUES, useThemeSettings } from "@/lib/theme/hooks"
 import { colord, RgbColor } from "colord"
 import React from "react"
 
-type CustomColorProviderProps = {
-    children: React.ReactNode
-}
+type CustomColorProviderProps = {}
 
-type ThemeColors = {
-    mediaCardPopupBackground: string
-}
 
-const defaultThemeColors: ThemeColors = {
-    mediaCardPopupBackground: "#101010",
-}
+export function CustomThemeProvider(props: CustomColorProviderProps) {
 
-const __ThemeColorsContext = React.createContext<ThemeColors>(defaultThemeColors)
-
-export function CustomColorProvider(props: CustomColorProviderProps) {
-
-    const {
-        children,
-        ...rest
-    } = props
+    const {} = props
 
     const ts = useThemeSettings()
-
-    const data: ThemeColors = React.useMemo(() => {
-        if (ts.backgroundColor === THEME_DEFAULT_VALUES.backgroundColor) return defaultThemeColors
-        return {
-            mediaCardPopupBackground: colord(ts.backgroundColor).lighten(0.025).toHex(),
-        }
-    }, [ts.backgroundColor])
 
     function setBgColor(r: any, variable: string, defaultColor: string | null, customColor: string | RgbColor) {
         if (ts.backgroundColor === THEME_DEFAULT_VALUES.backgroundColor) {
@@ -110,15 +89,6 @@ export function CustomColorProvider(props: CustomColorProviderProps) {
         setColor(r, "--brand", colord("rgba(199 194 255)").toHex(), colord(ts.accentColor).lighten(0.35).desaturate(0.1).toHex())
     }, [ts.enableColorSettings, ts.accentColor])
 
-    return (
-        <__ThemeColorsContext.Provider value={data}>
-            {children}
-        </__ThemeColorsContext.Provider>
-    )
+    return null
 }
-
-export function useThemeColors() {
-    return React.useContext(__ThemeColorsContext)
-}
-
 

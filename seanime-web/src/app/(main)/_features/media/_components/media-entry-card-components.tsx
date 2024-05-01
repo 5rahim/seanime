@@ -1,7 +1,6 @@
 import { AL_BaseMedia_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
 import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
-import { useThemeColors } from "@/components/shared/custom-color-provider"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
@@ -77,8 +76,6 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
         className,
         ...rest
     } = props
-
-    const themeColors = useThemeColors()
 
     return (
         <div

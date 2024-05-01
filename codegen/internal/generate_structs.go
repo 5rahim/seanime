@@ -150,7 +150,7 @@ func ExtractStructs(dir string, outDir string) {
 						usedStructType, usedStructPkgName := getUsedStructType(typeSpec.Type, packageName)
 
 						goStruct := &GoStruct{
-							Filepath:      path,
+							Filepath:      filepath.ToSlash(path),
 							Filename:      info.Name(),
 							Name:          typeSpec.Name.Name,
 							Package:       packageName,

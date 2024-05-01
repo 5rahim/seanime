@@ -1,6 +1,6 @@
 "use client"
 import { WebsocketProvider } from "@/app/websocket-provider"
-import { CustomColorProvider } from "@/components/shared/custom-color-provider"
+import { CustomThemeProvider } from "@/components/shared/custom-theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClient } from "@tanstack/query-core"
 import { QueryClientProvider } from "@tanstack/react-query"
@@ -33,9 +33,8 @@ export const ClientProviders: React.FC<ClientProvidersProps> = ({ children }) =>
             <JotaiProvider store={store}>
                 <QueryClientProvider client={queryClient}>
                     <WebsocketProvider>
-                        <CustomColorProvider>
-                            {children}
-                        </CustomColorProvider>
+                        {children}
+                        <CustomThemeProvider />
                         <Toaster />
                     </WebsocketProvider>
                     {process.env.NODE_ENV === "development" && <React.Suspense fallback={null}>
