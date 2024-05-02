@@ -1853,6 +1853,35 @@ export type Manga_ChapterPage = {
 export type Manga_Provider = "mangasee" | "mangadex" | "comick" | "mangapill" | "manganato"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mediastream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/mediastream/playback.go
+ * - Filename: playback.go
+ * - Package: mediastream
+ */
+export type MediaContainer = {
+    filePath: string
+    hash: string
+    /**
+     * Tells the frontend how to play the media.
+     */
+    streamType: StreamType
+    /**
+     * The relative endpoint to stream the media.
+     */
+    streamUrl: string
+}
+
+/**
+ * - Filepath: internal/mediastream/playback.go
+ * - Filename: playback.go
+ * - Package: mediastream
+ */
+export type StreamType = "file" | "transcode" | "pre_transcoded"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Models
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1990,6 +2019,26 @@ export type Models_MediaPlayerSettings = {
     mpcPath: string
     mpvSocket: string
     mpvPath: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_MediastreamSettings = {
+    transcodeEnabled: boolean
+    transcodeHwAccel: string
+    transcodeThreads: number
+    transcodePreset: string
+    transcodeTempDir: string
+    preTranscodeEnabled: boolean
+    preTranscodeLibraryDir: string
+    ffmpegPath: string
+    ffprobePath: string
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 /**

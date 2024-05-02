@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"math"
 	"os"
+	"path/filepath"
 	"sync"
 )
 
@@ -20,22 +21,29 @@ type FileStream struct {
 	videos    CMap[Quality, *VideoStream] // A map of video streams.
 	audios    CMap[int32, *AudioStream]   // A map of audio streams.
 	logger    *zerolog.Logger
+	settings  *Settings
 }
 
 // NewFileStream creates a new FileStream.
-func NewFileStream(path string, sha string, logger *zerolog.Logger) *FileStream {
+func NewFileStream(
+	path string,
+	sha string,
+	settings *Settings,
+	logger *zerolog.Logger,
+) *FileStream {
 	ret := &FileStream{
-		Path:   path,
-		Out:    fmt.Sprintf("%s/%s", Settings.Outpath, sha),
-		videos: NewCMap[Quality, *VideoStream](),
-		audios: NewCMap[int32, *AudioStream](),
-		logger: logger,
+		Path:     path,
+		Out:      filepath.Join(settings.StreamDir, sha),
+		videos:   NewCMap[Quality, *VideoStream](),
+		audios:   NewCMap[int32, *AudioStream](),
+		logger:   logger,
+		settings: settings,
 	}
 
 	ret.ready.Add(1)
 	go func() {
 		defer ret.ready.Done()
-		info, err := GetInfo(path, logger)
+		info, err := GetInfo(path, logger, settings)
 		ret.Info = info
 		if err != nil {
 			ret.err = err
@@ -45,7 +53,7 @@ func NewFileStream(path string, sha string, logger *zerolog.Logger) *FileStream 
 	ret.ready.Add(1)
 	go func() {
 		defer ret.ready.Done()
-		ret.Keyframes = GetKeyframes(sha, path, logger)
+		ret.Keyframes = GetKeyframes(sha, path, logger, settings)
 	}()
 
 	return ret
@@ -139,7 +147,7 @@ func (fs *FileStream) GetVideoIndex(quality Quality) (string, error) {
 // It creates a new stream if it does not exist.
 func (fs *FileStream) getVideoStream(quality Quality) *VideoStream {
 	stream, _ := fs.videos.GetOrCreate(quality, func() *VideoStream {
-		return NewVideoStream(fs, quality, fs.logger)
+		return NewVideoStream(fs, quality, fs.logger, fs.settings)
 	})
 	return stream
 }
@@ -166,7 +174,7 @@ func (fs *FileStream) GetAudioSegment(audio int32, segment int32) (string, error
 // It creates a new stream if it does not exist.
 func (fs *FileStream) getAudioStream(audio int32) *AudioStream {
 	stream, _ := fs.audios.GetOrCreate(audio, func() *AudioStream {
-		return NewAudioStream(fs, audio, fs.logger)
+		return NewAudioStream(fs, audio, fs.logger, fs.settings)
 	})
 	return stream
 }

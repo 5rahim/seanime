@@ -47,3 +47,30 @@ func (db *Database) AutoUpdateProgressIsEnabled() (bool, error) {
 	}
 	return settings.Library.AutoUpdateProgress, nil
 }
+
+func (db *Database) UpsertMediastreamSettings(settings *models.MediastreamSettings) (*models.MediastreamSettings, error) {
+
+	err := db.gormdb.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(settings).Error
+
+	if err != nil {
+		db.logger.Error().Err(err).Msg("db: Failed to save mediastream settings in the database")
+		return nil, err
+	}
+
+	db.logger.Debug().Msg("db: Mediastream settings saved")
+	return settings, nil
+
+}
+
+func (db *Database) GetMediastreamSettings() (*models.MediastreamSettings, bool) {
+	var settings models.MediastreamSettings
+	err := db.gormdb.Where("id = ?", 1).First(&settings).Error
+
+	if err != nil {
+		return nil, false
+	}
+	return &settings, true
+}

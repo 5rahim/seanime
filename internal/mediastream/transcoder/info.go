@@ -17,7 +17,7 @@ func Map[T, U any](ts []T, f func(T, int) U) []U {
 	return us
 }
 
-func GetInfo(path string, logger *zerolog.Logger) (*videofile.MediaInfo, error) {
+func GetInfo(path string, logger *zerolog.Logger, settings *Settings) (*videofile.MediaInfo, error) {
 	defer printExecTime(logger, "mediainfo for %s", path)()
 
 	me, err := videofile.NewMediaInfoExtractor(path, logger)
@@ -25,7 +25,7 @@ func GetInfo(path string, logger *zerolog.Logger) (*videofile.MediaInfo, error) 
 		return nil, err
 	}
 
-	ret, err := me.GetInfo(Settings.Metadata)
+	ret, err := me.GetInfo(settings.MetadataDir)
 	if err != nil {
 		return nil, err
 	}

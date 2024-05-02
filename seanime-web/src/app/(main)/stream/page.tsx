@@ -1,5 +1,6 @@
 "use client"
 
+import { useMediastreamRequestTranscodeStream } from "@/api/hooks/mediastream.hooks"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import {
@@ -103,9 +104,9 @@ export default function Page() {
 
         if (isHLSProvider(provider)) {
             if (HLS.isSupported()) {
-                provider.instance?.loadSource("http://192.168.1.151:43211/api/v1/stream/master.m3u8")
-                provider.instance?.attachMedia(provider.video)
-                provider.instance?.startLoad(0)
+                // provider.instance?.loadSource("http://192.168.1.151:43211/api/v1/mediastream/transcode/master.m3u8")
+                // provider.instance?.attachMedia(provider.video)
+                // provider.instance?.startLoad(0)
             }
             // } else if (provider.video.canPlayType("application/vnd.apple.mpegurl")) {
             //     provider.video.src = "http://192.168.1.151:43211/api/v1/stream3/master.m3u8"
@@ -119,26 +120,44 @@ export default function Page() {
         console.log("Can play", detail)
     }
 
-    React.useEffect(() => {
-        // @ts-ignore
-        const renderer = new LibASSTextRenderer(() => import("jassub"), {
-            workerUrl: "/jassub/jassub-worker.js",
-            legacyWorkerUrl: "/jassub/jassub-worker-legacy.js",
-        })
+    const [url, setUrl] = React.useState<string | undefined>(undefined)
 
-        ref.current!.textRenderers.add(renderer)
+    const { mutate: requestPlayback, data: mediaContainer } = useMediastreamRequestTranscodeStream()
+
+    React.useEffect(() => {
+        requestPlayback({
+            path: "E:/COLLECTION/One Piece/[Erai-raws] One Piece - 1072 [1080p][Multiple Subtitle][51CB925F].mkv",
+        })
     }, [])
+
+    React.useEffect(() => {
+        if (mediaContainer?.streamUrl) {
+            setUrl(`http://192.168.1.151:${__DEV_SERVER_PORT}${mediaContainer.streamUrl}`)
+        } else {
+            setUrl(undefined)
+        }
+    }, [mediaContainer?.streamUrl])
+
+    React.useEffect(() => {
+        if (ref.current) {
+            // @ts-ignore
+            const renderer = new LibASSTextRenderer(() => import("jassub"), {
+                workerUrl: "/jassub/jassub-worker.js",
+                legacyWorkerUrl: "/jassub/jassub-worker-legacy.js",
+            })
+
+            ref.current!.textRenderers.add(renderer)
+        }
+    }, [mediaContainer?.streamUrl])
 
     return (
         <AppLayoutStack className="p-8">
             <h3>Streaming</h3>
 
-            {/*<ArtPlayer url="http://192.168.1.151:43211/api/v1/stream2/test.m3u8" />*/}
-
-            <MediaPlayer
+            {url && <MediaPlayer
                 ref={ref}
                 crossOrigin
-                src={`http://192.168.1.151:${__DEV_SERVER_PORT}/api/v1/stream/master.m3u8`}
+                src={url}
                 onProviderChange={onProviderChange}
                 onProviderSetup={onProviderSetup}
                 onCanPlay={onCanPlay}
@@ -157,7 +176,7 @@ export default function Page() {
                     // thumbnails="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/storyboard.vtt"
                     icons={defaultLayoutIcons}
                 />
-            </MediaPlayer>
+            </MediaPlayer>}
         </AppLayoutStack>
     )
 

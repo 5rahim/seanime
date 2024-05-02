@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/coding-socks/ebml"
 	"github.com/coding-socks/matroska"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -247,7 +246,6 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 		//
 
 		if entry.TrackType == matroska.TrackTypeVideo {
-			spew.Dump(entry)
 			v := &Video{
 				Codec:    entry.CodecID,
 				Width:    uint32(entry.Video.PixelWidth),

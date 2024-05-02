@@ -8,6 +8,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/Yamashou/gqlgenc v0.20.1
 	github.com/adrg/strutil v0.3.1
+	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8
 	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.14.1
@@ -26,6 +27,7 @@ require (
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.32.0
 	github.com/samber/lo v1.39.0
+	github.com/samber/mo v1.11.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.9.0
@@ -43,7 +45,6 @@ require (
 	github.com/antchfx/htmlquery v1.3.0 // indirect
 	github.com/antchfx/xmlquery v1.3.18 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
-	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fasthttp/websocket v1.5.7 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect

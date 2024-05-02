@@ -29,6 +29,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/_next",
 			"/icons",
 			"/api/v1/image-proxy",
+			"/api/v1/mediastream/transcode/",
 		},
 		Fields:   []string{"method", "error", "url"},
 		Messages: []string{"req: error", "req: client error", "req: Success"},
@@ -303,7 +304,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// Stream
 	//
-	v1.Get("/stream/*", makeHandler(app, HandleStream))
+	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
+	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
+
+	v1.Post("/mediastream/transcode", makeHandler(app, HandleMediastreamRequestTranscodeStream))
+	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
 
 	//
 	// Websocket

@@ -12,10 +12,10 @@ import (
 func printExecTime(logger *zerolog.Logger, message string, args ...any) func() {
 	msg := fmt.Sprintf(message, args...)
 	start := time.Now()
-	logger.Trace().Msgf("Running %s", msg)
+	logger.Trace().Msgf("transcoder: Running %s", msg)
 
 	return func() {
-		logger.Trace().Msgf("%s finished in %s", msg, time.Since(start))
+		logger.Trace().Msgf("transcoder: %s finished in %s", msg, time.Since(start))
 	}
 }
 

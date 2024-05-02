@@ -36,8 +36,9 @@ type Stream struct {
 	segments []Segment
 	heads    []Head
 	// the lock used for the heads
-	lock   sync.RWMutex
-	logger *zerolog.Logger
+	lock     sync.RWMutex
+	logger   *zerolog.Logger
+	settings *Settings
 }
 
 type Segment struct {
@@ -66,10 +67,18 @@ var DeletedHead = Head{
 
 var streamLogger = util.NewLogger()
 
-func NewStream(file *FileStream, handle StreamHandle, ret *Stream) {
+func NewStream(
+	file *FileStream,
+	handle StreamHandle,
+	ret *Stream,
+	settings *Settings,
+	logger *zerolog.Logger,
+) {
 	ret.handle = handle
 	ret.file = file
 	ret.heads = make([]Head, 0)
+	ret.settings = settings
+	ret.logger = logger
 
 	length, isDone := file.Keyframes.Length()
 	ret.segments = make([]Segment, length, max(length, 2000))
@@ -149,10 +158,8 @@ func (ts *Stream) run(start int32) error {
 	ts.heads = append(ts.heads, Head{segment: start, end: end, command: nil})
 	ts.lock.Unlock()
 
-	streamLogger.Trace().Msgf(
-		"Transcoding %d for %s (from %d to %d out of %d segments)",
-		encoderId,
-		ts.file.Path,
+	streamLogger.Info().Any("eid", encoderId).Msgf(
+		"Transcoding %d-%d/%d segments",
 		start,
 		end,
 		length,
@@ -161,16 +168,16 @@ func (ts *Stream) run(start int32) error {
 	// Include both the start and end delimiter because -ss and -to are not accurate
 	// Having an extra segment allows us to cut precisely the segments we want with the
 	// -f segment that does cut the beginning and the end at the keyframe like asked
-	start_ref := float64(0)
-	start_segment := start
+	startRef := float64(0)
+	startSeg := start
 	if start != 0 {
 		// we always take on segment before the current one, for different reasons for audio/video:
-		//  - Audio: we need context before the starting point, without that ffmpeg doesnt know what to do and leave ~100ms of silence
+		//  - Audio: we need context before the starting point, without that ffmpeg doesn't know what to do and leave ~100ms of silence
 		//  - Video: if a segment is really short (between 20 and 100ms), the padding given in the else block bellow is not enough and
-		// the previous segment is played another time. the -segment_times is way more precise so it does not do the same with this one
-		start_segment = start - 1
+		// the previous segment is played another time. the -segment_times is way more precise, so it does not do the same with this one
+		startSeg = start - 1
 		if ts.handle.getFlags()&AudioF != 0 {
-			start_ref = ts.file.Keyframes.Get(start_segment)
+			startRef = ts.file.Keyframes.Get(startSeg)
 		} else {
 			// the param for the -ss takes the keyframe before the specified time
 			// (if the specified time is a keyframe, it either takes that keyframe or the one before)
@@ -178,18 +185,18 @@ func (ts *Stream) run(start int32) error {
 
 			// this can't be used with audio since we need to have context before the start-time
 			// without this context, the cut loses a bit of audio (audio gap of ~100ms)
-			if start_segment+1 == length {
-				start_ref = (ts.file.Keyframes.Get(start_segment) + float64(ts.file.Info.Duration)) / 2
+			if startSeg+1 == length {
+				startRef = (ts.file.Keyframes.Get(startSeg) + float64(ts.file.Info.Duration)) / 2
 			} else {
-				start_ref = (ts.file.Keyframes.Get(start_segment) + ts.file.Keyframes.Get(start_segment+1)) / 2
+				startRef = (ts.file.Keyframes.Get(startSeg) + ts.file.Keyframes.Get(startSeg+1)) / 2
 			}
 		}
 	}
-	end_padding := int32(1)
+	endPadding := int32(1)
 	if end == length {
-		end_padding = 0
+		endPadding = 0
 	}
-	segments := ts.file.Keyframes.Slice(start+1, end+end_padding)
+	segments := ts.file.Keyframes.Slice(start+1, end+endPadding)
 	if len(segments) == 0 {
 		// we can't leave that empty else ffmpeg errors out.
 		segments = []float64{9999999}
@@ -205,29 +212,29 @@ func (ts *Stream) run(start int32) error {
 		"-nostats", "-hide_banner", "-loglevel", "warning",
 	}
 
-	args = append(args, Settings.HwAccel.DecodeFlags...)
+	args = append(args, ts.settings.HwAccel.DecodeFlags...)
 
-	if start_ref != 0 {
+	if startRef != 0 {
 		if ts.handle.getFlags()&VideoF != 0 {
 			// This is the default behavior in transmux mode and needed to force pre/post segment to work
 			// This must be disabled when processing only audio because it creates gaps in audio
 			args = append(args, "-noaccurate_seek")
 		}
 		args = append(args,
-			"-ss", fmt.Sprintf("%.6f", start_ref),
+			"-ss", fmt.Sprintf("%.6f", startRef),
 		)
 	}
 	// do not include -to if we want the file to go to the end
 	if end+1 < length {
 		// sometimes, the duration is shorter than expected (only during transcode it seems)
 		// always include more and use the -f segment to split the file where we want
-		end_ref := ts.file.Keyframes.Get(end + 1)
+		endRef := ts.file.Keyframes.Get(end + 1)
 		// it seems that the -to is confused when -ss seek before the given time (because it searches for a keyframe)
 		// add back the time that would be lost otherwise
-		// this only appens when -to is before -i but having -to after -i gave a bug (not sure, don't remember)
-		end_ref += start_ref - ts.file.Keyframes.Get(start_segment)
+		// this only happens when -to is before -i but having -to after -i gave a bug (not sure, don't remember)
+		endRef += startRef - ts.file.Keyframes.Get(startSeg)
 		args = append(args,
-			"-to", fmt.Sprintf("%.6f", end_ref),
+			"-to", fmt.Sprintf("%.6f", endRef),
 		)
 	}
 	args = append(args,
@@ -249,7 +256,7 @@ func (ts *Stream) run(start int32) error {
 		"-f", "segment",
 		// needed for rounding issues when forcing keyframes
 		// recommended value is 1/(2*frame_rate), which for a 24fps is ~0.021
-		// we take a little bit more than that to be extra safe but too much can be harmfull
+		// we take a little bit more than that to be extra safe but too much can be harmful
 		// when segments are short (can make the video repeat itself)
 		"-segment_time_delta", "0.05",
 		"-segment_format", "mpegts",
@@ -257,7 +264,7 @@ func (ts *Stream) run(start int32) error {
 			// segment_times want durations, not timestamps so we must substract the -ss param
 			// since we give a greater value to -ss to prevent wrong seeks but -segment_times
 			// needs precise segments, we use the keyframe we want to seek to as a reference.
-			return seg - ts.file.Keyframes.Get(start_segment)
+			return seg - ts.file.Keyframes.Get(startSeg)
 		})),
 		"-segment_list_type", "flat",
 		"-segment_list", "pipe:1",
@@ -266,7 +273,7 @@ func (ts *Stream) run(start int32) error {
 	)
 
 	cmd := exec.Command("ffmpeg", args...)
-	streamLogger.Trace().Msgf("Executing ffmpeg with %s", strings.Join(cmd.Args, " "))
+	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d", start, end)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -299,21 +306,21 @@ func (ts *Stream) run(start int32) error {
 			}
 			ts.lock.Lock()
 			ts.heads[encoderId].segment = segment
-			streamLogger.Trace().Msgf("Segment %d ready (EID: %d)", segment, encoderId)
+			//streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmepg transcoded segment %d", segment)
 			if ts.isSegmentReady(segment) {
-				// the current segment is already marked at done so another process has already gone up to here.
+				// the current segment is already marked as done so another process has already gone up to here.
 				cmd.Process.Signal(os.Interrupt)
-				streamLogger.Trace().Msgf("Killing ffmpeg because segment %d is already ready", segment)
+				streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg because segment %d is ready", segment)
 				shouldStop = true
 			} else {
 				ts.segments[segment].encoder = encoderId
 				close(ts.segments[segment].channel)
 				if segment == end-1 {
-					// file finished, ffmped will finish soon on its own
+					// file finished, ffmpeg will finish soon on its own
 					shouldStop = true
 				} else if ts.isSegmentReady(segment + 1) {
 					cmd.Process.Signal(os.Interrupt)
-					streamLogger.Trace().Msgf("Killing ffmpeg because next segment %d is ready", segment)
+					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg because next segment %d is ready", segment)
 					shouldStop = true
 				}
 			}
@@ -326,18 +333,18 @@ func (ts *Stream) run(start int32) error {
 		}
 
 		if err := scanner.Err(); err != nil {
-			streamLogger.Error().Err(err).Msg("Error reading stdout of ffmpeg")
+			streamLogger.Error().Int("eid", encoderId).Err(err).Msg("Error reading stdout of ffmpeg")
 		}
 	}()
 
 	go func() {
 		err := cmd.Wait()
 		if exiterr, ok := err.(*exec.ExitError); ok && exiterr.ExitCode() == 255 {
-			streamLogger.Trace().Msgf("ffmpeg %d was killed by us", encoderId)
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg was terminated")
 		} else if err != nil {
-			streamLogger.Trace().Msgf("ffmpeg %d occured an error: %s: %s", encoderId, err, stderr.String())
+			streamLogger.Error().Int("eid", encoderId).Err(fmt.Errorf("%s: %s", err, stderr.String())).Msgf("transcoder: ffmpeg failed")
 		} else {
-			streamLogger.Trace().Msgf("ffmpeg %d finished successfully", encoderId)
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg finished successfully")
 		}
 
 		ts.lock.Lock()
@@ -376,17 +383,18 @@ func (ts *Stream) GetIndex() (string, error) {
 	return index, nil
 }
 
+// GetSegment returns the path to the segment and waits for it to be ready.
 func (ts *Stream) GetSegment(segment int32) (string, error) {
 	ts.lock.RLock()
 	ready := ts.isSegmentReady(segment)
 	// we want to calculate distance in the same lock else it can be funky
 	distance := 0.
-	is_scheduled := false
+	isScheduled := false
 	if !ready {
 		distance = ts.getMinEncoderDistance(segment)
 		for _, head := range ts.heads {
 			if head.segment <= segment && segment < head.end {
-				is_scheduled = true
+				isScheduled = true
 				break
 			}
 		}
@@ -396,26 +404,28 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 
 	if !ready {
 		// Only start a new encode if there is too big a distance between the current encoder and the segment.
-		if distance > 60 || !is_scheduled {
-			streamLogger.Trace().Msgf("Creating new head for %d since closest head is %fs away", segment, distance)
+		if distance > 60 || !isScheduled {
+			streamLogger.Trace().Msgf("transcoder: New head for segment %d - closest head is %.2fs away", segment, distance)
 			err := ts.run(segment)
 			if err != nil {
 				return "", err
 			}
 		} else {
-			streamLogger.Trace().Msgf("Waiting for segment %d since encoder head is %fs away", segment, distance)
+			streamLogger.Trace().Msgf("transcoder: Awaiting segment %d since encoder head is %.2fs away", segment, distance)
 		}
 
 		select {
 		case <-readyChan:
 		case <-time.After(60 * time.Second):
-			return "", errors.New("could not retrieve the selected segment (timeout)")
+			streamLogger.Error().Msgf("transcoder: Could not retrieve segment %d (timeout)", segment)
+			return "", errors.New("could not retrieve segment (timeout)")
 		}
 	}
 	ts.prepareNextSegments(segment)
 	return fmt.Sprintf(filepath.ToSlash(ts.handle.getOutPath(ts.segments[segment].encoder)), segment), nil
 }
 
+// prepareNextSegments will start the next segments if they are not already started.
 func (ts *Stream) prepareNextSegments(segment int32) {
 	// Audio is way cheaper to create than video, so we don't need to run them in advance
 	// Running it in advance might actually slow down the video encode since less compute
@@ -434,7 +444,7 @@ func (ts *Stream) prepareNextSegments(segment int32) {
 		if ts.getMinEncoderDistance(i) < 60+(5*float64(i-segment)) {
 			continue
 		}
-		streamLogger.Trace().Msgf("Creating new head for future segment (%d)", i)
+		streamLogger.Trace().Msgf("transcoder: Creating new head for future segment %d", i)
 		go ts.run(i)
 		return
 	}

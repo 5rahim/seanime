@@ -5,11 +5,12 @@ import (
 	"github.com/rs/zerolog"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 var extracted = NewCMap[string, <-chan struct{}]()
 
-func Extract(path string, sha string, logger *zerolog.Logger) (<-chan struct{}, error) {
+func Extract(path string, sha string, settings *Settings, logger *zerolog.Logger) (<-chan struct{}, error) {
 	ret := make(chan struct{})
 	existing, created := extracted.GetOrSet(sha, ret)
 	if !created {
@@ -18,16 +19,16 @@ func Extract(path string, sha string, logger *zerolog.Logger) (<-chan struct{}, 
 
 	go func() {
 		defer printExecTime(logger, "Starting extraction of %s", path)()
-		info, err := GetInfo(path, logger)
+		info, err := GetInfo(path, logger, settings)
 		if err != nil {
 			extracted.Remove(sha)
 			close(ret)
 			return
 		}
-		attachmentPath := fmt.Sprintf("%s/%s/att", Settings.Metadata, sha)
-		subsPath := fmt.Sprintf("%s/%s/sub", Settings.Metadata, sha)
-		os.MkdirAll(attachmentPath, 0o644)
-		os.MkdirAll(subsPath, 0o755)
+		attachmentPath := filepath.Join(settings.MetadataDir, sha, "/att")
+		subsPath := filepath.Join(settings.MetadataDir, sha, "/sub")
+		_ = os.MkdirAll(attachmentPath, 0o644)
+		_ = os.MkdirAll(subsPath, 0o755)
 
 		cmd := exec.Command(
 			"ffmpeg",
@@ -48,7 +49,7 @@ func Extract(path string, sha string, logger *zerolog.Logger) (<-chan struct{}, 
 				)
 			}
 		}
-		logger.Trace().Msgf("Starting extraction with the command: %s", cmd)
+		logger.Trace().Msgf("transcoder: Starting attachment extraction with: %s", cmd)
 		cmd.Stdout = nil
 		err = cmd.Run()
 		if err != nil {

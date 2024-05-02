@@ -38,8 +38,8 @@ func QualityFromString(str string) (Quality, error) {
 
 // AverageBitrate
 // Note: Not accurate
-func (v Quality) AverageBitrate() uint32 {
-	switch v {
+func (q Quality) AverageBitrate() uint32 {
+	switch q {
 	case P240:
 		return 400_000
 	case P360:
@@ -62,8 +62,8 @@ func (v Quality) AverageBitrate() uint32 {
 	panic("Invalid quality value")
 }
 
-func (v Quality) MaxBitrate() uint32 {
-	switch v {
+func (q Quality) MaxBitrate() uint32 {
+	switch q {
 	case P240:
 		return 700_000
 	case P360:

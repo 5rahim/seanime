@@ -2,9 +2,9 @@ package transcoder
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/rs/zerolog"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -64,7 +64,12 @@ func (kf *Keyframe) AddListener(callback func(keyframes []float64)) {
 
 var keyframes = NewCMap[string, *Keyframe]()
 
-func GetKeyframes(sha string, path string, logger *zerolog.Logger) *Keyframe {
+func GetKeyframes(
+	sha string,
+	path string,
+	logger *zerolog.Logger,
+	settings *Settings,
+) *Keyframe {
 	ret, _ := keyframes.GetOrCreate(sha, func() *Keyframe {
 		kf := &Keyframe{
 			Sha:    sha,
@@ -73,16 +78,16 @@ func GetKeyframes(sha string, path string, logger *zerolog.Logger) *Keyframe {
 		}
 		kf.info.ready.Add(1)
 		go func() {
-			save_path := fmt.Sprintf("%s/%s/keyframes.json", Settings.Metadata, sha)
-			if err := getSavedInfo(save_path, kf); err == nil {
-				logger.Trace().Msgf("Using keyframes cache on filesystem for %s", path)
+			keyframesPath := filepath.Join(settings.MetadataDir, sha, "keyframes.json")
+			if err := getSavedInfo(keyframesPath, kf); err == nil {
+				logger.Trace().Msgf("transcoder: Keyframes Cache HIT")
 				kf.info.ready.Done()
 				return
 			}
 
 			err := getKeyframes(path, kf, logger)
 			if err == nil {
-				saveInfo(save_path, kf)
+				saveInfo(keyframesPath, kf)
 			}
 		}()
 		return kf

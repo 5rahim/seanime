@@ -98,9 +98,9 @@ func (t *Tracker) start() {
 				info := t.clients[client]
 
 				if !t.KillStreamIfDead(info.path) {
-					audio_cleanup := info.audio != -1 && t.KillAudioIfDead(info.path, info.audio)
-					video_cleanup := info.quality != nil && t.KillQualityIfDead(info.path, *info.quality)
-					if !audio_cleanup || !video_cleanup {
+					audioCleanup := info.audio != -1 && t.KillAudioIfDead(info.path, info.audio)
+					videoCleanup := info.quality != nil && t.KillQualityIfDead(info.path, *info.quality)
+					if !audioCleanup || !videoCleanup {
 						t.KillOrphanedHeads(info.path, info.quality, info.audio)
 					}
 				}

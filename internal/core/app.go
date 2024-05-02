@@ -23,7 +23,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
+	"github.com/seanime-app/seanime/internal/mediastream"
 	"github.com/seanime-app/seanime/internal/offline"
 	"github.com/seanime-app/seanime/internal/onlinestream"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
@@ -76,7 +76,7 @@ type (
 		cancelContext         func()
 		previousVersion       string
 		OfflineHub            *offline.Hub
-		Transcoder            *transcoder.Transcoder
+		MediastreamRepository *mediastream.Repository
 	}
 )
 
@@ -205,7 +205,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
-		Transcoder:              nil, // Initialized in App.initModulesOnce
+		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
 		WD:                      cfg.Data.WorkingDir,
 		previousVersion:         previousVersion,
 		OfflineHub:              offlineHub,
@@ -214,6 +214,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 	app.runMigrations()
 	app.initModulesOnce()
 	app.InitOrRefreshModules()
+	app.InitOrRefreshMediastreamSettings()
 
 	return app
 }

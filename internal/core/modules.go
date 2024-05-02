@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
@@ -13,7 +14,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
+	"github.com/seanime-app/seanime/internal/mediastream"
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
@@ -92,15 +93,11 @@ func (a *App) initModulesOnce() {
 		_, _ = a.RefreshMangaCollection()
 	}
 
-	//
+	// Mediastream
 
-	// Initialize transcoder
-	var err error
-	a.Transcoder, err = transcoder.NewTranscoder(a.Logger)
-	if err != nil {
-		a.Logger.Fatal().Err(err).Msg("app: Failed to initialize transcoder")
-		return
-	}
+	a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
+		Logger: a.Logger,
+	})
 
 }
 
@@ -298,6 +295,34 @@ func (a *App) initLibraryWatcher(path string) {
 			// Notify the auto scanner when a file action occurs
 			a.AutoScanner.Notify()
 		})
+
+}
+
+// InitOrRefreshMediastreamSettings will initialize or refresh the mediastream settings.
+// It is called after the App instance is created and after settings are updated.
+func (a *App) InitOrRefreshMediastreamSettings() {
+
+	var settings *models.MediastreamSettings
+	var found bool
+	settings, found = a.Database.GetMediastreamSettings()
+	if !found {
+
+		var err error
+		settings, err = a.Database.UpsertMediastreamSettings(&models.MediastreamSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			TranscodeEnabled:    false,
+			TranscodeHwAccel:    "none",
+			PreTranscodeEnabled: false,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")
+			return
+		}
+	}
+
+	a.MediastreamRepository.InitializeModules(settings)
 
 }
 

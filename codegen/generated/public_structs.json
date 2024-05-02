@@ -24054,6 +24054,16 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MediastreamRepository",
+        "jsonName": "MediastreamRepository",
+        "goType": "mediastream.Repository",
+        "typescriptType": "Repository",
+        "usedStructName": "mediastream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -25333,6 +25343,100 @@
       {
         "name": "Status",
         "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "MediastreamSettings",
+    "formattedName": "Models_MediastreamSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "TranscodeEnabled",
+        "jsonName": "transcodeEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TranscodeHwAccel",
+        "jsonName": "transcodeHwAccel",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TranscodeThreads",
+        "jsonName": "transcodeThreads",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TranscodePreset",
+        "jsonName": "transcodePreset",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TranscodeTempDir",
+        "jsonName": "transcodeTempDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PreTranscodeEnabled",
+        "jsonName": "preTranscodeEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PreTranscodeLibraryDir",
+        "jsonName": "preTranscodeLibraryDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfmpegPath",
+        "jsonName": "ffmpegPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfprobePath",
+        "jsonName": "ffprobePath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -35403,6 +35507,1524 @@
     "comments": [
       " VLC struct represents an http interface enabled VLC instance. Build using NewVLC()"
     ]
+  },
+  {
+    "filepath": "../internal/mediastream/playback.go",
+    "filename": "playback.go",
+    "name": "StreamType",
+    "formattedName": "StreamType",
+    "package": "mediastream",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"file\"",
+        "\"transcode\"",
+        "\"pre_transcoded\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/playback.go",
+    "filename": "playback.go",
+    "name": "PlaybackManager",
+    "formattedName": "PlaybackManager",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentMediaContainer",
+        "jsonName": "currentMediaContainer",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current media being played."
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/playback.go",
+    "filename": "playback.go",
+    "name": "PlaybackState",
+    "formattedName": "PlaybackState",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The media ID"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/playback.go",
+    "filename": "playback.go",
+    "name": "MediaContainer",
+    "formattedName": "MediaContainer",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "Filepath",
+        "jsonName": "filePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamType",
+        "jsonName": "streamType",
+        "goType": "StreamType",
+        "typescriptType": "StreamType",
+        "usedStructName": "mediastream.StreamType",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Tells the frontend how to play the media."
+        ]
+      },
+      {
+        "name": "StreamUrl",
+        "jsonName": "streamUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The relative endpoint to stream the media."
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "Repository",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "transcoder",
+        "jsonName": "transcoder",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackManager",
+        "jsonName": "playbackManager",
+        "goType": "PlaybackManager",
+        "typescriptType": "PlaybackManager",
+        "usedStructName": "mediastream.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "NewRepositoryOptions",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/audiostream.go",
+    "filename": "audiostream.go",
+    "name": "AudioStream",
+    "formattedName": "AudioStream",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "index",
+        "jsonName": "index",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "transcoder.Stream"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/cmap.go",
+    "filename": "cmap.go",
+    "name": "CMap",
+    "formattedName": "CMap",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "data",
+        "jsonName": "data",
+        "goType": "map[K]V",
+        "typescriptType": "Record\u003cK, V\u003e",
+        "usedStructName": "transcoder.V",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lock",
+        "jsonName": "lock",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/filestream.go",
+    "filename": "filestream.go",
+    "name": "FileStream",
+    "formattedName": "FileStream",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "ready",
+        "jsonName": "ready",
+        "goType": "sync.WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedStructName": "sync.WaitGroup",
+        "required": false,
+        "public": false,
+        "comments": [
+          " A WaitGroup to synchronize go routines."
+        ]
+      },
+      {
+        "name": "err",
+        "jsonName": "err",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedStructName": "transcoder.error",
+        "required": true,
+        "public": false,
+        "comments": [
+          " An error that might occur during processing."
+        ]
+      },
+      {
+        "name": "Path",
+        "jsonName": "Path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The path of the file."
+        ]
+      },
+      {
+        "name": "Out",
+        "jsonName": "Out",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The output path."
+        ]
+      },
+      {
+        "name": "Keyframes",
+        "jsonName": "Keyframes",
+        "goType": "Keyframe",
+        "typescriptType": "Keyframe",
+        "usedStructName": "transcoder.Keyframe",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The keyframes of the video."
+        ]
+      },
+      {
+        "name": "Info",
+        "jsonName": "Info",
+        "goType": "videofile.MediaInfo",
+        "typescriptType": "MediaInfo",
+        "usedStructName": "videofile.MediaInfo",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The media information of the file."
+        ]
+      },
+      {
+        "name": "videos",
+        "jsonName": "videos",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " A map of video streams."
+        ]
+      },
+      {
+        "name": "audios",
+        "jsonName": "audios",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " A map of audio streams."
+        ]
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "Settings",
+        "usedStructName": "transcoder.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " FileStream represents a stream of file data."
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/handers_utils.go",
+    "filename": "handers_utils.go",
+    "name": "Item",
+    "formattedName": "Item",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/hwaccel.go",
+    "filename": "hwaccel.go",
+    "name": "HwAccelOptions",
+    "formattedName": "HwAccelOptions",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "Kind",
+        "jsonName": "Kind",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Preset",
+        "jsonName": "Preset",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/keyframes.go",
+    "filename": "keyframes.go",
+    "name": "Keyframe",
+    "formattedName": "Keyframe",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "Sha",
+        "jsonName": "Sha",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Keyframes",
+        "jsonName": "Keyframes",
+        "goType": "[]float64",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CanTransmux",
+        "jsonName": "CanTransmux",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDone",
+        "jsonName": "IsDone",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "info",
+        "jsonName": "info",
+        "goType": "KeyframeInfo",
+        "typescriptType": "KeyframeInfo",
+        "usedStructName": "transcoder.KeyframeInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/keyframes.go",
+    "filename": "keyframes.go",
+    "name": "KeyframeInfo",
+    "formattedName": "KeyframeInfo",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "mutex",
+        "jsonName": "mutex",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ready",
+        "jsonName": "ready",
+        "goType": "sync.WaitGroup",
+        "typescriptType": "WaitGroup",
+        "usedStructName": "sync.WaitGroup",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "listeners",
+        "jsonName": "listeners",
+        "goType": "[]",
+        "typescriptType": "Array\u003cany\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/quality.go",
+    "filename": "quality.go",
+    "name": "Quality",
+    "formattedName": "Quality",
+    "package": "transcoder",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"240p\"",
+        "\"360p\"",
+        "\"480p\"",
+        "\"720p\"",
+        "\"1080p\"",
+        "\"1440p\"",
+        "\"4k\"",
+        "\"8k\"",
+        "\"original\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/settings.go",
+    "filename": "settings.go",
+    "name": "HwAccelSettings",
+    "formattedName": "HwAccelSettings",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DecodeFlags",
+        "jsonName": "DecodeFlags",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EncodeFlags",
+        "jsonName": "EncodeFlags",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ScaleFilter",
+        "jsonName": "ScaleFilter",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/stream.go",
+    "filename": "stream.go",
+    "name": "Flags",
+    "formattedName": "Flags",
+    "package": "transcoder",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int32",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/stream.go",
+    "filename": "stream.go",
+    "name": "Stream",
+    "formattedName": "Stream",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "handle",
+        "jsonName": "handle",
+        "goType": "StreamHandle",
+        "typescriptType": "StreamHandle",
+        "usedStructName": "transcoder.StreamHandle",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "file",
+        "jsonName": "file",
+        "goType": "FileStream",
+        "typescriptType": "FileStream",
+        "usedStructName": "transcoder.FileStream",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "segments",
+        "jsonName": "segments",
+        "goType": "[]Segment",
+        "typescriptType": "Array\u003cSegment\u003e",
+        "usedStructName": "transcoder.Segment",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "heads",
+        "jsonName": "heads",
+        "goType": "[]Head",
+        "typescriptType": "Array\u003cHead\u003e",
+        "usedStructName": "transcoder.Head",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lock",
+        "jsonName": "lock",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "Settings",
+        "usedStructName": "transcoder.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/stream.go",
+    "filename": "stream.go",
+    "name": "Segment",
+    "formattedName": "Segment",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "channel",
+        "jsonName": "channel",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "encoder",
+        "jsonName": "encoder",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/stream.go",
+    "filename": "stream.go",
+    "name": "Head",
+    "formattedName": "Head",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "segment",
+        "jsonName": "segment",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "end",
+        "jsonName": "end",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "command",
+        "jsonName": "command",
+        "goType": "exec.Cmd",
+        "typescriptType": "Cmd",
+        "usedStructName": "exec.Cmd",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/tracker.go",
+    "filename": "tracker.go",
+    "name": "ClientInfo",
+    "formattedName": "ClientInfo",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "quality",
+        "jsonName": "quality",
+        "goType": "Quality",
+        "typescriptType": "Quality",
+        "usedStructName": "transcoder.Quality",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "audio",
+        "jsonName": "audio",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "head",
+        "jsonName": "head",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/tracker.go",
+    "filename": "tracker.go",
+    "name": "Tracker",
+    "formattedName": "Tracker",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "clients",
+        "jsonName": "clients",
+        "goType": "map[string]ClientInfo",
+        "typescriptType": "Record\u003cstring, ClientInfo\u003e",
+        "usedStructName": "transcoder.ClientInfo",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "visitDate",
+        "jsonName": "visitDate",
+        "goType": "map[string]time.Time",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastUsage",
+        "jsonName": "lastUsage",
+        "goType": "map[string]time.Time",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "transcoder",
+        "jsonName": "transcoder",
+        "goType": "Transcoder",
+        "typescriptType": "Transcoder",
+        "usedStructName": "transcoder.Transcoder",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "deletedStream",
+        "jsonName": "deletedStream",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/transcoder.go",
+    "filename": "transcoder.go",
+    "name": "Transcoder",
+    "formattedName": "Transcoder",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "streams",
+        "jsonName": "streams",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "clientChan",
+        "jsonName": "clientChan",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tracker",
+        "jsonName": "tracker",
+        "goType": "Tracker",
+        "typescriptType": "Tracker",
+        "usedStructName": "transcoder.Tracker",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "Settings",
+        "usedStructName": "transcoder.Settings",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/transcoder.go",
+    "filename": "transcoder.go",
+    "name": "Settings",
+    "formattedName": "Settings",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "StreamDir",
+        "jsonName": "StreamDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataDir",
+        "jsonName": "MetadataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HwAccel",
+        "jsonName": "HwAccel",
+        "goType": "HwAccelSettings",
+        "typescriptType": "HwAccelSettings",
+        "usedStructName": "transcoder.HwAccelSettings",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/transcoder.go",
+    "filename": "transcoder.go",
+    "name": "NewTranscoderOptions",
+    "formattedName": "NewTranscoderOptions",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HwAccelKind",
+        "jsonName": "HwAccelKind",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Preset",
+        "jsonName": "Preset",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TempOutDir",
+        "jsonName": "TempOutDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/transcoder/videostream.go",
+    "filename": "videostream.go",
+    "name": "VideoStream",
+    "formattedName": "VideoStream",
+    "package": "transcoder",
+    "fields": [
+      {
+        "name": "quality",
+        "jsonName": "quality",
+        "goType": "Quality",
+        "typescriptType": "Quality",
+        "usedStructName": "transcoder.Quality",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "Settings",
+        "usedStructName": "transcoder.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "transcoder.Stream"
+    ]
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/info.go",
+    "filename": "info.go",
+    "name": "MediaInfo",
+    "formattedName": "MediaInfo",
+    "package": "videofile",
+    "fields": [
+      {
+        "name": "ready",
+        "jsonName": "ready",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "Sha",
+        "jsonName": "sha",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Extension",
+        "jsonName": "extension",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Container",
+        "jsonName": "container",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Video",
+        "jsonName": "video",
+        "goType": "Video",
+        "typescriptType": "Video",
+        "usedStructName": "videofile.Video",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Videos",
+        "jsonName": "videos",
+        "goType": "[]Video",
+        "typescriptType": "Array\u003cVideo\u003e",
+        "usedStructName": "videofile.Video",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Audios",
+        "jsonName": "audios",
+        "goType": "[]Audio",
+        "typescriptType": "Array\u003cAudio\u003e",
+        "usedStructName": "videofile.Audio",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Subtitles",
+        "jsonName": "subtitles",
+        "goType": "[]Subtitle",
+        "typescriptType": "Array\u003cSubtitle\u003e",
+        "usedStructName": "videofile.Subtitle",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Fonts",
+        "jsonName": "fonts",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Chapters",
+        "jsonName": "chapters",
+        "goType": "[]Chapter",
+        "typescriptType": "Array\u003cChapter\u003e",
+        "usedStructName": "videofile.Chapter",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/info.go",
+    "filename": "info.go",
+    "name": "Video",
+    "formattedName": "Video",
+    "package": "videofile",
+    "fields": [
+      {
+        "name": "Codec",
+        "jsonName": "codec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "quality",
+        "goType": "Quality",
+        "typescriptType": "Quality",
+        "usedStructName": "videofile.Quality",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "height",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Bitrate",
+        "jsonName": "bitrate",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/info.go",
+    "filename": "info.go",
+    "name": "Audio",
+    "formattedName": "Audio",
+    "package": "videofile",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Codec",
+        "jsonName": "codec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDefault",
+        "jsonName": "isDefault",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsForced",
+        "jsonName": "isForced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Channels",
+        "jsonName": "channels",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/info.go",
+    "filename": "info.go",
+    "name": "Subtitle",
+    "formattedName": "Subtitle",
+    "package": "videofile",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "uint32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Codec",
+        "jsonName": "codec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Extension",
+        "jsonName": "extension",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDefault",
+        "jsonName": "isDefault",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsForced",
+        "jsonName": "isForced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Link",
+        "jsonName": "link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/info.go",
+    "filename": "info.go",
+    "name": "Chapter",
+    "formattedName": "Chapter",
+    "package": "videofile",
+    "fields": [
+      {
+        "name": "StartTime",
+        "jsonName": "startTime",
+        "goType": "float32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EndTime",
+        "jsonName": "endTime",
+        "goType": "float32",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/info.go",
+    "filename": "info.go",
+    "name": "MediaInfoExtractor",
+    "formattedName": "MediaInfoExtractor",
+    "package": "videofile",
+    "fields": [
+      {
+        "name": "sha",
+        "jsonName": "sha",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "route",
+        "jsonName": "route",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/videofile/video_quality.go",
+    "filename": "video_quality.go",
+    "name": "Quality",
+    "formattedName": "Quality",
+    "package": "videofile",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"240p\"",
+        "\"360p\"",
+        "\"480p\"",
+        "\"720p\"",
+        "\"1080p\"",
+        "\"1440p\"",
+        "\"4k\"",
+        "\"8k\"",
+        "\"original\""
+      ]
+    },
+    "comments": []
   },
   {
     "filepath": "../internal/offline/hub.go",
