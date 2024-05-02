@@ -13,6 +13,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
+	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
@@ -89,6 +90,16 @@ func (a *App) initModulesOnce() {
 	a.OfflineHub.RefreshAnilistCollections = func() {
 		_, _ = a.RefreshAnilistCollection()
 		_, _ = a.RefreshMangaCollection()
+	}
+
+	//
+
+	// Initialize transcoder
+	var err error
+	a.Transcoder, err = transcoder.NewTranscoder(a.Logger)
+	if err != nil {
+		a.Logger.Fatal().Err(err).Msg("app: Failed to initialize transcoder")
+		return
 	}
 
 }

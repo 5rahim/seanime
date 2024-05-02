@@ -301,6 +301,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/offline/sync", makeHandler(app, HandleSyncOfflineData))
 
 	//
+	// Stream
+	//
+	v1.Get("/stream/*", makeHandler(app, HandleStream))
+
+	//
 	// Websocket
 	//
 
