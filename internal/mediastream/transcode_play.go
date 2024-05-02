@@ -42,6 +42,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		if err != nil {
 			return err
 		}
+
 		return fiberCtx.SendString(ret)
 	}
 
@@ -52,11 +53,17 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		if len(split) != 2 {
 			return errors.New("invalid index.m3u8 path")
 		}
+
 		quality, err := transcoder.QualityFromString(split[0])
+		if err != nil {
+			return err
+		}
+
 		ret, err := r.transcoder.MustGet().GetVideoIndex(mediaContainer.Filepath, mediaContainer.Hash, quality, clientId)
 		if err != nil {
 			return err
 		}
+
 		return fiberCtx.SendString(ret)
 	}
 
@@ -67,11 +74,20 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		if len(split) != 3 {
 			return errors.New("invalid index.m3u8 path")
 		}
+
 		audio, err := strconv.ParseInt(split[1], 10, 32)
+		if err != nil {
+			return err
+		}
+
 		ret, err := r.transcoder.MustGet().GetAudioIndex(mediaContainer.Filepath, mediaContainer.Hash, int32(audio), clientId)
 		if err != nil {
 			return err
 		}
+		if err != nil {
+			return err
+		}
+
 		return fiberCtx.SendString(ret)
 	}
 
@@ -82,13 +98,22 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		if len(split) != 2 {
 			return errors.New("invalid segments-:chunk.ts path")
 		}
+
 		quality, err := transcoder.QualityFromString(split[0])
+		if err != nil {
+			return err
+		}
+
 		segment, err := transcoder.ParseSegment(split[1])
+		if err != nil {
+			return err
+		}
 
 		ret, err := r.transcoder.MustGet().GetVideoSegment(mediaContainer.Filepath, mediaContainer.Hash, quality, segment, clientId)
 		if err != nil {
 			return err
 		}
+
 		return fiberCtx.SendFile(ret)
 	}
 
@@ -99,13 +124,22 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		if len(split) != 3 {
 			return errors.New("invalid segments-:chunk.ts path")
 		}
+
 		audio, err := strconv.ParseInt(split[1], 10, 32)
+		if err != nil {
+			return err
+		}
+
 		segment, err := transcoder.ParseSegment(split[2])
+		if err != nil {
+			return err
+		}
 
 		ret, err := r.transcoder.MustGet().GetAudioSegment(mediaContainer.Filepath, mediaContainer.Hash, int32(audio), segment, clientId)
 		if err != nil {
 			return err
 		}
+
 		return fiberCtx.SendFile(ret)
 	}
 

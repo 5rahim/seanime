@@ -28,7 +28,7 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 				"-preset", preset,
 				// sc_threshold is a scene detection mechanism used to create a keyframe when the scene changes
 				// this is on by default and inserts keyframes where we don't want to (it also breaks force_key_frames)
-				// we disable it to prevents whole scenes from behind removed due to the -f segment failing to find the corresponding keyframe
+				// we disable it to prevents whole scenes from being removed due to the -f segment failing to find the corresponding keyframe
 				"-sc_threshold", "0",
 				// force 8bits output (by default it keeps the same as the source but 10bits is not playable on some devices)
 				"-pix_fmt", "yuv420p",

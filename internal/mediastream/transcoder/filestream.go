@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -91,30 +92,52 @@ func (fs *FileStream) GetMaster() string {
 				break
 			}
 		}
-		// TODO: Check if the codec is valid in a hls before putting transmux
-		if true {
+		{
 			bitrate := float64(fs.Info.Video.Bitrate)
 			master += "#EXT-X-STREAM-INF:"
 			master += fmt.Sprintf("AVERAGE-BANDWIDTH=%d,", int(math.Min(bitrate*0.8, float64(transmuxQuality.AverageBitrate()))))
 			master += fmt.Sprintf("BANDWIDTH=%d,", int(math.Min(bitrate, float64(transmuxQuality.MaxBitrate()))))
 			master += fmt.Sprintf("RESOLUTION=%dx%d,", fs.Info.Video.Width, fs.Info.Video.Height)
+			if fs.Info.Video.MimeCodec != nil {
+				master += fmt.Sprintf("CODECS=\"%s\",", *fs.Info.Video.MimeCodec)
+			}
 			master += "AUDIO=\"audio\","
 			master += "CLOSED-CAPTIONS=NONE\n"
 			master += fmt.Sprintf("./%s/index.m3u8\n", Original)
 		}
 		aspectRatio := float32(fs.Info.Video.Width) / float32(fs.Info.Video.Height)
+		// codec is the prefix + the level, the level is not part of the codec we want to compare for the same_codec check bellow
+		transmuxPrefix := "avc1.6400"
+		transmuxCodec := transmuxPrefix + "28"
+
 		for _, quality := range Qualities {
-			if quality.Height() < fs.Info.Video.Quality.Height() && quality.AverageBitrate() < fs.Info.Video.Bitrate {
+			sameCodec := fs.Info.Video.MimeCodec != nil && strings.HasPrefix(*fs.Info.Video.MimeCodec, transmuxPrefix)
+			includeLvl := quality.Height() < fs.Info.Video.Quality.Height() || (quality.Height() == fs.Info.Video.Quality.Height() && !sameCodec)
+
+			if includeLvl {
 				master += "#EXT-X-STREAM-INF:"
 				master += fmt.Sprintf("AVERAGE-BANDWIDTH=%d,", quality.AverageBitrate())
 				master += fmt.Sprintf("BANDWIDTH=%d,", quality.MaxBitrate())
 				master += fmt.Sprintf("RESOLUTION=%dx%d,", int(aspectRatio*float32(quality.Height())+0.5), quality.Height())
-				master += "CODECS=\"avc1.640028\","
+				master += fmt.Sprintf("CODECS=\"%s\",", transmuxCodec)
 				master += "AUDIO=\"audio\","
 				master += "CLOSED-CAPTIONS=NONE\n"
 				master += fmt.Sprintf("./%s/index.m3u8\n", quality)
 			}
 		}
+
+		//for _, quality := range Qualities {
+		//	if quality.Height() < fs.Info.Video.Quality.Height() && quality.AverageBitrate() < fs.Info.Video.Bitrate {
+		//		master += "#EXT-X-STREAM-INF:"
+		//		master += fmt.Sprintf("AVERAGE-BANDWIDTH=%d,", quality.AverageBitrate())
+		//		master += fmt.Sprintf("BANDWIDTH=%d,", quality.MaxBitrate())
+		//		master += fmt.Sprintf("RESOLUTION=%dx%d,", int(aspectRatio*float32(quality.Height())+0.5), quality.Height())
+		//		master += "CODECS=\"avc1.640028\","
+		//		master += "AUDIO=\"audio\","
+		//		master += "CLOSED-CAPTIONS=NONE\n"
+		//		master += fmt.Sprintf("./%s/index.m3u8\n", quality)
+		//	}
+		//}
 	}
 	for _, audio := range fs.Info.Audios {
 		master += "#EXT-X-MEDIA:TYPE=AUDIO,"

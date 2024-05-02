@@ -10,7 +10,9 @@ import (
 	"github.com/seanime-app/seanime/internal/util/result"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -45,7 +47,8 @@ type MediaInfo struct {
 
 type Video struct {
 	// The codec of this stream (defined as the RFC 6381)
-	Codec string `json:"codec"`
+	Codec     string  `json:"codec"`
+	MimeCodec *string `json:"mimeCodec"`
 	// The language of this stream (as a ISO-639-2 language code)
 	Language *string `json:"language"`
 	// The max quality of this video track
@@ -66,7 +69,8 @@ type Audio struct {
 	// The language of this stream (as a ISO-639-2 language code)
 	Language *string `json:"language"`
 	// The codec of this stream
-	Codec string `json:"codec"`
+	Codec     string  `json:"codec"`
+	MimeCodec *string `json:"mimeCodec"`
 	// Is this stream the default one of its type?
 	IsDefault bool `json:"isDefault"`
 	// Is this stream tagged as forced? (useful only for subtitles)
@@ -240,6 +244,11 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	audioIndex := 0
 	subtitleIndex := 0
 
+	profile, level, bitrate2, _ := getProfileAndLevel(e.path)
+	if bitrate2 != "" {
+		bitrate, _ = strconv.ParseFloat(bitrate2, 64)
+	}
+
 	for _, entry := range tracks.TrackEntry {
 		//
 		// Video
@@ -247,12 +256,13 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 
 		if entry.TrackType == matroska.TrackTypeVideo {
 			v := &Video{
-				Codec:    entry.CodecID,
-				Width:    uint32(entry.Video.PixelWidth),
-				Height:   uint32(entry.Video.PixelHeight),
-				Bitrate:  uint32(bitrate),
-				Language: &entry.Language,
-				Quality:  GetQualityFromHeight(uint32(entry.Video.PixelHeight)),
+				Codec:     entry.CodecID,
+				MimeCodec: matroskaToRFC6381(entry.CodecID, profile, level, nil),
+				Width:     uint32(entry.Video.PixelWidth),
+				Height:    uint32(entry.Video.PixelHeight),
+				Bitrate:   uint32(bitrate),
+				Language:  &entry.Language,
+				Quality:   GetQualityFromHeight(uint32(entry.Video.PixelHeight)),
 			}
 			videos = append(videos, *v)
 		}
@@ -264,6 +274,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 				Title:     entry.Name,
 				Index:     uint32(audioIndex),
 				Codec:     entry.CodecID,
+				MimeCodec: matroskaToRFC6381(entry.CodecID, profile, level, entry.Audio.BitDepth),
 				IsDefault: entry.FlagDefault == 1,
 				IsForced:  entry.FlagForced == 1,
 				Language:  &entry.Language,
@@ -402,4 +413,143 @@ func guessSubtitleExt(codecID string) string {
 	default:
 		return ""
 	}
+}
+
+// getProfileAndLevel
+// ref: https://stackoverflow.com/a/36317694
+func getProfileAndLevel(fp string) (profile string, level string, bitrate string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic: %v", r)
+			return
+		}
+	}()
+
+	args := []string{"-v", "error", "-select_streams", "v:0", "-show_entries", "stream=profile,level,bit_rate ", "-of", "default=noprint_wrappers=1", fp}
+
+	// Execute ffprobe
+	cmd := exec.Command("ffprobe", args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", "", "", err
+	}
+
+	// Parse the output.
+	for _, line := range strings.Split(string(out), "\n") {
+		if strings.HasPrefix(line, "profile=") && len(strings.Split(line, "=")) > 1 {
+			profile = strings.Split(line, "=")[1]
+		}
+		if strings.HasPrefix(line, "level=") && len(strings.Split(line, "=")) > 1 {
+			level = strings.Split(line, "=")[1]
+		}
+		if strings.HasPrefix(line, "bit_rate=") && len(strings.Split(line, "=")) > 1 {
+			bitrateStr := strings.Split(line, "=")[1]
+			_, errB := strconv.Atoi(bitrateStr)
+			if errB == nil {
+				bitrate = bitrateStr
+			}
+		}
+	}
+
+	return
+}
+
+func parseLevel(str string) float32 {
+	f, err := strconv.ParseFloat(str, 32)
+	if err != nil {
+		return 0
+	}
+	return float32(f)
+}
+
+func matroskaToRFC6381(matroskaCodecID string, profile string, level string, bitDepth *uint) *string {
+	ret := ""
+	switch matroskaCodecID {
+	case "V_MPEG4/ISO/AVC":
+		ret = "avc1"
+		switch strings.ToLower(profile) {
+		case "baseline":
+			ret += ".42E0"
+		case "main":
+			ret += ".4D40"
+		case "high":
+			ret += ".6400"
+		default:
+			ret += ".4240"
+		}
+
+		lvl := fmt.Sprintf("%02x", level)
+		ret += lvl
+	case "V_MPEG4/ISO/HEVC":
+		ret = "hvc1"
+		switch strings.ToLower(profile) {
+		case "main", "main 10":
+			ret += ".2.4"
+		default:
+			ret += ".1.4"
+		}
+		lvlI, _ := strconv.Atoi(level)
+		lvl := fmt.Sprintf(".L%02x.BO", lvlI*3)
+		ret += lvl
+	case "V_AV1":
+		ret = "av01"
+		switch strings.ToLower(profile) {
+		case "main":
+			ret += ".0"
+		case "high":
+			ret += ".1"
+		case "professional":
+			ret += ".2"
+		default:
+			ret += ".0"
+		}
+
+		lvlI := 19
+		if level != "" {
+			lvlI, _ = strconv.Atoi(level)
+			if lvlI <= 0 || lvlI > 31 {
+				lvlI = 19
+			}
+		}
+
+		bd := 8
+		if bitDepth != nil {
+			if *bitDepth == 8 || *bitDepth == 10 || *bitDepth == 12 {
+				bd = int(*bitDepth)
+			}
+		}
+
+		lvl := fmt.Sprintf(".%02X%c.%02d", level, 'M', bd)
+		ret += lvl
+	case "A_AAC":
+		ret = "mp4a"
+
+		switch strings.ToLower(profile) {
+		case "lc":
+			ret += ".40.2"
+		case "he":
+			ret += ".40.5"
+		default:
+			ret += ".40.2"
+		}
+
+	case "A_VORBIS":
+		ret = "vorbis"
+	case "A_OPUS":
+		ret = "Opus"
+	case "A_AC3":
+		ret = "mp4a.a5"
+	case "A_TRUEHD":
+		ret = "mlp"
+	case "A_EAC3":
+		ret = "ec-3"
+	case "A_FLAC":
+		ret = "fLaC"
+	}
+
+	if ret == "" {
+		return nil
+	}
+
+	return &ret
 }
