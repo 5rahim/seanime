@@ -39,7 +39,7 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 	streamDir := filepath.Join(opts.TempOutDir, "streams")
 	metadataDir := filepath.Join(opts.TempOutDir, "metadata")
 	// Clear out the top temp directory
-	_ = os.MkdirAll(opts.TempOutDir, 0o755)
+	_ = os.MkdirAll(opts.TempOutDir, 0755)
 	dir, err := os.ReadDir(opts.TempOutDir)
 	if err != nil {
 		return nil, err
@@ -51,8 +51,8 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 		}
 	}
 	// Create the subdirectories
-	_ = os.MkdirAll(streamDir, 0o755)
-	_ = os.MkdirAll(metadataDir, 0o755)
+	_ = os.MkdirAll(streamDir, 0755)
+	_ = os.MkdirAll(metadataDir, 0755)
 
 	ret := &Transcoder{
 		streams:    NewCMap[string, *FileStream](),

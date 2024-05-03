@@ -101,11 +101,10 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		return nil, err
 	}
 
-	ch, err := transcoder.Extract(filepath, hash, ret.MediaInfo, p.transcoderSettings.MustGet(), p.logger)
+	err = transcoder.Extract(filepath, hash, ret.MediaInfo, p.transcoderSettings.MustGet(), p.logger)
 	if err != nil {
 		return nil, err
 	}
-	<-ch
 
 	streamUrl := ""
 	switch streamType {
