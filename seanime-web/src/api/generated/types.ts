@@ -1861,13 +1861,13 @@ export type Manga_Provider = "mangasee" | "mangadex" | "comick" | "mangapill" | 
  * - Filename: playback.go
  * - Package: mediastream
  */
-export type MediaContainer = {
+export type Mediastream_MediaContainer = {
     filePath: string
     hash: string
     /**
      * Tells the frontend how to play the media.
      */
-    streamType: StreamType
+    streamType: Mediastream_StreamType
     /**
      * The relative endpoint to stream the media.
      */
@@ -1880,7 +1880,7 @@ export type MediaContainer = {
  * - Filename: playback.go
  * - Package: mediastream
  */
-export type StreamType = "file" | "transcode" | "pre_transcoded"
+export type Mediastream_StreamType = "file" | "transcode" | "pre_transcoded"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Models

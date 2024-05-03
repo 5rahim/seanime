@@ -17,7 +17,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	fiberApp.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, X-Seanime-Mediastream-Client-Id",
 	}))
 
 	// Set up a custom logger for fiber.
@@ -307,7 +307,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
 	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
 
-	v1.Post("/mediastream/transcode", makeHandler(app, HandleMediastreamRequestTranscodeStream))
+	v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
+	v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
 	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
 	v1.Get("/mediastream/transcode-subs/*", makeHandler(app, HandleMediastreamGetTranscodeSubtitles))
 

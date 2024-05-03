@@ -39,6 +39,8 @@ type Stream struct {
 	lock     sync.RWMutex
 	logger   *zerolog.Logger
 	settings *Settings
+	killed   bool
+	killCh   chan struct{}
 }
 
 type Segment struct {
@@ -79,6 +81,8 @@ func NewStream(
 	ret.heads = make([]Head, 0)
 	ret.settings = settings
 	ret.logger = logger
+	ret.killed = false
+	ret.killCh = make(chan struct{})
 
 	length, isDone := file.Keyframes.Length()
 	ret.segments = make([]Segment, length, max(length, 2000))
@@ -130,6 +134,10 @@ func toSegmentStr(segments []float64) string {
 }
 
 func (ts *Stream) run(start int32) error {
+	if ts.killed {
+		return nil
+	}
+	ts.logger.Debug().Msgf("transcoder: Running from %d", start)
 	// Start the transcoder up to the 100th segment (or less)
 	length, isDone := ts.file.Keyframes.Length()
 	end := min(start+100, length)
@@ -158,7 +166,7 @@ func (ts *Stream) run(start int32) error {
 	ts.heads = append(ts.heads, Head{segment: start, end: end, command: nil})
 	ts.lock.Unlock()
 
-	streamLogger.Info().Any("eid", encoderId).Msgf(
+	streamLogger.Trace().Any("eid", encoderId).Msgf(
 		"Transcoding %d-%d/%d segments",
 		start,
 		end,
@@ -310,7 +318,7 @@ func (ts *Stream) run(start int32) error {
 			if ts.isSegmentReady(segment) {
 				// the current segment is already marked as done so another process has already gone up to here.
 				cmd.Process.Signal(os.Interrupt)
-				streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg because segment %d is ready", segment)
+				streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg, segment %d is ready", segment)
 				shouldStop = true
 			} else {
 				ts.segments[segment].encoder = encoderId
@@ -320,7 +328,7 @@ func (ts *Stream) run(start int32) error {
 					shouldStop = true
 				} else if ts.isSegmentReady(segment + 1) {
 					cmd.Process.Signal(os.Interrupt)
-					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg because next segment %d is ready", segment)
+					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg, next segment %d is ready", segment)
 					shouldStop = true
 				}
 			}
@@ -338,13 +346,24 @@ func (ts *Stream) run(start int32) error {
 	}()
 
 	go func() {
+		select {
+		case <-ts.killCh:
+			cancel := cmd.Cancel
+			if cancel == nil {
+				cancel = cmd.Process.Kill
+			}
+			_ = cancel()
+		}
+	}()
+
+	go func() {
 		err := cmd.Wait()
 		if exiterr, ok := err.(*exec.ExitError); ok && exiterr.ExitCode() == 255 {
 			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg was terminated")
 		} else if err != nil {
 			streamLogger.Error().Int("eid", encoderId).Err(fmt.Errorf("%s: %s", err, stderr.String())).Msgf("transcoder: ffmpeg failed")
 		} else {
-			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg finished successfully")
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed")
 		}
 
 		ts.lock.Lock()
@@ -427,6 +446,9 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 
 // prepareNextSegments will start the next segments if they are not already started.
 func (ts *Stream) prepareNextSegments(segment int32) {
+	if ts.killed {
+		return
+	}
 	// Audio is way cheaper to create than video, so we don't need to run them in advance
 	// Running it in advance might actually slow down the video encode since less compute
 	// power can be used, so we simply disable that.
@@ -482,4 +504,8 @@ func (ts *Stream) KillHead(encoderId int) {
 	}
 	ts.heads[encoderId].command.Process.Signal(os.Interrupt)
 	ts.heads[encoderId] = DeletedHead
+}
+
+func (ts *Stream) SetIsKilled() {
+	ts.killed = true
 }

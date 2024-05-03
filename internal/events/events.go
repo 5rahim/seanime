@@ -23,4 +23,6 @@ const (
 	RefreshedMangaDownloadData             = "refreshed-manga-download-data"
 	ChapterDownloadQueueUpdated            = "chapter-download-queue-updated"
 	OfflineSnapshotCreated                 = "offline-snapshot-created"
+
+	MediastreamShutdownStream = "mediastream-shutdown-stream"
 )

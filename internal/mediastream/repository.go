@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 )
 
@@ -14,10 +15,12 @@ type (
 		settings        mo.Option[*models.MediastreamSettings]
 		playbackManager *PlaybackManager
 		logger          *zerolog.Logger
+		wsEventManager  events.IWSEventManager
 	}
 
 	NewRepositoryOptions struct {
-		Logger *zerolog.Logger
+		Logger         *zerolog.Logger
+		WSEventManager events.IWSEventManager
 	}
 )
 
@@ -27,6 +30,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		playbackManager: NewPlaybackManager(opts.Logger),
 		settings:        mo.None[*models.MediastreamSettings](),
 		transcoder:      mo.None[*transcoder.Transcoder](),
+		wsEventManager:  opts.WSEventManager,
 	}
 
 	return ret
@@ -56,7 +60,7 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContainer, err error) {
-	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Playback request received")
+	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Transcode stream requested")
 
 	if !r.IsInitialized() {
 		return nil, errors.New("transcoding module not initialized")

@@ -3205,25 +3205,25 @@
     }
   },
   {
-    "name": "HandleMediastreamRequestTranscodeStream",
-    "trimmedName": "MediastreamRequestTranscodeStream",
+    "name": "HandleRequestMediastreamMediaContainer",
+    "trimmedName": "RequestMediastreamMediaContainer",
     "comments": [
-      "HandleMediastreamRequestTranscodeStream",
+      "HandleRequestMediastreamMediaContainer",
       "",
-      "\t@summary request on-the-fly transcoding of a media.",
-      "\t@desc This requests on-the-fly transcoding of a media and returns the media container to start the playback.",
+      "\t@summary request media stream.",
+      "\t@desc This requests a media stream and returns the media container to start the playback.",
       "\t@returns mediastream.MediaContainer",
-      "\t@route /api/v1/mediastream/transcode [POST]",
+      "\t@route /api/v1/mediastream/request [POST]",
       ""
     ],
     "filepath": "internal/handlers/mediastream.go",
     "filename": "mediastream.go",
     "api": {
-      "summary": "request on-the-fly transcoding of a media.",
+      "summary": "request media stream.",
       "descriptions": [
-        "This requests on-the-fly transcoding of a media and returns the media container to start the playback."
+        "This requests a media stream and returns the media container to start the playback."
       ],
-      "endpoint": "/api/v1/mediastream/transcode",
+      "endpoint": "/api/v1/mediastream/request",
       "methods": [
         "POST"
       ],
@@ -3237,11 +3237,54 @@
           "typescriptType": "string",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "StreamType",
+          "jsonName": "streamType",
+          "goType": "mediastream.StreamType",
+          "usedStructType": "mediastream.StreamType",
+          "typescriptType": "Mediastream_StreamType",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "mediastream.MediaContainer",
       "returnGoType": "mediastream.MediaContainer",
-      "returnTypescriptType": "MediaContainer"
+      "returnTypescriptType": "Mediastream_MediaContainer"
+    }
+  },
+  {
+    "name": "HandleMediastreamShutdownTranscodeStream",
+    "trimmedName": "MediastreamShutdownTranscodeStream",
+    "comments": [
+      "HandleMediastreamShutdownTranscodeStream",
+      "",
+      "\t@summary shuts down the transcode stream",
+      "\t@desc This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).",
+      "\t@desc This will also send an events.MediastreamShutdownStream event.",
+      "\t@desc It will not return any error and is safe to call multiple times.",
+      "\t@returns bool",
+      "\t@route /api/v1/mediastream/shutdown-transcode [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream.go",
+    "filename": "mediastream.go",
+    "api": {
+      "summary": "shuts down the transcode stream",
+      "descriptions": [
+        "This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).",
+        "This will also send an events.MediastreamShutdownStream event.",
+        "It will not return any error and is safe to call multiple times."
+      ],
+      "endpoint": "/api/v1/mediastream/shutdown-transcode",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {

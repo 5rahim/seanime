@@ -15,6 +15,7 @@ import type {
     ChapterDownloader_DownloadID,
     ListSync_AnimeDiffKind,
     Manga_Provider,
+    Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DiscordSettings,
     Models_LibrarySettings,
@@ -674,12 +675,13 @@ export type SaveMediastreamSettings_Variables = {
 /**
  * - Filepath: internal/handlers/mediastream.go
  * - Filename: mediastream.go
- * - Endpoint: /api/v1/mediastream/transcode
+ * - Endpoint: /api/v1/mediastream/request
  * @description
- * Route request on-the-fly transcoding of a media.
+ * Route request media stream.
  */
-export type MediastreamRequestTranscodeStream_Variables = {
+export type RequestMediastreamMediaContainer_Variables = {
     path: string
+    streamType: Mediastream_StreamType
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

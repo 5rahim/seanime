@@ -24059,7 +24059,7 @@
         "name": "MediastreamRepository",
         "jsonName": "MediastreamRepository",
         "goType": "mediastream.Repository",
-        "typescriptType": "Repository",
+        "typescriptType": "Mediastream_Repository",
         "usedStructName": "mediastream.Repository",
         "required": false,
         "public": true,
@@ -35512,7 +35512,7 @@
     "filepath": "../internal/mediastream/playback.go",
     "filename": "playback.go",
     "name": "StreamType",
-    "formattedName": "StreamType",
+    "formattedName": "Mediastream_StreamType",
     "package": "mediastream",
     "fields": [],
     "aliasOf": {
@@ -35530,7 +35530,7 @@
     "filepath": "../internal/mediastream/playback.go",
     "filename": "playback.go",
     "name": "PlaybackManager",
-    "formattedName": "PlaybackManager",
+    "formattedName": "Mediastream_PlaybackManager",
     "package": "mediastream",
     "fields": [
       {
@@ -35553,6 +35553,15 @@
         "comments": [
           " The current media being played."
         ]
+      },
+      {
+        "name": "transcoderSettings",
+        "jsonName": "transcoderSettings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -35561,7 +35570,7 @@
     "filepath": "../internal/mediastream/playback.go",
     "filename": "playback.go",
     "name": "PlaybackState",
-    "formattedName": "PlaybackState",
+    "formattedName": "Mediastream_PlaybackState",
     "package": "mediastream",
     "fields": [
       {
@@ -35582,7 +35591,7 @@
     "filepath": "../internal/mediastream/playback.go",
     "filename": "playback.go",
     "name": "MediaContainer",
-    "formattedName": "MediaContainer",
+    "formattedName": "Mediastream_MediaContainer",
     "package": "mediastream",
     "fields": [
       {
@@ -35607,7 +35616,7 @@
         "name": "StreamType",
         "jsonName": "streamType",
         "goType": "StreamType",
-        "typescriptType": "StreamType",
+        "typescriptType": "Mediastream_StreamType",
         "usedStructName": "mediastream.StreamType",
         "required": true,
         "public": true,
@@ -35625,6 +35634,16 @@
         "comments": [
           " The relative endpoint to stream the media."
         ]
+      },
+      {
+        "name": "MediaInfo",
+        "jsonName": "mediaInfo",
+        "goType": "videofile.MediaInfo",
+        "typescriptType": "MediaInfo",
+        "usedStructName": "videofile.MediaInfo",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -35633,7 +35652,7 @@
     "filepath": "../internal/mediastream/repository.go",
     "filename": "repository.go",
     "name": "Repository",
-    "formattedName": "Repository",
+    "formattedName": "Mediastream_Repository",
     "package": "mediastream",
     "fields": [
       {
@@ -35658,7 +35677,7 @@
         "name": "playbackManager",
         "jsonName": "playbackManager",
         "goType": "PlaybackManager",
-        "typescriptType": "PlaybackManager",
+        "typescriptType": "Mediastream_PlaybackManager",
         "usedStructName": "mediastream.PlaybackManager",
         "required": false,
         "public": false,
@@ -35673,6 +35692,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.IWSEventManager",
+        "typescriptType": "Events_IWSEventManager",
+        "usedStructName": "events.IWSEventManager",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -35681,7 +35710,7 @@
     "filepath": "../internal/mediastream/repository.go",
     "filename": "repository.go",
     "name": "NewRepositoryOptions",
-    "formattedName": "NewRepositoryOptions",
+    "formattedName": "Mediastream_NewRepositoryOptions",
     "package": "mediastream",
     "fields": [
       {
@@ -35690,6 +35719,16 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.IWSEventManager",
+        "typescriptType": "Events_IWSEventManager",
+        "usedStructName": "events.IWSEventManager",
         "required": false,
         "public": true,
         "comments": []
@@ -35719,6 +35758,16 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "Settings",
+        "usedStructName": "transcoder.Settings",
         "required": false,
         "public": false,
         "comments": []
@@ -36715,6 +36764,15 @@
         "comments": []
       },
       {
+        "name": "MimeCodec",
+        "jsonName": "mimeCodec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Language",
         "jsonName": "language",
         "goType": "string",
@@ -36803,6 +36861,15 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeCodec",
+        "jsonName": "mimeCodec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       },

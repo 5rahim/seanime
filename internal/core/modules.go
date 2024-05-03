@@ -96,7 +96,8 @@ func (a *App) initModulesOnce() {
 	// Mediastream
 
 	a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
-		Logger: a.Logger,
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
 	})
 
 }

@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/mediastream"
 )
 
 // HandleGetMediastreamSettings
@@ -47,16 +49,17 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 	return c.RespondWithData(settings)
 }
 
-// HandleMediastreamRequestTranscodeStream
+// HandleRequestMediastreamMediaContainer
 //
-//	@summary request on-the-fly transcoding of a media.
-//	@desc This requests on-the-fly transcoding of a media and returns the media container to start the playback.
+//	@summary request media stream.
+//	@desc This requests a media stream and returns the media container to start the playback.
 //	@returns mediastream.MediaContainer
-//	@route /api/v1/mediastream/transcode [POST]
-func HandleMediastreamRequestTranscodeStream(c *RouteCtx) error {
+//	@route /api/v1/mediastream/request [POST]
+func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 
 	type body struct {
-		Path string `json:"path"` // The path of the file.
+		Path       string                 `json:"path"`       // The path of the file.
+		StreamType mediastream.StreamType `json:"streamType"` // The type of stream to request.
 	}
 
 	var b body
@@ -64,13 +67,25 @@ func HandleMediastreamRequestTranscodeStream(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaContainer, err := c.App.MediastreamRepository.RequestTranscodeStream(b.Path)
+	var mediaContainer *mediastream.MediaContainer
+	var err error
+
+	switch b.StreamType {
+	case mediastream.StreamTypeTranscode:
+		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path)
+	default:
+		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
+	}
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	return c.RespondWithData(mediaContainer)
 }
+
+//
+// Transcode
+//
 
 func HandleMediastreamTranscode(c *RouteCtx) error {
 	client := "1"
@@ -81,6 +96,19 @@ func HandleMediastreamTranscode(c *RouteCtx) error {
 func HandleMediastreamGetTranscodeSubtitles(c *RouteCtx) error {
 
 	return c.App.MediastreamRepository.ServeFiberTranscodeSubtitles(c.Fiber)
+}
+
+// HandleMediastreamShutdownTranscodeStream
+//
+//	@summary shuts down the transcode stream
+//	@desc This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).
+//	@desc This will also send an events.MediastreamShutdownStream event.
+//	@desc It will not return any error and is safe to call multiple times.
+//	@returns bool
+//	@route /api/v1/mediastream/shutdown-transcode [POST]
+func HandleMediastreamShutdownTranscodeStream(c *RouteCtx) error {
+	c.App.MediastreamRepository.ShutdownTranscodeStream()
+	return c.RespondWithData(true)
 }
 
 //// GetInfo Identify

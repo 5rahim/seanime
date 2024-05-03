@@ -720,13 +720,25 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
-         *  Route request on-the-fly transcoding of a media.
-         *  This requests on-the-fly transcoding of a media and returns the media container to start the playback.
+         *  Route request media stream.
+         *  This requests a media stream and returns the media container to start the playback.
          */
-        MediastreamRequestTranscodeStream: {
-            key: "MEDIASTREAM-mediastream-request-transcode-stream",
+        RequestMediastreamMediaContainer: {
+            key: "MEDIASTREAM-request-mediastream-media-container",
             methods: ["POST"],
-            endpoint: "/api/v1/mediastream/transcode",
+            endpoint: "/api/v1/mediastream/request",
+        },
+        /**
+         *  @description
+         *  Route shuts down the transcode stream
+         *  This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).
+         *  This will also send an events.MediastreamShutdownStream event.
+         *  It will not return any error and is safe to call multiple times.
+         */
+        MediastreamShutdownTranscodeStream: {
+            key: "MEDIASTREAM-mediastream-shutdown-transcode-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/mediastream/shutdown-transcode",
         },
     },
     METADATA: {

@@ -815,11 +815,22 @@
 //     })
 // }
 
-// export function useMediastreamRequestTranscodeStream() {
-//     return useServerMutation<MediaContainer, MediastreamRequestTranscodeStream_Variables>({
-//         endpoint: API_ENDPOINTS.MEDIASTREAM.MediastreamRequestTranscodeStream.endpoint,
-//         method: API_ENDPOINTS.MEDIASTREAM.MediastreamRequestTranscodeStream.methods[0],
-//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.MediastreamRequestTranscodeStream.key],
+// export function useRequestMediastreamMediaContainer() {
+//     return useServerMutation<Mediastream_MediaContainer, RequestMediastreamMediaContainer_Variables>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.methods[0],
+//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useMediastreamShutdownTranscodeStream() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.key],
 //         onSuccess: async () => {
 // 
 //         },

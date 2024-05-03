@@ -134,7 +134,7 @@ func (e *MediaInfoExtractor) GetInfo(metadataCachePath string) (mi *MediaInfo, e
 	}
 
 	go func() {
-		savePath := fmt.Sprintf("%s/%s/info.json", metadataCachePath, e.sha)
+		savePath := filepath.Join(metadataCachePath, e.sha, "/info.json")
 		if err := getSavedInfo(savePath, mi); err == nil {
 			e.logger.Trace().Str("path", e.path).Msgf("videofile: Using mediainfo cache on filesystem")
 			close(readyChan)

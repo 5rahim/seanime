@@ -40,18 +40,8 @@ func NewFileStream(
 		audios:   NewCMap[int32, *AudioStream](),
 		logger:   logger,
 		settings: settings,
+		Info:     mediaInfo,
 	}
-
-	ret.Info = mediaInfo
-	//ret.ready.Add(1)
-	//go func() {
-	//	defer ret.ready.Done()
-	//	info, err := GetInfo(path, sha, logger, settings)
-	//	ret.Info = info
-	//	if err != nil {
-	//		ret.err = err
-	//	}
-	//}()
 
 	ret.ready.Add(1)
 	go func() {
@@ -70,15 +60,18 @@ func (fs *FileStream) Kill() {
 	defer fs.audios.lock.Unlock()
 
 	for _, s := range fs.videos.data {
+		s.SetIsKilled()
 		s.Kill()
 	}
 	for _, s := range fs.audios.data {
+		s.SetIsKilled()
 		s.Kill()
 	}
 }
 
 // Destroy stops all streams and removes the output directory.
 func (fs *FileStream) Destroy() {
+	fs.logger.Debug().Msg("transcoder: Destroying filestream")
 	fs.Kill()
 	_ = os.RemoveAll(fs.Out)
 }

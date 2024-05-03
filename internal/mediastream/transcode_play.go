@@ -2,21 +2,25 @@ package mediastream
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // ServeFiberTranscodeStream serves the transcoded segments
 func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId string) error {
 
 	if !r.IsInitialized() {
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Transcoding module not initialized")
 		return errors.New("transcoding module not initialized")
 	}
 
 	if !r.TranscoderIsInitialized() {
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Transcoder not initialized")
 		return errors.New("transcoder not initialized")
 	}
 
@@ -32,6 +36,10 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
 	if !found {
+		//
+		// When the media container is not found but this route is called, something went wrong
+		//
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media has been requested")
 		return errors.New("no media has been requested")
 	}
 
@@ -43,6 +51,8 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		if err != nil {
 			return err
 		}
+
+		time.Sleep(1 * time.Second)
 
 		return fiberCtx.SendString(ret)
 	}
@@ -82,9 +92,6 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		}
 
 		ret, err := r.transcoder.MustGet().GetAudioIndex(mediaContainer.Filepath, mediaContainer.Hash, mediaContainer.MediaInfo, int32(audio), clientId)
-		if err != nil {
-			return err
-		}
 		if err != nil {
 			return err
 		}
@@ -151,10 +158,12 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 func (r *Repository) ServeFiberTranscodeSubtitles(fiberCtx *fiber.Ctx) error {
 
 	if !r.IsInitialized() {
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Transcoding module not initialized")
 		return errors.New("transcoding module not initialized")
 	}
 
 	if !r.TranscoderIsInitialized() {
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Transcoder not initialized")
 		return errors.New("transcoder not initialized")
 	}
 
@@ -165,7 +174,7 @@ func (r *Repository) ServeFiberTranscodeSubtitles(fiberCtx *fiber.Ctx) error {
 	}
 
 	// Get the parameter group
-	path := params["*1"]
+	subFilePath := params["*1"]
 
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
@@ -173,12 +182,12 @@ func (r *Repository) ServeFiberTranscodeSubtitles(fiberCtx *fiber.Ctx) error {
 		return errors.New("no media has been requested")
 	}
 
-	r.logger.Trace().Any("path", path).Msg("mediastream: Req")
+	r.logger.Trace().Any("subFilePath", subFilePath).Msg("mediastream: Req")
 
 	retPath := ""
 	switch mediaContainer.StreamType {
 	case StreamTypeTranscode:
-		retPath = fmt.Sprintf("%s/%s/sub/%s", r.transcoder.MustGet().GetSettings().MetadataDir, mediaContainer.Hash, path)
+		retPath = filepath.Join(r.transcoder.MustGet().GetSettings().MetadataDir, mediaContainer.Hash, "sub", subFilePath)
 	default:
 		// TODO: Implement for other stream types
 	}
@@ -188,4 +197,34 @@ func (r *Repository) ServeFiberTranscodeSubtitles(fiberCtx *fiber.Ctx) error {
 	}
 
 	return fiberCtx.SendFile(retPath)
+}
+
+// ShutdownTranscodeStream It should be called when unmounting the player (playback is no longer needed).
+// This will also send an events.MediastreamShutdownStream event.
+func (r *Repository) ShutdownTranscodeStream() {
+
+	if !r.IsInitialized() {
+		return
+	}
+
+	if !r.TranscoderIsInitialized() {
+		return
+	}
+
+	if !r.playbackManager.currentMediaContainer.IsPresent() {
+		return
+	}
+
+	// Kill playback
+	r.playbackManager.KillPlayback()
+
+	// Destroy the current transcoder
+	r.transcoder.MustGet().Destroy()
+
+	// Load a new transcoder
+	//r.transcoder = mo.None[*transcoder.Transcoder]()
+	//r.initializeTranscoder(r.settings)
+
+	// Send event
+	r.wsEventManager.SendEvent(events.MediastreamShutdownStream, nil)
 }

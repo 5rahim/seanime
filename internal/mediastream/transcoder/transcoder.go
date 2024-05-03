@@ -45,10 +45,7 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 		return nil, err
 	}
 	for _, d := range dir {
-		err = os.RemoveAll(path.Join(opts.TempOutDir, d.Name()))
-		if err != nil {
-			return nil, err
-		}
+		_ = os.RemoveAll(path.Join(opts.TempOutDir, d.Name()))
 	}
 	// Create the subdirectories
 	_ = os.MkdirAll(streamDir, 0755)
@@ -81,11 +78,15 @@ func (t *Transcoder) GetSettings() *Settings {
 // A new transcoder should be created after calling this function.
 func (t *Transcoder) Destroy() {
 	t.streams.lock.Lock()
-	defer t.streams.lock.Unlock()
+
+	t.logger.Debug().Msg("transcoder: Destroying transcoder")
 	for _, s := range t.streams.data {
 		s.Destroy()
 	}
-	close(t.clientChan)
+	//close(t.clientChan)
+	t.streams = NewCMap[string, *FileStream]()
+	t.clientChan = make(chan ClientInfo, 10)
+	t.logger.Debug().Msg("transcoder: Transcoder destroyed")
 }
 
 func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofile.MediaInfo) (*FileStream, error) {
@@ -93,10 +94,10 @@ func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofil
 	ret, _ := t.streams.GetOrCreate(path, func() *FileStream {
 		return NewFileStream(path, hash, mediaInfo, &t.settings, t.logger)
 	})
+	ret.ready.Wait()
 	if ret == nil {
 		return nil, fmt.Errorf("could not get filestream, file may not exist")
 	}
-	ret.ready.Wait()
 	if err != nil || ret.err != nil {
 		t.streams.Remove(path)
 		return nil, ret.err

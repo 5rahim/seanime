@@ -54,10 +54,16 @@ func (p *PlaybackManager) SetTranscoderSettings(settings mo.Option[*transcoder.S
 	}
 }
 
+func (p *PlaybackManager) KillPlayback() {
+	if p.currentMediaContainer.IsPresent() {
+		p.currentMediaContainer = mo.None[*MediaContainer]()
+	}
+}
+
 // RequestTranscodePlayback is called by the frontend to stream a media file with HLS (Transcoding).
 func (p *PlaybackManager) RequestTranscodePlayback(filepath string) (ret *MediaContainer, err error) {
 
-	p.logger.Debug().Str("filepath", filepath).Msg("mediastream: Playback request received")
+	p.logger.Debug().Str("filepath", filepath).Msg("mediastream: Creating media container for transcoding")
 
 	ret, err = p.newMediaContainer(filepath, StreamTypeTranscode)
 
@@ -69,7 +75,7 @@ func (p *PlaybackManager) RequestTranscodePlayback(filepath string) (ret *MediaC
 	// Set the current media container.
 	p.currentMediaContainer = mo.Some(ret)
 
-	p.logger.Info().Msg("mediastream: Ready to stream media")
+	p.logger.Info().Str("filepath", filepath).Msg("mediastream: Ready to transcode media")
 
 	return
 }
