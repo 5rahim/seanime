@@ -2,6 +2,7 @@ package mediastream
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"strconv"
@@ -38,7 +39,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 
 	// /master.m3u8
 	if path == "master.m3u8" {
-		ret, err := r.transcoder.MustGet().GetMaster(mediaContainer.Filepath, mediaContainer.Hash, clientId)
+		ret, err := r.transcoder.MustGet().GetMaster(mediaContainer.Filepath, mediaContainer.Hash, mediaContainer.MediaInfo, clientId)
 		if err != nil {
 			return err
 		}
@@ -59,7 +60,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 			return err
 		}
 
-		ret, err := r.transcoder.MustGet().GetVideoIndex(mediaContainer.Filepath, mediaContainer.Hash, quality, clientId)
+		ret, err := r.transcoder.MustGet().GetVideoIndex(mediaContainer.Filepath, mediaContainer.Hash, mediaContainer.MediaInfo, quality, clientId)
 		if err != nil {
 			return err
 		}
@@ -80,7 +81,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 			return err
 		}
 
-		ret, err := r.transcoder.MustGet().GetAudioIndex(mediaContainer.Filepath, mediaContainer.Hash, int32(audio), clientId)
+		ret, err := r.transcoder.MustGet().GetAudioIndex(mediaContainer.Filepath, mediaContainer.Hash, mediaContainer.MediaInfo, int32(audio), clientId)
 		if err != nil {
 			return err
 		}
@@ -109,7 +110,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 			return err
 		}
 
-		ret, err := r.transcoder.MustGet().GetVideoSegment(mediaContainer.Filepath, mediaContainer.Hash, quality, segment, clientId)
+		ret, err := r.transcoder.MustGet().GetVideoSegment(mediaContainer.Filepath, mediaContainer.Hash, mediaContainer.MediaInfo, quality, segment, clientId)
 		if err != nil {
 			return err
 		}
@@ -135,7 +136,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 			return err
 		}
 
-		ret, err := r.transcoder.MustGet().GetAudioSegment(mediaContainer.Filepath, mediaContainer.Hash, int32(audio), segment, clientId)
+		ret, err := r.transcoder.MustGet().GetAudioSegment(mediaContainer.Filepath, mediaContainer.Hash, mediaContainer.MediaInfo, int32(audio), segment, clientId)
 		if err != nil {
 			return err
 		}
@@ -144,4 +145,47 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 	}
 
 	return errors.New("invalid path")
+}
+
+// ServeFiberTranscodeSubtitles serves the extracted subtitles
+func (r *Repository) ServeFiberTranscodeSubtitles(fiberCtx *fiber.Ctx) error {
+
+	if !r.IsInitialized() {
+		return errors.New("transcoding module not initialized")
+	}
+
+	if !r.TranscoderIsInitialized() {
+		return errors.New("transcoder not initialized")
+	}
+
+	// Get the route parameters
+	params := fiberCtx.AllParams()
+	if len(params) == 0 {
+		return errors.New("no params")
+	}
+
+	// Get the parameter group
+	path := params["*1"]
+
+	// Get current media
+	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
+	if !found {
+		return errors.New("no media has been requested")
+	}
+
+	r.logger.Trace().Any("path", path).Msg("mediastream: Req")
+
+	retPath := ""
+	switch mediaContainer.StreamType {
+	case StreamTypeTranscode:
+		retPath = fmt.Sprintf("%s/%s/sub/%s", r.transcoder.MustGet().GetSettings().MetadataDir, mediaContainer.Hash, path)
+	default:
+		// TODO: Implement for other stream types
+	}
+
+	if retPath == "" {
+		return errors.New("could not find subtitles")
+	}
+
+	return fiberCtx.SendFile(retPath)
 }

@@ -114,13 +114,7 @@ type MediaInfoExtractor struct {
 	logger *zerolog.Logger
 }
 
-func NewMediaInfoExtractor(path string, logger *zerolog.Logger) (*MediaInfoExtractor, error) {
-
-	hash, err := GetHashFromPath(path)
-	if err != nil {
-		return nil, err
-	}
-
+func NewMediaInfoExtractor(path string, hash string, logger *zerolog.Logger) (*MediaInfoExtractor, error) {
 	me := &MediaInfoExtractor{
 		sha:    hash,
 		path:   path,
@@ -142,7 +136,7 @@ func (e *MediaInfoExtractor) GetInfo(metadataCachePath string) (mi *MediaInfo, e
 	go func() {
 		savePath := fmt.Sprintf("%s/%s/info.json", metadataCachePath, e.sha)
 		if err := getSavedInfo(savePath, mi); err == nil {
-			e.logger.Trace().Str("path", e.path).Msgf("Using mediainfo cache on filesystem")
+			e.logger.Trace().Str("path", e.path).Msgf("videofile: Using mediainfo cache on filesystem")
 			close(readyChan)
 			return
 		}
@@ -291,7 +285,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 			var link *string
 			if subExt != "" {
 				subExt = subExt[1:] // remove the dot
-				x := fmt.Sprintf("%s/subtitle/%d.%s", e.route, entry.TrackNumber, subExt)
+				x := fmt.Sprintf("/%d.%s", subtitleIndex, subExt)
 				link = &x
 			}
 			s := &Subtitle{

@@ -2,8 +2,6 @@ package transcoder
 
 import (
 	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,20 +15,20 @@ func Map[T, U any](ts []T, f func(T, int) U) []U {
 	return us
 }
 
-func GetInfo(path string, logger *zerolog.Logger, settings *Settings) (*videofile.MediaInfo, error) {
-	defer printExecTime(logger, "mediainfo for %s", path)()
-
-	me, err := videofile.NewMediaInfoExtractor(path, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	ret, err := me.GetInfo(settings.MetadataDir)
-	if err != nil {
-		return nil, err
-	}
-	return ret, nil
-}
+//func GetInfo(path string, hash string, logger *zerolog.Logger, settings *Settings) (*videofile.MediaInfo, error) {
+//	defer printExecTime(logger, "mediainfo for %s", path)()
+//
+//	me, err := videofile.NewMediaInfoExtractor(path, hash, logger)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	ret, err := me.GetInfo(settings.MetadataDir)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return ret, nil
+//}
 
 func getSavedInfo[T any](savePath string, mi *T) error {
 	savedFile, err := os.Open(savePath)

@@ -14,12 +14,14 @@ import {
     MediaProviderAdapter,
     MediaProviderChangeEvent,
     MediaProviderSetupEvent,
+    Track,
 } from "@vidstack/react"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import HLS, { LoadPolicy } from "hls.js"
 import React from "react"
+import { useEffectOnce } from "react-use"
 
 let hls: HLS | null = null
 
@@ -124,11 +126,11 @@ export default function Page() {
 
     const { mutate: requestPlayback, data: mediaContainer } = useMediastreamRequestTranscodeStream()
 
-    React.useEffect(() => {
+    useEffectOnce(() => {
         requestPlayback({
             path: "E:/COLLECTION/One Piece/[Erai-raws] One Piece - 1072 [1080p][Multiple Subtitle][51CB925F].mkv",
         })
-    }, [])
+    })
 
     React.useEffect(() => {
         if (mediaContainer?.streamUrl) {
@@ -154,7 +156,7 @@ export default function Page() {
         <AppLayoutStack className="p-8">
             <h3>Streaming</h3>
 
-            {url && <MediaPlayer
+            {(mediaContainer && url) && <MediaPlayer
                 ref={ref}
                 crossOrigin
                 src={url}
@@ -163,6 +165,17 @@ export default function Page() {
                 onCanPlay={onCanPlay}
             >
                 <MediaProvider>
+                    {mediaContainer?.mediaInfo?.subtitles?.map((sub) => (
+                        <Track
+                            key={String(sub.index)}
+                            src={`http://192.168.1.151:${__DEV_SERVER_PORT}/api/v1/mediastream/transcode-subs` + sub.link}
+                            label={sub.title}
+                            lang={sub.language}
+                            type={"ass"}
+                            kind="subtitles"
+                            default={sub.isDefault}
+                        />
+                    ))}
                     {/*<Track*/}
                     {/*    src="http://192.168.1.151:43211/api/v1/stream2/english.ass"*/}
                     {/*    kind="subtitles"*/}

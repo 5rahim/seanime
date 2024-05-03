@@ -48,7 +48,9 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings) {
 	// Set the settings
 	r.settings = mo.Some[*models.MediastreamSettings](settings)
 	// Initialize the transcoder
-	r.initializeTranscoder(r.settings)
+	if ok := r.initializeTranscoder(r.settings); ok {
+		r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +73,7 @@ func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContaine
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) initializeTranscoder(settings mo.Option[*models.MediastreamSettings]) {
+func (r *Repository) initializeTranscoder(settings mo.Option[*models.MediastreamSettings]) bool {
 	// Destroy the old transcoder if it exists
 	if r.transcoder.IsPresent() {
 		tc, _ := r.transcoder.Get()
@@ -82,12 +84,12 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 
 	// If the temp directory is not set, don't initialize the transcoder
 	if settings.MustGet().TranscodeTempDir == "" {
-		return
+		return false
 	}
 
 	// If the transcoder is not enabled, don't initialize the transcoder
 	if !settings.MustGet().TranscodeEnabled {
-		return
+		return false
 	}
 
 	opts := &transcoder.NewTranscoderOptions{
@@ -100,9 +102,11 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 	tc, err := transcoder.NewTranscoder(opts)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("mediastream: Failed to initialize transcoder")
-		return
+		return false
 	}
 
 	r.logger.Info().Msg("mediastream: Transcoder initialized")
 	r.transcoder = mo.Some[*transcoder.Transcoder](tc)
+
+	return true
 }

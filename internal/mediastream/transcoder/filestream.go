@@ -29,6 +29,7 @@ type FileStream struct {
 func NewFileStream(
 	path string,
 	sha string,
+	mediaInfo *videofile.MediaInfo,
 	settings *Settings,
 	logger *zerolog.Logger,
 ) *FileStream {
@@ -41,20 +42,21 @@ func NewFileStream(
 		settings: settings,
 	}
 
-	ret.ready.Add(1)
-	go func() {
-		defer ret.ready.Done()
-		info, err := GetInfo(path, logger, settings)
-		ret.Info = info
-		if err != nil {
-			ret.err = err
-		}
-	}()
+	ret.Info = mediaInfo
+	//ret.ready.Add(1)
+	//go func() {
+	//	defer ret.ready.Done()
+	//	info, err := GetInfo(path, sha, logger, settings)
+	//	ret.Info = info
+	//	if err != nil {
+	//		ret.err = err
+	//	}
+	//}()
 
 	ret.ready.Add(1)
 	go func() {
 		defer ret.ready.Done()
-		ret.Keyframes = GetKeyframes(sha, path, logger, settings)
+		ret.Keyframes = GetKeyframes(path, sha, logger, settings)
 	}()
 
 	return ret

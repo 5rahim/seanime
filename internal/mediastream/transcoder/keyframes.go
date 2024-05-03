@@ -65,8 +65,8 @@ func (kf *Keyframe) AddListener(callback func(keyframes []float64)) {
 var keyframes = NewCMap[string, *Keyframe]()
 
 func GetKeyframes(
-	sha string,
 	path string,
+	sha string,
 	logger *zerolog.Logger,
 	settings *Settings,
 ) *Keyframe {

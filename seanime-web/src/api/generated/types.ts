@@ -1872,6 +1872,7 @@ export type MediaContainer = {
      * The relative endpoint to stream the media.
      */
     streamUrl: string
+    mediaInfo?: MediaInfo
 }
 
 /**
@@ -2483,5 +2484,103 @@ export type Updater_ReleaseAsset = {
 export type Updater_Update = {
     release?: Updater_Release
     type: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Videofile
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/mediastream/videofile/info.go
+ * - Filename: info.go
+ * - Package: videofile
+ */
+export type Audio = {
+    index: number
+    title?: string
+    language?: string
+    codec: string
+    mimeCodec?: string
+    isDefault: boolean
+    isForced: boolean
+    channels: number
+}
+
+/**
+ * - Filepath: internal/mediastream/videofile/info.go
+ * - Filename: info.go
+ * - Package: videofile
+ */
+export type Chapter = {
+    startTime: number
+    endTime: number
+    name: string
+}
+
+/**
+ * - Filepath: internal/mediastream/videofile/info.go
+ * - Filename: info.go
+ * - Package: videofile
+ */
+export type MediaInfo = {
+    ready: any
+    sha: string
+    path: string
+    extension: string
+    size: number
+    duration: number
+    container?: string
+    video?: Video
+    videos?: Array<Video>
+    audios?: Array<Audio>
+    subtitles?: Array<Subtitle>
+    fonts?: Array<string>
+    chapters?: Array<Chapter>
+}
+
+/**
+ * - Filepath: internal/mediastream/videofile/video_quality.go
+ * - Filename: video_quality.go
+ * - Package: videofile
+ */
+export type Quality = "240p" |
+    "360p" |
+    "480p" |
+    "720p" |
+    "1080p" |
+    "1440p" |
+    "4k" |
+    "8k" |
+    "original"
+
+/**
+ * - Filepath: internal/mediastream/videofile/info.go
+ * - Filename: info.go
+ * - Package: videofile
+ */
+export type Subtitle = {
+    index: number
+    title?: string
+    language?: string
+    codec: string
+    extension?: string
+    isDefault: boolean
+    isForced: boolean
+    link?: string
+}
+
+/**
+ * - Filepath: internal/mediastream/videofile/info.go
+ * - Filename: info.go
+ * - Package: videofile
+ */
+export type Video = {
+    codec: string
+    mimeCodec?: string
+    language?: string
+    quality: Quality
+    width: number
+    height: number
+    bitrate: number
 }
 

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
+	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
+	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"os"
 )
 
@@ -22,6 +24,7 @@ type (
 	PlaybackManager struct {
 		logger                *zerolog.Logger
 		currentMediaContainer mo.Option[*MediaContainer] // The current media being played.
+		transcoderSettings    mo.Option[*transcoder.Settings]
 	}
 
 	PlaybackState struct {
@@ -29,10 +32,11 @@ type (
 	}
 
 	MediaContainer struct {
-		Filepath   string     `json:"filePath"`
-		Hash       string     `json:"hash"`
-		StreamType StreamType `json:"streamType"` // Tells the frontend how to play the media.
-		StreamUrl  string     `json:"streamUrl"`  // The relative endpoint to stream the media.
+		Filepath   string               `json:"filePath"`
+		Hash       string               `json:"hash"`
+		StreamType StreamType           `json:"streamType"` // Tells the frontend how to play the media.
+		StreamUrl  string               `json:"streamUrl"`  // The relative endpoint to stream the media.
+		MediaInfo  *videofile.MediaInfo `json:"mediaInfo"`
 		//Metadata  *Metadata       `json:"metadata"`
 		// todo: add more fields (e.g. metadata)
 	}
@@ -41,6 +45,12 @@ type (
 func NewPlaybackManager(logger *zerolog.Logger) *PlaybackManager {
 	return &PlaybackManager{
 		logger: logger,
+	}
+}
+
+func (p *PlaybackManager) SetTranscoderSettings(settings mo.Option[*transcoder.Settings]) {
+	if settings.IsPresent() {
+		p.transcoderSettings = settings
 	}
 }
 
@@ -75,6 +85,27 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		Hash:       hash,
 		StreamType: streamType,
 	}
+
+	// Get the media information of the file.
+	mediaInfoExtractor, err := videofile.NewMediaInfoExtractor(filepath, hash, p.logger)
+	if err != nil {
+		return nil, err
+	}
+
+	if !p.transcoderSettings.IsPresent() {
+		return nil, errors.New("transcoder settings not set")
+	}
+
+	ret.MediaInfo, err = mediaInfoExtractor.GetInfo(p.transcoderSettings.MustGet().MetadataDir)
+	if err != nil {
+		return nil, err
+	}
+
+	ch, err := transcoder.Extract(filepath, hash, ret.MediaInfo, p.transcoderSettings.MustGet(), p.logger)
+	if err != nil {
+		return nil, err
+	}
+	<-ch
 
 	streamUrl := ""
 	switch streamType {

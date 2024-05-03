@@ -309,6 +309,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1.Post("/mediastream/transcode", makeHandler(app, HandleMediastreamRequestTranscodeStream))
 	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
+	v1.Get("/mediastream/transcode-subs/*", makeHandler(app, HandleMediastreamGetTranscodeSubtitles))
 
 	//
 	// Websocket

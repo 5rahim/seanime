@@ -3,6 +3,7 @@ package transcoder
 import (
 	"fmt"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 
 var extracted = NewCMap[string, <-chan struct{}]()
 
-func Extract(path string, sha string, settings *Settings, logger *zerolog.Logger) (<-chan struct{}, error) {
+func Extract(path string, sha string, mediaInfo *videofile.MediaInfo, settings *Settings, logger *zerolog.Logger) (<-chan struct{}, error) {
 	ret := make(chan struct{})
 	existing, created := extracted.GetOrSet(sha, ret)
 	if !created {
@@ -19,12 +20,7 @@ func Extract(path string, sha string, settings *Settings, logger *zerolog.Logger
 
 	go func() {
 		defer printExecTime(logger, "Starting extraction of %s", path)()
-		info, err := GetInfo(path, logger, settings)
-		if err != nil {
-			extracted.Remove(sha)
-			close(ret)
-			return
-		}
+
 		attachmentPath := filepath.Join(settings.MetadataDir, sha, "/att")
 		subsPath := filepath.Join(settings.MetadataDir, sha, "/sub")
 		_ = os.MkdirAll(attachmentPath, 0o644)
@@ -39,7 +35,7 @@ func Extract(path string, sha string, settings *Settings, logger *zerolog.Logger
 		)
 		cmd.Dir = attachmentPath
 
-		for _, sub := range info.Subtitles {
+		for _, sub := range mediaInfo.Subtitles {
 			if ext := sub.Extension; ext != nil {
 				cmd.Args = append(
 					cmd.Args,
@@ -51,7 +47,7 @@ func Extract(path string, sha string, settings *Settings, logger *zerolog.Logger
 		}
 		logger.Trace().Msgf("transcoder: Starting attachment extraction with: %s", cmd)
 		cmd.Stdout = nil
-		err = cmd.Run()
+		err := cmd.Run()
 		if err != nil {
 			extracted.Remove(sha)
 			fmt.Println("Error starting ffmpeg extract:", err)

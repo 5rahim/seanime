@@ -3,6 +3,7 @@ package transcoder
 import (
 	"fmt"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"os"
 	"path"
 	"path/filepath"
@@ -72,6 +73,10 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 	return ret, nil
 }
 
+func (t *Transcoder) GetSettings() *Settings {
+	return &t.settings
+}
+
 // Destroy stops all streams and removes the output directory.
 // A new transcoder should be created after calling this function.
 func (t *Transcoder) Destroy() {
@@ -83,10 +88,10 @@ func (t *Transcoder) Destroy() {
 	close(t.clientChan)
 }
 
-func (t *Transcoder) getFileStream(path string, hash string) (*FileStream, error) {
+func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofile.MediaInfo) (*FileStream, error) {
 	var err error
 	ret, _ := t.streams.GetOrCreate(path, func() *FileStream {
-		return NewFileStream(path, hash, &t.settings, t.logger)
+		return NewFileStream(path, hash, mediaInfo, &t.settings, t.logger)
 	})
 	if ret == nil {
 		return nil, fmt.Errorf("could not get filestream, file may not exist")
@@ -99,8 +104,8 @@ func (t *Transcoder) getFileStream(path string, hash string) (*FileStream, error
 	return ret, nil
 }
 
-func (t *Transcoder) GetMaster(path string, hash string, client string) (string, error) {
-	stream, err := t.getFileStream(path, hash)
+func (t *Transcoder) GetMaster(path string, hash string, mediaInfo *videofile.MediaInfo, client string) (string, error) {
+	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
 	}
@@ -117,10 +122,11 @@ func (t *Transcoder) GetMaster(path string, hash string, client string) (string,
 func (t *Transcoder) GetVideoIndex(
 	path string,
 	hash string,
+	mediaInfo *videofile.MediaInfo,
 	quality Quality,
 	client string,
 ) (string, error) {
-	stream, err := t.getFileStream(path, hash)
+	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
 	}
@@ -137,10 +143,11 @@ func (t *Transcoder) GetVideoIndex(
 func (t *Transcoder) GetAudioIndex(
 	path string,
 	hash string,
+	mediaInfo *videofile.MediaInfo,
 	audio int32,
 	client string,
 ) (string, error) {
-	stream, err := t.getFileStream(path, hash)
+	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
 	}
@@ -156,11 +163,12 @@ func (t *Transcoder) GetAudioIndex(
 func (t *Transcoder) GetVideoSegment(
 	path string,
 	hash string,
+	mediaInfo *videofile.MediaInfo,
 	quality Quality,
 	segment int32,
 	client string,
 ) (string, error) {
-	stream, err := t.getFileStream(path, hash)
+	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
 	}
@@ -177,11 +185,12 @@ func (t *Transcoder) GetVideoSegment(
 func (t *Transcoder) GetAudioSegment(
 	path string,
 	hash string,
+	mediaInfo *videofile.MediaInfo,
 	audio int32,
 	segment int32,
 	client string,
 ) (string, error) {
-	stream, err := t.getFileStream(path, hash)
+	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
 	}

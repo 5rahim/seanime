@@ -78,6 +78,11 @@ func HandleMediastreamTranscode(c *RouteCtx) error {
 	return c.App.MediastreamRepository.ServeFiberTranscodeStream(c.Fiber, client)
 }
 
+func HandleMediastreamGetTranscodeSubtitles(c *RouteCtx) error {
+
+	return c.App.MediastreamRepository.ServeFiberTranscodeSubtitles(c.Fiber)
+}
+
 //// GetInfo Identify
 ////
 //// Identify metadata about a file.
@@ -142,28 +147,3 @@ func HandleMediastreamTranscode(c *RouteCtx) error {
 ////
 //// Get a specific subtitle.
 ////
-//// Path: /subtitle/:name
-//func GetSubtitle(c *RouteCtx) error {
-//	//path, err := streamer.GetPath(c.Fiber)
-//	//if err != nil {
-//	//	return err
-//	//}
-//	name := c.Fiber.Params("name")
-//	if err := transcoder.SanitizePath(name); err != nil {
-//		return err
-//	}
-//
-//	//route := transcoder.GetRoute(c.Fiber)
-//	sha, err := transcoder.GetHash(path)
-//	if err != nil {
-//		return err
-//	}
-//	wait, err := transcoder.Extract(path, sha, c.App.Logger)
-//	if err != nil {
-//		return err
-//	}
-//	<-wait
-//
-//	ret := fmt.Sprintf("%s/%s/sub/%s", transcoder.Settings.Metadata, sha, name)
-//	return c.Fiber.SendFile(ret)
-//}
