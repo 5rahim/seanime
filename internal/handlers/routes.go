@@ -304,13 +304,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// Stream
 	//
-	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
-	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
-
-	v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
-	v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
-	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
-	v1.Get("/mediastream/transcode-subs/*", makeHandler(app, HandleMediastreamGetTranscodeSubtitles))
+	//v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
+	//v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
+	//
+	//v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
+	//// Direct play
+	//v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirect))
+	//// Direct stream
+	//v1.Get("/mediastream/directstream/*", makeHandler(app, HandleMediastreamDirectStream))
+	//// Transcode
+	//v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
+	//v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
+	//v1.Get("/mediastream/transcode-subs/*", makeHandler(app, HandleMediastreamGetTranscodeSubtitles))
 
 	//
 	// Websocket

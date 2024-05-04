@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"github.com/coding-socks/ebml"
 	"github.com/coding-socks/matroska"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"github.com/seanime-app/seanime/internal/util/filecache"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type MediaInfo struct {
@@ -108,83 +107,46 @@ type Chapter struct {
 }
 
 type MediaInfoExtractor struct {
-	sha    string
-	path   string
-	route  string
-	logger *zerolog.Logger
+	fileCacher *filecache.Cacher
 }
 
-func NewMediaInfoExtractor(path string, hash string, logger *zerolog.Logger) (*MediaInfoExtractor, error) {
-	me := &MediaInfoExtractor{
-		sha:    hash,
-		path:   path,
-		logger: logger,
+func NewMediaInfoExtractor(fileCacher *filecache.Cacher) *MediaInfoExtractor {
+	return &MediaInfoExtractor{
+		fileCacher: fileCacher,
 	}
-
-	return me, nil
 }
 
-var infos = result.NewCache[string, *MediaInfo]()
-
-func (e *MediaInfoExtractor) GetInfo(metadataCachePath string) (mi *MediaInfo, err error) {
-	readyChan := make(chan struct{})
-	mi = &MediaInfo{
-		Sha:   e.sha,
-		ready: readyChan,
-	}
-
-	go func() {
-		savePath := filepath.Join(metadataCachePath, e.sha, "/info.json")
-		if err := getSavedInfo(savePath, mi); err == nil {
-			e.logger.Trace().Str("path", e.path).Msgf("videofile: Using mediainfo cache on filesystem")
-			close(readyChan)
-			return
-		}
-
-		var data *MediaInfo
-		data, err = e.getInfo()
-		*mi = *data
-		mi.ready = readyChan
-		mi.Sha = e.sha
-		close(readyChan)
-		saveInfo(savePath, mi)
-	}()
-	<-mi.ready
-	return
-}
-
-func getSavedInfo[T any](savePath string, mi *T) error {
-	savedFile, err := os.Open(savePath)
+func (e *MediaInfoExtractor) GetInfo(path string) (mi *MediaInfo, err error) {
+	hash, err := GetHashFromPath(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	saved, err := io.ReadAll(savedFile)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(saved, mi)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
-func saveInfo[T any](savePath string, mi *T) error {
-	content, err := json.Marshal(*mi)
-	if err != nil {
-		return err
+	bucket := filecache.NewBucket(fmt.Sprintf("mediastream_mediainfo_%s", hash), time.Hour*24)
+
+	// Look in the cache
+	if found, _ := e.fileCacher.Get(bucket, hash, &mi); found {
+		return mi, nil
 	}
-	// create directory if it doesn't exist
-	_ = os.MkdirAll(filepath.Dir(savePath), 0755)
-	return os.WriteFile(filepath.ToSlash(savePath), content, 0666)
+
+	// Get the media information of the file.
+	mi, err = getInfo(path, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save in the cache
+	_ = e.fileCacher.Set(bucket, hash, mi)
+
+	return mi, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
+func getInfo(path string, hash string) (*MediaInfo, error) {
 
 	// Open file
-	file, err := os.Open(e.path)
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +166,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	tracks := scanner.Tracks()
 
 	// Get extension (e.g., ".mkv")
-	ext := filepath.Ext(e.path)[1:]
+	ext := filepath.Ext(path)[1:]
 	// Get size (in bytes)
 	size := uint64(fInfo.Size())
 	// Get duration (in seconds)
@@ -219,8 +181,8 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	}
 
 	mi := &MediaInfo{
-		Sha:       e.sha,
-		Path:      e.path,
+		Sha:       hash,
+		Path:      path,
 		Extension: ext,
 		Size:      size,
 		Duration:  float32(duration),
@@ -238,7 +200,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	audioIndex := 0
 	subtitleIndex := 0
 
-	profile, level, bitrate2, _ := getProfileAndLevel(e.path)
+	profile, level, bitrate2, _ := getProfileAndLevel(path)
 	if bitrate2 != "" {
 		bitrate, _ = strconv.ParseFloat(bitrate2, 64)
 	}
@@ -321,7 +283,7 @@ func (e *MediaInfoExtractor) getInfo() (*MediaInfo, error) {
 	fonts := make([]string, 0)
 
 	// Reopen file
-	file, err = os.Open(e.path)
+	file, err = os.Open(path)
 	if err != nil {
 		return nil, err
 	}

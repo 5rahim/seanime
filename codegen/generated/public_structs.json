@@ -35509,6 +35509,219 @@
     ]
   },
   {
+    "filepath": "../internal/mediastream/directstream/directstream.go",
+    "filename": "directstream.go",
+    "name": "DirectStream",
+    "formattedName": "DirectStream",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/directstream/directstream.go",
+    "filename": "directstream.go",
+    "name": "CopyToHLSOptions",
+    "formattedName": "CopyToHLSOptions",
+    "package": "directstream",
+    "fields": [
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "Hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OutDir",
+        "jsonName": "OutDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The main temp directory. A subdirectory will be created for the file."
+        ]
+      },
+      {
+        "name": "AudioStreamIndex",
+        "jsonName": "AudioStreamIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/optimizer/optimizer.go",
+    "filename": "optimizer.go",
+    "name": "Quality",
+    "formattedName": "Quality",
+    "package": "optimizer",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"low\"",
+        "\"medium\"",
+        "\"high\"",
+        "\"max\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/optimizer/optimizer.go",
+    "filename": "optimizer.go",
+    "name": "Optimizer",
+    "formattedName": "Optimizer",
+    "package": "optimizer",
+    "fields": [
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.IWSEventManager",
+        "typescriptType": "Events_IWSEventManager",
+        "usedStructName": "events.IWSEventManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "libraryDir",
+        "jsonName": "libraryDir",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "concurrentTasks",
+        "jsonName": "concurrentTasks",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/optimizer/optimizer.go",
+    "filename": "optimizer.go",
+    "name": "NewOptimizerOptions",
+    "formattedName": "NewOptimizerOptions",
+    "package": "optimizer",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.IWSEventManager",
+        "typescriptType": "Events_IWSEventManager",
+        "usedStructName": "events.IWSEventManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/optimizer/optimizer.go",
+    "filename": "optimizer.go",
+    "name": "StartMediaOptimizationOptions",
+    "formattedName": "StartMediaOptimizationOptions",
+    "package": "optimizer",
+    "fields": [
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "Quality",
+        "goType": "Quality",
+        "typescriptType": "Quality",
+        "usedStructName": "optimizer.Quality",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AudioChannelIndex",
+        "jsonName": "AudioChannelIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaInfo",
+        "jsonName": "MediaInfo",
+        "goType": "videofile.MediaInfo",
+        "typescriptType": "MediaInfo",
+        "usedStructName": "videofile.MediaInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/mediastream/playback.go",
     "filename": "playback.go",
     "name": "StreamType",
@@ -35520,8 +35733,9 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"file\"",
+        "\"direct\"",
         "\"transcode\"",
-        "\"pre_transcoded\""
+        "\"optimized\""
       ]
     },
     "comments": []
@@ -35560,6 +35774,16 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "Mediastream_Repository",
+        "usedStructName": "mediastream.Repository",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -35665,6 +35889,16 @@
         "comments": []
       },
       {
+        "name": "optimizer",
+        "jsonName": "optimizer",
+        "goType": "optimizer.Optimizer",
+        "typescriptType": "Optimizer",
+        "usedStructName": "optimizer.Optimizer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "settings",
         "jsonName": "settings",
         "goType": "",
@@ -35679,6 +35913,26 @@
         "goType": "PlaybackManager",
         "typescriptType": "Mediastream_PlaybackManager",
         "usedStructName": "mediastream.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "directStream",
+        "jsonName": "directStream",
+        "goType": "directstream.DirectStream",
+        "typescriptType": "DirectStream",
+        "usedStructName": "directstream.DirectStream",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaInfoExtractor",
+        "jsonName": "mediaInfoExtractor",
+        "goType": "videofile.MediaInfoExtractor",
+        "typescriptType": "MediaInfoExtractor",
+        "usedStructName": "videofile.MediaInfoExtractor",
         "required": false,
         "public": false,
         "comments": []
@@ -35700,6 +35954,25 @@
         "typescriptType": "Events_IWSEventManager",
         "usedStructName": "events.IWSEventManager",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cacheDir",
+        "jsonName": "cacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -35730,6 +36003,54 @@
         "typescriptType": "Events_IWSEventManager",
         "usedStructName": "events.IWSEventManager",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediastream/repository.go",
+    "filename": "repository.go",
+    "name": "StartMediaOptimizationOptions",
+    "formattedName": "Mediastream_StartMediaOptimizationOptions",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "Quality",
+        "goType": "optimizer.Quality",
+        "typescriptType": "Quality",
+        "usedStructName": "optimizer.Quality",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AudioChannelIndex",
+        "jsonName": "AudioChannelIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -36234,6 +36555,24 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "killed",
+        "jsonName": "killed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "killCh",
+        "jsonName": "killCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -36497,15 +36836,6 @@
       {
         "name": "StreamDir",
         "jsonName": "StreamDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MetadataDir",
-        "jsonName": "MetadataDir",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -37030,38 +37360,11 @@
     "package": "videofile",
     "fields": [
       {
-        "name": "sha",
-        "jsonName": "sha",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "path",
-        "jsonName": "path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "route",
-        "jsonName": "route",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
         "required": false,
         "public": false,
         "comments": []

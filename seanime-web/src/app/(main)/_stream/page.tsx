@@ -1,11 +1,15 @@
 "use client"
 
-import { useHandleMediastream } from "@/app/(main)/stream/_lib/handle-mediastream"
+import { useHandleMediastream } from "@/app/(main)/_stream/_lib/handle-mediastream"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { getDirectPlayProfiles } from "@/lib/utils/playback-profiles/directplay-profile"
+import { getCodecProfiles } from "@/lib/utils/playback-profiles/helpers/codec-profiles"
+import { hasH264Support } from "@/lib/utils/playback-profiles/helpers/mp4-video-formats"
+import { canPlayNativeHls, hasMkvSupport } from "@/lib/utils/playback-profiles/helpers/transcoding-formats"
 import { MediaPlayer, MediaPlayerInstance, MediaProvider, Track } from "@vidstack/react"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
@@ -31,10 +35,22 @@ export default function Page() {
         onProviderSetup,
     } = useHandleMediastream({ playerRef })
 
+    const videoRef = React.useRef<HTMLVideoElement>(null)
+    React.useEffect(() => {
+        if (videoRef.current) {
+            console.log(hasMkvSupport(videoRef.current!))
+            console.log(canPlayNativeHls(videoRef.current!))
+            console.log(hasH264Support(videoRef.current!))
+            console.log(getCodecProfiles(videoRef.current!))
+            console.log(getDirectPlayProfiles(videoRef.current!))
+        }
+    }, [])
 
     return (
         <AppLayoutStack className="p-8">
             <h3>Streaming</h3>
+
+            <video ref={videoRef} />
 
             <div
                 className={cn(
@@ -46,10 +62,7 @@ export default function Page() {
                     (!!url && !isMediaContainerLoading) ? <MediaPlayer
                         ref={playerRef}
                         crossOrigin
-                        src={{
-                            src: url,
-                            type: "application/x-mpegurl",
-                        }}
+                        src={url}
                         // poster={currentEpisodeDetails?.image || media.coverImage?.extraLarge || ""}
                         onProviderChange={onProviderChange}
                         onProviderSetup={onProviderSetup}
@@ -68,7 +81,7 @@ export default function Page() {
                                 <Track
                                     key={String(sub.index)}
                                     src={subtitleEndpointUri + sub.link}
-                                    label={sub.title}
+                                    label={sub.title || sub.language}
                                     lang={sub.language}
                                     type={(sub.extension?.replace(".", "") || "ass") as CaptionsFileFormat}
                                     kind="subtitles"

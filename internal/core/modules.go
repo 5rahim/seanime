@@ -14,7 +14,6 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/mediastream"
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
@@ -94,11 +93,12 @@ func (a *App) initModulesOnce() {
 	}
 
 	// Mediastream
-
-	a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
-		Logger:         a.Logger,
-		WSEventManager: a.WSEventManager,
-	})
+	// DEVNOTE: Shelved for now
+	//a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
+	//	Logger:         a.Logger,
+	//	WSEventManager: a.WSEventManager,
+	//	FileCacher:     a.FileCacher,
+	//})
 
 }
 
@@ -323,7 +323,7 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 		}
 	}
 
-	a.MediastreamRepository.InitializeModules(settings)
+	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
 }
 

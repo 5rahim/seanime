@@ -1,22 +1,27 @@
-package transcoder
+package videofile
 
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"os"
 	"os/exec"
 	"path/filepath"
 )
 
-func Extract(path string, sha string, mediaInfo *videofile.MediaInfo, settings *Settings, logger *zerolog.Logger) (err error) {
+func GetFileSubsCacheDir(outDir string, hash string) string {
+	return filepath.Join(outDir, "videofiles", hash, "/subs")
+}
 
-	defer printExecTime(logger, "Data extraction of %s", path)()
+func GetFileAttCacheDir(outDir string, hash string) string {
+	return filepath.Join(outDir, "videofiles", hash, "/att")
+}
 
-	attachmentPath := filepath.Join(settings.MetadataDir, sha, "/att")
-	subsPath := filepath.Join(settings.MetadataDir, sha, "/sub")
-	_ = os.MkdirAll(attachmentPath, 0o755)
-	_ = os.MkdirAll(subsPath, 0o755)
+func ExtractAttachment(path string, hash string, mediaInfo *MediaInfo, cacheDir string, logger *zerolog.Logger) (err error) {
+
+	attachmentPath := GetFileAttCacheDir(cacheDir, hash)
+	subsPath := GetFileSubsCacheDir(cacheDir, hash)
+	_ = os.MkdirAll(attachmentPath, 0755)
+	_ = os.MkdirAll(subsPath, 0755)
 
 	subsDir, err := os.ReadDir(subsPath)
 	if err == nil {

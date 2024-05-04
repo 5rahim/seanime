@@ -1,21 +1,19 @@
 package mediastream
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
-	"os"
 )
 
 const (
-	StreamTypeFile          StreamType = "file"
-	StreamTypeTranscode     StreamType = "transcode"
-	StreamTypePreTranscoded StreamType = "pre_transcoded"
+	StreamTypeFile         StreamType = "file"      // Direct play
+	StreamTypeDirectStream StreamType = "direct"    // Direct stream
+	StreamTypeTranscode    StreamType = "transcode" // On-the-fly transcoding
+	StreamTypeOptimized    StreamType = "optimized" // Pre-transcoded
 )
 
 type (
@@ -25,6 +23,7 @@ type (
 		logger                *zerolog.Logger
 		currentMediaContainer mo.Option[*MediaContainer] // The current media being played.
 		transcoderSettings    mo.Option[*transcoder.Settings]
+		repository            *Repository
 	}
 
 	PlaybackState struct {
@@ -42,15 +41,10 @@ type (
 	}
 )
 
-func NewPlaybackManager(logger *zerolog.Logger) *PlaybackManager {
+func NewPlaybackManager(repository *Repository) *PlaybackManager {
 	return &PlaybackManager{
-		logger: logger,
-	}
-}
-
-func (p *PlaybackManager) SetTranscoderSettings(settings mo.Option[*transcoder.Settings]) {
-	if settings.IsPresent() {
-		p.transcoderSettings = settings
+		logger:     repository.logger,
+		repository: repository,
 	}
 }
 
@@ -60,12 +54,12 @@ func (p *PlaybackManager) KillPlayback() {
 	}
 }
 
-// RequestTranscodePlayback is called by the frontend to stream a media file with HLS (Transcoding).
-func (p *PlaybackManager) RequestTranscodePlayback(filepath string) (ret *MediaContainer, err error) {
+// RequestPlayback is called by the frontend to stream a media file
+func (p *PlaybackManager) RequestPlayback(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
 
-	p.logger.Debug().Str("filepath", filepath).Msg("mediastream: Creating media container for transcoding")
+	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Requesting playback")
 
-	ret, err = p.newMediaContainer(filepath, StreamTypeTranscode)
+	ret, err = p.newMediaContainer(filepath, streamType)
 
 	if err != nil {
 		p.logger.Error().Err(err).Msg("mediastream: Failed to create media container")
@@ -75,39 +69,48 @@ func (p *PlaybackManager) RequestTranscodePlayback(filepath string) (ret *MediaC
 	// Set the current media container.
 	p.currentMediaContainer = mo.Some(ret)
 
-	p.logger.Info().Str("filepath", filepath).Msg("mediastream: Ready to transcode media")
+	p.logger.Info().Str("filepath", filepath).Msg("mediastream: Ready to play media")
 
 	return
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Optimize
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Transcode
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (p *PlaybackManager) SetTranscoderSettings(settings mo.Option[*transcoder.Settings]) {
+	if settings.IsPresent() {
+		p.transcoderSettings = settings
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
+	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Creating media container")
 	// Get the hash of the file.
-	hash, err := getHash(filepath)
+	hash, err := videofile.GetHashFromPath(filepath)
 	if err != nil {
 		return nil, err
 	}
+
+	// Get the media information of the file.
 	ret = &MediaContainer{
 		Filepath:   filepath,
 		Hash:       hash,
 		StreamType: streamType,
 	}
-
-	// Get the media information of the file.
-	mediaInfoExtractor, err := videofile.NewMediaInfoExtractor(filepath, hash, p.logger)
+	ret.MediaInfo, err = p.repository.mediaInfoExtractor.GetInfo(filepath)
 	if err != nil {
 		return nil, err
 	}
 
-	if !p.transcoderSettings.IsPresent() {
-		return nil, errors.New("transcoder settings not set")
-	}
-
-	ret.MediaInfo, err = mediaInfoExtractor.GetInfo(p.transcoderSettings.MustGet().MetadataDir)
-	if err != nil {
-		return nil, err
-	}
-
-	err = transcoder.Extract(filepath, hash, ret.MediaInfo, p.transcoderSettings.MustGet(), p.logger)
+	// Extract the attachments from the file.
+	err = videofile.ExtractAttachment(filepath, hash, ret.MediaInfo, p.repository.cacheDir, p.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +123,10 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 	case StreamTypeFile:
 		// TODO
 		streamUrl = "/api/v1/mediastream/direct"
-	case StreamTypePreTranscoded:
+	case StreamTypeDirectStream:
+		// TODO
+		streamUrl = "/api/v1/mediastream/directstream/master.m3u8"
+	case StreamTypeOptimized:
 		// TODO: Check if the file is already transcoded when the feature is implemented.
 		// ...
 		streamUrl = "/api/v1/mediastream/hls/master.m3u8"
@@ -136,16 +142,4 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 	ret.StreamUrl = streamUrl
 
 	return
-}
-
-func getHash(path string) (string, error) {
-	info, err := os.Stat(path)
-	if err != nil {
-		return "", err
-	}
-	h := sha1.New()
-	h.Write([]byte(path))
-	h.Write([]byte(info.ModTime().String()))
-	sha := hex.EncodeToString(h.Sum(nil))
-	return sha, nil
 }

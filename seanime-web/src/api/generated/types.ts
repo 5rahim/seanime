@@ -1880,7 +1880,7 @@ export type Mediastream_MediaContainer = {
  * - Filename: playback.go
  * - Package: mediastream
  */
-export type Mediastream_StreamType = "file" | "transcode" | "pre_transcoded"
+export type Mediastream_StreamType = "file" | "direct" | "transcode" | "optimized"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Models

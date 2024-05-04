@@ -90,11 +90,11 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      */
     const prevUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
-    const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode")
+    const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("direct")
 
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, refetch } = useRequestMediastreamMediaContainer({
-        path: "E:/COLLECTION/One Piece/[Erai-raws] One Piece - 1072 [1080p][Multiple Subtitle][51CB925F].mkv",
-        streamType: streamType,
+        path: "E:\\ANIME\\Dungeon Meshi\\[EMBER] Dungeon Meshi - 15.mkv",
+        streamType: "direct",
     })
     const mediaContainer = !isPending ? _mediaContainer : undefined
 
@@ -164,16 +164,16 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         provider: MediaProviderAdapter | null,
         nativeEvent: MediaProviderChangeEvent,
     ) {
-        provider?.destroy?.()
+        logger("MEDIASTREAM").info("Provider change")
         if (isHLSProvider(provider)) {
-            logger("MEDIASTREAM").info("Provider change")
             provider.library = HLS
-            // provider.library = () => import('hls.js')
-            provider.config = {
-                // xhrSetup: async (xhr) => {
-                //     xhr.setRequestHeader("X-Seanime-Mediastream-Client-Id", cId)
-                // },
-                ...mediastream_getHlsConfig(),
+            if (mediaContainer?.streamType === "transcode") {
+                provider.config = {
+                    // xhrSetup: async (xhr) => {
+                    //     xhr.setRequestHeader("X-Seanime-Mediastream-Client-Id", cId)
+                    // },
+                    ...mediastream_getHlsConfig(),
+                }
             }
         }
     }
@@ -255,11 +255,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
             : window?.location?.host)) : ""
         if (mediaContainer?.streamUrl && mediaContainer?.streamType) {
-            switch (mediaContainer.streamType) {
-                case "transcode":
-                    return `${baseUri}/api/v1/mediastream/transcode-subs`
-                // TODO: Add other stream types
-            }
+            return `${baseUri}/api/v1/mediastream/transcode-subs`
         }
         return ""
     }, [mediaContainer?.streamUrl, mediaContainer?.streamType])

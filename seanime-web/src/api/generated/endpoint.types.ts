@@ -682,6 +682,7 @@ export type SaveMediastreamSettings_Variables = {
 export type RequestMediastreamMediaContainer_Variables = {
     path: string
     streamType: Mediastream_StreamType
+    audioStreamIndex: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

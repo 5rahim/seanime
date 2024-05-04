@@ -3246,6 +3246,15 @@
           "typescriptType": "Mediastream_StreamType",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "AudioStreamIndex",
+          "jsonName": "audioStreamIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "mediastream.MediaContainer",

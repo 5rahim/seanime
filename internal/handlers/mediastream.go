@@ -58,8 +58,9 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 
 	type body struct {
-		Path       string                 `json:"path"`       // The path of the file.
-		StreamType mediastream.StreamType `json:"streamType"` // The type of stream to request.
+		Path             string                 `json:"path"`             // The path of the file.
+		StreamType       mediastream.StreamType `json:"streamType"`       // The type of stream to request.
+		AudioStreamIndex int                    `json:"audioStreamIndex"` // The audio stream index to use.
 	}
 
 	var b body
@@ -73,6 +74,10 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	switch b.StreamType {
 	case mediastream.StreamTypeTranscode:
 		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path)
+	case mediastream.StreamTypeFile:
+		mediaContainer, err = c.App.MediastreamRepository.RequestDirectPlay(b.Path)
+	case mediastream.StreamTypeDirectStream:
+		mediaContainer, err = c.App.MediastreamRepository.RequestDirectStream(b.Path, b.AudioStreamIndex)
 	default:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 	}
@@ -81,6 +86,26 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(mediaContainer)
+}
+
+//
+// Direct
+//
+
+func HandleMediastreamDirect(c *RouteCtx) error {
+	client := "1"
+
+	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
+}
+
+//
+// Direct Stream
+//
+
+func HandleMediastreamDirectStream(c *RouteCtx) error {
+	client := "1"
+
+	return c.App.MediastreamRepository.ServeFiberDirectStream(c.Fiber, client)
 }
 
 //
@@ -95,7 +120,7 @@ func HandleMediastreamTranscode(c *RouteCtx) error {
 
 func HandleMediastreamGetTranscodeSubtitles(c *RouteCtx) error {
 
-	return c.App.MediastreamRepository.ServeFiberTranscodeSubtitles(c.Fiber)
+	return c.App.MediastreamRepository.ServeFiberExtractedSubtitles(c.Fiber)
 }
 
 // HandleMediastreamShutdownTranscodeStream

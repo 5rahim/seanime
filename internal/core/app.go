@@ -214,7 +214,8 @@ func NewApp(configOpts *ConfigOptions) *App {
 	app.runMigrations()
 	app.initModulesOnce()
 	app.InitOrRefreshModules()
-	app.InitOrRefreshMediastreamSettings()
+	// DEVNOTE: Shelved for now
+	//app.InitOrRefreshMediastreamSettings()
 
 	return app
 }

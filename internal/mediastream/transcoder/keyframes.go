@@ -78,7 +78,7 @@ func GetKeyframes(
 		}
 		kf.info.ready.Add(1)
 		go func() {
-			keyframesPath := filepath.Join(settings.MetadataDir, sha, "keyframes.json")
+			keyframesPath := filepath.Join(settings.StreamDir, sha, "keyframes.json")
 			if err := getSavedInfo(keyframesPath, kf); err == nil {
 				logger.Trace().Msgf("transcoder: Keyframes Cache HIT")
 				kf.info.ready.Done()

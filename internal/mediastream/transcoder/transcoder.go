@@ -20,9 +20,8 @@ type (
 	}
 
 	Settings struct {
-		StreamDir   string
-		MetadataDir string
-		HwAccel     HwAccelSettings
+		StreamDir string
+		HwAccel   HwAccelSettings
 	}
 
 	NewTranscoderOptions struct {
@@ -35,29 +34,23 @@ type (
 
 func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 
-	// Define the directories
+	// Create/clear the temp directory containing the streams
 	streamDir := filepath.Join(opts.TempOutDir, "streams")
-	metadataDir := filepath.Join(opts.TempOutDir, "metadata")
-	// Clear out the top temp directory
-	_ = os.MkdirAll(opts.TempOutDir, 0755)
-	dir, err := os.ReadDir(opts.TempOutDir)
+	_ = os.MkdirAll(streamDir, 0755)
+	dir, err := os.ReadDir(streamDir)
 	if err != nil {
 		return nil, err
 	}
 	for _, d := range dir {
-		_ = os.RemoveAll(path.Join(opts.TempOutDir, d.Name()))
+		_ = os.RemoveAll(path.Join(streamDir, d.Name()))
 	}
-	// Create the subdirectories
-	_ = os.MkdirAll(streamDir, 0755)
-	_ = os.MkdirAll(metadataDir, 0755)
 
 	ret := &Transcoder{
 		streams:    NewCMap[string, *FileStream](),
 		clientChan: make(chan ClientInfo, 10),
 		logger:     opts.Logger,
 		settings: Settings{
-			StreamDir:   streamDir,
-			MetadataDir: metadataDir,
+			StreamDir: streamDir,
 			HwAccel: GetHardwareAccelSettings(HwAccelOptions{
 				Kind:   opts.HwAccelKind,
 				Preset: opts.Preset,
