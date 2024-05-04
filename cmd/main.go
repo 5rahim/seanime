@@ -15,7 +15,7 @@ import (
 // @version 1.0
 // @BasePath /api
 func main() {
-	col := color.New(color.FgHiMagenta)
+	col := color.New(color.FgHiCyan)
 	bold := color.New(color.FgHiWhite, color.Bold)
 	fmt.Println()
 	col.Printf("\n .-----.    \n/    _ /  \n\\_..`--.  \n.-._)   \\ \n\\ ")

@@ -3135,6 +3135,168 @@
     }
   },
   {
+    "name": "HandleGetMediastreamSettings",
+    "trimmedName": "GetMediastreamSettings",
+    "comments": [
+      "HandleGetMediastreamSettings",
+      "",
+      "\t@summary get mediastream settings.",
+      "\t@desc This returns the mediastream settings.",
+      "\t@returns models.MediastreamSettings",
+      "\t@route /api/v1/mediastream/settings [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream.go",
+    "filename": "mediastream.go",
+    "api": {
+      "summary": "get mediastream settings.",
+      "descriptions": [
+        "This returns the mediastream settings."
+      ],
+      "endpoint": "/api/v1/mediastream/settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "models.MediastreamSettings",
+      "returnGoType": "models.MediastreamSettings",
+      "returnTypescriptType": "Models_MediastreamSettings"
+    }
+  },
+  {
+    "name": "HandleSaveMediastreamSettings",
+    "trimmedName": "SaveMediastreamSettings",
+    "comments": [
+      "HandleSaveMediastreamSettings",
+      "",
+      "\t@summary save mediastream settings.",
+      "\t@desc This saves the mediastream settings.",
+      "\t@returns models.MediastreamSettings",
+      "\t@route /api/v1/mediastream/settings [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream.go",
+    "filename": "mediastream.go",
+    "api": {
+      "summary": "save mediastream settings.",
+      "descriptions": [
+        "This saves the mediastream settings."
+      ],
+      "endpoint": "/api/v1/mediastream/settings",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "models.MediastreamSettings",
+          "usedStructType": "models.MediastreamSettings",
+          "typescriptType": "Models_MediastreamSettings",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.MediastreamSettings",
+      "returnGoType": "models.MediastreamSettings",
+      "returnTypescriptType": "Models_MediastreamSettings"
+    }
+  },
+  {
+    "name": "HandleRequestMediastreamMediaContainer",
+    "trimmedName": "RequestMediastreamMediaContainer",
+    "comments": [
+      "HandleRequestMediastreamMediaContainer",
+      "",
+      "\t@summary request media stream.",
+      "\t@desc This requests a media stream and returns the media container to start the playback.",
+      "\t@returns mediastream.MediaContainer",
+      "\t@route /api/v1/mediastream/request [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream.go",
+    "filename": "mediastream.go",
+    "api": {
+      "summary": "request media stream.",
+      "descriptions": [
+        "This requests a media stream and returns the media container to start the playback."
+      ],
+      "endpoint": "/api/v1/mediastream/request",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Path",
+          "jsonName": "path",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "StreamType",
+          "jsonName": "streamType",
+          "goType": "mediastream.StreamType",
+          "usedStructType": "mediastream.StreamType",
+          "typescriptType": "Mediastream_StreamType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AudioStreamIndex",
+          "jsonName": "audioStreamIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "mediastream.MediaContainer",
+      "returnGoType": "mediastream.MediaContainer",
+      "returnTypescriptType": "Mediastream_MediaContainer"
+    }
+  },
+  {
+    "name": "HandleMediastreamShutdownTranscodeStream",
+    "trimmedName": "MediastreamShutdownTranscodeStream",
+    "comments": [
+      "HandleMediastreamShutdownTranscodeStream",
+      "",
+      "\t@summary shuts down the transcode stream",
+      "\t@desc This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).",
+      "\t@desc This will also send an events.MediastreamShutdownStream event.",
+      "\t@desc It will not return any error and is safe to call multiple times.",
+      "\t@returns bool",
+      "\t@route /api/v1/mediastream/shutdown-transcode [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream.go",
+    "filename": "mediastream.go",
+    "api": {
+      "summary": "shuts down the transcode stream",
+      "descriptions": [
+        "This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).",
+        "This will also send an events.MediastreamShutdownStream event.",
+        "It will not return any error and is safe to call multiple times."
+      ],
+      "endpoint": "/api/v1/mediastream/shutdown-transcode",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandlePopulateTVDBEpisodes",
     "trimmedName": "PopulateTVDBEpisodes",
     "comments": [

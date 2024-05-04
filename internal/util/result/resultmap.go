@@ -37,7 +37,6 @@ func (c *Map[K, V]) Has(key K) bool {
 func (c *Map[K, V]) GetOrSet(key K, createFunc func() (V, error)) (V, error) {
 	value, ok := c.Get(key)
 	if ok {
-		println("cache HIT")
 		return value, nil
 	}
 

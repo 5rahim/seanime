@@ -792,6 +792,52 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// mediastream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useGetMediastreamSettings() {
+//     return useServerQuery<Models_MediastreamSettings>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.methods[0],
+//         queryKey: [API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveMediastreamSettings() {
+//     return useServerMutation<Models_MediastreamSettings, SaveMediastreamSettings_Variables>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.methods[0],
+//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useRequestMediastreamMediaContainer() {
+//     return useServerMutation<Mediastream_MediaContainer, RequestMediastreamMediaContainer_Variables>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.methods[0],
+//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.RequestMediastreamMediaContainer.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useMediastreamShutdownTranscodeStream() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // metadata
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

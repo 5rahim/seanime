@@ -697,6 +697,50 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/media-player/start",
         },
     },
+    MEDIASTREAM: {
+        /**
+         *  @description
+         *  Route get mediastream settings.
+         *  This returns the mediastream settings.
+         */
+        GetMediastreamSettings: {
+            key: "MEDIASTREAM-get-mediastream-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/mediastream/settings",
+        },
+        /**
+         *  @description
+         *  Route save mediastream settings.
+         *  This saves the mediastream settings.
+         */
+        SaveMediastreamSettings: {
+            key: "MEDIASTREAM-save-mediastream-settings",
+            methods: ["POST"],
+            endpoint: "/api/v1/mediastream/settings",
+        },
+        /**
+         *  @description
+         *  Route request media stream.
+         *  This requests a media stream and returns the media container to start the playback.
+         */
+        RequestMediastreamMediaContainer: {
+            key: "MEDIASTREAM-request-mediastream-media-container",
+            methods: ["POST"],
+            endpoint: "/api/v1/mediastream/request",
+        },
+        /**
+         *  @description
+         *  Route shuts down the transcode stream
+         *  This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).
+         *  This will also send an events.MediastreamShutdownStream event.
+         *  It will not return any error and is safe to call multiple times.
+         */
+        MediastreamShutdownTranscodeStream: {
+            key: "MEDIASTREAM-mediastream-shutdown-transcode-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/mediastream/shutdown-transcode",
+        },
+    },
     METADATA: {
         /**
          *  @description
@@ -774,8 +818,8 @@ export const API_ENDPOINTS = {
          *  Route returns the episode list for the given media and provider.
          *  It returns the episode list for the given media and provider.
          *  The episodes are cached using a file cache.
-         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently fetch the sources.
-         *  The episode list might be nil or empty if nothing could be found, but the media will always be returned.
+         *  The episode list is just a list of episodes with no video sources, it's what the client uses to display the episodes and subsequently
+         *     fetch the sources. The episode list might be nil or empty if nothing could be found, but the media will always be returned.
          */
         GetOnlineStreamEpisodeList: {
             key: "ONLINESTREAM-get-online-stream-episode-list",

@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
@@ -90,6 +91,14 @@ func (a *App) initModulesOnce() {
 		_, _ = a.RefreshAnilistCollection()
 		_, _ = a.RefreshMangaCollection()
 	}
+
+	// Mediastream
+	// DEVNOTE: Shelved for now
+	//a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
+	//	Logger:         a.Logger,
+	//	WSEventManager: a.WSEventManager,
+	//	FileCacher:     a.FileCacher,
+	//})
 
 }
 
@@ -287,6 +296,34 @@ func (a *App) initLibraryWatcher(path string) {
 			// Notify the auto scanner when a file action occurs
 			a.AutoScanner.Notify()
 		})
+
+}
+
+// InitOrRefreshMediastreamSettings will initialize or refresh the mediastream settings.
+// It is called after the App instance is created and after settings are updated.
+func (a *App) InitOrRefreshMediastreamSettings() {
+
+	var settings *models.MediastreamSettings
+	var found bool
+	settings, found = a.Database.GetMediastreamSettings()
+	if !found {
+
+		var err error
+		settings, err = a.Database.UpsertMediastreamSettings(&models.MediastreamSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			TranscodeEnabled:    false,
+			TranscodeHwAccel:    "none",
+			PreTranscodeEnabled: false,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")
+			return
+		}
+	}
+
+	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
 }
 

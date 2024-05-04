@@ -17,7 +17,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	fiberApp.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, X-Seanime-Mediastream-Client-Id",
 	}))
 
 	// Set up a custom logger for fiber.
@@ -29,6 +29,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/_next",
 			"/icons",
 			"/api/v1/image-proxy",
+			"/api/v1/mediastream/transcode/",
 		},
 		Fields:   []string{"method", "error", "url"},
 		Messages: []string{"req: error", "req: client error", "req: Success"},
@@ -299,6 +300,22 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/offline/snapshot", makeHandler(app, HandleCreateOfflineSnapshot))
 	v1.Patch("/offline/snapshot-entry", makeHandler(app, HandleUpdateOfflineEntryListData))
 	v1.Post("/offline/sync", makeHandler(app, HandleSyncOfflineData))
+
+	//
+	// Stream
+	//
+	//v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
+	//v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
+	//
+	//v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
+	//// Direct play
+	//v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirect))
+	//// Direct stream
+	//v1.Get("/mediastream/directstream/*", makeHandler(app, HandleMediastreamDirectStream))
+	//// Transcode
+	//v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
+	//v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
+	//v1.Get("/mediastream/transcode-subs/*", makeHandler(app, HandleMediastreamGetTranscodeSubtitles))
 
 	//
 	// Websocket

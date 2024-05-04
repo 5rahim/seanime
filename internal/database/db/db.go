@@ -74,6 +74,8 @@ func migrateTables(db *gorm.DB) error {
 		&models.Theme{},
 		&models.PlaylistEntry{},
 		&models.ChapterDownloadQueueItem{},
+		// DEVNOTE: Shelved for now
+		//&models.MediastreamSettings{},
 	)
 	if err != nil {
 

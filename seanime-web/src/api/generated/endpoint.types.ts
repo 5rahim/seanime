@@ -15,10 +15,12 @@ import type {
     ChapterDownloader_DownloadID,
     ListSync_AnimeDiffKind,
     Manga_Provider,
+    Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DiscordSettings,
     Models_LibrarySettings,
     Models_MediaPlayerSettings,
+    Models_MediastreamSettings,
     Models_Theme,
     Models_TorrentSettings,
 } from "@/api/generated/types.ts"
@@ -654,6 +656,34 @@ export type DeleteMangaDownloadedChapters_Variables = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // mediaplayer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// mediastream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/mediastream.go
+ * - Filename: mediastream.go
+ * - Endpoint: /api/v1/mediastream/settings
+ * @description
+ * Route save mediastream settings.
+ */
+export type SaveMediastreamSettings_Variables = {
+    settings: Models_MediastreamSettings
+}
+
+/**
+ * - Filepath: internal/handlers/mediastream.go
+ * - Filename: mediastream.go
+ * - Endpoint: /api/v1/mediastream/request
+ * @description
+ * Route request media stream.
+ */
+export type RequestMediastreamMediaContainer_Variables = {
+    path: string
+    streamType: Mediastream_StreamType
+    audioStreamIndex: number
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // metadata

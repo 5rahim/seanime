@@ -15,3 +15,23 @@ Here are the guidelines, following them will make the process smoother:
 5. Commit and create a pull request with a clear description of the changes.
    - Briefly explain the logic behind the changes/additions.
 
+
+## Areas
+
+Here are some areas where you can contribute:
+
+### Documentation
+
+Although the documentation has many details about the specific features, it may lack some important information
+about specific use cases and platform-specific details. You can help by adding more details to the documentation.
+- Installation on different platforms.
+- Configuration options.
+- Remote access and security.
+
+
+### Security
+If you find a security vulnerability, you can try to fix it and create a pull request. If you're not sure about the fix, create an issue.
+
+### Code quality
+
+You can help improve the code quality by refactoring some parts of the codebase using better standards and submitting a pull request.
