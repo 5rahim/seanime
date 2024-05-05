@@ -47,6 +47,7 @@ export const MANGA_SETTINGS_ATOM_KEYS = {
     pageGap: "sea-manga-page-gap",
     pageGapShadow: "sea-manga-page-gap-shadow",
     doublePageOffset: "sea-manga-double-page-offset",
+    overflowPageContainerWidth: "sea-manga-overflow-page-container-width",
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,8 +78,9 @@ export const MangaPageFit = {
     TRUE_SIZE: "true-size",
 }
 
-
 export const __manga_pageFitAtom = atomWithStorage<string>(MANGA_SETTINGS_ATOM_KEYS.pageFit, MangaPageFit.CONTAIN)
+
+export const __manga_pageOverflowContainerWidthAtom = atomWithStorage<number>(MANGA_SETTINGS_ATOM_KEYS.overflowPageContainerWidth, 50)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -16,6 +16,9 @@ type ChapterPageProps = {
     imageClass: string
     readingMode: string
     onFinishedLoading?: () => void
+    imageWidth?: number | string
+    imageMaxWidth?: number | string
+    containerMaxWidth?: number | string
 }
 
 export function ChapterPage(props: ChapterPageProps) {
@@ -29,6 +32,9 @@ export function ChapterPage(props: ChapterPageProps) {
         children,
         readingMode,
         onFinishedLoading,
+        imageWidth,
+        imageMaxWidth,
+        containerMaxWidth,
         ...rest
     } = props
 
@@ -49,6 +55,7 @@ export function ChapterPage(props: ChapterPageProps) {
         <>
             <div
                 className={containerClass}
+                style={{ maxWidth: containerMaxWidth }}
                 id={`page-${index}`}
                 tabIndex={-1}
             >
@@ -61,6 +68,7 @@ export function ChapterPage(props: ChapterPageProps) {
                     src={getChapterPageUrl(page.url, pageContainer?.isDownloaded, page.headers)}
                     alt={`Page ${index}`}
                     className={imageClass}
+                    style={{ width: imageWidth, maxWidth: imageMaxWidth }}
                     ref={ref}
                     tabIndex={-1}
                 />

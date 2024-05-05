@@ -8,6 +8,7 @@ import {
     __manga_kbsPageRight,
     __manga_pageFitAtom,
     __manga_pageGapAtom,
+    __manga_pageOverflowContainerWidthAtom,
     __manga_pageStretchAtom,
     __manga_paginationMapAtom,
     MangaPageFit,
@@ -40,6 +41,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const pageFit = useAtomValue(__manga_pageFitAtom)
     const pageStretch = useAtomValue(__manga_pageStretchAtom)
     const pageGap = useAtomValue(__manga_pageGapAtom)
+    const pageOverflowContainerWidth = useAtomValue(__manga_pageOverflowContainerWidthAtom)
     const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
     const paginationMap = useAtom(__manga_paginationMapAtom)
 
@@ -174,25 +176,28 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                             }
                         }}
                         containerClass={cn(
-                            "max-w-[1400px] mx-auto scroll-div min-h-[200px] relative focus-visible:outline-none",
+                            "mx-auto scroll-div min-h-[200px] relative focus-visible:outline-none",
                             pageFit === MangaPageFit.CONTAIN && "max-w-full h-[calc(100dvh-60px)]",
                             pageFit === MangaPageFit.TRUE_SIZE && "max-w-full",
                             pageFit === MangaPageFit.COVER && "max-w-full",
                         )}
+                        containerMaxWidth={pageFit === MangaPageFit.LARGER ? pageOverflowContainerWidth + "%" : undefined}
                         imageClass={cn(
                             "max-w-full h-auto mx-auto select-none z-[4] relative focus-visible:outline-none",
 
                             // "h-full inset-0 object-center select-none z-[4] relative",
 
                             pageFit === MangaPageFit.CONTAIN ?
-                                pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "object-fill w-[1400px] h-full" :
+                                pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "object-fill w-full max-w-[1400px] h-full" :
                                 undefined,
                             pageFit === MangaPageFit.LARGER ?
-                                pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "w-[1400px] h-auto object-cover mx-auto" :
+                                pageStretch === MangaPageStretch.NONE ? "w-auto h-full object-center" : "w-full h-auto object-cover mx-auto" :
                                 undefined,
                             pageFit === MangaPageFit.COVER && "w-full h-auto",
                             pageFit === MangaPageFit.TRUE_SIZE && "object-none h-auto w-auto mx-auto",
                         )}
+
+                        // imageMaxWidth={pageFit === MangaPageFit.LARGER ? pageOverflowContainerWidth+"%" : undefined}
                     />
                 ))}
 

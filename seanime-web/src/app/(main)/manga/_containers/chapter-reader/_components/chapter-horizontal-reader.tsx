@@ -10,6 +10,7 @@ import {
     __manga_pageFitAtom,
     __manga_pageGapAtom,
     __manga_pageGapShadowAtom,
+    __manga_pageOverflowContainerWidthAtom,
     __manga_paginationMapAtom,
     __manga_readingDirectionAtom,
     __manga_readingModeAtom,
@@ -37,6 +38,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const pageFit = useAtomValue(__manga_pageFitAtom)
     const pageGap = useAtomValue(__manga_pageGapAtom)
     const pageGapShadow = useAtomValue(__manga_pageGapShadowAtom)
+    const pageOverflowContainerWidth = useAtomValue(__manga_pageOverflowContainerWidthAtom)
 
     const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
@@ -204,7 +206,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                             (readingMode === MangaReadingMode.PAGED
                                 && pageFit === MangaPageFit.CONTAIN) && "object-contain w-full h-full",
                             (readingMode === MangaReadingMode.PAGED
-                                && pageFit === MangaPageFit.LARGER) && "w-[1400px] h-auto object-cover mx-auto",
+                                && pageFit === MangaPageFit.LARGER) && "h-auto object-cover mx-auto",
                             (readingMode === MangaReadingMode.PAGED
                                 && pageFit === MangaPageFit.COVER) && "w-full h-auto",
                             (readingMode === MangaReadingMode.PAGED
@@ -233,6 +235,9 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                             (twoPages && currentPages?.[1] === index)
                             && "[object-position:100%_50%]",
                         )}
+                        imageWidth={pageFit === MangaPageFit.LARGER && readingMode === MangaReadingMode.PAGED
+                            ? pageOverflowContainerWidth + "%"
+                            : undefined}
                     />
                 ))}
             </div>

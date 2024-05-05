@@ -9,6 +9,7 @@ import {
     __manga_pageFitAtom,
     __manga_pageGapAtom,
     __manga_pageGapShadowAtom,
+    __manga_pageOverflowContainerWidthAtom,
     __manga_pageStretchAtom,
     __manga_readerProgressBarAtom,
     __manga_readingDirectionAtom,
@@ -151,6 +152,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     const [pageGap, setPageGap] = useAtom(__manga_pageGapAtom)
     const [pageGapShadow, setPageGapShadow] = useAtom(__manga_pageGapShadowAtom)
     const [doublePageOffset, setDoublePageOffset] = useAtom(__manga_doublePageOffsetAtom)
+    const [pageOverflowContainerWidth, setPageOverflowContainerWidth] = useAtom(__manga_pageOverflowContainerWidthAtom)
     //---
     const [readerProgressBar, setReaderProgressBar] = useAtom(__manga_readerProgressBarAtom)
 
@@ -171,6 +173,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 setPageGap(settings[MANGA_SETTINGS_ATOM_KEYS.pageGap])
                 setPageGapShadow(settings[MANGA_SETTINGS_ATOM_KEYS.pageGapShadow])
                 setDoublePageOffset(settings[MANGA_SETTINGS_ATOM_KEYS.doublePageOffset])
+                setPageOverflowContainerWidth(settings[MANGA_SETTINGS_ATOM_KEYS.overflowPageContainerWidth])
             }
         }
         mounted.current = true
@@ -187,9 +190,10 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 [MANGA_SETTINGS_ATOM_KEYS.pageGap]: pageGap,
                 [MANGA_SETTINGS_ATOM_KEYS.pageGapShadow]: pageGapShadow,
                 [MANGA_SETTINGS_ATOM_KEYS.doublePageOffset]: doublePageOffset,
+                [MANGA_SETTINGS_ATOM_KEYS.overflowPageContainerWidth]: pageOverflowContainerWidth,
             },
         }))
-    }, [readingDirection, readingMode, pageFit, pageStretch, pageGap, pageGapShadow, doublePageOffset])
+    }, [readingDirection, readingMode, pageFit, pageStretch, pageGap, pageGapShadow, doublePageOffset, pageOverflowContainerWidth])
 
     const [kbsChapterLeft, setKbsChapterLeft] = useAtom(__manga_kbsChapterLeft)
     const [kbsChapterRight, setKbsChapterRight] = useAtom(__manga_kbsChapterRight)
@@ -346,6 +350,20 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                         //     <p>'True Size': No scaling, raw sizes</p>
                         // </>}
                     />
+
+                    {
+                        pageFit === MangaPageFit.LARGER && (
+                            <NumberInput
+                                label="Page Container Width"
+                                max={100}
+                                min={0}
+                                rightAddon="%"
+                                value={pageOverflowContainerWidth}
+                                onValueChange={(value) => setPageOverflowContainerWidth(value)}
+                                disabled={readingMode === MangaReadingMode.DOUBLE_PAGE}
+                            />
+                        )
+                    }
 
                     <div
                         className={cn(
