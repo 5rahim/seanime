@@ -1,6 +1,5 @@
-import { AL_BaseManga, Manga_ChapterDetails, Manga_PageContainer } from "@/api/generated/types"
+import { AL_BaseManga, Manga_PageContainer } from "@/api/generated/types"
 import { ___manga_scrollSignalAtom } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
-import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import {
     ChapterReaderSettings,
     MANGA_PAGE_FIT_OPTIONS,
@@ -8,6 +7,7 @@ import {
     MANGA_READING_DIRECTION_OPTIONS,
     MANGA_READING_MODE_OPTIONS,
 } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-settings"
+import { __manga_selectedChapterAtom, MangaReader_SelectedChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -33,8 +33,9 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineCloseCircle } from "r
 
 type MangaReaderBarProps = {
     children?: React.ReactNode
-    previousChapter: Manga_ChapterDetails | undefined
-    nextChapter: Manga_ChapterDetails | undefined
+    previousChapter: MangaReader_SelectedChapter | undefined
+    nextChapter: MangaReader_SelectedChapter | undefined
+    goToChapter: (dir: "previous" | "next") => void
     pageContainer: Manga_PageContainer | undefined
     entry: { mediaId: number, media?: AL_BaseManga } | undefined
 }
@@ -47,6 +48,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
         nextChapter,
         pageContainer,
         entry,
+        goToChapter,
         ...rest
     } = props
 
@@ -72,12 +74,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         size="sm"
                         onClick={() => {
                             if (nextChapter && entry) {
-                                setSelectedChapter({
-                                    chapterId: nextChapter.id,
-                                    chapterNumber: nextChapter.chapter,
-                                    provider: nextChapter.provider,
-                                    mediaId: entry.mediaId,
-                                })
+                                goToChapter("next")
                             }
                         }}
                         disabled={!nextChapter}
@@ -92,12 +89,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         size="sm"
                         onClick={() => {
                             if (previousChapter && entry) {
-                                setSelectedChapter({
-                                    chapterId: previousChapter.id,
-                                    chapterNumber: previousChapter.chapter,
-                                    provider: previousChapter.provider,
-                                    mediaId: entry.mediaId,
-                                })
+                                goToChapter("previous")
                             }
                         }}
                         disabled={!previousChapter}
@@ -114,12 +106,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         size="sm"
                         onClick={() => {
                             if (previousChapter && entry) {
-                                setSelectedChapter({
-                                    chapterId: previousChapter.id,
-                                    chapterNumber: previousChapter.chapter,
-                                    provider: previousChapter.provider,
-                                    mediaId: entry.mediaId,
-                                })
+                                goToChapter("previous")
                             }
                         }}
                         disabled={!previousChapter}
@@ -134,12 +121,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                         size="sm"
                         onClick={() => {
                             if (nextChapter && entry) {
-                                setSelectedChapter({
-                                    chapterId: nextChapter.id,
-                                    chapterNumber: nextChapter.chapter,
-                                    provider: nextChapter.provider,
-                                    mediaId: entry.mediaId,
-                                })
+                                goToChapter("next")
                             }
                         }}
                         disabled={!nextChapter}

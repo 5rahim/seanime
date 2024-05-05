@@ -1,6 +1,6 @@
 import { Manga_PageContainer } from "@/api/generated/types"
 import { ChapterPage } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-page"
-import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-manga-reader"
+import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,

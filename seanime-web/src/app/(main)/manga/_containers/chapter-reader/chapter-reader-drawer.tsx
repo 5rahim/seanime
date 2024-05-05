@@ -1,12 +1,17 @@
-import { AL_BaseManga, AL_MediaListStatus, Manga_ChapterContainer, Manga_EntryListData, Manga_Provider } from "@/api/generated/types"
+import { AL_BaseManga, AL_MediaListStatus, Manga_ChapterContainer, Manga_EntryListData } from "@/api/generated/types"
 import { useGetMangaEntryPages, useUpdateMangaProgress } from "@/api/hooks/manga.hooks"
 import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
 import { MangaReaderBar } from "@/app/(main)/manga/_containers/chapter-reader/manga-reader-bar"
+import {
+    useCurrentChapter,
+    useHandleChapterPagination,
+    useSetCurrentChapter,
+    useSwitchSettingsWithKeys,
+} from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/handle-discord-manga-presence"
-import { useSwitchSettingsWithKeys } from "@/app/(main)/manga/_lib/handle-manga-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -26,7 +31,6 @@ import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
-import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
 import React from "react"
 import { toast } from "sonner"
@@ -36,18 +40,6 @@ type ChapterDrawerProps = {
     chapterContainer: Manga_ChapterContainer
     chapterIdToNumbersMap: Map<string, number>
 }
-
-export type SelectedChapterData = {
-    chapterNumber: string
-    provider: string
-    chapterId: string
-    mediaId: number
-}
-
-export const __manga_selectedChapterAtom = atomWithStorage<SelectedChapterData | undefined>("sea-manga-chapter",
-    undefined,
-    undefined,
-    { getOnInit: true })
 
 
 export function ChapterReaderDrawer(props: ChapterDrawerProps) {
@@ -64,9 +56,12 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     // Discord rich presence
     useDiscordMangaPresence(entry)
 
-    const [selectedChapter, setSelectedChapter] = useAtom(__manga_selectedChapterAtom)
+    const currentChapter = useCurrentChapter()
+    const setCurrentChapter = useSetCurrentChapter()
+
     const setCurrentPageIndex = useSetAtom(__manga_currentPageIndexAtom)
     const setCurrentPaginationMapIndex = useSetAtom(__manga_currentPaginationMapIndexAtom)
+
     const [readingMode, setReadingMode] = useAtom(__manga_readingModeAtom)
     const isLastPage = useAtomValue(__manga_isLastPageAtom)
     const kbsChapterLeft = useAtomValue(__manga_kbsChapterLeft)
@@ -81,8 +76,9 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
      */
     const { data: pageContainer, isLoading: pageContainerLoading, isError: pageContainerError } = useGetMangaEntryPages({
         mediaId: entry?.media?.id,
-        chapterId: selectedChapter?.chapterId,
-        provider: chapterContainer.provider as Manga_Provider,
+        chapterId: currentChapter?.chapterId,
+        // provider: chapterContainer.provider as Manga_Provider,
+        provider: currentChapter?.provider,
         doublePage: readingMode === MangaReadingMode.DOUBLE_PAGE,
     })
 
@@ -97,7 +93,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
      * Switch back to PAGED mode if the page dimensions could not be fetched efficiently
      */
     React.useEffect(() => {
-        if (selectedChapter) {
+        if (currentChapter) {
             if (
                 readingMode === MangaReadingMode.DOUBLE_PAGE &&
                 !pageContainerLoading &&
@@ -108,33 +104,25 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 setReadingMode(MangaReadingMode.PAGED)
             }
         }
-    }, [selectedChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
+    }, [currentChapter, pageContainer, pageContainerLoading, pageContainerError, readingMode])
 
 
     /**
      * Get the previous and next chapters
      * Either can be undefined
      */
-    const { previousChapter, nextChapter } = React.useMemo(() => {
-        if (!chapterContainer?.chapters) return { previousChapter: undefined, nextChapter: undefined }
-
-        const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === selectedChapter?.chapterId)
-        return {
-            previousChapter: chapterContainer.chapters[idx - 1],
-            nextChapter: chapterContainer.chapters[idx + 1],
-        }
-    }, [chapterContainer?.chapters, selectedChapter])
+    const { previousChapter, nextChapter, goToChapter } = useHandleChapterPagination(entry.mediaId, chapterContainer)
 
     /**
      * Check if the progress should be updated
      * i.e. User progress is less than the current chapter number
      */
     const shouldUpdateProgress = React.useMemo(() => {
-        const currentChapterNumber = chapterIdToNumbersMap.get(selectedChapter?.chapterId || "")
+        const currentChapterNumber = chapterIdToNumbersMap.get(currentChapter?.chapterId || "")
         if (!currentChapterNumber) return false
         if (!entry.listData?.progress) return true
         return currentChapterNumber > entry.listData.progress
-    }, [chapterIdToNumbersMap, entry, selectedChapter])
+    }, [chapterIdToNumbersMap, entry, currentChapter])
 
     const handleUpdateProgress = () => {
         if (shouldUpdateProgress && !isUpdatingProgress) {
@@ -142,24 +130,19 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             if (!serverStatus?.isOffline) {
 
                 updateProgress({
-                    chapterNumber: chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0,
+                    chapterNumber: chapterIdToNumbersMap.get(currentChapter?.chapterId || "") || 0,
                     mediaId: entry.mediaId,
                     malId: entry.media?.idMal || undefined,
                     totalChapters: entry.media?.chapters || 0,
                 }, {
                     onSuccess: () => {
-                        !!nextChapter && setSelectedChapter({
-                            chapterId: nextChapter.id,
-                            chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
-                            mediaId: entry.mediaId,
-                            provider: chapterContainer.provider,
-                        })
+                        goToChapter("next")
                     },
                 })
 
             } else {
 
-                let progress = chapterIdToNumbersMap.get(selectedChapter?.chapterId || "") || 0
+                let progress = chapterIdToNumbersMap.get(currentChapter?.chapterId || "") || 0
                 let status = "CURRENT"
                 if (!!entry.media?.chapters && progress >= entry.media?.chapters) {
                     progress = entry.media?.chapters
@@ -172,12 +155,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                     status: status as AL_MediaListStatus,
                 }, {
                     onSuccess: () => {
-                        !!nextChapter && setSelectedChapter({
-                            chapterId: nextChapter.id,
-                            chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
-                            mediaId: entry.mediaId,
-                            provider: chapterContainer.provider,
-                        })
+                        goToChapter("next")
                     },
                 })
 
@@ -190,13 +168,13 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
      * Reset the current page index when the pageContainer or chapterContainer changes
      * This signals that the user has switched chapters
      */
-    const previousChapterId = React.useRef(selectedChapter?.chapterId)
+    const previousChapterId = React.useRef(currentChapter?.chapterId)
     React.useEffect(() => {
         // Avoid resetting the page index when we're still on the same chapter
-        if (selectedChapter?.chapterId !== previousChapterId.current) {
+        if (currentChapter?.chapterId !== previousChapterId.current) {
             setCurrentPageIndex(0)
             setCurrentPaginationMapIndex(0)
-            previousChapterId.current = selectedChapter?.chapterId
+            previousChapterId.current = currentChapter?.chapterId
         }
     }, [pageContainer?.pages, chapterContainer?.chapters])
 
@@ -215,44 +193,16 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     React.useEffect(() => {
         mousetrap.bind(kbsChapterLeft, () => {
             if (readingDirection === MangaReadingDirection.LTR) {
-                if (previousChapter) {
-                    setSelectedChapter({
-                        chapterId: previousChapter.id,
-                        chapterNumber: String(chapterIdToNumbersMap.get(previousChapter.id)),
-                        mediaId: entry.mediaId,
-                        provider: chapterContainer.provider,
-                    })
-                }
+                goToChapter("previous")
             } else {
-                if (nextChapter) {
-                    setSelectedChapter({
-                        chapterId: nextChapter.id,
-                        chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
-                        mediaId: entry.mediaId,
-                        provider: chapterContainer.provider,
-                    })
-                }
+                goToChapter("next")
             }
         })
         mousetrap.bind(kbsChapterRight, () => {
             if (readingDirection === MangaReadingDirection.RTL) {
-                if (previousChapter) {
-                    setSelectedChapter({
-                        chapterId: previousChapter.id,
-                        chapterNumber: String(chapterIdToNumbersMap.get(previousChapter.id)),
-                        mediaId: entry.mediaId,
-                        provider: chapterContainer.provider,
-                    })
-                }
+                goToChapter("previous")
             } else {
-                if (nextChapter) {
-                    setSelectedChapter({
-                        chapterId: nextChapter.id,
-                        chapterNumber: String(chapterIdToNumbersMap.get(nextChapter.id)),
-                        mediaId: entry.mediaId,
-                        provider: chapterContainer.provider,
-                    })
-                }
+                goToChapter("next")
             }
         })
 
@@ -260,13 +210,13 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             mousetrap.unbind(kbsChapterLeft)
             mousetrap.unbind(kbsChapterRight)
         }
-    }, [kbsChapterLeft, kbsChapterRight, paginationMap, readingDirection, chapterContainer])
+    }, [kbsChapterLeft, kbsChapterRight, paginationMap, readingDirection, chapterContainer, previousChapter, nextChapter])
 
 
     return (
         <Drawer
-            open={!!selectedChapter}
-            onOpenChange={() => setSelectedChapter(undefined)}
+            open={!!currentChapter}
+            onOpenChange={() => setCurrentChapter(undefined)}
             size="full"
             side="bottom"
             headerClass="absolute h-0"
@@ -285,7 +235,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             >
                 <Card className="max-w-[800px]">
                     <CardHeader>
-                        Update progress to {chapterIdToNumbersMap.get(selectedChapter?.chapterId || "")} / {entry?.media?.chapters || "-"}
+                        Update progress to {chapterIdToNumbersMap.get(currentChapter?.chapterId || "")} / {entry?.media?.chapters || "-"}
                     </CardHeader>
                     <CardFooter>
                         <Button
@@ -305,6 +255,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             <MangaReaderBar
                 previousChapter={previousChapter}
                 nextChapter={nextChapter}
+                goToChapter={goToChapter}
                 pageContainer={pageContainer}
                 entry={entry}
             />

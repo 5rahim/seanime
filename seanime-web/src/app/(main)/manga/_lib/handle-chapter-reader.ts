@@ -1,5 +1,6 @@
-import { Manga_PageContainer } from "@/api/generated/types"
-import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
+import { Manga_ChapterContainer, Manga_PageContainer, Manga_Provider, Nullish } from "@/api/generated/types"
+import { useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
+import { getChapterDecimalFromChapter, isChapterAfter, isChapterBefore } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -14,9 +15,150 @@ import {
     MangaReadingDirection,
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
+import { logger } from "@/lib/helpers/debug"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
 import React from "react"
+
+/**
+ * Current chapter being read
+ */
+export type MangaReader_SelectedChapter = {
+    chapterNumber: string
+    provider: Manga_Provider
+    chapterId: string
+    mediaId: number
+}
+
+/**
+ * Stores the current chapter being read
+ */
+export const __manga_selectedChapterAtom = atomWithStorage<MangaReader_SelectedChapter | undefined>("sea-manga-chapter",
+    undefined,
+    undefined,
+    { getOnInit: true })
+
+export function useSetCurrentChapter() {
+    return useSetAtom(__manga_selectedChapterAtom)
+}
+
+export function useCurrentChapter() {
+    return useAtomValue(__manga_selectedChapterAtom)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export function useHandleChapterPagination(mId: Nullish<string | number>, chapterContainer: Manga_ChapterContainer | undefined) {
+    const currentChapter = useCurrentChapter()
+    const setCurrentChapter = useSetCurrentChapter()
+    /**
+     * Get the entry's downloaded chapters from the atom
+     */
+    const entryDownloadedChapters = useMangaEntryDownloadedChapters()
+
+    // Get previous and next chapters
+    const previousChapter = React.useMemo<MangaReader_SelectedChapter | undefined>(() => {
+        if (!mId) return undefined
+        if (!currentChapter) return undefined
+        // First, look in downloaded chapters
+        // e.g., current is 14.2, look for the highest chapter number that is less than 14.2
+        let ch = entryDownloadedChapters
+            .filter(ch => ch.chapterId !== currentChapter.chapterId)
+            .sort((a, b) => getChapterDecimalFromChapter(b.chapterNumber) - getChapterDecimalFromChapter(a.chapterNumber)) // Sort in descending order
+            .find(ch => isChapterBefore(ch.chapterNumber, currentChapter.chapterNumber)) // Find the first chapter that is before the current chapter
+        if (ch) return {
+            chapterId: ch.chapterId,
+            chapterNumber: ch.chapterNumber,
+            provider: ch.provider as Manga_Provider,
+            mediaId: Number(mId),
+        }
+
+        if (!chapterContainer?.chapters) return undefined
+
+        // If no downloaded chapters are found, look for the previous chapter in the entry's chapters
+        const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === currentChapter?.chapterId)
+        if (idx !== -1 && !!chapterContainer.chapters[idx - 1]) return {
+            chapterId: chapterContainer.chapters[idx - 1].id,
+            chapterNumber: chapterContainer.chapters[idx - 1].chapter,
+            provider: chapterContainer.chapters[idx - 1].provider as Manga_Provider,
+            mediaId: chapterContainer.mediaId,
+        }
+
+        // If we couldn't find it before, it probably means we're at the first chapter OR it isn't the current chapter's container
+        // Look in the chapter container, but this time, by sorting the chapters in descending order
+        let ch2 = chapterContainer.chapters
+            .sort((a, b) => getChapterDecimalFromChapter(b.chapter) - getChapterDecimalFromChapter(a.chapter))
+            .find(ch => isChapterBefore(ch.chapter, currentChapter.chapterNumber))
+
+        if (ch2) return {
+            chapterId: ch2.id,
+            chapterNumber: ch2.chapter,
+            provider: ch2.provider as Manga_Provider,
+            mediaId: chapterContainer.mediaId,
+        }
+    }, [mId, currentChapter, entryDownloadedChapters, chapterContainer?.chapters])
+
+    const nextChapter = React.useMemo<MangaReader_SelectedChapter | undefined>(() => {
+        if (!mId) return undefined
+        if (!currentChapter) return undefined
+        // First, look in downloaded chapters
+        // e.g., current is 14.2, look for the lowest chapter number that is greater than 14.2
+        let ch = entryDownloadedChapters
+            .filter(ch => ch.chapterId !== currentChapter.chapterId)
+            .sort((a, b) => getChapterDecimalFromChapter(a.chapterNumber) - getChapterDecimalFromChapter(b.chapterNumber)) // Sort in ascending order
+            .find(ch => isChapterAfter(ch.chapterNumber, currentChapter.chapterNumber)) // Find the first chapter that is after the current chapter
+        if (ch) return {
+            chapterId: ch.chapterId,
+            chapterNumber: ch.chapterNumber,
+            provider: ch.provider as Manga_Provider,
+            mediaId: Number(mId),
+        }
+
+        if (!chapterContainer?.chapters) return undefined
+
+        // If no downloaded chapters are found, look for the next chapter in the entry's chapters
+        const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === currentChapter?.chapterId)
+        if (idx !== -1 && !!chapterContainer.chapters[idx + 1]) return {
+            chapterId: chapterContainer.chapters[idx + 1].id,
+            chapterNumber: chapterContainer.chapters[idx + 1].chapter,
+            provider: chapterContainer.chapters[idx + 1].provider as Manga_Provider,
+            mediaId: chapterContainer.mediaId,
+        }
+
+        // If we couldn't find it before, it probably means we're at the last chapter OR it isn't the current chapter's container
+        // Look in the chapter container, but this time, by sorting the chapters in ascending order
+        let ch2 = chapterContainer.chapters
+            .sort((a, b) => getChapterDecimalFromChapter(a.chapter) - getChapterDecimalFromChapter(b.chapter))
+            .find(ch => isChapterAfter(ch.chapter, currentChapter.chapterNumber))
+
+        if (ch2) return {
+            chapterId: ch2.id,
+            chapterNumber: ch2.chapter,
+            provider: ch2.provider as Manga_Provider,
+            mediaId: chapterContainer.mediaId,
+        }
+    }, [mId, currentChapter, entryDownloadedChapters, chapterContainer?.chapters])
+
+    const goToChapter = React.useCallback((dir: "previous" | "next") => {
+        if (dir === "previous" && previousChapter) {
+            logger("handle-chapter-reader").info("Going to previous chapter", previousChapter)
+            setCurrentChapter(previousChapter)
+        } else if (dir === "next" && nextChapter) {
+            logger("handle-chapter-reader").info("Going to next chapter", nextChapter)
+            setCurrentChapter(nextChapter)
+        }
+    }, [setCurrentChapter, previousChapter, nextChapter])
+
+    return {
+        goToChapter,
+        previousChapter,
+        nextChapter,
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 export function useHydrateMangaPaginationMap(pageContainer?: Manga_PageContainer) {
     // Current chapter
@@ -179,3 +321,4 @@ function getRecurringNumber(arr: number[]): number | undefined {
 
     return highestNumber
 }
+

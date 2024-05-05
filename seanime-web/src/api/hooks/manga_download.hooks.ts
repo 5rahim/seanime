@@ -105,6 +105,7 @@ export function useDeleteMangaDownloadedChapters(id: Nullish<string | number>, p
         mutationKey: [API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.key, String(id), provider],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA_DOWNLOAD.GetMangaDownloadData.key] })
+            toast.success("Chapters deleted")
         },
     })
 }

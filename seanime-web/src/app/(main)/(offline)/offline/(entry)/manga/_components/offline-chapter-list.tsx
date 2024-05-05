@@ -1,6 +1,7 @@
 import { Manga_ChapterContainer, Manga_ChapterDetails, Offline_MangaEntry } from "@/api/generated/types"
-import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
-import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
+import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
+import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { IconButton } from "@/components/ui/button"
@@ -28,7 +29,8 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
      */
     const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
 
-    const setProvider = useSetAtom(__manga_selectedProviderAtom)
+    // Load download data
+    useHandleMangaDownloadData(entry?.mediaId)
 
     const chapters = React.useMemo(() => {
         return entry?.chapterContainers?.flatMap(n => n.chapters)?.filter(Boolean) ?? []
@@ -80,7 +82,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                             intent="gray-subtle"
                             size="sm"
                             onClick={() => {
-                                setProvider(row.original.provider)
+                                // setProvider(row.original.provider)
                                 setSelectedChapterContainer(entry?.chapterContainers?.find(c => c.provider === row.original.provider))
                                 React.startTransition(() => {
                                     setSelectedChapter({

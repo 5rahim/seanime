@@ -5,18 +5,24 @@ import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 
-export const MANGA_PROVIDER_OPTIONS = [
-    { value: "mangasee", label: "Mangasee" },
-    { value: "mangadex", label: "Mangadex" },
-    { value: "mangapill", label: "Mangapill" },
-    { value: "manganato", label: "Manganato" },
-    { value: "comick", label: "ComicK" },
-]
-
 export function getChapterNumberFromChapter(chapter: string): number {
     const chapterNumber = chapter.match(/(\d+(\.\d+)?)/)?.[0]
     return chapterNumber ? Math.floor(parseFloat(chapterNumber)) : 0
+}
 
+export function getChapterDecimalFromChapter(chapter: string): number {
+    const chapterNumber = chapter.match(/(\d+(\.\d+)?)/)?.[0]
+    return chapterNumber ? parseFloat(chapterNumber) : 0
+}
+
+export function isChapterBefore(a: string, b: string): boolean {
+    // compare the decimal part of the chapter number
+    return getChapterDecimalFromChapter(a) < getChapterDecimalFromChapter(b)
+}
+
+export function isChapterAfter(a: string, b: string): boolean {
+    // compare the decimal part of the chapter number
+    return getChapterDecimalFromChapter(a) > getChapterDecimalFromChapter(b)
 }
 
 export function useMangaReaderUtils() {

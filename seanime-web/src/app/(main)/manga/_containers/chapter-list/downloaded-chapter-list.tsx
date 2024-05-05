@@ -5,8 +5,10 @@
 
 import { Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
 import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hooks"
-import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
-import { __manga_selectedProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
+
+import { useSetCurrentChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
+import { MangaDownloadChapterItem, useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { Button, IconButton } from "@/components/ui/button"
@@ -14,8 +16,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { RowSelectionState } from "@tanstack/react-table"
-import { useSetAtom } from "jotai"
-import { useAtom } from "jotai/react"
 import React from "react"
 import { BiTrash } from "react-icons/bi"
 import { GiOpenBook } from "react-icons/gi"
@@ -26,8 +26,6 @@ type DownloadedChapterListProps = {
     data: Manga_MediaDownloadData | undefined
 }
 
-export type DownloadChapterItem = { provider: string, chapterId: string, chapterNumber: string, queued: boolean, downloaded: boolean }
-
 export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
     const {
@@ -36,58 +34,36 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         ...rest
     } = props
 
-    const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
+    const { provider, setProvider } = useMangaProvider(entry.mediaId)
 
     /**
      * Set selected chapter
      */
-    const setSelectedChapter = useSetAtom(__manga_selectedChapterAtom)
+    const setCurrentChapter = useSetCurrentChapter()
 
     const [showQueued, setShowQueued] = React.useState(false)
 
     const { mutate: deleteChapters, isPending: isDeletingChapter } = useDeleteMangaDownloadedChapters(String(entry.mediaId), provider)
 
-    // Transforms {downloaded: Record<string, { chapterId: string, chapterNumber: string }[]>,
-    //                            queued: Record<string, { chapterId: string, chapterNumber: string }[]>}
-    // to [{provider: string, chapterId: string, queued: boolean, downloaded: boolean}, ...]
+    const downloadedOrQueuedChapters = useMangaEntryDownloadedChapters()
+
+    /**
+     * Transform downloadedOrQueuedChapters into a dynamic list based on the showQueued state
+     */
     const tableData = React.useMemo(() => {
-        let d: DownloadChapterItem[] = []
-        if (data) {
-            if (!showQueued) {
-                for (const provider in data.downloaded) {
-                    d = d.concat(data.downloaded[provider].map(ch => ({
-                        provider,
-                        chapterId: ch.chapterId,
-                        chapterNumber: ch.chapterNumber,
-                        queued: false,
-                        downloaded: true,
-                    })))
-                }
-            }
-            for (const provider in data.queued) {
-                d = d.concat(data.queued[provider].map(ch => ({
-                    provider,
-                    chapterId: ch.chapterId,
-                    chapterNumber: ch.chapterNumber,
-                    queued: true,
-                    downloaded: false,
-                })))
-            }
-        }
-        return d
-    }, [data, showQueued])
+        if (!showQueued) return downloadedOrQueuedChapters
+        return downloadedOrQueuedChapters.filter(chapter => chapter.queued)
+    }, [data, downloadedOrQueuedChapters, showQueued])
 
     const chapterIdsToNumber = React.useMemo(() => {
         const map = new Map<string, number>()
-
         for (const chapter of tableData ?? []) {
             map.set(chapter.chapterId, getChapterNumberFromChapter(chapter.chapterNumber))
         }
-
         return map
     }, [tableData])
 
-    const columns = React.useMemo(() => defineDataGridColumns<DownloadChapterItem>(() => [
+    const columns = React.useMemo(() => defineDataGridColumns<MangaDownloadChapterItem>(() => [
         {
             accessorKey: "chapterNumber",
             header: "Chapter",
@@ -133,12 +109,16 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                                  * Set the provider to the one of the selected chapter
                                  * This is because the provider is needed to fetch the chapter pages
                                  */
-                                setProvider(row.original.provider as Manga_Provider)
+                                // setProvider({
+                                //     mId: entry.mediaId,
+                                //     provider: row.original.provider as Manga_Provider,
+                                // })
                                 React.startTransition(() => {
-                                    setSelectedChapter({
+                                    // Set the selected chapter
+                                    setCurrentChapter({
                                         chapterId: row.original.chapterId,
                                         chapterNumber: row.original.chapterNumber,
-                                        provider: row.original.provider,
+                                        provider: row.original.provider as Manga_Provider,
                                         mediaId: Number(entry.mediaId),
                                     })
                                 })
@@ -153,9 +133,9 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
-    const [selectedChapters, setSelectedChapters] = React.useState<DownloadChapterItem[]>([])
+    const [selectedChapters, setSelectedChapters] = React.useState<MangaDownloadChapterItem[]>([])
 
-    const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<DownloadChapterItem>) => {
+    const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<MangaDownloadChapterItem>) => {
         setSelectedChapters(event.data)
     }, [])
 
@@ -210,7 +190,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                     </Button>
                 </div>}
 
-                <DataGrid<DownloadChapterItem>
+                <DataGrid<MangaDownloadChapterItem>
                     columns={columns}
                     data={tableData}
                     rowCount={tableData.length}

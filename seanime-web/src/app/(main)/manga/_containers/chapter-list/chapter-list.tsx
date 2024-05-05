@@ -2,14 +2,11 @@ import { AL_MangaDetailsById_Media, Manga_ChapterDetails, Manga_Entry, Manga_Med
 import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
-import { __manga_selectedChapterAtom, ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
-import { __manga_selectedProviderAtom, useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga"
-import {
-    getChapterNumberFromChapter,
-    MANGA_PROVIDER_OPTIONS,
-    useMangaChapterListRowSelection,
-    useMangaDownloadDataUtils,
-} from "@/app/(main)/manga/_lib/handle-manga-utils"
+import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
+import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { MANGA_PROVIDER_OPTIONS, useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
+import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
+import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -18,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
-import { useAtom, useSetAtom } from "jotai/react"
+import { useSetAtom } from "jotai/react"
 import React from "react"
 import { FaDownload, FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
@@ -45,7 +42,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Current provider
      */
-    const [provider, setProvider] = useAtom(__manga_selectedProviderAtom)
+    const { provider, setProvider } = useMangaProvider(mediaId)
 
     /**
      * Fetch chapter container
@@ -93,7 +90,6 @@ export function ChapterList(props: ChapterListProps) {
     const {
         isChapterQueued,
         isChapterDownloaded,
-        getProviderNumberOfDownloadedChapters,
     } = useMangaDownloadDataUtils(downloadData, downloadDataLoading)
 
     /**
@@ -128,6 +124,7 @@ export function ChapterList(props: ChapterListProps) {
             size: 90,
         },
         {
+            id: "number",
             header: "Number",
             size: 10,
             enableSorting: true,
@@ -213,7 +210,10 @@ export function ChapterList(props: ChapterListProps) {
                     fieldClass="w-fit"
                     options={MANGA_PROVIDER_OPTIONS}
                     value={provider}
-                    onValueChange={v => setProvider(v as Manga_Provider)}
+                    onValueChange={v => setProvider({
+                        mId: mediaId,
+                        provider: v as Manga_Provider,
+                    })}
                     leftAddon="Source"
                     intent="filled"
                     size="sm"
@@ -306,6 +306,12 @@ export function ChapterList(props: ChapterListProps) {
                                         state={{
                                             rowSelection,
                                         }}
+                                        hideColumns={[
+                                            {
+                                                below: 1000,
+                                                hide: ["number"],
+                                            },
+                                        ]}
                                         onRowSelect={onRowSelectionChange}
                                         onRowSelectionChange={setRowSelection}
                                         className=""

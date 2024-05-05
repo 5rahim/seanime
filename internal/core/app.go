@@ -115,8 +115,8 @@ func NewApp(configOpts *ConfigOptions) *App {
 	}
 
 	// Add default local file entries if there are none
-	if _, _, err := database.GetLocalFiles(); err != nil {
-		_, err := database.InsertLocalFiles(make([]*anime.LocalFile, 0))
+	if _, _, err = database.GetLocalFiles(); err != nil {
+		_, err = database.InsertLocalFiles(make([]*anime.LocalFile, 0))
 		if err != nil {
 			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
 		}

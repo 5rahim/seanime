@@ -1,9 +1,9 @@
 "use client"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
-import { useGetMangaDownloadData } from "@/api/hooks/manga_download.hooks"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
 import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
+import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -17,9 +17,11 @@ export default function Page() {
     const mediaId = searchParams.get("id")
     const { data: mangaEntry, isLoading: mangaEntryLoading } = useGetMangaEntry(mediaId)
     const { data: mangaDetails, isLoading: mangaDetailsLoading } = useGetMangaEntryDetails(mediaId)
-    const { data: mangaDownloadData, isLoading: mangaDownloadDataLoading } = useGetMangaDownloadData({
-        mediaId: mediaId ? Number(mediaId) : undefined,
-    })
+
+    /**
+     * Fetch manga download data
+     */
+    const { downloadData, downloadDataLoading } = useHandleMangaDownloadData(mediaId)
 
     React.useEffect(() => {
         if (!mediaId) {
@@ -61,8 +63,8 @@ export default function Page() {
                                 entry={mangaEntry}
                                 mediaId={mediaId}
                                 details={mangaDetails}
-                                downloadData={mangaDownloadData}
-                                downloadDataLoading={mangaDownloadDataLoading}
+                                downloadData={downloadData}
+                                downloadDataLoading={downloadDataLoading}
                             />
                         </div>
 
