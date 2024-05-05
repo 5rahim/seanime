@@ -51,7 +51,6 @@ export default function Page() {
                             type: "spring",
                             damping: 10,
                             stiffness: 80,
-                            delay: 0.6,
                         },
                     }}
                 >
