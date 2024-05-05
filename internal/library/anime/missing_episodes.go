@@ -1,6 +1,7 @@
 package anime
 
 import (
+	"fmt"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/api/anilist"
@@ -71,9 +72,12 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			}
 
 			episodes := downloadInfo.EpisodesToDownload
-			// Truncate to 5 max
-			if len(episodes) > 5 {
-				episodes = episodes[:5]
+			// If there are more than 1 episode to download, modify the name of the first episode
+			if len(episodes) > 1 {
+				episodes = episodes[:1] // keep the first episode
+				if episodes[0].Episode != nil {
+					episodes[0].Episode.DisplayTitle = episodes[0].Episode.DisplayTitle + fmt.Sprintf(" & %d more", len(downloadInfo.EpisodesToDownload)-1)
+				}
 			}
 			return episodes
 		})
