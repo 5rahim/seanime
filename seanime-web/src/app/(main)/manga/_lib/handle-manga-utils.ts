@@ -10,19 +10,19 @@ export function getChapterNumberFromChapter(chapter: string): number {
     return chapterNumber ? Math.floor(parseFloat(chapterNumber)) : 0
 }
 
-export function getChapterDecimalFromChapter(chapter: string): number {
+export function getDecimalFromChapter(chapter: string): number {
     const chapterNumber = chapter.match(/(\d+(\.\d+)?)/)?.[0]
     return chapterNumber ? parseFloat(chapterNumber) : 0
 }
 
 export function isChapterBefore(a: string, b: string): boolean {
     // compare the decimal part of the chapter number
-    return getChapterDecimalFromChapter(a) < getChapterDecimalFromChapter(b)
+    return getDecimalFromChapter(a) < getDecimalFromChapter(b)
 }
 
 export function isChapterAfter(a: string, b: string): boolean {
     // compare the decimal part of the chapter number
-    return getChapterDecimalFromChapter(a) > getChapterDecimalFromChapter(b)
+    return getDecimalFromChapter(a) > getDecimalFromChapter(b)
 }
 
 export function useMangaReaderUtils() {

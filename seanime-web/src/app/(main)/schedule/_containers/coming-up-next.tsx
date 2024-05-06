@@ -1,4 +1,5 @@
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -52,7 +53,7 @@ export function ComingUpNext() {
                                 className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                             >
                                 <div
-                                    className="rounded-md border border-gray-800 overflow-hidden aspect-[4/2] relative flex items-end flex-none group/missed-episode-item"
+                                    className="rounded-md border bg-[--background] border-gray-800 overflow-hidden aspect-[4/2] relative flex items-end flex-none group/upcoming-episode-item"
                                 >
                                     <div
                                         className="absolute w-full h-full rounded-md rounded-b-none overflow-hidden z-[1]"
@@ -63,13 +64,11 @@ export function ComingUpNext() {
                                             fill
                                             quality={100}
                                             sizes="20rem"
-                                            className="object-cover object-top transition opacity-20"
+                                            className="object-cover object-top transition-opacity opacity-20 group-hover/upcoming-episode-item:opacity-30"
                                         /> : <div
                                             className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                                         ></div>}
-                                        <div
-                                            className="z-[1] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
-                                        />
+                                        <AnimeListItemBottomGradient />
                                     </div>
                                     <div className="relative z-[3] w-full p-4 space-y-1">
                                         <Link

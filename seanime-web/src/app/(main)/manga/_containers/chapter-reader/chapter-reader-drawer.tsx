@@ -74,7 +74,12 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     /**
      * Get the pages
      */
-    const { data: pageContainer, isLoading: pageContainerLoading, isError: pageContainerError } = useGetMangaEntryPages({
+    const {
+        data: pageContainer,
+        isLoading: pageContainerLoading,
+        isError: pageContainerError,
+        refetch: retryFetchPageContainer,
+    } = useGetMangaEntryPages({
         mediaId: entry?.media?.id,
         chapterId: currentChapter?.chapterId,
         // provider: chapterContainer.provider as Manga_Provider,
@@ -268,6 +273,12 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                     >
                         <p>An error occurred while trying to load pages for this chapter.</p>
                         <p>Reload the page, reload sources or change the source.</p>
+
+                        <div className="mt-2">
+                            <Button intent="white" onClick={() => retryFetchPageContainer()}>
+                                Retry
+                            </Button>
+                        </div>
                     </LuffyError>
                 ) : (pageContainerLoading)
                     ? (<LoadingSpinner containerClass="h-full" />)

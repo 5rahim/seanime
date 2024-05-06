@@ -70,7 +70,7 @@ export function MissingEpisodes({ isLoading, data }: {
                         <Accordion
                             type="multiple"
                             defaultValue={[]}
-                            triggerClass="py-2 dark:bg-[--background] px-0 dark:hover:bg-transparent text-lg dark:text-[--muted] dark:hover:text-white"
+                            triggerClass="py-2 px-0 dark:hover:bg-transparent text-lg dark:text-[--muted] dark:hover:text-white"
                         >
                             <AccordionItem value="item-1">
                                 <AccordionTrigger>

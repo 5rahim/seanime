@@ -11,9 +11,6 @@ import (
 	"strings"
 )
 
-// @title API
-// @version 1.0
-// @BasePath /api
 func main() {
 	col := color.New(color.FgHiCyan)
 	bold := color.New(color.FgHiWhite, color.Bold)

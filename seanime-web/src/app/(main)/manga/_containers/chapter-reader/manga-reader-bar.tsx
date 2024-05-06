@@ -251,6 +251,9 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                 </Popover>}
 
                 <p className="hidden lg:flex gap-4 items-center text-[--muted]">
+                    <div className="hidden lg:block">
+                        <p className="text-[--muted] text-sm">{selectedChapter?.provider}</p>
+                    </div>
                     <span className="flex items-center gap-1">
                         <span className="text-white">m:</span>
                         {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
