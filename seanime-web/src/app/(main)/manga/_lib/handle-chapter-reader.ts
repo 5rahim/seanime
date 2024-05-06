@@ -16,10 +16,39 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
 import { logger } from "@/lib/helpers/debug"
+import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
 import React from "react"
+
+const __manga_readerLoadedPagesAtom = atom<number[]>([])
+
+export function useHandleChapterPageStatus(pageContainer: Manga_PageContainer | undefined) {
+    const currentChapter = useCurrentChapter()
+
+    /**
+     * Keep track of loaded page indexes
+     * - Well compare the length to the number of pages to determine if we can show the progress bar
+     */
+    const [loadedPages, setLoadedPages] = useAtom(__manga_readerLoadedPagesAtom)
+
+    React.useEffect(() => {
+        setLoadedPages([])
+    }, [currentChapter])
+
+    const handlePageLoad = React.useCallback((pageIndex: number) => {
+        setLoadedPages(prev => [...prev, pageIndex])
+    }, [])
+
+    return {
+        allPagesLoaded: loadedPages.length > 0 && loadedPages.length === pageContainer?.pages?.length,
+        loadedPages,
+        handlePageLoad,
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Current chapter being read
@@ -63,40 +92,58 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
         if (!currentChapter) return undefined
         // First, look in downloaded chapters
         // e.g., current is 14.2, look for the highest chapter number that is less than 14.2
-        let ch = entryDownloadedChapters
+        const _1 = entryDownloadedChapters
             .filter(ch => ch.chapterId !== currentChapter.chapterId)
             .sort((a, b) => getChapterDecimalFromChapter(b.chapterNumber) - getChapterDecimalFromChapter(a.chapterNumber)) // Sort in descending order
             .find(ch => isChapterBefore(ch.chapterNumber, currentChapter.chapterNumber)) // Find the first chapter that is before the current chapter
-        if (ch) return {
-            chapterId: ch.chapterId,
-            chapterNumber: ch.chapterNumber,
-            provider: ch.provider as Manga_Provider,
+        // Save the chapter if it exists
+        const downloadedCh = _1 ? {
+            chapterId: _1.chapterId,
+            chapterNumber: _1.chapterNumber,
+            provider: _1.provider as Manga_Provider,
             mediaId: Number(mId),
-        }
+        } : undefined
 
-        if (!chapterContainer?.chapters) return undefined
+        // Return it if there's no container
+        if (!chapterContainer?.chapters) return downloadedCh
 
-        // If no downloaded chapters are found, look for the previous chapter in the entry's chapters
+        // Look for the previous chapter in the chapter container
         const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === currentChapter?.chapterId)
-        if (idx !== -1 && !!chapterContainer.chapters[idx - 1]) return {
-            chapterId: chapterContainer.chapters[idx - 1].id,
-            chapterNumber: chapterContainer.chapters[idx - 1].chapter,
-            provider: chapterContainer.chapters[idx - 1].provider as Manga_Provider,
-            mediaId: chapterContainer.mediaId,
+
+        let previousContainerCh: MangaReader_SelectedChapter | undefined = undefined
+        if (idx !== -1 && !!chapterContainer.chapters[idx - 1]) {
+            previousContainerCh = {
+                chapterId: chapterContainer.chapters[idx - 1].id,
+                chapterNumber: chapterContainer.chapters[idx - 1].chapter,
+                provider: chapterContainer.chapters[idx - 1].provider as Manga_Provider,
+                mediaId: chapterContainer.mediaId,
+            }
         }
 
-        // If we couldn't find it before, it probably means we're at the first chapter OR it isn't the current chapter's container
-        // Look in the chapter container, but this time, by sorting the chapters in descending order
-        let ch2 = chapterContainer.chapters
+        // Look in the chapter container, but this time, by sorting the chapters in descending order to find the adjacent chapter
+        let _2 = chapterContainer.chapters
+            .filter(ch => ch.id !== currentChapter.chapterId)
             .sort((a, b) => getChapterDecimalFromChapter(b.chapter) - getChapterDecimalFromChapter(a.chapter))
             .find(ch => isChapterBefore(ch.chapter, currentChapter.chapterNumber))
-
-        if (ch2) return {
-            chapterId: ch2.id,
-            chapterNumber: ch2.chapter,
-            provider: ch2.provider as Manga_Provider,
+        const adjacentContainerCh = _2 ? {
+            chapterId: _2.id,
+            chapterNumber: _2.chapter,
+            provider: _2.provider as Manga_Provider,
             mediaId: chapterContainer.mediaId,
-        }
+        } : undefined
+
+        // Now we compare the three options and return the one that is closer to the current chapter
+        const chapters = [downloadedCh, previousContainerCh, adjacentContainerCh].filter(Boolean)
+        if (chapters.length === 0) return undefined
+        if (chapters.length === 1) return chapters[0]
+
+        return chapters.reduce((prev, curr) => {
+            if (!prev) return curr
+            if (!curr) return prev
+            const prevDiff = Math.abs(getChapterDecimalFromChapter(prev.chapterNumber) - getChapterDecimalFromChapter(currentChapter.chapterNumber))
+            const currDiff = Math.abs(getChapterDecimalFromChapter(curr.chapterNumber) - getChapterDecimalFromChapter(currentChapter.chapterNumber))
+            return prevDiff < currDiff ? prev : curr
+        }, chapters[0])
     }, [mId, currentChapter, entryDownloadedChapters, chapterContainer?.chapters])
 
     const nextChapter = React.useMemo<MangaReader_SelectedChapter | undefined>(() => {
@@ -104,40 +151,58 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
         if (!currentChapter) return undefined
         // First, look in downloaded chapters
         // e.g., current is 14.2, look for the lowest chapter number that is greater than 14.2
-        let ch = entryDownloadedChapters
+        const _1 = entryDownloadedChapters
             .filter(ch => ch.chapterId !== currentChapter.chapterId)
             .sort((a, b) => getChapterDecimalFromChapter(a.chapterNumber) - getChapterDecimalFromChapter(b.chapterNumber)) // Sort in ascending order
             .find(ch => isChapterAfter(ch.chapterNumber, currentChapter.chapterNumber)) // Find the first chapter that is after the current chapter
-        if (ch) return {
-            chapterId: ch.chapterId,
-            chapterNumber: ch.chapterNumber,
-            provider: ch.provider as Manga_Provider,
+        // Save the chapter if it exists
+        const downloadedCh = _1 ? {
+            chapterId: _1.chapterId,
+            chapterNumber: _1.chapterNumber,
+            provider: _1.provider as Manga_Provider,
             mediaId: Number(mId),
-        }
+        } : undefined
 
-        if (!chapterContainer?.chapters) return undefined
+        // Return it if there's no container
+        if (!chapterContainer?.chapters) return downloadedCh
 
-        // If no downloaded chapters are found, look for the next chapter in the entry's chapters
+        // Look for the next chapter in the chapter container
         const idx = chapterContainer.chapters.findIndex((chapter) => chapter.id === currentChapter?.chapterId)
-        if (idx !== -1 && !!chapterContainer.chapters[idx + 1]) return {
-            chapterId: chapterContainer.chapters[idx + 1].id,
-            chapterNumber: chapterContainer.chapters[idx + 1].chapter,
-            provider: chapterContainer.chapters[idx + 1].provider as Manga_Provider,
-            mediaId: chapterContainer.mediaId,
+
+        let nextContainerCh: MangaReader_SelectedChapter | undefined = undefined
+        if (idx !== -1 && !!chapterContainer.chapters[idx + 1]) {
+            nextContainerCh = {
+                chapterId: chapterContainer.chapters[idx + 1].id,
+                chapterNumber: chapterContainer.chapters[idx + 1].chapter,
+                provider: chapterContainer.chapters[idx + 1].provider as Manga_Provider,
+                mediaId: chapterContainer.mediaId,
+            }
         }
 
-        // If we couldn't find it before, it probably means we're at the last chapter OR it isn't the current chapter's container
-        // Look in the chapter container, but this time, by sorting the chapters in ascending order
-        let ch2 = chapterContainer.chapters
+        // Look in the chapter container, but this time, by sorting the chapters in ascending order to find the adjacent chapter
+        let _2 = chapterContainer.chapters
+            .filter(ch => ch.id !== currentChapter.chapterId)
             .sort((a, b) => getChapterDecimalFromChapter(a.chapter) - getChapterDecimalFromChapter(b.chapter))
             .find(ch => isChapterAfter(ch.chapter, currentChapter.chapterNumber))
-
-        if (ch2) return {
-            chapterId: ch2.id,
-            chapterNumber: ch2.chapter,
-            provider: ch2.provider as Manga_Provider,
+        const adjacentContainerCh = _2 ? {
+            chapterId: _2.id,
+            chapterNumber: _2.chapter,
+            provider: _2.provider as Manga_Provider,
             mediaId: chapterContainer.mediaId,
-        }
+        } : undefined
+
+        // Now we compare the three options and return the one that is closer to the current chapter
+        const chapters = [downloadedCh, nextContainerCh, adjacentContainerCh].filter(Boolean)
+        if (chapters.length === 0) return undefined
+        if (chapters.length === 1) return chapters[0]
+
+        return chapters.reduce((prev, curr) => {
+            if (!prev) return curr
+            if (!curr) return prev
+            const prevDiff = Math.abs(getChapterDecimalFromChapter(prev.chapterNumber) - getChapterDecimalFromChapter(currentChapter.chapterNumber))
+            const currDiff = Math.abs(getChapterDecimalFromChapter(curr.chapterNumber) - getChapterDecimalFromChapter(currentChapter.chapterNumber))
+            return prevDiff < currDiff ? prev : curr
+        }, chapters[0])
     }, [mId, currentChapter, entryDownloadedChapters, chapterContainer?.chapters])
 
     const goToChapter = React.useCallback((dir: "previous" | "next") => {

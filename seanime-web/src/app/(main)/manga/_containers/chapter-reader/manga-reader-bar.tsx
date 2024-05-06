@@ -7,7 +7,7 @@ import {
     MANGA_READING_DIRECTION_OPTIONS,
     MANGA_READING_MODE_OPTIONS,
 } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-settings"
-import { __manga_selectedChapterAtom, MangaReader_SelectedChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { __manga_selectedChapterAtom, MangaReader_SelectedChapter, useHandleChapterPageStatus } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -172,11 +172,13 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
         }
     }, [readingMode, paginationMap])
 
+    const { allPagesLoaded } = useHandleChapterPageStatus(pageContainer)
+
     if (!entry) return null
 
     return (
         <>
-            {(pageContainer && readerProgressBar) && <div className="bottom-12 w-full fixed z-10 hidden lg:block group/bp">
+            {(pageContainer && readerProgressBar && allPagesLoaded) && <div className="bottom-12 w-full fixed z-10 hidden lg:block group/bp">
                 <div className="flex max-w-full items-center">
                     {pageContainer.pages?.map((_, index) => (
                         <div

@@ -1,6 +1,6 @@
 import { Manga_PageContainer } from "@/api/generated/types"
 import { ChapterPage } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-page"
-import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { useHandleChapterPageStatus, useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
@@ -55,6 +55,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const [currentMapIndex, setCurrentMapIndex] = useAtom(__manga_currentPaginationMapIndexAtom)
 
     useHydrateMangaPaginationMap(pageContainer)
+
+    const { handlePageLoad } = useHandleChapterPageStatus(pageContainer)
 
     /**
      * When the current map index changes, scroll to the top of the container
@@ -182,6 +184,9 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                         index={index}
                         readingMode={readingMode}
                         pageContainer={pageContainer}
+                        onFinishedLoading={() => {
+                            handlePageLoad(index)
+                        }}
                         containerClass={cn(
                             "w-full h-[calc(100dvh-3rem)] scroll-div min-h-[200px] relative page",
                             "focus-visible:outline-none",

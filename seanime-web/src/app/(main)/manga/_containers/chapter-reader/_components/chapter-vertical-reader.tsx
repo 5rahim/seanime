@@ -1,6 +1,6 @@
 import { Manga_PageContainer } from "@/api/generated/types"
 import { ChapterPage } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-page"
-import { useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
+import { useHandleChapterPageStatus, useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
     __manga_isLastPageAtom,
@@ -49,6 +49,8 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
 
     useHydrateMangaPaginationMap(pageContainer)
+
+    const { handlePageLoad } = useHandleChapterPageStatus(pageContainer)
 
     /**
      * When the reader mounts (reading mode changes), scroll to the current page
@@ -171,9 +173,12 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                         readingMode={"paged"}
                         pageContainer={pageContainer}
                         onFinishedLoading={() => {
+                            // If the first page is loaded, set the current page index to 0
+                            // This is to avoid the current page index to remain incorrect when multiple pages are loading
                             if (index === 0) {
                                 setCurrentPageIndex(0)
                             }
+                            handlePageLoad(index)
                         }}
                         containerClass={cn(
                             "mx-auto scroll-div min-h-[200px] relative focus-visible:outline-none",
