@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.4.3
+
+- ⚡️ Manga: Improved pagination
+  - Pagination between chapters downloaded from different sources is now possible
+- ⚡️ Manga: Source selection is now unique to each series
+- ⚡️ Manga: Added page container width setting for reader
+- ⚡️ UI: Improved handling of custom colors
+  - Added additional preset color options 
+  - Fixes #43
+- ⚡️ Missing episodes are now grouped per series to avoid clutter
+- 🦺 Fixed slow animation when loading manga page
+- 🦺 Fixed some UI inconsistencies
+- 🏗️ Removed playback state logs
+
 ## v1.4.2
 
 - 🎉 Customize UI colors
