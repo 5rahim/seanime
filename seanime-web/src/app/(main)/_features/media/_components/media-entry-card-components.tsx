@@ -1,5 +1,4 @@
 import { AL_BaseMedia_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
-import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
@@ -475,15 +474,16 @@ export const MediaEntryCardHoverPopupBanner = ({
         </div>
     )
 
-    if (!trailerEnabled) {
-        return <Link href={link}>{Content}</Link>
-    } else {
-        return (
-            <TrailerModal
-                trailerId={trailerId}
-                trigger={Content}
-            />
-        )
-    }
+    return <Link href={link}>{Content}</Link>
+    // if (!trailerEnabled) {
+    //     return <Link href={link}>{Content}</Link>
+    // } else {
+    //     return (
+    //         <TrailerModal
+    //             trailerId={trailerId}
+    //             trigger={Content}
+    //         />
+    //     )
+    // }
 
 }
