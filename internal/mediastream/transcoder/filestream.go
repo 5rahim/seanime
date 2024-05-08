@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
+	"github.com/seanime-app/seanime/internal/util/result"
 	"math"
 	"os"
 	"path/filepath"
@@ -12,15 +13,16 @@ import (
 )
 
 // FileStream represents a stream of file data.
+// It holds the keyframes, media information, video streams, and audio streams.
 type FileStream struct {
-	ready     sync.WaitGroup              // A WaitGroup to synchronize go routines.
-	err       error                       // An error that might occur during processing.
-	Path      string                      // The path of the file.
-	Out       string                      // The output path.
-	Keyframes *Keyframe                   // The keyframes of the video.
-	Info      *videofile.MediaInfo        // The media information of the file.
-	videos    CMap[Quality, *VideoStream] // A map of video streams.
-	audios    CMap[int32, *AudioStream]   // A map of audio streams.
+	ready     sync.WaitGroup                     // A WaitGroup to synchronize go routines.
+	err       error                              // An error that might occur during processing.
+	Path      string                             // The path of the file.
+	Out       string                             // The output path.
+	Keyframes *Keyframe                          // The keyframes of the video.
+	Info      *videofile.MediaInfo               // The media information of the file.
+	videos    *result.Map[Quality, *VideoStream] // A map of video streams.
+	audios    *result.Map[int32, *AudioStream]   // A map of audio streams.
 	logger    *zerolog.Logger
 	settings  *Settings
 }
@@ -36,8 +38,8 @@ func NewFileStream(
 	ret := &FileStream{
 		Path:     path,
 		Out:      filepath.Join(settings.StreamDir, sha),
-		videos:   NewCMap[Quality, *VideoStream](),
-		audios:   NewCMap[int32, *AudioStream](),
+		videos:   result.NewResultMap[Quality, *VideoStream](),
+		audios:   result.NewResultMap[int32, *AudioStream](),
 		logger:   logger,
 		settings: settings,
 		Info:     mediaInfo,
@@ -54,19 +56,16 @@ func NewFileStream(
 
 // Kill stops all streams.
 func (fs *FileStream) Kill() {
-	fs.videos.lock.Lock()
-	defer fs.videos.lock.Unlock()
-	fs.audios.lock.Lock()
-	defer fs.audios.lock.Unlock()
-
-	for _, s := range fs.videos.data {
+	fs.videos.Range(func(_ Quality, s *VideoStream) bool {
 		s.SetIsKilled()
 		s.Kill()
-	}
-	for _, s := range fs.audios.data {
+		return true
+	})
+	fs.audios.Range(func(_ int32, s *AudioStream) bool {
 		s.SetIsKilled()
 		s.Kill()
-	}
+		return true
+	})
 }
 
 // Destroy stops all streams and removes the output directory.
@@ -164,8 +163,8 @@ func (fs *FileStream) GetVideoIndex(quality Quality) (string, error) {
 // getVideoStream gets a video stream of a specific quality.
 // It creates a new stream if it does not exist.
 func (fs *FileStream) getVideoStream(quality Quality) *VideoStream {
-	stream, _ := fs.videos.GetOrCreate(quality, func() *VideoStream {
-		return NewVideoStream(fs, quality, fs.logger, fs.settings)
+	stream, _ := fs.videos.GetOrSet(quality, func() (*VideoStream, error) {
+		return NewVideoStream(fs, quality, fs.logger, fs.settings), nil
 	})
 	return stream
 }
@@ -191,8 +190,8 @@ func (fs *FileStream) GetAudioSegment(audio int32, segment int32) (string, error
 // getAudioStream gets an audio stream of a specific index.
 // It creates a new stream if it does not exist.
 func (fs *FileStream) getAudioStream(audio int32) *AudioStream {
-	stream, _ := fs.audios.GetOrCreate(audio, func() *AudioStream {
-		return NewAudioStream(fs, audio, fs.logger, fs.settings)
+	stream, _ := fs.audios.GetOrSet(audio, func() (*AudioStream, error) {
+		return NewAudioStream(fs, audio, fs.logger, fs.settings), nil
 	})
 	return stream
 }

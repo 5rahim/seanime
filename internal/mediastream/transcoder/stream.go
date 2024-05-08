@@ -139,7 +139,7 @@ func (ts *Stream) run(start int32) error {
 	if ts.killed {
 		return nil
 	}
-	ts.logger.Debug().Msgf("transcoder: Running from %d", start)
+	ts.logger.Trace().Msgf("transcoder: Running from %d", start)
 	// Start the transcoder up to the 100th segment (or less)
 	length, isDone := ts.file.Keyframes.Length()
 	end := min(start+100, length)
@@ -321,7 +321,7 @@ func (ts *Stream) run(start int32) error {
 			}
 			ts.lock.Lock()
 			ts.heads[encoderId].segment = segment
-			//streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmepg transcoded segment %d", segment)
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmepg transcoded segment %d", segment)
 			if ts.isSegmentReady(segment) {
 				// the current segment is already marked as done so another process has already gone up to here.
 				//cmd.Process.Signal(os.Interrupt)
@@ -366,12 +366,9 @@ func (ts *Stream) run(start int32) error {
 
 	go func() {
 		err := cmd.Wait()
-		if exiterr, ok := err.(*exec.ExitError); ok && exiterr.ExitCode() == 255 {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() == 255 {
 			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg was terminated")
-		} else if err != nil {
-			streamLogger.Error().Int("eid", encoderId).Err(fmt.Errorf("%s: %s", err, stderr.String())).Msgf("transcoder: ffmpeg failed")
-		} else {
-			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed")
 		}
 
 		ts.lock.Lock()
@@ -394,7 +391,7 @@ func (ts *Stream) GetIndex() (string, error) {
 #EXT-X-MEDIA-SEQUENCE:0
 #EXT-X-INDEPENDENT-SEGMENTS
 `
-	length, is_done := ts.file.Keyframes.Length()
+	length, isDone := ts.file.Keyframes.Length()
 
 	for segment := int32(0); segment < length-1; segment++ {
 		index += fmt.Sprintf("#EXTINF:%.6f\n", ts.file.Keyframes.Get(segment+1)-ts.file.Keyframes.Get(segment))
@@ -402,7 +399,7 @@ func (ts *Stream) GetIndex() (string, error) {
 	}
 	// do not forget to add the last segment between the last keyframe and the end of the file
 	// if the keyframes extraction is not done, do not bother to add it, it will be retrived on the next index retrival
-	if is_done {
+	if isDone {
 		index += fmt.Sprintf("#EXTINF:%.6f\n", float64(ts.file.Info.Duration)-ts.file.Keyframes.Get(length-1))
 		index += fmt.Sprintf("segment-%d.ts\n", length-1)
 		index += `#EXT-X-ENDLIST`
@@ -465,8 +462,8 @@ func (ts *Stream) prepareNextSegments(segment int32) {
 	if ts.handle.getFlags()&VideoF == 0 {
 		return
 	}
-	ts.lock.RLock()
-	defer ts.lock.RUnlock()
+	//ts.lock.RLock()
+	//defer ts.lock.RUnlock()
 	for i := segment + 1; i <= min(segment+10, int32(len(ts.segments)-1)); i++ {
 		if ts.isSegmentReady(i) {
 			continue
@@ -498,8 +495,8 @@ func (ts *Stream) getMinEncoderDistance(segment int32) float64 {
 }
 
 func (ts *Stream) Kill() {
-	ts.lock.Lock()
-	defer ts.lock.Unlock()
+	//ts.lock.Lock()
+	//defer ts.lock.Unlock()
 
 	for id := range ts.heads {
 		ts.KillHead(id)
@@ -509,6 +506,11 @@ func (ts *Stream) Kill() {
 // KillHead
 // Stream is assumed to be locked
 func (ts *Stream) KillHead(encoderId int) {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	ts.killCh <- struct{}{}
 	if ts.heads[encoderId] == DeletedHead || ts.heads[encoderId].command == nil {
 		return
 	}

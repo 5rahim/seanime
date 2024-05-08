@@ -3,6 +3,7 @@ package mediastream
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
@@ -254,8 +255,8 @@ func (r *Repository) ShutdownTranscodeStream() {
 	r.transcoder.MustGet().Destroy()
 
 	// Load a new transcoder
-	//r.transcoder = mo.None[*transcoder.Transcoder]()
-	//r.initializeTranscoder(r.settings)
+	r.transcoder = mo.None[*transcoder.Transcoder]()
+	r.initializeTranscoder(r.settings)
 
 	// Send event
 	r.wsEventManager.SendEvent(events.MediastreamShutdownStream, nil)

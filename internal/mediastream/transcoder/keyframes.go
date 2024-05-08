@@ -3,6 +3,7 @@ package transcoder
 import (
 	"bufio"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/util/result"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -62,7 +63,7 @@ func (kf *Keyframe) AddListener(callback func(keyframes []float64)) {
 	kf.info.listeners = append(kf.info.listeners, callback)
 }
 
-var keyframes = NewCMap[string, *Keyframe]()
+var keyframes = result.NewResultMap[string, *Keyframe]()
 
 func GetKeyframes(
 	path string,
@@ -70,7 +71,7 @@ func GetKeyframes(
 	logger *zerolog.Logger,
 	settings *Settings,
 ) *Keyframe {
-	ret, _ := keyframes.GetOrCreate(sha, func() *Keyframe {
+	ret, _ := keyframes.GetOrSet(sha, func() (*Keyframe, error) {
 		kf := &Keyframe{
 			Sha:    sha,
 			IsDone: false,
@@ -90,7 +91,7 @@ func GetKeyframes(
 				saveInfo(keyframesPath, kf)
 			}
 		}()
-		return kf
+		return kf, nil
 	})
 	ret.info.ready.Wait()
 	return ret

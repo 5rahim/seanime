@@ -138,10 +138,11 @@ func (t *Tracker) DestroyStreamIfOld(path string) {
 	if time.Since(t.lastUsage[path]) < 4*time.Hour {
 		return
 	}
-	stream, ok := t.transcoder.streams.GetAndRemove(path)
+	stream, ok := t.transcoder.streams.Get(path)
 	if !ok {
 		return
 	}
+	t.transcoder.streams.Delete(path)
 	stream.Destroy()
 }
 
@@ -171,6 +172,7 @@ func (t *Tracker) KillQualityIfDead(path string, quality Quality) bool {
 			return false
 		}
 	}
+	start := time.Now()
 	t.logger.Trace().Msgf("Killing quality %s of %s", quality, path)
 
 	stream, ok := t.transcoder.streams.Get(path)
@@ -182,6 +184,8 @@ func (t *Tracker) KillQualityIfDead(path string, quality Quality) bool {
 		return false
 	}
 	vstream.Kill()
+
+	t.logger.Trace().Msgf("Killed quality %s of %s in %.2fs", quality, path, time.Since(start).Seconds())
 	return true
 }
 
@@ -209,7 +213,7 @@ func (t *Tracker) killOrphanedHeads(stream *Stream) {
 	stream.lock.Lock()
 	defer stream.lock.Unlock()
 
-	for encoder_id, head := range stream.heads {
+	for encoderId, head := range stream.heads {
 		if head == DeletedHead {
 			continue
 		}
@@ -222,8 +226,8 @@ func (t *Tracker) killOrphanedHeads(stream *Stream) {
 			distance = min(Abs(info.head-head.segment), distance)
 		}
 		if distance > 20 {
-			t.logger.Trace().Msgf("Killing orphaned head %s %d", stream.file.Path, encoder_id)
-			stream.KillHead(encoder_id)
+			t.logger.Trace().Msgf("Killing orphaned head %s %d", stream.file.Path, encoderId)
+			stream.KillHead(encoderId)
 		}
 	}
 }

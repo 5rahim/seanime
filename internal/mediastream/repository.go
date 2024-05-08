@@ -169,9 +169,12 @@ func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContaine
 		return nil, errors.New("module not initialized")
 	}
 
-	if !r.TranscoderIsInitialized() {
+	// Reinitialize the transcoder for each new transcode request
+	if ok := r.initializeTranscoder(r.settings); !ok {
 		return nil, errors.New("transcoder not initialized")
 	}
+
+	r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
 
 	ret, err = r.playbackManager.RequestPlayback(filepath, StreamTypeTranscode)
 

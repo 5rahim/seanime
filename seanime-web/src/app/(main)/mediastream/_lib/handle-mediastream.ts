@@ -1,6 +1,7 @@
 import { Mediastream_StreamType } from "@/api/generated/types"
 import { useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
@@ -15,6 +16,7 @@ import {
 } from "@vidstack/react"
 import Hls from "hls.js"
 import HLS, { LoadPolicy } from "hls.js"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
 
@@ -85,6 +87,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const {
         playerRef,
     } = props
+    const router = useRouter()
+    const { filePath } = useMediastreamCurrentFile()
 
     /**
      * Stream URL
@@ -94,10 +98,17 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("direct")
 
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, refetch } = useRequestMediastreamMediaContainer({
-        path: "E:\\ANIME\\Dungeon Meshi\\[EMBER] Dungeon Meshi - 15.mkv",
+        path: filePath,
         streamType: "transcode",
     })
     const mediaContainer = !isPending ? _mediaContainer : undefined
+
+    // useUpdateEffect(() => {
+    //     if (!filePath?.length) {
+    //         toast.error("No file path provided")
+    //         router.push("/")
+    //     }
+    // }, [filePath])
 
     React.useEffect(() => {
         if (isPending) {

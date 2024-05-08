@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
+	"github.com/seanime-app/seanime/internal/util/result"
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 )
 
 type (
 	Transcoder struct {
 		// All file streams currently running, index is file path
-		streams    CMap[string, *FileStream]
+		streams    *result.Map[string, *FileStream]
 		clientChan chan ClientInfo
 		tracker    *Tracker
 		logger     *zerolog.Logger
@@ -46,7 +48,7 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 	}
 
 	ret := &Transcoder{
-		streams:    NewCMap[string, *FileStream](),
+		streams:    result.NewResultMap[string, *FileStream](),
 		clientChan: make(chan ClientInfo, 10),
 		logger:     opts.Logger,
 		settings: Settings{
@@ -70,35 +72,41 @@ func (t *Transcoder) GetSettings() *Settings {
 // Destroy stops all streams and removes the output directory.
 // A new transcoder should be created after calling this function.
 func (t *Transcoder) Destroy() {
-	t.streams.lock.Lock()
 
 	t.logger.Debug().Msg("transcoder: Destroying transcoder")
-	for _, s := range t.streams.data {
-		s.Destroy()
-	}
+	//for _, s := range t.streams.data {
+	//	s.Destroy()
+	//}
+	t.streams.Clear()
 	//close(t.clientChan)
-	t.streams = NewCMap[string, *FileStream]()
+	t.streams = result.NewResultMap[string, *FileStream]()
 	t.clientChan = make(chan ClientInfo, 10)
 	t.logger.Debug().Msg("transcoder: Transcoder destroyed")
 }
 
 func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofile.MediaInfo) (*FileStream, error) {
+	//start := time.Now()
+	//t.logger.Trace().Msgf("transcoder: Getting filestream")
+	//defer t.logger.Trace().Msgf("transcoder: Filestream retrieved in %.2fs", time.Since(start).Seconds())
 	var err error
-	ret, _ := t.streams.GetOrCreate(path, func() *FileStream {
-		return NewFileStream(path, hash, mediaInfo, &t.settings, t.logger)
+	ret, _ := t.streams.GetOrSet(path, func() (*FileStream, error) {
+		return NewFileStream(path, hash, mediaInfo, &t.settings, t.logger), nil
 	})
 	ret.ready.Wait()
 	if ret == nil {
 		return nil, fmt.Errorf("could not get filestream, file may not exist")
 	}
 	if err != nil || ret.err != nil {
-		t.streams.Remove(path)
+		t.streams.Delete(path)
 		return nil, ret.err
 	}
 	return ret, nil
 }
 
 func (t *Transcoder) GetMaster(path string, hash string, mediaInfo *videofile.MediaInfo, client string) (string, error) {
+	start := time.Now()
+	t.logger.Trace().Msgf("transcoder: Retrieving master file")
+	defer t.logger.Trace().Msgf("transcoder: Master file retrieved in %.2fs", time.Since(start).Seconds())
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -120,6 +128,9 @@ func (t *Transcoder) GetVideoIndex(
 	quality Quality,
 	client string,
 ) (string, error) {
+	start := time.Now()
+	t.logger.Trace().Msgf("transcoder: Retrieving video index file")
+	defer t.logger.Trace().Msgf("transcoder: Video index file retrieved in %.2fs", time.Since(start).Seconds())
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -141,6 +152,9 @@ func (t *Transcoder) GetAudioIndex(
 	audio int32,
 	client string,
 ) (string, error) {
+	start := time.Now()
+	t.logger.Trace().Msgf("transcoder: Retrieving audio index file")
+	defer t.logger.Trace().Msgf("transcoder: Audio index file retrieved in %.2fs", time.Since(start).Seconds())
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -162,6 +176,9 @@ func (t *Transcoder) GetVideoSegment(
 	segment int32,
 	client string,
 ) (string, error) {
+	start := time.Now()
+	t.logger.Trace().Msgf("transcoder: Retrieving video segment")
+	defer t.logger.Trace().Msgf("transcoder: Video segment retrieved in %.2fs", time.Since(start).Seconds())
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -184,6 +201,9 @@ func (t *Transcoder) GetAudioSegment(
 	segment int32,
 	client string,
 ) (string, error) {
+	start := time.Now()
+	t.logger.Trace().Msgf("transcoder: Retrieving audio segment")
+	defer t.logger.Trace().Msgf("transcoder: Audio segment retrieved in %.2fs", time.Since(start).Seconds())
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
