@@ -44,7 +44,7 @@ type Config struct {
 		WorkingDir string
 	}
 	Experimental struct {
-		Mediastream bool
+		Mediastream *bool
 	}
 }
 
@@ -136,7 +136,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	cfg.Data.WorkingDir = os.Getenv("SEANIME_WORKING_DIR")
 
 	// Check validity of the config
-	if err := validateConfig(cfg); err != nil {
+	if err := validateConfig(cfg, logger); err != nil {
 		return nil, err
 	}
 
@@ -198,7 +198,7 @@ func setDefaultEnvironmentVariables(dataDir string, trueWd bool) error {
 }
 
 // validateConfig checks if the config values are valid
-func validateConfig(cfg *Config) error {
+func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if cfg.Server.Host == "" {
 		return errInvalidConfigValue("server.host", "cannot be empty")
 	}
@@ -226,6 +226,14 @@ func validateConfig(cfg *Config) error {
 	if cfg.Manga.DownloadDir == "" {
 		return errInvalidConfigValue("manga.downloadDir", "cannot be empty")
 	}
+
+	// Uncomment if "mediastream" is no longer an experimental feature
+	if cfg.Experimental.Mediastream != nil && *cfg.Experimental.Mediastream {
+		logger.Warn().Msgf("app: The 'mediastream' feature is experimental and may not work as expected")
+	}
+	//if cfg.Experimental.Mediastream != nil {
+	//	logger.Warn().Msgf("app: The 'mediastream' feature is no longer experimental, please remove the flag from your config file")
+	//}
 
 	return nil
 }
@@ -318,3 +326,5 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 
 	return
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

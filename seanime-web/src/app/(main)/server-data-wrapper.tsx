@@ -2,10 +2,12 @@ import { useGetStatus } from "@/api/hooks/status.hooks"
 import { GettingStartedPage } from "@/app/(main)/_features/getting-started/getting-started-page"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
+import { LuffyError } from "@/components/shared/luffy-error"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
+import { logger } from "@/lib/helpers/debug"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -29,6 +31,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
 
     React.useEffect(() => {
         if (_serverStatus) {
+            logger("SERVER").info("Server status", _serverStatus)
             setServerStatus(_serverStatus)
         }
     }, [_serverStatus])
@@ -49,6 +52,14 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
      */
     if (!serverStatus?.settings) {
         return <GettingStartedPage status={serverStatus} />
+    }
+
+    /**
+     * Check feature flag routes
+     */
+
+    if (!serverStatus?.featureFlags?.experimental?.mediastream && pathname.startsWith("/mediastream")) {
+        return <LuffyError title="Feature not available" />
     }
 
     if (!serverStatus?.user && window?.location?.host === "127.0.0.1:43211") {

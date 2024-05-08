@@ -24064,6 +24064,16 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FeatureFlags",
+        "jsonName": "FeatureFlags",
+        "goType": "FeatureFlags",
+        "typescriptType": "INTERNAL_FeatureFlags",
+        "usedStructName": "core.FeatureFlags",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -24155,6 +24165,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Experimental",
+        "jsonName": "Experimental",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -24189,6 +24208,45 @@
       {
         "name": "TrueWd",
         "jsonName": "TrueWd",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/feature_flags.go",
+    "filename": "feature_flags.go",
+    "name": "FeatureFlags",
+    "formattedName": "INTERNAL_FeatureFlags",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Experimental",
+        "jsonName": "experimental",
+        "goType": "ExperimentalFeatureFlags",
+        "typescriptType": "INTERNAL_ExperimentalFeatureFlags",
+        "usedStructName": "core.ExperimentalFeatureFlags",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/feature_flags.go",
+    "filename": "feature_flags.go",
+    "name": "ExperimentalFeatureFlags",
+    "formattedName": "INTERNAL_ExperimentalFeatureFlags",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Mediastream",
+        "jsonName": "mediastream",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -26702,6 +26760,16 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FeatureFlags",
+        "jsonName": "featureFlags",
+        "goType": "core.FeatureFlags",
+        "typescriptType": "INTERNAL_FeatureFlags",
+        "usedStructName": "core.FeatureFlags",
+        "required": false,
         "public": true,
         "comments": []
       }

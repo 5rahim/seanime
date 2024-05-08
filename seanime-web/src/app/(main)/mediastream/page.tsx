@@ -1,6 +1,6 @@
 "use client"
 
-import { useHandleMediastream } from "@/app/(main)/_stream/_lib/handle-mediastream"
+import { useHandleMediastream } from "@/app/(main)/mediastream/_lib/handle-mediastream"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"

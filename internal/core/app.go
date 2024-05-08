@@ -77,6 +77,7 @@ type (
 		previousVersion       string
 		OfflineHub            *offline.Hub
 		MediastreamRepository *mediastream.Repository
+		FeatureFlags          FeatureFlags
 	}
 )
 
@@ -209,13 +210,17 @@ func NewApp(configOpts *ConfigOptions) *App {
 		WD:                      cfg.Data.WorkingDir,
 		previousVersion:         previousVersion,
 		OfflineHub:              offlineHub,
+		FeatureFlags:            NewFeatureFlags(cfg, logger),
 	}
 
 	app.runMigrations()
 	app.initModulesOnce()
 	app.InitOrRefreshModules()
-	// DEVNOTE: Shelved for now
-	//app.InitOrRefreshMediastreamSettings()
+
+	// FEATURE FLAG
+	if app.FeatureFlags.IsExperimentalMediastreamEnabled() {
+		app.InitOrRefreshMediastreamSettings()
+	}
 
 	return app
 }

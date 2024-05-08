@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"runtime"
@@ -9,13 +10,14 @@ import (
 // Status is a struct containing the user data, settings, and OS.
 // It is used by the client in various places to access necessary information.
 type Status struct {
-	OS            string           `json:"os"`
-	User          *anime.User      `json:"user"`
-	Settings      *models.Settings `json:"settings"`
-	Mal           *models.Mal      `json:"mal"`
-	Version       string           `json:"version"`
-	ThemeSettings *models.Theme    `json:"themeSettings"`
-	IsOffline     bool             `json:"isOffline"`
+	OS            string            `json:"os"`
+	User          *anime.User       `json:"user"`
+	Settings      *models.Settings  `json:"settings"`
+	Mal           *models.Mal       `json:"mal"`
+	Version       string            `json:"version"`
+	ThemeSettings *models.Theme     `json:"themeSettings"`
+	IsOffline     bool              `json:"isOffline"`
+	FeatureFlags  core.FeatureFlags `json:"featureFlags"`
 }
 
 // NewStatus returns a new Status struct.
@@ -29,6 +31,9 @@ func NewStatus(c *RouteCtx) *Status {
 
 	if dbAcc, _ = c.App.Database.GetAccount(); dbAcc != nil {
 		user, _ = anime.NewUser(dbAcc)
+		if user != nil {
+			user.Token = "HIDDEN"
+		}
 	}
 
 	if settings, _ = c.App.Database.GetSettings(); settings != nil {
@@ -47,6 +52,7 @@ func NewStatus(c *RouteCtx) *Status {
 		Version:       c.App.Version,
 		ThemeSettings: theme,
 		IsOffline:     c.App.Config.Server.Offline,
+		FeatureFlags:  c.App.FeatureFlags,
 	}
 }
 

@@ -2,6 +2,7 @@ import { Mediastream_StreamType } from "@/api/generated/types"
 import { useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { logger } from "@/lib/helpers/debug"
+import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
 import {
@@ -94,7 +95,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, refetch } = useRequestMediastreamMediaContainer({
         path: "E:\\ANIME\\Dungeon Meshi\\[EMBER] Dungeon Meshi - 15.mkv",
-        streamType: "direct",
+        streamType: "transcode",
     })
     const mediaContainer = !isPending ? _mediaContainer : undefined
 
@@ -145,8 +146,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (playerRef.current) {
             // @ts-ignore
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
-                workerUrl: "/jassub/jassub-worker.js",
-                legacyWorkerUrl: "/jassub/jassub-worker-legacy.js",
+                workerUrl: getAssetUrl("/jassub/jassub-worker.js"),
+                legacyWorkerUrl: getAssetUrl("/jassub/jassub-worker-legacy.js"),
             })
             playerRef.current!.textRenderers.add(renderer)
 

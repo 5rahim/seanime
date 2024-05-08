@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
+	"io"
 	"math"
 	"os"
 	"os/exec"
@@ -59,6 +60,7 @@ type Head struct {
 	segment int32
 	end     int32
 	command *exec.Cmd
+	stdin   io.WriteCloser
 }
 
 var DeletedHead = Head{
@@ -287,6 +289,10 @@ func (ts *Stream) run(start int32) error {
 	if err != nil {
 		return err
 	}
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
 	var stderr strings.Builder
 	cmd.Stderr = &stderr
 
@@ -296,6 +302,7 @@ func (ts *Stream) run(start int32) error {
 	}
 	ts.lock.Lock()
 	ts.heads[encoderId].command = cmd
+	ts.heads[encoderId].stdin = stdin
 	ts.lock.Unlock()
 
 	go func() {
@@ -317,7 +324,9 @@ func (ts *Stream) run(start int32) error {
 			//streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmepg transcoded segment %d", segment)
 			if ts.isSegmentReady(segment) {
 				// the current segment is already marked as done so another process has already gone up to here.
-				cmd.Process.Signal(os.Interrupt)
+				//cmd.Process.Signal(os.Interrupt)
+				_, _ = stdin.Write([]byte("q"))
+				_ = stdin.Close()
 				streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg, segment %d is ready", segment)
 				shouldStop = true
 			} else {
@@ -327,7 +336,9 @@ func (ts *Stream) run(start int32) error {
 					// file finished, ffmpeg will finish soon on its own
 					shouldStop = true
 				} else if ts.isSegmentReady(segment + 1) {
-					cmd.Process.Signal(os.Interrupt)
+					//cmd.Process.Signal(os.Interrupt)
+					_, _ = stdin.Write([]byte("q"))
+					_ = stdin.Close()
 					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg, next segment %d is ready", segment)
 					shouldStop = true
 				}
@@ -348,11 +359,8 @@ func (ts *Stream) run(start int32) error {
 	go func() {
 		select {
 		case <-ts.killCh:
-			cancel := cmd.Cancel
-			if cancel == nil {
-				cancel = cmd.Process.Kill
-			}
-			_ = cancel()
+			_, _ = stdin.Write([]byte("q"))
+			_ = stdin.Close()
 		}
 	}()
 
@@ -434,6 +442,8 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 		}
 
 		select {
+		case <-ts.killCh:
+			return "", nil
 		case <-readyChan:
 		case <-time.After(60 * time.Second):
 			streamLogger.Error().Msgf("transcoder: Could not retrieve segment %d (timeout)", segment)
@@ -502,7 +512,10 @@ func (ts *Stream) KillHead(encoderId int) {
 	if ts.heads[encoderId] == DeletedHead || ts.heads[encoderId].command == nil {
 		return
 	}
-	ts.heads[encoderId].command.Process.Signal(os.Interrupt)
+	//ts.heads[encoderId].command.Process.Signal(os.Interrupt)
+	_, _ = ts.heads[encoderId].stdin.Write([]byte("q"))
+	_ = ts.heads[encoderId].stdin.Close()
+
 	ts.heads[encoderId] = DeletedHead
 }
 

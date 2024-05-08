@@ -299,5 +299,10 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 		return errors.New("could not find subtitles")
 	}
 
-	return fiberCtx.SendFile(retPath)
+	contentB, err := os.ReadFile(filepath.Join(retPath, subFilePath))
+	if err != nil {
+		return err
+	}
+
+	return fiberCtx.SendString(string(contentB))
 }
