@@ -1,12 +1,11 @@
 "use client"
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
-
-import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
+import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { Alert } from "@/components/ui/alert"
@@ -23,12 +22,13 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
 
     const ts = useThemeSettings()
 
-    const { mutate: playVideo } = usePlaybackPlayVideo()
+    const { playMediaFile } = useHandlePlayMedia()
 
     usePlayNextVideoOnMount({
         onPlay: () => {
             if (entry.nextEpisode) {
-                playVideo({ path: entry.nextEpisode.localFile?.path ?? "" })
+                playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "" })
+                // playVideo({ path: entry.nextEpisode.localFile?.path ?? "" })
             }
         },
     })
@@ -113,7 +113,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                             progressTotal={episode.basicMedia?.episodes}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
-                                            onClick={() => playVideo({ path: episode.localFile?.path ?? "" })}
+                                            onClick={() => playMediaFile({ path: episode.localFile?.path ?? "" })}
                                         />
                                     </CarouselItem>
                                 ))}
@@ -131,7 +131,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                 episode={episode}
                                 media={media}
                                 isWatched={!!entry.listData?.progress && entry.listData.progress >= episode.progressNumber}
-                                onPlay={playVideo}
+                                onPlay={playMediaFile}
                             />
                         ))}
                     </EpisodeListGrid>
@@ -149,7 +149,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                     key={episode.localFile?.path || ""}
                                     episode={episode}
                                     media={media}
-                                    onPlay={playVideo}
+                                    onPlay={playMediaFile}
                                 />
                             ))}
                         </EpisodeListGrid>
@@ -163,7 +163,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                     key={episode.localFile?.path || ""}
                                     episode={episode}
                                     media={media}
-                                    onPlay={playVideo}
+                                    onPlay={playMediaFile}
                                 />
                             ))}
                         </EpisodeListGrid>
