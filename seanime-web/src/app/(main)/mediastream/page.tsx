@@ -6,10 +6,6 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getDirectPlayProfiles } from "@/lib/utils/playback-profiles/directplay-profile"
-import { getCodecProfiles } from "@/lib/utils/playback-profiles/helpers/codec-profiles"
-import { hasH264Support } from "@/lib/utils/playback-profiles/helpers/mp4-video-formats"
-import { canPlayNativeHls, hasMkvSupport } from "@/lib/utils/playback-profiles/helpers/transcoding-formats"
 import { MediaPlayer, MediaPlayerInstance, MediaProvider, Track } from "@vidstack/react"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
@@ -29,28 +25,27 @@ export default function Page() {
         isError,
         isMediaContainerLoading,
         streamType,
+        mediaContainer,
         subtitles,
         subtitleEndpointUri,
         onProviderChange,
         onProviderSetup,
     } = useHandleMediastream({ playerRef })
 
-    const videoRef = React.useRef<HTMLVideoElement>(null)
-    React.useEffect(() => {
-        if (videoRef.current) {
-            console.log(hasMkvSupport(videoRef.current!))
-            console.log(canPlayNativeHls(videoRef.current!))
-            console.log(hasH264Support(videoRef.current!))
-            console.log(getCodecProfiles(videoRef.current!))
-            console.log(getDirectPlayProfiles(videoRef.current!))
-        }
-    }, [])
+    // const videoRef = React.useRef<HTMLVideoElement>(null)
+    // React.useEffect(() => {
+    //     if (videoRef.current) {
+    //         console.log(hasMkvSupport(videoRef.current!))
+    //         console.log(canPlayNativeHls(videoRef.current!))
+    //         console.log(hasH264Support(videoRef.current!))
+    //         console.log(getCodecProfiles(videoRef.current!))
+    //         console.log(getDirectPlayProfiles(videoRef.current!))
+    //     }
+    // }, [])
 
     return (
         <AppLayoutStack className="p-8">
-            <h3>Streaming</h3>
-
-            <video ref={videoRef} />
+            <h3>Streaming: {mediaContainer?.hash}</h3>
 
             <div
                 className={cn(

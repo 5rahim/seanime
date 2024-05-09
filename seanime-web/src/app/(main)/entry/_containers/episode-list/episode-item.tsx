@@ -25,7 +25,7 @@ export const __episodeItem_infoModalIsOpenAtom = atom(false)
 export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
     episode: Anime_MediaEntryEpisode,
     media: AL_BaseMedia,
-    onPlay: ({ path }: { path: string }) => void,
+    onPlay?: ({ path, mediaId }: { path: string, mediaId: number }) => void,
     isWatched?: boolean
 }) => {
 
@@ -36,7 +36,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
             <EpisodeGridItem
                 media={media}
                 image={episode.episodeMetadata?.image}
-                onClick={() => onPlay({ path: episode.localFile?.path ?? "" })}
+                onClick={() => onPlay?.({ path: episode.localFile?.path ?? "", mediaId: media.id })}
                 isInvalid={episode.isInvalid}
                 title={episode.displayTitle}
                 episodeTitle={episode.episodeTitle}

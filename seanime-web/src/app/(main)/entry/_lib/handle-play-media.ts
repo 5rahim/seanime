@@ -1,6 +1,6 @@
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import { useMediastreamCurrentFile, useMediastreamMediaToTranscode } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { isMobile, isPs4, isTv, isXbox } from "@/lib/utils/browser-detection"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -10,11 +10,22 @@ export function useHandlePlayMedia() {
     const router = useRouter()
     const serverStatus = useServerStatus()
 
+    const { mediaToTranscode } = useMediastreamMediaToTranscode()
+
     const { mutate: playVideo } = usePlaybackPlayVideo()
 
     const { setFilePath } = useMediastreamCurrentFile()
 
-    function playMediaFile({ path }: { path: string }) {
+    function playMediaFile({ path, mediaId }: { path: string, mediaId: number }) {
+
+        if (serverStatus?.featureFlags?.experimental?.mediastream && mediaToTranscode.includes(String(mediaId))) {
+            setFilePath(path)
+            React.startTransition(() => {
+                router.push("/mediastream")
+            })
+            return
+        }
+
         if (isMobile() || isTv() || isPs4() || isXbox()) { // TODO: Find a way to override this
             if (serverStatus?.featureFlags?.experimental?.mediastream) { // TODO: Remove when stable
                 setFilePath(path)

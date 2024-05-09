@@ -27,7 +27,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
     usePlayNextVideoOnMount({
         onPlay: () => {
             if (entry.nextEpisode) {
-                playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "" })
+                playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "", mediaId: entry.mediaId })
                 // playVideo({ path: entry.nextEpisode.localFile?.path ?? "" })
             }
         },
@@ -113,7 +113,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                             progressTotal={episode.basicMedia?.episodes}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
-                                            onClick={() => playMediaFile({ path: episode.localFile?.path ?? "" })}
+                                            onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
                                         />
                                     </CarouselItem>
                                 ))}

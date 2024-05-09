@@ -97,15 +97,19 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Stream URL
      */
     const prevUrlRef = React.useRef<string | undefined>(undefined)
+    const definedUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("direct")
 
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, isFetching, refetch } = useRequestMediastreamMediaContainer({
         // path: filePath,
-        path: filePath || "E:\\ANIME\\Yoru no Kurage wa Oyogenai\\[SubsPlease] Yoru no Kurage wa Oyogenai - 02 (1080p) [939ACED3].mkv",
+        path: filePath ?? undefined,
         streamType: "transcode",
     })
+
     const mediaContainer = (!isPending && !isFetching) ? _mediaContainer : undefined
+
+    const [playbackErrored, setPlaybackErrored] = React.useState<boolean>(false)
 
     // useUpdateEffect(() => {
     //     if (!filePath?.length) {
@@ -117,7 +121,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     React.useEffect(() => {
         if (isPending) {
             logger("MEDIASTREAM").info("Loading media container")
-            setUrl(undefined)
+            changeUrl(undefined)
         }
     }, [isPending])
 
@@ -143,13 +147,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
             logger("MEDIASTREAM").info("Setting stream URL available", _newUrl, mediaContainer.streamType)
 
-            setUrl(prevUrl => {
-                if (prevUrl === _newUrl) return prevUrl
-                prevUrlRef.current = prevUrl
-                return _newUrl
-            })
+            changeUrl(_newUrl)
         } else {
-            setUrl(undefined)
+            changeUrl(undefined)
         }
 
     }, [mediaContainer?.streamUrl])
@@ -171,6 +171,20 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             }
         }
     }, [mediaContainer?.streamUrl])
+
+    function changeUrl(newUrl: string | undefined) {
+        if (prevUrlRef.current !== newUrl) {
+            setPlaybackErrored(false)
+        }
+        setUrl(prevUrl => {
+            if (prevUrl === newUrl) return prevUrl
+            prevUrlRef.current = prevUrl
+            return newUrl
+        })
+        if (newUrl) {
+            definedUrlRef.current = newUrl
+        }
+    }
 
     //////////////////////////////////////////////////////////////
     // Video player
@@ -200,14 +214,17 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (isHLSProvider(provider)) {
             if (url) {
 
-                if (previousCurrentTimeRef.current > 0) {
-                    Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
-                    // setTimeout(() => {
-                    //     if (previousIsPlayingRef.current) {
-                    //         playerRef.current?.play()
-                    //     }
-                    // }, 500)
-                    previousCurrentTimeRef.current = 0
+                if (definedUrlRef.current === url && playbackErrored) {
+                    if (previousCurrentTimeRef.current > 0) {
+                        Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
+                        // setTimeout(() => {
+                        //     if (previousIsPlayingRef.current) {
+                        //         playerRef.current?.play()
+                        //     }
+                        // }, 500)
+                        previousCurrentTimeRef.current = 0
+                        setPlaybackErrored(false)
+                    }
                 }
 
                 if (HLS.isSupported() && url.endsWith(".m3u8")) {
@@ -229,10 +246,13 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
                     provider.instance?.on(HLS.Events.MEDIA_DETACHED, (event) => {
                         logger("MEDIASTREAM").warning("onMediaDetached")
-                        // if (mediaContainer?.streamType === "transcode") {
-                        //     shutdownTranscode()
-                        // }
-                        // setUrl(undefined)
+                        // When the media is detached, stop the transcoder but only if there was no playback error
+                        if (!playbackErrored) {
+                            if (mediaContainer?.streamType === "transcode") {
+                                shutdownTranscode()
+                            }
+                            changeUrl(undefined)
+                        }
                         // refetch()
                     })
 
@@ -240,15 +260,24 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
                     })
 
+                    /**
+                     * Fatal error
+                     */
                     provider.instance?.on(HLS.Events.ERROR, (event, data) => {
                         if (data?.fatal) {
+                            // Record current time
                             previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
                             logger("MEDIASTREAM").error("handleFatalError")
+                            // Shut down transcoder
                             if (mediaContainer?.streamType === "transcode") {
                                 shutdownTranscode()
                             }
-                            setUrl(undefined)
+                            // Set playback errored
+                            setPlaybackErrored(true)
+                            // Delete URL
+                            changeUrl(undefined)
                             toast.error("Playback error")
+                            // Refetch media container
                             refetch()
                         }
                     })
@@ -279,7 +308,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 toast.error(log)
             }
             logger("MEDIASTREAM").warning("Shutdown stream event received")
-            setUrl(undefined)
+            changeUrl(undefined)
         },
     })
 
@@ -303,6 +332,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         isMediaContainerLoading: isPending,
         isError: isMediaContainerError || isStreamError,
         subtitleEndpointUri,
+        mediaContainer: _mediaContainer,
 
         onProviderChange,
         onProviderSetup,
