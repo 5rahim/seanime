@@ -206,8 +206,8 @@ export function useDataGrid<T extends Record<string, any>>(props: DataGridInstan
 
     const columnsWithSelection = React.useMemo<ColumnDef<T>[]>(() => [{
         id: "_select",
-        size: 0,
-        maxSize: 0,
+        size: 6,
+        maxSize: 6,
         enableSorting: false,
         disableSortBy: true,
         disableGlobalFilter: true,

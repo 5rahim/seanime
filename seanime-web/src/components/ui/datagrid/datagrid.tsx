@@ -46,7 +46,7 @@ export const DataGridAnatomy = defineStyleAnatomy({
     ]),
     table: cva([
         "UI-DataGrid__table",
-        "w-full relative table-auto md:table-fixed",
+        "w-full relative table-fixed",
     ]),
     tableHead: cva([
         "UI-DataGrid__tableHead",
