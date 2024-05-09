@@ -141,6 +141,9 @@ func (ts *Stream) GetIndex() (string, error) {
 
 // GetSegment returns the path to the segment and waits for it to be ready.
 func (ts *Stream) GetSegment(segment int32) (string, error) {
+	// DEVNOTE: Reset the kill channel
+	// This is needed because when the segment is needed again, this channel should be open
+	ts.killCh = make(chan struct{})
 	if debugStream {
 		streamLogger.Trace().Msgf("transcoder: Getting segment %d [GetSegment]", segment)
 		defer streamLogger.Trace().Msgf("transcoder: Retrieved segment %d [GetSegment]", segment)
@@ -179,11 +182,13 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 		}
 
 		select {
+		// DEVNOTE: This can cause issues if the segment is called again but was "killed" beforehand
+		// It's used to interrupt the waiting process but might not be needed since there's a timeout
 		case <-ts.killCh:
-			return "", nil
+			return "", fmt.Errorf("transcoder: Stream killed while waiting for segment %d", segment)
 		case <-readyChan:
 			break
-		case <-time.After(30 * time.Second):
+		case <-time.After(25 * time.Second):
 			streamLogger.Error().Msgf("transcoder: Could not retrieve segment %d (timeout)", segment)
 			return "", errors.New("could not retrieve segment (timeout)")
 		}

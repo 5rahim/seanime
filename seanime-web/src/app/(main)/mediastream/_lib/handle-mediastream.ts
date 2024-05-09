@@ -200,17 +200,14 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (isHLSProvider(provider)) {
             if (url) {
 
-                if (url == prevUrlRef.current) {
-                    // Restore time if set
-                    if (previousCurrentTimeRef.current > 0) {
-                        Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
-                        // setTimeout(() => {
-                        //     if (previousIsPlayingRef.current) {
-                        //         playerRef.current?.play()
-                        //     }
-                        // }, 500)
-                        previousCurrentTimeRef.current = 0
-                    }
+                if (previousCurrentTimeRef.current > 0) {
+                    Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
+                    // setTimeout(() => {
+                    //     if (previousIsPlayingRef.current) {
+                    //         playerRef.current?.play()
+                    //     }
+                    // }, 500)
+                    previousCurrentTimeRef.current = 0
                 }
 
                 if (HLS.isSupported() && url.endsWith(".m3u8")) {
@@ -237,6 +234,10 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         // }
                         // setUrl(undefined)
                         // refetch()
+                    })
+
+                    provider.instance?.on(HLS.Events.FRAG_LOADED, (event, data) => {
+                        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
                     })
 
                     provider.instance?.on(HLS.Events.ERROR, (event, data) => {
