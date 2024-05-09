@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"math"
@@ -37,10 +38,13 @@ type Stream struct {
 	segments []Segment
 	heads    []Head
 	// the lock used for the heads
-	lock     sync.RWMutex
+	//lock sync.RWMutex
+
+	segmentsLock sync.RWMutex
+	headsLock    sync.RWMutex
+
 	logger   *zerolog.Logger
 	settings *Settings
-	killed   bool
 	killCh   chan struct{}
 }
 
@@ -83,7 +87,6 @@ func NewStream(
 	ret.heads = make([]Head, 0)
 	ret.settings = settings
 	ret.logger = logger
-	ret.killed = false
 	ret.killCh = make(chan struct{})
 
 	length, isDone := file.Keyframes.Length()
@@ -94,8 +97,8 @@ func NewStream(
 
 	if !isDone {
 		file.Keyframes.AddListener(func(keyframes []float64) {
-			ret.lock.Lock()
-			defer ret.lock.Unlock()
+			ret.segmentsLock.Lock()
+			defer ret.segmentsLock.Unlock()
 			oldLength := len(ret.segments)
 			if cap(ret.segments) > len(keyframes) {
 				ret.segments = ret.segments[:len(keyframes)]
@@ -108,6 +111,183 @@ func NewStream(
 		})
 	}
 }
+
+func (ts *Stream) GetIndex() (string, error) {
+	// playlist type is event since we can append to the list if Keyframe.IsDone is false.
+	// start time offset makes the stream start at 0s instead of ~3segments from the end (requires version 6 of hls)
+	index := `#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-PLAYLIST-TYPE:EVENT
+#EXT-X-START:TIME-OFFSET=0
+#EXT-X-TARGETDURATION:4
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-INDEPENDENT-SEGMENTS
+`
+	length, isDone := ts.file.Keyframes.Length()
+
+	for segment := int32(0); segment < length-1; segment++ {
+		index += fmt.Sprintf("#EXTINF:%.6f\n", ts.file.Keyframes.Get(segment+1)-ts.file.Keyframes.Get(segment))
+		index += fmt.Sprintf("segment-%d.ts\n", segment)
+	}
+	// do not forget to add the last segment between the last keyframe and the end of the file
+	// if the keyframes extraction is not done, do not bother to add it, it will be retrived on the next index retrival
+	if isDone {
+		index += fmt.Sprintf("#EXTINF:%.6f\n", float64(ts.file.Info.Duration)-ts.file.Keyframes.Get(length-1))
+		index += fmt.Sprintf("segment-%d.ts\n", length-1)
+		index += `#EXT-X-ENDLIST`
+	}
+	return index, nil
+}
+
+// GetSegment returns the path to the segment and waits for it to be ready.
+func (ts *Stream) GetSegment(segment int32) (string, error) {
+	if debugStream {
+		streamLogger.Trace().Msgf("transcoder: Getting segment %d [GetSegment]", segment)
+		defer streamLogger.Trace().Msgf("transcoder: Retrieved segment %d [GetSegment]", segment)
+	}
+
+	ts.segmentsLock.RLock()
+	ts.headsLock.RLock()
+	ready := ts.isSegmentReady(segment)
+	// we want to calculate distance in the same lock else it can be funky
+	distance := 0.
+	isScheduled := false
+	if !ready {
+		distance = ts.getMinEncoderDistance(segment)
+		for _, head := range ts.heads {
+			if head.segment <= segment && segment < head.end {
+				isScheduled = true
+				break
+			}
+		}
+	}
+	readyChan := ts.segments[segment].channel
+
+	ts.segmentsLock.RUnlock()
+	ts.headsLock.RUnlock()
+
+	if !ready {
+		// Only start a new encode if there is too big a distance between the current encoder and the segment.
+		if distance > 60 || !isScheduled {
+			streamLogger.Trace().Msgf("transcoder: New head for segment %d - closest head is %.2fs away", segment, distance)
+			err := ts.run(segment)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			streamLogger.Trace().Msgf("transcoder: Awaiting segment %d since encoder head is %.2fs away", segment, distance)
+		}
+
+		select {
+		case <-ts.killCh:
+			return "", nil
+		case <-readyChan:
+			break
+		case <-time.After(30 * time.Second):
+			streamLogger.Error().Msgf("transcoder: Could not retrieve segment %d (timeout)", segment)
+			return "", errors.New("could not retrieve segment (timeout)")
+		}
+	}
+	//go ts.prepareNextSegments(segment)
+	ts.prepareNextSegments(segment)
+	return fmt.Sprintf(filepath.ToSlash(ts.handle.getOutPath(ts.segments[segment].encoder)), segment), nil
+}
+
+// prepareNextSegments will start the next segments if they are not already started.
+func (ts *Stream) prepareNextSegments(segment int32) {
+	//if ts.IsKilled() {
+	//	return
+	//}
+	// Audio is way cheaper to create than video, so we don't need to run them in advance
+	// Running it in advance might actually slow down the video encode since less compute
+	// power can be used, so we simply disable that.
+	if ts.handle.getFlags()&VideoF == 0 {
+		return
+	}
+
+	ts.segmentsLock.RLock()
+	defer ts.segmentsLock.RUnlock()
+	ts.headsLock.RLock()
+	defer ts.headsLock.RUnlock()
+
+	for i := segment + 1; i <= min(segment+10, int32(len(ts.segments)-1)); i++ {
+		// If the segment is already ready, we don't need to start a new encoder.
+		if ts.isSegmentReady(i) {
+			continue
+		}
+		// only start encode for segments not planned (getMinEncoderDistance returns Inf for them)
+		// or if they are 60s away (assume 5s per segments)
+		if ts.getMinEncoderDistance(i) < 60+(5*float64(i-segment)) {
+			continue
+		}
+		streamLogger.Trace().Msgf("transcoder: Creating new encoder head for future segment %d", i)
+		go func() {
+			_ = ts.run(i)
+		}()
+		return
+	}
+}
+
+func (ts *Stream) getMinEncoderDistance(segment int32) float64 {
+	time := ts.file.Keyframes.Get(segment)
+	distances := lo.Map(ts.heads, func(head Head, _ int) float64 {
+		// ignore killed heads or heads after the current time
+		if head.segment < 0 || ts.file.Keyframes.Get(head.segment) > time || segment >= head.end {
+			return math.Inf(1)
+		}
+		return time - ts.file.Keyframes.Get(head.segment)
+	})
+	if len(distances) == 0 {
+		return math.Inf(1)
+	}
+	return slices.Min(distances)
+}
+
+func (ts *Stream) Kill() {
+	streamLogger.Trace().Msg("transcoder: Killing stream")
+	defer streamLogger.Trace().Msg("transcoder: Stream killed")
+	ts.lockHeads()
+	defer ts.unlockHeads()
+
+	for id := range ts.heads {
+		ts.KillHead(id)
+	}
+}
+
+func (ts *Stream) IsKilled() bool {
+	select {
+	case <-ts.killCh:
+		// if the channel returned, it means it was closed
+		return true
+	default:
+		return false
+	}
+}
+
+// KillHead
+// Stream is assumed to be locked
+func (ts *Stream) KillHead(encoderId int) {
+	streamLogger.Trace().Int("eid", encoderId).Msg("transcoder: Killing encoder head")
+	defer streamLogger.Trace().Int("eid", encoderId).Msg("transcoder: Encoder head killed")
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	close(ts.killCh)
+	if ts.heads[encoderId] == DeletedHead || ts.heads[encoderId].command == nil {
+		return
+	}
+	//ts.heads[encoderId].command.Process.Signal(os.Interrupt)
+	_, _ = ts.heads[encoderId].stdin.Write([]byte("q"))
+	_ = ts.heads[encoderId].stdin.Close()
+
+	ts.heads[encoderId] = DeletedHead
+}
+
+func (ts *Stream) SetIsKilled() {
+}
+
+//////////////////////////////
 
 // Remember to lock before calling this.
 func (ts *Stream) isSegmentReady(segment int32) bool {
@@ -136,10 +316,10 @@ func toSegmentStr(segments []float64) string {
 }
 
 func (ts *Stream) run(start int32) error {
-	if ts.killed {
-		return nil
-	}
-	ts.logger.Trace().Msgf("transcoder: Running from %d", start)
+	//if ts.IsKilled() {
+	//	return nil
+	//}
+	ts.logger.Trace().Msgf("transcoder: Running encoder head from %d", start)
 	// Start the transcoder up to the 100th segment (or less)
 	length, isDone := ts.file.Keyframes.Length()
 	end := min(start+100, length)
@@ -149,7 +329,7 @@ func (ts *Stream) run(start int32) error {
 		end -= 2
 	}
 	// Stop at the first finished segment
-	ts.lock.Lock()
+	ts.lockSegments()
 	for i := start; i < end; i++ {
 		if ts.isSegmentReady(i) || ts.isSegmentTranscoding(i) {
 			end = i
@@ -161,12 +341,15 @@ func (ts *Stream) run(start int32) error {
 		// to call run() and the actual call.
 		// since most checks are done in a RLock() instead of a Lock() this can
 		// happens when two goroutines try to make the same segment ready
-		ts.lock.Unlock()
+		ts.unlockSegments()
 		return nil
 	}
+	ts.unlockSegments()
+
+	ts.lockHeads()
 	encoderId := len(ts.heads)
 	ts.heads = append(ts.heads, Head{segment: start, end: end, command: nil})
-	ts.lock.Unlock()
+	ts.unlockHeads()
 
 	streamLogger.Trace().Any("eid", encoderId).Msgf(
 		"Transcoding %d-%d/%d segments",
@@ -300,10 +483,10 @@ func (ts *Stream) run(start int32) error {
 	if err != nil {
 		return err
 	}
-	ts.lock.Lock()
+	ts.lockHeads()
 	ts.heads[encoderId].command = cmd
 	ts.heads[encoderId].stdin = stdin
-	ts.lock.Unlock()
+	ts.unlockHeads()
 
 	go func() {
 		scanner := bufio.NewScanner(stdout)
@@ -314,48 +497,66 @@ func (ts *Stream) run(start int32) error {
 			var segment int32
 			_, _ = fmt.Sscanf(scanner.Text(), format, &segment)
 
+			// If the segment number is less than the starting segment (start), it means it's not relevant for the current processing, so we skip it
 			if segment < start {
 				// This happens because we use -f segments for accurate cutting (since -ss is not)
 				// check comment at beginning of function for more info
 				continue
 			}
-			ts.lock.Lock()
+			ts.lockHeads()
 			ts.heads[encoderId].segment = segment
-			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmepg transcoded segment %d", segment)
+			ts.unlockHeads()
+			if debugFfmpegOutput {
+				streamLogger.Debug().Int("eid", encoderId).Msgf("t: \t ffmpeg finished segment %d/%d (%d-%d)", segment, end, start, end)
+			}
+
+			ts.lockSegments()
+			// If the segment is already marked as done, we can stop the ffmpeg process
 			if ts.isSegmentReady(segment) {
 				// the current segment is already marked as done so another process has already gone up to here.
-				//cmd.Process.Signal(os.Interrupt)
 				_, _ = stdin.Write([]byte("q"))
 				_ = stdin.Close()
-				streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg, segment %d is ready", segment)
+				//cmd.Process.Signal(os.Interrupt)
+				if debugFfmpeg {
+					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminated ffmpeg, segment %d is ready", segment)
+				}
 				shouldStop = true
 			} else {
+				// Mark the segment as ready
 				ts.segments[segment].encoder = encoderId
 				close(ts.segments[segment].channel)
 				if segment == end-1 {
 					// file finished, ffmpeg will finish soon on its own
 					shouldStop = true
 				} else if ts.isSegmentReady(segment + 1) {
-					//cmd.Process.Signal(os.Interrupt)
+					// If the next segment is already marked as done, we can stop the ffmpeg process
 					_, _ = stdin.Write([]byte("q"))
 					_ = stdin.Close()
-					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminate ffmpeg, next segment %d is ready", segment)
+					//cmd.Process.Signal(os.Interrupt)
+					if debugFfmpeg {
+						streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminates ffmpeg, next segment %d is ready", segment)
+					}
 					shouldStop = true
 				}
 			}
-			ts.lock.Unlock()
+			ts.unlockSegments()
 			// we need this and not a return in the condition because we want to unlock
 			// the lock (and can't defer since this is a loop)
 			if shouldStop {
+				if debugFfmpeg {
+					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed segments %d-%d/%d", start, end, length)
+				}
 				return
 			}
 		}
 
 		if err := scanner.Err(); err != nil {
-			streamLogger.Error().Int("eid", encoderId).Err(err).Msg("Error reading stdout of ffmpeg")
+			streamLogger.Error().Int("eid", encoderId).Err(err).Msg("transcoder: Error scanning ffmpeg output")
+			return
 		}
 	}()
 
+	// Listen for kill signal
 	go func() {
 		select {
 		case <-ts.killCh:
@@ -364,15 +565,19 @@ func (ts *Stream) run(start int32) error {
 		}
 	}()
 
+	// Listen for process termination
 	go func() {
 		err := cmd.Wait()
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) && exitErr.ExitCode() == 255 {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 255 {
 			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg was terminated")
+		} else if err != nil {
+			streamLogger.Error().Int("eid", encoderId).Err(fmt.Errorf("%s: %s", err, stderr.String())).Msgf("transcoder: ffmpeg failed")
+		} else {
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed")
 		}
 
-		ts.lock.Lock()
-		defer ts.lock.Unlock()
+		ts.lockHeads()
+		defer ts.unlockHeads()
 		// we can't delete the head directly because it would invalidate the others encoderId
 		ts.heads[encoderId] = DeletedHead
 	}()
@@ -380,147 +585,47 @@ func (ts *Stream) run(start int32) error {
 	return nil
 }
 
-func (ts *Stream) GetIndex() (string, error) {
-	// playlist type is event since we can append to the list if Keyframe.IsDone is false.
-	// start time offset makes the stream start at 0s instead of ~3segments from the end (requires version 6 of hls)
-	index := `#EXTM3U
-#EXT-X-VERSION:6
-#EXT-X-PLAYLIST-TYPE:EVENT
-#EXT-X-START:TIME-OFFSET=0
-#EXT-X-TARGETDURATION:4
-#EXT-X-MEDIA-SEQUENCE:0
-#EXT-X-INDEPENDENT-SEGMENTS
-`
-	length, isDone := ts.file.Keyframes.Length()
+const debugLocks = false
+const debugFfmpeg = false
+const debugFfmpegOutput = false
+const debugStream = true
 
-	for segment := int32(0); segment < length-1; segment++ {
-		index += fmt.Sprintf("#EXTINF:%.6f\n", ts.file.Keyframes.Get(segment+1)-ts.file.Keyframes.Get(segment))
-		index += fmt.Sprintf("segment-%d.ts\n", segment)
+func (ts *Stream) lockHeads() {
+	if debugLocks {
+		streamLogger.Debug().Msg("t: Locking heads")
 	}
-	// do not forget to add the last segment between the last keyframe and the end of the file
-	// if the keyframes extraction is not done, do not bother to add it, it will be retrived on the next index retrival
-	if isDone {
-		index += fmt.Sprintf("#EXTINF:%.6f\n", float64(ts.file.Info.Duration)-ts.file.Keyframes.Get(length-1))
-		index += fmt.Sprintf("segment-%d.ts\n", length-1)
-		index += `#EXT-X-ENDLIST`
-	}
-	return index, nil
-}
-
-// GetSegment returns the path to the segment and waits for it to be ready.
-func (ts *Stream) GetSegment(segment int32) (string, error) {
-	ts.lock.RLock()
-	ready := ts.isSegmentReady(segment)
-	// we want to calculate distance in the same lock else it can be funky
-	distance := 0.
-	isScheduled := false
-	if !ready {
-		distance = ts.getMinEncoderDistance(segment)
-		for _, head := range ts.heads {
-			if head.segment <= segment && segment < head.end {
-				isScheduled = true
-				break
-			}
-		}
-	}
-	readyChan := ts.segments[segment].channel
-	ts.lock.RUnlock()
-
-	if !ready {
-		// Only start a new encode if there is too big a distance between the current encoder and the segment.
-		if distance > 60 || !isScheduled {
-			streamLogger.Trace().Msgf("transcoder: New head for segment %d - closest head is %.2fs away", segment, distance)
-			err := ts.run(segment)
-			if err != nil {
-				return "", err
-			}
-		} else {
-			streamLogger.Trace().Msgf("transcoder: Awaiting segment %d since encoder head is %.2fs away", segment, distance)
-		}
-
-		select {
-		case <-ts.killCh:
-			return "", nil
-		case <-readyChan:
-		case <-time.After(60 * time.Second):
-			streamLogger.Error().Msgf("transcoder: Could not retrieve segment %d (timeout)", segment)
-			return "", errors.New("could not retrieve segment (timeout)")
-		}
-	}
-	ts.prepareNextSegments(segment)
-	return fmt.Sprintf(filepath.ToSlash(ts.handle.getOutPath(ts.segments[segment].encoder)), segment), nil
-}
-
-// prepareNextSegments will start the next segments if they are not already started.
-func (ts *Stream) prepareNextSegments(segment int32) {
-	if ts.killed {
-		return
-	}
-	// Audio is way cheaper to create than video, so we don't need to run them in advance
-	// Running it in advance might actually slow down the video encode since less compute
-	// power can be used, so we simply disable that.
-	if ts.handle.getFlags()&VideoF == 0 {
-		return
-	}
-	//ts.lock.RLock()
-	//defer ts.lock.RUnlock()
-	for i := segment + 1; i <= min(segment+10, int32(len(ts.segments)-1)); i++ {
-		if ts.isSegmentReady(i) {
-			continue
-		}
-		// only start encode for segments not planned (getMinEncoderDistance returns Inf for them)
-		// or if they are 60s away (assume 5s per segments)
-		if ts.getMinEncoderDistance(i) < 60+(5*float64(i-segment)) {
-			continue
-		}
-		streamLogger.Trace().Msgf("transcoder: Creating new head for future segment %d", i)
-		go ts.run(i)
-		return
+	ts.headsLock.Lock()
+	if debugLocks {
+		streamLogger.Debug().Msg("t: \t\tLocked heads")
 	}
 }
 
-func (ts *Stream) getMinEncoderDistance(segment int32) float64 {
-	time := ts.file.Keyframes.Get(segment)
-	distances := Map(ts.heads, func(head Head, _ int) float64 {
-		// ignore killed heads or heads after the current time
-		if head.segment < 0 || ts.file.Keyframes.Get(head.segment) > time || segment >= head.end {
-			return math.Inf(1)
-		}
-		return time - ts.file.Keyframes.Get(head.segment)
-	})
-	if len(distances) == 0 {
-		return math.Inf(1)
+func (ts *Stream) unlockHeads() {
+	if debugLocks {
+		streamLogger.Debug().Msg("t: Unlocking heads")
 	}
-	return slices.Min(distances)
-}
-
-func (ts *Stream) Kill() {
-	//ts.lock.Lock()
-	//defer ts.lock.Unlock()
-
-	for id := range ts.heads {
-		ts.KillHead(id)
+	ts.headsLock.Unlock()
+	if debugLocks {
+		streamLogger.Debug().Msg("t: \t\tUnlocked heads")
 	}
 }
 
-// KillHead
-// Stream is assumed to be locked
-func (ts *Stream) KillHead(encoderId int) {
-	defer func() {
-		if r := recover(); r != nil {
-		}
-	}()
-	ts.killCh <- struct{}{}
-	if ts.heads[encoderId] == DeletedHead || ts.heads[encoderId].command == nil {
-		return
+func (ts *Stream) lockSegments() {
+	if debugLocks {
+		streamLogger.Debug().Msg("t: Locking segments")
 	}
-	//ts.heads[encoderId].command.Process.Signal(os.Interrupt)
-	_, _ = ts.heads[encoderId].stdin.Write([]byte("q"))
-	_ = ts.heads[encoderId].stdin.Close()
-
-	ts.heads[encoderId] = DeletedHead
+	ts.segmentsLock.Lock()
+	if debugLocks {
+		streamLogger.Debug().Msg("t: \t\tLocked segments")
+	}
 }
 
-func (ts *Stream) SetIsKilled() {
-	ts.killed = true
+func (ts *Stream) unlockSegments() {
+	if debugLocks {
+		streamLogger.Debug().Msg("t: Unlocking segments")
+	}
+	ts.segmentsLock.Unlock()
+	if debugLocks {
+		streamLogger.Debug().Msg("t: \t\tUnlocked segments")
+	}
 }

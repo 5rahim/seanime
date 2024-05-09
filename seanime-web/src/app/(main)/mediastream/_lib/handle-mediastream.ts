@@ -59,13 +59,16 @@ const mediastream_getHlsConfig = () => {
                 maxTimeToFirstByteMs: Infinity,
                 maxLoadTimeMs: 60_000,
                 timeoutRetry: {
+                    // maxNumRetry: 15,
                     maxNumRetry: 5,
                     retryDelayMs: 100,
                     maxRetryDelayMs: 0,
                 },
                 errorRetry: {
-                    maxNumRetry: 5,
-                    retryDelayMs: 0,
+                    // maxNumRetry: 5,
+                    // retryDelayMs: 0,
+                    maxNumRetry: 15,
+                    retryDelayMs: 100,
                     maxRetryDelayMs: 100,
                 },
             },
@@ -97,11 +100,12 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const [url, setUrl] = React.useState<string | undefined>(undefined)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("direct")
 
-    const { data: _mediaContainer, isError: isMediaContainerError, isPending, refetch } = useRequestMediastreamMediaContainer({
-        path: filePath,
+    const { data: _mediaContainer, isError: isMediaContainerError, isPending, isFetching, refetch } = useRequestMediastreamMediaContainer({
+        // path: filePath,
+        path: filePath || "E:\\ANIME\\Yoru no Kurage wa Oyogenai\\[SubsPlease] Yoru no Kurage wa Oyogenai - 02 (1080p) [939ACED3].mkv",
         streamType: "transcode",
     })
-    const mediaContainer = !isPending ? _mediaContainer : undefined
+    const mediaContainer = (!isPending && !isFetching) ? _mediaContainer : undefined
 
     // useUpdateEffect(() => {
     //     if (!filePath?.length) {
@@ -190,9 +194,25 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
+    const previousCurrentTimeRef = React.useRef<number>(0)
+
     function onProviderSetup(provider: MediaProviderAdapter, nativeEvent: MediaProviderSetupEvent) {
         if (isHLSProvider(provider)) {
             if (url) {
+
+                if (url == prevUrlRef.current) {
+                    // Restore time if set
+                    if (previousCurrentTimeRef.current > 0) {
+                        Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
+                        // setTimeout(() => {
+                        //     if (previousIsPlayingRef.current) {
+                        //         playerRef.current?.play()
+                        //     }
+                        // }, 500)
+                        previousCurrentTimeRef.current = 0
+                    }
+                }
+
                 if (HLS.isSupported() && url.endsWith(".m3u8")) {
 
                     logger("MEDIASTREAM").info("HLS Provider setup")
@@ -212,20 +232,23 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
                     provider.instance?.on(HLS.Events.MEDIA_DETACHED, (event) => {
                         logger("MEDIASTREAM").warning("onMediaDetached")
-                        if (mediaContainer?.streamType === "transcode") {
-                            shutdownTranscode()
-                        }
-                        setUrl(undefined)
+                        // if (mediaContainer?.streamType === "transcode") {
+                        //     shutdownTranscode()
+                        // }
+                        // setUrl(undefined)
+                        // refetch()
                     })
 
                     provider.instance?.on(HLS.Events.ERROR, (event, data) => {
                         if (data?.fatal) {
+                            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
                             logger("MEDIASTREAM").error("handleFatalError")
                             if (mediaContainer?.streamType === "transcode") {
                                 shutdownTranscode()
                             }
                             setUrl(undefined)
                             toast.error("Playback error")
+                            refetch()
                         }
                     })
                 } else if (!HLS.isSupported() && url.endsWith(".m3u8") && provider.video.canPlayType("application/vnd.apple.mpegurl")) {

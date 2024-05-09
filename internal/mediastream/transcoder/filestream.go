@@ -1,6 +1,7 @@
 package transcoder
 
 import (
+	"context"
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 // FileStream represents a stream of file data.
@@ -170,9 +172,42 @@ func (fs *FileStream) getVideoStream(quality Quality) *VideoStream {
 }
 
 // GetVideoSegment gets a segment of a video stream of a specific quality.
+//func (fs *FileStream) GetVideoSegment(quality Quality, segment int32) (string, error) {
+//	stream := fs.getVideoStream(quality)
+//	return stream.GetSegment(segment)
+//}
+
+// GetVideoSegment gets a segment of a video stream of a specific quality.
 func (fs *FileStream) GetVideoSegment(quality Quality, segment int32) (string, error) {
-	stream := fs.getVideoStream(quality)
-	return stream.GetSegment(segment)
+	streamLogger.Debug().Msgf("filestream: Retrieving video segment %d (%s) [GetVideoSegment]", segment, quality)
+	// Debug
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	debugStreamRequest(fmt.Sprintf("video %s, segment %d", quality, segment), ctx)
+
+	//stream := fs.getVideoStream(quality)
+	//return stream.GetSegment(segment)
+
+	// Channel to signal completion
+	done := make(chan struct{})
+
+	var ret string
+	var err error
+
+	// Execute the retrieval operation in a goroutine
+	go func() {
+		defer close(done)
+		stream := fs.getVideoStream(quality)
+		ret, err = stream.GetSegment(segment)
+	}()
+
+	// Wait for either the operation to complete or the timeout to occur
+	select {
+	case <-done:
+		return ret, err
+	case <-ctx.Done():
+		return "", fmt.Errorf("filestream: timeout while retrieving video segment %d (%s)", segment, quality)
+	}
 }
 
 // GetAudioIndex gets the index of an audio stream of a specific index.
@@ -183,6 +218,11 @@ func (fs *FileStream) GetAudioIndex(audio int32) (string, error) {
 
 // GetAudioSegment gets a segment of an audio stream of a specific index.
 func (fs *FileStream) GetAudioSegment(audio int32, segment int32) (string, error) {
+	// Debug
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	debugStreamRequest(fmt.Sprintf("audio %d, segment %d", audio, segment), ctx)
+
 	stream := fs.getAudioStream(audio)
 	return stream.GetSegment(segment)
 }
@@ -194,4 +234,23 @@ func (fs *FileStream) getAudioStream(audio int32) *AudioStream {
 		return NewAudioStream(fs, audio, fs.logger, fs.settings), nil
 	})
 	return stream
+}
+
+func debugStreamRequest(text string, ctx context.Context) {
+	start := time.Now()
+	//ctx, cancel := context.WithCancel(context.Background())
+	//defer cancel()
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				if debugStream {
+					time.Sleep(2 * time.Second)
+					streamLogger.Debug().Msgf("t: %s has been running for %.2f", text, time.Since(start).Seconds())
+				}
+			}
+		}
+	}()
 }

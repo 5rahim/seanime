@@ -15,8 +15,8 @@ export function useHandlePlayMedia() {
     const { setFilePath } = useMediastreamCurrentFile()
 
     function playMediaFile({ path }: { path: string }) {
-        if (isMobile() || isTv() || isPs4() || isXbox()) {
-            if (serverStatus?.featureFlags?.experimental?.mediastream) {
+        if (isMobile() || isTv() || isPs4() || isXbox()) { // TODO: Find a way to override this
+            if (serverStatus?.featureFlags?.experimental?.mediastream) { // TODO: Remove when stable
                 setFilePath(path)
                 React.startTransition(() => {
                     router.push("/mediastream")
@@ -30,7 +30,17 @@ export function useHandlePlayMedia() {
         }
     }
 
+    function streamMediaFile({ path }: { path: string }) {
+        if (serverStatus?.featureFlags?.experimental?.mediastream) {
+            setFilePath(path)
+            React.startTransition(() => {
+                router.push("/mediastream")
+            })
+        }
+    }
+
     return {
         playMediaFile,
+        streamMediaFile,
     }
 }

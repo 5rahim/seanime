@@ -210,8 +210,8 @@ func (t *Tracker) KillOrphanedHeads(path string, quality *Quality, audio int32) 
 }
 
 func (t *Tracker) killOrphanedHeads(stream *Stream) {
-	stream.lock.Lock()
-	defer stream.lock.Unlock()
+	stream.headsLock.RLock()
+	defer stream.headsLock.RUnlock()
 
 	for encoderId, head := range stream.heads {
 		if head == DeletedHead {

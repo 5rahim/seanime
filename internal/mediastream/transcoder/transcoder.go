@@ -49,7 +49,7 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 
 	ret := &Transcoder{
 		streams:    result.NewResultMap[string, *FileStream](),
-		clientChan: make(chan ClientInfo, 10),
+		clientChan: make(chan ClientInfo, 1000),
 		logger:     opts.Logger,
 		settings: Settings{
 			StreamDir: streamDir,
@@ -85,9 +85,11 @@ func (t *Transcoder) Destroy() {
 }
 
 func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofile.MediaInfo) (*FileStream, error) {
-	//start := time.Now()
-	//t.logger.Trace().Msgf("transcoder: Getting filestream")
-	//defer t.logger.Trace().Msgf("transcoder: Filestream retrieved in %.2fs", time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		t.logger.Trace().Msgf("transcoder: Getting filestream")
+		defer t.logger.Trace().Msgf("transcoder: Filestream retrieved in %.2fs", time.Since(start).Seconds())
+	}
 	var err error
 	ret, _ := t.streams.GetOrSet(path, func() (*FileStream, error) {
 		return NewFileStream(path, hash, mediaInfo, &t.settings, t.logger), nil
@@ -104,9 +106,11 @@ func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofil
 }
 
 func (t *Transcoder) GetMaster(path string, hash string, mediaInfo *videofile.MediaInfo, client string) (string, error) {
-	start := time.Now()
-	t.logger.Trace().Msgf("transcoder: Retrieving master file")
-	defer t.logger.Trace().Msgf("transcoder: Master file retrieved in %.2fs", time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		t.logger.Trace().Msgf("transcoder: Retrieving master file")
+		defer t.logger.Trace().Msgf("transcoder: Master file retrieved in %.2fs", time.Since(start).Seconds())
+	}
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -128,9 +132,11 @@ func (t *Transcoder) GetVideoIndex(
 	quality Quality,
 	client string,
 ) (string, error) {
-	start := time.Now()
-	t.logger.Trace().Msgf("transcoder: Retrieving video index file")
-	defer t.logger.Trace().Msgf("transcoder: Video index file retrieved in %.2fs", time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		t.logger.Trace().Msgf("transcoder: Retrieving video index file (%s)", quality)
+		defer t.logger.Trace().Msgf("transcoder: Video index file retrieved in %.2fs", time.Since(start).Seconds())
+	}
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -152,9 +158,11 @@ func (t *Transcoder) GetAudioIndex(
 	audio int32,
 	client string,
 ) (string, error) {
-	start := time.Now()
-	t.logger.Trace().Msgf("transcoder: Retrieving audio index file")
-	defer t.logger.Trace().Msgf("transcoder: Audio index file retrieved in %.2fs", time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		t.logger.Trace().Msgf("transcoder: Retrieving audio index file (%d)", audio)
+		defer t.logger.Trace().Msgf("transcoder: Audio index file retrieved in %.2fs", time.Since(start).Seconds())
+	}
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
@@ -176,13 +184,16 @@ func (t *Transcoder) GetVideoSegment(
 	segment int32,
 	client string,
 ) (string, error) {
-	start := time.Now()
-	t.logger.Trace().Msgf("transcoder: Retrieving video segment")
-	defer t.logger.Trace().Msgf("transcoder: Video segment retrieved in %.2fs", time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		t.logger.Trace().Msgf("transcoder: Retrieving video segment %d (%s) [GetVideoSegment]", segment, quality)
+		defer t.logger.Trace().Msgf("transcoder: Video segment retrieved in %.2fs", time.Since(start).Seconds())
+	}
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
 	}
+	//t.logger.Trace().Msgf("transcoder: Sending client info, segment %d (%s) [GetVideoSegment]", segment, quality)
 	t.clientChan <- ClientInfo{
 		client:  client,
 		path:    path,
@@ -190,6 +201,7 @@ func (t *Transcoder) GetVideoSegment(
 		audio:   -1,
 		head:    segment,
 	}
+	//t.logger.Trace().Msgf("transcoder: Getting video segment %d (%s) [GetVideoSegment]", segment, quality)
 	return stream.GetVideoSegment(quality, segment)
 }
 
@@ -201,9 +213,11 @@ func (t *Transcoder) GetAudioSegment(
 	segment int32,
 	client string,
 ) (string, error) {
-	start := time.Now()
-	t.logger.Trace().Msgf("transcoder: Retrieving audio segment")
-	defer t.logger.Trace().Msgf("transcoder: Audio segment retrieved in %.2fs", time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		t.logger.Trace().Msgf("transcoder: Retrieving audio segment %d (%d)", segment, audio)
+		defer t.logger.Trace().Msgf("transcoder: Audio segment %d (%d) retrieved in %.2fs", segment, audio, time.Since(start).Seconds())
+	}
 	stream, err := t.getFileStream(path, hash, mediaInfo)
 	if err != nil {
 		return "", err
