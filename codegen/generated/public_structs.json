@@ -35854,6 +35854,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "mediaContainers",
+        "jsonName": "mediaContainers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Temporary cache for the media containers."
+        ]
       }
     ],
     "comments": []
@@ -36279,7 +36290,7 @@
         "jsonName": "videos",
         "goType": "",
         "typescriptType": "any",
-        "required": true,
+        "required": false,
         "public": false,
         "comments": [
           " A map of video streams."
@@ -36290,7 +36301,7 @@
         "jsonName": "audios",
         "goType": "",
         "typescriptType": "any",
-        "required": true,
+        "required": false,
         "public": false,
         "comments": [
           " A map of audio streams."
@@ -36318,7 +36329,8 @@
       }
     ],
     "comments": [
-      " FileStream represents a stream of file data."
+      " FileStream represents a stream of file data.",
+      " It holds the keyframes, media information, video streams, and audio streams."
     ]
   },
   {
@@ -36595,8 +36607,18 @@
         "comments": []
       },
       {
-        "name": "lock",
-        "jsonName": "lock",
+        "name": "segmentsLock",
+        "jsonName": "segmentsLock",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "headsLock",
+        "jsonName": "headsLock",
         "goType": "sync.RWMutex",
         "typescriptType": "RWMutex",
         "usedStructName": "sync.RWMutex",
@@ -36621,15 +36643,6 @@
         "typescriptType": "Settings",
         "usedStructName": "transcoder.Settings",
         "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "killed",
-        "jsonName": "killed",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
         "public": false,
         "comments": []
       },
@@ -36704,6 +36717,16 @@
         "goType": "exec.Cmd",
         "typescriptType": "Cmd",
         "usedStructName": "exec.Cmd",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "stdin",
+        "jsonName": "stdin",
+        "goType": "io.WriteCloser",
+        "typescriptType": "WriteCloser",
+        "usedStructName": "io.WriteCloser",
         "required": false,
         "public": false,
         "comments": []
@@ -36848,7 +36871,7 @@
         "jsonName": "streams",
         "goType": "",
         "typescriptType": "any",
-        "required": true,
+        "required": false,
         "public": false,
         "comments": []
       },

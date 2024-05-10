@@ -3263,6 +3263,64 @@
     }
   },
   {
+    "name": "HandlePreloadMediastreamMediaContainer",
+    "trimmedName": "PreloadMediastreamMediaContainer",
+    "comments": [
+      "HandlePreloadMediastreamMediaContainer",
+      "",
+      "\t@summary preloads media stream for playback.",
+      "\t@desc This preloads a media stream by extracting the media information and attachments.",
+      "\t@returns bool",
+      "\t@route /api/v1/mediastream/preload [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/mediastream.go",
+    "filename": "mediastream.go",
+    "api": {
+      "summary": "preloads media stream for playback.",
+      "descriptions": [
+        "This preloads a media stream by extracting the media information and attachments."
+      ],
+      "endpoint": "/api/v1/mediastream/preload",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Path",
+          "jsonName": "path",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "StreamType",
+          "jsonName": "streamType",
+          "goType": "mediastream.StreamType",
+          "usedStructType": "mediastream.StreamType",
+          "typescriptType": "Mediastream_StreamType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AudioStreamIndex",
+          "jsonName": "audioStreamIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleMediastreamShutdownTranscodeStream",
     "trimmedName": "MediastreamShutdownTranscodeStream",
     "comments": [

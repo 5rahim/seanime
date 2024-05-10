@@ -116,13 +116,15 @@ func NewMediaInfoExtractor(fileCacher *filecache.Cacher) *MediaInfoExtractor {
 	}
 }
 
+// GetInfo returns the media information of a file.
+// If the information is not in the cache, it will be extracted and saved in the cache.
 func (e *MediaInfoExtractor) GetInfo(path string) (mi *MediaInfo, err error) {
 	hash, err := GetHashFromPath(path)
 	if err != nil {
 		return nil, err
 	}
 
-	bucket := filecache.NewBucket(fmt.Sprintf("mediastream_mediainfo_%s", hash), time.Hour*24)
+	bucket := filecache.NewBucket(fmt.Sprintf("mediastream_mediainfo_%s", hash), 24*7*52*time.Hour)
 
 	// Look in the cache
 	if found, _ := e.fileCacher.Get(bucket, hash, &mi); found {

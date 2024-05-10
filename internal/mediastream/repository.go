@@ -181,6 +181,18 @@ func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContaine
 	return
 }
 
+func (r *Repository) RequestPreloadTranscodeStream(filepath string) (err error) {
+	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Transcode stream requested")
+
+	if !r.IsInitialized() {
+		return errors.New("module not initialized")
+	}
+
+	_, err = r.playbackManager.PreloadPlayback(filepath, StreamTypeTranscode)
+
+	return
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) initializeTranscoder(settings mo.Option[*models.MediastreamSettings]) bool {

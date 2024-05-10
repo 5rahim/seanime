@@ -1,5 +1,9 @@
-import { Mediastream_StreamType } from "@/api/generated/types"
-import { useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
+import { Anime_MediaEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
+import {
+    useMediastreamShutdownTranscodeStream,
+    usePreloadMediastreamMediaContainer,
+    useRequestMediastreamMediaContainer,
+} from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { logger } from "@/lib/helpers/debug"
@@ -9,13 +13,18 @@ import { WSEvents } from "@/lib/server/ws-events"
 import {
     isHLSProvider,
     LibASSTextRenderer,
+    MediaCanPlayDetail,
+    MediaEndedEvent,
     MediaPlayerInstance,
     MediaProviderAdapter,
     MediaProviderChangeEvent,
     MediaProviderSetupEvent,
+    MediaTimeUpdateEventDetail,
 } from "@vidstack/react"
 import Hls from "hls.js"
 import HLS, { LoadPolicy } from "hls.js"
+import { atom } from "jotai/index"
+import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -81,17 +90,26 @@ const mediastream_getHlsConfig = () => {
     }
 }
 
+type ProgressItem = {
+    episodeNumber: number
+    updated: boolean
+}
+
+export const __mediastream_progressItemAtom = atom<ProgressItem | undefined>(undefined)
+
 type HandleMediastreamProps = {
     playerRef: React.RefObject<MediaPlayerInstance>
+    episodes: Anime_MediaEntryEpisode[]
 }
 
 export function useHandleMediastream(props: HandleMediastreamProps) {
 
     const {
         playerRef,
+        episodes,
     } = props
     const router = useRouter()
-    const { filePath } = useMediastreamCurrentFile()
+    const { filePath, setFilePath } = useMediastreamCurrentFile()
 
     /**
      * Stream URL
@@ -99,17 +117,32 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const prevUrlRef = React.useRef<string | undefined>(undefined)
     const definedUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
-    const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("direct")
+    const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode") // do not chance
 
+    /**
+     * Fetch media container containing stream URL
+     */
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, isFetching, refetch } = useRequestMediastreamMediaContainer({
         // path: filePath,
         path: filePath ?? undefined,
-        streamType: "transcode",
+        // path: undefined,
+        streamType: streamType,
     })
 
-    const mediaContainer = (!isPending && !isFetching) ? _mediaContainer : undefined
+    const mediaContainer = React.useMemo(() => (!isPending && !isFetching) ? _mediaContainer : undefined, [_mediaContainer, isPending, isFetching])
 
+    /**
+     * Preload next file
+     */
+    const { mutate: preloadMediaContainer } = usePreloadMediastreamMediaContainer()
+    // const [preloadedFilePath, setPreloadedFilePath] = React.useState<string | undefined>(undefined)
+
+
+    // Whether the playback has errored
     const [playbackErrored, setPlaybackErrored] = React.useState<boolean>(false)
+
+    // Duration
+    const [duration, setDuration] = React.useState<number>(0)
 
     // useUpdateEffect(() => {
     //     if (!filePath?.length) {
@@ -292,6 +325,46 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
+    const preloadedNextFileForRef = React.useRef<string | undefined>(undefined)
+
+    const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
+
+    const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
+        if (!!filePath && duration > 0 && (e.currentTime / duration) > 0.7 && preloadedNextFileForRef.current !== filePath) {
+            logger("MEDIASTREAM").info("Preloading next file")
+
+            const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+            const nextFile = currentEpisodeIndex !== -1 ? episodes[currentEpisodeIndex + 1] : undefined
+            if (nextFile?.localFile?.path) {
+                preloadedNextFileForRef.current = filePath
+                preloadMediaContainer({ path: filePath, streamType: streamType, audioStreamIndex: 0 })
+            }
+        }
+        if ((!progressItem || !progressItem.updated) && duration > 0 && (e.currentTime / duration) > 0.8) {
+            const episode = episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+            if (episode) {
+                setProgressItem({
+                    episodeNumber: episode.progressNumber,
+                    updated: false,
+                })
+            }
+        }
+    }, [duration, filePath, episodes, progressItem])
+
+    const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
+        preloadedNextFileForRef.current = undefined
+        setDuration(e.duration)
+    }, [])
+
+    const onEnded = React.useCallback((e: MediaEndedEvent) => {
+
+    }, [])
+
+    const onPlayFile = React.useCallback((filepath: string) => {
+        logger("MEDIASTREAM").info("Playing file", filepath)
+        setFilePath(filepath)
+    }, [])
+
     //////////////////////////////////////////////////////////////
     // Events
     //////////////////////////////////////////////////////////////
@@ -333,7 +406,12 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         isError: isMediaContainerError || isStreamError,
         subtitleEndpointUri,
         mediaContainer: _mediaContainer,
+        onPlayFile,
+        filePath,
 
+        onTimeUpdate,
+        onCanPlay,
+        onEnded,
         onProviderChange,
         onProviderSetup,
     }

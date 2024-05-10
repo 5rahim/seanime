@@ -17,6 +17,7 @@ func GetFileAttCacheDir(outDir string, hash string) string {
 }
 
 func ExtractAttachment(path string, hash string, mediaInfo *MediaInfo, cacheDir string, logger *zerolog.Logger) (err error) {
+	logger.Trace().Str("path", path).Msgf("transcoder: Starting media attachment extraction")
 
 	attachmentPath := GetFileAttCacheDir(cacheDir, hash)
 	subsPath := GetFileSubsCacheDir(cacheDir, hash)
@@ -26,6 +27,7 @@ func ExtractAttachment(path string, hash string, mediaInfo *MediaInfo, cacheDir 
 	subsDir, err := os.ReadDir(subsPath)
 	if err == nil {
 		if len(subsDir) == len(mediaInfo.Subtitles) {
+			logger.Trace().Str("path", path).Msgf("transcoder: Attachments already extracted")
 			return
 		}
 	}
@@ -49,7 +51,6 @@ func ExtractAttachment(path string, hash string, mediaInfo *MediaInfo, cacheDir 
 			)
 		}
 	}
-	logger.Trace().Msgf("transcoder: Starting data extraction")
 	cmd.Stdout = nil
 	err = cmd.Run()
 	if err != nil {

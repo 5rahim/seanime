@@ -685,6 +685,19 @@ export type RequestMediastreamMediaContainer_Variables = {
     audioStreamIndex: number
 }
 
+/**
+ * - Filepath: internal/handlers/mediastream.go
+ * - Filename: mediastream.go
+ * - Endpoint: /api/v1/mediastream/preload
+ * @description
+ * Route preloads media stream for playback.
+ */
+export type PreloadMediastreamMediaContainer_Variables = {
+    path: string
+    streamType: Mediastream_StreamType
+    audioStreamIndex: number
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // metadata
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -21,7 +21,7 @@ export function useHandlePlayMedia() {
         if (serverStatus?.featureFlags?.experimental?.mediastream && mediaToTranscode.includes(String(mediaId))) {
             setFilePath(path)
             React.startTransition(() => {
-                router.push("/mediastream")
+                router.push(`/mediastream?id=${mediaId}`)
             })
             return
         }
@@ -30,7 +30,7 @@ export function useHandlePlayMedia() {
             if (serverStatus?.featureFlags?.experimental?.mediastream) { // TODO: Remove when stable
                 setFilePath(path)
                 React.startTransition(() => {
-                    router.push("/mediastream")
+                    router.push(`/mediastream?id=${mediaId}`)
                 })
             } else {
                 toast.error("Playback is not supported on this device.")
@@ -41,17 +41,7 @@ export function useHandlePlayMedia() {
         }
     }
 
-    function streamMediaFile({ path }: { path: string }) {
-        if (serverStatus?.featureFlags?.experimental?.mediastream) {
-            setFilePath(path)
-            React.startTransition(() => {
-                router.push("/mediastream")
-            })
-        }
-    }
-
     return {
         playMediaFile,
-        streamMediaFile,
     }
 }

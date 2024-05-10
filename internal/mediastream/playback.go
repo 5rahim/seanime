@@ -7,6 +7,7 @@ import (
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
+	"github.com/seanime-app/seanime/internal/util/result"
 )
 
 const (
@@ -24,6 +25,7 @@ type (
 		currentMediaContainer mo.Option[*MediaContainer] // The current media being played.
 		transcoderSettings    mo.Option[*transcoder.Settings]
 		repository            *Repository
+		mediaContainers       *result.Map[string, *MediaContainer] // Temporary cache for the media containers.
 	}
 
 	PlaybackState struct {
@@ -43,8 +45,9 @@ type (
 
 func NewPlaybackManager(repository *Repository) *PlaybackManager {
 	return &PlaybackManager{
-		logger:     repository.logger,
-		repository: repository,
+		logger:          repository.logger,
+		repository:      repository,
+		mediaContainers: result.NewResultMap[string, *MediaContainer](),
 	}
 }
 
@@ -54,11 +57,30 @@ func (p *PlaybackManager) KillPlayback() {
 	}
 }
 
+// PreloadPlayback is called by the frontend to preload a media container so that the data is stored in advanced
+func (p *PlaybackManager) PreloadPlayback(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
+
+	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Preloading playback")
+
+	// Create a new media container
+	ret, err = p.newMediaContainer(filepath, streamType)
+
+	if err != nil {
+		p.logger.Error().Err(err).Msg("mediastream: Failed to create media container")
+		return nil, fmt.Errorf("failed to create media container: %v", err)
+	}
+
+	p.logger.Info().Str("filepath", filepath).Msg("mediastream: Ready to play media")
+
+	return
+}
+
 // RequestPlayback is called by the frontend to stream a media file
 func (p *PlaybackManager) RequestPlayback(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
 
 	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Requesting playback")
 
+	// Create a new media container
 	ret, err = p.newMediaContainer(filepath, streamType)
 
 	if err != nil {
@@ -98,6 +120,11 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		return nil, err
 	}
 
+	// Check the cache
+	if mc, ok := p.mediaContainers.Get(hash); ok {
+		return mc, nil
+	}
+
 	// Get the media information of the file.
 	ret = &MediaContainer{
 		Filepath:   filepath,
@@ -121,10 +148,8 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		// Live transcode the file.
 		streamUrl = "/api/v1/mediastream/transcode/master.m3u8"
 	case StreamTypeFile:
-		// TODO
 		streamUrl = "/api/v1/mediastream/direct"
 	case StreamTypeDirectStream:
-		// TODO
 		streamUrl = "/api/v1/mediastream/directstream/master.m3u8"
 	case StreamTypeOptimized:
 		// TODO: Check if the file is already transcoded when the feature is implemented.
@@ -139,7 +164,11 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		return nil, errors.New("invalid stream type")
 	}
 
+	// Set the stream URL.
 	ret.StreamUrl = streamUrl
+
+	// Store the media container in the map.
+	p.mediaContainers.Set(hash, ret)
 
 	return
 }

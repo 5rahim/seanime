@@ -75,9 +75,11 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	case mediastream.StreamTypeTranscode:
 		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path)
 	case mediastream.StreamTypeFile:
-		mediaContainer, err = c.App.MediastreamRepository.RequestDirectPlay(b.Path)
+		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
+		//mediaContainer, err = c.App.MediastreamRepository.RequestDirectPlay(b.Path)
 	case mediastream.StreamTypeDirectStream:
-		mediaContainer, err = c.App.MediastreamRepository.RequestDirectStream(b.Path, b.AudioStreamIndex)
+		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
+		//mediaContainer, err = c.App.MediastreamRepository.RequestDirectStream(b.Path, b.AudioStreamIndex)
 	default:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 	}
@@ -86,6 +88,40 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(mediaContainer)
+}
+
+// HandlePreloadMediastreamMediaContainer
+//
+//	@summary preloads media stream for playback.
+//	@desc This preloads a media stream by extracting the media information and attachments.
+//	@returns bool
+//	@route /api/v1/mediastream/preload [POST]
+func HandlePreloadMediastreamMediaContainer(c *RouteCtx) error {
+
+	type body struct {
+		Path             string                 `json:"path"`             // The path of the file.
+		StreamType       mediastream.StreamType `json:"streamType"`       // The type of stream to request.
+		AudioStreamIndex int                    `json:"audioStreamIndex"` // The audio stream index to use.
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	var err error
+
+	switch b.StreamType {
+	case mediastream.StreamTypeTranscode:
+		err = c.App.MediastreamRepository.RequestPreloadTranscodeStream(b.Path)
+	default:
+		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
+	}
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
 }
 
 //

@@ -1,7 +1,7 @@
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 
-const __mediastream_filePath = atomWithStorage<string | null | undefined>("sea-mediastream-filepath", undefined)
+const __mediastream_filePath = atomWithStorage<string | undefined>("sea-mediastream-filepath", undefined)
 
 export function useMediastreamCurrentFile() {
     const [filePath, setFilePath] = useAtom(__mediastream_filePath)

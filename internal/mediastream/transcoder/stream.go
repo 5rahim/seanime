@@ -591,9 +591,9 @@ func (ts *Stream) run(start int32) error {
 }
 
 const debugLocks = false
-const debugFfmpeg = false
+const debugFfmpeg = true
 const debugFfmpegOutput = false
-const debugStream = true
+const debugStream = false
 
 func (ts *Stream) lockHeads() {
 	if debugLocks {

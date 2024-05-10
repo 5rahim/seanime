@@ -826,6 +826,17 @@
 //     })
 // }
 
+// export function usePreloadMediastreamMediaContainer() {
+//     return useServerMutation<boolean, PreloadMediastreamMediaContainer_Variables>({
+//         endpoint: API_ENDPOINTS.MEDIASTREAM.PreloadMediastreamMediaContainer.endpoint,
+//         method: API_ENDPOINTS.MEDIASTREAM.PreloadMediastreamMediaContainer.methods[0],
+//         mutationKey: [API_ENDPOINTS.MEDIASTREAM.PreloadMediastreamMediaContainer.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useMediastreamShutdownTranscodeStream() {
 //     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.MEDIASTREAM.MediastreamShutdownTranscodeStream.endpoint,

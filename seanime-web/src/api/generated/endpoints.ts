@@ -730,6 +730,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route preloads media stream for playback.
+         *  This preloads a media stream by extracting the media information and attachments.
+         */
+        PreloadMediastreamMediaContainer: {
+            key: "MEDIASTREAM-preload-mediastream-media-container",
+            methods: ["POST"],
+            endpoint: "/api/v1/mediastream/preload",
+        },
+        /**
+         *  @description
          *  Route shuts down the transcode stream
          *  This requests the transcoder to shut down. It should be called when unmounting the player (playback is no longer needed).
          *  This will also send an events.MediastreamShutdownStream event.

@@ -309,6 +309,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
 
 		v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
+		v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
 		// Direct play
 		v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirect))
 		// Direct stream

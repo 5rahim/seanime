@@ -22,7 +22,9 @@ export const LoadingSpinnerAnatomy = defineStyleAnatomy({
  * LoadingSpinner
  * -----------------------------------------------------------------------------------------------*/
 
-export type LoadingSpinnerProps = React.ComponentPropsWithRef<"div"> & ComponentAnatomy<typeof LoadingSpinnerAnatomy>
+export type LoadingSpinnerProps = React.ComponentPropsWithRef<"div"> & ComponentAnatomy<typeof LoadingSpinnerAnatomy> & {
+    spinner?: React.ReactNode
+}
 
 export const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>((props, ref) => {
 
@@ -31,6 +33,7 @@ export const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerPro
         className,
         containerClass,
         iconClass,
+        spinner,
         ...rest
     } = props
 
@@ -43,7 +46,7 @@ export const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerPro
             {...rest}
             ref={ref}
         >
-            <Spinner className={iconClass} />
+            {spinner ? spinner : <Spinner className={iconClass} />}
         </div>
     )
 

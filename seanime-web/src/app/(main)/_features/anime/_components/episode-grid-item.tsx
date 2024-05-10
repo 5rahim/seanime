@@ -16,11 +16,13 @@ type EpisodeGridItemProps = {
     description?: string | null
     fileName?: string
     isWatched?: boolean
+    isSelected?: boolean
     unoptimizedImage?: boolean
     isInvalid?: boolean
     imageClassName?: string
     imageContainerClassName?: string
     className?: string
+    disabled?: boolean
     actionIcon?: React.ReactElement | null
 }
 
@@ -37,11 +39,13 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         fileName,
         media,
         isWatched,
+        isSelected,
         unoptimizedImage,
         isInvalid,
         imageClassName,
         imageContainerClassName,
         className,
+        disabled,
         actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-70 text-4xl" /> : undefined,
         ...rest
     } = props
@@ -52,8 +56,11 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                 "bg-[--background] hover:bg-[var(--hover-from-background-color)]",
                 "border p-3 pr-12 rounded-lg relative transition group/episode-list-item",
                 {
-                    "border-red-700": isInvalid,
                     // "opacity-50": isWatched && !isSelected,
+                    "border-zinc-500 bg-gray-900 hover:bg-gray-900": isSelected,
+                    "border-red-700": isInvalid,
+                    "opacity-50 pointer-events-none": disabled,
+                    "opacity-50": isWatched && !isSelected,
                 }, className,
             )}
             {...rest}
