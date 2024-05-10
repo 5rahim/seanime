@@ -89,7 +89,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
             >
                 <Field.Switch
                     name="transcodeEnabled"
-                    label="Enable transcoding"
+                    label="Enable real-time transcoding"
                     help="Enable transcoding for media files."
                 />
 

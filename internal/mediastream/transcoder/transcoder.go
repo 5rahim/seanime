@@ -22,8 +22,10 @@ type (
 	}
 
 	Settings struct {
-		StreamDir string
-		HwAccel   HwAccelSettings
+		StreamDir   string
+		HwAccel     HwAccelSettings
+		FfmpegPath  string
+		FfprobePath string
 	}
 
 	NewTranscoderOptions struct {
@@ -31,6 +33,8 @@ type (
 		HwAccelKind string
 		Preset      string
 		TempOutDir  string
+		FfmpegPath  string
+		FfprobePath string
 	}
 )
 
@@ -57,6 +61,8 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 				Kind:   opts.HwAccelKind,
 				Preset: opts.Preset,
 			}),
+			FfmpegPath:  opts.FfmpegPath,
+			FfprobePath: opts.FfprobePath,
 		},
 	}
 	ret.tracker = NewTracker(ret)

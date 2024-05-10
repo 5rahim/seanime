@@ -470,7 +470,7 @@ func (ts *Stream) run(start int32) error {
 		outpath,
 	)
 
-	cmd := exec.Command("ffmpeg", args...)
+	cmd := exec.Command(ts.settings.FfmpegPath, args...)
 	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d", start, end)
 
 	stdout, err := cmd.StdoutPipe()

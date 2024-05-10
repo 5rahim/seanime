@@ -136,7 +136,7 @@ func (r *Repository) StartMediaOptimization(opts *StartMediaOptimizationOptions)
 		return errors.New("module not initialized")
 	}
 
-	mediaInfo, err := r.mediaInfoExtractor.GetInfo(opts.Filepath)
+	mediaInfo, err := r.mediaInfoExtractor.GetInfo(r.settings.MustGet().FfmpegPath, opts.Filepath)
 	if err != nil {
 		return
 	}
@@ -176,7 +176,7 @@ func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContaine
 
 	// Reinitialize the transcoder for each new transcode request
 	if ok := r.initializeTranscoder(r.settings); !ok {
-		return nil, errors.New("transcoder not initialized")
+		return nil, errors.New("real-time transcoder not initialized, check your settings")
 	}
 
 	r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
@@ -219,11 +219,22 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 		return false
 	}
 
+	ffmpegPath := settings.MustGet().FfmpegPath
+	if ffmpegPath == "" {
+		ffmpegPath = "ffmpeg"
+	}
+	ffprobePath := settings.MustGet().FfprobePath
+	if ffprobePath == "" {
+		ffprobePath = "ffprobe"
+	}
+
 	opts := &transcoder.NewTranscoderOptions{
 		Logger:      r.logger,
 		HwAccelKind: settings.MustGet().TranscodeHwAccel,
 		Preset:      settings.MustGet().TranscodePreset,
 		TempOutDir:  settings.MustGet().TranscodeTempDir,
+		FfmpegPath:  ffmpegPath,
+		FfprobePath: ffprobePath,
 	}
 
 	tc, err := transcoder.NewTranscoder(opts)

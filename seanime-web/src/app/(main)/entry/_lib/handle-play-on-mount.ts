@@ -1,15 +1,17 @@
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import React from "react"
 
 export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }) {
 
+    const serverStatus = useServerStatus()
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const playNext = searchParams.get("playNext")
     const id = searchParams.get("id")
 
-    useEffect(() => {
+    React.useEffect(() => {
         // Automatically play the next episode if param is present in URL
         const t = setTimeout(() => {
             if (playNext) {
@@ -19,7 +21,7 @@ export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }) {
         }, 500)
 
         return () => clearTimeout(t)
-    }, [pathname, id, playNext])
+    }, [pathname, id, playNext, serverStatus])
 
     return null
 

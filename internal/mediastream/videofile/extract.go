@@ -16,7 +16,7 @@ func GetFileAttCacheDir(outDir string, hash string) string {
 	return filepath.Join(outDir, "videofiles", hash, "/att")
 }
 
-func ExtractAttachment(path string, hash string, mediaInfo *MediaInfo, cacheDir string, logger *zerolog.Logger) (err error) {
+func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *MediaInfo, cacheDir string, logger *zerolog.Logger) (err error) {
 	logger.Trace().Str("path", path).Msgf("transcoder: Starting media attachment extraction")
 
 	attachmentPath := GetFileAttCacheDir(cacheDir, hash)
@@ -33,7 +33,7 @@ func ExtractAttachment(path string, hash string, mediaInfo *MediaInfo, cacheDir 
 	}
 
 	cmd := exec.Command(
-		"ffmpeg",
+		ffmpegPath,
 		"-dump_attachment:t", "",
 		// override old attachments
 		"-y",

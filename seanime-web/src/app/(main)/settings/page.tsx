@@ -82,7 +82,7 @@ export default function Page() {
 
             {/*<Card className="p-0 overflow-hidden">*/}
             <Tabs
-                defaultValue="mediastream"
+                defaultValue="seanime"
                 className={tabsRootClass}
                 triggerClass={tabsTriggerClass}
                 listClass={tabsListClass}

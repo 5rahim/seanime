@@ -118,7 +118,7 @@ func NewMediaInfoExtractor(fileCacher *filecache.Cacher) *MediaInfoExtractor {
 
 // GetInfo returns the media information of a file.
 // If the information is not in the cache, it will be extracted and saved in the cache.
-func (e *MediaInfoExtractor) GetInfo(path string) (mi *MediaInfo, err error) {
+func (e *MediaInfoExtractor) GetInfo(ffprobePath, path string) (mi *MediaInfo, err error) {
 	hash, err := GetHashFromPath(path)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (e *MediaInfoExtractor) GetInfo(path string) (mi *MediaInfo, err error) {
 	}
 
 	// Get the media information of the file.
-	mi, err = getInfo(path, hash)
+	mi, err = getInfo(ffprobePath, path, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (e *MediaInfoExtractor) GetInfo(path string) (mi *MediaInfo, err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func getInfo(path string, hash string) (*MediaInfo, error) {
+func getInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 
 	// Open file
 	file, err := os.Open(path)
@@ -202,7 +202,7 @@ func getInfo(path string, hash string) (*MediaInfo, error) {
 	audioIndex := 0
 	subtitleIndex := 0
 
-	profile, level, bitrate2, _ := getProfileAndLevel(path)
+	profile, level, bitrate2, _ := getProfileAndLevel(ffprobePath, path)
 	if bitrate2 != "" {
 		bitrate, _ = strconv.ParseFloat(bitrate2, 64)
 	}
@@ -375,7 +375,7 @@ func guessSubtitleExt(codecID string) string {
 
 // getProfileAndLevel
 // ref: https://stackoverflow.com/a/36317694
-func getProfileAndLevel(fp string) (profile string, level string, bitrate string, err error) {
+func getProfileAndLevel(ffprobePath, fp string) (profile string, level string, bitrate string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic: %v", r)
@@ -386,7 +386,7 @@ func getProfileAndLevel(fp string) (profile string, level string, bitrate string
 	args := []string{"-v", "error", "-select_streams", "v:0", "-show_entries", "stream=profile,level,bit_rate ", "-of", "default=noprint_wrappers=1", fp}
 
 	// Execute ffprobe
-	cmd := exec.Command("ffprobe", args...)
+	cmd := exec.Command(ffprobePath, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", "", "", err

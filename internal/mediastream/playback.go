@@ -131,13 +131,13 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		Hash:       hash,
 		StreamType: streamType,
 	}
-	ret.MediaInfo, err = p.repository.mediaInfoExtractor.GetInfo(filepath)
+	ret.MediaInfo, err = p.repository.mediaInfoExtractor.GetInfo(p.repository.settings.MustGet().FfprobePath, filepath)
 	if err != nil {
 		return nil, err
 	}
 
 	// Extract the attachments from the file.
-	err = videofile.ExtractAttachment(filepath, hash, ret.MediaInfo, p.repository.cacheDir, p.logger)
+	err = videofile.ExtractAttachment(p.repository.settings.MustGet().FfmpegPath, filepath, hash, ret.MediaInfo, p.repository.cacheDir, p.logger)
 	if err != nil {
 		return nil, err
 	}
