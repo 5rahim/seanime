@@ -170,22 +170,30 @@ export default function Page() {
                             {/*</div>*/}
                             <DefaultVideoLayout
                                 icons={defaultLayoutIcons}
+                                slots={{
+                                    // beforeSettingsMenu: (
+                                    //     <MediastreamAudioSubmenu />
+                                    // )
+                                }}
                             />
                         </MediaPlayer> : (
-                            <Skeleton className="h-full w-full absolute flex justify-center items-center flex-col space-y-8">
+                            <Skeleton className="h-full w-full absolute flex justify-center items-center flex-col space-y-4">
                                 <LoadingSpinner
                                     containerClass=""
                                     spinner={<Image
                                         src="/logo_2.png"
                                         alt="Loading..."
                                         priority
-                                        width={140}
-                                        height={140}
+                                        width={100}
+                                        height={100}
                                         className="animate-pulse"
                                     />}
                                 />
                                 <p>
                                     Extracting video metadata...
+                                </p>
+                                <p>
+                                    This might take a while.
                                 </p>
                             </Skeleton>
                         )}

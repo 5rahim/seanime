@@ -74,9 +74,9 @@ func (t *Transcoder) GetSettings() *Settings {
 func (t *Transcoder) Destroy() {
 
 	t.logger.Debug().Msg("transcoder: Destroying transcoder")
-	//for _, s := range t.streams.data {
-	//	s.Destroy()
-	//}
+	for _, s := range t.streams.Values() {
+		s.Destroy()
+	}
 	t.streams.Clear()
 	//close(t.clientChan)
 	t.streams = result.NewResultMap[string, *FileStream]()

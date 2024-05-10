@@ -59,12 +59,10 @@ func NewFileStream(
 // Kill stops all streams.
 func (fs *FileStream) Kill() {
 	fs.videos.Range(func(_ Quality, s *VideoStream) bool {
-		s.SetIsKilled()
 		s.Kill()
 		return true
 	})
 	fs.audios.Range(func(_ int32, s *AudioStream) bool {
-		s.SetIsKilled()
 		s.Kill()
 		return true
 	})

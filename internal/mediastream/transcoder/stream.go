@@ -563,10 +563,13 @@ func (ts *Stream) run(start int32) error {
 
 	// Listen for kill signal
 	go func() {
-		select {
-		case <-ts.killCh:
-			_, _ = stdin.Write([]byte("q"))
-			_ = stdin.Close()
+		for {
+			select {
+			case <-ts.killCh:
+				_, _ = stdin.Write([]byte("q"))
+				_ = stdin.Close()
+				return
+			}
 		}
 	}()
 

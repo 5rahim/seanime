@@ -25,7 +25,7 @@ func NewVideoStream(file *FileStream, quality Quality, logger *zerolog.Logger, s
 
 func (vs *VideoStream) getFlags() Flags {
 	if vs.quality == Original {
-		return VideoF & Transmux
+		return VideoF | Transmux
 	}
 	return VideoF
 }
