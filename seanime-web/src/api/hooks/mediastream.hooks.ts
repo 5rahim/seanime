@@ -7,6 +7,8 @@ import {
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Mediastream_MediaContainer, Models_MediastreamSettings } from "@/api/generated/types"
 import { logger } from "@/lib/helpers/debug"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export function useGetMediastreamSettings() {
     return useServerQuery<Models_MediastreamSettings>({
@@ -18,12 +20,14 @@ export function useGetMediastreamSettings() {
 }
 
 export function useSaveMediastreamSettings() {
+    const qc = useQueryClient()
     return useServerMutation<Models_MediastreamSettings, SaveMediastreamSettings_Variables>({
         endpoint: API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.endpoint,
         method: API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.methods[0],
         mutationKey: [API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.key],
         onSuccess: async () => {
-
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.key] })
+            toast.success("Settings saved")
         },
     })
 }

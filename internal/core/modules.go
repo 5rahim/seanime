@@ -316,8 +316,9 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			TranscodeEnabled:    false,
-			TranscodeHwAccel:    "none",
+			TranscodeEnabled:    true,
+			TranscodeHwAccel:    "cpu",
+			TranscodePreset:     "fast",
 			PreTranscodeEnabled: false,
 		})
 		if err != nil {

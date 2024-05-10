@@ -27,7 +27,7 @@ func HandleGetMediastreamSettings(c *RouteCtx) error {
 //	@summary save mediastream settings.
 //	@desc This saves the mediastream settings.
 //	@returns models.MediastreamSettings
-//	@route /api/v1/mediastream/settings [POST]
+//	@route /api/v1/mediastream/settings [PATCH]
 func HandleSaveMediastreamSettings(c *RouteCtx) error {
 
 	type body struct {
@@ -124,13 +124,16 @@ func HandlePreloadMediastreamMediaContainer(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
+func HandleMediastreamGetSubtitles(c *RouteCtx) error {
+	return c.App.MediastreamRepository.ServeFiberExtractedSubtitles(c.Fiber)
+}
+
 //
 // Direct
 //
 
 func HandleMediastreamDirect(c *RouteCtx) error {
 	client := "1"
-
 	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
 }
 
@@ -140,7 +143,6 @@ func HandleMediastreamDirect(c *RouteCtx) error {
 
 func HandleMediastreamDirectStream(c *RouteCtx) error {
 	client := "1"
-
 	return c.App.MediastreamRepository.ServeFiberDirectStream(c.Fiber, client)
 }
 
@@ -150,13 +152,7 @@ func HandleMediastreamDirectStream(c *RouteCtx) error {
 
 func HandleMediastreamTranscode(c *RouteCtx) error {
 	client := "1"
-
 	return c.App.MediastreamRepository.ServeFiberTranscodeStream(c.Fiber, client)
-}
-
-func HandleMediastreamGetTranscodeSubtitles(c *RouteCtx) error {
-
-	return c.App.MediastreamRepository.ServeFiberExtractedSubtitles(c.Fiber)
 }
 
 // HandleMediastreamShutdownTranscodeStream
@@ -171,68 +167,3 @@ func HandleMediastreamShutdownTranscodeStream(c *RouteCtx) error {
 	c.App.MediastreamRepository.ShutdownTranscodeStream()
 	return c.RespondWithData(true)
 }
-
-//// GetInfo Identify
-////
-//// Identify metadata about a file.
-////
-//// Path: /info
-//func GetInfo(c *RouteCtx) error {
-//	//path, err := GetPath(c)
-//	//if err != nil {
-//	//	return nil, err
-//	//}
-//
-//	//route :
-//	sha, err := transcoder.GetHash(path)
-//	if err != nil {
-//		return err
-//	}
-//	ret, err := transcoder.GetInfo(path, c.App.Logger)
-//	if err != nil {
-//		return err
-//	}
-//	// Run extractors to have them in cache
-//	transcoder.Extract(ret.Path, sha, c.App.Logger)
-//	//go ExtractThumbnail(
-//	//	ret.Path,
-//	//	route,
-//	//	sha,
-//	//)
-//	return c.Fiber.JSON(ret)
-//}
-//
-//// GetAttachment Get attachments
-////
-//// Get a specific attachment.
-////
-//// Path: /attachment/:name
-//func GetAttachment(c *RouteCtx) error {
-//	//path, err := GetPath(c)
-//	//if err != nil {
-//	//	return err
-//	//}
-//	name := c.Fiber.Params("name")
-//	if err := transcoder.SanitizePath(name); err != nil {
-//		return err
-//	}
-//
-//	//route :
-//	sha, err := transcoder.GetHash(path)
-//	if err != nil {
-//		return err
-//	}
-//	wait, err := transcoder.Extract(path, sha, c.App.Logger)
-//	if err != nil {
-//		return err
-//	}
-//	<-wait
-//
-//	ret := fmt.Sprintf("%s/%s/att/%s", transcoder.Settings.Metadata, sha, name)
-//	return c.Fiber.SendFile(ret)
-//}
-//
-//// GetSubtitle Get subtitle
-////
-//// Get a specific subtitle.
-////

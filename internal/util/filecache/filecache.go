@@ -198,54 +198,95 @@ func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	files, err := os.ReadDir(c.dir)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		if !strings.HasSuffix(file.Name(), ".cache") {
-			continue
-		}
-		if !filter(file.Name()) {
-			continue
-		}
-
-		if err := os.Remove(filepath.Join(c.dir, file.Name())); err != nil {
+	err := filepath.Walk(c.dir, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
 			return err
 		}
-	}
+		if !info.IsDir() {
+			if !strings.HasSuffix(info.Name(), ".cache") {
+				return nil
+			}
+			if filter(info.Name()) {
+				if err := os.Remove(filepath.Join(c.dir, info.Name())); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
 
 	c.stores = make(map[string]*CacheStore)
-	return nil
+	return err
 }
 
-// GetTotalSize returns the total size of all files in the cache directory that match the given filter.
-// The size is in bytes.
-func (c *Cacher) GetTotalSize(filter func(filename string) bool) (int64, error) {
+// ClearMediastreamVideoFiles clears all mediastream video file caches.
+func (c *Cacher) ClearMediastreamVideoFiles() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	files, err := os.ReadDir(c.dir)
+	// Remove the contents of the directory
+	files, err := os.ReadDir(filepath.Join(c.dir, "videofiles"))
 	if err != nil {
+		return nil
+	}
+	for _, file := range files {
+		_ = os.RemoveAll(filepath.Join(c.dir, "videofiles", file.Name()))
+	}
+
+	c.stores = make(map[string]*CacheStore)
+	return err
+}
+
+func (c *Cacher) GetMediastreamVideoFilesTotalSize() (int64, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	_, err := os.Stat(filepath.Join(c.dir, "videofiles"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return 0, nil
+		}
 		return 0, err
 	}
 
 	var totalSize int64
-	for _, file := range files {
-		if !strings.HasSuffix(file.Name(), ".cache") {
-			continue
-		}
-		if !filter(file.Name()) {
-			continue
-		}
-
-		fileInfo, err := os.Stat(filepath.Join(c.dir, file.Name()))
+	err = filepath.Walk(filepath.Join(c.dir, "videofiles"), func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
-			return 0, err
+			return err
 		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
 
-		totalSize += fileInfo.Size()
+	if err != nil {
+		return 0, err
 	}
+
+	return totalSize, nil
+}
+
+// GetTotalSize returns the total size of all files in the cache directory that match the given filter.
+// The size is in bytes.
+func (c *Cacher) GetTotalSize() (int64, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	var totalSize int64
+	err := filepath.Walk(c.dir, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
 	return totalSize, nil
 }

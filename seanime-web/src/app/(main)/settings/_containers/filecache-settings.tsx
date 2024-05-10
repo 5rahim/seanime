@@ -33,13 +33,13 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
                 )}
             </div>
             <div className="flex gap-2 flex-wrap items-center">
-                <Button intent="alert-subtle" size="sm" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
+                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
                     Clear manga cache
                 </Button>
-                <Button intent="alert-subtle" size="sm" onClick={() => clearBucket({ bucket: "onlinestream" })} disabled={isClearing}>
-                    Clear streaming cache
+                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "onlinestream" })} disabled={isClearing}>
+                    Clear online streaming cache
                 </Button>
-                <Button intent="alert-subtle" size="sm" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>
+                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>
                     Clear TVDB metadata
                 </Button>
             </div>

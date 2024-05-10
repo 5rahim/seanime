@@ -23,3 +23,22 @@ export function useRemoveFileCacheBucket(onSuccess?: () => void) {
     })
 }
 
+export function useGetFileCacheMediastreamVideoFilesTotalSize() {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.endpoint,
+        method: API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.methods[0],
+        mutationKey: [API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.key],
+    })
+}
+
+export function useClearFileCacheMediastreamVideoFiles(onSuccess?: () => void) {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.endpoint,
+        method: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.methods[0],
+        mutationKey: [API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.key],
+        onSuccess: async () => {
+            toast.success("Cache cleared")
+            onSuccess?.()
+        },
+    })
+}

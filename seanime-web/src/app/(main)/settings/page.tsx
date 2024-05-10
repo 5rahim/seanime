@@ -1,7 +1,10 @@
 "use client"
+import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
+import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -21,7 +24,7 @@ import { HiPlay } from "react-icons/hi"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary } from "react-icons/io5"
 import { LuLayoutDashboard } from "react-icons/lu"
-import { MdNoAdultContent, MdOutlineDownloading } from "react-icons/md"
+import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist } from "react-icons/si"
@@ -48,6 +51,8 @@ export default function Page() {
 
     const { mutate, data, isPending } = useSaveSettings()
 
+    const { data: mediastreamSettings } = useGetMediastreamSettings()
+
     useEffect(() => {
         if (!isPending && !!data?.settings) {
             setServerStatus(data)
@@ -73,129 +78,134 @@ export default function Page() {
                 </div>
             </div>
             {/*<Separator/>*/}
-            <Form
-                schema={settingsSchema}
-                onSubmit={data => {
-                    mutate({
-                        library: {
-                            libraryPath: data.libraryPath,
-                            autoUpdateProgress: data.autoUpdateProgress,
-                            disableUpdateCheck: data.disableUpdateCheck,
-                            torrentProvider: data.torrentProvider,
-                            autoScan: data.autoScan,
-                            enableOnlinestream: data.enableOnlinestream,
-                            disableAnimeCardTrailers: data.disableAnimeCardTrailers,
-                            enableManga: data.enableManga,
-                            dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
-                        },
-                        mediaPlayer: {
-                            host: data.mediaPlayerHost,
-                            defaultPlayer: data.defaultPlayer,
-                            vlcPort: data.vlcPort,
-                            vlcUsername: data.vlcUsername || "",
-                            vlcPassword: data.vlcPassword,
-                            vlcPath: data.vlcPath || "",
-                            mpcPort: data.mpcPort,
-                            mpcPath: data.mpcPath || "",
-                            mpvSocket: data.mpvSocket || "",
-                            mpvPath: data.mpvPath || "",
-                        },
-                        torrent: {
-                            defaultTorrentClient: data.defaultTorrentClient,
-                            qbittorrentPath: data.qbittorrentPath,
-                            qbittorrentHost: data.qbittorrentHost,
-                            qbittorrentPort: data.qbittorrentPort,
-                            qbittorrentPassword: data.qbittorrentPassword,
-                            qbittorrentUsername: data.qbittorrentUsername,
-                            transmissionPath: data.transmissionPath,
-                            transmissionHost: data.transmissionHost,
-                            transmissionPort: data.transmissionPort,
-                            transmissionUsername: data.transmissionUsername,
-                            transmissionPassword: data.transmissionPassword,
-                        },
-                        discord: {
-                            enableRichPresence: data?.enableRichPresence ?? false,
-                            enableAnimeRichPresence: data?.enableAnimeRichPresence ?? false,
-                            enableMangaRichPresence: data?.enableMangaRichPresence ?? false,
-                        },
-                        anilist: {
-                            hideAudienceScore: data.hideAudienceScore,
-                            enableAdultContent: data.enableAdultContent,
-                            blurAdultContent: data.blurAdultContent,
-                        },
-                    })
-                }}
-                defaultValues={{
-                    libraryPath: status?.settings?.library?.libraryPath,
-                    mediaPlayerHost: status?.settings?.mediaPlayer?.host,
-                    torrentProvider: status?.settings?.library?.torrentProvider || DEFAULT_TORRENT_PROVIDER, // (Backwards compatibility)
-                    autoScan: status?.settings?.library?.autoScan,
-                    defaultPlayer: status?.settings?.mediaPlayer?.defaultPlayer,
-                    vlcPort: status?.settings?.mediaPlayer?.vlcPort,
-                    vlcUsername: status?.settings?.mediaPlayer?.vlcUsername,
-                    vlcPassword: status?.settings?.mediaPlayer?.vlcPassword,
-                    vlcPath: status?.settings?.mediaPlayer?.vlcPath,
-                    mpcPort: status?.settings?.mediaPlayer?.mpcPort,
-                    mpcPath: status?.settings?.mediaPlayer?.mpcPath,
-                    mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
-                    mpvPath: status?.settings?.mediaPlayer?.mpvPath,
-                    defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards compatibility)
-                    qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
-                    qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
-                    qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
-                    qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
-                    qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
-                    transmissionPath: status?.settings?.torrent?.transmissionPath,
-                    transmissionHost: status?.settings?.torrent?.transmissionHost,
-                    transmissionPort: status?.settings?.torrent?.transmissionPort,
-                    transmissionUsername: status?.settings?.torrent?.transmissionUsername,
-                    transmissionPassword: status?.settings?.torrent?.transmissionPassword,
-                    hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
-                    autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
-                    disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
-                    enableOnlinestream: status?.settings?.library?.enableOnlinestream ?? false,
-                    disableAnimeCardTrailers: status?.settings?.library?.disableAnimeCardTrailers ?? false,
-                    enableManga: status?.settings?.library?.enableManga ?? false,
-                    enableRichPresence: status?.settings?.discord?.enableRichPresence ?? false,
-                    enableAnimeRichPresence: status?.settings?.discord?.enableAnimeRichPresence ?? false,
-                    enableMangaRichPresence: status?.settings?.discord?.enableMangaRichPresence ?? false,
-                    enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
-                    blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
-                    dohProvider: status?.settings?.library?.dohProvider || "-",
-                }}
-                stackClass="space-y-4"
+
+
+            {/*<Card className="p-0 overflow-hidden">*/}
+            <Tabs
+                defaultValue="mediastream"
+                className={tabsRootClass}
+                triggerClass={tabsTriggerClass}
+                listClass={tabsListClass}
             >
+                <TabsList>
+                    <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
+                    <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
+                    <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
+                    <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
+                    <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                    <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
+                    <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
+                    <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
+                    <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
+                    <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
+                    {/*FIXME Remove if stable*/}
+                    {status?.featureFlags?.experimental?.mediastream &&
+                        <TabsTrigger value="mediastream"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming</TabsTrigger>}
+                </TabsList>
 
-                {/*<Card className="p-0 overflow-hidden">*/}
-                <Tabs
-                    defaultValue="seanime"
-                    className={tabsRootClass}
-                    triggerClass={tabsTriggerClass}
-                    listClass={tabsListClass}
-                >
-                    <TabsList>
-                        <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
-                        <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
-                        <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
-                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
-                        <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
-                        <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
-                        <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
-                        <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
-                        <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
-                        <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
-                    </TabsList>
-
-                    <div className="">
+                <div className="">
+                    <Form
+                        schema={settingsSchema}
+                        onSubmit={data => {
+                            mutate({
+                                library: {
+                                    libraryPath: data.libraryPath,
+                                    autoUpdateProgress: data.autoUpdateProgress,
+                                    disableUpdateCheck: data.disableUpdateCheck,
+                                    torrentProvider: data.torrentProvider,
+                                    autoScan: data.autoScan,
+                                    enableOnlinestream: data.enableOnlinestream,
+                                    disableAnimeCardTrailers: data.disableAnimeCardTrailers,
+                                    enableManga: data.enableManga,
+                                    dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
+                                },
+                                mediaPlayer: {
+                                    host: data.mediaPlayerHost,
+                                    defaultPlayer: data.defaultPlayer,
+                                    vlcPort: data.vlcPort,
+                                    vlcUsername: data.vlcUsername || "",
+                                    vlcPassword: data.vlcPassword,
+                                    vlcPath: data.vlcPath || "",
+                                    mpcPort: data.mpcPort,
+                                    mpcPath: data.mpcPath || "",
+                                    mpvSocket: data.mpvSocket || "",
+                                    mpvPath: data.mpvPath || "",
+                                },
+                                torrent: {
+                                    defaultTorrentClient: data.defaultTorrentClient,
+                                    qbittorrentPath: data.qbittorrentPath,
+                                    qbittorrentHost: data.qbittorrentHost,
+                                    qbittorrentPort: data.qbittorrentPort,
+                                    qbittorrentPassword: data.qbittorrentPassword,
+                                    qbittorrentUsername: data.qbittorrentUsername,
+                                    transmissionPath: data.transmissionPath,
+                                    transmissionHost: data.transmissionHost,
+                                    transmissionPort: data.transmissionPort,
+                                    transmissionUsername: data.transmissionUsername,
+                                    transmissionPassword: data.transmissionPassword,
+                                },
+                                discord: {
+                                    enableRichPresence: data?.enableRichPresence ?? false,
+                                    enableAnimeRichPresence: data?.enableAnimeRichPresence ?? false,
+                                    enableMangaRichPresence: data?.enableMangaRichPresence ?? false,
+                                },
+                                anilist: {
+                                    hideAudienceScore: data.hideAudienceScore,
+                                    enableAdultContent: data.enableAdultContent,
+                                    blurAdultContent: data.blurAdultContent,
+                                },
+                            })
+                        }}
+                        defaultValues={{
+                            libraryPath: status?.settings?.library?.libraryPath,
+                            mediaPlayerHost: status?.settings?.mediaPlayer?.host,
+                            torrentProvider: status?.settings?.library?.torrentProvider || DEFAULT_TORRENT_PROVIDER, // (Backwards compatibility)
+                            autoScan: status?.settings?.library?.autoScan,
+                            defaultPlayer: status?.settings?.mediaPlayer?.defaultPlayer,
+                            vlcPort: status?.settings?.mediaPlayer?.vlcPort,
+                            vlcUsername: status?.settings?.mediaPlayer?.vlcUsername,
+                            vlcPassword: status?.settings?.mediaPlayer?.vlcPassword,
+                            vlcPath: status?.settings?.mediaPlayer?.vlcPath,
+                            mpcPort: status?.settings?.mediaPlayer?.mpcPort,
+                            mpcPath: status?.settings?.mediaPlayer?.mpcPath,
+                            mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
+                            mpvPath: status?.settings?.mediaPlayer?.mpvPath,
+                            defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards
+                                                                                                                             // compatibility)
+                            qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
+                            qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
+                            qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
+                            qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
+                            qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
+                            transmissionPath: status?.settings?.torrent?.transmissionPath,
+                            transmissionHost: status?.settings?.torrent?.transmissionHost,
+                            transmissionPort: status?.settings?.torrent?.transmissionPort,
+                            transmissionUsername: status?.settings?.torrent?.transmissionUsername,
+                            transmissionPassword: status?.settings?.torrent?.transmissionPassword,
+                            hideAudienceScore: status?.settings?.anilist?.hideAudienceScore ?? false,
+                            autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
+                            disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
+                            enableOnlinestream: status?.settings?.library?.enableOnlinestream ?? false,
+                            disableAnimeCardTrailers: status?.settings?.library?.disableAnimeCardTrailers ?? false,
+                            enableManga: status?.settings?.library?.enableManga ?? false,
+                            enableRichPresence: status?.settings?.discord?.enableRichPresence ?? false,
+                            enableAnimeRichPresence: status?.settings?.discord?.enableAnimeRichPresence ?? false,
+                            enableMangaRichPresence: status?.settings?.discord?.enableMangaRichPresence ?? false,
+                            enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
+                            blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
+                            dohProvider: status?.settings?.library?.dohProvider || "-",
+                        }}
+                        stackClass="space-y-4"
+                    >
                         <TabsContent value="seanime" className="space-y-6">
 
                             <h3>Library</h3>
 
                             <Field.DirectorySelector
                                 name="libraryPath"
-                                label="Library folder"
+                                label="Library directory"
                                 leftIcon={<FcFolder />}
-                                help="Folder where your anime library is located. (Keep the casing consistent)"
+                                help="Directory where your anime library is located. (Keep the casing consistent)"
                                 shouldExist
                             />
                             <Separator />
@@ -225,6 +235,8 @@ export default function Page() {
                                 help="If enabled, Seanime will not check for new releases."
                             />
 
+                            <SettingsSubmitButton isPending={isPending} />
+
                         </TabsContent>
 
                         <TabsContent value="nsfw" className="space-y-6">
@@ -241,6 +253,8 @@ export default function Page() {
                                 label="Blur adult content"
                                 help="If enabled, adult content will be blurred."
                             />
+
+                            <SettingsSubmitButton isPending={isPending} />
 
                         </TabsContent>
 
@@ -260,6 +274,8 @@ export default function Page() {
                                 help=""
                             />
 
+                            <SettingsSubmitButton isPending={isPending} />
+
                         </TabsContent>
 
                         <TabsContent value="manga" className="space-y-6">
@@ -271,6 +287,8 @@ export default function Page() {
                                 label={<span className="flex gap-1 items-center">Enable</span>}
                                 help="Read manga series, download chapters and track your progress."
                             />
+
+                            <SettingsSubmitButton isPending={isPending} />
 
                         </TabsContent>
 
@@ -284,6 +302,8 @@ export default function Page() {
                                 help="Watch anime episodes from online sources."
                             />
 
+                            <SettingsSubmitButton isPending={isPending} />
+
                         </TabsContent>
 
                         <TabsContent value="discord" className="space-y-6">
@@ -292,13 +312,7 @@ export default function Page() {
 
                             <DiscordRichPresenceSettings />
 
-                        </TabsContent>
-
-                        <TabsContent value="cache" className="space-y-6">
-
-                            <h3>Cache</h3>
-
-                            <FilecacheSettings />
+                            <SettingsSubmitButton isPending={isPending} />
 
                         </TabsContent>
 
@@ -333,6 +347,8 @@ export default function Page() {
                             {/*        { label: "Quad9", value: "quad9" },*/}
                             {/*    ]}*/}
                             {/*/>*/}
+
+                            <SettingsSubmitButton isPending={isPending} />
 
                         </TabsContent>
 
@@ -440,6 +456,8 @@ export default function Page() {
                                 </AccordionItem>
                             </Accordion>
 
+                            <SettingsSubmitButton isPending={isPending} />
+
                         </TabsContent>
 
                         <TabsContent value="torrent-client" className="space-y-4">
@@ -530,16 +548,32 @@ export default function Page() {
                                 </AccordionItem>
                             </Accordion>
 
+                            <SettingsSubmitButton isPending={isPending} />
+
                         </TabsContent>
 
-                        <div className="mt-8">
-                            <Field.Submit role="save" intent="white" rounded loading={isPending}>Save</Field.Submit>
-                        </div>
-                    </div>
-                </Tabs>
-                {/*</Card>*/}
+                    </Form>
 
-            </Form>
+                    <TabsContent value="cache" className="space-y-6">
+
+                        <h3>Cache</h3>
+
+                        <FilecacheSettings />
+
+                    </TabsContent>
+
+                    <TabsContent value="mediastream" className="space-y-6">
+
+                        <h3>Media streaming</h3>
+
+                        <MediastreamSettings settings={mediastreamSettings} />
+
+                    </TabsContent>
+
+                </div>
+            </Tabs>
+            {/*</Card>*/}
+
         </PageWrapper>
     )
 

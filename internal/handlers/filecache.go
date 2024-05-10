@@ -13,9 +13,7 @@ import (
 //	@returns bool
 func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 	// Get the cache size
-	size, err := c.App.FileCacher.GetTotalSize(func(filename string) bool {
-		return true
-	})
+	size, err := c.App.FileCacher.GetTotalSize()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -34,7 +32,7 @@ func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 func HandleRemoveFileCacheBucket(c *RouteCtx) error {
 
 	type body struct {
-		Bucket string `json:"bucket"`
+		Bucket string `json:"bucket"` // e.g. "onlinestream_"
 	}
 
 	// Parse the request body
@@ -50,6 +48,45 @@ func HandleRemoveFileCacheBucket(c *RouteCtx) error {
 
 	if err != nil {
 		return c.RespondWithError(err)
+	}
+
+	// Return a success response
+	return c.RespondWithData(true)
+}
+
+// HandleGetFileCacheMediastreamVideoFilesTotalSize
+//
+//	@summary returns the total size of cached video file data.
+//	@desc The total size of the cache video file data is returned in human-readable format.
+//	@route /api/v1/filecache/mediastream/videofiles/total-size [GET]
+//	@returns bool
+func HandleGetFileCacheMediastreamVideoFilesTotalSize(c *RouteCtx) error {
+	// Get the cache size
+	size, err := c.App.FileCacher.GetMediastreamVideoFilesTotalSize()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Return the cache size
+	return c.RespondWithData(util.ToHumanReadableSize(size))
+}
+
+// HandleClearFileCacheMediastreamVideoFiles
+//
+//	@summary deletes the contents of the mediastream video file cache directory.
+//	@desc Returns 'true' if the operation was successful.
+//	@route /api/v1/filecache/mediastream/videofiles [DELETE]
+//	@returns bool
+func HandleClearFileCacheMediastreamVideoFiles(c *RouteCtx) error {
+
+	err := c.App.FileCacher.ClearMediastreamVideoFiles()
+
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if c.App.MediastreamRepository != nil {
+		c.App.MediastreamRepository.CacheWasCleared()
 	}
 
 	// Return a success response

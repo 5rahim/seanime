@@ -1772,6 +1772,66 @@
     }
   },
   {
+    "name": "HandleGetFileCacheMediastreamVideoFilesTotalSize",
+    "trimmedName": "GetFileCacheMediastreamVideoFilesTotalSize",
+    "comments": [
+      "HandleGetFileCacheMediastreamVideoFilesTotalSize",
+      "",
+      "\t@summary returns the total size of cached video file data.",
+      "\t@desc The total size of the cache video file data is returned in human-readable format.",
+      "\t@route /api/v1/filecache/mediastream/videofiles/total-size [GET]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/filecache.go",
+    "filename": "filecache.go",
+    "api": {
+      "summary": "returns the total size of cached video file data.",
+      "descriptions": [
+        "The total size of the cache video file data is returned in human-readable format."
+      ],
+      "endpoint": "/api/v1/filecache/mediastream/videofiles/total-size",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleClearFileCacheMediastreamVideoFiles",
+    "trimmedName": "ClearFileCacheMediastreamVideoFiles",
+    "comments": [
+      "HandleClearFileCacheMediastreamVideoFiles",
+      "",
+      "\t@summary deletes the contents of the mediastream video file cache directory.",
+      "\t@desc Returns 'true' if the operation was successful.",
+      "\t@route /api/v1/filecache/mediastream/videofiles [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/filecache.go",
+    "filename": "filecache.go",
+    "api": {
+      "summary": "deletes the contents of the mediastream video file cache directory.",
+      "descriptions": [
+        "Returns 'true' if the operation was successful."
+      ],
+      "endpoint": "/api/v1/filecache/mediastream/videofiles",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleDeleteListSyncCache",
     "trimmedName": "DeleteListSyncCache",
     "comments": [
@@ -3173,7 +3233,7 @@
       "\t@summary save mediastream settings.",
       "\t@desc This saves the mediastream settings.",
       "\t@returns models.MediastreamSettings",
-      "\t@route /api/v1/mediastream/settings [POST]",
+      "\t@route /api/v1/mediastream/settings [PATCH]",
       ""
     ],
     "filepath": "internal/handlers/mediastream.go",
@@ -3185,7 +3245,7 @@
       ],
       "endpoint": "/api/v1/mediastream/settings",
       "methods": [
-        "POST"
+        "PATCH"
       ],
       "params": [],
       "bodyFields": [

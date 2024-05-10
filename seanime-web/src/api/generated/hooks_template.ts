@@ -438,6 +438,26 @@
 //     })
 // }
 
+// export function useGetFileCacheMediastreamVideoFilesTotalSize() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.endpoint,
+//         method: API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.methods[0],
+//         queryKey: [API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useClearFileCacheMediastreamVideoFiles() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.endpoint,
+//         method: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // list_sync
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -396,6 +396,26 @@ export const API_ENDPOINTS = {
             methods: ["DELETE"],
             endpoint: "/api/v1/filecache/bucket",
         },
+        /**
+         *  @description
+         *  Route returns the total size of cached video file data.
+         *  The total size of the cache video file data is returned in human-readable format.
+         */
+        GetFileCacheMediastreamVideoFilesTotalSize: {
+            key: "FILECACHE-get-file-cache-mediastream-video-files-total-size",
+            methods: ["GET"],
+            endpoint: "/api/v1/filecache/mediastream/videofiles/total-size",
+        },
+        /**
+         *  @description
+         *  Route deletes the contents of the mediastream video file cache directory.
+         *  Returns 'true' if the operation was successful.
+         */
+        ClearFileCacheMediastreamVideoFiles: {
+            key: "FILECACHE-clear-file-cache-mediastream-video-files",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/filecache/mediastream/videofiles",
+        },
     },
     LIST_SYNC: {
         /**
@@ -715,7 +735,7 @@ export const API_ENDPOINTS = {
          */
         SaveMediastreamSettings: {
             key: "MEDIASTREAM-save-mediastream-settings",
-            methods: ["POST"],
+            methods: ["PATCH"],
             endpoint: "/api/v1/mediastream/settings",
         },
         /**

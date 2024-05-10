@@ -393,7 +393,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
             : window?.location?.host)) : ""
         if (mediaContainer?.streamUrl && mediaContainer?.streamType) {
-            return `${baseUri}/api/v1/mediastream/transcode-subs`
+            return `${baseUri}/api/v1/mediastream/subs`
         }
         return ""
     }, [mediaContainer?.streamUrl, mediaContainer?.streamType])

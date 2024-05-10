@@ -283,6 +283,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1FileCache.Get("/total-size", makeHandler(app, HandleGetFileCacheTotalSize))
 	v1FileCache.Delete("/bucket", makeHandler(app, HandleRemoveFileCacheBucket))
 
+	v1FileCache.Get("/mediastream/videofiles/total-size", makeHandler(app, HandleGetFileCacheMediastreamVideoFilesTotalSize))
+	v1FileCache.Delete("/mediastream/videofiles", makeHandler(app, HandleClearFileCacheMediastreamVideoFiles))
+
 	//
 	// Discord
 	//
@@ -304,9 +307,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// Stream
 	//
+	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
+	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
 	if app.FeatureFlags.IsExperimentalMediastreamEnabled() {
-		v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
-		v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
 
 		v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
 		v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
@@ -317,7 +320,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		// Transcode
 		v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
 		v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
-		v1.Get("/mediastream/transcode-subs/*", makeHandler(app, HandleMediastreamGetTranscodeSubtitles))
+		v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
 	}
 
 	//

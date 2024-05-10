@@ -99,7 +99,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                     <div
                         className="w-full flex flex-none flex-nowrap overflow-x-auto gap-2 items-center bg-gray-800 rounded-md p-1 px-4"
                     >
-                        <div className="flex-none">Sub-folders:</div>
+                        <div className="flex-none">Subdirectories:</div>
                         {data.suggestions.map(folder => (
                             <div
                                 key={folder.fullPath}
@@ -135,7 +135,7 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
                     <div
                         className="w-full flex flex-col flex-none flex-nowrap overflow-x-auto gap-1 max-h-60"
                     >
-                        <div className="flex-none">Sub-folders:</div>
+                        <div className="flex-none">Subdirectories:</div>
                         {data.content.map(folder => (
                             <div
                                 key={folder.fullPath}
