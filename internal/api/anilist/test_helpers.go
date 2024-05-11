@@ -413,3 +413,7 @@ func (c *MockClientWrapper) MangaDetailsByID(ctx context.Context, id *int, inter
 func (c *MockClientWrapper) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
 	return c.realClientWrapper.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
 }
+func (c *MockClientWrapper) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
+	c.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
+	return c.realClientWrapper.StudioDetails(ctx, id, interceptors...)
+}

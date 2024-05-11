@@ -841,6 +841,7 @@ export type AL_MediaDetailsById_Media = {
     startDate?: AL_MediaDetailsById_Media_StartDate
     endDate?: AL_MediaDetailsById_Media_EndDate
     studios?: AL_MediaDetailsById_Media_Studios
+    staff?: AL_MediaDetailsById_Media_Staff
     rankings?: Array<AL_MediaDetailsById_Media_Rankings>
     recommendations?: AL_MediaDetailsById_Media_Recommendations
 }
@@ -973,6 +974,44 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_MediaDetailsById_Media_Staff = {
+    edges?: Array<AL_MediaDetailsById_Media_Staff_Edges>
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Staff_Edges = {
+    role?: string
+    node?: AL_MediaDetailsById_Media_Staff_Edges_Node
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Staff_Edges_Node = {
+    name?: AL_MediaDetailsById_Media_Staff_Edges_Node_Name
+    id: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Staff_Edges_Node_Name = {
+    full?: string
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_MediaDetailsById_Media_StartDate = {
     year?: number
     month?: number
@@ -995,6 +1034,7 @@ export type AL_MediaDetailsById_Media_Studios = {
  */
 export type AL_MediaDetailsById_Media_Studios_Nodes = {
     name: string
+    id: number
 }
 
 /**
@@ -1139,6 +1179,36 @@ export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CA
  *  Media type enum, anime or manga.
  */
 export type AL_MediaType = "ANIME" | "MANGA"
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_StudioDetails = {
+    Studio?: AL_StudioDetails_Studio
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_StudioDetails_Studio = {
+    id: number
+    isAnimationStudio: boolean
+    name: string
+    media?: AL_StudioDetails_Studio_Media
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_StudioDetails_Studio_Media = {
+    nodes?: Array<AL_BasicMedia>
+}
 
 /**
  * - Filepath: internal/api/anilist/client_gen.go

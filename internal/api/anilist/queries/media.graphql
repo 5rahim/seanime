@@ -87,6 +87,18 @@ query MediaDetailsById ($id: Int) {
     studios(isMain: true) {
       nodes {
         name
+        id
+      }
+    }
+    staff(sort: [RELEVANCE]) {
+      edges {
+        role
+        node {
+          name {
+            full
+          }
+          id
+        }
       }
     }
     rankings {

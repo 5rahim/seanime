@@ -46,8 +46,8 @@ github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migc
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/PuerkitoBio/goquery v1.8.1 h1:uQxhNlArOIdbrH1tr0UXwdVFgDcZDrZVdcpygAcwmWM=
 github.com/PuerkitoBio/goquery v1.8.1/go.mod h1:Q8ICL1kNUJ2sXGoAhPGUdYDJvgQgHzJsnnd3H7Ho5jQ=
-github.com/Yamashou/gqlgenc v0.20.1 h1:bOWMP3jPhGWb0BRg56oo1lo2Yhx6CF/WnWngamp6tNY=
-github.com/Yamashou/gqlgenc v0.20.1/go.mod h1:oMc4EQBQeDwLIODvgcvpaSp6rO+KMf47FuOhplv5D3A=
+github.com/Yamashou/gqlgenc v0.23.1 h1:Up1KhqLGx2c2lLmqVU0ngBdvYhL/lWS10CTxeFHuSZw=
+github.com/Yamashou/gqlgenc v0.23.1/go.mod h1:oMc4EQBQeDwLIODvgcvpaSp6rO+KMf47FuOhplv5D3A=
 github.com/adrg/strutil v0.3.1 h1:OLvSS7CSJO8lBii4YmBt8jiK9QOtB9CzCzwl4Ic/Fz4=
 github.com/adrg/strutil v0.3.1/go.mod h1:8h90y18QLrs11IBffcGX3NW/GFBXCMcNg4M7H6MspPA=
 github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 h1:bvNMNQO63//z+xNgfBlViaCIJKLlCJ6/fmUseuG0wVQ=

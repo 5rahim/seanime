@@ -63,6 +63,20 @@ export type GetAnilistMediaDetails_Variables = {
 /**
  * - Filepath: internal/handlers/anilist.go
  * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/studio-details/{id}
+ * @description
+ * Route returns details about a studio.
+ */
+export type GetAnilistStudioDetails_Variables = {
+    /**
+     *  The AniList studio ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/anilist.go
+ * - Filename: anilist.go
  * - Endpoint: /api/v1/anilist/list-entry
  * @description
  * Route deletes an entry from the user's AniList list.

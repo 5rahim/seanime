@@ -116,6 +116,36 @@ func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 	return c.RespondWithData(details.GetMedia())
 }
 
+const studioDetailsCacheTTL = time.Hour * 24
+
+var studioDetailsCache = result.NewCache[int, *anilist.StudioDetails]()
+
+// HandleGetAnilistStudioDetails
+//
+//	@summary returns details about a studio.
+//	@desc This fetches media produced by the studio.
+//	@param id - int - true - "The AniList studio ID"
+//	@returns anilist.StudioDetails
+//	@route /api/v1/anilist/studio-details/{id} [GET]
+func HandleGetAnilistStudioDetails(c *RouteCtx) error {
+
+	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if details, ok := studioDetailsCache.Get(mId); ok {
+		return c.RespondWithData(details)
+	}
+	details, err := c.App.AnilistClientWrapper.StudioDetails(c.Fiber.Context(), &mId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	studioDetailsCache.Set(mId, details)
+
+	return c.RespondWithData(details)
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 // HandleDeleteAnilistListEntry

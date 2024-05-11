@@ -42,6 +42,15 @@
 //     })
 // }
 
+// export function useGetAnilistStudioDetails(id: number) {
+//     return useServerQuery<AL_StudioDetails>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useDeleteAnilistListEntry() {
 //     return useServerMutation<AL_DeleteEntry, DeleteAnilistListEntry_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.endpoint,
