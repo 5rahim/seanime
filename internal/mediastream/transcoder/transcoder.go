@@ -78,6 +78,11 @@ func (t *Transcoder) GetSettings() *Settings {
 // Destroy stops all streams and removes the output directory.
 // A new transcoder should be created after calling this function.
 func (t *Transcoder) Destroy() {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	t.tracker.Stop()
 
 	t.logger.Debug().Msg("transcoder: Destroying transcoder")
 	for _, s := range t.streams.Values() {

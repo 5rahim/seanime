@@ -228,11 +228,8 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	}
 
 	// Uncomment if "mediastream" is no longer an experimental feature
-	if cfg.Experimental.Mediastream != nil && *cfg.Experimental.Mediastream {
-		logger.Warn().Msgf("app: The 'mediastream' feature is experimental and may not work as expected")
-	}
 	//if cfg.Experimental.Mediastream != nil {
-	//	logger.Warn().Msgf("app: The 'mediastream' feature is no longer experimental, please remove the flag from your config file")
+	//	logger.Warn().Msgf("app: 'Media streaming' feature is no longer experimental, please remove the flag from your config file")
 	//}
 
 	return nil

@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"errors"
-	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/fiberlogger"
 	util2 "github.com/seanime-app/seanime/internal/util/proxies"
 	"strings"
 	"sync"
@@ -22,17 +22,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	// Set up a custom logger for fiber.
 	// This is not instantiated in `core.NewFiberApp` because we do not want to log requests for the static file server.
-	fiberLogger := fiberzerolog.New(fiberzerolog.Config{
+	fiberLogger := fiberlogger.New(fiberlogger.Config{
 		Logger: app.Logger,
 		SkipURIs: []string{
 			"/internal/metrics",
 			"/_next",
 			"/icons",
+			"/events",
 			"/api/v1/image-proxy",
 			"/api/v1/mediastream/transcode/",
 		},
 		Fields:   []string{"method", "error", "url"},
-		Messages: []string{"req: error", "req: client error", "req: Success"},
+		Messages: []string{"api: Error", "api: Client error", "api: Success"},
 		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
 	})
 	fiberApp.Use(fiberLogger)

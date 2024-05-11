@@ -2,10 +2,11 @@ package transcoder
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"math"
@@ -33,6 +34,7 @@ type StreamHandle interface {
 }
 
 type Stream struct {
+	kind     string
 	handle   StreamHandle
 	file     *FileStream
 	segments []Segment
@@ -46,6 +48,8 @@ type Stream struct {
 	logger   *zerolog.Logger
 	settings *Settings
 	killCh   chan struct{}
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 type Segment struct {
@@ -76,18 +80,21 @@ var DeletedHead = Head{
 var streamLogger = util.NewLogger()
 
 func NewStream(
+	kind string,
 	file *FileStream,
 	handle StreamHandle,
 	ret *Stream,
 	settings *Settings,
 	logger *zerolog.Logger,
 ) {
+	ret.kind = kind
 	ret.handle = handle
 	ret.file = file
 	ret.heads = make([]Head, 0)
 	ret.settings = settings
 	ret.logger = logger
 	ret.killCh = make(chan struct{})
+	ret.ctx, ret.cancel = context.WithCancel(context.Background())
 
 	length, isDone := file.Keyframes.Length()
 	ret.segments = make([]Segment, length, max(length, 2000))
@@ -172,13 +179,13 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 	if !ready {
 		// Only start a new encode if there is too big a distance between the current encoder and the segment.
 		if distance > 60 || !isScheduled {
-			streamLogger.Trace().Msgf("transcoder: New head for segment %d - closest head is %.2fs away", segment, distance)
+			streamLogger.Trace().Msgf("transcoder: New encoder for segment %d", segment)
 			err := ts.run(segment)
 			if err != nil {
 				return "", err
 			}
 		} else {
-			streamLogger.Trace().Msgf("transcoder: Awaiting segment %d since encoder head is %.2fs away", segment, distance)
+			streamLogger.Trace().Msgf("transcoder: Awaiting segment %d - %.2fs gap", segment, distance)
 		}
 
 		select {
@@ -186,10 +193,12 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 		// It's used to interrupt the waiting process but might not be needed since there's a timeout
 		case <-ts.killCh:
 			return "", fmt.Errorf("transcoder: Stream killed while waiting for segment %d", segment)
+		case <-ts.ctx.Done():
+			return "", fmt.Errorf("transcoder: Context cancelled while waiting for segment %d", segment)
 		case <-readyChan:
 			break
 		case <-time.After(25 * time.Second):
-			streamLogger.Error().Msgf("transcoder: Could not retrieve segment %d (timeout)", segment)
+			streamLogger.Error().Msgf("transcoder: Could not retrieve %s segment %d (timeout)", ts.kind, segment)
 			return "", errors.New("could not retrieve segment (timeout)")
 		}
 	}
@@ -234,13 +243,13 @@ func (ts *Stream) prepareNextSegments(segment int32) {
 }
 
 func (ts *Stream) getMinEncoderDistance(segment int32) float64 {
-	time := ts.file.Keyframes.Get(segment)
-	distances := lo.Map(ts.heads, func(head Head, _ int) float64 {
+	t := ts.file.Keyframes.Get(segment)
+	distances := lop.Map(ts.heads, func(head Head, _ int) float64 {
 		// ignore killed heads or heads after the current time
-		if head.segment < 0 || ts.file.Keyframes.Get(head.segment) > time || segment >= head.end {
+		if head.segment < 0 || ts.file.Keyframes.Get(head.segment) > t || segment >= head.end {
 			return math.Inf(1)
 		}
-		return time - ts.file.Keyframes.Get(head.segment)
+		return t - ts.file.Keyframes.Get(head.segment)
 	})
 	if len(distances) == 0 {
 		return math.Inf(1)
@@ -249,7 +258,7 @@ func (ts *Stream) getMinEncoderDistance(segment int32) float64 {
 }
 
 func (ts *Stream) Kill() {
-	streamLogger.Trace().Msg("transcoder: Killing stream")
+	streamLogger.Trace().Msgf("transcoder: Killing %s stream", ts.kind)
 	defer streamLogger.Trace().Msg("transcoder: Stream killed")
 	ts.lockHeads()
 	defer ts.unlockHeads()
@@ -272,19 +281,20 @@ func (ts *Stream) IsKilled() bool {
 // KillHead
 // Stream is assumed to be locked
 func (ts *Stream) KillHead(encoderId int) {
-	streamLogger.Trace().Int("eid", encoderId).Msg("transcoder: Killing encoder head")
-	defer streamLogger.Trace().Int("eid", encoderId).Msg("transcoder: Encoder head killed")
+	//streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Killing %s encoder head", ts.kind)
+	defer streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Killed %s encoder head", ts.kind)
 	defer func() {
 		if r := recover(); r != nil {
 		}
 	}()
 	close(ts.killCh)
+	ts.cancel()
 	if ts.heads[encoderId] == DeletedHead || ts.heads[encoderId].command == nil {
 		return
 	}
-	//ts.heads[encoderId].command.Process.Signal(os.Interrupt)
-	_, _ = ts.heads[encoderId].stdin.Write([]byte("q"))
-	_ = ts.heads[encoderId].stdin.Close()
+	ts.heads[encoderId].command.Process.Signal(os.Interrupt)
+	//_, _ = ts.heads[encoderId].stdin.Write([]byte("q"))
+	//_ = ts.heads[encoderId].stdin.Close()
 
 	ts.heads[encoderId] = DeletedHead
 }
@@ -324,7 +334,7 @@ func (ts *Stream) run(start int32) error {
 	//if ts.IsKilled() {
 	//	return nil
 	//}
-	ts.logger.Trace().Msgf("transcoder: Running encoder head from %d", start)
+	ts.logger.Trace().Msgf("transcoder: Running %s encoder head from %d", ts.kind, start)
 	// Start the transcoder up to the 100th segment (or less)
 	length, isDone := ts.file.Keyframes.Length()
 	end := min(start+100, length)
@@ -357,10 +367,11 @@ func (ts *Stream) run(start int32) error {
 	ts.unlockHeads()
 
 	streamLogger.Trace().Any("eid", encoderId).Msgf(
-		"Transcoding %d-%d/%d segments",
+		"transcoder: Transcoding %d-%d/%d segments for %s",
 		start,
 		end,
 		length,
+		ts.kind,
 	)
 
 	// Include both the start and end delimiter because -ss and -to are not accurate
@@ -471,7 +482,7 @@ func (ts *Stream) run(start int32) error {
 	)
 
 	cmd := exec.Command(ts.settings.FfmpegPath, args...)
-	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d", start, end)
+	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d of %s", start, end, ts.kind)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -493,7 +504,7 @@ func (ts *Stream) run(start int32) error {
 	ts.heads[encoderId].stdin = stdin
 	ts.unlockHeads()
 
-	go func() {
+	go func(stdin io.WriteCloser) {
 		scanner := bufio.NewScanner(stdout)
 		format := filepath.Base(outpath)
 		shouldStop := false
@@ -512,7 +523,7 @@ func (ts *Stream) run(start int32) error {
 			ts.heads[encoderId].segment = segment
 			ts.unlockHeads()
 			if debugFfmpegOutput {
-				streamLogger.Debug().Int("eid", encoderId).Msgf("t: \t ffmpeg finished segment %d/%d (%d-%d)", segment, end, start, end)
+				streamLogger.Debug().Int("eid", encoderId).Msgf("t: \t ffmpeg finished segment %d/%d (%d-%d) of %s", segment, end, start, end, ts.kind)
 			}
 
 			ts.lockSegments()
@@ -539,7 +550,7 @@ func (ts *Stream) run(start int32) error {
 					_ = stdin.Close()
 					//cmd.Process.Signal(os.Interrupt)
 					if debugFfmpeg {
-						streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminates ffmpeg, next segment %d is ready", segment)
+						streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Terminated ffmpeg, next segment %d is ready", segment)
 					}
 					shouldStop = true
 				}
@@ -549,7 +560,7 @@ func (ts *Stream) run(start int32) error {
 			// the lock (and can't defer since this is a loop)
 			if shouldStop {
 				if debugFfmpeg {
-					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed segments %d-%d/%d", start, end, length)
+					streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed segments %d-%d/%d of %s", start, end, length, ts.kind)
 				}
 				return
 			}
@@ -559,29 +570,29 @@ func (ts *Stream) run(start int32) error {
 			streamLogger.Error().Int("eid", encoderId).Err(err).Msg("transcoder: Error scanning ffmpeg output")
 			return
 		}
-	}()
+	}(stdin)
 
 	// Listen for kill signal
-	go func() {
-		for {
-			select {
-			case <-ts.killCh:
-				_, _ = stdin.Write([]byte("q"))
-				_ = stdin.Close()
-				return
-			}
+	go func(stdin io.WriteCloser) {
+		select {
+		case <-ts.ctx.Done():
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: Aborting ffmpeg process for %s", ts.kind)
+			_, _ = stdin.Write([]byte("q"))
+			_ = stdin.Close()
+			return
 		}
-	}()
+	}(stdin)
 
 	// Listen for process termination
 	go func() {
 		err := cmd.Wait()
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 255 {
-			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg was terminated")
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() == 255 {
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg process was terminated")
 		} else if err != nil {
-			streamLogger.Error().Int("eid", encoderId).Err(fmt.Errorf("%s: %s", err, stderr.String())).Msgf("transcoder: ffmpeg failed")
+			streamLogger.Error().Int("eid", encoderId).Err(fmt.Errorf("%s: %s", err, stderr.String())).Msgf("transcoder: ffmpeg process failed")
 		} else {
-			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg completed")
+			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg process for %s exited", ts.kind)
 		}
 
 		ts.lockHeads()

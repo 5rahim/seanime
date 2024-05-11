@@ -74,6 +74,8 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 	if ok := r.initializeTranscoder(r.settings); ok {
 		r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
 	}
+
+	r.logger.Info().Msg("mediastream: Module initialized")
 }
 
 // CacheWasCleared should be called when the cache directory is manually cleared.
@@ -243,7 +245,7 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 		return false
 	}
 
-	r.logger.Info().Msg("mediastream: Transcoder initialized")
+	r.logger.Info().Msg("mediastream: Transcoder module initialized")
 	r.transcoder = mo.Some[*transcoder.Transcoder](tc)
 
 	return true

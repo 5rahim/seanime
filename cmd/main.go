@@ -1,47 +1,23 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/fatih/color"
-	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/cron"
 	"github.com/seanime-app/seanime/internal/handlers"
-	"strings"
 )
 
 func main() {
-	col := color.New(color.FgHiCyan)
-	bold := color.New(color.FgHiWhite, color.Bold)
-	fmt.Println()
-	col.Printf("\n .-----.    \n/    _ /  \n\\_..`--.  \n.-._)   \\ \n\\ ")
-	bold.Print(constants.Version)
-	col.Printf(" / \n `-----'  \n")
-	bold.Print(" SEANIME")
-	fmt.Println()
-	fmt.Println()
 
-	// Help flag
-	flag.Usage = func() {
-		fmt.Printf("Self-hosted, user-friendly, media server for anime and manga enthusiasts.\n\n")
-		fmt.Printf("Usage:\n  seanime [flags]\n\n")
-		fmt.Printf("Flags:\n")
-		fmt.Printf("  -datadir, --datadir string")
-		fmt.Printf("   directory that contains all Seanime data\n")
-		fmt.Printf("  -h                           show this help message\n")
-	}
-	// Parse flags
-	var dataDir string
-	flag.StringVar(&dataDir, "datadir", "", "Directory that contains all Seanime data")
-	var truewd bool
-	flag.BoolVar(&truewd, "truewd", false, "Force Seanime to use the binary's directory as the working directory")
-	flag.Parse()
+	// Print the header
+	core.PrintHeader()
+
+	// Get the flags
+	flags := core.GetSeanimeFlags()
 
 	// Create the app instance
 	app := core.NewApp(&core.ConfigOptions{
-		DataDir: strings.TrimSpace(dataDir),
-		TrueWd:  truewd,
+		DataDir: flags.DataDir,
+		TrueWd:  flags.TrueWd,
 	})
 	defer app.Cleanup()
 

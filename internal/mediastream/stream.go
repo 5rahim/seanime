@@ -32,8 +32,6 @@ func (r *Repository) ServeFiberDirectPlay(fiberCtx *fiber.Ctx, clientId string) 
 		return errors.New("no media has been requested")
 	}
 
-	r.logger.Trace().Any("path", mediaContainer.Filepath).Msg("mediastream: Req")
-
 	return fiberCtx.SendFile(mediaContainer.Filepath)
 }
 
@@ -120,8 +118,6 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media has been requested")
 		return errors.New("no media has been requested")
 	}
-
-	r.logger.Trace().Any("path", path).Msg("mediastream: Req")
 
 	// /master.m3u8
 	if path == "master.m3u8" {
@@ -292,8 +288,6 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 		return errors.New("no media has been requested")
 	}
 
-	r.logger.Trace().Any("subFilePath", subFilePath).Msg("mediastream: Req")
-
 	retPath := videofile.GetFileSubsCacheDir(r.cacheDir, mediaContainer.Hash)
 
 	if retPath == "" {
@@ -304,6 +298,8 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	r.logger.Trace().Any("path", retPath).Msg("mediastream: Serving extracted subtitles")
 
 	return fiberCtx.SendString(string(contentB))
 }

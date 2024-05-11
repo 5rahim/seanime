@@ -19,7 +19,7 @@ func NewVideoStream(file *FileStream, quality Quality, logger *zerolog.Logger, s
 	ret.quality = quality
 	ret.logger = logger
 	ret.settings = settings
-	NewStream(file, ret, &ret.Stream, settings, logger)
+	NewStream(fmt.Sprintf("video (%s)", quality), file, ret, &ret.Stream, settings, logger)
 	return ret
 }
 

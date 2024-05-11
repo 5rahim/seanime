@@ -23,18 +23,25 @@ type Tracker struct {
 	transcoder    *Transcoder
 	deletedStream chan string
 	logger        *zerolog.Logger
+	killCh        chan struct{} // Close channel to stop tracker
 }
 
 func NewTracker(t *Transcoder) *Tracker {
 	ret := &Tracker{
-		clients:    make(map[string]ClientInfo),
-		visitDate:  make(map[string]time.Time),
-		lastUsage:  make(map[string]time.Time),
-		transcoder: t,
-		logger:     t.logger,
+		clients:       make(map[string]ClientInfo),
+		visitDate:     make(map[string]time.Time),
+		lastUsage:     make(map[string]time.Time),
+		transcoder:    t,
+		logger:        t.logger,
+		deletedStream: make(chan string, 1000),
+		killCh:        make(chan struct{}),
 	}
 	go ret.start()
 	return ret
+}
+
+func (t *Tracker) Stop() {
+	close(t.killCh)
 }
 
 func Abs(x int32) int32 {
@@ -46,16 +53,19 @@ func Abs(x int32) int32 {
 
 func (t *Tracker) start() {
 	inactiveTime := 1 * time.Hour
-	timer := time.After(inactiveTime)
+	timer := time.NewTicker(inactiveTime)
+	defer timer.Stop()
 	for {
 		select {
+		case <-t.killCh:
+			return
 		case info, ok := <-t.transcoder.clientChan:
 			if !ok {
 				return
 			}
 
 			old, ok := t.clients[info.client]
-			// First fixup the info. Most routes ruturn partial infos
+			// First fixup the info. Most routes return partial infos
 			if ok && old.path == info.path {
 				if info.quality == nil {
 					info.quality = old.quality
@@ -87,8 +97,7 @@ func (t *Tracker) start() {
 				t.KillStreamIfDead(old.path)
 			}
 
-		case <-timer:
-			timer = time.After(inactiveTime)
+		case <-timer.C:
 			// Purge old clients
 			for client, date := range t.visitDate {
 				if time.Since(date) < inactiveTime {
@@ -128,8 +137,14 @@ func (t *Tracker) KillStreamIfDead(path string) bool {
 	}
 	stream.Kill()
 	go func() {
-		time.Sleep(4 * time.Hour)
-		t.deletedStream <- path
+		select {
+		case <-t.killCh:
+			return
+		case <-time.After(4 * time.Hour):
+			t.deletedStream <- path
+		}
+		//time.Sleep(4 * time.Hour)
+		//t.deletedStream <- path
 	}()
 	return true
 }
@@ -172,8 +187,8 @@ func (t *Tracker) KillQualityIfDead(path string, quality Quality) bool {
 			return false
 		}
 	}
-	start := time.Now()
-	t.logger.Trace().Msgf("Killing quality %s of %s", quality, path)
+	//start := time.Now()
+	t.logger.Trace().Msgf("transcoder: Killing %s video stream ", quality)
 
 	stream, ok := t.transcoder.streams.Get(path)
 	if !ok {
@@ -185,7 +200,7 @@ func (t *Tracker) KillQualityIfDead(path string, quality Quality) bool {
 	}
 	vstream.Kill()
 
-	t.logger.Trace().Msgf("Killed quality %s of %s in %.2fs", quality, path, time.Since(start).Seconds())
+	//t.logger.Trace().Msgf("transcoder: Killed %s video stream in %.2fs", quality, time.Since(start).Seconds())
 	return true
 }
 

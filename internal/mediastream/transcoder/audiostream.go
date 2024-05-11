@@ -20,7 +20,7 @@ func NewAudioStream(file *FileStream, idx int32, logger *zerolog.Logger, setting
 	ret.index = idx
 	ret.logger = logger
 	ret.settings = settings
-	NewStream(file, ret, &ret.Stream, settings, logger)
+	NewStream(fmt.Sprintf("audio %d", idx), file, ret, &ret.Stream, settings, logger)
 	return ret
 }
 

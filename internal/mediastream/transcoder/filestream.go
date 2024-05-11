@@ -70,7 +70,7 @@ func (fs *FileStream) Kill() {
 
 // Destroy stops all streams and removes the output directory.
 func (fs *FileStream) Destroy() {
-	fs.logger.Debug().Msg("transcoder: Destroying filestream")
+	fs.logger.Debug().Msg("filestream: Destroying streams")
 	fs.Kill()
 	_ = os.RemoveAll(fs.Out)
 }
@@ -177,7 +177,7 @@ func (fs *FileStream) getVideoStream(quality Quality) *VideoStream {
 
 // GetVideoSegment gets a segment of a video stream of a specific quality.
 func (fs *FileStream) GetVideoSegment(quality Quality, segment int32) (string, error) {
-	streamLogger.Debug().Msgf("filestream: Retrieving video segment %d (%s) [GetVideoSegment]", segment, quality)
+	streamLogger.Debug().Msgf("filestream: Retrieving video segment %d (%s)", segment, quality)
 	// Debug
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
@@ -216,6 +216,7 @@ func (fs *FileStream) GetAudioIndex(audio int32) (string, error) {
 
 // GetAudioSegment gets a segment of an audio stream of a specific index.
 func (fs *FileStream) GetAudioSegment(audio int32, segment int32) (string, error) {
+	streamLogger.Debug().Msgf("filestream: Retrieving audio %d segment %d", audio, segment)
 	// Debug
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -235,20 +236,24 @@ func (fs *FileStream) getAudioStream(audio int32) *AudioStream {
 }
 
 func debugStreamRequest(text string, ctx context.Context) {
-	start := time.Now()
 	//ctx, cancel := context.WithCancel(context.Background())
 	//defer cancel()
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				if debugStream {
-					time.Sleep(2 * time.Second)
-					streamLogger.Debug().Msgf("t: %s has been running for %.2f", text, time.Since(start).Seconds())
+	if debugStream {
+		start := time.Now()
+		ticker := time.NewTicker(2 * time.Second)
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					ticker.Stop()
+					return
+				case <-ticker.C:
+					if debugStream {
+						time.Sleep(2 * time.Second)
+						streamLogger.Debug().Msgf("t: %s has been running for %.2f", text, time.Since(start).Seconds())
+					}
 				}
 			}
-		}
-	}()
+		}()
+	}
 }

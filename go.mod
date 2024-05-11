@@ -8,6 +8,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/Yamashou/gqlgenc v0.20.1
 	github.com/adrg/strutil v0.3.1
+	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8
 	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -16,7 +17,6 @@ require (
 	github.com/glebarez/sqlite v1.9.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gocolly/colly v1.2.0
-	github.com/gofiber/contrib/fiberzerolog v1.0.0
 	github.com/gofiber/contrib/websocket v1.3.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/go-querystring v1.1.0
@@ -34,6 +34,7 @@ require (
 	github.com/xfrr/goffmpeg v1.0.0
 	golang.org/x/image v0.10.0
 	golang.org/x/net v0.24.0
+	golang.org/x/term v0.19.0
 	golang.org/x/text v0.14.0
 	gorm.io/gorm v1.25.7
 )
@@ -45,6 +46,7 @@ require (
 	github.com/antchfx/htmlquery v1.3.0 // indirect
 	github.com/antchfx/xmlquery v1.3.18 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fasthttp/websocket v1.5.7 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
@@ -60,6 +62,7 @@ require (
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/likexian/gokit v0.25.13 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -68,6 +71,8 @@ require (
 	github.com/mmcdole/goxpp v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
+	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
