@@ -1915,6 +1915,7 @@ export type Mediastream_StreamType = "file" | "direct" | "transcode" | "optimize
  * - Package: models
  */
 export type Models_AnilistSettings = {
+    anilistClientId: string
     hideAudienceScore: boolean
     enableAdultContent: boolean
     blurAdultContent: boolean
