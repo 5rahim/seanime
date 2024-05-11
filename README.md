@@ -74,7 +74,7 @@ Feel free to open issues or contribute. Leave a star if you like this project!
     - **MPV**, **VLC**, and **MPC-HC** support
     - Automatic progress tracking and syncing to AniList (& MAL)
     - Create **playlists** to play episodes in order
-- 📱  **Stream episodes** (Experimental)
+- 📱  **Media streaming / Transcoding** (Experimental)
   - Stream media files from the server to any device with a web browser
   - On-the-fly transcoding with seeking support powered by **FFmpeg**
   - Support for hardware acceleration

@@ -39,6 +39,7 @@ export const settingsSchema = z.object({
     enableManga: z.boolean().optional().default(true),
     enableRichPresence: z.boolean().optional().default(false),
     enableAnimeRichPresence: z.boolean().optional().default(false),
+    anilistClientId: z.string().optional().default(""),
     enableMangaRichPresence: z.boolean().optional().default(false),
     enableAdultContent: z.boolean().optional().default(false),
     blurAdultContent: z.boolean().optional().default(false),

@@ -24257,6 +24257,34 @@
     "comments": []
   },
   {
+    "filepath": "../internal/core/flags.go",
+    "filename": "flags.go",
+    "name": "SeanimeFlags",
+    "formattedName": "INTERNAL_SeanimeFlags",
+    "package": "core",
+    "fields": [
+      {
+        "name": "DataDir",
+        "jsonName": "DataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrueWd",
+        "jsonName": "TrueWd",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/cron/cron.go",
     "filename": "cron.go",
     "name": "JobCtx",
@@ -24549,6 +24577,15 @@
     "formattedName": "Models_AnilistSettings",
     "package": "models",
     "fields": [
+      {
+        "name": "AnilistClientId",
+        "jsonName": "anilistClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "HideAudienceScore",
         "jsonName": "hideAudienceScore",
@@ -36567,6 +36604,15 @@
     "package": "transcoder",
     "fields": [
       {
+        "name": "kind",
+        "jsonName": "kind",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "handle",
         "jsonName": "handle",
         "goType": "StreamHandle",
@@ -36652,6 +36698,26 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -36855,6 +36921,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "killCh",
+        "jsonName": "killCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Close channel to stop tracker"
+        ]
       }
     ],
     "comments": []
@@ -36942,6 +37019,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FfmpegPath",
+        "jsonName": "FfmpegPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfprobePath",
+        "jsonName": "FfprobePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -36984,6 +37079,24 @@
       {
         "name": "TempOutDir",
         "jsonName": "TempOutDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfmpegPath",
+        "jsonName": "FfmpegPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfprobePath",
+        "jsonName": "FfprobePath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -45358,6 +45471,20 @@
     "comments": []
   },
   {
+    "filepath": "../internal/tracker/tracker.go",
+    "filename": "tracker.go",
+    "name": "Kind",
+    "formattedName": "Kind",
+    "package": "tracker",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
     "filepath": "../internal/updater/updater.go",
     "filename": "updater.go",
     "name": "Updater",
@@ -45711,6 +45838,128 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/fiberlogger/config.go",
+    "filename": "config.go",
+    "name": "Config",
+    "formattedName": "Config",
+    "package": "fiberlogger",
+    "fields": [
+      {
+        "name": "Next",
+        "jsonName": "Next",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipBody",
+        "jsonName": "SkipBody",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipResBody",
+        "jsonName": "SkipResBody",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GetResBody",
+        "jsonName": "GetResBody",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipURIs",
+        "jsonName": "SkipURIs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GetLogger",
+        "jsonName": "GetLogger",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Fields",
+        "jsonName": "Fields",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WrapHeaders",
+        "jsonName": "WrapHeaders",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FieldsSnakeCase",
+        "jsonName": "FieldsSnakeCase",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Messages",
+        "jsonName": "Messages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Levels",
+        "jsonName": "Levels",
+        "goType": "[]zerolog.Level",
+        "typescriptType": "Array\u003cLevel\u003e",
+        "usedStructName": "zerolog.Level",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Config defines the config for middleware."
+    ]
   },
   {
     "filepath": "../internal/util/filecache/filecache.go",
