@@ -80,156 +80,194 @@ export default function Page() {
         }
     }, [mediaId, mediaEntry, mediaEntryLoading, filePath])
 
-    if (mediaEntryLoading) return <LoadingSpinner />
-
-    return (
-        <AppLayoutStack className="p-8">
-
-            <div className="flex w-full justify-between">
-                <div className="flex gap-4 items-center relative w-full">
-                    <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
-                        <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
-                    </Link>
-                    <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">Streaming: {mediaEntry?.media?.title?.userPreferred}</h3>
-                </div>
-
-                <div className="flex gap-2 items-center">
-                    {(!!progressItem && !progressItem.updated && mediaEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
-                        className="animate-pulse"
-                        loading={isUpdatingProgress}
-                        disabled={hasUpdatedProgress}
-                        onClick={() => {
-                            updateProgress({
-                                episodeNumber: progressItem.episodeNumber,
-                                mediaId: mediaEntry.media!.id,
-                                totalEpisodes: mediaEntry.media!.episodes || 0,
-                                malId: mediaEntry.media!.idMal || undefined,
-                            }, {
-                                onSuccess: () => setProgressItem(prev => !!prev ? ({
-                                    ...prev,
-                                    updated: true,
-                                }) : undefined),
-                            })
-                            setCurrentProgress(progressItem.episodeNumber)
-                        }}
-                    >Update progress</Button>}
-                </div>
+    if (mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
+        <div className="flex gap-4 items-center relative">
+            <Skeleton className="h-12" />
+        </div>
+        <div
+            className="grid xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
+        >
+            <div className="aspect-video relative">
+                <Skeleton className="h-full w-full absolute" />
             </div>
 
-            <div
-                className={cn(
-                    "grid gap-4 xl:gap-4 w-full",
-                    "xl:grid-cols-[1fr,500px]",
-                )}
-            >
+            <Skeleton className="hidden lg:block relative h-[75dvh] overflow-y-auto pr-4 pt-0" />
+
+        </div>
+    </div>
+
+    return (
+        <>
+            <AppLayoutStack className="p-8 z-[5]">
+
+                <div className="flex w-full justify-between">
+                    <div className="flex gap-4 items-center relative w-full">
+                        <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
+                            <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
+                        </Link>
+                        <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">Streaming: {mediaEntry?.media?.title?.userPreferred}</h3>
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                        {(!!progressItem && !progressItem.updated && mediaEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
+                            className="animate-pulse"
+                            loading={isUpdatingProgress}
+                            disabled={hasUpdatedProgress}
+                            onClick={() => {
+                                updateProgress({
+                                    episodeNumber: progressItem.episodeNumber,
+                                    mediaId: mediaEntry.media!.id,
+                                    totalEpisodes: mediaEntry.media!.episodes || 0,
+                                    malId: mediaEntry.media!.idMal || undefined,
+                                }, {
+                                    onSuccess: () => setProgressItem(prev => !!prev ? ({
+                                        ...prev,
+                                        updated: true,
+                                    }) : undefined),
+                                })
+                                setCurrentProgress(progressItem.episodeNumber)
+                            }}
+                        >Update progress</Button>}
+                    </div>
+                </div>
 
                 <div
                     className={cn(
-                        "aspect-video relative w-full",
+                        "grid gap-4 xl:gap-4 w-full",
+                        "xl:grid-cols-[1fr,500px]",
                     )}
                 >
-                    {isError ?
-                        <LuffyError title="Playback Error" /> :
-                        (!!url && !isMediaContainerLoading) ? <MediaPlayer
-                            ref={playerRef}
-                            crossOrigin
-                            src={url}
-                            poster={mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
-                            onProviderChange={onProviderChange}
-                            onProviderSetup={onProviderSetup}
-                            onTimeUpdate={onTimeUpdate}
-                            onCanPlay={onCanPlay}
-                            onEnded={onEnded}
-                        >
-                            <MediaProvider>
-                                {subtitles?.map((sub) => (
-                                    <Track
-                                        key={String(sub.index)}
-                                        src={subtitleEndpointUri + sub.link}
-                                        label={sub.title || sub.language}
-                                        lang={sub.language}
-                                        type={(sub.extension?.replace(".", "") || "ass") as CaptionsFileFormat}
-                                        kind="subtitles"
-                                        default={sub.isDefault}
-                                    />
-                                ))}
-                            </MediaProvider>
-                            {/*<div className="absolute bottom-24 px-4 w-full justify-between flex items-center">*/}
-                            {/*    <div>*/}
-                            {/*        {(showSkipIntroButton) && (*/}
-                            {/*            <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip*/}
-                            {/*                                                                                                   intro</Button>*/}
-                            {/*        )}*/}
-                            {/*    </div>*/}
-                            {/*    <div>*/}
-                            {/*        {(showSkipEndingButton) && (*/}
-                            {/*            <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip*/}
-                            {/*                                                                                                   ending</Button>*/}
-                            {/*        )}*/}
-                            {/*    </div>*/}
-                            {/*</div>*/}
-                            <DefaultVideoLayout
-                                icons={defaultLayoutIcons}
-                                slots={{
-                                    // beforeSettingsMenu: (
-                                    //     <MediastreamAudioSubmenu />
-                                    // )
-                                }}
-                            />
-                        </MediaPlayer> : (
-                            <Skeleton className="h-full w-full absolute flex justify-center items-center flex-col space-y-4">
-                                <LoadingSpinner
-                                    containerClass=""
-                                    spinner={<Image
-                                        src="/logo_2.png"
-                                        alt="Loading..."
-                                        priority
-                                        width={100}
-                                        height={100}
-                                        className="animate-pulse"
-                                    />}
-                                />
-                                <p>
-                                    Extracting video metadata...
-                                </p>
-                                <p>
-                                    This might take a while.
-                                </p>
-                            </Skeleton>
+
+                    <div
+                        className={cn(
+                            "aspect-video relative w-full",
                         )}
+                    >
+                        {isError ?
+                            <LuffyError title="Playback Error" /> :
+                            (!!url && !isMediaContainerLoading) ? <MediaPlayer
+                                ref={playerRef}
+                                crossOrigin
+                                src={url}
+                                poster={mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
+                                onProviderChange={onProviderChange}
+                                onProviderSetup={onProviderSetup}
+                                onTimeUpdate={onTimeUpdate}
+                                onCanPlay={onCanPlay}
+                                onEnded={onEnded}
+                            >
+                                <MediaProvider>
+                                    {subtitles?.map((sub) => (
+                                        <Track
+                                            key={String(sub.index)}
+                                            src={subtitleEndpointUri + sub.link}
+                                            label={sub.title || sub.language}
+                                            lang={sub.language}
+                                            type={(sub.extension?.replace(".", "") || "ass") as CaptionsFileFormat}
+                                            kind="subtitles"
+                                            default={sub.isDefault}
+                                        />
+                                    ))}
+                                </MediaProvider>
+                                {/*<div className="absolute bottom-24 px-4 w-full justify-between flex items-center">*/}
+                                {/*    <div>*/}
+                                {/*        {(showSkipIntroButton) && (*/}
+                                {/*            <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip*/}
+                                {/*                                                                                                   intro</Button>*/}
+                                {/*        )}*/}
+                                {/*    </div>*/}
+                                {/*    <div>*/}
+                                {/*        {(showSkipEndingButton) && (*/}
+                                {/*            <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip*/}
+                                {/*                                                                                                   ending</Button>*/}
+                                {/*        )}*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
+                                <DefaultVideoLayout
+                                    icons={defaultLayoutIcons}
+                                    slots={{
+                                        // beforeSettingsMenu: (
+                                        //     <MediastreamAudioSubmenu />
+                                        // )
+                                    }}
+                                />
+                            </MediaPlayer> : (
+                                <Skeleton className="h-full w-full absolute flex justify-center items-center flex-col space-y-4">
+                                    <LoadingSpinner
+                                        containerClass=""
+                                        spinner={<Image
+                                            src="/logo_2.png"
+                                            alt="Loading..."
+                                            priority
+                                            width={100}
+                                            height={100}
+                                            className="animate-pulse"
+                                        />}
+                                    />
+                                    <p>
+                                        Extracting video metadata...
+                                    </p>
+                                    <p>
+                                        This might take a while.
+                                    </p>
+                                </Skeleton>
+                            )}
+                    </div>
+
+                    <ScrollArea className="relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
+                        <div className="space-y-4">
+                            {episodes.map((episode) => (
+                                <EpisodeGridItem
+                                    key={episode.localFile?.path || ""}
+                                    media={episode?.basicMedia as any}
+                                    title={episode?.displayTitle || episode?.basicMedia?.title?.userPreferred || ""}
+                                    image={episode?.episodeMetadata?.image || episode?.basicMedia?.coverImage?.large}
+                                    episodeTitle={episode?.episodeTitle}
+                                    fileName={episode?.localFile?.parsedInfo?.original}
+                                    onClick={() => {
+                                        if (episode.localFile?.path) {
+                                            onPlayFile(episode.localFile?.path || "")
+                                        }
+                                    }}
+                                    // description={episode?.absoluteEpisodeNumber !== episodeNumber
+                                    //     ? `(Episode ${episode?.absoluteEpisodeNumber})`
+                                    //     : undefined}
+                                    isWatched={!!currentProgress && currentProgress >= episode?.progressNumber}
+                                    isSelected={episode.localFile?.path === filePath}
+                                    imageContainerClassName="w-20 h-20"
+                                    className="flex-none w-full"
+                                />
+                            ))}
+                        </div>
+                    </ScrollArea>
+
                 </div>
 
-                <ScrollArea className="relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
-                    <div className="space-y-4">
-                        {episodes.map((episode) => (
-                            <EpisodeGridItem
-                                key={episode.localFile?.path || ""}
-                                media={episode?.basicMedia as any}
-                                title={episode?.displayTitle || episode?.basicMedia?.title?.userPreferred || ""}
-                                image={episode?.episodeMetadata?.image || episode?.basicMedia?.coverImage?.large}
-                                episodeTitle={episode?.episodeTitle}
-                                description={episode?.episodeMetadata?.overview}
-                                onClick={() => {
-                                    if (episode.localFile?.path) {
-                                        onPlayFile(episode.localFile?.path || "")
-                                    }
-                                }}
-                                // description={episode?.absoluteEpisodeNumber !== episodeNumber
-                                //     ? `(Episode ${episode?.absoluteEpisodeNumber})`
-                                //     : undefined}
-                                isWatched={!!currentProgress && currentProgress >= episode?.progressNumber}
-                                isSelected={episode.localFile?.path === filePath}
-                                imageContainerClassName="w-20 h-20"
-                                className="flex-none w-full"
-                            />
-                        ))}
-                    </div>
-                </ScrollArea>
+
+            </AppLayoutStack>
+            <div
+                className="h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
+            >
+                <div
+                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
+                />
+                <div className="absolute w-full h-full">
+                    {(!!mediaEntry?.media?.bannerImage || !!mediaEntry?.media?.coverImage?.extraLarge) && <Image
+                        src={mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
+                        alt="banner image"
+                        fill
+                        quality={100}
+                        priority
+                        sizes="100vw"
+                        className="object-cover object-center z-[1]"
+                    />}
+                </div>
+                <div
+                    className="w-full z-[3] absolute bottom-0 h-[32rem] bg-gradient-to-t from-[--background] via-[--background] via-50% to-transparent"
+                />
 
             </div>
-
-
-        </AppLayoutStack>
+        </>
     )
 
 }

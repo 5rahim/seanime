@@ -24,7 +24,7 @@ const MEDIASTREAM_HW_ACCEL_OPTIONS = [
     { label: "CPU (Disabled)", value: "cpu" },
     { label: "NVIDIA (NVENC)", value: "nvidia" },
     { label: "Intel (QSV)", value: "qsv" },
-    { label: "VA-API", value: "vaapi" },
+    { label: "VAAPI", value: "vaapi" },
 ]
 
 const MEDIASTREAM_PRESET_OPTIONS = [
@@ -112,7 +112,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     options={MEDIASTREAM_PRESET_OPTIONS}
                     name="transcodePreset"
                     label="Transcode preset"
-                    help="'Fast' is recommended. VA-API does not support presets."
+                    help="'Fast' is recommended. VAAPI does not support presets."
                 />
 
                 <Field.Text
