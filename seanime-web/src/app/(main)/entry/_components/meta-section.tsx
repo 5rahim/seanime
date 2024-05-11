@@ -2,8 +2,8 @@
 import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
 import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
+import { AnimeEntryStudio } from "@/app/(main)/_features/media/_components/anime-entry-studio"
 import {
-    AnimeEntryStudio,
     MediaEntryAudienceScore,
     MediaEntryGenresList,
     MediaEntryRankings,

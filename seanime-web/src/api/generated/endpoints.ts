@@ -44,6 +44,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route returns details about a studio.
+         *  This fetches media produced by the studio.
+         */
+        GetAnilistStudioDetails: {
+            key: "ANILIST-get-anilist-studio-details",
+            methods: ["GET"],
+            endpoint: "/api/v1/anilist/studio-details/{id}",
+        },
+        /**
+         *  @description
          *  Route deletes an entry from the user's AniList list.
          *  This is used to delete an entry on AniList.
          *  The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.

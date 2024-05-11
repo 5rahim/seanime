@@ -123,6 +123,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
 
+	v1Anilist.Get("/studio-details/:id", makeHandler(app, HandleGetAnilistStudioDetails))
+
 	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
 
 	v1Anilist.Delete("/list-entry", makeHandler(app, HandleDeleteAnilistListEntry))

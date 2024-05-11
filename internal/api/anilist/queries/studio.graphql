@@ -1,0 +1,12 @@
+query StudioDetails($id: Int) {
+  Studio(id: $id) {
+    id
+    isAnimationStudio
+    name
+    media (perPage: 80, sort: TRENDING_DESC, isMain: true) {
+      nodes {
+        ...basicMedia
+      }
+    }
+  }
+}

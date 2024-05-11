@@ -176,6 +176,49 @@
     }
   },
   {
+    "name": "HandleGetAnilistStudioDetails",
+    "trimmedName": "GetAnilistStudioDetails",
+    "comments": [
+      "HandleGetAnilistStudioDetails",
+      "",
+      "\t@summary returns details about a studio.",
+      "\t@desc This fetches media produced by the studio.",
+      "\t@param id - int - true - \"The AniList studio ID\"",
+      "\t@returns anilist.StudioDetails",
+      "\t@route /api/v1/anilist/studio-details/{id} [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/anilist.go",
+    "filename": "anilist.go",
+    "api": {
+      "summary": "returns details about a studio.",
+      "descriptions": [
+        "This fetches media produced by the studio."
+      ],
+      "endpoint": "/api/v1/anilist/studio-details/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The AniList studio ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "anilist.StudioDetails",
+      "returnGoType": "anilist.StudioDetails",
+      "returnTypescriptType": "AL_StudioDetails"
+    }
+  },
+  {
     "name": "HandleDeleteAnilistListEntry",
     "trimmedName": "DeleteAnilistListEntry",
     "comments": [
