@@ -11,7 +11,7 @@ Self-hosted anime and manga server for sea rovers.
 </h4>
 
 <p align="center">
-Scan, automate and enjoy your anime collection, read manga, track your progress and more - all in one place.
+Scan, automate, watch and stream your anime collection, read manga, track your progress and more - all in one place.
 </p>
 
 <p align="center">
@@ -74,6 +74,10 @@ Feel free to open issues or contribute. Leave a star if you like this project!
     - **MPV**, **VLC**, and **MPC-HC** support
     - Automatic progress tracking and syncing to AniList (& MAL)
     - Create **playlists** to play episodes in order
+- 📱  **Stream episodes** (Experimental)
+  - Stream media files from the server to any device with a web browser
+  - On-the-fly transcoding with seeking support powered by **FFmpeg**
+  - Support for hardware acceleration
 
 <details>
 <summary>More anime features</summary>
@@ -97,20 +101,12 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Easily download multiple chapters for offline reading
   - Persistent download queue
 
-<details>
-<summary>Other features</summary>
-
-- **MyAnimeList integration** for syncing progress
+### Other features
 - **Customizable UI**
-- **Logs and scan summaries**
 - **Advanced anime/manga search**
 - **Discord Rich Presence**
-</details>
-
-### What it is not
-
-🚨Seanime is not a replacement for Plex/Jellyfin, it requires an internet connection to fetch metadata and does not
-support transcoding or streaming to other devices (yet).
+- **MyAnimeList integration** for syncing progress
+- **Logs and scan summaries**
 
 # Get started
 
