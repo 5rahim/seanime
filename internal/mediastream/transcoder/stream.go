@@ -193,8 +193,6 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 		// It's used to interrupt the waiting process but might not be needed since there's a timeout
 		case <-ts.killCh:
 			return "", fmt.Errorf("transcoder: Stream killed while waiting for segment %d", segment)
-		case <-ts.ctx.Done():
-			return "", fmt.Errorf("transcoder: Context cancelled while waiting for segment %d", segment)
 		case <-readyChan:
 			break
 		case <-time.After(25 * time.Second):
