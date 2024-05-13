@@ -24509,6 +24509,16 @@
         "comments": []
       },
       {
+        "name": "TorrentstreamRepository",
+        "jsonName": "TorrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "FeatureFlags",
         "jsonName": "FeatureFlags",
         "goType": "FeatureFlags",
@@ -25977,6 +25987,91 @@
         "jsonName": "ffprobePath",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "TorrentstreamSettings",
+    "formattedName": "Models_TorrentstreamSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Enabled",
+        "jsonName": "enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "autoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableIPV6",
+        "jsonName": "disableIPV6",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadDir",
+        "jsonName": "downloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AddToLibrary",
+        "jsonName": "addToLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentClientPort",
+        "jsonName": "torrentClientPort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingServerHost",
+        "jsonName": "streamingServerHost",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingServerPort",
+        "jsonName": "streamingServerPort",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
@@ -45907,6 +46002,273 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/client.go",
+    "filename": "client.go",
+    "name": "Client",
+    "formattedName": "Torrentstream_Client",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentClient",
+        "jsonName": "torrentClient",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "srv",
+        "jsonName": "srv",
+        "goType": "http.Server",
+        "typescriptType": "Server",
+        "usedStructName": "http.Server",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrents",
+        "jsonName": "torrents",
+        "goType": "[]torrent.Torrent",
+        "typescriptType": "Array\u003cTorrent_Torrent\u003e",
+        "usedStructName": "torrent.Torrent",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/client.go",
+    "filename": "client.go",
+    "name": "NewClientOptions",
+    "formattedName": "Torrentstream_NewClientOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Repository",
+        "jsonName": "Repository",
+        "goType": "Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/files.go",
+    "filename": "files.go",
+    "name": "FileEntry",
+    "formattedName": "Torrentstream_FileEntry",
+    "package": "torrentstream",
+    "fields": [],
+    "comments": [
+      " FileEntry helps reading a torrent file."
+    ],
+    "embeddedStructNames": [
+      "torrent.File",
+      "torrent.Reader"
+    ]
+  },
+  {
+    "filepath": "../internal/torrentstream/torrentstream.go",
+    "filename": "torrentstream.go",
+    "name": "Repository",
+    "formattedName": "Torrentstream_Repository",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "Client",
+        "typescriptType": "Torrentstream_Client",
+        "usedStructName": "torrentstream.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaPlayerRepository",
+        "jsonName": "mediaPlayerRepository",
+        "goType": "mediaplayer.Repository",
+        "typescriptType": "Repository",
+        "usedStructName": "mediaplayer.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " None by default, set and refreshed by SetSettings"
+        ]
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playback",
+        "jsonName": "playback",
+        "goType": "Playback",
+        "typescriptType": "Torrentstream_Playback",
+        "usedStructName": "torrentstream.Playback",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/torrentstream.go",
+    "filename": "torrentstream.go",
+    "name": "Playback",
+    "formattedName": "Torrentstream_Playback",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "currentFile",
+        "jsonName": "currentFile",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/torrentstream.go",
+    "filename": "torrentstream.go",
+    "name": "Settings",
+    "formattedName": "Torrentstream_Settings",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentClientPort",
+        "jsonName": "TorrentClientPort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingServerHost",
+        "jsonName": "StreamingServerHost",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingServerPort",
+        "jsonName": "StreamingServerPort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadDir",
+        "jsonName": "DownloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableIPV6",
+        "jsonName": "DisableIPV6",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AddToLibrary",
+        "jsonName": "AddToLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/torrentstream.go",
+    "filename": "torrentstream.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "Torrentstream_NewRepositoryOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaPlayerRepository",
+        "jsonName": "MediaPlayerRepository",
+        "goType": "mediaplayer.Repository",
+        "typescriptType": "Repository",
+        "usedStructName": "mediaplayer.Repository",
+        "required": false,
         "public": true,
         "comments": []
       }

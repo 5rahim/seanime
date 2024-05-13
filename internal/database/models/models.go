@@ -221,3 +221,19 @@ type MediastreamSettings struct {
 	FfmpegPath             string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
 	FfprobePath            string `gorm:"column:ffprobe_path" json:"ffprobePath"`
 }
+
+// +---------------------+
+// |    TorrentStream    |
+// +---------------------+
+
+type TorrentstreamSettings struct {
+	BaseModel
+	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
+	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
+	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
+	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
+	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`
+	TorrentClientPort   int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
+	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
+	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
+}

@@ -70,11 +70,11 @@
     "env-cmd": "^10.1.0",
     "execa": "^8.0.1",
     "fast-deep-equal": "^3.1.3",
-    "framer-motion": "^11.0.6",
+    "framer-motion": "^11.1.9",
     "fs-extra": "^11.2.0",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
-    "hls.js": "^1.5.7",
+    "hls.js": "^1.5.8",
     "inflection": "^3.0.0",
     "install": "^0.13.0",
     "jassub": "^1.7.15",
@@ -100,7 +100,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.50.1",
-    "react-icons": "^5.0.1",
+    "react-icons": "^5.2.1",
     "react-phone-number-input": "^3.3.9",
     "react-remove-scroll-bar": "^2.3.6",
     "react-resizable-panels": "^2.0.11",
@@ -115,7 +115,7 @@
     "upath": "^2.0.1",
     "use-debounce": "^10.0.0",
     "vaul": "^0.9.0",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.2",

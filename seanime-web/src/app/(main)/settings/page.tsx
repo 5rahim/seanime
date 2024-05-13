@@ -1,10 +1,12 @@
 "use client"
 import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
+import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
+import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -15,7 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import Link from "next/link"
-import React, { useEffect } from "react"
+import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
@@ -27,7 +29,7 @@ import { LuLayoutDashboard } from "react-icons/lu"
 import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
-import { SiAnilist } from "react-icons/si"
+import { SiAnilist, SiBittorrent } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
@@ -53,7 +55,9 @@ export default function Page() {
 
     const { data: mediastreamSettings } = useGetMediastreamSettings()
 
-    useEffect(() => {
+    const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
+
+    React.useEffect(() => {
         if (!isPending && !!data?.settings) {
             setServerStatus(data)
         }
@@ -92,15 +96,16 @@ export default function Page() {
                     <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                     <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                     <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
+                    {/*FIXME Remove if stable*/}
+                    {status?.featureFlags?.experimental?.mediastream &&
+                        <TabsTrigger value="mediastream"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming</TabsTrigger>}
+                    <TabsTrigger value="torrentstream"><SiBittorrent className="text-lg mr-3" /> Torrent streaming</TabsTrigger>
                     <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                     <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                     <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
                     <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                     <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
                     <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
-                    {/*FIXME Remove if stable*/}
-                    {status?.featureFlags?.experimental?.mediastream &&
-                        <TabsTrigger value="mediastream"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming</TabsTrigger>}
                 </TabsList>
 
                 <div className="">
@@ -576,6 +581,14 @@ export default function Page() {
                         <h3>Media streaming</h3>
 
                         <MediastreamSettings settings={mediastreamSettings} />
+
+                    </TabsContent>
+
+                    <TabsContent value="torrentstream" className="space-y-6">
+
+                        <h3>Torrent streaming</h3>
+
+                        <TorrentstreamSettings settings={torrentstreamSettings} />
 
                     </TabsContent>
 

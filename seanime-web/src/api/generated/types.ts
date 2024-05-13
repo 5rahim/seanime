@@ -2208,6 +2208,25 @@ export type Models_TorrentSettings = {
     transmissionPassword: string
 }
 
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_TorrentstreamSettings = {
+    enabled: boolean
+    autoSelect: boolean
+    disableIPV6: boolean
+    downloadDir: string
+    addToLibrary: boolean
+    torrentClientPort: number
+    streamingServerHost: string
+    streamingServerPort: number
+    id: number
+    createdAt?: string
+    updatedAt?: string
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Offline
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

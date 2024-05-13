@@ -5291,6 +5291,76 @@
     }
   },
   {
+    "name": "HandleGetTorrentstreamSettings",
+    "trimmedName": "GetTorrentstreamSettings",
+    "comments": [
+      "HandleGetTorrentstreamSettings",
+      "",
+      "\t@summary get torrentstream settings.",
+      "\t@desc This returns the torrentstream settings.",
+      "\t@returns models.TorrentstreamSettings",
+      "\t@route /api/v1/torrentstream/settings [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "get torrentstream settings.",
+      "descriptions": [
+        "This returns the torrentstream settings."
+      ],
+      "endpoint": "/api/v1/torrentstream/settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "models.TorrentstreamSettings",
+      "returnGoType": "models.TorrentstreamSettings",
+      "returnTypescriptType": "Models_TorrentstreamSettings"
+    }
+  },
+  {
+    "name": "HandleSaveTorrentstreamSettings",
+    "trimmedName": "SaveTorrentstreamSettings",
+    "comments": [
+      "HandleSaveTorrentstreamSettings",
+      "",
+      "\t@summary save torrentstream settings.",
+      "\t@desc This saves the torrentstream settings.",
+      "\t@returns models.TorrentstreamSettings",
+      "\t@route /api/v1/torrentstream/settings [PATCH]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "save torrentstream settings.",
+      "descriptions": [
+        "This saves the torrentstream settings."
+      ],
+      "endpoint": "/api/v1/torrentstream/settings",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "models.TorrentstreamSettings",
+          "usedStructType": "models.TorrentstreamSettings",
+          "typescriptType": "Models_TorrentstreamSettings",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.TorrentstreamSettings",
+      "returnGoType": "models.TorrentstreamSettings",
+      "returnTypescriptType": "Models_TorrentstreamSettings"
+    }
+  },
+  {
     "name": "newWebSocketEventHandler",
     "trimmedName": "newWebSocketEventHandler",
     "comments": [

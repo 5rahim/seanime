@@ -74,6 +74,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.Theme{},
 		&models.PlaylistEntry{},
 		&models.ChapterDownloadQueueItem{},
+		&models.TorrentstreamSettings{},
 		// Feature flag
 		&models.MediastreamSettings{},
 	)
