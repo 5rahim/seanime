@@ -65,11 +65,23 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 	}
 	// Create the temp directory
 	_ = os.MkdirAll(settings.TranscodeTempDir, 0755)
+
+	if settings.FfmpegPath == "" {
+		settings.FfmpegPath = "ffmpeg"
+	}
+
+	if settings.FfprobePath == "" {
+		settings.FfprobePath = "ffprobe"
+	}
+
 	// Set the settings
 	r.settings = mo.Some[*models.MediastreamSettings](settings)
+
 	r.cacheDir = cacheDir
+
 	// Set the optimizer settings
 	r.optimizer.SetLibraryDir(settings.PreTranscodeLibraryDir)
+
 	// Initialize the transcoder
 	if ok := r.initializeTranscoder(r.settings); ok {
 		r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
@@ -221,22 +233,13 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 		return false
 	}
 
-	ffmpegPath := settings.MustGet().FfmpegPath
-	if ffmpegPath == "" {
-		ffmpegPath = "ffmpeg"
-	}
-	ffprobePath := settings.MustGet().FfprobePath
-	if ffprobePath == "" {
-		ffprobePath = "ffprobe"
-	}
-
 	opts := &transcoder.NewTranscoderOptions{
 		Logger:      r.logger,
 		HwAccelKind: settings.MustGet().TranscodeHwAccel,
 		Preset:      settings.MustGet().TranscodePreset,
 		TempOutDir:  settings.MustGet().TranscodeTempDir,
-		FfmpegPath:  ffmpegPath,
-		FfprobePath: ffprobePath,
+		FfmpegPath:  settings.MustGet().FfmpegPath,
+		FfprobePath: settings.MustGet().FfprobePath,
 	}
 
 	tc, err := transcoder.NewTranscoder(opts)

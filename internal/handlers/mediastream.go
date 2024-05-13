@@ -16,7 +16,7 @@ import (
 func HandleGetMediastreamSettings(c *RouteCtx) error {
 	mediastreamSettings, found := c.App.Database.GetMediastreamSettings()
 	if !found {
-		return c.RespondWithError(errors.New("mediastream settings not found"))
+		return c.RespondWithError(errors.New("media streaming settings not found"))
 	}
 
 	return c.RespondWithData(mediastreamSettings)

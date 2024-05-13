@@ -123,7 +123,6 @@ How to install Seanime
 ### Not planned
 
 - Support for other providers such as Trakt, SIMKL, etc.
-- Torrent streaming
 - Support for other languages
 - Mobile app
 

@@ -8,6 +8,7 @@ import (
 	"github.com/likexian/doh-go/dns"
 	"github.com/stretchr/testify/assert"
 	"io"
+	"net"
 	"net/http"
 	"testing"
 	"time"
@@ -19,12 +20,10 @@ func TestDoH(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// init doh client, auto select the fastest provider base on your like
-	// you can also use as: c := doh.Use(), it will select from all providers
 	c := doh.Use(doh.CloudflareProvider)
 
 	// do doh query
-	rsp, err := c.Query(ctx, "animetosho.org", dns.TypeA)
+	rsp, err := c.Query(ctx, "nyaa.si", dns.TypeA)
 	if err != nil {
 		panic(err)
 	}
@@ -56,9 +55,47 @@ func TestDoH(t *testing.T) {
 		Transport: tr,
 	}
 
-	req, err := http.NewRequest("GET", "http://"+ip, nil)
+	req, err := http.NewRequest("GET", "https://"+ip, nil)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(string(buff))
+
+	assert.Equal(t, 200, resp.StatusCode)
+
+}
+
+func TestDoH2(t *testing.T) {
+
+	req, err := http.NewRequest("GET", "https://nyaa.si", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	client := http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
+				d := net.Dialer{
+					Timeout: 5 * time.Second,
+				}
+				return d.DialContext(ctx, "udp", "1.1.1.1:53")
+			},
+		},
+		Timeout: 5 * time.Second,
 	}
 
 	resp, err := client.Do(req)

@@ -32,6 +32,8 @@ func (db *Database) GetSettings() (*models.Settings, error) {
 	return &settings, nil
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func (db *Database) GetLibraryPathFromSettings() (string, error) {
 	settings, err := db.GetSettings()
 	if err != nil {
@@ -48,6 +50,8 @@ func (db *Database) AutoUpdateProgressIsEnabled() (bool, error) {
 	return settings.Library.AutoUpdateProgress, nil
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func (db *Database) UpsertMediastreamSettings(settings *models.MediastreamSettings) (*models.MediastreamSettings, error) {
 
 	err := db.gormdb.Clauses(clause.OnConflict{
@@ -56,11 +60,11 @@ func (db *Database) UpsertMediastreamSettings(settings *models.MediastreamSettin
 	}).Create(settings).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("db: Failed to save mediastream settings in the database")
+		db.logger.Error().Err(err).Msg("db: Failed to save media streaming settings in the database")
 		return nil, err
 	}
 
-	db.logger.Debug().Msg("db: Mediastream settings saved")
+	db.logger.Debug().Msg("db: Media streaming settings saved")
 	return settings, nil
 
 }
@@ -74,3 +78,33 @@ func (db *Database) GetMediastreamSettings() (*models.MediastreamSettings, bool)
 	}
 	return &settings, true
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (db *Database) UpsertTorrentstreamSettings(settings *models.TorrentstreamSettings) (*models.TorrentstreamSettings, error) {
+
+	err := db.gormdb.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(settings).Error
+
+	if err != nil {
+		db.logger.Error().Err(err).Msg("db: Failed to save torrent streaming settings in the database")
+		return nil, err
+	}
+
+	db.logger.Debug().Msg("db: Torrent streaming settings saved")
+	return settings, nil
+}
+
+func (db *Database) GetTorrentstreamSettings() (*models.TorrentstreamSettings, bool) {
+	var settings models.TorrentstreamSettings
+	err := db.gormdb.Where("id = ?", 1).First(&settings).Error
+
+	if err != nil {
+		return nil, false
+	}
+	return &settings, true
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

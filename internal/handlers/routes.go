@@ -308,12 +308,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/offline/sync", makeHandler(app, HandleSyncOfflineData))
 
 	//
-	// Stream
+	// Media Stream
 	//
 	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
 	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
 	if app.FeatureFlags.IsExperimentalMediastreamEnabled() {
-
 		v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
 		v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
 		// Direct play
@@ -325,6 +324,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
 		v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
 	}
+
+	//
+	// Torrent stream
+	//
+	v1.Get("/torrentstream/settings", makeHandler(app, HandleGetTorrentstreamSettings))
+	v1.Patch("/torrentstream/settings", makeHandler(app, HandleSaveTorrentstreamSettings))
 
 	//
 	// Websocket

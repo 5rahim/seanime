@@ -86,6 +86,7 @@ var typePrefixesByPackage = map[string]string{
 	"core":                   "INTERNAL_",
 	"comparison":             "Comparison_",
 	"mediastream":            "Mediastream_",
+	"torrentstream":          "Torrentstream_",
 }
 
 func getTypePrefix(packageName string) string {

@@ -97,7 +97,7 @@ func (m *Mpv) execCmd(mode int, args ...string) (*exec.Cmd, error) {
 		}
 
 	default:
-		panic("invalid execution mode")
+		return nil, errors.New("invalid execution mode")
 	}
 	return cmd, nil
 }

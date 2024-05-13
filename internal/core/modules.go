@@ -18,6 +18,7 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
+	"github.com/seanime-app/seanime/internal/torrentstream"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -103,6 +104,13 @@ func (a *App) initModulesOnce() {
 		})
 	}
 
+	// Torrent stream
+
+	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
+		Logger:                a.Logger,
+		MediaPlayerRepository: nil, // Will be set in InitOrRefreshModules
+	})
+
 }
 
 // InitOrRefreshModules will initialize or refresh modules that depend on settings.
@@ -183,6 +191,7 @@ func (a *App) InitOrRefreshModules() {
 		})
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
+		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}
@@ -328,6 +337,40 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 	}
 
 	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
+
+}
+
+// InitOrRefreshTorrentstreamSettings will initialize or refresh the mediastream settings.
+// It is called after the App instance is created and after settings are updated.
+func (a *App) InitOrRefreshTorrentstreamSettings() {
+
+	var settings *models.TorrentstreamSettings
+	var found bool
+	settings, found = a.Database.GetTorrentstreamSettings()
+	if !found {
+
+		var err error
+		settings, err = a.Database.UpsertTorrentstreamSettings(&models.TorrentstreamSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			Enabled:             false,
+			AutoSelect:          true,
+			AddToLibrary:        false,
+			StreamingServerHost: "0.0.0.0",
+			StreamingServerPort: 43212,
+			TorrentClientPort:   43213,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")
+			return
+		}
+	}
+
+	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host)
+	if err != nil && settings.Enabled {
+		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
+	}
 
 }
 

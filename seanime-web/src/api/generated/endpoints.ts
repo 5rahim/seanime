@@ -1158,5 +1158,27 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/torrent/nsfw-search",
         },
     },
+    TORRENTSTREAM: {
+        /**
+         *  @description
+         *  Route get torrentstream settings.
+         *  This returns the torrentstream settings.
+         */
+        GetTorrentstreamSettings: {
+            key: "TORRENTSTREAM-get-torrentstream-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/torrentstream/settings",
+        },
+        /**
+         *  @description
+         *  Route save torrentstream settings.
+         *  This saves the torrentstream settings.
+         */
+        SaveTorrentstreamSettings: {
+            key: "TORRENTSTREAM-save-torrentstream-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/torrentstream/settings",
+        },
+    },
 } satisfies ApiEndpoints
 
