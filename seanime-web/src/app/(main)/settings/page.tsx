@@ -53,7 +53,7 @@ export default function Page() {
 
     const { mutate, data, isPending } = useSaveSettings()
 
-    const { data: mediastreamSettings } = useGetMediastreamSettings()
+    const { data: mediastreamSettings } = useGetMediastreamSettings(status?.featureFlags?.experimental?.mediastream)
 
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 

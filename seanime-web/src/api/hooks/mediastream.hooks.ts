@@ -10,12 +10,12 @@ import { logger } from "@/lib/helpers/debug"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useGetMediastreamSettings() {
+export function useGetMediastreamSettings(enabled?: boolean) {
     return useServerQuery<Models_MediastreamSettings>({
         endpoint: API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.endpoint,
         method: API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.methods[0],
         queryKey: [API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.key],
-        enabled: true,
+        enabled: enabled,
     })
 }
 
