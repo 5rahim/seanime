@@ -109,6 +109,13 @@ func (a *App) initModulesOnce() {
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
 		Logger:                a.Logger,
 		MediaPlayerRepository: nil, // Will be set in InitOrRefreshModules
+		AnizipCache:           a.AnizipCache,
+		BaseMediaCache:        anilist.NewBaseMediaCache(),
+		NyaaSearchCache:       a.NyaaSearchCache,
+		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
+		MetadataProvider:      a.MetadataProvider,
+		AnimeCollection:       nil, // Will be set in app.RefreshAnilistCollection
+		AnilistClientWrapper:  a.AnilistClientWrapper,
 	})
 
 }
@@ -372,6 +379,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
 	}
 
+	a.SecondarySettings.Torrentstream = settings
 }
 
 // initAnilistData will initialize the Anilist anime collection and the account.

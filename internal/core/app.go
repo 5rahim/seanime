@@ -80,6 +80,10 @@ type (
 		MediastreamRepository   *mediastream.Repository
 		TorrentstreamRepository *torrentstream.Repository
 		FeatureFlags            FeatureFlags
+		SecondarySettings       struct {
+			Mediastream   *models.MediastreamSettings
+			Torrentstream *models.TorrentstreamSettings
+		}
 	}
 )
 
@@ -214,6 +218,10 @@ func NewApp(configOpts *ConfigOptions) *App {
 		previousVersion:         previousVersion,
 		OfflineHub:              offlineHub,
 		FeatureFlags:            NewFeatureFlags(cfg, logger),
+		SecondarySettings: struct {
+			Mediastream   *models.MediastreamSettings
+			Torrentstream *models.TorrentstreamSettings
+		}{Mediastream: nil, Torrentstream: nil},
 	}
 
 	app.runMigrations()

@@ -578,7 +578,7 @@ export default function Page() {
 
                     <TabsContent value="mediastream" className="space-y-6">
 
-                        <h3>Media streaming</h3>
+                        <h3>Media streaming <BetaBadge /></h3>
 
                         <MediastreamSettings settings={mediastreamSettings} />
 
@@ -586,7 +586,7 @@ export default function Page() {
 
                     <TabsContent value="torrentstream" className="space-y-6">
 
-                        <h3>Torrent streaming</h3>
+                        <h3>Torrent streaming <BetaBadge /></h3>
 
                         <TorrentstreamSettings settings={torrentstreamSettings} />
 

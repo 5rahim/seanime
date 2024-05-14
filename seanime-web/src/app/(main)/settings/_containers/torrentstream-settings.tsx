@@ -14,6 +14,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     streamingServerPort: z.number(),
     streamingServerHost: z.string(),
     torrentClientPort: z.number(),
+    preferredResolution: z.string(),
 }))
 
 
@@ -44,6 +45,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                             settings: {
                                 ...settings,
                                 ...data,
+                                preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
                             },
                         })
                     }
@@ -57,6 +59,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     streamingServerPort: settings.streamingServerPort,
                     streamingServerHost: settings.streamingServerHost,
                     torrentClientPort: settings.torrentClientPort,
+                    preferredResolution: settings.preferredResolution || "-",
                 }}
                 stackClass="space-y-6"
             >
@@ -65,9 +68,23 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     label="Enable"
                     help="Enable torrent streaming."
                 />
+
                 <Field.Switch
                     name="autoSelect"
-                    label="Auto select torrents"
+                    label="Auto-select torrent"
+                    help="Find the best torrent automatically"
+                />
+
+                <Field.Select
+                    name="preferredResolution"
+                    label="Preferred resolution"
+                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
+                    options={[
+                        { label: "Any", value: "-" },
+                        { label: "480p", value: "480p" },
+                        { label: "720p", value: "720p" },
+                        { label: "1080p", value: "1080p" },
+                    ]}
                 />
 
                 {/*<Field.DirectorySelector*/}

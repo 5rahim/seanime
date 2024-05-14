@@ -1161,6 +1161,16 @@ export const API_ENDPOINTS = {
     TORRENTSTREAM: {
         /**
          *  @description
+         *  Route get list of episodes
+         *  This returns a list of episodes.
+         */
+        GetTorrentstreamEpisodeCollection: {
+            key: "TORRENTSTREAM-get-torrentstream-episode-collection",
+            methods: ["GET"],
+            endpoint: "/api/v1/torrentstream/episodes/{id}",
+        },
+        /**
+         *  @description
          *  Route get torrentstream settings.
          *  This returns the torrentstream settings.
          */

@@ -52,8 +52,21 @@ func (ac *AnimeCollection) GetAllMedia() []*BaseMedia {
 			}
 		}
 	}
-
 	return ret
+}
+
+func (ac *AnimeCollection) FindMedia(mediaId int) (*BaseMedia, bool) {
+	for _, l := range ac.MediaListCollection.Lists {
+		if l.Entries == nil || len(l.Entries) == 0 {
+			continue
+		}
+		for _, e := range l.Entries {
+			if e.Media.ID == mediaId {
+				return e.Media, true
+			}
+		}
+	}
+	return nil, false
 }
 
 type IFuzzyDate interface {

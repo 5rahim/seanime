@@ -230,6 +230,7 @@ type TorrentstreamSettings struct {
 	BaseModel
 	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
 	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
+	PreferredResolution string `gorm:"column:preferred_resolution" json:"preferredResolution"`
 	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
 	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
 	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`

@@ -17,12 +17,14 @@ export function PageWrapper(props: PageWrapperProps) {
     } = props
 
     return (
-        <motion.div
-            {...PAGE_TRANSITION}
-            {...rest as any}
-            className={cn("z-[5] relative", className)}
-        >
-            {children}
-        </motion.div>
+        <div>
+            <motion.div
+                {...PAGE_TRANSITION}
+                {...rest as any}
+                className={cn("z-[5] relative", className)}
+            >
+                {children}
+            </motion.div>
+        </div>
     )
 }
