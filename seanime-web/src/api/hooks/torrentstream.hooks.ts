@@ -1,7 +1,7 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { SaveTorrentstreamSettings_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Models_TorrentstreamSettings } from "@/api/generated/types"
+import { Models_TorrentstreamSettings, Torrentstream_EpisodeCollection } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -25,5 +25,14 @@ export function useSaveTorrentstreamSettings() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
             toast.success("Settings saved")
         },
+    })
+}
+
+export function useGetTorrentstreamEpisodeCollection(id: number) {
+    return useServerQuery<Torrentstream_EpisodeCollection>({
+        endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.endpoint.replace("{id}", String(id)),
+        method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.methods[0],
+        queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.key, id],
+        enabled: true,
     })
 }

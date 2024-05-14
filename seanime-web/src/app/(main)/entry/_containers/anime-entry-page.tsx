@@ -4,6 +4,7 @@ import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AnimatePresence } from "framer-motion"
@@ -12,7 +13,7 @@ import { useAtom } from "jotai/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 
-export const __anime_wantStreamingAtom = atom(false)
+export const __anime_torrentStreamingActiveAtom = atom(false)
 
 export function AnimeEntryPage() {
 
@@ -22,7 +23,7 @@ export function AnimeEntryPage() {
     const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: mediaDetails, isLoading: mediaDetailsLoading } = useGetAnilistMediaDetails(mediaId)
 
-    const [wantStreaming, setWantStreaming] = useAtom(__anime_wantStreamingAtom)
+    const [wantStreaming, setWantStreaming] = useAtom(__anime_torrentStreamingActiveAtom)
 
     React.useEffect(() => {
         if (!mediaId) {
@@ -88,7 +89,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         > <EpisodeListGridProvider container="expanded">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                            <TorrentStreamPage entry={mediaEntry} />
                         </EpisodeListGridProvider>
                         </PageWrapper>}
 
