@@ -69,6 +69,18 @@ func (c *Client) InitializeClient() error {
 	return nil
 }
 
+func (c *Client) GetStreamingUrl() string {
+	if c.torrentClient.IsAbsent() {
+		return ""
+	}
+
+	settings := c.repository.settings.MustGet()
+	if settings.StreamingServerHost == "0.0.0.0" {
+		return fmt.Sprintf("http://127.0.0.1:%d/stream", settings.StreamingServerPort)
+	}
+	return fmt.Sprintf("http://%s:%d/stream", settings.StreamingServerHost, settings.StreamingServerPort)
+}
+
 func (c *Client) DownloadTorrent(torrent string) error {
 	t, err := c.AddTorrent(torrent)
 	if err != nil {
@@ -167,7 +179,7 @@ func (c *Client) Close() (errs []error) {
 	return c.torrentClient.MustGet().Close()
 }
 
-func (c *Client) FindByInfoHash(infoHash string) (*torrent.Torrent, error) {
+func (c *Client) FindTorrent(infoHash string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
@@ -178,5 +190,20 @@ func (c *Client) FindByInfoHash(infoHash string) (*torrent.Torrent, error) {
 			return t, nil
 		}
 	}
-	return nil, fmt.Errorf("no torrents match info hash: %v", infoHash)
+	return nil, fmt.Errorf("no torrent found")
+}
+
+func (c *Client) RemoveTorrent(infoHash string) error {
+	if c.torrentClient.IsAbsent() {
+		return errors.New("torrent client is not initialized")
+	}
+
+	torrents := c.torrentClient.MustGet().Torrents()
+	for _, t := range torrents {
+		if t.InfoHash().AsString() == infoHash {
+			t.Drop()
+			return nil
+		}
+	}
+	return fmt.Errorf("no torrent found")
 }

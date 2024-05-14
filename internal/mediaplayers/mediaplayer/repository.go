@@ -45,6 +45,12 @@ type (
 		VideoCompletedCh  chan *PlaybackStatus
 		TrackingStoppedCh chan string
 		PlaybackStatusCh  chan *PlaybackStatus
+
+		StreamingTrackingStartedCh chan *PlaybackStatus
+		StreamingTrackingRetryCh   chan string
+		StreamingVideoCompletedCh  chan *PlaybackStatus
+		StreamingTrackingStoppedCh chan string
+		StreamingPlaybackStatusCh  chan *PlaybackStatus
 	}
 
 	PlaybackStatus struct {
@@ -90,36 +96,6 @@ func (m *Repository) GetStatus() *PlaybackStatus {
 
 func (m *Repository) IsRunning() bool {
 	return m.isRunning
-}
-
-func (m *Repository) trackingStopped(reason string) {
-	for _, sub := range m.subscribers {
-		sub.TrackingStoppedCh <- reason
-	}
-}
-
-func (m *Repository) trackingStarted(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.TrackingStartedCh <- status
-	}
-}
-
-func (m *Repository) trackingRetry(reason string) {
-	for _, sub := range m.subscribers {
-		sub.TrackingRetryCh <- reason
-	}
-}
-
-func (m *Repository) videoCompleted(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.VideoCompletedCh <- status
-	}
-}
-
-func (m *Repository) playbackStatus(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.PlaybackStatusCh <- status
-	}
 }
 
 // Play will start the media player and load the video at the given path.
@@ -184,6 +160,120 @@ func (m *Repository) Stop() {
 		m.trackingStopped("Tracking stopped")
 	}
 	m.mu.Unlock()
+}
+
+// StartTrackingTorrentStreaming will start tracking media player status for torrent streaming
+func (m *Repository) StartTrackingTorrentStreaming() {
+	m.mu.Lock()
+	// If a previous context exists, cancel it
+	if m.cancel != nil {
+		m.Logger.Debug().Msg("media player: Cancelling previous context")
+		m.cancel()
+	}
+
+	// Create a new context
+	var trackingCtx context.Context
+	trackingCtx, m.cancel = context.WithCancel(context.Background())
+
+	done := make(chan struct{})
+	var filename string
+	var completed bool
+	var retries int
+
+	// Unlike normal tracking when the file is downloaded, we may need to wait a bit before we can get the status
+	// So we need to keep track of whether we have started tracking
+	// Unlike normal tracking we won't count retries until we have started tracking
+	var trackingStarted bool
+	var waitInSeconds int
+
+	m.isRunning = true
+
+	m.mu.Unlock()
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				m.mu.Lock()
+				m.Logger.Debug().Msg("media player: Connection lost")
+				m.isRunning = false
+				m.mu.Unlock()
+				return
+			case <-trackingCtx.Done():
+				m.mu.Lock()
+				m.Logger.Debug().Msg("media player: Context cancelled")
+				m.isRunning = false
+				m.mu.Unlock()
+				return
+			default:
+				time.Sleep(3 * time.Second)
+				status, err := m.getStatus()
+				if err != nil {
+					if !trackingStarted {
+						m.Logger.Trace().Msgf("media player: Waiting for torrent file, %d seconds", waitInSeconds)
+						continue
+					} else {
+						m.trackingRetry("Failed to get status")
+						m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
+						// Video is completed, and we are unable to get the status
+						// We can safely assume that the player has been closed
+						if retries == 1 && completed {
+							m.streamingTrackingStopped("Player closed")
+							close(done)
+							break
+						}
+
+						if retries >= 2 {
+							m.streamingTrackingStopped("Failed to get status")
+							close(done)
+							break
+						}
+						retries++
+						continue
+					}
+				}
+
+				if !trackingStarted {
+					// Tracking has not started, do nothing
+				} else {
+					// Tracking has started
+
+					playback, ok := m.processStatus(m.Default, status)
+
+					if !ok {
+						m.streamingTrackingRetry("Failed to get status")
+						m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
+						if retries >= 2 {
+							m.streamingTrackingStopped("Failed to process status")
+							close(done)
+							break
+						}
+						retries++
+						continue
+					}
+
+					m.currentPlaybackStatus = playback
+
+					// New video has started playing \/
+					if filename == "" || filename != playback.Filename {
+						m.Logger.Debug().Msg("media player: Video started playing")
+						m.streamingTrackingStarted(playback)
+						filename = playback.Filename
+						completed = false
+					}
+
+					// Video completed \/
+					if playback.CompletionPercentage > m.completionThreshold && !completed {
+						m.Logger.Debug().Msg("media player: Video completed")
+						m.streamingVideoCompleted(playback)
+						completed = true
+					}
+
+					m.streamingPlaybackStatus(playback)
+				}
+			}
+		}
+	}()
 }
 
 // StartTracking will start tracking media player status.
@@ -288,6 +378,68 @@ func (m *Repository) StartTracking() {
 	}()
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (m *Repository) trackingStopped(reason string) {
+	for _, sub := range m.subscribers {
+		sub.TrackingStoppedCh <- reason
+	}
+}
+
+func (m *Repository) trackingStarted(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.TrackingStartedCh <- status
+	}
+}
+
+func (m *Repository) trackingRetry(reason string) {
+	for _, sub := range m.subscribers {
+		sub.TrackingRetryCh <- reason
+	}
+}
+
+func (m *Repository) videoCompleted(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.VideoCompletedCh <- status
+	}
+}
+
+func (m *Repository) playbackStatus(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.PlaybackStatusCh <- status
+	}
+}
+
+func (m *Repository) streamingTrackingStopped(reason string) {
+	for _, sub := range m.subscribers {
+		sub.StreamingTrackingStoppedCh <- reason
+	}
+}
+
+func (m *Repository) streamingTrackingStarted(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.StreamingTrackingStartedCh <- status
+	}
+}
+
+func (m *Repository) streamingTrackingRetry(reason string) {
+	for _, sub := range m.subscribers {
+		sub.StreamingTrackingRetryCh <- reason
+	}
+}
+
+func (m *Repository) streamingVideoCompleted(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.StreamingVideoCompletedCh <- status
+	}
+}
+
+func (m *Repository) streamingPlaybackStatus(status *PlaybackStatus) {
+	for _, sub := range m.subscribers {
+		sub.StreamingPlaybackStatusCh <- status
+	}
+}
+
 func (m *Repository) getStatus() (interface{}, error) {
 	switch m.Default {
 	case "vlc":
@@ -352,3 +504,5 @@ func (m *Repository) processStatus(player string, status interface{}) (*Playback
 		return nil, false
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

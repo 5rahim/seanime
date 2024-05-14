@@ -93,7 +93,9 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                 progressNumber={episode.progressNumber}
                                 episodeNumber={episode.episodeNumber}
                                 hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
-                                onClick={() => {}}
+                                onClick={() => {
+                                    handleEpisodeClick(episode)
+                                }}
                             />
                         </CarouselItem>
                     ))}

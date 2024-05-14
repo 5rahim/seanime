@@ -3,16 +3,18 @@ package torrentstream
 import (
 	"context"
 	"fmt"
+	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	itorrent "github.com/seanime-app/seanime/internal/torrents/torrent"
 )
 
 type StartStreamOptions struct {
-	MediaId       int    `json:"mediaId"`
-	EpisodeNumber int    `json:"episodeNumber"` // Episode number to identify the file
-	AniDBEpisode  string `json:"aniDBEpisode"`  // Anizip episode
-	AutoSelect    bool   `json:"autoSelect"`    // Automatically select the best file to stream
-	TorrentID     string `json:"torrentId"`     // Magnet/File when manually selecting
+	MediaId       int                   `json:"mediaId"`
+	EpisodeNumber int                   `json:"episodeNumber"` // RELATIVE Episode number to identify the file
+	AniDBEpisode  string                `json:"aniDBEpisode"`  // Anizip episode
+	AutoSelect    bool                  `json:"autoSelect"`    // Automatically select the best file to stream
+	Torrent       itorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -33,42 +35,51 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		return err
 	}
 
+	episodeNumber := opts.EpisodeNumber
+
 	//
-	// Find the best torrent
+	// Find the best torrent / Select the torrent
 	//
-	var torrentId string
+	var torrentToStream *playbackTorrent
 	switch opts.AutoSelect {
 	case true:
-		torrentId, err = r.findBestTorrent(media, anizipMedia, episode, opts.EpisodeNumber)
+		torrentToStream, err = r.findBestTorrent(media, anizipMedia, episode, episodeNumber)
+		if err != nil {
+			return err
+		}
 	case false:
-		torrentId = opts.TorrentID
-		if torrentId == "" {
-			err = fmt.Errorf("torrentstream: No magnet link or torrent file provided")
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent.Link, media, episodeNumber)
+		if err != nil {
+			return err
 		}
 	}
+
+	//
+	// Set current file
+	//
+	r.playback.currentFile = mo.Some(torrentToStream.File)
+	r.playback.currentTorrent = mo.Some(torrentToStream.Torrent)
+
+	//
+	// Start the server
+	//
+	r.serverManager.StartServer()
+
+	//
+	// Start the stream
+	//
+	err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl())
 	if err != nil {
+		r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 		return err
 	}
 
-	_, err = r.client.AddTorrent(torrentId)
-	if err != nil {
-		return err
-	}
-
-	//
-	//files := t.Files()
-	//if len(files) == 0 {
-	//	return errors.New("torrentstream: no files found in the torrent")
-	//}
-	//
-	//spew.Dump(files)
-	//
-	//file := files[0] // TODO change
-	//
-	//r.playback.currentFile = mo.Some(file)
+	r.logger.Info().Msg("torrentstream: Stream started")
 
 	return nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) getMediaInfo(mediaId int) (media *anilist.BaseMedia, anizipMedia *anizip.Media, err error) {
 	// Get the media
@@ -90,7 +101,7 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.BaseMedia, anizip
 	// Get the media
 	anizipMedia, err = anizip.FetchAniZipMediaC("anilist", mediaId, r.anizipCache)
 	if err != nil {
-		return nil, nil, fmt.Errorf("torrentstream: AniDB media not found in the cache")
+		return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
 	}
 
 	return

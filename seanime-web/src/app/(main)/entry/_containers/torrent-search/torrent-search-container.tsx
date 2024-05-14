@@ -8,13 +8,14 @@ import {
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { atom } from "jotai"
-import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo } from "react"
+import React, { startTransition } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
 
@@ -61,11 +62,11 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
         type,
     })
 
-    useEffect(() => {
+    React.useEffect(() => {
         setSelectedTorrents([])
     }, [])
 
-    useLayoutEffect(() => {
+    React.useLayoutEffect(() => {
         if (smartSearch) {
             setGlobalFilter("")
         } else {
@@ -73,10 +74,10 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
         }
     }, [smartSearch])
 
-    const torrents = useMemo(() => data?.torrents ?? [], [data?.torrents])
-    const previews = useMemo(() => data?.previews ?? [], [data?.previews])
+    const torrents = React.useMemo(() => data?.torrents ?? [], [data?.torrents])
+    const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
 
-    const EpisodeNumberInput = useCallback(() => {
+    const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
             label="Episode number"
             value={smartSearchEpisode}
@@ -102,7 +103,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
      * - Download: Select multiple torrents
      * - Select: Select only one torrent
      */
-    const handleToggleTorrent = useCallback((t: Torrent_AnimeTorrent) => {
+    const handleToggleTorrent = React.useCallback((t: Torrent_AnimeTorrent) => {
         if (type === "download") {
             setSelectedTorrents(prev => {
                 const idx = prev.findIndex(n => n.link === t.link)
@@ -126,14 +127,19 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
      * This function is called only when the type is 'select'
      * Meaning, the user has selected a torrent and wants to start streaming
      */
-    const onTorrentValidated = useCallback(() => {
+    const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const onTorrentValidated = React.useCallback(() => {
         if (type === "select") {
             if (selectedTorrents.length) {
-                startTransition(() => {
+                handleManualTorrentStreamSelection({
+                    torrent: selectedTorrents[0],
+                    entry,
+                    episodeNumber: smartSearchEpisode,
+                })
+                React.startTransition(() => {
                     setSelectedTorrents([])
                 })
             }
-            // TODO: Start streaming
         }
     }, [type])
 

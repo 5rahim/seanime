@@ -173,6 +173,22 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	return nil
 }
 
+func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string) error {
+	pm.playlistHub.reset()
+	if pm.isOffline {
+		return errors.New("cannot stream when offline")
+	}
+
+	err := pm.MediaPlayerRepository.Play(url)
+	if err != nil {
+		return err
+	}
+
+	pm.MediaPlayerRepository.StartTrackingTorrentStreaming()
+
+	return nil
+}
+
 // CancelCurrentPlaylist cancels the current playlist.
 // This is an action triggered by the client.
 func (pm *PlaybackManager) CancelCurrentPlaylist() error {

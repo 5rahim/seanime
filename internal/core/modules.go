@@ -116,6 +116,7 @@ func (a *App) initModulesOnce() {
 		MetadataProvider:      a.MetadataProvider,
 		AnimeCollection:       nil, // Will be set in app.RefreshAnilistCollection
 		AnilistClientWrapper:  a.AnilistClientWrapper,
+		PlaybackManager:       a.PlaybackManager,
 	})
 
 }

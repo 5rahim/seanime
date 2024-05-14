@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
@@ -21,7 +22,7 @@ type (
 	Repository struct {
 		client        *Client
 		serverManager *ServerManager
-		playback      *Playback
+		playback      *playback
 
 		anizipCache          *anizip.Cache
 		baseMediaCache       *anilist.BaseMediaCache
@@ -32,13 +33,15 @@ type (
 		animeToshoSearchCache *animetosho.SearchCache
 		metadataProvider      *metadata.Provider
 
+		playbackManager       *playbackmanager.PlaybackManager
 		mediaPlayerRepository *mediaplayer.Repository
 		settings              mo.Option[Settings] // None by default, set and refreshed by SetSettings
 		logger                *zerolog.Logger
 	}
 
-	Playback struct {
-		currentFile mo.Option[*torrent.File]
+	playback struct {
+		currentFile    mo.Option[*torrent.File]
+		currentTorrent mo.Option[*torrent.Torrent]
 	}
 
 	Settings struct {
@@ -55,6 +58,7 @@ type (
 		NyaaSearchCache       *nyaa.SearchCache
 		AnimeToshoSearchCache *animetosho.SearchCache
 		MetadataProvider      *metadata.Provider
+		PlaybackManager       *playbackmanager.PlaybackManager
 	}
 )
 
@@ -63,7 +67,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
 		logger:                opts.Logger,
 		mediaPlayerRepository: opts.MediaPlayerRepository,
-		playback: &Playback{
+		playback: &playback{
 			currentFile: mo.None[*torrent.File](),
 		},
 		anizipCache:           opts.AnizipCache,
@@ -73,6 +77,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		nyaaSearchCache:       opts.NyaaSearchCache,
 		animeToshoSearchCache: opts.AnimeToshoSearchCache,
 		metadataProvider:      opts.MetadataProvider,
+		playbackManager:       opts.PlaybackManager,
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = NewServerManager(ret)
