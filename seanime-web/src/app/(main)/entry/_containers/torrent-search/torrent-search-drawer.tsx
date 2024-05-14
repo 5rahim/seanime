@@ -12,9 +12,11 @@ import React, { useEffect } from "react"
 export const __torrentSearch_drawerIsOpenAtom = atom(false)
 export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefined)
 
-export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
+export type TorrentSearchType = "select" | "download"
 
-    const { entry } = props
+export function TorrentSearchDrawer(props: { type: TorrentSearchType, entry: Anime_MediaEntry }) {
+
+    const { type, entry } = props
 
     const [isOpen, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
     const searchParams = useSearchParams()
@@ -45,8 +47,8 @@ export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
                 />
             </div>
             <div className="relative z-[1]">
-                <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />
-                <TorrentSearchContainer entry={entry} />
+                {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
+                <TorrentSearchContainer type={type} entry={entry} />
             </div>
         </Drawer>
     )

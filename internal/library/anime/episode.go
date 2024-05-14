@@ -195,6 +195,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 
 			if episodeInt, ok := anizip.ExtractEpisodeInteger(opts.OptionalAniDBEpisode); ok {
 				entryEp.EpisodeNumber = episodeInt
+				entryEp.ProgressNumber = episodeInt
 				if foundAnizipEpisode {
 					entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnizipMedia.GetOffset()
 				}

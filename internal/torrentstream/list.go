@@ -1,10 +1,12 @@
 package torrentstream
 
 import (
+	"cmp"
 	"fmt"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/library/anime"
+	"slices"
 )
 
 type (
@@ -58,6 +60,10 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 
 	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.MediaEntryDownloadEpisode, i int) *anime.MediaEntryEpisode {
 		return episode.Episode
+	})
+
+	slices.SortStableFunc(ec.Episodes, func(i, j *anime.MediaEntryEpisode) int {
+		return cmp.Compare(i.EpisodeNumber, j.EpisodeNumber)
 	})
 
 	return

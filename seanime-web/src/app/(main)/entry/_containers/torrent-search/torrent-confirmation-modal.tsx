@@ -3,7 +3,7 @@ import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -18,22 +18,6 @@ import { toast } from "sonner"
 import * as upath from "upath"
 
 const isOpenAtom = atom(false)
-
-type TorrentDownloadProps = {
-    urls: string[]
-    destination: string
-    smartSelect: {
-        enabled: boolean
-        missingEpisodeNumbers: number[]
-    }
-    media?: AL_BaseMedia
-}
-
-type TorrentDownloadFileProps = {
-    download_urls: string[]
-    destination: string
-    media?: AL_BaseMedia
-}
 
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     onToggleTorrent: (t: Torrent_AnimeTorrent) => void,
@@ -232,7 +216,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 }
 
 
-export function TorrentConfirmationContinueButton() {
+export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: { type: TorrentSearchType, onTorrentValidated: () => void }) {
 
     const st = useAtomValue(__torrentSearch_selectedTorrentsAtom)
     const setter = useSetAtom(isOpenAtom)
@@ -243,7 +227,13 @@ export function TorrentConfirmationContinueButton() {
         <Button
             intent="primary"
             className=""
-            onClick={() => setter(true)}
+            onClick={() => {
+                if (type === "download") {
+                    setter(true)
+                } else {
+                    onTorrentValidated()
+                }
+            }}
         >
             Continue ({st.length})
         </Button>

@@ -7,6 +7,7 @@ import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
@@ -17,7 +18,7 @@ import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMem
 
 export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
 
-export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
+export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchType, entry: Anime_MediaEntry }) {
     const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
     const shouldLookForBatches = React.useMemo(() => !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length,
@@ -88,15 +89,39 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
         />
     }, [smartSearch, smartSearchBatch, downloadInfo, soughtEpisode])
 
+    /**
+     * Select torrent
+     * - Download: Select multiple torrents
+     * - Select: Select only one torrent
+     */
     const handleToggleTorrent = useCallback((t: Torrent_AnimeTorrent) => {
-        setSelectedTorrents(prev => {
-            const idx = prev.findIndex(n => n.link === t.link)
-            if (idx !== -1) {
-                return prev.filter(n => n.link !== t.link)
-            }
-            return [...prev, t]
-        })
-    }, [setSelectedTorrents, smartSearchBest])
+        if (type === "download") {
+            setSelectedTorrents(prev => {
+                const idx = prev.findIndex(n => n.link === t.link)
+                if (idx !== -1) {
+                    return prev.filter(n => n.link !== t.link)
+                }
+                return [...prev, t]
+            })
+        } else if (type === "select") {
+            setSelectedTorrents(prev => {
+                const idx = prev.findIndex(n => n.link === t.link)
+                if (idx !== -1) {
+                    return []
+                }
+                return [t]
+            })
+        }
+    }, [setSelectedTorrents, smartSearchBest, type])
+
+    const onTorrentValidated = useCallback(() => {
+        if (selectedTorrents.length) {
+            startTransition(() => {
+                setSelectedTorrents([])
+            })
+        }
+        // TODO: Start streaming
+    }, [])
 
     return (
         <>
@@ -118,14 +143,14 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
                         onValueChange={setSmartSearch}
                     />
 
-                    <TorrentConfirmationContinueButton />
+                    <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
                 </div> : <div className="py-4 flex items-center">
                     <div>
                         <div className="text-[--muted] italic">Smart search is not enabled for adult content</div>
                         <div className="">Provider: <strong>Nyaa Sukeibei</strong></div>
                     </div>
                     <div className="flex flex-1"></div>
-                    <TorrentConfirmationContinueButton />
+                    <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
                 </div>}
 
                 {smartSearch && <div>
@@ -208,11 +233,11 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
                     onToggleTorrent={handleToggleTorrent}
                 />
             </div>
-            <TorrentConfirmationModal
+            {type === "download" && <TorrentConfirmationModal
                 onToggleTorrent={handleToggleTorrent}
                 media={entry.media!!}
                 entry={entry}
-            />
+            />}
         </>
     )
 
