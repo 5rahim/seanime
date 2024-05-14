@@ -24,7 +24,7 @@ export function TorrentSearchButton({ entry }: { entry: Anime_MediaEntry }) {
                 size="lg"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClass="text-2xl"
-                onClick={() => setter(true)}
+                onClick={() => setter("download")}
             >
                 {(!entry.downloadInfo?.hasInaccurateSchedule && !!count) ? <>
                     {(!isMovie) && `Download ${entry.downloadInfo?.batchAll ? "batch /" : "next"} ${count > 1 ? `${count} episodes` : "episode"}`}

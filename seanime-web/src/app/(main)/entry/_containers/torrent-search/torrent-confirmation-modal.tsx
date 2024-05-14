@@ -69,14 +69,14 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     // download via torrent client
     const { mutate, isPending } = useTorrentClientDownload(() => {
         setIsOpen(false)
-        setTorrentDrawerIsOpen(false)
+        setTorrentDrawerIsOpen(undefined)
         router.push("/torrent-list")
     })
 
     // download torrent file
     const { mutate: downloadTorrentFiles, isPending: isDownloadingFiles } = useDownloadTorrentFile(() => {
         setIsOpen(false)
-        setTorrentDrawerIsOpen(false)
+        setTorrentDrawerIsOpen(undefined)
     })
 
     const isDisabled = isPending || isDownloadingFiles

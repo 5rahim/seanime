@@ -87,9 +87,9 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.BaseMedia, anizip
 		media = mediaF.GetMedia()
 	}
 
-	// Get the media, it SHOULD be in the Anizip cache
-	anizipMedia, found = r.anizipCache.Get(anizip.GetCacheKey("anilist", mediaId))
-	if !found {
+	// Get the media
+	anizipMedia, err = anizip.FetchAniZipMediaC("anilist", mediaId, r.anizipCache)
+	if err != nil {
 		return nil, nil, fmt.Errorf("torrentstream: AniDB media not found in the cache")
 	}
 

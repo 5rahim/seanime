@@ -21,8 +21,15 @@ export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>
 export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchType, entry: Anime_MediaEntry }) {
     const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
-    const shouldLookForBatches = React.useMemo(() => !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length,
-        [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length])
+
+    const shouldLookForBatches = React.useMemo(() => {
+        if (type === "download") {
+            return !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length
+        } else {
+            return !!downloadInfo?.canBatch
+        }
+    }, [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length, type])
+
     const hasEpisodesToDownload = React.useMemo(() => !!downloadInfo?.episodesToDownload?.length, [downloadInfo?.episodesToDownload?.length])
     const [isAdult, setIsAdult] = React.useState(entry.media?.isAdult === true)
 
@@ -51,6 +58,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
         shouldLookForBatches,
         downloadInfo,
         entry,
+        type,
     })
 
     useEffect(() => {
@@ -114,14 +122,20 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
         }
     }, [setSelectedTorrents, smartSearchBest, type])
 
+    /**
+     * This function is called only when the type is 'select'
+     * Meaning, the user has selected a torrent and wants to start streaming
+     */
     const onTorrentValidated = useCallback(() => {
-        if (selectedTorrents.length) {
-            startTransition(() => {
-                setSelectedTorrents([])
-            })
+        if (type === "select") {
+            if (selectedTorrents.length) {
+                startTransition(() => {
+                    setSelectedTorrents([])
+                })
+            }
+            // TODO: Start streaming
         }
-        // TODO: Start streaming
-    }, [])
+    }, [type])
 
     return (
         <>
