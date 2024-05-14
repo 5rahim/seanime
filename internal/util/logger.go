@@ -37,21 +37,21 @@ func NewLogger() *zerolog.Logger {
 				s := strings.ToLower(ll)
 				switch s {
 				case "debug":
-					s = "DBG"
+					s = "|DBG|"
 				case "info":
-					s = "INF"
+					s = "|" + fmt.Sprint(colorizeb("INF", colorBold)) + "|"
 				case "warn":
-					s = colorizeb("WRN", colorYellow)
+					s = colorizeb("|WRN|", colorYellow)
 				case "trace":
-					s = "TRC"
+					s = colorizeb("|TRC|", colorDarkGray)
 				case "error":
-					s = colorizeb("ERR", colorRed)
+					s = colorizeb("|ERR|", colorRed)
 				case "fatal":
-					s = colorizeb("FTL", colorRed)
+					s = colorizeb("|FTL|", colorRed)
 				case "panic":
-					s = colorizeb("PNC", colorRed)
+					s = colorizeb("|PNC|", colorRed)
 				}
-				return "|" + fmt.Sprint(s) + "|"
+				return fmt.Sprint(s)
 			}
 			return ""
 		},

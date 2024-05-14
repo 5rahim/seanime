@@ -15,11 +15,14 @@ import {
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { NextAiringEpisode } from "@/app/(main)/entry/_components/next-airing-episode"
+import { __anime_wantStreamingAtom } from "@/app/(main)/entry/_containers/anime-entry-page"
 import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-dropdown-menu"
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
+import { TorrentStreamButton } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-button"
 import { Button, IconButton } from "@/components/ui/button"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
+import { useAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
 import { BiChevronDown } from "react-icons/bi"
@@ -30,6 +33,8 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
     const { entry, details } = props
 
     if (!entry.media) return null
+
+    const [wantStreaming, setWantStreaming] = useAtom(__anime_wantStreamingAtom)
 
     return (
         <MediaPageHeader
@@ -75,11 +80,19 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
                 </Disclosure>
 
 
-                {entry.media.status !== "NOT_YET_RELEASED" && (
-                    <TorrentSearchButton
-                        entry={entry}
-                    />
-                )}
+                <div className="flex flex-col lg:flex-row w-full gap-3">
+                    {entry.media.status !== "NOT_YET_RELEASED" && !wantStreaming && (
+                        <TorrentSearchButton
+                            entry={entry}
+                        />
+                    )}
+
+                    {entry.media.status !== "NOT_YET_RELEASED" && (
+                        <TorrentStreamButton
+                            entry={entry}
+                        />
+                    )}
+                </div>
 
                 <NextAiringEpisode media={entry.media} />
 

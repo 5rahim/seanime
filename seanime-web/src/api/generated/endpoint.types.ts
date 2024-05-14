@@ -1073,6 +1073,20 @@ export type SearchNsfwTorrent_Variables = {
 /**
  * - Filepath: internal/handlers/torrentstream.go
  * - Filename: torrentstream.go
+ * - Endpoint: /api/v1/torrentstream/episodes/{id}
+ * @description
+ * Route get list of episodes
+ */
+export type GetTorrentstreamEpisodeCollection_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/torrentstream.go
+ * - Filename: torrentstream.go
  * - Endpoint: /api/v1/torrentstream/settings
  * @description
  * Route save torrentstream settings.

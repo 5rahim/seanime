@@ -5,6 +5,27 @@ import (
 	"github.com/seanime-app/seanime/internal/database/models"
 )
 
+// HandleGetTorrentstreamEpisodeCollection
+//
+//	@summary get list of episodes
+//	@desc This returns a list of episodes.
+//	@returns torrentstream.EpisodeCollection
+//	@param id - int - true - "AniList anime media ID"
+//	@route /api/v1/torrentstream/episodes/{id} [GET]
+func HandleGetTorrentstreamEpisodeCollection(c *RouteCtx) error {
+	mId, err := c.Fiber.ParamsInt("id")
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ec, err := c.App.TorrentstreamRepository.NewEpisodeCollection(mId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(ec)
+}
+
 // HandleGetTorrentstreamSettings
 //
 //	@summary get torrentstream settings.
@@ -24,6 +45,7 @@ func HandleGetTorrentstreamSettings(c *RouteCtx) error {
 //
 //	@summary save torrentstream settings.
 //	@desc This saves the torrentstream settings.
+//	@desc The client should refetch the server status.
 //	@returns models.TorrentstreamSettings
 //	@route /api/v1/torrentstream/settings [PATCH]
 func HandleSaveTorrentstreamSettings(c *RouteCtx) error {

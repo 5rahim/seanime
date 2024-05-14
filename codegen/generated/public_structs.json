@@ -24527,6 +24527,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SecondarySettings",
+        "jsonName": "SecondarySettings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -26023,6 +26032,15 @@
         "comments": []
       },
       {
+        "name": "PreferredResolution",
+        "jsonName": "preferredResolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "DisableIPV6",
         "jsonName": "disableIPV6",
         "goType": "bool",
@@ -27344,6 +27362,26 @@
         "goType": "core.FeatureFlags",
         "typescriptType": "INTERNAL_FeatureFlags",
         "usedStructName": "core.FeatureFlags",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediastreamSettings",
+        "jsonName": "mediastreamSettings",
+        "goType": "models.MediastreamSettings",
+        "typescriptType": "Models_MediastreamSettings",
+        "usedStructName": "models.MediastreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamSettings",
+        "jsonName": "torrentstreamSettings",
+        "goType": "models.TorrentstreamSettings",
+        "typescriptType": "Models_TorrentstreamSettings",
+        "usedStructName": "models.TorrentstreamSettings",
         "required": false,
         "public": true,
         "comments": []
@@ -46035,16 +46073,6 @@
         "comments": []
       },
       {
-        "name": "srv",
-        "jsonName": "srv",
-        "goType": "http.Server",
-        "typescriptType": "Server",
-        "usedStructName": "http.Server",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "torrents",
         "jsonName": "torrents",
         "goType": "[]torrent.Torrent",
@@ -46080,17 +46108,152 @@
   {
     "filepath": "../internal/torrentstream/files.go",
     "filename": "files.go",
-    "name": "FileEntry",
-    "formattedName": "Torrentstream_FileEntry",
+    "name": "ReadableFile",
+    "formattedName": "Torrentstream_ReadableFile",
     "package": "torrentstream",
     "fields": [],
-    "comments": [
-      " FileEntry helps reading a torrent file."
-    ],
+    "comments": [],
     "embeddedStructNames": [
       "torrent.File",
       "torrent.Reader"
     ]
+  },
+  {
+    "filepath": "../internal/torrentstream/list.go",
+    "filename": "list.go",
+    "name": "EpisodeCollection",
+    "formattedName": "Torrentstream_EpisodeCollection",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]anime.MediaEntryEpisode",
+        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
+        "usedStructName": "anime.MediaEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/server.go",
+    "filename": "server.go",
+    "name": "ServerManager",
+    "formattedName": "Torrentstream_ServerManager",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "httpserver",
+        "jsonName": "httpserver",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The server instance"
+        ]
+      },
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastUsed",
+        "jsonName": "lastUsed",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Used to track the last time the server was used"
+        ]
+      },
+      {
+        "name": "serverRunning",
+        "jsonName": "serverRunning",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Whether the server is running"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/stream.go",
+    "filename": "stream.go",
+    "name": "StartStreamOptions",
+    "formattedName": "Torrentstream_StartStreamOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Anizip episode"
+        ]
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "autoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Automatically select the best file to stream"
+        ]
+      },
+      {
+        "name": "TorrentID",
+        "jsonName": "torrentId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Magnet/File when manually selecting"
+        ]
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/torrentstream/torrentstream.go",
@@ -46105,6 +46268,96 @@
         "goType": "Client",
         "typescriptType": "Torrentstream_Client",
         "usedStructName": "torrentstream.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "serverManager",
+        "jsonName": "serverManager",
+        "goType": "ServerManager",
+        "typescriptType": "Torrentstream_ServerManager",
+        "usedStructName": "torrentstream.ServerManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playback",
+        "jsonName": "playback",
+        "goType": "Playback",
+        "typescriptType": "Torrentstream_Playback",
+        "usedStructName": "torrentstream.Playback",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anizipCache",
+        "jsonName": "anizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseMediaCache",
+        "jsonName": "baseMediaCache",
+        "goType": "anilist.BaseMediaCache",
+        "typescriptType": "AL_BaseMediaCache",
+        "usedStructName": "anilist.BaseMediaCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistClientWrapper",
+        "jsonName": "anilistClientWrapper",
+        "goType": "anilist.ClientWrapperInterface",
+        "typescriptType": "AL_ClientWrapperInterface",
+        "usedStructName": "anilist.ClientWrapperInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nyaaSearchCache",
+        "jsonName": "nyaaSearchCache",
+        "goType": "nyaa.SearchCache",
+        "typescriptType": "SearchCache",
+        "usedStructName": "nyaa.SearchCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeToshoSearchCache",
+        "jsonName": "animeToshoSearchCache",
+        "goType": "animetosho.SearchCache",
+        "typescriptType": "AnimeTosho_SearchCache",
+        "usedStructName": "animetosho.SearchCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -46139,16 +46392,6 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "playback",
-        "jsonName": "playback",
-        "goType": "Playback",
-        "typescriptType": "Torrentstream_Playback",
-        "usedStructName": "torrentstream.Playback",
-        "required": false,
-        "public": false,
-        "comments": []
       }
     ],
     "comments": []
@@ -46178,72 +46421,11 @@
     "name": "Settings",
     "formattedName": "Torrentstream_Settings",
     "package": "torrentstream",
-    "fields": [
-      {
-        "name": "Host",
-        "jsonName": "Host",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TorrentClientPort",
-        "jsonName": "TorrentClientPort",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StreamingServerHost",
-        "jsonName": "StreamingServerHost",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StreamingServerPort",
-        "jsonName": "StreamingServerPort",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadDir",
-        "jsonName": "DownloadDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DisableIPV6",
-        "jsonName": "DisableIPV6",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AddToLibrary",
-        "jsonName": "AddToLibrary",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.TorrentstreamSettings"
+    ]
   },
   {
     "filepath": "../internal/torrentstream/torrentstream.go",
@@ -46268,6 +46450,76 @@
         "goType": "mediaplayer.Repository",
         "typescriptType": "Repository",
         "usedStructName": "mediaplayer.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnizipCache",
+        "jsonName": "AnizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BaseMediaCache",
+        "jsonName": "BaseMediaCache",
+        "goType": "anilist.BaseMediaCache",
+        "typescriptType": "AL_BaseMediaCache",
+        "usedStructName": "anilist.BaseMediaCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistClientWrapper",
+        "jsonName": "AnilistClientWrapper",
+        "goType": "anilist.ClientWrapperInterface",
+        "typescriptType": "AL_ClientWrapperInterface",
+        "usedStructName": "anilist.ClientWrapperInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NyaaSearchCache",
+        "jsonName": "NyaaSearchCache",
+        "goType": "nyaa.SearchCache",
+        "typescriptType": "SearchCache",
+        "usedStructName": "nyaa.SearchCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeToshoSearchCache",
+        "jsonName": "AnimeToshoSearchCache",
+        "goType": "animetosho.SearchCache",
+        "typescriptType": "AnimeTosho_SearchCache",
+        "usedStructName": "animetosho.SearchCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []

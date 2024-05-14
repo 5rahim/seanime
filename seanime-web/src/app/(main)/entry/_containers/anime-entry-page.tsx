@@ -6,20 +6,23 @@ import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/epis
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
+import { AnimatePresence } from "framer-motion"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 
-type AnimeEntryPageProps = {}
+export const __anime_wantStreamingAtom = atom(false)
 
-export function AnimeEntryPage(props: AnimeEntryPageProps) {
-
-    const {} = props
+export function AnimeEntryPage() {
 
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: mediaDetails, isLoading: mediaDetailsLoading } = useGetAnilistMediaDetails(mediaId)
+
+    const [wantStreaming, setWantStreaming] = useAtom(__anime_wantStreamingAtom)
 
     React.useEffect(() => {
         if (!mediaId) {
@@ -37,7 +40,6 @@ export function AnimeEntryPage(props: AnimeEntryPageProps) {
             <MetaSection entry={mediaEntry} details={mediaDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">
-
                 <PageWrapper
                     className="relative 2xl:order-first pb-10 pt-4"
                     {...{
@@ -52,9 +54,45 @@ export function AnimeEntryPage(props: AnimeEntryPageProps) {
                         },
                     }}
                 >
-                    <EpisodeListGridProvider container="expanded">
-                        <EpisodeSection entry={mediaEntry} details={mediaDetails} />
-                    </EpisodeListGridProvider>
+                    <AnimatePresence mode="wait" initial={false}>
+                        {!wantStreaming && <PageWrapper
+                            key="episode-list"
+                            className="relative 2xl:order-first pb-10 pt-4"
+                            {...{
+                                initial: { opacity: 0, y: 60 },
+                                animate: { opacity: 1, y: 0 },
+                                exit: { opacity: 0, y: 20 },
+                                transition: {
+                                    type: "spring",
+                                    damping: 10,
+                                    stiffness: 80,
+                                },
+                            }}
+                        >
+                            <EpisodeListGridProvider container="expanded">
+                                <EpisodeSection entry={mediaEntry} details={mediaDetails} />
+                            </EpisodeListGridProvider>
+                        </PageWrapper>}
+
+                        {wantStreaming && <PageWrapper
+                            key="torrent-streaming-episodes"
+                            className="relative 2xl:order-first pb-10 pt-4"
+                            {...{
+                                initial: { opacity: 0, y: 60 },
+                                animate: { opacity: 1, y: 0 },
+                                exit: { opacity: 0, y: 20 },
+                                transition: {
+                                    type: "spring",
+                                    damping: 10,
+                                    stiffness: 80,
+                                },
+                            }}
+                        > <EpisodeListGridProvider container="expanded">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                        </EpisodeListGridProvider>
+                        </PageWrapper>}
+
+                    </AnimatePresence>
                 </PageWrapper>
             </div>
 

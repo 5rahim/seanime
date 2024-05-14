@@ -22,6 +22,7 @@ export function useSaveTorrentstreamSettings() {
         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.SaveTorrentstreamSettings.key],
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamSettings.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
             toast.success("Settings saved")
         },
     })

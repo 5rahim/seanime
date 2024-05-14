@@ -1675,6 +1675,8 @@ export type Status = {
     themeSettings?: Models_Theme
     isOffline: boolean
     featureFlags?: INTERNAL_FeatureFlags
+    mediastreamSettings?: Models_MediastreamSettings
+    torrentstreamSettings?: Models_TorrentstreamSettings
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2216,6 +2218,7 @@ export type Models_TorrentSettings = {
 export type Models_TorrentstreamSettings = {
     enabled: boolean
     autoSelect: boolean
+    preferredResolution: string
     disableIPV6: boolean
     downloadDir: string
     addToLibrary: boolean
@@ -2534,6 +2537,19 @@ export type TorrentClient_Torrent = {
  * - Package: torrent_client
  */
 export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" | "other" | "stopped"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Torrentstream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/torrentstream/list.go
+ * - Filename: list.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_EpisodeCollection = {
+    episodes?: Array<Anime_MediaEntryEpisode>
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tvdb

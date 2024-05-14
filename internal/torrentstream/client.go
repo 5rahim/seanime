@@ -18,7 +18,6 @@ type (
 		repository *Repository
 
 		torrentClient mo.Option[*torrent.Client]
-		srv           *http.Server
 		torrents      []*torrent.Torrent
 	}
 
@@ -27,35 +26,46 @@ type (
 	}
 )
 
-func NewClient(opts *NewClientOptions) *Client {
-	return &Client{
-		repository: opts.Repository,
+func NewClient(repository *Repository) *Client {
+	ret := &Client{
+		repository:    repository,
+		torrentClient: mo.None[*torrent.Client](),
 	}
+
+	return ret
 }
 
-func (c *Client) createTorrentClient() error {
-
+// InitializeClient will create and torrent client and server
+func (c *Client) InitializeClient() error {
+	// Fail if no settings
 	if err := c.repository.FailIfNoSettings(); err != nil {
 		return err
 	}
 
+	// Get the settings
 	settings := c.repository.settings.MustGet()
 
+	// Define torrent client settings
 	cfg := torrent.NewDefaultClientConfig()
+	//cfg.SetListenAddr(settings.ListenAddr)
 	cfg.NoUpload = false
 	cfg.DisableIPv6 = settings.DisableIPV6
+	if settings.TorrentClientPort == 0 {
+		settings.TorrentClientPort = 43213
+	}
 	cfg.ListenPort = settings.TorrentClientPort
-	//cfg.SetListenAddr(settings.ListenAddr)
+	// Set the download directory
+	// e.g. /path/to/temp/seanime/torrentstream/{infohash}
 	cfg.DefaultStorage = storage.NewFileByInfoHash(settings.DownloadDir)
 
+	// Create the torrent client
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
 		return fmt.Errorf("error creating a new torrent client: %v", err)
 	}
-
-	c.repository.logger.Info().Msg("torrentstream: Starting torrent client")
-
+	c.repository.logger.Info().Msg("torrentstream: Initialized torrent client")
 	c.torrentClient = mo.Some(client)
+
 	return nil
 }
 
@@ -103,12 +113,12 @@ func (c *Client) AddMagnet(magnet string) (*torrent.Torrent, error) {
 	return t, nil
 }
 
-func (c *Client) AddTorrentFile(file string) (*torrent.Torrent, error) {
+func (c *Client) AddTorrentFile(fp string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
 
-	t, err := c.torrentClient.MustGet().AddTorrentFromFile(file)
+	t, err := c.torrentClient.MustGet().AddTorrentFromFile(fp)
 	if err != nil {
 		return nil, err
 	}
@@ -127,11 +137,11 @@ func (c *Client) AddTorrentURL(url string) (*torrent.Torrent, error) {
 	}
 	defer resp.Body.Close()
 
-	fname := path.Base(url)
+	filename := path.Base(url)
 	tmp := os.TempDir()
-	path.Join(tmp, fname)
+	path.Join(tmp, filename)
 
-	file, err := os.Create(fname)
+	file, err := os.Create(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +160,6 @@ func (c *Client) AddTorrentURL(url string) (*torrent.Torrent, error) {
 	return t, nil
 }
 
-// Close the client and all torrents
 func (c *Client) Close() (errs []error) {
 	if c.torrentClient.IsAbsent() {
 		return

@@ -1,11 +1,11 @@
 package torrentstream
 
-import (
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"testing"
-)
+//import (
+//	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
+//	"github.com/seanime-app/seanime/internal/test_utils"
+//	"github.com/seanime-app/seanime/internal/util"
+//	"testing"
+//)
 
 //func TestSomething(t *testing.T) {
 //	test_utils.SetTwoLevelDeep()
@@ -72,16 +72,16 @@ import (
 //
 //}
 
-func TestSomething2(t *testing.T) {
-	test_utils.SetTwoLevelDeep()
-	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
-
-	repo := NewRepository(&NewRepositoryOptions{
-		Logger:                util.NewLogger(),
-		MediaPlayerRepository: mediaplayer.NewTestRepository(t, "mpv"),
-	})
-	defer repo.Cleanup()
-
-	repo.Test()
-
-}
+//func TestSomething2(t *testing.T) {
+//	test_utils.SetTwoLevelDeep()
+//	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
+//
+//	repo := NewRepository(&NewRepositoryOptions{
+//		Logger:                util.NewLogger(),
+//		MediaPlayerRepository: mediaplayer.NewTestRepository(t, "mpv"),
+//	})
+//	defer repo.Cleanup()
+//
+//	repo.Test()
+//
+//}

@@ -328,6 +328,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 	// Torrent stream
 	//
+	v1.Get("/torrentstream/episodes/:id", makeHandler(app, HandleGetTorrentstreamEpisodeCollection))
 	v1.Get("/torrentstream/settings", makeHandler(app, HandleGetTorrentstreamSettings))
 	v1.Patch("/torrentstream/settings", makeHandler(app, HandleSaveTorrentstreamSettings))
 
