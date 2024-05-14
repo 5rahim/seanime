@@ -9,16 +9,16 @@ import { useAtom } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
-export const __torrentSearch_drawerIsOpenAtom = atom(false)
+export const __torrentSearch_drawerIsOpenAtom = atom<TorrentSearchType | undefined>(undefined)
 export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefined)
 
 export type TorrentSearchType = "select" | "download"
 
-export function TorrentSearchDrawer(props: { type: TorrentSearchType, entry: Anime_MediaEntry }) {
+export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
 
-    const { type, entry } = props
+    const { entry } = props
 
-    const [isOpen, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const [type, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
     const searchParams = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()
@@ -27,15 +27,15 @@ export function TorrentSearchDrawer(props: { type: TorrentSearchType, entry: Ani
 
     useEffect(() => {
         if (!!downloadParam) {
-            setter(true)
+            setter("download")
             router.replace(pathname + `?id=${mId}`)
         }
     }, [downloadParam])
 
     return (
         <Drawer
-            open={isOpen}
-            onOpenChange={() => setter(false)}
+            open={type !== undefined}
+            onOpenChange={() => setter(undefined)}
             size="xl"
             title="Search torrents"
         >
@@ -48,7 +48,7 @@ export function TorrentSearchDrawer(props: { type: TorrentSearchType, entry: Ani
             </div>
             <div className="relative z-[1]">
                 {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
-                <TorrentSearchContainer type={type} entry={entry} />
+                {!!type && <TorrentSearchContainer type={type} entry={entry} />}
             </div>
         </Drawer>
     )
