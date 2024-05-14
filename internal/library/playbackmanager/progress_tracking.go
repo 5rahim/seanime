@@ -130,9 +130,28 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.TrackingRetryCh: // Error occurred while starting tracking
 				// DEVNOTE: This event is not sent to the client
+				// We notify the playlist hub, so it can play the next episode (it's assumed that the user closed the player)
 
 				// ------- Playlist ------- //
 				go pm.playlistHub.onTrackingError()
+
+				//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			case status := <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStartedCh:
+				pm.eventMu.Lock()
+				_ = status // TODO
+				pm.eventMu.Unlock()
+			case status := <-pm.mediaPlayerRepoSubscriber.StreamingPlaybackStatusCh:
+				pm.eventMu.Lock()
+				_ = status // TODO
+				pm.eventMu.Unlock()
+			case status := <-pm.mediaPlayerRepoSubscriber.StreamingVideoCompletedCh:
+				pm.eventMu.Lock()
+				_ = status // TODO
+				pm.eventMu.Unlock()
+			case path := <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStoppedCh:
+				pm.eventMu.Lock()
+				_ = path // TODO
+				pm.eventMu.Unlock()
 			}
 		}
 	}()
