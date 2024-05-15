@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -37,6 +38,7 @@ func Search(show string) (torrents []*Torrent, err error) {
 }
 
 func formatCommonQuery(quality string) string {
+	quality = strings.TrimSuffix(quality, "p")
 	if quality == "1080" {
 		return `((e*|a*|r*|i*|o*|"1080") !"720" !"540" !"480")`
 	} else if quality == "720" {

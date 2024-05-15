@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 type (
@@ -47,9 +48,10 @@ func (c *Client) InitializeClient() error {
 
 	// Define torrent client settings
 	cfg := torrent.NewDefaultClientConfig()
-	//cfg.SetListenAddr(settings.ListenAddr)
-	cfg.NoUpload = false
-	cfg.DisableIPv6 = settings.DisableIPV6
+	cfg.Seed = false
+	cfg.DisableIPv6 = true
+	cfg.DisableAggressiveUpload = true
+	//cfg.Debug = true
 	if settings.TorrentClientPort == 0 {
 		settings.TorrentClientPort = 43213
 	}
@@ -104,7 +106,7 @@ func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {
 	}
 
 	if strings.HasPrefix(id, "magnet") {
-		return c.AddMagnet(id)
+		return c.AddTorrentMagnet(id)
 	} else if strings.HasPrefix(id, "http") {
 		return c.AddTorrentURL(id)
 	} else {
@@ -112,7 +114,7 @@ func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {
 	}
 }
 
-func (c *Client) AddMagnet(magnet string) (*torrent.Torrent, error) {
+func (c *Client) AddTorrentMagnet(magnet string) (*torrent.Torrent, error) {
 	if c.torrentClient.IsAbsent() {
 		return nil, errors.New("torrent client is not initialized")
 	}
@@ -121,7 +123,18 @@ func (c *Client) AddMagnet(magnet string) (*torrent.Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
-	<-t.GotInfo()
+
+	c.repository.logger.Trace().Msgf("torrentstream: Waiting to retrieve torrent info")
+	select {
+	case <-t.GotInfo():
+		break
+	case <-t.Closed():
+		return nil, errors.New("torrent closed")
+	case <-time.After(1 * time.Minute):
+		t.Drop()
+		return nil, errors.New("timeout waiting for torrent info")
+	}
+	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
 	return t, nil
 }
 
@@ -134,7 +147,9 @@ func (c *Client) AddTorrentFile(fp string) (*torrent.Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.repository.logger.Trace().Msgf("torrentstream: Waiting to retrieve torrent info")
 	<-t.GotInfo()
+	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
 	return t, nil
 }
 
@@ -150,10 +165,7 @@ func (c *Client) AddTorrentURL(url string) (*torrent.Torrent, error) {
 	defer resp.Body.Close()
 
 	filename := path.Base(url)
-	tmp := os.TempDir()
-	path.Join(tmp, filename)
-
-	file, err := os.Create(filename)
+	file, err := os.Create(path.Join(os.TempDir(), filename))
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +180,9 @@ func (c *Client) AddTorrentURL(url string) (*torrent.Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.repository.logger.Trace().Msgf("torrentstream: Waiting to retrieve torrent info")
 	<-t.GotInfo()
+	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
 	return t, nil
 }
 

@@ -121,7 +121,7 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	}
 
 	if s.StreamingServerPort == 0 {
-		s.StreamingServerPort = 43212
+		s.StreamingServerPort = 43214
 	}
 	if s.TorrentClientPort == 0 {
 		s.TorrentClientPort = 43213
@@ -162,115 +162,22 @@ func (r *Repository) Shutdown() {
 	}
 	r.client.Close()
 	r.serverManager.StopServer()
-	_ = os.RemoveAll(r.settings.MustGet().DownloadDir)
+	_ = os.RemoveAll(r.GetDownloadDir())
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (r *Repository) GetDownloadDir() string {
+	if r.settings.IsAbsent() {
+		return r.getDefaultDownloadPath()
+	}
+	if r.settings.MustGet().DownloadDir == "" {
+		return r.getDefaultDownloadPath()
+	}
+	return r.settings.MustGet().DownloadDir
+}
 func (r *Repository) getDefaultDownloadPath() string {
 	tempDir := os.TempDir()
 	downloadDirPath := filepath.Join(tempDir, "seanime", "torrentstream")
 	return downloadDirPath
 }
-
-//var magnetLink = "magnet:?xt=urn:btih:O7DBLUBVWSQPLSJXEZXHCRQU5ZF2KKM2&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&dn=%5BEMBER%5D%20Dungeon%20Meshi%20S01E17%20%5B1080p%5D%20%5BDual%20Audio%20HEVC%20WEBRip%20DD%5D%20%28Delicious%20in%20Dungeon%29"
-//
-//func (r *Repository) Test() {
-//
-//	err := r.InitModules(&models.TorrentstreamSettings{}, "127.0.0.1")
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	fmt.Println(r.settings.MustGet().DownloadDir)
-//
-//	err = r.StartStream(magnetLink)
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	port := fmt.Sprintf("0.0.0.0:%s", "3002")
-//	srv := &http.Server{Addr: port}
-//	http.HandleFunc("/stream", func(w http.ResponseWriter, _r *http.Request) {
-//		r.logger.Info().Msg("Request received")
-//		w.Header().Set("Content-Type", "video/mp4")
-//		// Open the file using the custom reader
-//		http.ServeContent(w, _r, r.playback.currentFile.MustGet().DisplayPath(), time.Unix(r.playback.currentFile.MustGet().Torrent().Metainfo().CreationDate, 0), r.playback.currentFile.MustGet().NewReader())
-//	})
-//	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-//		// show hello world
-//		io.WriteString(w, "Hello, world!")
-//	})
-//
-//	go func() {
-//		r.logger.Info().Msg("Starting server")
-//		if err := srv.ListenAndServe(); err != nil {
-//			if errors.Is(err, http.ErrServerClosed) {
-//				return
-//			} else {
-//				panic(err)
-//			}
-//		}
-//	}()
-//
-//	defer srv.Shutdown(nil)
-//
-//	time.Sleep(1 * time.Second)
-//
-//	err = r.mediaPlayerRepository.Play("http://127.0.0.1:3002/stream")
-//	if err != nil {
-//		r.logger.Error().Err(err).Msg("Failed to play the stream")
-//	}
-//	defer r.mediaPlayerRepository.Stop()
-//
-//	select {}
-//
-//}
-
-//
-
-//func (r *Repository) Test2() {
-//
-//	err := r.InitModules(&models.TorrentstreamSettings{}, "127.0.0.1")
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	fmt.Println(r.settings.MustGet().DownloadDir)
-//
-//	app := fiber.New()
-//
-//	err = r.StartStream(magnetLink)
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	app.Get("/stream", adaptor.HTTPHandlerFunc(func(w http.ResponseWriter, _r *http.Request) {
-//		r.logger.Info().Msg("Request received")
-//		w.Header().Set("Content-Type", "video/mp4")
-//		spew.Dump(_r.Header)
-//		// Open the file using the custom reader
-//		http.ServeContent(w, _r, r.playback.currentFile.MustGet().DisplayPath(), time.Unix(r.playback.currentFile.MustGet().Torrent().Metainfo().CreationDate, 0), r.playback.currentFile.MustGet().NewReader())
-//	}))
-//
-//	app.Get("/hello", func(c *fiber.Ctx) error {
-//		fmt.Println(c.BaseURL())
-//		return c.SendString("Hello, World!")
-//	})
-//
-//	go func() {
-//		app.Listen("127.0.0.1:3002")
-//	}()
-//	defer app.Shutdown()
-//
-//	//time.Sleep(1 * time.Second)
-//	//
-//	//err = r.mediaPlayerRepository.Play("http://127.0.0.1:3002/stream")
-//	//if err != nil {
-//	//	r.logger.Error().Err(err).Msg("Failed to play the stream")
-//	//}
-//	//defer r.mediaPlayerRepository.Stop()
-//
-//	select {}
-//
-//}

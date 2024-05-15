@@ -78,11 +78,16 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 
 func (m *Repository) Subscribe(id string) *RepositorySubscriber {
 	sub := &RepositorySubscriber{
-		TrackingStartedCh: make(chan *PlaybackStatus, 1),
-		TrackingRetryCh:   make(chan string, 1),
-		VideoCompletedCh:  make(chan *PlaybackStatus, 1),
-		TrackingStoppedCh: make(chan string, 1),
-		PlaybackStatusCh:  make(chan *PlaybackStatus, 1),
+		TrackingStartedCh:          make(chan *PlaybackStatus, 1),
+		TrackingRetryCh:            make(chan string, 1),
+		VideoCompletedCh:           make(chan *PlaybackStatus, 1),
+		TrackingStoppedCh:          make(chan string, 1),
+		PlaybackStatusCh:           make(chan *PlaybackStatus, 1),
+		StreamingTrackingStartedCh: make(chan *PlaybackStatus, 1),
+		StreamingTrackingRetryCh:   make(chan string, 1),
+		StreamingVideoCompletedCh:  make(chan *PlaybackStatus, 1),
+		StreamingTrackingStoppedCh: make(chan string, 1),
+		StreamingPlaybackStatusCh:  make(chan *PlaybackStatus, 1),
 	}
 	m.subscribers[id] = sub
 	return sub
@@ -211,6 +216,7 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 				if err != nil {
 					if !trackingStarted {
 						m.Logger.Trace().Msgf("media player: Waiting for torrent file, %d seconds", waitInSeconds)
+						waitInSeconds += 3
 						continue
 					} else {
 						m.trackingRetry("Failed to get status")
@@ -233,44 +239,39 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 					}
 				}
 
-				if !trackingStarted {
-					// Tracking has not started, do nothing
-				} else {
-					// Tracking has started
+				trackingStarted = true
+				playback, ok := m.processStatus(m.Default, status)
 
-					playback, ok := m.processStatus(m.Default, status)
-
-					if !ok {
-						m.streamingTrackingRetry("Failed to get status")
-						m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
-						if retries >= 2 {
-							m.streamingTrackingStopped("Failed to process status")
-							close(done)
-							break
-						}
-						retries++
-						continue
+				if !ok {
+					m.streamingTrackingRetry("Failed to get status")
+					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
+					if retries >= 2 {
+						m.streamingTrackingStopped("Failed to process status")
+						close(done)
+						break
 					}
-
-					m.currentPlaybackStatus = playback
-
-					// New video has started playing \/
-					if filename == "" || filename != playback.Filename {
-						m.Logger.Debug().Msg("media player: Video started playing")
-						m.streamingTrackingStarted(playback)
-						filename = playback.Filename
-						completed = false
-					}
-
-					// Video completed \/
-					if playback.CompletionPercentage > m.completionThreshold && !completed {
-						m.Logger.Debug().Msg("media player: Video completed")
-						m.streamingVideoCompleted(playback)
-						completed = true
-					}
-
-					m.streamingPlaybackStatus(playback)
+					retries++
+					continue
 				}
+
+				m.currentPlaybackStatus = playback
+
+				// New video has started playing \/
+				if filename == "" || filename != playback.Filename {
+					m.Logger.Debug().Msg("media player: Video started playing")
+					m.streamingTrackingStarted(playback)
+					filename = playback.Filename
+					completed = false
+				}
+
+				// Video completed \/
+				if playback.CompletionPercentage > m.completionThreshold && !completed {
+					m.Logger.Debug().Msg("media player: Video completed")
+					m.streamingVideoCompleted(playback)
+					completed = true
+				}
+
+				m.streamingPlaybackStatus(playback)
 			}
 		}
 	}()
@@ -344,7 +345,7 @@ func (m *Repository) StartTracking() {
 
 				if !ok {
 					m.trackingRetry("Failed to get status")
-					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
+					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
 						m.trackingStopped("Failed to process status")
 						close(done)

@@ -44,16 +44,23 @@ func NewServerManager(repository *Repository) *ServerManager {
 		)
 	})
 
-	go func() {
-		for {
-			// Stop the server if it hasn't been used for 5 minutes
-			if time.Since(ret.lastUsed) > 5*time.Minute && ret.serverRunning {
-				ret.StopServer()
-			}
-			time.Sleep(10 * time.Minute)
-			ret.repository.logger.Debug().Msg("torrentstream: Stream server health check")
-		}
-	}()
+	http.HandleFunc("/ping", func(w http.ResponseWriter, _r *http.Request) {
+		w.Write([]byte("pong"))
+	})
+
+	// DEVNOTE: Currently can't accurately track the last time the server was used
+	// This risks stopping the server while it's being used
+	// FIXME - Find a way to get the playback manager to refresh the lastUsed time
+	//go func() {
+	//	for {
+	//		// Stop the server if it hasn't been used for 5 minutes
+	//		if time.Since(ret.lastUsed) > 5*time.Minute && ret.serverRunning {
+	//			ret.StopServer()
+	//		}
+	//		time.Sleep(10 * time.Minute)
+	//		ret.repository.logger.Debug().Msg("torrentstream: Stream server health check")
+	//	}
+	//}()
 
 	return ret
 }
@@ -99,7 +106,7 @@ func (s *ServerManager) createServer() {
 	s.repository.logger.Info().Msgf("torrentstream: Creating streaming server on %s:%d", host, port)
 
 	// Create the server
-	// Default address is "0.0.0.0:43212"
+	// Default address is "0.0.0.0:43214"
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%d", host, port),
 	}
