@@ -1,5 +1,5 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { SaveTorrentstreamSettings_Variables } from "@/api/generated/endpoint.types"
+import { SaveTorrentstreamSettings_Variables, TorrentstreamStartStream_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Models_TorrentstreamSettings, Torrentstream_EpisodeCollection } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -34,5 +34,16 @@ export function useGetTorrentstreamEpisodeCollection(id: number) {
         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.methods[0],
         queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.key, id],
         enabled: true,
+    })
+}
+
+export function useTorrentstreamStartStream() {
+    return useServerMutation<boolean, TorrentstreamStartStream_Variables>({
+        endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.endpoint,
+        method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.methods[0],
+        mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.key],
+        onSuccess: async () => {
+            toast.info("Starting stream...")
+        },
     })
 }

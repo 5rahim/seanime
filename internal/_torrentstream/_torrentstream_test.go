@@ -19,6 +19,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"testing"
+	"time"
 )
 
 func TestTorrentstream(t *testing.T) {
@@ -41,7 +42,7 @@ func TestTorrentstream(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	mediaId := 163270 // Undead Girl Murder Farce
+	mediaId := 163270 // Wind Breaker
 
 	anilist.TestModifyAnimeCollectionEntry(animeCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 		Status:   lo.ToPtr(anilist.MediaListStatusCurrent),
@@ -108,6 +109,8 @@ func TestTorrentstream(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	time.Sleep(2 * time.Second)
 
 	err = repo.StartStream(&StartStreamOptions{
 		MediaId:       mediaId,

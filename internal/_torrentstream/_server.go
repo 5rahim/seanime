@@ -60,16 +60,16 @@ func NewServerManager(repository *Repository) *ServerManager {
 			return
 		}
 
-		filereader := ret.repository.playback.currentFile.MustGet().NewReader()
-		defer filereader.Close()
-		filereader.SetReadahead(48 << 20)
+		fr := ret.repository.playback.currentFile.MustGet().NewReader()
+		defer fr.Close()
+		//fr.SetReadahead(48 << 20)
 
 		http.ServeContent(
 			w,
 			_r,
 			ret.repository.playback.currentFile.MustGet().DisplayPath(),
 			time.Now(),
-			filereader,
+			fr,
 		)
 	})
 

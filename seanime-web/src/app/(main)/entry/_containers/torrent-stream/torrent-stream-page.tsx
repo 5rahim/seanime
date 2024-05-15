@@ -8,6 +8,7 @@ import {
     __torrentSearch_drawerEpisodeAtom,
     __torrentSearch_drawerIsOpenAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
@@ -47,6 +48,8 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
 
+    const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
+
     /**
      * Handle episode click
      * - If auto-select is enabled, send the streaming request
@@ -54,7 +57,13 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      */
     const handleEpisodeClick = (episode: Anime_MediaEntryEpisode) => {
         if (serverStatus?.torrentstreamSettings?.autoSelect) {
-            // todo
+            if (episode.aniDBEpisode) {
+                handleAutoSelectTorrentStream({
+                    entry,
+                    episodeNumber: episode.episodeNumber,
+                    aniDBEpisode: episode.aniDBEpisode,
+                })
+            }
         } else {
             setTorrentSearchEpisode(episode.episodeNumber)
             React.startTransition(() => {

@@ -1432,6 +1432,10 @@ export type Anime_MediaEntryEpisode = {
      */
     episodeTitle: string
     episodeNumber: number
+    /**
+     * AniDB episode number
+     */
+    aniDBEpisode?: string
     absoluteEpisodeNumber: number
     /**
      * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB

@@ -54,7 +54,8 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	a.PlaybackManager.SetAnilistCollection(collection)
 
 	// Save the collection to TorrentstreamRepository
-	a.TorrentstreamRepository.SetAnimeCollection(collection)
+	// [SHELVED: TORRENTSTREAM]
+	//a.TorrentstreamRepository.SetAnimeCollection(collection)
 
 	return collection, nil
 }

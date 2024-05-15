@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/torrents/torrent"
 )
 
 // HandleGetTorrentstreamEpisodeCollection
@@ -69,7 +70,34 @@ func HandleSaveTorrentstreamSettings(c *RouteCtx) error {
 	return c.RespondWithData(settings)
 }
 
-func HandleTorrentstreamServeStream(c *RouteCtx) error {
+// HandleTorrentstreamStartStream
+//
+//	@summary starts a torrent stream.
+//	@desc This starts the entire streaming process.
+//	@returns bool
+//	@route /api/v1/torrentstream/start [POST]
+func HandleTorrentstreamStartStream(c *RouteCtx) error {
 
-	return nil
+	type body struct {
+		MediaId       int                   `json:"mediaId"`
+		EpisodeNumber int                   `json:"episodeNumber"`
+		AniDBEpisode  string                `json:"aniDBEpisode"`
+		AutoSelect    bool                  `json:"autoSelect"`
+		Torrent       *torrent.AnimeTorrent `json:"torrent"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
+		MediaId:       b.MediaId,
+		EpisodeNumber: b.EpisodeNumber,
+		AniDBEpisode:  b.AniDBEpisode,
+		AutoSelect:    b.AutoSelect,
+		Torrent:       b.Torrent,
+	})
+
+	return c.RespondWithError(err)
 }
