@@ -30,7 +30,7 @@ type (
 		anilistClientWrapper anilist.ClientWrapperInterface
 
 		nyaaSearchCache       *nyaa.SearchCache
-		animeToshoSearchCache *animetosho.SearchCache
+		animetoshoSearchCache *animetosho.SearchCache
 		metadataProvider      *metadata.Provider
 
 		playbackManager       *playbackmanager.PlaybackManager
@@ -75,7 +75,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		animeCollection:       opts.AnimeCollection,
 		anilistClientWrapper:  opts.AnilistClientWrapper,
 		nyaaSearchCache:       opts.NyaaSearchCache,
-		animeToshoSearchCache: opts.AnimeToshoSearchCache,
+		animetoshoSearchCache: opts.AnimeToshoSearchCache,
 		metadataProvider:      opts.MetadataProvider,
 		playbackManager:       opts.PlaybackManager,
 	}

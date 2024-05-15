@@ -47,7 +47,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 			Best:           lo.ToPtr(false),
 		},
 		NyaaSearchCache:       r.nyaaSearchCache,
-		AnimeToshoSearchCache: r.animeToshoSearchCache,
+		AnimeToshoSearchCache: r.animetoshoSearchCache,
 		AnizipCache:           r.anizipCache,
 		Logger:                r.logger,
 		MetadataProvider:      r.metadataProvider,
