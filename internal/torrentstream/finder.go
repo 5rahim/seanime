@@ -30,8 +30,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 
 	searchBatch := false
 	// Search batch if not a movie and finished
-	if media.IsMovie() && // Not a movie
-		media.Status != nil && *media.Status == anilist.MediaStatusFinished { // Finished
+	if !media.IsMovie() && media.IsFinished() {
 		searchBatch = true
 	}
 
@@ -45,7 +44,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 			AbsoluteOffset: lo.ToPtr(anizipMedia.GetOffset()),
 			Resolution:     lo.ToPtr(r.settings.MustGet().PreferredResolution),
 			Provider:       "animetosho",
-			Best:           lo.ToPtr(true),
+			Best:           lo.ToPtr(false),
 		},
 		NyaaSearchCache:       r.nyaaSearchCache,
 		AnimeToshoSearchCache: r.animeToshoSearchCache,
@@ -75,23 +74,38 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 	// - If it does, return the magnet link
 	var selectedTorrent *torrent.Torrent
 	var selectedFile *torrent.File
-	try := 0
+	tries := 0
+
 	for _, searchT := range data.Torrents {
-		if try >= 3 {
+		if tries >= 3 {
 			break
 		}
+		r.logger.Trace().Msgf("torrentstream: Getting torrent magnet")
 		magnet, err := itorrent.ScrapeMagnet(searchT.Link)
 		if err != nil {
 			r.logger.Warn().Err(err).Msgf("torrentstream: Error scraping magnet link for %s", searchT.Link)
-			try++
+			tries++
 			continue
 		}
+		r.logger.Debug().Msgf("torrentstream: Adding torrent %s from magnet", searchT.Link)
+
 		t, err := r.client.AddTorrent(magnet)
 		if err != nil {
 			r.logger.Warn().Err(err).Msgf("torrentstream: Error adding torrent %s", searchT.Link)
-			try++
+			tries++
 			continue
 		}
+
+		// If the torrent has only one file, return it
+		if len(t.Files()) == 1 {
+			return &playbackTorrent{
+				Torrent: t,
+				File:    t.Files()[0],
+			}, nil
+		}
+
+		// DEVNOTE: The gap between adding the torrent and file analysis causes some pieces to be downloaded
+		// We currently can't Pause/Resume torrents so :shrug:
 
 		filepaths := lo.Map(t.Files(), func(f *torrent.File, _ int) string {
 			return f.DisplayPath()
@@ -110,6 +124,8 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 			AnilistClientWrapper: r.anilistClientWrapper,
 		})
 
+		r.logger.Debug().Msgf("torrentstream: Analyzing torrent %s", searchT.Link)
+
 		// Analyze torrent files
 		analysis, err := analyzer.AnalyzeTorrentFiles()
 		if err != nil {
@@ -118,33 +134,37 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 			go func() {
 				_ = r.client.RemoveTorrent(t.InfoHash().AsString())
 			}()
-			try++
+			tries++
 			continue
 		}
 
-		selectedFilesMap := analysis.GetCorrespondingMainFiles()
-		selectedIndices := analysis.GetIndices(selectedFilesMap)
+		analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
+
+		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
 
 		// Check if analyzer found the episode
-		if len(selectedIndices) == 0 || len(selectedIndices) > 1 {
+		if !found {
 			r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", searchT.Link)
 			// Remove torrent on failure
 			go func() {
 				_ = r.client.RemoveTorrent(t.InfoHash().AsString())
 			}()
-			try++
+			tries++
 			continue
 		}
 
+		r.logger.Debug().Msgf("torrentstream: Found episode %s in torrent %s", anizipEpisode.Episode, searchT.Link)
+
 		// Download the file and unselect the rest
 		for i, f := range t.Files() {
-			if i != selectedIndices[0] {
+			if i != analysisFile.GetIndex() {
 				f.SetPriority(torrent.PiecePriorityNone)
 			}
 		}
-		t.Files()[selectedIndices[0]].SetPriority(torrent.PiecePriorityNow)
+		t.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
+		r.logger.Debug().Msgf("torrentstream: Selected torrent %s", t.Files()[analysisFile.GetIndex()].DisplayPath())
 		selectedTorrent = t
-		selectedFile = t.Files()[selectedIndices[0]]
+		selectedFile = t.Files()[analysisFile.GetIndex()]
 		break
 	}
 
@@ -161,7 +181,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 }
 
 // findBestTorrentFromManualSelection is like findBestTorrent but no need to search for the best torrent first
-func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, media *anilist.BaseMedia, episodeNumber int) (*playbackTorrent, error) {
+func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, media *anilist.BaseMedia, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
 
 	r.logger.Debug().Msgf("torrentstream: Analyzing torrent from %s for %s", torrentLink, media.GetTitleSafe())
 
@@ -214,12 +234,13 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 		return nil, err
 	}
 
-	selectedFilesMap := analysis.GetCorrespondingMainFiles()
-	selectedIndices := analysis.GetIndices(selectedFilesMap)
+	analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
+
+	r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
 
 	// Check if analyzer found the episode
-	if len(selectedIndices) == 0 || len(selectedIndices) > 1 {
-		r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", torrentLink)
+	if !found {
+		r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", selectedTorrent.Info().Name)
 		// Remove torrent on failure
 		go func() {
 			_ = r.client.RemoveTorrent(selectedTorrent.InfoHash().AsString())
@@ -229,15 +250,24 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 
 	// Download the file and unselect the rest
 	for i, f := range selectedTorrent.Files() {
-		if i != selectedIndices[0] {
+		if i != analysisFile.GetIndex() {
 			f.SetPriority(torrent.PiecePriorityNone)
 		}
 	}
-	selectedTorrent.Files()[selectedIndices[0]].SetPriority(torrent.PiecePriorityNow)
+	selectedTorrent.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
+	r.logger.Debug().Msgf("torrentstream: Selected torrent %s", selectedTorrent.Files()[analysisFile.GetIndex()].DisplayPath())
+
+	// Download the file and unselect the rest
+	for i, f := range selectedTorrent.Files() {
+		if i != analysisFile.GetIndex() {
+			f.SetPriority(torrent.PiecePriorityNone)
+		}
+	}
+	selectedTorrent.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
 
 	ret := &playbackTorrent{
 		Torrent: selectedTorrent,
-		File:    selectedTorrent.Files()[selectedIndices[0]],
+		File:    selectedTorrent.Files()[analysisFile.GetIndex()],
 	}
 
 	return ret, nil

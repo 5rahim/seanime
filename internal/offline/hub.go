@@ -17,6 +17,18 @@ import (
 	"time"
 )
 
+type HubInterface interface {
+	RetrieveCurrentSnapshot() (ret *Snapshot, ok bool)
+	GetCurrentSnapshot() (ret *Snapshot, ok bool)
+	UpdateAnimeListStatus(mediaId int, progress int, status anilist.MediaListStatus) (err error)
+	UpdateEntryListData(mediaId *int, status *anilist.MediaListStatus, score *int, progress *int, startDate *string, endDate *string, t string) (err error)
+	UpdateMangaListStatus(mediaId int, progress int, status anilist.MediaListStatus) (err error)
+	SyncListData() error
+	CreateSnapshot(opts *NewSnapshotOptions) error
+	GetLatestSnapshotEntry() (snapshotEntry *SnapshotEntry, err error)
+	GetLatestSnapshot(bypassCache bool) (snapshot *Snapshot, err error)
+}
+
 type (
 	// Hub is a struct that holds all the offline modules.
 	Hub struct {

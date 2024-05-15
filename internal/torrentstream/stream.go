@@ -10,15 +10,16 @@ import (
 )
 
 type StartStreamOptions struct {
-	MediaId       int                   `json:"mediaId"`
-	EpisodeNumber int                   `json:"episodeNumber"` // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                `json:"aniDBEpisode"`  // Anizip episode
-	AutoSelect    bool                  `json:"autoSelect"`    // Automatically select the best file to stream
-	Torrent       itorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
+	MediaId       int                    `json:"mediaId"`
+	EpisodeNumber int                    `json:"episodeNumber"` // RELATIVE Episode number to identify the file
+	AniDBEpisode  string                 `json:"aniDBEpisode"`  // Anizip episode
+	AutoSelect    bool                   `json:"autoSelect"`    // Automatically select the best file to stream
+	Torrent       *itorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
 }
 
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(opts *StartStreamOptions) error {
+	r.Shutdown()
 
 	r.logger.Info().Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
 
@@ -30,7 +31,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		return err
 	}
 
-	episode, err := r.getEpisodeInfo(anizipMedia, opts.AniDBEpisode)
+	anizipEpisode, err := r.getEpisodeInfo(anizipMedia, opts.AniDBEpisode)
 	if err != nil {
 		return err
 	}
@@ -43,12 +44,15 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	var torrentToStream *playbackTorrent
 	switch opts.AutoSelect {
 	case true:
-		torrentToStream, err = r.findBestTorrent(media, anizipMedia, episode, episodeNumber)
+		torrentToStream, err = r.findBestTorrent(media, anizipMedia, anizipEpisode, episodeNumber)
 		if err != nil {
 			return err
 		}
 	case false:
-		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent.Link, media, episodeNumber)
+		if opts.Torrent == nil {
+			return fmt.Errorf("torrentstream: No torrent provided")
+		}
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent.Link, media, anizipEpisode, episodeNumber)
 		if err != nil {
 			return err
 		}

@@ -32,14 +32,16 @@ func NewTestRepository(t *testing.T, defaultPlayer string) *Repository {
 		Logger: logger,
 	}
 
-	repo := &Repository{
+	_mpv := mpv.New(logger, "", "")
+
+	repo := NewRepository(&NewRepositoryOptions{
 		Logger:         logger,
 		Default:        defaultPlayer,
+		WSEventManager: WSEventManager,
+		Mpv:            _mpv,
 		VLC:            _vlc,
 		MpcHc:          _mpc,
-		Mpv:            mpv.New(logger, "", ""),
-		WSEventManager: WSEventManager,
-	}
+	})
 
 	return repo
 }

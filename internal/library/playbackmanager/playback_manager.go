@@ -43,7 +43,7 @@ type (
 		playlistHub                  *playlistHub                 // The playlist hub
 
 		isOffline  bool
-		offlineHub *offline.Hub
+		offlineHub offline.HubInterface
 	}
 
 	PlaybackStateType string
@@ -70,7 +70,7 @@ type (
 		RefreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence              *discordrpc_presence.Presence
 		IsOffline                    bool
-		OfflineHub                   *offline.Hub
+		OfflineHub                   offline.HubInterface
 	}
 )
 

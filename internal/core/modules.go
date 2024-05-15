@@ -366,7 +366,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 			AutoSelect:          true,
 			AddToLibrary:        false,
 			StreamingServerHost: "0.0.0.0",
-			StreamingServerPort: 43212,
+			StreamingServerPort: 43214,
 			TorrentClientPort:   43213,
 		})
 		if err != nil {
