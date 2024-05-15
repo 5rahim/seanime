@@ -223,10 +223,10 @@ export default function Page() {
             <Skeleton className="h-12" />
         </div>
         <div
-            className="grid xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
+            className="grid xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
         >
-            <div className="aspect-video relative">
-                <Skeleton className="h-full w-full absolute" />
+            <div className="relative">
+                <Skeleton className="aspect-video h-full w-full absolute" />
             </div>
 
             <Skeleton className="hidden lg:block relative h-[75dvh] overflow-y-auto pr-4 pt-0" />
@@ -282,7 +282,7 @@ export default function Page() {
                     <div
                         className={cn(
                             "grid gap-4 xl:gap-4",
-                            !theaterMode && "xl:grid-cols-[1fr,500px]",
+                            !theaterMode && "xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px]",
                         )}
                     >
                         <div className="space-y-4">

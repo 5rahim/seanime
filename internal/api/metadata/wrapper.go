@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/tvdb"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"strconv"
+	"strings"
 )
 
 type (
@@ -42,6 +43,7 @@ type (
 )
 
 // NewMediaWrapper creates a new media wrapper.
+// Anizip Media can be nil.
 func (p *Provider) NewMediaWrapper(media *anilist.BasicMedia, anizipMedia *anizip.Media) *MediaWrapper {
 	mw := &MediaWrapper{
 		anizipMedia:  anizipMedia,
@@ -103,8 +105,8 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 	if anizipEpisode.Runtime > 0 {
 		meta.Length = anizipEpisode.Runtime
 	}
-	meta.Summary = anizipEpisode.Summary
-	meta.Overview = anizipEpisode.Overview
+	meta.Summary = strings.ReplaceAll(anizipEpisode.Summary, "`", "'")
+	meta.Overview = strings.ReplaceAll(anizipEpisode.Overview, "`", "'")
 
 	return meta
 }
