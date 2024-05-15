@@ -1,6 +1,7 @@
 package torrentstream
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/samber/mo"
@@ -19,11 +20,35 @@ type (
 	}
 )
 
+// ref: torserver
+func dnsResolve() {
+	addrs, err := net.LookupHost("www.google.com")
+	if len(addrs) == 0 {
+		fmt.Println("Check dns failed", addrs, err)
+
+		fn := func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{}
+			return d.DialContext(ctx, "udp", "1.1.1.1:53")
+		}
+
+		net.DefaultResolver = &net.Resolver{
+			Dial: fn,
+		}
+
+		addrs, err = net.LookupHost("www.google.com")
+		fmt.Println("Check cloudflare dns", addrs, err)
+	} else {
+		fmt.Println("Check dns OK", addrs, err)
+	}
+}
+
 func NewServerManager(repository *Repository) *ServerManager {
 	ret := &ServerManager{
 		repository: repository,
 		httpserver: mo.None[*http.Server](),
 	}
+
+	dnsResolve()
 
 	http.HandleFunc("/stream", func(w http.ResponseWriter, _r *http.Request) {
 		ret.lastUsed = time.Now()
@@ -35,12 +60,16 @@ func NewServerManager(repository *Repository) *ServerManager {
 			return
 		}
 
+		filereader := ret.repository.playback.currentFile.MustGet().NewReader()
+		defer filereader.Close()
+		filereader.SetReadahead(48 << 20)
+
 		http.ServeContent(
 			w,
 			_r,
 			ret.repository.playback.currentFile.MustGet().DisplayPath(),
-			time.Unix(ret.repository.playback.currentFile.MustGet().Torrent().Metainfo().CreationDate, 0),
-			ret.repository.playback.currentFile.MustGet().NewReader(),
+			time.Now(),
+			filereader,
 		)
 	})
 

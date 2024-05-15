@@ -48,7 +48,7 @@ func (c *Client) InitializeClient() error {
 
 	// Define torrent client settings
 	cfg := torrent.NewDefaultClientConfig()
-	cfg.Seed = false
+	cfg.Seed = true
 	cfg.DisableIPv6 = true
 	cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
@@ -78,18 +78,10 @@ func (c *Client) GetStreamingUrl() string {
 
 	settings := c.repository.settings.MustGet()
 	if settings.StreamingServerHost == "0.0.0.0" {
+		// todo: use the local IP address
 		return fmt.Sprintf("http://127.0.0.1:%d/stream", settings.StreamingServerPort)
 	}
 	return fmt.Sprintf("http://%s:%d/stream", settings.StreamingServerHost, settings.StreamingServerPort)
-}
-
-func (c *Client) DownloadTorrent(torrent string) error {
-	t, err := c.AddTorrent(torrent)
-	if err != nil {
-		return err
-	}
-	t.DownloadAll()
-	return nil
 }
 
 func (c *Client) ShowTorrents() ([]*torrent.Torrent, bool) {
