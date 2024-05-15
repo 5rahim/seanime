@@ -21,7 +21,7 @@ export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }) {
         }, 500)
 
         return () => clearTimeout(t)
-    }, [pathname, id, playNext, serverStatus])
+    }, [pathname, id, playNext, serverStatus, onPlay])
 
     return null
 

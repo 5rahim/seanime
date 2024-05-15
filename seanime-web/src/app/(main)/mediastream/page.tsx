@@ -4,6 +4,7 @@ import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { __mediastream_progressItemAtom, useHandleMediastream } from "@/app/(main)/mediastream/_lib/handle-mediastream"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
@@ -65,6 +66,18 @@ export default function Page() {
         onPlayFile,
     } = useHandleMediastream({ playerRef, episodes })
 
+    /** AniSkip **/
+    const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal,
+        episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1)
+
+    const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
+    const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
+    const [duration, setDuration] = React.useState(0)
+
+    const seekTo = React.useCallback((time: number) => {
+        Object.assign(playerRef.current ?? {}, { currentTime: time })
+    }, [])
+
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId)
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
@@ -85,7 +98,7 @@ export default function Page() {
             <Skeleton className="h-12" />
         </div>
         <div
-            className="grid xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
+            className="grid xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
         >
             <div className="aspect-video relative">
                 <Skeleton className="h-full w-full absolute" />
@@ -134,7 +147,7 @@ export default function Page() {
                 <div
                     className={cn(
                         "grid gap-4 xl:gap-4 w-full",
-                        "xl:grid-cols-[1fr,500px]",
+                        "xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px]",
                     )}
                 >
 
@@ -152,7 +165,24 @@ export default function Page() {
                                 poster={mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
                                 onProviderChange={onProviderChange}
                                 onProviderSetup={onProviderSetup}
-                                onTimeUpdate={onTimeUpdate}
+                                onTimeUpdate={e => {
+                                    if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
+                                        setShowSkipIntroButton(true)
+                                    } else {
+                                        setShowSkipIntroButton(false)
+                                    }
+                                    if (aniSkipData?.ed &&
+                                        Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
+                                        e?.currentTime &&
+                                        e?.currentTime >= aniSkipData.ed.interval.startTime &&
+                                        e?.currentTime <= aniSkipData.ed.interval.endTime
+                                    ) {
+                                        setShowSkipEndingButton(true)
+                                    } else {
+                                        setShowSkipEndingButton(false)
+                                    }
+                                    onTimeUpdate(e)
+                                }}
                                 onCanPlay={onCanPlay}
                                 onEnded={onEnded}
                             >
@@ -169,20 +199,20 @@ export default function Page() {
                                         />
                                     ))}
                                 </MediaProvider>
-                                {/*<div className="absolute bottom-24 px-4 w-full justify-between flex items-center">*/}
-                                {/*    <div>*/}
-                                {/*        {(showSkipIntroButton) && (*/}
-                                {/*            <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip*/}
-                                {/*                                                                                                   intro</Button>*/}
-                                {/*        )}*/}
-                                {/*    </div>*/}
-                                {/*    <div>*/}
-                                {/*        {(showSkipEndingButton) && (*/}
-                                {/*            <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip*/}
-                                {/*                                                                                                   ending</Button>*/}
-                                {/*        )}*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
+                                <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
+                                    <div>
+                                        {(showSkipIntroButton) && (
+                                            <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
+                                                                                                                                   intro</Button>
+                                        )}
+                                    </div>
+                                    <div>
+                                        {(showSkipEndingButton) && (
+                                            <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
+                                                                                                                                   ending</Button>
+                                        )}
+                                    </div>
+                                </div>
                                 <DefaultVideoLayout
                                     icons={defaultLayoutIcons}
                                     slots={{
