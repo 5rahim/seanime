@@ -1183,11 +1183,22 @@ export const API_ENDPOINTS = {
          *  @description
          *  Route save torrentstream settings.
          *  This saves the torrentstream settings.
+         *  The client should refetch the server status.
          */
         SaveTorrentstreamSettings: {
             key: "TORRENTSTREAM-save-torrentstream-settings",
             methods: ["PATCH"],
             endpoint: "/api/v1/torrentstream/settings",
+        },
+        /**
+         *  @description
+         *  Route starts a torrent stream.
+         *  This starts the entire streaming process.
+         */
+        TorrentstreamStartStream: {
+            key: "TORRENTSTREAM-torrentstream-start-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/start",
         },
     },
 } satisfies ApiEndpoints

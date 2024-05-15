@@ -24,6 +24,7 @@ import type {
     Models_Theme,
     Models_TorrentSettings,
     Models_TorrentstreamSettings,
+    Torrent_AnimeTorrent,
 } from "@/api/generated/types.ts"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1093,6 +1094,21 @@ export type GetTorrentstreamEpisodeCollection_Variables = {
  */
 export type SaveTorrentstreamSettings_Variables = {
     settings: Models_TorrentstreamSettings
+}
+
+/**
+ * - Filepath: internal/handlers/torrentstream.go
+ * - Filename: torrentstream.go
+ * - Endpoint: /api/v1/torrentstream/start
+ * @description
+ * Route starts a torrent stream.
+ */
+export type TorrentstreamStartStream_Variables = {
+    mediaId: number
+    episodeNumber: number
+    aniDBEpisode: string
+    autoSelect: boolean
+    torrent?: Torrent_AnimeTorrent
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

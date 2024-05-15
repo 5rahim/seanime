@@ -1360,3 +1360,14 @@
 //     })
 // }
 
+// export function useTorrentstreamStartStream() {
+//     return useServerMutation<boolean, TorrentstreamStartStream_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+

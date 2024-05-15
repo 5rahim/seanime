@@ -51,11 +51,12 @@ func (c *Client) InitializeClient() error {
 	cfg.Seed = true
 	cfg.DisableIPv6 = true
 	cfg.DisableAggressiveUpload = true
-	//cfg.Debug = true
+	cfg.Debug = true
+	cfg.DisableWebtorrent = true
 	if settings.TorrentClientPort == 0 {
 		settings.TorrentClientPort = 43213
 	}
-	cfg.ListenPort = settings.TorrentClientPort
+	cfg.ListenPort = 50007
 	// Set the download directory
 	// e.g. /path/to/temp/seanime/torrentstream/{infohash}
 	cfg.DefaultStorage = storage.NewFileByInfoHash(settings.DownloadDir)
@@ -121,6 +122,7 @@ func (c *Client) AddTorrentMagnet(magnet string) (*torrent.Torrent, error) {
 	case <-t.GotInfo():
 		break
 	case <-t.Closed():
+		t.Drop()
 		return nil, errors.New("torrent closed")
 	case <-time.After(1 * time.Minute):
 		t.Drop()
@@ -173,7 +175,16 @@ func (c *Client) AddTorrentURL(url string) (*torrent.Torrent, error) {
 		return nil, err
 	}
 	c.repository.logger.Trace().Msgf("torrentstream: Waiting to retrieve torrent info")
-	<-t.GotInfo()
+	select {
+	case <-t.GotInfo():
+		break
+	case <-t.Closed():
+		t.Drop()
+		return nil, errors.New("torrent closed")
+	case <-time.After(1 * time.Minute):
+		t.Drop()
+		return nil, errors.New("timeout waiting for torrent info")
+	}
 	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
 	return t, nil
 }

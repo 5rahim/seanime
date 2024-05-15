@@ -5371,6 +5371,7 @@
       "",
       "\t@summary save torrentstream settings.",
       "\t@desc This saves the torrentstream settings.",
+      "\t@desc The client should refetch the server status.",
       "\t@returns models.TorrentstreamSettings",
       "\t@route /api/v1/torrentstream/settings [PATCH]",
       ""
@@ -5380,7 +5381,8 @@
     "api": {
       "summary": "save torrentstream settings.",
       "descriptions": [
-        "This saves the torrentstream settings."
+        "This saves the torrentstream settings.",
+        "The client should refetch the server status."
       ],
       "endpoint": "/api/v1/torrentstream/settings",
       "methods": [
@@ -5401,6 +5403,82 @@
       "returns": "models.TorrentstreamSettings",
       "returnGoType": "models.TorrentstreamSettings",
       "returnTypescriptType": "Models_TorrentstreamSettings"
+    }
+  },
+  {
+    "name": "HandleTorrentstreamStartStream",
+    "trimmedName": "TorrentstreamStartStream",
+    "comments": [
+      "HandleTorrentstreamStartStream",
+      "",
+      "\t@summary starts a torrent stream.",
+      "\t@desc This starts the entire streaming process.",
+      "\t@returns bool",
+      "\t@route /api/v1/torrentstream/start [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "starts a torrent stream.",
+      "descriptions": [
+        "This starts the entire streaming process."
+      ],
+      "endpoint": "/api/v1/torrentstream/start",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AniDBEpisode",
+          "jsonName": "aniDBEpisode",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AutoSelect",
+          "jsonName": "autoSelect",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "torrent.AnimeTorrent",
+          "usedStructType": "torrent.AnimeTorrent",
+          "typescriptType": "Torrent_AnimeTorrent",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {

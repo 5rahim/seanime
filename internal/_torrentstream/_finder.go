@@ -26,7 +26,7 @@ type (
 
 func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
 
-	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, episode %d", media.GetTitleSafe(), episodeNumber)
+	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
 
 	searchBatch := false
 	// Search batch if not a movie and finished
@@ -67,7 +67,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 		return cmp.Compare(b.Seeders, a.Seeders)
 	})
 
-	r.logger.Debug().Msgf("torrentstream: Analyzing %d torrents", len(data.Torrents))
+	r.logger.Debug().Msgf("torrentstream: Found %d torrents", len(data.Torrents))
 
 	// Go through the top 3 torrents
 	// - For each torrent, add it, get the files, and check if it has the episode
@@ -77,7 +77,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 	tries := 0
 
 	for _, searchT := range data.Torrents {
-		if tries >= 3 {
+		if tries >= 1 {
 			break
 		}
 		r.logger.Trace().Msgf("torrentstream: Getting torrent magnet")
@@ -98,6 +98,12 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 
 		// If the torrent has only one file, return it
 		if len(t.Files()) == 1 {
+			firstPieceIdx := t.Files()[0].Offset() * int64(t.NumPieces()) / t.Length()
+			endPieceIdx := (t.Files()[0].Offset() + t.Length()) * int64(t.NumPieces()) / t.Length()
+			for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+				t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
+			}
+			r.logger.Debug().Msgf("torrentstream: Found single file torrent: %s", t.Files()[0].DisplayPath())
 			return &playbackTorrent{
 				Torrent: t,
 				File:    t.Files()[0],
@@ -161,10 +167,17 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 				f.SetPriority(torrent.PiecePriorityNone)
 			}
 		}
-		t.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
-		r.logger.Debug().Msgf("torrentstream: Selected torrent %s", t.Files()[analysisFile.GetIndex()].DisplayPath())
+		tFile := t.Files()[analysisFile.GetIndex()]
+		tFile.Download()
+		// Select the first 5% of the pieces
+		firstPieceIdx := tFile.Offset() * int64(t.NumPieces()) / t.Length()
+		endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(t.NumPieces()) / t.Length()
+		for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
+		}
+		r.logger.Debug().Msgf("torrentstream: Selected torrent %s", tFile.DisplayPath())
 		selectedTorrent = t
-		selectedFile = t.Files()[analysisFile.GetIndex()]
+		selectedFile = tFile
 		break
 	}
 

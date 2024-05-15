@@ -15,6 +15,7 @@ type (
 		DisplayTitle          string                     `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
 		EpisodeTitle          string                     `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
 		EpisodeNumber         int                        `json:"episodeNumber"`
+		AniDBEpisode          string                     `json:"aniDBEpisode,omitempty"` // AniDB episode number
 		AbsoluteEpisodeNumber int                        `json:"absoluteEpisodeNumber"`
 		ProgressNumber        int                        `json:"progressNumber"` // Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
 		LocalFile             *LocalFile                 `json:"localFile"`
@@ -115,6 +116,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 			entryEp.EpisodeNumber = opts.LocalFile.GetEpisodeNumber()
 			entryEp.ProgressNumber = opts.LocalFile.GetEpisodeNumber() + opts.ProgressOffset
 			if foundAnizipEpisode {
+				entryEp.AniDBEpisode = aniDBEp
 				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnizipMedia.GetOffset()
 			}
 		case LocalFileTypeSpecial:
@@ -130,6 +132,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 			switch opts.LocalFile.Metadata.Type {
 			case LocalFileTypeMain:
 				if foundAnizipEpisode {
+					entryEp.AniDBEpisode = aniDBEp
 					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {
 						entryEp.DisplayTitle = opts.Media.GetPreferredTitle()
 						entryEp.EpisodeTitle = "Complete Movie"
@@ -149,6 +152,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				hydrated = true // Hydrated
 			case LocalFileTypeSpecial:
 				if foundAnizipEpisode {
+					entryEp.AniDBEpisode = aniDBEp
 					episodeInt, found := anizip.ExtractEpisodeInteger(aniDBEp)
 					if found {
 						entryEp.DisplayTitle = "Special " + strconv.Itoa(episodeInt)
@@ -162,6 +166,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				hydrated = true // Hydrated
 			case LocalFileTypeNC:
 				if foundAnizipEpisode {
+					entryEp.AniDBEpisode = aniDBEp
 					entryEp.DisplayTitle = anizipEpisode.GetTitle()
 					entryEp.EpisodeTitle = ""
 				} else {
@@ -197,6 +202,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 				entryEp.EpisodeNumber = episodeInt
 				entryEp.ProgressNumber = episodeInt
 				if foundAnizipEpisode {
+					entryEp.AniDBEpisode = opts.OptionalAniDBEpisode
 					entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnizipMedia.GetOffset()
 				}
 				switch entryEp.Type {

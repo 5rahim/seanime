@@ -27890,6 +27890,17 @@
         "comments": []
       },
       {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " AniDB episode number"
+        ]
+      },
+      {
         "name": "AbsoluteEpisodeNumber",
         "jsonName": "absoluteEpisodeNumber",
         "goType": "int",
@@ -30182,9 +30193,9 @@
       {
         "name": "offlineHub",
         "jsonName": "offlineHub",
-        "goType": "offline.Hub",
-        "typescriptType": "Offline_Hub",
-        "usedStructName": "offline.Hub",
+        "goType": "offline.HubInterface",
+        "typescriptType": "Offline_HubInterface",
+        "usedStructName": "offline.HubInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -30394,9 +30405,9 @@
       {
         "name": "OfflineHub",
         "jsonName": "OfflineHub",
-        "goType": "offline.Hub",
-        "typescriptType": "Offline_Hub",
-        "usedStructName": "offline.Hub",
+        "goType": "offline.HubInterface",
+        "typescriptType": "Offline_HubInterface",
+        "usedStructName": "offline.HubInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34948,6 +34959,51 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StreamingTrackingStartedCh",
+        "jsonName": "StreamingTrackingStartedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingTrackingRetryCh",
+        "jsonName": "StreamingTrackingRetryCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingVideoCompletedCh",
+        "jsonName": "StreamingVideoCompletedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingTrackingStoppedCh",
+        "jsonName": "StreamingTrackingStoppedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingPlaybackStatusCh",
+        "jsonName": "StreamingPlaybackStatusCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -38927,6 +38983,15 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/offline/test_helper.go",
+    "filename": "test_helper.go",
+    "name": "MockHub",
+    "formattedName": "Offline_MockHub",
+    "package": "offline",
+    "fields": [],
     "comments": []
   },
   {
@@ -46106,19 +46171,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrentstream/files.go",
-    "filename": "files.go",
-    "name": "ReadableFile",
-    "formattedName": "Torrentstream_ReadableFile",
-    "package": "torrentstream",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "torrent.File",
-      "torrent.Reader"
-    ]
-  },
-  {
     "filepath": "../internal/torrentstream/list.go",
     "filename": "list.go",
     "name": "EpisodeCollection",
@@ -46216,7 +46268,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " Episode number to identify the file"
+          " RELATIVE Episode number to identify the file"
         ]
       },
       {
@@ -46242,14 +46294,15 @@
         ]
       },
       {
-        "name": "TorrentID",
-        "jsonName": "torrentId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "itorrent.AnimeTorrent",
+        "typescriptType": "AnimeTorrent",
+        "usedStructName": "itorrent.AnimeTorrent",
+        "required": false,
         "public": true,
         "comments": [
-          " Magnet/File when manually selecting"
+          " Selected torrent"
         ]
       }
     ],
@@ -46285,9 +46338,9 @@
       {
         "name": "playback",
         "jsonName": "playback",
-        "goType": "Playback",
-        "typescriptType": "Torrentstream_Playback",
-        "usedStructName": "torrentstream.Playback",
+        "goType": "playback",
+        "typescriptType": "Torrentstream_playback",
+        "usedStructName": "torrentstream.playback",
         "required": false,
         "public": false,
         "comments": []
@@ -46343,8 +46396,8 @@
         "comments": []
       },
       {
-        "name": "animeToshoSearchCache",
-        "jsonName": "animeToshoSearchCache",
+        "name": "animetoshoSearchCache",
+        "jsonName": "animetoshoSearchCache",
         "goType": "animetosho.SearchCache",
         "typescriptType": "AnimeTosho_SearchCache",
         "usedStructName": "animetosho.SearchCache",
@@ -46358,6 +46411,16 @@
         "goType": "metadata.Provider",
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackManager",
+        "jsonName": "playbackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
         "required": false,
         "public": false,
         "comments": []
@@ -46390,25 +46453,6 @@
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrentstream/torrentstream.go",
-    "filename": "torrentstream.go",
-    "name": "Playback",
-    "formattedName": "Torrentstream_Playback",
-    "package": "torrentstream",
-    "fields": [
-      {
-        "name": "currentFile",
-        "jsonName": "currentFile",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
         "public": false,
         "comments": []
       }
@@ -46520,6 +46564,16 @@
         "goType": "metadata.Provider",
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackManager",
+        "jsonName": "PlaybackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
         "required": false,
         "public": true,
         "comments": []
