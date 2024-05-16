@@ -1,16 +1,12 @@
 "use client"
 import { useUpdateTheme } from "@/api/hooks/theme.hooks"
-import { PageWrapper } from "@/components/shared/page-wrapper"
-import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { THEME_DEFAULT_VALUES, ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
 import { colord } from "colord"
-import Link from "next/link"
 import React from "react"
-import { AiOutlineArrowLeft } from "react-icons/ai"
 import { toast } from "sonner"
 
 const themeSchema = defineSchema(({ z }) => z.object({
@@ -32,32 +28,13 @@ const themeSchema = defineSchema(({ z }) => z.object({
         .default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundOpacity),
 }))
 
-export const dynamic = "force-static"
 
-export default function Page() {
+export function UISettings() {
     const themeSettings = useThemeSettings()
 
     const { mutate, isPending } = useUpdateTheme()
 
     return (
-        <PageWrapper className="p-4 sm:p-8 space-y-4">
-            <div className="flex gap-4 items-center">
-                <Link href={`/settings`}>
-                    <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />
-                </Link>
-                <div className="space-y-1">
-                    <h2>User Interface</h2>
-                    <p className="text-[--muted]">
-                        Change the user interface settings
-                    </p>
-                </div>
-            </div>
-
-            <p>
-                Images should be in a directory configurable in your <code>config.toml</code> file.
-            </p>
-
-            <Separator />
             <Form
                 schema={themeSchema}
                 onSubmit={data => {
@@ -247,12 +224,11 @@ export default function Page() {
                         )}
 
                         <div className="mt-4">
-                            <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
+                            <Field.Submit role="save" intent="white" rounded loading={isPending}>Save</Field.Submit>
                         </div>
                     </>
                 )}
             </Form>
-        </PageWrapper>
     )
 
 }
