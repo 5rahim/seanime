@@ -11,8 +11,8 @@ import (
 )
 
 type (
-	// ServerManager manages the streaming server
-	ServerManager struct {
+	// serverManager manages the streaming server
+	serverManager struct {
 		httpserver    mo.Option[*http.Server] // The server instance
 		repository    *Repository
 		lastUsed      time.Time // Used to track the last time the server was used
@@ -20,11 +20,11 @@ type (
 	}
 )
 
-// ref: torserver
+// ref: torrserver
 func dnsResolve() {
-	addrs, err := net.LookupHost("www.google.com")
+	addrs, _ := net.LookupHost("www.google.com")
 	if len(addrs) == 0 {
-		fmt.Println("Check dns failed", addrs, err)
+		//fmt.Println("Check dns failed", addrs, err)
 
 		fn := func(ctx context.Context, network, address string) (net.Conn, error) {
 			d := net.Dialer{}
@@ -35,15 +35,15 @@ func dnsResolve() {
 			Dial: fn,
 		}
 
-		addrs, err = net.LookupHost("www.google.com")
-		fmt.Println("Check cloudflare dns", addrs, err)
+		addrs, _ = net.LookupHost("www.google.com")
+		//fmt.Println("Check cloudflare dns", addrs, err)
 	} else {
-		fmt.Println("Check dns OK", addrs, err)
+		//fmt.Println("Check dns OK", addrs, err)
 	}
 }
 
-func NewServerManager(repository *Repository) *ServerManager {
-	ret := &ServerManager{
+func newServerManager(repository *Repository) *serverManager {
+	ret := &serverManager{
 		repository: repository,
 		httpserver: mo.None[*http.Server](),
 	}
@@ -52,22 +52,25 @@ func NewServerManager(repository *Repository) *ServerManager {
 
 	http.HandleFunc("/stream", func(w http.ResponseWriter, _r *http.Request) {
 		ret.lastUsed = time.Now()
-		ret.repository.logger.Info().Msg("torrentstream: Streaming torrent")
+		ret.repository.logger.Trace().Msg("torrentstream: Stream endpoint hit")
 		w.Header().Set("Content-Type", "video/mp4")
 
-		if ret.repository.playback.currentFile.IsAbsent() {
+		if ret.repository.client.currentFile.IsAbsent() {
 			ret.repository.logger.Error().Msg("torrentstream: No torrent to stream")
+			http.Error(w, "No torrent to stream", http.StatusNotFound)
 			return
 		}
 
-		fr := ret.repository.playback.currentFile.MustGet().NewReader()
+		file := ret.repository.client.currentFile.MustGet()
+		fr := file.NewReader()
 		defer fr.Close()
-		//fr.SetReadahead(48 << 20)
+		fr.SetReadahead(file.FileInfo().Length / 100)
+		fr.SetResponsive()
 
 		http.ServeContent(
 			w,
 			_r,
-			ret.repository.playback.currentFile.MustGet().DisplayPath(),
+			file.DisplayPath(),
 			time.Now(),
 			fr,
 		)
@@ -94,12 +97,12 @@ func NewServerManager(repository *Repository) *ServerManager {
 	return ret
 }
 
-// InitializeServer overrides the server with a new one, whether it exists or not.
+// initializeServer overrides the server with a new one, whether it exists or not.
 // Unlike CreateServer, this will close the existing server if it exists.
 // Useful when the settings are changed.
-func (s *ServerManager) InitializeServer() {
+func (s *serverManager) initializeServer() {
 	if s.repository.settings.IsAbsent() {
-		s.repository.logger.Error().Msg("torrentstream: No settings found, cannot initialize the server")
+		s.repository.logger.Error().Msg("torrentstream: No settings found, cannot initialize the streaming server")
 		return
 	}
 
@@ -107,7 +110,7 @@ func (s *ServerManager) InitializeServer() {
 	if exists {
 		err := existingServer.Close()
 		if err != nil {
-			s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to close existing server")
+			s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to close existing streaming server")
 			return
 		}
 	}
@@ -119,7 +122,7 @@ func (s *ServerManager) InitializeServer() {
 
 // createServer creates the streaming server.
 // If the server is already present, it won't create a new one.
-func (s *ServerManager) createServer() {
+func (s *serverManager) createServer() {
 	if s.repository.settings.IsAbsent() {
 		s.repository.logger.Error().Msg("torrentstream: No settings found, cannot create the server")
 		return
@@ -143,13 +146,13 @@ func (s *ServerManager) createServer() {
 	s.httpserver = mo.Some(server)
 }
 
-// StartServer starts the streaming server.
+// startServer starts the streaming server.
 // If the server is already running, it won't start a new one.
 // This is safe to call
-func (s *ServerManager) StartServer() {
+func (s *serverManager) startServer() {
 	server, exists := s.httpserver.Get()
 	if !exists {
-		s.repository.logger.Error().Msg("torrentstream: No server found, cannot start the server")
+		s.repository.logger.Error().Msg("torrentstream: No streaming server found, cannot start the server")
 		return
 	}
 
@@ -157,15 +160,15 @@ func (s *ServerManager) StartServer() {
 		return
 	}
 
-	s.repository.logger.Debug().Msg("torrentstream: Starting the server")
+	s.repository.logger.Debug().Msg("torrentstream: Starting the streaming server")
 
 	ln, err := net.Listen("tcp", server.Addr)
 	if err != nil {
-		s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to start the server")
+		s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to start the streaming server")
 		return
 	}
 
-	s.repository.logger.Info().Msgf("torrentstream: Server started on %s", server.Addr)
+	s.repository.logger.Info().Msgf("torrentstream: Streaming server started on %s", server.Addr)
 
 	go func() {
 		s.serverRunning = true
@@ -180,8 +183,8 @@ func (s *ServerManager) StartServer() {
 	}()
 }
 
-// StopServer stops the streaming server.
-func (s *ServerManager) StopServer() {
+// stopServer stops the streaming server.
+func (s *serverManager) stopServer() {
 	server, exists := s.httpserver.Get()
 	if !exists {
 		return
@@ -191,10 +194,10 @@ func (s *ServerManager) StopServer() {
 		return
 	}
 
-	s.repository.logger.Debug().Msg("torrentstream: Stopping the server")
-
 	if err := server.Close(); err != nil {
-		s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to stop the server")
+		s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to stop the streaming server")
 	}
 	s.serverRunning = false
+
+	s.repository.logger.Info().Msg("torrentstream: Streaming server stopped")
 }

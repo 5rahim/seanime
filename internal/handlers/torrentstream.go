@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
+	"github.com/seanime-app/seanime/internal/torrentstream"
 )
 
 // HandleGetTorrentstreamEpisodeCollection

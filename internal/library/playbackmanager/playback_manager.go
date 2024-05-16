@@ -26,7 +26,7 @@ type (
 		MediaPlayerRepository        *mediaplayer.Repository           // MediaPlayerRepository is used to control the media player
 		discordPresence              *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
 		mediaPlayerRepoSubscriber    *mediaplayer.RepositorySubscriber // Used to listen for media player events
-		wsEventManager               events.IWSEventManager
+		wsEventManager               events.WSEventManagerInterface
 		anilistClientWrapper         anilist.ClientWrapperInterface
 		anilistCollection            *anilist.AnimeCollection
 		refreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
@@ -62,7 +62,7 @@ type (
 	}
 
 	NewPlaybackManagerOptions struct {
-		WSEventManager               events.IWSEventManager
+		WSEventManager               events.WSEventManagerInterface
 		Logger                       *zerolog.Logger
 		AnilistClientWrapper         anilist.ClientWrapperInterface
 		AnilistCollection            *anilist.AnimeCollection

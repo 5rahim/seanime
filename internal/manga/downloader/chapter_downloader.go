@@ -38,7 +38,7 @@ type (
 	// Downloader is used to download chapters from various manga providers.
 	Downloader struct {
 		logger         *zerolog.Logger
-		wsEventManager events.IWSEventManager
+		wsEventManager events.WSEventManagerInterface
 		database       *db.Database
 		downloadDir    string
 		mu             sync.Mutex
@@ -78,7 +78,7 @@ type (
 type (
 	NewDownloaderOptions struct {
 		Logger         *zerolog.Logger
-		WSEventManager events.IWSEventManager
+		WSEventManager events.WSEventManagerInterface
 		DownloadDir    string
 		Database       *db.Database
 	}

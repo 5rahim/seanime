@@ -21,7 +21,7 @@ type Scanner struct {
 	Enhanced             bool
 	AnilistClientWrapper anilist.ClientWrapperInterface
 	Logger               *zerolog.Logger
-	WSEventManager       events.IWSEventManager
+	WSEventManager       events.WSEventManagerInterface
 	ExistingLocalFiles   []*anime.LocalFile
 	SkipLockedFiles      bool
 	SkipIgnoredFiles     bool

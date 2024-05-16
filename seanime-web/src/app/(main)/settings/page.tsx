@@ -1,10 +1,12 @@
 "use client"
 import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
+import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
+import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -24,7 +26,7 @@ import { IoLibrary } from "react-icons/io5"
 import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
-import { SiAnilist } from "react-icons/si"
+import { SiAnilist, SiBittorrent } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
@@ -50,8 +52,7 @@ export default function Page() {
 
     const { data: mediastreamSettings } = useGetMediastreamSettings(status?.featureFlags?.experimental?.mediastream)
 
-    // [SHELVED: TORRENTSTREAM]
-    // const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
+    const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 
     React.useEffect(() => {
         if (!isPending && !!data?.settings) {
@@ -88,7 +89,7 @@ export default function Page() {
                     {/*FIXME Remove if stable*/}
                     {status?.featureFlags?.experimental?.mediastream &&
                         <TabsTrigger value="mediastream"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming</TabsTrigger>}
-                    {/*<TabsTrigger value="torrentstream"><SiBittorrent className="text-lg mr-3" /> Torrent streaming</TabsTrigger>*/}
+                    <TabsTrigger value="torrentstream"><SiBittorrent className="text-lg mr-3" /> Torrent streaming</TabsTrigger>
                     <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                     <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                     <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
@@ -582,14 +583,13 @@ export default function Page() {
 
                     </TabsContent>
 
-                    {/*// [SHELVED: TORRENTSTREAM]*/}
-                    {/*<TabsContent value="torrentstream" className="space-y-6">*/}
+                    <TabsContent value="torrentstream" className="space-y-6">
 
-                    {/*    <h3>Torrent streaming <BetaBadge /></h3>*/}
+                        <h3>Torrent streaming <BetaBadge /></h3>
 
-                    {/*    <TorrentstreamSettings settings={torrentstreamSettings} />*/}
+                        <TorrentstreamSettings settings={torrentstreamSettings} />
 
-                    {/*</TabsContent>*/}
+                    </TabsContent>
 
                 </div>
             </Tabs>

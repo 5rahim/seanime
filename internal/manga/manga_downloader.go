@@ -19,7 +19,7 @@ import (
 type (
 	Downloader struct {
 		logger            *zerolog.Logger
-		wsEventManager    events.IWSEventManager
+		wsEventManager    events.WSEventManagerInterface
 		database          *db.Database
 		downloadDir       string
 		chapterDownloader *chapter_downloader.Downloader
@@ -59,7 +59,7 @@ type (
 	NewDownloaderOptions struct {
 		Database       *db.Database
 		Logger         *zerolog.Logger
-		WSEventManager events.IWSEventManager
+		WSEventManager events.WSEventManagerInterface
 		DownloadDir    string
 		Repository     *Repository
 	}

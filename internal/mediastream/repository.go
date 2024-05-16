@@ -23,14 +23,14 @@ type (
 		directStream       *directstream.DirectStream
 		mediaInfoExtractor *videofile.MediaInfoExtractor
 		logger             *zerolog.Logger
-		wsEventManager     events.IWSEventManager
+		wsEventManager     events.WSEventManagerInterface
 		fileCacher         *filecache.Cacher
 		cacheDir           string
 	}
 
 	NewRepositoryOptions struct {
 		Logger         *zerolog.Logger
-		WSEventManager events.IWSEventManager
+		WSEventManager events.WSEventManagerInterface
 		FileCacher     *filecache.Cacher
 	}
 )

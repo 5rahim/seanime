@@ -34,7 +34,7 @@ type (
 	Hub struct {
 		anilistClientWrapper anilist.ClientWrapperInterface // Used to fetch anime and manga data from AniList
 		metadataProvider     *metadata.Provider             // Provides metadata for anime and manga entries
-		wsEventManager       events.IWSEventManager
+		wsEventManager       events.WSEventManagerInterface
 		mangaRepository      *manga.Repository
 		db                   *db.Database
 		offlineDb            *database // Stores snapshots
@@ -55,7 +55,7 @@ type (
 type (
 	NewHubOptions struct {
 		AnilistClientWrapper      anilist.ClientWrapperInterface
-		WSEventManager            events.IWSEventManager
+		WSEventManager            events.WSEventManagerInterface
 		MetadataProvider          *metadata.Provider
 		MangaRepository           *manga.Repository
 		Database                  *db.Database

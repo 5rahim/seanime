@@ -21,7 +21,7 @@ type (
 		VLC                   *vlc2.VLC
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
-		WSEventManager        events.IWSEventManager
+		WSEventManager        events.WSEventManagerInterface
 		completionThreshold   float64
 		mu                    sync.Mutex
 		isRunning             bool
@@ -36,7 +36,7 @@ type (
 		VLC            *vlc2.VLC
 		MpcHc          *mpchc2.MpcHc
 		Mpv            *mpv.Mpv
-		WSEventManager events.IWSEventManager
+		WSEventManager events.WSEventManagerInterface
 	}
 
 	RepositorySubscriber struct {
@@ -213,6 +213,7 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 			default:
 				time.Sleep(3 * time.Second)
 				status, err := m.getStatus()
+				//fmt.Printf("status: %v\n", status)
 				if err != nil {
 					if !trackingStarted {
 						m.Logger.Trace().Msgf("media player: Waiting for torrent file, %d seconds", waitInSeconds)
@@ -224,12 +225,14 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 						// Video is completed, and we are unable to get the status
 						// We can safely assume that the player has been closed
 						if retries == 1 && completed {
+							m.Logger.Debug().Msg("media player: Sending player closed event")
 							m.streamingTrackingStopped("Player closed")
 							close(done)
 							break
 						}
 
 						if retries >= 2 {
+							m.Logger.Debug().Msg("media player: Sending failed status query event")
 							m.streamingTrackingStopped("Failed to get status")
 							close(done)
 							break
@@ -240,12 +243,13 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 				}
 
 				trackingStarted = true
-				playback, ok := m.processStatus(m.Default, status)
+				playback, ok := m.processStreamStatus(m.Default, status)
 
 				if !ok {
 					m.streamingTrackingRetry("Failed to get status")
 					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
+						m.Logger.Debug().Msg("media player: Sending failed status query event")
 						m.streamingTrackingStopped("Failed to process status")
 						close(done)
 						break
@@ -258,7 +262,7 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 
 				// New video has started playing \/
 				if filename == "" || filename != playback.Filename {
-					m.Logger.Debug().Msg("media player: Video started playing")
+					m.Logger.Debug().Msg("media player: Video loaded")
 					m.streamingTrackingStarted(playback)
 					filename = playback.Filename
 					completed = false
@@ -339,7 +343,6 @@ func (m *Repository) StartTracking() {
 					retries++
 					continue
 				}
-				retries = 0
 
 				playback, ok := m.processStatus(m.Default, status)
 
@@ -490,6 +493,59 @@ func (m *Repository) processStatus(player string, status interface{}) (*Playback
 		// Process MPV status
 		st := status.(*mpv.Playback)
 		if st == nil || st.Duration == 0 || st.IsRunning == false {
+			return nil, false
+		}
+		ret := &PlaybackStatus{
+			CompletionPercentage: st.Position / st.Duration,
+			Playing:              !st.Paused,
+			Filename:             st.Filename,
+			Duration:             int(st.Duration),
+			Filepath:             st.Filepath,
+		}
+
+		return ret, true
+	default:
+		return nil, false
+	}
+}
+
+func (m *Repository) processStreamStatus(player string, status interface{}) (*PlaybackStatus, bool) {
+	switch player {
+	case "vlc":
+		// Process VLC status
+		st := status.(*vlc2.Status)
+		if st == nil {
+			return nil, false
+		}
+
+		ret := &PlaybackStatus{
+			CompletionPercentage: st.Position,
+			Playing:              st.State == "playing",
+			Filename:             st.Information.Category["meta"].Filename,
+			Duration:             int(st.Length * 1000),
+			Filepath:             "", // VLC does not provide the filepath
+		}
+
+		return ret, true
+	case "mpc-hc":
+		// Process MPC-HC status
+		st := status.(*mpchc2.Variables)
+		if st == nil {
+			return nil, false
+		}
+		ret := &PlaybackStatus{
+			CompletionPercentage: st.Position / st.Duration,
+			Playing:              st.State == 2,
+			Filename:             st.File,
+			Duration:             int(st.Duration),
+			Filepath:             st.FilePath,
+		}
+
+		return ret, true
+	case "mpv":
+		// Process MPV status
+		st := status.(*mpv.Playback)
+		if st == nil || st.IsRunning == false {
 			return nil, false
 		}
 		ret := &PlaybackStatus{

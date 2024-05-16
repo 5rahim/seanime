@@ -81,9 +81,9 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
                     options={[
                         { label: "Any", value: "-" },
-                        { label: "480p", value: "480p" },
-                        { label: "720p", value: "720p" },
-                        { label: "1080p", value: "1080p" },
+                        { label: "480p", value: "480" },
+                        { label: "720p", value: "720" },
+                        { label: "1080p", value: "1080" },
                     ]}
                 />
 
@@ -95,11 +95,11 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 {/*    shouldExist*/}
                 {/*/>*/}
 
-                <Field.Switch
-                    name="addToLibrary"
-                    label="Add to library"
-                    help="Keep completely downloaded files in corresponding library entries."
-                />
+                {/*<Field.Switch*/}
+                {/*    name="addToLibrary"*/}
+                {/*    label="Add to library"*/}
+                {/*    help="Keep completely downloaded files in corresponding library entries."*/}
+                {/*/>*/}
 
                 <Separator />
 
