@@ -70,7 +70,6 @@ func TestTorrentstream(t *testing.T) {
 
 	repo := NewRepository(&NewRepositoryOptions{
 		Logger:                logger,
-		MediaPlayerRepository: mediaPlayerRepo,
 		AnizipCache:           anizip.NewCache(),
 		BaseMediaCache:        anilist.NewBaseMediaCache(),
 		AnimeCollection:       animeCollection,
@@ -82,7 +81,10 @@ func TestTorrentstream(t *testing.T) {
 			FileCacher: filecacher,
 		}),
 		PlaybackManager: playbackManager,
+		WSEventManager:  wsEventManager,
 	})
+	repo.SetMediaPlayerRepository(mediaPlayerRepo)
+	repo.SetAnimeCollection(animeCollection)
 	defer repo.Shutdown()
 
 	fmt.Println(repo.GetDownloadDir())

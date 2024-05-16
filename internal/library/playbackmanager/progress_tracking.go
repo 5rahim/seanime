@@ -136,22 +136,11 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				go pm.playlistHub.onTrackingError()
 
 				//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			case status := <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStartedCh:
-				pm.eventMu.Lock()
-				_ = status // TODO
-				pm.eventMu.Unlock()
-			case status := <-pm.mediaPlayerRepoSubscriber.StreamingPlaybackStatusCh:
-				pm.eventMu.Lock()
-				_ = status // TODO
-				pm.eventMu.Unlock()
-			case status := <-pm.mediaPlayerRepoSubscriber.StreamingVideoCompletedCh:
-				pm.eventMu.Lock()
-				_ = status // TODO
-				pm.eventMu.Unlock()
-			case path := <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStoppedCh:
-				pm.eventMu.Lock()
-				_ = path // TODO
-				pm.eventMu.Unlock()
+			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStartedCh:
+			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingPlaybackStatusCh:
+			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingVideoCompletedCh:
+			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStoppedCh:
+			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingTrackingRetryCh:
 			}
 		}
 	}()

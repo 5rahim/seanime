@@ -34,6 +34,8 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 		searchBatch = true
 	}
 
+	r.sendTorrentLoadingStatus(TLSStateSearchingTorrents, "")
+
 	data, err := itorrent.NewSmartSearch(&itorrent.SmartSearchOptions{
 		SmartSearchQueryOptions: itorrent.SmartSearchQueryOptions{
 			SmartSearch:    lo.ToPtr(true),
@@ -77,9 +79,10 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 	tries := 0
 
 	for _, searchT := range data.Torrents {
-		if tries >= 1 {
+		if tries >= 3 {
 			break
 		}
+		r.sendTorrentLoadingStatus(TLSStateAddingTorrent, searchT.Name)
 		r.logger.Trace().Msgf("torrentstream: Getting torrent magnet")
 		magnet, err := itorrent.ScrapeMagnet(searchT.Link)
 		if err != nil {
@@ -96,19 +99,25 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 			continue
 		}
 
+		r.sendTorrentLoadingStatus(TLSStateCheckingTorrent, searchT.Name)
+
 		// If the torrent has only one file, return it
 		if len(t.Files()) == 1 {
+			t.DownloadAll()
 			firstPieceIdx := t.Files()[0].Offset() * int64(t.NumPieces()) / t.Length()
 			endPieceIdx := (t.Files()[0].Offset() + t.Length()) * int64(t.NumPieces()) / t.Length()
 			for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
 				t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 			}
 			r.logger.Debug().Msgf("torrentstream: Found single file torrent: %s", t.Files()[0].DisplayPath())
+
 			return &playbackTorrent{
 				Torrent: t,
 				File:    t.Files()[0],
 			}, nil
 		}
+
+		r.sendTorrentLoadingStatus(TLSStateSelectingFile, searchT.Name)
 
 		// DEVNOTE: The gap between adding the torrent and file analysis causes some pieces to be downloaded
 		// We currently can't Pause/Resume torrents so :shrug:
@@ -168,7 +177,6 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 			}
 		}
 		tFile := t.Files()[analysisFile.GetIndex()]
-		tFile.Download()
 		// Select the first 5% of the pieces
 		firstPieceIdx := tFile.Offset() * int64(t.NumPieces()) / t.Length()
 		endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(t.NumPieces()) / t.Length()

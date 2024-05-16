@@ -19,9 +19,13 @@ type StartStreamOptions struct {
 
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(opts *StartStreamOptions) error {
-	r.Shutdown()
+	// MY DUMBASS SHUT DOWN THE CLIENT BEFORE STARTING THE STREAM
+	// NOT SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
+	//r.Shutdown()
 
 	r.logger.Info().Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
+
+	r.wsEventManager.SendEvent(eventTorrentLoading, nil)
 
 	//
 	// Get the media info
@@ -59,24 +63,33 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	}
 
 	//
-	// Set current file
+	// Set current file & torrent
 	//
-	r.playback.currentFile = mo.Some(torrentToStream.File)
-	r.playback.currentTorrent = mo.Some(torrentToStream.Torrent)
+	r.client.currentFile = mo.Some(torrentToStream.File)
+	r.client.currentTorrent = mo.Some(torrentToStream.Torrent)
+
+	r.sendTorrentLoadingStatus(TLSStateStartingServer, "")
 
 	//
 	// Start the server
 	//
-	r.serverManager.StartServer()
+	r.serverManager.startServer()
+
+	r.sendTorrentLoadingStatus(TLSStateSendingStreamToMediaPlayer, "")
 
 	//
 	// Start the stream
 	//
 	err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl())
 	if err != nil {
+		// Failed to start the stream, we'll drop the torrents and stop the server
+		r.serverManager.stopServer()
+		r.client.dropTorrents()
 		r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 		return err
 	}
+
+	r.wsEventManager.SendEvent(eventTorrentLoaded, nil)
 
 	r.logger.Info().Msg("torrentstream: Stream started")
 

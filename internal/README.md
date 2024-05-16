@@ -39,8 +39,10 @@
   - `mediaplayer`: **Media Player Repository** module
   - `mpchc`
   - `mpv`
-  - `vlc`
-- `mediastream` (Not used)
+  - `vlc` 
+- `mediastream`: **Media Stream Repository** module
+  - `transcoder`
+  - `videofile`
 - `offline`: **Offline hub module**
 - `onlinestream`: **Onlinestream module**
   - `providers`: Stream providers

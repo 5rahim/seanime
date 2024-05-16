@@ -29,7 +29,7 @@ type (
 		mangapill      *manga_providers.Mangapill
 		manganato      *manga_providers.Manganato
 		serverUri      string
-		wsEventManager events.IWSEventManager
+		wsEventManager events.WSEventManagerInterface
 		mu             sync.Mutex
 		downloadDir    string
 	}
@@ -39,7 +39,7 @@ type (
 		FileCacher     *filecache.Cacher
 		BackupDir      string
 		ServerURI      string
-		WsEventManager events.IWSEventManager
+		WsEventManager events.WSEventManagerInterface
 		DownloadDir    string
 	}
 )

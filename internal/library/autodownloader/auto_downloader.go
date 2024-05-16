@@ -31,7 +31,7 @@ type (
 		torrentClientRepository *torrent_client.Repository
 		database                *db.Database
 		anilistCollection       *anilist.AnimeCollection
-		wsEventManager          events.IWSEventManager
+		wsEventManager          events.WSEventManagerInterface
 		settings                *models.AutoDownloaderSettings
 		anizipCache             *anizip.Cache
 		settingsUpdatedCh       chan struct{}
@@ -44,7 +44,7 @@ type (
 	NewAutoDownloaderOptions struct {
 		Logger                  *zerolog.Logger
 		TorrentClientRepository *torrent_client.Repository
-		WSEventManager          events.IWSEventManager
+		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
 		AnilistCollection       *anilist.AnimeCollection
 		AnizipCache             *anizip.Cache

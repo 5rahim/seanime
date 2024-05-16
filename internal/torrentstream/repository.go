@@ -2,13 +2,13 @@ package torrentstream
 
 import (
 	"errors"
-	"github.com/anacrolix/torrent"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
@@ -21,27 +21,24 @@ import (
 type (
 	Repository struct {
 		client        *Client
-		serverManager *ServerManager
-		playback      *playback
+		serverManager *serverManager
+		playback      playback
 
 		anizipCache          *anizip.Cache
 		baseMediaCache       *anilist.BaseMediaCache
 		animeCollection      *anilist.AnimeCollection
 		anilistClientWrapper anilist.ClientWrapperInterface
+		wsEventManager       events.WSEventManagerInterface
 
 		nyaaSearchCache       *nyaa.SearchCache
 		animetoshoSearchCache *animetosho.SearchCache
 		metadataProvider      *metadata.Provider
 
-		playbackManager       *playbackmanager.PlaybackManager
-		mediaPlayerRepository *mediaplayer.Repository
-		settings              mo.Option[Settings] // None by default, set and refreshed by SetSettings
-		logger                *zerolog.Logger
-	}
-
-	playback struct {
-		currentFile    mo.Option[*torrent.File]
-		currentTorrent mo.Option[*torrent.Torrent]
+		playbackManager                 *playbackmanager.PlaybackManager
+		mediaPlayerRepository           *mediaplayer.Repository
+		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
+		settings                        mo.Option[Settings] // None by default, set and refreshed by SetSettings
+		logger                          *zerolog.Logger
 	}
 
 	Settings struct {
@@ -50,7 +47,6 @@ type (
 
 	NewRepositoryOptions struct {
 		Logger                *zerolog.Logger
-		MediaPlayerRepository *mediaplayer.Repository
 		AnizipCache           *anizip.Cache
 		BaseMediaCache        *anilist.BaseMediaCache
 		AnimeCollection       *anilist.AnimeCollection
@@ -59,6 +55,7 @@ type (
 		AnimeToshoSearchCache *animetosho.SearchCache
 		MetadataProvider      *metadata.Provider
 		PlaybackManager       *playbackmanager.PlaybackManager
+		WSEventManager        events.WSEventManagerInterface
 	}
 )
 
@@ -66,10 +63,6 @@ type (
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
 		logger:                opts.Logger,
-		mediaPlayerRepository: opts.MediaPlayerRepository,
-		playback: &playback{
-			currentFile: mo.None[*torrent.File](),
-		},
 		anizipCache:           opts.AnizipCache,
 		baseMediaCache:        opts.BaseMediaCache,
 		animeCollection:       opts.AnimeCollection,
@@ -78,24 +71,26 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		animetoshoSearchCache: opts.AnimeToshoSearchCache,
 		metadataProvider:      opts.MetadataProvider,
 		playbackManager:       opts.PlaybackManager,
+		wsEventManager:        opts.WSEventManager,
 	}
 	ret.client = NewClient(ret)
-	ret.serverManager = NewServerManager(ret)
+	ret.serverManager = newServerManager(ret)
 	return ret
 }
 
 func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer.Repository) {
 	r.mediaPlayerRepository = mediaPlayerRepository
+	r.listenToMediaPlayerEvents()
 }
 
 func (r *Repository) SetAnimeCollection(ac *anilist.AnimeCollection) {
 	r.animeCollection = ac
 }
 
-// InitModules sets the settings for the torrentstream module
-// It should be called before any other method, to ensure the module is active
+// InitModules sets the settings for the torrentstream module.
+// It should be called before any other method, to ensure the module is active.
 func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string) (err error) {
-	r.client.Close()
+	r.client.Shutdown()
 
 	defer util.HandlePanicInModuleWithError("torrentstream/InitModules", &err)
 
@@ -142,7 +137,7 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	}
 
 	// Initialize the streaming server
-	r.serverManager.InitializeServer()
+	r.serverManager.initializeServer()
 
 	r.logger.Info().Msg("torrentstream: Module initialized")
 	return nil
@@ -155,15 +150,28 @@ func (r *Repository) FailIfNoSettings() error {
 	return nil
 }
 
-// Shutdown cleans up the resources used by the module, including closing the client and server
+// Shutdown closes the torrent client and streaming server
+// TEST-ONLY
 func (r *Repository) Shutdown() {
 	if r.settings.IsAbsent() {
 		return
 	}
-	r.client.Close()
-	r.serverManager.StopServer()
-	_ = os.RemoveAll(r.GetDownloadDir())
+	r.logger.Debug().Msg("torrentstream: Shutting down module")
+	r.client.Shutdown()
+	r.serverManager.stopServer()
 }
+
+//// Cleanup shuts down the module and removes the download directory
+//func (r *Repository) Cleanup() {
+//	if r.settings.IsAbsent() {
+//		return
+//	}
+//	r.client.Close()
+//
+//	// Remove the download directory
+//	downloadDir := r.GetDownloadDir()
+//	_ = os.RemoveAll(downloadDir)
+//}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

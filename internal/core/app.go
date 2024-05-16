@@ -29,6 +29,7 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
+	"github.com/seanime-app/seanime/internal/torrentstream"
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
@@ -59,27 +60,27 @@ type (
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
 		}
-		MediaPlayerRepository *mediaplayer.Repository
-		Version               string
-		Updater               *updater.Updater
-		Settings              *models.Settings
-		AutoScanner           *autoscanner.AutoScanner
-		PlaybackManager       *playbackmanager.PlaybackManager
-		FileCacher            *filecache.Cacher
-		Onlinestream          *onlinestream.OnlineStream
-		MangaRepository       *manga.Repository
-		MetadataProvider      *metadata.Provider
-		WD                    string // Working directory
-		DiscordPresence       *discordrpc_presence.Presence
-		MangaDownloader       *manga.Downloader
-		Cleanups              []func()
-		cancelContext         func()
-		previousVersion       string
-		OfflineHub            *offline.Hub
-		MediastreamRepository *mediastream.Repository
-		//TorrentstreamRepository *torrentstream.Repository
-		FeatureFlags      FeatureFlags
-		SecondarySettings struct {
+		MediaPlayerRepository   *mediaplayer.Repository
+		Version                 string
+		Updater                 *updater.Updater
+		Settings                *models.Settings
+		AutoScanner             *autoscanner.AutoScanner
+		PlaybackManager         *playbackmanager.PlaybackManager
+		FileCacher              *filecache.Cacher
+		Onlinestream            *onlinestream.OnlineStream
+		MangaRepository         *manga.Repository
+		MetadataProvider        *metadata.Provider
+		WD                      string // Working directory
+		DiscordPresence         *discordrpc_presence.Presence
+		MangaDownloader         *manga.Downloader
+		Cleanups                []func()
+		cancelContext           func()
+		previousVersion         string
+		OfflineHub              *offline.Hub
+		MediastreamRepository   *mediastream.Repository
+		TorrentstreamRepository *torrentstream.Repository
+		FeatureFlags            FeatureFlags
+		SecondarySettings       struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}
@@ -212,11 +213,11 @@ func NewApp(configOpts *ConfigOptions) *App {
 		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
 		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
-		//TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
-		WD:              cfg.Data.WorkingDir,
-		previousVersion: previousVersion,
-		OfflineHub:      offlineHub,
-		FeatureFlags:    NewFeatureFlags(cfg, logger),
+		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
+		WD:                      cfg.Data.WorkingDir,
+		previousVersion:         previousVersion,
+		OfflineHub:              offlineHub,
+		FeatureFlags:            NewFeatureFlags(cfg, logger),
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings

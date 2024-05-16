@@ -25,7 +25,7 @@ type (
 		enabled              bool
 		AnilistClientWrapper anilist.ClientWrapperInterface
 		Logger               *zerolog.Logger
-		WSEventManager       events.IWSEventManager
+		WSEventManager       events.WSEventManagerInterface
 		Database             *db.Database                   // Database instance is required to update the local files.
 		AutoDownloader       *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
 	}
@@ -33,7 +33,7 @@ type (
 		Database             *db.Database
 		AnilistClientWrapper anilist.ClientWrapperInterface
 		Logger               *zerolog.Logger
-		WSEventManager       events.IWSEventManager
+		WSEventManager       events.WSEventManagerInterface
 		Enabled              bool
 		AutoDownloader       *autodownloader.AutoDownloader
 		WaitTime             time.Duration

@@ -15,7 +15,7 @@ type (
 		requestNewFileCh chan string
 		endOfPlaylistCh  chan struct{}
 
-		wsEventManager  events.IWSEventManager
+		wsEventManager  events.WSEventManagerInterface
 		logger          *zerolog.Logger
 		currentPlaylist *anime.Playlist    // The current playlist that is being played (can be nil)
 		nextLocalFile   *anime.LocalFile   // The next episode that will be played (can be nil)
@@ -41,7 +41,7 @@ type (
 	}
 )
 
-func newPlaylistHub(logger *zerolog.Logger, wsEventManager events.IWSEventManager) *playlistHub {
+func newPlaylistHub(logger *zerolog.Logger, wsEventManager events.WSEventManagerInterface) *playlistHub {
 	return &playlistHub{
 		logger:           logger,
 		wsEventManager:   wsEventManager,

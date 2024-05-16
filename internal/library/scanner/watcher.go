@@ -12,12 +12,12 @@ import (
 type Watcher struct {
 	Watcher        *fsnotify.Watcher
 	Logger         *zerolog.Logger
-	WSEventManager events.IWSEventManager
+	WSEventManager events.WSEventManagerInterface
 }
 
 type NewWatcherOptions struct {
 	Logger         *zerolog.Logger
-	WSEventManager events.IWSEventManager
+	WSEventManager events.WSEventManagerInterface
 }
 
 // NewWatcher creates a new Watcher instance for monitoring a directory and its subdirectories
