@@ -61,9 +61,9 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 >
                     <p className={cn(
                         "z-[1] font-bold line-clamp-1",
-                        {
-                            "text-brand-200": releaseGroup.toLowerCase() === "subsplease",
-                        },
+                        // {
+                        //     "text-brand-200": releaseGroup.toLowerCase() === "subsplease",
+                        // },
                     )}>{releaseGroup}</p>
                     {!!image && <img
                         src={image}

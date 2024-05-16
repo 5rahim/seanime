@@ -5,26 +5,23 @@ import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-ser
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
+import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
-import Link from "next/link"
 import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
-import { GoArrowRight } from "react-icons/go"
 import { HiPlay } from "react-icons/hi"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary } from "react-icons/io5"
-import { LuLayoutDashboard } from "react-icons/lu"
-import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading } from "react-icons/md"
+import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist } from "react-icons/si"
@@ -70,14 +67,7 @@ export default function Page() {
                     <p className="text-[--muted]">App version: {status?.version}-{status?.os}</p>
                 </div>
                 <div>
-                    <Link href="/settings/ui">
-                        <Button
-                            className="rounded-full"
-                            intent="primary-subtle"
-                            leftIcon={<LuLayoutDashboard />}
-                            rightIcon={<GoArrowRight />}
-                        >Customize UI</Button>
-                    </Link>
+
                 </div>
             </div>
             {/*<Separator/>*/}
@@ -90,7 +80,7 @@ export default function Page() {
                 triggerClass={tabsTriggerClass}
                 listClass={tabsListClass}
             >
-                <TabsList>
+                <TabsList className="flex-wrap max-w-full">
                     <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
                     <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                     <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
@@ -105,6 +95,7 @@ export default function Page() {
                     <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                     <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
                     <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
+                    <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                 </TabsList>
 
                 <div className="">
@@ -580,6 +571,14 @@ export default function Page() {
                         <h3>Media streaming <BetaBadge /></h3>
 
                         <MediastreamSettings settings={mediastreamSettings} />
+
+                    </TabsContent>
+
+                    <TabsContent value="ui" className="space-y-6">
+
+                        <h3>User Interface</h3>
+
+                        <UISettings />
 
                     </TabsContent>
 
