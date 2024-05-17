@@ -114,3 +114,12 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 func HandleTorrentstreamDONOTUSE(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
+
+// HandleTorrentstreamDONOTUSE2
+//
+//	@summary used to generate typescript types
+//	@returns torrentstream.TorrentStatus
+//	@route /api/v1/torrentstream/DONOTUSE
+func HandleTorrentstreamDONOTUSE2(c *RouteCtx) error {
+	return c.RespondWithData(true)
+}

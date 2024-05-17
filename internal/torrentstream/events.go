@@ -6,6 +6,7 @@ const (
 	eventTorrentLoaded         = "torrentstream-torrent-loaded"
 	eventTorrentStartedPlaying = "torrentstream-torrent-started-playing"
 	eventTorrentStatus         = "torrentstream-torrent-status"
+	eventTorrentStopped        = "torrentstream-torrent-stopped"
 )
 
 type TorrentLoadingStatus struct {

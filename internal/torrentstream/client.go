@@ -125,6 +125,7 @@ func (c *Client) InitializeClient() error {
 					c.currentTorrent = mo.None[*torrent.Torrent]()
 					c.currentTorrentStatus = TorrentStatus{}
 				}
+				c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil)
 				c.mu.Unlock()
 			case status := <-c.mediaPlayerPlaybackStatusCh:
 				if status != nil && c.currentTorrent.IsPresent() && c.repository.playback.currentVideoDuration == 0 {

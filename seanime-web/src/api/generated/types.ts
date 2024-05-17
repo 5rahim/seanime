@@ -2577,6 +2577,20 @@ export type Torrentstream_TorrentLoadingStatusState = "SEARCHING_TORRENTS" |
     "STARTING_SERVER" |
     "SENDING_STREAM_TO_MEDIA_PLAYER"
 
+/**
+ * - Filepath: internal/torrentstream/client.go
+ * - Filename: client.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_TorrentStatus = {
+    uploadProgress: number
+    downloadProgress: number
+    progressPercentage: number
+    downloadSpeed: string
+    uploadSpeed: string
+    size: string
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tvdb
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

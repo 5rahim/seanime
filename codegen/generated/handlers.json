@@ -5507,6 +5507,31 @@
     }
   },
   {
+    "name": "HandleTorrentstreamDONOTUSE2",
+    "trimmedName": "TorrentstreamDONOTUSE2",
+    "comments": [
+      "HandleTorrentstreamDONOTUSE2",
+      "",
+      "\t@summary used to generate typescript types",
+      "\t@returns torrentstream.TorrentStatus",
+      "\t@route /api/v1/torrentstream/DONOTUSE",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "used to generate typescript types",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "torrentstream.TorrentStatus",
+      "returnGoType": "torrentstream.TorrentStatus",
+      "returnTypescriptType": "Torrentstream_TorrentStatus"
+    }
+  },
+  {
     "name": "newWebSocketEventHandler",
     "trimmedName": "newWebSocketEventHandler",
     "comments": [
