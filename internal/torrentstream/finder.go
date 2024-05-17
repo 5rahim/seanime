@@ -36,27 +36,54 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 
 	r.sendTorrentLoadingStatus(TLSStateSearchingTorrents, "")
 
-	data, err := itorrent.NewSmartSearch(&itorrent.SmartSearchOptions{
-		SmartSearchQueryOptions: itorrent.SmartSearchQueryOptions{
-			SmartSearch:    lo.ToPtr(true),
-			Query:          lo.ToPtr(""),
-			EpisodeNumber:  &episodeNumber,
-			Batch:          &searchBatch,
-			Media:          media,
-			AbsoluteOffset: lo.ToPtr(anizipMedia.GetOffset()),
-			Resolution:     lo.ToPtr(r.settings.MustGet().PreferredResolution),
-			Provider:       "animetosho",
-			Best:           lo.ToPtr(false),
-		},
-		NyaaSearchCache:       r.nyaaSearchCache,
-		AnimeToshoSearchCache: r.animetoshoSearchCache,
-		AnizipCache:           r.anizipCache,
-		Logger:                r.logger,
-		MetadataProvider:      r.metadataProvider,
-	})
-	if err != nil {
-		r.logger.Error().Err(err).Msg("torrentstream: Error searching torrents")
-		return nil, err
+	var data *itorrent.SearchData
+searchLoop:
+	for {
+		var err error
+		data, err = itorrent.NewSmartSearch(&itorrent.SmartSearchOptions{
+			SmartSearchQueryOptions: itorrent.SmartSearchQueryOptions{
+				SmartSearch:    lo.ToPtr(true),
+				Query:          lo.ToPtr(""),
+				EpisodeNumber:  &episodeNumber,
+				Batch:          &searchBatch,
+				Media:          media,
+				AbsoluteOffset: lo.ToPtr(anizipMedia.GetOffset()),
+				Resolution:     lo.ToPtr(r.settings.MustGet().PreferredResolution),
+				Provider:       "animetosho",
+				Best:           lo.ToPtr(false),
+			},
+			NyaaSearchCache:       r.nyaaSearchCache,
+			AnimeToshoSearchCache: r.animetoshoSearchCache,
+			AnizipCache:           r.anizipCache,
+			Logger:                r.logger,
+			MetadataProvider:      r.metadataProvider,
+		})
+		// If we are searching for batches, we don't want to return an error if no torrents are found
+		// We will just search again without the batch flag
+		if err != nil && !searchBatch {
+			r.logger.Error().Err(err).Msg("torrentstream: Error searching torrents")
+			return nil, err
+		} else if err != nil {
+			searchBatch = false
+			continue
+		}
+
+		// This whole thing below just means that
+		// If we are looking for batches, there should be at least 3 torrents found or the max seeders should be at least 15
+		if searchBatch == true {
+			nbFound := len(data.Torrents)
+			seedersArr := lo.Map(data.Torrents, func(t *itorrent.AnimeTorrent, _ int) int {
+				return t.Seeders
+			})
+			maxSeeders := slices.Max(seedersArr)
+			if maxSeeders >= 15 || nbFound > 2 {
+				break searchLoop
+			} else {
+				searchBatch = false
+			}
+		} else {
+			break searchLoop
+		}
 	}
 
 	if data == nil || len(data.Torrents) == 0 {
@@ -79,7 +106,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 	tries := 0
 
 	for _, searchT := range data.Torrents {
-		if tries >= 3 {
+		if tries >= 2 {
 			break
 		}
 		r.sendTorrentLoadingStatus(TLSStateAddingTorrent, searchT.Name)

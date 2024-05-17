@@ -43,7 +43,6 @@ export function useTorrentstreamStartStream() {
         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.methods[0],
         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.key],
         onSuccess: async () => {
-            toast.info("Starting stream...")
         },
     })
 }

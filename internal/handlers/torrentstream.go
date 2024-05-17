@@ -99,6 +99,18 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		AutoSelect:    b.AutoSelect,
 		Torrent:       b.Torrent,
 	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
-	return c.RespondWithError(err)
+	return c.RespondWithData(true)
+}
+
+// HandleTorrentstreamDONOTUSE
+//
+//	@summary used to generate typescript types
+//	@returns torrentstream.TorrentLoadingStatus
+//	@route /api/v1/torrentstream/DONOTUSE
+func HandleTorrentstreamDONOTUSE(c *RouteCtx) error {
+	return c.RespondWithData(true)
 }

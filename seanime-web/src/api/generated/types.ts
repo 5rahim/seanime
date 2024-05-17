@@ -2555,6 +2555,28 @@ export type Torrentstream_EpisodeCollection = {
     episodes?: Array<Anime_MediaEntryEpisode>
 }
 
+/**
+ * - Filepath: internal/torrentstream/events.go
+ * - Filename: events.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_TorrentLoadingStatus = {
+    torrentBeingChecked: string
+    state: Torrentstream_TorrentLoadingStatusState
+}
+
+/**
+ * - Filepath: internal/torrentstream/events.go
+ * - Filename: events.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_TorrentLoadingStatusState = "SEARCHING_TORRENTS" |
+    "CHECKING_TORRENT" |
+    "ADDING_TORRENT" |
+    "SELECTING_FILE" |
+    "STARTING_SERVER" |
+    "SENDING_STREAM_TO_MEDIA_PLAYER"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tvdb
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

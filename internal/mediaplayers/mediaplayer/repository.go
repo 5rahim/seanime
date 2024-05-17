@@ -196,6 +196,11 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 	m.mu.Unlock()
 
 	go func() {
+		defer func() {
+			m.mu.Lock()
+			m.isRunning = false
+			m.mu.Unlock()
+		}()
 		for {
 			select {
 			case <-done:
@@ -216,6 +221,10 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 				//fmt.Printf("status: %v\n", status)
 				if err != nil {
 					if !trackingStarted {
+						if waitInSeconds > 60 {
+							m.Logger.Warn().Msg("media player: Ending goroutine, waited too long")
+							return
+						}
 						m.Logger.Trace().Msgf("media player: Waiting for torrent file, %d seconds", waitInSeconds)
 						waitInSeconds += 3
 						continue
