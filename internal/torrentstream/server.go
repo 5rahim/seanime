@@ -64,7 +64,7 @@ func newServerManager(repository *Repository) *serverManager {
 		file := ret.repository.client.currentFile.MustGet()
 		fr := file.NewReader()
 		defer fr.Close()
-		fr.SetReadahead(file.FileInfo().Length / 100)
+		//fr.SetReadahead(file.FileInfo().Length / 100)
 		fr.SetResponsive()
 
 		http.ServeContent(
