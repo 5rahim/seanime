@@ -181,9 +181,6 @@ searchLoop:
 		}
 
 		analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
-
-		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
-
 		// Check if analyzer found the episode
 		if !found {
 			r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", searchT.Link)
@@ -195,7 +192,7 @@ searchLoop:
 			continue
 		}
 
-		r.logger.Debug().Msgf("torrentstream: Found episode %s in torrent %s", anizipEpisode.Episode, searchT.Link)
+		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
 
 		// Download the file and unselect the rest
 		for i, f := range t.Files() {
@@ -247,6 +244,12 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 
 	// If the torrent has only one file, return it
 	if len(selectedTorrent.Files()) == 1 {
+		selectedTorrent.DownloadAll()
+		firstPieceIdx := selectedTorrent.Files()[0].Offset() * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
+		endPieceIdx := (selectedTorrent.Files()[0].Offset() + selectedTorrent.Length()) * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
+		for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+			selectedTorrent.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
+		}
 		return &playbackTorrent{
 			Torrent: selectedTorrent,
 			File:    selectedTorrent.Files()[0],
@@ -311,7 +314,14 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 			f.SetPriority(torrent.PiecePriorityNone)
 		}
 	}
-	selectedTorrent.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
+	tFile := selectedTorrent.Files()[analysisFile.GetIndex()]
+	tFile.Download()
+	// Select the first 5% of the pieces
+	firstPieceIdx := tFile.Offset() * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
+	endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
+	for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+		selectedTorrent.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
+	}
 
 	ret := &playbackTorrent{
 		Torrent: selectedTorrent,
