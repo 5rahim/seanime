@@ -26,7 +26,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     useEffectOnce(() => {
 
         function connectWebSocket() {
-            const newSocket = new WebSocket(`ws://${process.env.NODE_ENV === "development"
+            const newSocket = new WebSocket(`${document.location.protocol == "https:" ? "wss" : "ws"}://${process.env.NODE_ENV === "development"
                 ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host}/events?id=${uuidv4()}`)
 
