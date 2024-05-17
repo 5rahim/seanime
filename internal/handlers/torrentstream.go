@@ -106,6 +106,40 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
+// HandleTorrentstreamStopStream
+//
+//	@summary stop a torrent stream.
+//	@desc This stops the entire streaming process and drops the torrent if it's below a threshold.
+//	@desc This is made to be used while the stream is running.
+//	@returns bool
+//	@route /api/v1/torrentstream/stop [POST]
+func HandleTorrentstreamStopStream(c *RouteCtx) error {
+
+	err := c.App.TorrentstreamRepository.StopStream()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandleTorrentstreamDropTorrent
+//
+//	@summary drops a torrent stream.
+//	@desc This stops the entire streaming process and drops the torrent completely.
+//	@desc This is made to be used to force drop a torrent.
+//	@returns bool
+//	@route /api/v1/torrentstream/drop [POST]
+func HandleTorrentstreamDropTorrent(c *RouteCtx) error {
+
+	err := c.App.TorrentstreamRepository.DropTorrent()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
 // HandleTorrentstreamDONOTUSE
 //
 //	@summary used to generate typescript types

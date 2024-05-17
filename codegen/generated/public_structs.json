@@ -46186,8 +46186,8 @@
         "comments": []
       },
       {
-        "name": "mediaPlayerStoppedCh",
-        "jsonName": "mediaPlayerStoppedCh",
+        "name": "stopCh",
+        "jsonName": "stopCh",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -46206,6 +46206,16 @@
         "comments": [
           " Continuously receives playback status"
         ]
+      },
+      {
+        "name": "timeSinceLoggedSeeding",
+        "jsonName": "timeSinceLoggedSeeding",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -46267,6 +46277,15 @@
         "jsonName": "size",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []

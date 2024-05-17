@@ -1200,6 +1200,28 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/torrentstream/start",
         },
+        /**
+         *  @description
+         *  Route stop a torrent stream.
+         *  This stops the entire streaming process and drops the torrent if it's below a threshold.
+         *  This is made to be used while the stream is running.
+         */
+        TorrentstreamStopStream: {
+            key: "TORRENTSTREAM-torrentstream-stop-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/stop",
+        },
+        /**
+         *  @description
+         *  Route drops a torrent stream.
+         *  This stops the entire streaming process and drops the torrent completely.
+         *  This is made to be used to force drop a torrent.
+         */
+        TorrentstreamDropTorrent: {
+            key: "TORRENTSTREAM-torrentstream-drop-torrent",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/drop",
+        },
     },
 } satisfies ApiEndpoints
 

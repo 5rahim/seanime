@@ -5482,6 +5482,70 @@
     }
   },
   {
+    "name": "HandleTorrentstreamStopStream",
+    "trimmedName": "TorrentstreamStopStream",
+    "comments": [
+      "HandleTorrentstreamStopStream",
+      "",
+      "\t@summary stop a torrent stream.",
+      "\t@desc This stops the entire streaming process and drops the torrent if it's below a threshold.",
+      "\t@desc This is made to be used while the stream is running.",
+      "\t@returns bool",
+      "\t@route /api/v1/torrentstream/stop [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "stop a torrent stream.",
+      "descriptions": [
+        "This stops the entire streaming process and drops the torrent if it's below a threshold.",
+        "This is made to be used while the stream is running."
+      ],
+      "endpoint": "/api/v1/torrentstream/stop",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleTorrentstreamDropTorrent",
+    "trimmedName": "TorrentstreamDropTorrent",
+    "comments": [
+      "HandleTorrentstreamDropTorrent",
+      "",
+      "\t@summary drops a torrent stream.",
+      "\t@desc This stops the entire streaming process and drops the torrent completely.",
+      "\t@desc This is made to be used to force drop a torrent.",
+      "\t@returns bool",
+      "\t@route /api/v1/torrentstream/drop [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "drops a torrent stream.",
+      "descriptions": [
+        "This stops the entire streaming process and drops the torrent completely.",
+        "This is made to be used to force drop a torrent."
+      ],
+      "endpoint": "/api/v1/torrentstream/drop",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleTorrentstreamDONOTUSE",
     "trimmedName": "TorrentstreamDONOTUSE",
     "comments": [

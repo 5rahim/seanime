@@ -10,6 +10,7 @@ import (
 	torrentanalyzer "github.com/seanime-app/seanime/internal/torrents/analyzer"
 	itorrent "github.com/seanime-app/seanime/internal/torrents/torrent"
 	"slices"
+	"time"
 )
 
 var (
@@ -30,7 +31,11 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 
 	searchBatch := false
 	// Search batch if not a movie and finished
-	if !media.IsMovie() && media.IsFinished() {
+	yearsSinceStart := 999
+	if media.StartDate != nil && *media.StartDate.Year > 0 {
+		yearsSinceStart = time.Now().Year() - *media.StartDate.Year // e.g. 2024 - 2020 = 4
+	}
+	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 2 {
 		searchBatch = true
 	}
 
@@ -75,6 +80,10 @@ searchLoop:
 			seedersArr := lo.Map(data.Torrents, func(t *itorrent.AnimeTorrent, _ int) int {
 				return t.Seeders
 			})
+			if seedersArr == nil || len(seedersArr) == 0 {
+				searchBatch = false
+				continue
+			}
 			maxSeeders := slices.Max(seedersArr)
 			if maxSeeders >= 15 || nbFound > 2 {
 				break searchLoop

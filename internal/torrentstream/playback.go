@@ -43,7 +43,7 @@ func (r *Repository) listenToMediaPlayerEvents() {
 					// Stop the server
 					r.serverManager.stopServer()
 					// Signal to client.go that the media player has stopped
-					close(r.client.mediaPlayerStoppedCh)
+					close(r.client.stopCh)
 				}()
 			case status := <-r.mediaPlayerRepositorySubscriber.StreamingPlaybackStatusCh:
 				go func() {

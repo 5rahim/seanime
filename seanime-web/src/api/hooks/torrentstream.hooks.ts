@@ -46,3 +46,26 @@ export function useTorrentstreamStartStream() {
         },
     })
 }
+
+export function useTorrentstreamStopStream() {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.endpoint,
+        method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.methods[0],
+        mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.key],
+        onSuccess: async () => {
+            toast.success("Stream stopped")
+        },
+    })
+}
+
+export function useTorrentstreamDropTorrent() {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.endpoint,
+        method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.methods[0],
+        mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.key],
+        onSuccess: async () => {
+            toast.success("Torrent dropped")
+        },
+    })
+}
+

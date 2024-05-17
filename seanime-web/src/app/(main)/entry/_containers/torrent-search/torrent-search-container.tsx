@@ -7,7 +7,7 @@ import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
-import { TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
@@ -15,6 +15,7 @@ import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
@@ -128,20 +129,25 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
      * Meaning, the user has selected a torrent and wants to start streaming
      */
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
-    const onTorrentValidated = React.useCallback(() => {
+    const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const onTorrentValidated = () => {
+        console.log("onTorrentValidated", selectedTorrents, smartSearchEpisode, entry.episodes)
         if (type === "select") {
-            if (selectedTorrents.length) {
+            const ep = downloadInfo?.episodesToDownload?.find(n => n.episode?.episodeNumber === smartSearchEpisode)
+            if (selectedTorrents.length && !!ep?.aniDBEpisode) {
                 handleManualTorrentStreamSelection({
                     torrent: selectedTorrents[0],
                     entry,
+                    aniDBEpisode: ep.aniDBEpisode,
                     episodeNumber: smartSearchEpisode,
                 })
+                setter(undefined)
                 React.startTransition(() => {
                     setSelectedTorrents([])
                 })
             }
         }
-    }, [type])
+    }
 
     return (
         <>

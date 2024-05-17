@@ -96,6 +96,39 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	return nil
 }
 
+func (r *Repository) StopStream() error {
+	r.logger.Info().Msg("torrentstream: Stopping stream")
+
+	// Stop the client
+	// This will stop the stream and close the server
+	// This also sends the eventTorrentStopped event
+	close(r.client.stopCh)
+
+	r.logger.Info().Msg("torrentstream: Stream stopped")
+
+	return nil
+}
+
+func (r *Repository) DropTorrent() error {
+	r.logger.Info().Msg("torrentstream: Dropping last torrent")
+
+	if r.client.torrentClient.IsAbsent() {
+		return nil
+	}
+
+	for _, torrent := range r.client.torrentClient.MustGet().Torrents() {
+		torrent.Drop()
+	}
+
+	// Also stop the server, since it's dropped
+	r.serverManager.stopServer()
+	r.mediaPlayerRepository.Stop()
+
+	r.logger.Info().Msg("torrentstream: Last torrent dropped")
+
+	return nil
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) getMediaInfo(mediaId int) (media *anilist.BaseMedia, anizipMedia *anizip.Media, err error) {

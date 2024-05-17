@@ -29,8 +29,9 @@ type (
 		cancelFunc           context.CancelFunc
 
 		mu                          sync.Mutex
-		mediaPlayerStoppedCh        chan struct{}                    // Closed when the media player stops
+		stopCh                      chan struct{}                    // Closed when the media player stops
 		mediaPlayerPlaybackStatusCh chan *mediaplayer.PlaybackStatus // Continuously receives playback status
+		timeSinceLoggedSeeding      time.Time
 	}
 
 	TorrentStatus struct {
@@ -40,6 +41,7 @@ type (
 		DownloadSpeed      string  `json:"downloadSpeed"`
 		UploadSpeed        string  `json:"uploadSpeed"`
 		Size               string  `json:"size"`
+		Seeders            int     `json:"seeders"`
 	}
 
 	NewClientOptions struct {
@@ -53,7 +55,7 @@ func NewClient(repository *Repository) *Client {
 		torrentClient:               mo.None[*torrent.Client](),
 		currentFile:                 mo.None[*torrent.File](),
 		currentTorrent:              mo.None[*torrent.Torrent](),
-		mediaPlayerStoppedCh:        make(chan struct{}),
+		stopCh:                      make(chan struct{}),
 		mediaPlayerPlaybackStatusCh: make(chan *mediaplayer.PlaybackStatus, 1),
 	}
 
@@ -110,9 +112,9 @@ func (c *Client) InitializeClient() error {
 			case <-ctx.Done():
 				c.repository.logger.Debug().Msg("torrentstream: Context cancelled, stopping torrent client")
 				return
-			case <-c.mediaPlayerStoppedCh:
+			case <-c.stopCh:
 				c.mu.Lock()
-				c.mediaPlayerStoppedCh = make(chan struct{})
+				c.stopCh = make(chan struct{})
 				c.repository.logger.Debug().Msg("torrentstream: Handling media player stopped event")
 				// This is to prevent the client from downloading the whole torrent when the user stops watching
 				// Also, the torrent might be a batch - so we don't want to download the whole thing
@@ -122,10 +124,12 @@ func (c *Client) InitializeClient() error {
 						c.dropTorrents()
 					}
 					c.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
-					c.currentTorrent = mo.None[*torrent.Torrent]()
-					c.currentTorrentStatus = TorrentStatus{}
 				}
-				c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil)
+				c.currentTorrent = mo.None[*torrent.Torrent]()
+				c.currentTorrentStatus = TorrentStatus{}
+				c.repository.serverManager.stopServer()                         // Stop streaming server
+				c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
+				c.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
 				c.mu.Unlock()
 			case status := <-c.mediaPlayerPlaybackStatusCh:
 				if status != nil && c.currentTorrent.IsPresent() && c.repository.playback.currentVideoDuration == 0 {
@@ -154,6 +158,9 @@ func (c *Client) InitializeClient() error {
 					if uploadProgress > 0 {
 						uploadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(uploadProgress)))
 					}
+					if t.PeerConns() != nil {
+						c.currentTorrentStatus.Seeders = len(t.PeerConns())
+					}
 
 					//// If the torrent status went from 0% to > 0%, send an event, as the torrent has been loaded
 					//if c.currentTorrentStatus.ProgressPercentage == 0. && c.getTorrentPercentage(c.currentTorrent) > 0. {
@@ -168,11 +175,21 @@ func (c *Client) InitializeClient() error {
 						UploadSpeed:        uploadSpeed,
 						DownloadProgress:   downloadProgress,
 						ProgressPercentage: c.getTorrentPercentage(c.currentTorrent),
+						Seeders:            t.Stats().ConnectedSeeders,
 					}
 					c.repository.wsEventManager.SendEvent(eventTorrentStatus, c.currentTorrentStatus)
 					// Always log the progress so the user knows what's happening
 					c.repository.logger.Trace().Msgf("torrentstream: Progress: %.2f%%, Download speed: %s, Upload speed: %s, Size: %s", c.currentTorrentStatus.ProgressPercentage, c.currentTorrentStatus.DownloadSpeed, c.currentTorrentStatus.UploadSpeed, c.currentTorrentStatus.Size)
+					c.timeSinceLoggedSeeding = time.Now()
 					c.mu.Unlock()
+				}
+				if time.Since(c.timeSinceLoggedSeeding) > 20*time.Second {
+					c.timeSinceLoggedSeeding = time.Now()
+					for _, t := range c.torrentClient.MustGet().Torrents() {
+						if t.Seeding() {
+							c.repository.logger.Trace().Msgf("torrentstream: Seeding last torrent, %d peers", t.Stats().ActivePeers)
+						}
+					}
 				}
 				time.Sleep(3 * time.Second)
 			}

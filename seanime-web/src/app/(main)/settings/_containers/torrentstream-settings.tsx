@@ -1,9 +1,11 @@
 import { Models_TorrentstreamSettings } from "@/api/generated/types"
-import { useSaveTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
+import { useSaveTorrentstreamSettings, useTorrentstreamDropTorrent } from "@/api/hooks/torrentstream.hooks"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { Button } from "@/components/ui/button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
+import { SiBittorrent } from "react-icons/si"
 
 const torrentstreamSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean(),
@@ -32,6 +34,8 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
     } = props
 
     const { mutate, isPending } = useSaveTorrentstreamSettings()
+
+    const { mutate: dropTorrent, isPending: droppingTorrent } = useTorrentstreamDropTorrent()
 
     if (!settings) return null
 
@@ -147,7 +151,14 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     />
                 </div>
 
-                <SettingsSubmitButton isPending={isPending} />
+
+                <div className="flex w-full items-center">
+                    <SettingsSubmitButton isPending={isPending} />
+                    <div className="flex flex-1"></div>
+                    <Button leftIcon={<SiBittorrent />} intent="alert-subtle" onClick={() => dropTorrent()} disabled={droppingTorrent}>
+                        Drop torrent
+                    </Button>
+                </div>
             </Form>
 
             {/*<Separator />*/}
