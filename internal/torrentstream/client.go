@@ -114,10 +114,11 @@ func (c *Client) InitializeClient() error {
 				c.mu.Lock()
 				c.mediaPlayerStoppedCh = make(chan struct{})
 				c.repository.logger.Debug().Msg("torrentstream: Handling media player stopped event")
-				// This is to prevent the client from downloading the whole file when the user stops watching
+				// This is to prevent the client from downloading the whole torrent when the user stops watching
+				// Also, the torrent might be a batch - so we don't want to download the whole thing
 				if c.currentTorrent.IsPresent() {
-					if c.currentTorrentStatus.ProgressPercentage < 50 {
-						c.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 50%")
+					if c.currentTorrentStatus.ProgressPercentage < 70 {
+						c.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 70%")
 						c.dropTorrents()
 					}
 					c.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")

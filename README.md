@@ -78,6 +78,9 @@ Feel free to open issues or contribute. Leave a star if you like this project!
   - Stream media files from the server to any device with a web browser
   - On-the-fly transcoding with seeking support powered by **FFmpeg**
   - Support for hardware acceleration
+- 📽️ **Torrent streaming** (Experimental)
+  - Stream torrents directly from the server to your media player
+  - Altruistic seeding
 
 <details>
 <summary>More anime features</summary>

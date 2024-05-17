@@ -43,7 +43,7 @@ export function useWebsocketListener<TData = any>({ onMessage }: WebSocketListen
 }
 
 export type WebSocketMessageListener<TData> = {
-    type: WSEvents
+    type: WSEvents | string
     onMessage: (data: TData) => void
 }
 

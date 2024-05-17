@@ -56,6 +56,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      * - If auto-select is disabled, open the torrent drawer
      */
     const handleEpisodeClick = (episode: Anime_MediaEntryEpisode) => {
+        if (isPending) return
         if (serverStatus?.torrentstreamSettings?.autoSelect) {
             if (episode.aniDBEpisode) {
                 handleAutoSelectTorrentStream({
@@ -70,6 +71,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 setTorrentDrawerIsOpen("select")
             })
         }
+        // toast.info("Starting torrent stream...")
     }
 
     if (!entry.media) return null

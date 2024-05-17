@@ -137,10 +137,25 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStartedCh:
+				pm.eventMu.Lock()
+				// TODO
+				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingPlaybackStatusCh:
+				pm.eventMu.Lock()
+				// TODO
+				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingVideoCompletedCh:
+				pm.eventMu.Lock()
+				// TODO
+				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStoppedCh:
+				pm.eventMu.Lock()
+				// TODO
+				pm.eventMu.Unlock()
 			case _ = <-pm.mediaPlayerRepoSubscriber.StreamingTrackingRetryCh:
+				pm.eventMu.Lock()
+				// TODO
+				pm.eventMu.Unlock()
 			}
 		}
 	}()

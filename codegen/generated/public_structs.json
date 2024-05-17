@@ -29502,9 +29502,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -29608,9 +29608,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -29836,9 +29836,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -29910,9 +29910,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -30043,9 +30043,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -30325,9 +30325,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -31134,9 +31134,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -31254,9 +31254,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -31286,9 +31286,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -31741,9 +31741,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -31987,9 +31987,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -32118,9 +32118,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -32344,9 +32344,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -32551,9 +32551,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34616,9 +34616,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -34693,9 +34693,9 @@
       {
         "name": "WsEventManager",
         "jsonName": "WsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34771,9 +34771,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34898,9 +34898,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -36342,9 +36342,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -36400,9 +36400,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -36698,9 +36698,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -36747,9 +36747,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -38266,9 +38266,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -38422,9 +38422,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -46138,13 +46138,137 @@
         "comments": []
       },
       {
-        "name": "torrents",
-        "jsonName": "torrents",
-        "goType": "[]torrent.Torrent",
-        "typescriptType": "Array\u003cTorrent_Torrent\u003e",
-        "usedStructName": "torrent.Torrent",
+        "name": "currentTorrent",
+        "jsonName": "currentTorrent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentFile",
+        "jsonName": "currentFile",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTorrentStatus",
+        "jsonName": "currentTorrentStatus",
+        "goType": "TorrentStatus",
+        "typescriptType": "Torrentstream_TorrentStatus",
+        "usedStructName": "torrentstream.TorrentStatus",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelFunc",
+        "jsonName": "cancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaPlayerStoppedCh",
+        "jsonName": "mediaPlayerStoppedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed when the media player stops"
+        ]
+      },
+      {
+        "name": "mediaPlayerPlaybackStatusCh",
+        "jsonName": "mediaPlayerPlaybackStatusCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Continuously receives playback status"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/client.go",
+    "filename": "client.go",
+    "name": "TorrentStatus",
+    "formattedName": "Torrentstream_TorrentStatus",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "UploadProgress",
+        "jsonName": "uploadProgress",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadProgress",
+        "jsonName": "downloadProgress",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProgressPercentage",
+        "jsonName": "progressPercentage",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadSpeed",
+        "jsonName": "downloadSpeed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadSpeed",
+        "jsonName": "uploadSpeed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],
@@ -46171,6 +46295,56 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrentstream/events.go",
+    "filename": "events.go",
+    "name": "TorrentLoadingStatus",
+    "formattedName": "Torrentstream_TorrentLoadingStatus",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "TorrentBeingChecked",
+        "jsonName": "torrentBeingChecked",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "TorrentLoadingStatusState",
+        "typescriptType": "Torrentstream_TorrentLoadingStatusState",
+        "usedStructName": "torrentstream.TorrentLoadingStatusState",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/events.go",
+    "filename": "events.go",
+    "name": "TorrentLoadingStatusState",
+    "formattedName": "Torrentstream_TorrentLoadingStatusState",
+    "package": "torrentstream",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"SEARCHING_TORRENTS\"",
+        "\"CHECKING_TORRENT\"",
+        "\"ADDING_TORRENT\"",
+        "\"SELECTING_FILE\"",
+        "\"STARTING_SERVER\"",
+        "\"SENDING_STREAM_TO_MEDIA_PLAYER\""
+      ]
+    },
+    "comments": []
+  },
+  {
     "filepath": "../internal/torrentstream/list.go",
     "filename": "list.go",
     "name": "EpisodeCollection",
@@ -46191,126 +46365,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrentstream/server.go",
-    "filename": "server.go",
-    "name": "ServerManager",
-    "formattedName": "Torrentstream_ServerManager",
-    "package": "torrentstream",
-    "fields": [
-      {
-        "name": "httpserver",
-        "jsonName": "httpserver",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": [
-          " The server instance"
-        ]
-      },
-      {
-        "name": "repository",
-        "jsonName": "repository",
-        "goType": "Repository",
-        "typescriptType": "Torrentstream_Repository",
-        "usedStructName": "torrentstream.Repository",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "lastUsed",
-        "jsonName": "lastUsed",
-        "goType": "time.Time",
-        "typescriptType": "string",
-        "usedStructName": "time.Time",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Used to track the last time the server was used"
-        ]
-      },
-      {
-        "name": "serverRunning",
-        "jsonName": "serverRunning",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": [
-          " Whether the server is running"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrentstream/stream.go",
-    "filename": "stream.go",
-    "name": "StartStreamOptions",
-    "formattedName": "Torrentstream_StartStreamOptions",
-    "package": "torrentstream",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " RELATIVE Episode number to identify the file"
-        ]
-      },
-      {
-        "name": "AniDBEpisode",
-        "jsonName": "aniDBEpisode",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Anizip episode"
-        ]
-      },
-      {
-        "name": "AutoSelect",
-        "jsonName": "autoSelect",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Automatically select the best file to stream"
-        ]
-      },
-      {
-        "name": "Torrent",
-        "jsonName": "torrent",
-        "goType": "itorrent.AnimeTorrent",
-        "typescriptType": "AnimeTorrent",
-        "usedStructName": "itorrent.AnimeTorrent",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Selected torrent"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrentstream/torrentstream.go",
-    "filename": "torrentstream.go",
+    "filepath": "../internal/torrentstream/repository.go",
+    "filename": "repository.go",
     "name": "Repository",
     "formattedName": "Torrentstream_Repository",
     "package": "torrentstream",
@@ -46328,9 +46384,9 @@
       {
         "name": "serverManager",
         "jsonName": "serverManager",
-        "goType": "ServerManager",
-        "typescriptType": "Torrentstream_ServerManager",
-        "usedStructName": "torrentstream.ServerManager",
+        "goType": "serverManager",
+        "typescriptType": "Torrentstream_serverManager",
+        "usedStructName": "torrentstream.serverManager",
         "required": false,
         "public": false,
         "comments": []
@@ -46341,7 +46397,7 @@
         "goType": "playback",
         "typescriptType": "Torrentstream_playback",
         "usedStructName": "torrentstream.playback",
-        "required": false,
+        "required": true,
         "public": false,
         "comments": []
       },
@@ -46381,6 +46437,16 @@
         "goType": "anilist.ClientWrapperInterface",
         "typescriptType": "AL_ClientWrapperInterface",
         "usedStructName": "anilist.ClientWrapperInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -46436,6 +46502,16 @@
         "comments": []
       },
       {
+        "name": "mediaPlayerRepositorySubscriber",
+        "jsonName": "mediaPlayerRepositorySubscriber",
+        "goType": "mediaplayer.RepositorySubscriber",
+        "typescriptType": "RepositorySubscriber",
+        "usedStructName": "mediaplayer.RepositorySubscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "settings",
         "jsonName": "settings",
         "goType": "",
@@ -46460,8 +46536,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrentstream/torrentstream.go",
-    "filename": "torrentstream.go",
+    "filepath": "../internal/torrentstream/repository.go",
+    "filename": "repository.go",
     "name": "Settings",
     "formattedName": "Torrentstream_Settings",
     "package": "torrentstream",
@@ -46472,8 +46548,8 @@
     ]
   },
   {
-    "filepath": "../internal/torrentstream/torrentstream.go",
-    "filename": "torrentstream.go",
+    "filepath": "../internal/torrentstream/repository.go",
+    "filename": "repository.go",
     "name": "NewRepositoryOptions",
     "formattedName": "Torrentstream_NewRepositoryOptions",
     "package": "torrentstream",
@@ -46484,16 +46560,6 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MediaPlayerRepository",
-        "jsonName": "MediaPlayerRepository",
-        "goType": "mediaplayer.Repository",
-        "typescriptType": "Repository",
-        "usedStructName": "mediaplayer.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -46577,6 +46643,80 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/stream.go",
+    "filename": "stream.go",
+    "name": "StartStreamOptions",
+    "formattedName": "Torrentstream_StartStreamOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " RELATIVE Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Anizip episode"
+        ]
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "autoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Automatically select the best file to stream"
+        ]
+      },
+      {
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "itorrent.AnimeTorrent",
+        "typescriptType": "AnimeTorrent",
+        "usedStructName": "itorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Selected torrent"
+        ]
       }
     ],
     "comments": []
