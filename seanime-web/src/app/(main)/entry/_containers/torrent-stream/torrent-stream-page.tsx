@@ -79,6 +79,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     return (
         <AppLayoutStack>
+            <h2>Torrent streaming</h2>
             <Carousel
                 className="w-full max-w-full"
                 gap="md"

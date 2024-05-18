@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/anacrolix/torrent"
 	"github.com/samber/mo"
 	"net"
 	"net/http"
@@ -42,6 +43,7 @@ func dnsResolve() {
 	}
 }
 
+// newServerManager is called once during the lifetime of the application.
 func newServerManager(repository *Repository) *serverManager {
 	ret := &serverManager{
 		repository: repository,
@@ -52,27 +54,29 @@ func newServerManager(repository *Repository) *serverManager {
 
 	http.HandleFunc("/stream", func(w http.ResponseWriter, _r *http.Request) {
 		ret.lastUsed = time.Now()
-		ret.repository.logger.Trace().Msg("torrentstream: Stream endpoint hit")
-		w.Header().Set("Content-Type", "video/mp4")
+		ret.repository.logger.Trace().Msg("torrentstream: Stream endpoint hit [server]")
 
-		if ret.repository.client.currentFile.IsAbsent() {
-			ret.repository.logger.Error().Msg("torrentstream: No torrent to stream")
+		if ret.repository.client.currentFile.IsAbsent() || ret.repository.client.currentTorrent.IsAbsent() {
+			ret.repository.logger.Error().Msg("torrentstream: No torrent to stream [server]")
 			http.Error(w, "No torrent to stream", http.StatusNotFound)
 			return
 		}
 
 		file := ret.repository.client.currentFile.MustGet()
-		fr := file.NewReader()
-		defer fr.Close()
-		//fr.SetReadahead(file.FileInfo().Length / 100)
-		fr.SetResponsive()
+		tr := file.NewReader()
+		defer func(tr torrent.Reader) {
+			_ = tr.Close()
+		}(tr)
+		tr.SetResponsive()
+		tr.SetReadahead(file.FileInfo().Length / 100)
 
+		w.Header().Set("Content-Type", "video/mp4")
 		http.ServeContent(
 			w,
 			_r,
 			file.DisplayPath(),
 			time.Now(),
-			fr,
+			tr,
 		)
 	})
 

@@ -12,6 +12,7 @@ import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
+import { useUnmount } from "react-use"
 
 export const __anime_torrentStreamingActiveAtom = atom(false)
 
@@ -32,6 +33,10 @@ export function AnimeEntryPage() {
             router.push("/")
         }
     }, [mediaEntry, mediaEntryLoading])
+
+    useUnmount(() => {
+        setWantStreaming(false)
+    })
 
     if (mediaEntryLoading || mediaDetailsLoading) return <LoadingDisplay />
     if (!mediaEntry) return null

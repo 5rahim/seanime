@@ -22,20 +22,22 @@ const enum TorrentStreamLoadingEvents {
     TorrentStopped = "torrentstream-torrent-stopped",
 }
 
-const enum TorrentStreamState {
+export const enum TorrentStreamState {
     Loaded = "loaded",
     Stopped = "stopped",
 }
 
 export const __torrentstream__loadingStateAtom = atom<Torrentstream_TorrentLoadingStatusState | null>(null)
+export const __torrentstream__stateAtom = atom<TorrentStreamState>(TorrentStreamState.Stopped)
 
 export function TorrentStreamLoadingOverlay() {
 
     const [loadingState, setLoadingState] = useAtom(__torrentstream__loadingStateAtom)
+    const [state, setState] = useAtom(__torrentstream__stateAtom)
 
-    const [state, setState] = useState(TorrentStreamState.Stopped)
     const [status, setStatus] = useState<Torrentstream_TorrentStatus | null>(null)
     const [torrentBeingLoaded, setTorrentBeingLoaded] = useState<string | null>(null)
+    const [mediaPlayerStartedPlaying, setMediaPlayerStartedPlaying] = useState<boolean>(false)
 
     const { mutate: stop, isPending } = useTorrentstreamStopStream()
 
@@ -47,6 +49,7 @@ export function TorrentStreamLoadingOverlay() {
         onMessage: _ => {
             setLoadingState("SEARCHING_TORRENTS")
             setStatus(null)
+            setMediaPlayerStartedPlaying(false)
         },
     })
 
@@ -58,6 +61,7 @@ export function TorrentStreamLoadingOverlay() {
         onMessage: data => {
             setLoadingState(data.state)
             setTorrentBeingLoaded(data.torrentBeingChecked)
+            setMediaPlayerStartedPlaying(false)
         },
     })
 
@@ -70,6 +74,7 @@ export function TorrentStreamLoadingOverlay() {
             // The StartStream function returned
             setLoadingState("SENDING_STREAM_TO_MEDIA_PLAYER")
             setState(TorrentStreamState.Loaded)
+            setMediaPlayerStartedPlaying(false)
         },
     })
 
@@ -81,6 +86,7 @@ export function TorrentStreamLoadingOverlay() {
         onMessage: _ => {
             setLoadingState(null)
             setState(TorrentStreamState.Loaded)
+            setMediaPlayerStartedPlaying(true)
         },
     })
 
@@ -93,6 +99,7 @@ export function TorrentStreamLoadingOverlay() {
             setLoadingState(null)
             setState(TorrentStreamState.Stopped)
             setStatus(null)
+            setMediaPlayerStartedPlaying(false)
         },
     })
 
@@ -109,31 +116,37 @@ export function TorrentStreamLoadingOverlay() {
 
     if (state === TorrentStreamState.Loaded && status) {
         return (
-            <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
-                <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center">
-                    <BiGroup className="inline-block text-2xl" />
-                    <span>{status.seeders}</span>
-                    {`  `}
-                    <span className={cn({ "text-green-300": status.downloadProgress > 0 })}>{status.progressPercentage.toFixed(2)}%</span>
-                    {` `}
-                    <BiDownArrow className="inline-block ml-2" />
-                    {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}
-                    {` `}
-                    <BiUpArrow className="inline-block ml-2" />
-                    {status.uploadSpeed !== "" ? status.uploadSpeed : "0 B/s"}
-                    {` `}
-                    <Tooltip
-                        trigger={<IconButton
-                            onClick={() => stop()}
-                            loading={isPending}
-                            intent="alert-basic"
-                            icon={<BiStop />}
-                        />}
-                    >
-                        Stop stream
-                    </Tooltip>
+            <>
+                {!mediaPlayerStartedPlaying && <div className="w-full bg-gray-900 fixed top-0 left-0 z-[100]">
+                    <ProgressBar isIndeterminate />
+                </div>}
+                <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
+                    <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center">
+                        <BiGroup className="inline-block text-2xl" />
+                        <span>{status.seeders}</span>
+                        {`  `}
+                        <span className={cn({ "text-green-300": status.downloadProgress > 0 })}>{status.progressPercentage.toFixed(2)}%</span>
+                        {` `}
+                        <BiDownArrow className="inline-block ml-2" />
+                        {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}
+                        {` `}
+                        <BiUpArrow className="inline-block ml-2" />
+                        {status.uploadSpeed !== "" ? status.uploadSpeed : "0 B/s"}
+                        {` `}
+                        <Tooltip
+                            trigger={<IconButton
+                                onClick={() => stop()}
+                                loading={isPending}
+                                intent="alert-basic"
+                                icon={<BiStop />}
+                            />}
+                        >
+                            Stop stream
+                        </Tooltip>
+                    </div>
+
                 </div>
-            </div>
+            </>
         )
     }
 
@@ -150,8 +163,7 @@ export function TorrentStreamLoadingOverlay() {
                         {loadingState === "ADDING_TORRENT" ? `Adding torrent "${torrentBeingLoaded}"` : ""}
                         {loadingState === "CHECKING_TORRENT" ? `Checking torrent "${torrentBeingLoaded}"` : ""}
                         {loadingState === "SELECTING_FILE" ? `Selecting file` : ""}
-                        {loadingState === "SENDING_STREAM_TO_MEDIA_PLAYER" ? "Sending streaming to media player" : ""}
-                        {/*{state === "SENDING_STREAM_TO_MEDIA_PLAYER" ? "Sending streaming to media player" : ""}*/}
+                        {loadingState === "SENDING_STREAM_TO_MEDIA_PLAYER" ? "Sending stream to media player" : ""}
                     </div>
                 </div>
             </div>

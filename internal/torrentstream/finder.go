@@ -35,7 +35,7 @@ func (r *Repository) findBestTorrent(media *anilist.BaseMedia, anizipMedia *aniz
 	if media.StartDate != nil && *media.StartDate.Year > 0 {
 		yearsSinceStart = time.Now().Year() - *media.StartDate.Year // e.g. 2024 - 2020 = 4
 	}
-	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 2 {
+	if !media.IsMovie() && media.IsFinished() && yearsSinceStart > 4 {
 		searchBatch = true
 	}
 
@@ -314,15 +314,9 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 			f.SetPriority(torrent.PiecePriorityNone)
 		}
 	}
-	selectedTorrent.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
+	//selectedTorrent.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
 	r.logger.Debug().Msgf("torrentstream: Selected torrent %s", selectedTorrent.Files()[analysisFile.GetIndex()].DisplayPath())
 
-	// Download the file and unselect the rest
-	for i, f := range selectedTorrent.Files() {
-		if i != analysisFile.GetIndex() {
-			f.SetPriority(torrent.PiecePriorityNone)
-		}
-	}
 	tFile := selectedTorrent.Files()[analysisFile.GetIndex()]
 	tFile.Download()
 	// Select the first 5% of the pieces

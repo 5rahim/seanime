@@ -19,7 +19,6 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"testing"
-	"time"
 )
 
 func TestTorrentstream(t *testing.T) {
@@ -42,7 +41,7 @@ func TestTorrentstream(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	mediaId := 163270 // Wind Breaker
+	mediaId := 163132 // Horimiya: piece
 
 	anilist.TestModifyAnimeCollectionEntry(animeCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 		Status:   lo.ToPtr(anilist.MediaListStatusCurrent),
@@ -112,12 +111,10 @@ func TestTorrentstream(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(2 * time.Second)
-
 	err = repo.StartStream(&StartStreamOptions{
 		MediaId:       mediaId,
-		EpisodeNumber: 6,
-		AniDBEpisode:  "6",
+		EpisodeNumber: 8,
+		AniDBEpisode:  "8",
 		AutoSelect:    true,
 		Torrent:       nil,
 	})

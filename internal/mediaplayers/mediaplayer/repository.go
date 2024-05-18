@@ -132,7 +132,7 @@ func (m *Repository) Play(path string) error {
 		}
 		return nil
 	case "mpv":
-		err := m.Mpv.OpenAndPlay(path, mpv.StartExec)
+		err := m.Mpv.OpenAndPlay(path)
 		if err != nil {
 			return fmt.Errorf("could not open and play video, %s", err.Error())
 		}
@@ -141,6 +141,43 @@ func (m *Repository) Play(path string) error {
 		return errors.New("no default media player set")
 	}
 
+}
+
+func (m *Repository) Stream(streamUrl string) error {
+
+	m.Logger.Debug().Str("streamUrl", streamUrl).Msg("media player: Stream requested")
+	var err error
+
+	switch m.Default {
+	case "vlc":
+		err = m.VLC.Start()
+	case "mpc-hc":
+		err = m.MpcHc.Start()
+		_, err = m.MpcHc.OpenAndPlay(streamUrl)
+	case "mpv":
+		// MPV does not need to be started
+	default:
+		return errors.New("no default media player set")
+	}
+
+	if err != nil {
+		return fmt.Errorf("could not open media player, %s", err.Error())
+	}
+
+	switch m.Default {
+	case "vlc":
+		err = m.VLC.AddAndPlay(streamUrl)
+	case "mpc-hc":
+		_, err = m.MpcHc.OpenAndPlay(streamUrl)
+	case "mpv":
+		err = m.Mpv.OpenAndPlay(streamUrl, "--no-cache", "--force-window", "--log-file=output.txt")
+	}
+
+	if err != nil {
+		return fmt.Errorf("could not open and play video, %s", err.Error())
+	}
+
+	return nil
 }
 
 // Cancel will stop the tracking process and publish an "abnormal" event
@@ -153,6 +190,10 @@ func (m *Repository) Cancel() {
 	} else {
 		m.Logger.Debug().Msg("media player: Cancel request received, but no context found")
 	}
+	// Close MPV if it's the default player
+	if m.Default == "mpv" {
+		m.Mpv.CloseAll()
+	}
 	m.mu.Unlock()
 }
 
@@ -164,11 +205,15 @@ func (m *Repository) Stop() {
 		m.cancel()
 		m.trackingStopped("Tracking stopped")
 	}
+	// Close MPV if it's the default player
+	if m.Default == "mpv" {
+		m.Mpv.CloseAll()
+	}
 	m.mu.Unlock()
 }
 
-// StartTrackingTorrentStreaming will start tracking media player status for torrent streaming
-func (m *Repository) StartTrackingTorrentStreaming() {
+// StartTrackingTorrentStream will start tracking media player status for torrent streaming
+func (m *Repository) StartTrackingTorrentStream() {
 	m.mu.Lock()
 	// If a previous context exists, cancel it
 	if m.cancel != nil {
@@ -229,8 +274,8 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 						waitInSeconds += 3
 						continue
 					} else {
-						m.trackingRetry("Failed to get status")
-						m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
+						m.trackingRetry("Failed to get player status")
+						m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, 3)
 						// Video is completed, and we are unable to get the status
 						// We can safely assume that the player has been closed
 						if retries == 1 && completed {
@@ -242,7 +287,7 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 
 						if retries >= 2 {
 							m.Logger.Debug().Msg("media player: Sending failed status query event")
-							m.streamingTrackingStopped("Failed to get status")
+							m.streamingTrackingStopped("Failed to get player status")
 							close(done)
 							break
 						}
@@ -255,7 +300,7 @@ func (m *Repository) StartTrackingTorrentStreaming() {
 				playback, ok := m.processStreamStatus(m.Default, status)
 
 				if !ok {
-					m.streamingTrackingRetry("Failed to get status")
+					m.streamingTrackingRetry("Failed to get player status")
 					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
 						m.Logger.Debug().Msg("media player: Sending failed status query event")
@@ -333,8 +378,8 @@ func (m *Repository) StartTracking() {
 				status, err := m.getStatus()
 
 				if err != nil {
-					m.trackingRetry("Failed to get status")
-					m.Logger.Error().Msgf("media player: Failed to get status, retrying (%d/%d)", retries+1, 3)
+					m.trackingRetry("Failed to get player status")
+					m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, 3)
 
 					// Video is completed, and we are unable to get the status
 					// We can safely assume that the player has been closed
@@ -345,7 +390,7 @@ func (m *Repository) StartTracking() {
 					}
 
 					if retries >= 2 {
-						m.trackingStopped("Failed to get status")
+						m.trackingStopped("Failed to get player status")
 						close(done)
 						break
 					}
@@ -356,7 +401,7 @@ func (m *Repository) StartTracking() {
 				playback, ok := m.processStatus(m.Default, status)
 
 				if !ok {
-					m.trackingRetry("Failed to get status")
+					m.trackingRetry("Failed to get player status")
 					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
 					if retries >= 2 {
 						m.trackingStopped("Failed to process status")

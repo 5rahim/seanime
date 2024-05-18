@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	itorrent "github.com/seanime-app/seanime/internal/torrents/torrent"
+	"time"
 )
 
 type StartStreamOptions struct {
@@ -77,17 +78,32 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 
 	r.sendTorrentLoadingStatus(TLSStateSendingStreamToMediaPlayer, "")
 
-	//
-	// Start the stream
-	//
-	err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl())
-	if err != nil {
-		// Failed to start the stream, we'll drop the torrents and stop the server
-		r.serverManager.stopServer()
-		r.client.dropTorrents()
-		r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
-		return err
-	}
+	go func() {
+		for {
+			// This is to make sure the client is ready to stream before we start the stream
+			if r.client.readyToStream() {
+				break
+			}
+			// If for some reason the torrent is dropped, we kill the goroutine
+			if r.client.torrentClient.IsAbsent() || r.client.currentTorrent.IsAbsent() {
+				return
+			}
+			r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
+			time.Sleep(3 * time.Second)
+		}
+
+		//
+		// Start the stream
+		//
+		r.logger.Debug().Msg("torrentstream: Starting the media player")
+		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl())
+		if err != nil {
+			// Failed to start the stream, we'll drop the torrents and stop the server
+			r.serverManager.stopServer()
+			r.client.dropTorrents()
+			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+		}
+	}()
 
 	r.wsEventManager.SendEvent(eventTorrentLoaded, nil)
 
@@ -124,7 +140,7 @@ func (r *Repository) DropTorrent() error {
 	r.serverManager.stopServer()
 	r.mediaPlayerRepository.Stop()
 
-	r.logger.Info().Msg("torrentstream: Last torrent dropped")
+	r.logger.Info().Msg("torrentstream: Dropped last torrent")
 
 	return nil
 }

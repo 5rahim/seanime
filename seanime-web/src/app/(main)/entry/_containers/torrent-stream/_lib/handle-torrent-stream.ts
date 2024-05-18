@@ -1,6 +1,10 @@
 import { Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
-import { __torrentstream__loadingStateAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-loading-overlay"
+import {
+    __torrentstream__loadingStateAtom,
+    __torrentstream__stateAtom,
+    TorrentStreamState,
+} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-loading-overlay"
 import { useSetAtom } from "jotai/react"
 import React from "react"
 
@@ -21,6 +25,7 @@ export function useHandleStartTorrentStream() {
     const { mutate, isPending } = useTorrentstreamStartStream()
 
     const setLoadingState = useSetAtom(__torrentstream__loadingStateAtom)
+    const setState = useSetAtom(__torrentstream__stateAtom)
 
     const handleManualTorrentStreamSelection = React.useCallback((params: ManualTorrentStreamSelectionProps) => {
         mutate({
@@ -35,6 +40,7 @@ export function useHandleStartTorrentStream() {
             },
             onError: () => {
                 setLoadingState(null)
+                setState(TorrentStreamState.Stopped)
             },
         })
     }, [])
@@ -46,8 +52,9 @@ export function useHandleStartTorrentStream() {
             aniDBEpisode: params.aniDBEpisode,
             autoSelect: true,
         }, {
-            onSuccess: () => {
+            onError: () => {
                 setLoadingState(null)
+                setState(TorrentStreamState.Stopped)
             },
         })
     }, [])

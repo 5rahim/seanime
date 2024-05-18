@@ -179,12 +179,12 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string) error {
 		return errors.New("cannot stream when offline")
 	}
 
-	err := pm.MediaPlayerRepository.Play(url)
+	err := pm.MediaPlayerRepository.Stream(url)
 	if err != nil {
 		return err
 	}
 
-	pm.MediaPlayerRepository.StartTrackingTorrentStreaming()
+	pm.MediaPlayerRepository.StartTrackingTorrentStream()
 
 	return nil
 }

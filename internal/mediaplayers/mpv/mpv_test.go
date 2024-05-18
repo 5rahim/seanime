@@ -16,7 +16,7 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 
 	m := New(util.NewLogger(), "", "")
 
-	err := m.OpenAndPlay(testFilePath, StartExecCommand)
+	err := m.OpenAndPlay(testFilePath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestMpv_OpenAndPlayPath(t *testing.T) {
 
 	m := New(util.NewLogger(), "", test_utils.ConfigData.Provider.MpvPath)
 
-	err := m.OpenAndPlay(testFilePath, StartExec)
+	err := m.OpenAndPlay(testFilePath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestMpv_Playback(t *testing.T) {
 
 	m := New(util.NewLogger(), "", "")
 
-	err := m.OpenAndPlay(testFilePath, StartExecCommand)
+	err := m.OpenAndPlay(testFilePath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,14 +88,14 @@ func TestMpv_Multiple(t *testing.T) {
 
 	m := New(util.NewLogger(), "", "")
 
-	err := m.OpenAndPlay(testFilePath, StartExecCommand)
+	err := m.OpenAndPlay(testFilePath)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(2 * time.Second)
 
-	err = m.OpenAndPlay(testFilePath, StartExecCommand)
+	err = m.OpenAndPlay(testFilePath)
 	if !assert.NoError(t, err) {
 		t.Log("error opening mpv instance twice")
 	}

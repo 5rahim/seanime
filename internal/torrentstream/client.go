@@ -71,10 +71,12 @@ func (c *Client) InitializeClient() error {
 		return err
 	}
 
+	// Cancel the previous context, terminating the goroutine if it's running
 	if c.cancelFunc != nil {
 		c.cancelFunc()
 	}
 
+	// Context for the client's goroutine
 	var ctx context.Context
 	ctx, c.cancelFunc = context.WithCancel(context.Background())
 
@@ -85,6 +87,7 @@ func (c *Client) InitializeClient() error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
 	cfg.DisableIPv6 = true
+	//cfg.DownloadRateLimiter = rate.NewLimiter()
 	//cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
 	if settings.TorrentClientPort == 0 {
@@ -396,4 +399,8 @@ func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent]) float64 {
 	}
 
 	return float64(t.MustGet().BytesCompleted()) / float64(info.TotalLength()) * 100
+}
+
+func (c *Client) readyToStream() bool {
+	return c.getTorrentPercentage(c.currentTorrent) > 7.
 }
