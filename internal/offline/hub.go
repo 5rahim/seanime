@@ -403,7 +403,7 @@ func (h *Hub) SyncListData() error {
 			continue
 		}
 
-		listData.Score = listData.Score * 10
+		//listData.Score = listData.Score * 10
 
 		var startDate *anilist.FuzzyDateInput
 		var endDate *anilist.FuzzyDateInput

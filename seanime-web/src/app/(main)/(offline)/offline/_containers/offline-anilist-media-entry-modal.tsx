@@ -87,7 +87,7 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                         mutate({
                             mediaId: media?.id || 0,
                             status: data.status || "PLANNING",
-                            score: data.score || 0,
+                            score: data.score ? data.score * 10 : 0,
                             progress: data.progress || 0,
                             startDate: data.startDate ? data.startDate.toISOString() : undefined,
                             endDate: data.endDate ? data.endDate.toISOString() : undefined,
@@ -102,7 +102,7 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                     onError={console.log}
                     defaultValues={{
                         status: listData?.status,
-                        score: listData?.score,
+                        score: listData?.score ? listData?.score / 10 : undefined,
                         progress: listData?.progress,
                         startDate: listData?.startedAt ? normalizeDate(listData?.startedAt) : undefined,
                         endDate: listData?.completedAt ? normalizeDate(listData?.completedAt) : undefined,
@@ -139,7 +139,7 @@ export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
                                 min={0}
                                 max={10}
                                 formatOptions={{
-                                    maximumFractionDigits: 0,
+                                    maximumFractionDigits: 1,
                                     minimumFractionDigits: 0,
                                     useGrouping: false,
                                 }}

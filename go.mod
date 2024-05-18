@@ -8,11 +8,13 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/Yamashou/gqlgenc v0.23.1
 	github.com/adrg/strutil v0.3.1
+	github.com/anacrolix/sync v0.5.1
 	github.com/anacrolix/torrent v1.55.0
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8
 	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
+	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.14.1
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/glebarez/sqlite v1.9.0
@@ -57,7 +59,6 @@ require (
 	github.com/anacrolix/mmsg v1.0.0 // indirect
 	github.com/anacrolix/multiless v0.3.0 // indirect
 	github.com/anacrolix/stm v0.4.0 // indirect
-	github.com/anacrolix/sync v0.5.1 // indirect
 	github.com/anacrolix/upnp v0.1.3-0.20220123035249-922794e51c96 // indirect
 	github.com/anacrolix/utp v0.1.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
@@ -71,7 +72,6 @@ require (
 	github.com/bits-and-blooms/bitset v1.2.2 // indirect
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/fasthttp/websocket v1.5.7 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect

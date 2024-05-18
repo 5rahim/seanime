@@ -7547,7 +7547,7 @@ const AnimeCollectionDocument = `query AnimeCollection ($userName: String) {
 			status
 			entries {
 				id
-				score(format: POINT_10)
+				score(format: POINT_100)
 				progress
 				status
 				notes

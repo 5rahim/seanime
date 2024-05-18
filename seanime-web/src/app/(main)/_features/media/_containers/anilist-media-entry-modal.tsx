@@ -24,7 +24,7 @@ type AnilistMediaEntryModalProps = {
 
 export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     status: z.custom<AL_MediaListStatus>().nullish(),
-    score: z.number().min(0).max(1000).nullish(),
+    score: z.number().min(0).max(100).nullish(),
     progress: z.number().min(0).nullish(),
     startedAt: presets.datePicker.nullish(),
     completedAt: presets.datePicker.nullish(),
@@ -108,7 +108,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         mutate({
                             mediaId: media?.id || 0,
                             status: data.status || "PLANNING",
-                            score: data.score ? data.score * 10 : 0,
+                            score: data.score ? data.score * 10 : 0, // should be 0-100
                             progress: data.progress || 0,
                             startedAt: data.startedAt ? {
                                 // @ts-ignore
@@ -133,7 +133,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     onError={console.log}
                     defaultValues={{
                         status: listData?.status,
-                        score: listData?.score,
+                        score: listData?.score ? listData?.score / 10 : undefined, // Returned score is 0-100
                         progress: listData?.progress,
                         startedAt: listData?.startedAt ? (normalizeDate(listData?.startedAt)) : undefined,
                         completedAt: listData?.completedAt ? (normalizeDate(listData?.completedAt)) : undefined,
@@ -170,7 +170,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                 min={0}
                                 max={10}
                                 formatOptions={{
-                                    maximumFractionDigits: 0,
+                                    maximumFractionDigits: 1,
                                     minimumFractionDigits: 0,
                                     useGrouping: false,
                                 }}

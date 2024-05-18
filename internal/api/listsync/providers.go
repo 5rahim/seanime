@@ -68,6 +68,7 @@ func (pr *ProviderRepository) AddAnime(to Source, entry *AnimeEntry) error {
 			return nil
 		}
 		status := ToAnilistListStatus(entry.Status)
+		//score := entry.Score * 10
 		score := entry.Score * 10
 
 		_, err = pr.AnilistClientWrapper.UpdateMediaListEntryStatus(
@@ -127,6 +128,7 @@ func (pr *ProviderRepository) UpdateAnime(to Source, entry *AnimeEntry) error {
 			return nil
 		}
 		status := ToAnilistListStatus(entry.Status)
+		//score := entry.Score * 10
 		score := entry.Score * 10
 
 		_, err = pr.AnilistClientWrapper.UpdateMediaListEntryStatus(

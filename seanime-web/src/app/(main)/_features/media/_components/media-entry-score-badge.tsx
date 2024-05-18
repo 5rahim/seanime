@@ -3,7 +3,7 @@ import React from "react"
 import { BiStar } from "react-icons/bi"
 
 type MediaEntryScoreBadgeProps = {
-    score?: number
+    score?: number // 0-100
 }
 
 export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
@@ -12,9 +12,9 @@ export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
     if (!score) return null
 
     const scoreColor = score ? (
-        score < 5 ? "bg-gray-500" :
-            score < 7 ? "bg-gray-500" :
-                score < 9 ? "bg-green-500" :
+        score < 50 ? "bg-gray-500" :
+            score < 70 ? "bg-gray-500" :
+                score < 90 ? "bg-green-500" :
                     "bg-indigo-500 text-white bg-opacity-80"
     ) : ""
 
@@ -25,7 +25,7 @@ export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
                 scoreColor,
             )}
         >
-            <BiStar /> {(score === 0) ? "-" : score}
+            <BiStar /> {(score === 0) ? "-" : score / 10}
         </div>
     )
 }
