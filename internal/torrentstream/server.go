@@ -52,33 +52,7 @@ func newServerManager(repository *Repository) *serverManager {
 
 	dnsResolve()
 
-	http.HandleFunc("/stream", func(w http.ResponseWriter, _r *http.Request) {
-		ret.lastUsed = time.Now()
-		ret.repository.logger.Trace().Msg("torrentstream: Stream endpoint hit [server]")
-
-		if ret.repository.client.currentFile.IsAbsent() || ret.repository.client.currentTorrent.IsAbsent() {
-			ret.repository.logger.Error().Msg("torrentstream: No torrent to stream [server]")
-			http.Error(w, "No torrent to stream", http.StatusNotFound)
-			return
-		}
-
-		file := ret.repository.client.currentFile.MustGet()
-		tr := file.NewReader()
-		defer func(tr torrent.Reader) {
-			_ = tr.Close()
-		}(tr)
-		tr.SetResponsive()
-		tr.SetReadahead(file.FileInfo().Length / 100)
-
-		w.Header().Set("Content-Type", "video/mp4")
-		http.ServeContent(
-			w,
-			_r,
-			file.DisplayPath(),
-			time.Now(),
-			tr,
-		)
-	})
+	http.HandleFunc("/stream", ret.serve)
 
 	http.HandleFunc("/ping", func(w http.ResponseWriter, _r *http.Request) {
 		w.Write([]byte("pong"))
@@ -204,4 +178,37 @@ func (s *serverManager) stopServer() {
 	s.serverRunning = false
 
 	s.repository.logger.Info().Msg("torrentstream: Streaming server stopped")
+
+	// Do not forget to reinitialize the server
+	s.initializeServer()
+}
+
+func (s *serverManager) serve(w http.ResponseWriter, r *http.Request) {
+	s.lastUsed = time.Now()
+	s.repository.logger.Trace().Msg("torrentstream: Stream endpoint hit [server]")
+
+	if s.repository.client.currentFile.IsAbsent() || s.repository.client.currentTorrent.IsAbsent() {
+		s.repository.logger.Error().Msg("torrentstream: No torrent to stream [server]")
+		http.Error(w, "No torrent to stream", http.StatusNotFound)
+		return
+	}
+
+	file := s.repository.client.currentFile.MustGet()
+	tr := file.NewReader()
+	defer func(tr torrent.Reader) {
+		_ = tr.Close()
+	}(tr)
+	tr.SetResponsive()
+	tr.SetReadahead(file.FileInfo().Length / 100)
+
+	s.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: Serving file content")
+	w.Header().Set("Content-Type", "video/mp4")
+	http.ServeContent(
+		w,
+		r,
+		file.DisplayPath(),
+		time.Now(),
+		tr,
+	)
+	s.repository.logger.Trace().Msg("torrentstream: File content served")
 }

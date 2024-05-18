@@ -93,6 +93,7 @@ func (c *Client) InitializeClient() error {
 	if settings.TorrentClientPort == 0 {
 		settings.TorrentClientPort = 43213
 	}
+	cfg.ListenPort = settings.TorrentClientPort
 	// Set the download directory
 	// e.g. /path/to/temp/seanime/torrentstream/{infohash}
 	cfg.DefaultStorage = storage.NewFileByInfoHash(settings.DownloadDir)

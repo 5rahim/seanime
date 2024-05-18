@@ -99,8 +99,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl())
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
-			r.serverManager.stopServer()
-			r.client.dropTorrents()
+			r.StopStream()
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 		}
 	}()

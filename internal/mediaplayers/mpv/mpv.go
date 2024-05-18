@@ -3,6 +3,7 @@ package mpv
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jannson/mpvipc"
 	"github.com/rs/zerolog"
 	"os/exec"
@@ -29,17 +30,18 @@ type (
 	}
 
 	Mpv struct {
-		Logger      *zerolog.Logger
-		Playback    *Playback
-		SocketName  string
-		AppPath     string
-		isRunning   bool
-		mu          sync.Mutex
-		playbackMu  sync.RWMutex
-		cancel      context.CancelFunc     // Cancel function for the context
-		subscribers map[string]*Subscriber // Subscribers to the mpv events
-		conn        *mpvipc.Connection     // Reference to the mpv connection
-		cmd         *exec.Cmd
+		Logger         *zerolog.Logger
+		Playback       *Playback
+		SocketName     string
+		AppPath        string
+		isRunning      bool
+		mu             sync.Mutex
+		playbackMu     sync.RWMutex
+		cancel         context.CancelFunc     // Cancel function for the context
+		subscribers    map[string]*Subscriber // Subscribers to the mpv events
+		conn           *mpvipc.Connection     // Reference to the mpv connection
+		cmd            *exec.Cmd
+		prevSocketName string
 	}
 
 	Subscriber struct {
@@ -50,10 +52,6 @@ type (
 var cmdCtx, cmdCancel = context.WithCancel(context.Background())
 
 func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
-	if socketName == "" {
-		socketName = getDefaultSocketName()
-	}
-
 	if cmdCancel != nil {
 		cmdCancel()
 	}
@@ -71,7 +69,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 
 // launchPlayer starts the mpv player and plays the file.
 // If the player is already running, it just loads the new file.
-func (m *Mpv) launchPlayer(filePath string, args ...string) error {
+func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 	// Cancel previous context
 	// This is done so that we only have one connection open at a time
 	// DEVNOTE: Commented in favor of replacing the file
@@ -86,12 +84,23 @@ func (m *Mpv) launchPlayer(filePath string, args ...string) error {
 
 		cmdCtx, cmdCancel = context.WithCancel(context.Background())
 
+		socketName := m.SocketName
+		if m.SocketName == "" {
+			socketName = getDefaultSocketName()
+		}
+
 		m.Logger.Debug().Msg("mpv: Starting player")
-		args = append(args, "--input-ipc-server="+m.SocketName)
-		m.cmd, err = m.createCmd(filePath, args...)
+		if idle {
+			args = append(args, "--input-ipc-server="+socketName, "--idle")
+			m.cmd, err = m.createCmd("", args...)
+		} else {
+			args = append(args, "--input-ipc-server="+socketName)
+			m.cmd, err = m.createCmd(filePath, args...)
+		}
 		if err != nil {
 			return err
 		}
+		m.prevSocketName = socketName
 
 		err = m.cmd.Start()
 		if err != nil {
@@ -118,8 +127,8 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 
 	m.Playback = &Playback{}
 
-	// Launch player
-	err := m.launchPlayer(filePath, args...)
+	// Launch player or replace file
+	err := m.launchPlayer(false, filePath, args...)
 	if err != nil {
 		return err
 	}
@@ -130,6 +139,7 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// Establish new connection, only if it doesn't exist
+	// We don't continue past this point if the connection is already open, because it means the goroutine is already running
 	if m.conn != nil && !m.conn.IsClosed() {
 		return nil
 	}
@@ -149,95 +159,144 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	}
 
 	// Listen for events in a goroutine
-	go func(ctx context.Context) {
-		// Close the connection when the goroutine ends
-		defer func() {
-			m.Logger.Debug().Msg("mpv: Closing socket connection")
-			m.resetPlaybackStatus()
-			m.isRunning = false
-			m.conn.Close()
-			m.publishDone()
-			m.cancel()
-			cmdCancel()
-			m.Logger.Debug().Msg("mpv: Instance closed")
-		}()
-
-		events, stopListening := m.conn.NewEventListener()
-		m.Logger.Debug().Msg("mpv: Listening for events")
-
-		_, err = m.conn.Get("path")
-		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Failed to get path")
-			return
-		}
-
-		_, err = m.conn.Call("observe_property", 42, "time-pos")
-		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Failed to observe time-pos")
-			return
-		}
-		_, err = m.conn.Call("observe_property", 43, "pause")
-		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Failed to observe pause")
-			return
-		}
-		_, err = m.conn.Call("observe_property", 44, "duration")
-		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Failed to observe duration")
-			return
-		}
-		_, err = m.conn.Call("observe_property", 45, "filename")
-		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Failed to observe filename")
-			return
-		}
-		_, err = m.conn.Call("observe_property", 46, "path")
-		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Failed to observe path")
-			return
-		}
-
-		// Listen for close event
-		go func() {
-			m.conn.WaitUntilClosed()
-			m.Logger.Debug().Msg("mpv: Connection has been closed")
-			stopListening <- struct{}{}
-		}()
-
-		go func() {
-			// When the context is cancelled, close the connection
-			<-ctx.Done()
-			m.Logger.Debug().Msg("mpv: Context cancelled")
-			err := m.conn.Close()
-			if err != nil {
-				m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
-			}
-			stopListening <- struct{}{}
-			return
-		}()
-
-		// Listen for events
-		for event := range events {
-			m.Playback.IsRunning = true
-			if event.Data != nil {
-				//m.Logger.Trace().Msgf("received event: %s, %v, %+v", event.Name, event.ID, event.Data)
-				switch event.ID {
-				case 43:
-					m.Playback.Paused = event.Data.(bool)
-				case 42:
-					m.Playback.Position = event.Data.(float64)
-				case 44:
-					m.Playback.Duration = event.Data.(float64)
-				case 45:
-					m.Playback.Filename = event.Data.(string)
-				case 46:
-					m.Playback.Filepath = event.Data.(string)
-				}
-			}
-		}
-	}(ctx)
+	go m.listenForEvents(ctx)
 
 	return nil
+}
+
+// OpenAndStream first opens MPV before loading the stream.
+func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.Playback = &Playback{}
+
+	// Launch player in idle or replace file
+	err := m.launchPlayer(true, filePath, args...)
+	if err != nil {
+		return err
+	}
+
+	// Create context for the connection
+	// When the cancel method is called (by launchPlayer), the previous connection will be closed
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
+
+	// Establish new connection, only if it doesn't exist
+	// We don't continue past this point if the connection is already open, because it means the goroutine is already running
+	if m.conn != nil && !m.conn.IsClosed() {
+		return nil
+	}
+
+	m.conn = mpvipc.NewConnection(m.SocketName)
+	err = m.conn.Open()
+	if err != nil {
+		return err
+	}
+
+	// Since MPV is launched with the "--idle" flag, we need to load the file
+	m.conn.Call("loadfile", filePath, "replace")
+
+	m.isRunning = true
+	m.Logger.Debug().Msg("mpv: Connection established")
+
+	// Reset subscriber's done channel in case it was closed
+	for _, sub := range m.subscribers {
+		sub.ClosedCh = make(chan struct{})
+	}
+
+	// Listen for events in a goroutine
+	go m.listenForEvents(ctx)
+
+	return nil
+}
+
+func (m *Mpv) listenForEvents(ctx context.Context) {
+	// Close the connection when the goroutine ends
+	defer func() {
+		m.Logger.Debug().Msg("mpv: Closing socket connection")
+		m.resetPlaybackStatus()
+		m.isRunning = false
+		m.conn.Close()
+		m.publishDone()
+		m.cancel()
+		cmdCancel()
+		m.Logger.Debug().Msg("mpv: Instance closed")
+	}()
+
+	events, stopListening := m.conn.NewEventListener()
+	m.Logger.Debug().Msg("mpv: Listening for events")
+
+	_, err := m.conn.Get("path")
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to get path")
+		return
+	}
+
+	_, err = m.conn.Call("observe_property", 42, "time-pos")
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to observe time-pos")
+		return
+	}
+	_, err = m.conn.Call("observe_property", 43, "pause")
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to observe pause")
+		return
+	}
+	_, err = m.conn.Call("observe_property", 44, "duration")
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to observe duration")
+		return
+	}
+	_, err = m.conn.Call("observe_property", 45, "filename")
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to observe filename")
+		return
+	}
+	_, err = m.conn.Call("observe_property", 46, "path")
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to observe path")
+		return
+	}
+
+	// Listen for close event
+	go func() {
+		m.conn.WaitUntilClosed()
+		m.Logger.Debug().Msg("mpv: Connection has been closed")
+		stopListening <- struct{}{}
+	}()
+
+	go func() {
+		// When the context is cancelled, close the connection
+		<-ctx.Done()
+		m.Logger.Debug().Msg("mpv: Context cancelled")
+		err := m.conn.Close()
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
+		}
+		stopListening <- struct{}{}
+		return
+	}()
+
+	// Listen for events
+	for event := range events {
+		m.Playback.IsRunning = true
+		if event.Data != nil {
+			//m.Logger.Trace().Msgf("received event: %s, %v, %+v", event.Name, event.ID, event.Data)
+			switch event.ID {
+			case 43:
+				m.Playback.Paused = event.Data.(bool)
+			case 42:
+				m.Playback.Position = event.Data.(float64)
+			case 44:
+				m.Playback.Duration = event.Data.(float64)
+			case 45:
+				m.Playback.Filename = event.Data.(string)
+			case 46:
+				m.Playback.Filepath = event.Data.(string)
+			}
+		}
+	}
 }
 
 func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
@@ -283,16 +342,29 @@ func (s *Subscriber) Done() chan struct{} {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // getDefaultSocketName returns the default name of the socket/pipe.
+//func getDefaultSocketName() string {
+//	switch runtime.GOOS {
+//	case "windows":
+//		return "\\\\.\\pipe\\mpv_ipc"
+//	case "linux":
+//		return "/tmp/mpv_socket"
+//	case "darwin":
+//		return "/tmp/mpv_socket"
+//	default:
+//		return "/tmp/mpv_socket"
+//	}
+//}
+
 func getDefaultSocketName() string {
 	switch runtime.GOOS {
 	case "windows":
-		return "\\\\.\\pipe\\mpv_ipc"
+		return fmt.Sprintf("\\\\.\\pipe\\mpv_ipc_%d", time.Now().UnixNano())
 	case "linux":
-		return "/tmp/mpv_socket"
+		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
 	case "darwin":
-		return "/tmp/mpv_socket"
+		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
 	default:
-		return "/tmp/mpv_socket"
+		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
 	}
 }
 
