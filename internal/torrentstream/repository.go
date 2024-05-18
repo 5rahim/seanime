@@ -20,24 +20,24 @@ import (
 
 type (
 	Repository struct {
-		client        *Client
-		serverManager *serverManager
-		playback      playback
+		client                   *Client
+		serverManager            *serverManager
+		playback                 playback
+		settings                 mo.Option[Settings]           // None by default, set and refreshed by [SetSettings]
+		currentEpisodeCollection mo.Option[*EpisodeCollection] // Refreshed in [list.go] when the user opens the streaming page for a media
 
-		anizipCache          *anizip.Cache
-		baseMediaCache       *anilist.BaseMediaCache
-		animeCollection      *anilist.AnimeCollection
-		anilistClientWrapper anilist.ClientWrapperInterface
-		wsEventManager       events.WSEventManagerInterface
-
-		nyaaSearchCache       *nyaa.SearchCache
-		animetoshoSearchCache *animetosho.SearchCache
-		metadataProvider      *metadata.Provider
-
+		// Injected dependencies
+		anizipCache                     *anizip.Cache
+		baseMediaCache                  *anilist.BaseMediaCache
+		animeCollection                 *anilist.AnimeCollection
+		anilistClientWrapper            anilist.ClientWrapperInterface
+		wsEventManager                  events.WSEventManagerInterface
+		nyaaSearchCache                 *nyaa.SearchCache
+		animetoshoSearchCache           *animetosho.SearchCache
+		metadataProvider                *metadata.Provider
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
-		settings                        mo.Option[Settings] // None by default, set and refreshed by SetSettings
 		logger                          *zerolog.Logger
 	}
 
@@ -78,11 +78,30 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	return ret
 }
 
+// setEpisodeCollection sets the current episode collection in the repository.
+func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
+	if ec == nil {
+		r.currentEpisodeCollection = mo.None[*EpisodeCollection]()
+		return
+	}
+
+	r.currentEpisodeCollection = mo.Some(ec)
+
+	// Notify the playback manager
+	if r.playbackManager != nil {
+		r.playbackManager.SetStreamEpisodeCollection(ec.Episodes)
+	}
+}
+
+// SetMediaPlayerRepository sets the mediaplayer repository and listens to events.
+// This MUST be called after instantiating the repository.
 func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer.Repository) {
 	r.mediaPlayerRepository = mediaPlayerRepository
 	r.listenToMediaPlayerEvents()
 }
 
+// SetAnimeCollection sets the anime collection in the repository.
+// This should be called after the anime collection has been refreshed.
 func (r *Repository) SetAnimeCollection(ac *anilist.AnimeCollection) {
 	r.animeCollection = ac
 }
@@ -184,6 +203,7 @@ func (r *Repository) GetDownloadDir() string {
 	}
 	return r.settings.MustGet().DownloadDir
 }
+
 func (r *Repository) getDefaultDownloadPath() string {
 	tempDir := os.TempDir()
 	downloadDirPath := filepath.Join(tempDir, "seanime", "torrentstream")

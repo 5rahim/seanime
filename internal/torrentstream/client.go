@@ -135,7 +135,9 @@ func (c *Client) InitializeClient() error {
 				c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
 				c.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
 				c.mu.Unlock()
+
 			case status := <-c.mediaPlayerPlaybackStatusCh:
+				// DEVNOTE: When this is received, "default" case is executed right after
 				if status != nil && c.currentTorrent.IsPresent() && c.repository.playback.currentVideoDuration == 0 {
 					if c.repository.playback.currentVideoDuration == 0 && status.Duration > 0 {
 						// The media player has started playing the video

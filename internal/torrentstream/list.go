@@ -15,7 +15,8 @@ type (
 	}
 )
 
-// NewEpisodeCollection creates a new episode collection
+// NewEpisodeCollection creates a new episode collection by leveraging anime.MediaEntryDownloadInfo.
+// It stores the EpisodeCollection in the repository instance for the lifetime of the repository.
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
 	if err = r.FailIfNoSettings(); err != nil {
 		return nil, err
@@ -65,6 +66,8 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	slices.SortStableFunc(ec.Episodes, func(i, j *anime.MediaEntryEpisode) int {
 		return cmp.Compare(i.EpisodeNumber, j.EpisodeNumber)
 	})
+
+	r.setEpisodeCollection(ec)
 
 	return
 }
