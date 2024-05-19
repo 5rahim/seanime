@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
 import React from "react"
+import { BiSolidFlagAlt } from "react-icons/bi"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
@@ -86,11 +87,12 @@ export default function Page() {
                     <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                     <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                     <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
+                    <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                     {/*FIXME Remove if stable*/}
                     {status?.featureFlags?.experimental?.mediastream &&
-                        <TabsTrigger value="mediastream"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming</TabsTrigger>}
+                        <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming
+                            <BiSolidFlagAlt className="text-orange-300 text-lg absolute right-2" /></TabsTrigger>}
                     <TabsTrigger value="torrentstream"><SiBittorrent className="text-lg mr-3" /> Torrent streaming</TabsTrigger>
-                    <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                     <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                     <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
                     <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
@@ -299,7 +301,7 @@ export default function Page() {
 
                         <TabsContent value="onlinestream" className="space-y-6">
 
-                            <h3>Online streaming <BetaBadge /></h3>
+                            <h3>Online streaming</h3>
 
                             <Field.Switch
                                 name="enableOnlinestream"
