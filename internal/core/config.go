@@ -17,6 +17,7 @@ type Config struct {
 		Host    string
 		Port    int
 		Offline bool
+		AutoOpen bool
 	}
 	Database struct {
 		Name string
@@ -108,6 +109,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("logs.dir", "$SEANIME_DATA_DIR/logs")
 	viper.SetDefault("offline.dir", "$SEANIME_DATA_DIR/offline")
 	viper.SetDefault("offline.assetDir", "$SEANIME_DATA_DIR/offline/assets")
+	viper.SetDefault("server.autoopen", false)
 
 	// Create and populate the config file if it doesn't exist
 	if err = createConfigFile(configPath); err != nil {

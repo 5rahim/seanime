@@ -35,6 +35,7 @@ import (
 	"log"
 	"runtime"
 	"strings"
+	"os/exec"
 )
 
 type (
@@ -300,7 +301,13 @@ func RunServer(app *App, fiberApp *fiber.App) {
 	go func() {
 		log.Fatal(fiberApp.Listen(app.Config.GetServerAddr()))
 	}()
-
+	if app.Config.Server.AutoOpen {
+		if runtime.GOOS == "windows" {
+		exec.Command("explorer",app.Config.GetServerURI()).Start()
+		} else {//linux
+		exec.Command("xdg-open",app.Config.GetServerURI()).Start()
+		}
+	}
 	app.Logger.Info().Msg("Seanime started at " + app.Config.GetServerURI())
 }
 
