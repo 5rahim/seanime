@@ -18,7 +18,7 @@ export function useHandlePlayMedia() {
 
     function playMediaFile({ path, mediaId }: { path: string, mediaId: number }) {
 
-        if (serverStatus?.featureFlags?.experimental?.mediastream && mediaToTranscode.includes(String(mediaId))) {
+        if (serverStatus?.mediastreamSettings?.transcodeEnabled && mediaToTranscode.includes(String(mediaId))) {
             setFilePath(path)
             React.startTransition(() => {
                 router.push(`/mediastream?id=${mediaId}`)
@@ -27,7 +27,7 @@ export function useHandlePlayMedia() {
         }
 
         if (isMobile() || isTv() || isPs4() || isXbox()) { // TODO: Find a way to override this
-            if (serverStatus?.featureFlags?.experimental?.mediastream) { // TODO: Remove when stable
+            if (serverStatus?.mediastreamSettings?.transcodeEnabled) {
                 setFilePath(path)
                 React.startTransition(() => {
                     router.push(`/mediastream?id=${mediaId}`)

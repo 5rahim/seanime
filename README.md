@@ -24,8 +24,6 @@ Scan, automate, watch and stream your anime collection, read manga, track your p
 </p>
 
 <p align="center">
-  <a href="#anime">Anime features</a> |
-  <a href="#manga--manhwa">Manga features</a> |
   <a href="https://seanime.rahim.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
   <a href="#screenshots">Screenshots</a>
@@ -40,72 +38,55 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 
 # Features
 
-### General
+### All-in-one
 
-- 🪶 Lightweight and performant server
-- 🔥 Simple and intuitive web interface
-- 🖥️ Cross-platform (Windows, macOS, Linux)
-- 🌐 Full integration with AniList
+- 🪶 Lightweight, cross-platform and performant server
+- 🔥 Simple and modern and customizable web interface
+- 🌐 Automatic progress tracking and full integration with AniList
 - 🔒 No data collection
 - ✈️ **Offline mode**
   - Use the main features as if you were online, with cached metadata and images
   - Track your progress and manage your lists offline and sync when you’re back online
 
-### Anime
+### 🗂️ Scan your anime library
+- Scan and browse your local anime collection with ease, **no mandatory folder structure** and **no naming conventions** required
+- Powerful parser for anime filenames, automatic metadata handling for episodes, movies, OVAs, specials, etc.
+- Multiple metadata sources (AniList, AniDB, TheTVDB)
 
-- 🗂️ **Local anime library**
-  - Powerful library scanner
-  -  **No mandatory folder structure** and **no naming conventions**
-  - Browse and manage your library with metadata
-  - Support for torrents with absolute episode numbers
-  - Support for specials, OVAs, movies, NCs
-  - Multiple metadata providers (AniList, AniDB, TVDB)
-- ⬇️ **Download new episodes & movies**
-    - Search engine for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei)
-    - Integration with **qBittorrent** & **Transmission**
-    - Active torrent list interface
-    - View upcoming and missing episodes
-    - SeaDex support
-- 🥱 **Automate your library**
-  - Create custom rules and let Seanime download new episodes automatically
-  - Rules can filter by quality, release group, episode number
-  - Smart and powerful RSS feed parser
-- 🎞️ **External Players**
-    - **MPV**, **VLC**, and **MPC-HC** support
-    - Automatic progress tracking and syncing to AniList (& MAL)
-    - Create **playlists** to play episodes in order
-- 📱  **Media streaming / Transcoding** (Experimental)
-  - Stream media files from the server to any device with a web browser
-  - On-the-fly transcoding with seeking support powered by **FFmpeg**
-  - Support for hardware acceleration
-- 📽️ **Torrent streaming** (Experimental)
-  - Stream torrents directly from the server to your media player
-  - Altruistic seeding
+### ⬇️ Download new episodes & movies
 
-<details>
-<summary>More anime features</summary>
+- Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei) with SeaDex support
+- Integration with **qBittorrent** & **Transmission** for a seamless download experience
+- View upcoming and missing episodes to never miss a release
+- **Automate everything** by creating custom rules and let Seanime download new episodes or movies for you
 
-- 📺 **Online streaming**
-  - Stream episodes from online sources using the built-in player
+
+### 🎞️ Watch, anytime, anywhere
+- **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
+- Create **playlists** to binge-watch seamlessly
+
+#### 📱 Transcoding (Experimental)
+- Watch your downloaded episodes on any device with a web browser
+- On-the-fly transcoding with seeking support powered by **FFmpeg**
+- Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
+- Built-in player with subtitle support
+
+#### 📽️ Torrent streaming (Experimental)
+- Stream torrents directly to your media player without waiting for the download to complete
+- Automatic torrent selection with no input required - click and play
+- Auto-selection of single episodes from batches
+- Support for seeding in the background after streaming
+
+#### 📺 Online streaming
+  - Watch episodes from online sources using the built-in player
   - Support for multiple sources
-</details>
 
-### Manga / Manhwa 
-
-- 📕 **Browse and manage** your manga/manhwa collection
-  - Browse your AniList manga collection
-  - View manga details, and recommendations
-  - Search for new manga
-- 📖 **Read chapters**
-  - Display and read chapters from various sources
-  - Built-in, customizable **manga reader**
-  - Custom reader settings for different series
-- ⬇️ **Download chapters**
-  - Easily download multiple chapters for offline reading
-  - Persistent download queue
+### 📕 Browse and manage your manga collection
+  - Browse your AniList manga collection, search for new manga, get recommendations
+- **Read chapters** from various sources with the built-in, customizable manga reader
+- **Download chapters** for offline reading
 
 ### Other features
-- **Customizable UI**
 - **Advanced anime/manga search**
 - **Discord Rich Presence**
 - **MyAnimeList integration** for syncing progress

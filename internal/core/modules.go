@@ -95,14 +95,11 @@ func (a *App) initModulesOnce() {
 	}
 
 	// Mediastream
-	// FEATURE FLAG
-	if a.FeatureFlags.IsExperimentalMediastreamEnabled() {
-		a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
-			Logger:         a.Logger,
-			WSEventManager: a.WSEventManager,
-			FileCacher:     a.FileCacher,
-		})
-	}
+	a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
+		FileCacher:     a.FileCacher,
+	})
 
 	// Torrent stream
 
@@ -334,7 +331,7 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			TranscodeEnabled:    true,
+			TranscodeEnabled:    false,
 			TranscodeHwAccel:    "cpu",
 			TranscodePreset:     "fast",
 			PreTranscodeEnabled: false,
@@ -347,6 +344,7 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 
 	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
+	a.SecondarySettings.Mediastream = settings
 }
 
 // InitOrRefreshTorrentstreamSettings will initialize or refresh the mediastream settings.

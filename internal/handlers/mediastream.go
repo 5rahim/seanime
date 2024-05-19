@@ -4,7 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediastream"
+	"os"
+	"path/filepath"
 )
 
 // HandleGetMediastreamSettings
@@ -37,6 +40,17 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 	var b body
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
+	}
+
+	// Check JASSUB
+	if b.Settings.TranscodeEnabled || b.Settings.PreTranscodeEnabled {
+		jassubPath := filepath.Join(c.App.Config.Web.AssetDir, "/jassub/jassub-worker.js")
+		if _, err := os.Stat(jassubPath); os.IsNotExist(err) {
+			c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, JASSUB was not located in the asset directory")
+			b.Settings.TranscodeEnabled = false
+			b.Settings.PreTranscodeEnabled = false
+			c.App.WSEventManager.SendEvent(events.ErrorToast, "JASSUB was not located in the asset directory, transcoding has been disabled")
+		}
 	}
 
 	settings, err := c.App.Database.UpsertMediastreamSettings(&b.Settings)

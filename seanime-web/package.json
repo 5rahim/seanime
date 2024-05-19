@@ -77,7 +77,6 @@
     "hls.js": "^1.5.8",
     "inflection": "^3.0.0",
     "install": "^0.13.0",
-    "jassub": "^1.7.15",
     "jotai": "^2.7.1",
     "jotai-immer": "^0.3.0",
     "jotai-optics": "^0.3.2",

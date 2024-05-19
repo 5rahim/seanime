@@ -23,7 +23,7 @@ func NewFeatureFlags(cfg *Config, logger *zerolog.Logger) FeatureFlags {
 
 	ff.Experimental.Mediastream = viper.GetBool("experimental.mediastream")
 
-	checkExperimentalFeatureFlags(&ff, cfg, logger)
+	//checkExperimentalFeatureFlags(&ff, cfg, logger)
 
 	return ff
 }

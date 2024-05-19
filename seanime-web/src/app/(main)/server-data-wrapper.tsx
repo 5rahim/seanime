@@ -58,8 +58,8 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
      * Check feature flag routes
      */
 
-    if (!serverStatus?.featureFlags?.experimental?.mediastream && pathname.startsWith("/mediastream")) {
-        return <LuffyError title="Feature not available" />
+    if (!serverStatus?.mediastreamSettings?.transcodeEnabled && pathname.startsWith("/mediastream")) {
+        return <LuffyError title="Transcoding not enabled" />
     }
 
     if (!serverStatus?.user && window?.location?.host === "127.0.0.1:43211") {

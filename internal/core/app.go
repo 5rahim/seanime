@@ -228,10 +228,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 	app.initModulesOnce()
 	app.InitOrRefreshModules()
 
-	// FEATURE FLAG
-	if app.FeatureFlags.IsExperimentalMediastreamEnabled() {
-		app.InitOrRefreshMediastreamSettings()
-	}
+	app.InitOrRefreshMediastreamSettings()
 
 	app.InitOrRefreshTorrentstreamSettings()
 

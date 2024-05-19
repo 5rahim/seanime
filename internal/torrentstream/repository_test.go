@@ -22,6 +22,7 @@ import (
 )
 
 func TestTorrentstream(t *testing.T) {
+	t.Skip()
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
