@@ -66,6 +66,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         enableOnlinestream: data.enableOnlinestream,
                                         enableManga: data.enableManga,
                                         dohProvider: DEFAULT_DOH_PROVIDER,
+                                        openTorrentClientOnStart: false,
+                                        openWebURLOnStart: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

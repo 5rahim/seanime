@@ -11,6 +11,7 @@ require (
 	github.com/anacrolix/sync v0.5.1
 	github.com/anacrolix/torrent v1.55.0
 	github.com/charmbracelet/lipgloss v0.10.0
+	github.com/cli/browser v1.3.0
 	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8
 	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc

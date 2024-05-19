@@ -25267,6 +25267,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "OpenTorrentClientOnStart",
+        "jsonName": "openTorrentClientOnStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OpenWebURLOnStart",
+        "jsonName": "openWebURLOnStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28185,6 +28203,26 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/anime/episode_collection.go",
+    "filename": "episode_collection.go",
+    "name": "MediaEntryEpisodeCollection",
+    "formattedName": "Anime_MediaEntryEpisodeCollection",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]MediaEntryEpisode",
+        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
+        "usedStructName": "anime.MediaEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/library/anime/localfile.go",
     "filename": "localfile.go",
     "name": "LocalFileType",
@@ -29980,6 +30018,23 @@
   {
     "filepath": "../internal/library/playbackmanager/playback_manager.go",
     "filename": "playback_manager.go",
+    "name": "PlaybackType",
+    "formattedName": "PlaybackManager_PlaybackType",
+    "package": "playbackmanager",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"localfile\"",
+        "\"stream\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/playback_manager.go",
+    "filename": "playback_manager.go",
     "name": "PlaybackManager",
     "formattedName": "PlaybackManager_PlaybackManager",
     "package": "playbackmanager",
@@ -30122,6 +30177,16 @@
         "comments": []
       },
       {
+        "name": "currentPlaybackType",
+        "jsonName": "currentPlaybackType",
+        "goType": "PlaybackType",
+        "typescriptType": "PlaybackManager_PlaybackType",
+        "usedStructName": "playbackmanager.PlaybackType",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "currentMediaPlaybackStatus",
         "jsonName": "currentMediaPlaybackStatus",
         "goType": "mediaplayer.PlaybackStatus",
@@ -30136,37 +30201,89 @@
       {
         "name": "currentMediaListEntry",
         "jsonName": "currentMediaListEntry",
-        "goType": "anilist.MediaListEntry",
-        "typescriptType": "AL_MediaListEntry",
-        "usedStructName": "anilist.MediaListEntry",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": [
-          " List Entry for the current video playback (can be nil)"
+          " List Entry for the current video playback"
         ]
       },
       {
         "name": "currentLocalFile",
         "jsonName": "currentLocalFile",
-        "goType": "anime.LocalFile",
-        "typescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": [
-          " Local file for the current video playback (can be nil)"
+          " Local file for the current video playback"
         ]
       },
       {
         "name": "currentLocalFileWrapperEntry",
         "jsonName": "currentLocalFileWrapperEntry",
-        "goType": "anime.LocalFileWrapperEntry",
-        "typescriptType": "Anime_LocalFileWrapperEntry",
-        "usedStructName": "anime.LocalFileWrapperEntry",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": [
-          " This contains the current media entry local file data (can be nil)"
+          " This contains the current media entry local file data"
+        ]
+      },
+      {
+        "name": "currentStreamEpisodeCollection",
+        "jsonName": "currentStreamEpisodeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " This is set by [SetStreamEpisodeCollection]"
+        ]
+      },
+      {
+        "name": "currentStreamEpisode",
+        "jsonName": "currentStreamEpisode",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current episode being streamed"
+        ]
+      },
+      {
+        "name": "currentStreamMedia",
+        "jsonName": "currentStreamMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current media being streamed"
+        ]
+      },
+      {
+        "name": "currentStreamAnizipMedia",
+        "jsonName": "currentStreamAnizipMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current anizip media being streamed"
+        ]
+      },
+      {
+        "name": "currentStreamAnizipEpisode",
+        "jsonName": "currentStreamAnizipEpisode",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current anizip episode being streamed"
         ]
       },
       {
@@ -32290,7 +32407,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " TODO"
+          " TODO remove"
         ]
       }
     ],
@@ -35421,6 +35538,25 @@
         "comments": [
           " Reference to the mpv connection"
         ]
+      },
+      {
+        "name": "cmd",
+        "jsonName": "cmd",
+        "goType": "exec.Cmd",
+        "typescriptType": "Cmd",
+        "usedStructName": "exec.Cmd",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "prevSocketName",
+        "jsonName": "prevSocketName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -46421,6 +46557,28 @@
         "comments": []
       },
       {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " None by default, set and refreshed by [SetSettings]"
+        ]
+      },
+      {
+        "name": "currentEpisodeCollection",
+        "jsonName": "currentEpisodeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Refreshed in [list.go] when the user opens the streaming page for a media"
+        ]
+      },
+      {
         "name": "anizipCache",
         "jsonName": "anizipCache",
         "goType": "anizip.Cache",
@@ -46529,17 +46687,6 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "settings",
-        "jsonName": "settings",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": [
-          " None by default, set and refreshed by SetSettings"
-        ]
       },
       {
         "name": "logger",

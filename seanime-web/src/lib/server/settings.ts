@@ -44,6 +44,8 @@ export const settingsSchema = z.object({
     enableAdultContent: z.boolean().optional().default(false),
     blurAdultContent: z.boolean().optional().default(false),
     dohProvider: z.string().optional().default(""),
+    openTorrentClientOnStart: z.boolean().optional().default(false),
+    openWebURLOnStart: z.boolean().optional().default(false),
 })
 
 export function useDefaultSettingsPaths() {

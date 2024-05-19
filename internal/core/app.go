@@ -232,6 +232,8 @@ func NewApp(configOpts *ConfigOptions) *App {
 
 	app.InitOrRefreshTorrentstreamSettings()
 
+	app.launchModulesOnce()
+
 	return app
 }
 

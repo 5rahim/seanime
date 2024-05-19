@@ -151,7 +151,7 @@ func (cfg *Config) GetServerAddr(df ...string) string {
 
 func (cfg *Config) GetServerURI(df ...string) string {
 	pAddr := fmt.Sprintf("http://%s", cfg.GetServerAddr(df...))
-	if cfg.Server.Host == "" {
+	if cfg.Server.Host == "" || cfg.Server.Host == "0.0.0.0" {
 		pAddr = fmt.Sprintf(":%d", cfg.Server.Port)
 		if len(df) > 0 {
 			pAddr = fmt.Sprintf("http://%s:%d", df[0], cfg.Server.Port)

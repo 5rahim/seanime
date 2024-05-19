@@ -1874,7 +1874,7 @@ export type Manga_PageContainer = {
      */
     pageDimensions?: Record<number, Manga_PageDimension>
     /**
-     * TODO
+     * TODO remove
      */
     isDownloaded: boolean
 }
@@ -2074,6 +2074,8 @@ export type Models_LibrarySettings = {
     disableAnimeCardTrailers: boolean
     enableManga: boolean
     dohProvider: string
+    openTorrentClientOnStart: boolean
+    openWebURLOnStart: boolean
 }
 
 /**

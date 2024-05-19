@@ -88,8 +88,8 @@ export default function Page() {
                     <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                     <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
                     <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
-                        <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming
-                            <GrTest className="text-orange-300 text-md absolute right-2" /></TabsTrigger>
+                    <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming
+                        <GrTest className="text-orange-300 text-md absolute right-2" /></TabsTrigger>
                     <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent streaming
                         <GrTest className="text-orange-300 text-md absolute right-2" /></TabsTrigger>
                     <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
@@ -115,6 +115,8 @@ export default function Page() {
                                     disableAnimeCardTrailers: data.disableAnimeCardTrailers,
                                     enableManga: data.enableManga,
                                     dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
+                                    openTorrentClientOnStart: data.openTorrentClientOnStart,
+                                    openWebURLOnStart: data.openWebURLOnStart,
                                 },
                                 mediaPlayer: {
                                     host: data.mediaPlayerHost,
@@ -193,6 +195,8 @@ export default function Page() {
                             enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
                             blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
                             dohProvider: status?.settings?.library?.dohProvider || "-",
+                            openTorrentClientOnStart: status?.settings?.library?.openTorrentClientOnStart ?? false,
+                            openWebURLOnStart: status?.settings?.library?.openWebURLOnStart ?? false,
                         }}
                         stackClass="space-y-4"
                     >
@@ -228,10 +232,21 @@ export default function Page() {
                                 help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
                             />
                             <Separator />
+
+                            <h3>Server</h3>
+
                             <Field.Switch
                                 name="disableUpdateCheck"
                                 label="Do not check for updates"
                                 help="If enabled, Seanime will not check for new releases."
+                            />
+                            <Field.Switch
+                                name="openTorrentClientOnStart"
+                                label="Open torrent client on startup"
+                            />
+                            <Field.Switch
+                                name="openWebURLOnStart"
+                                label="Open localhost web URL on startup"
                             />
 
                             <SettingsSubmitButton isPending={isPending} />

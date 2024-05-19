@@ -19,6 +19,8 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
 	"github.com/seanime-app/seanime/internal/torrentstream"
+
+	"github.com/cli/browser"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -406,6 +408,37 @@ func (a *App) initAnilistData() {
 	}
 
 	a.Logger.Info().Msg("app: Fetched Anilist collection")
+
+}
+
+func (a *App) launchModulesOnce() {
+
+	go func() {
+		if a.Settings == nil || a.Settings.Library == nil {
+			return
+		}
+
+		if a.Settings.Library.OpenWebURLOnStart {
+			// Open the web URL
+			err := browser.OpenURL(a.Config.GetServerURI("127.0.0.1"))
+			if err != nil {
+				a.Logger.Warn().Err(err).Msg("app: Failed to open web URL, please open it manually in your browser")
+			} else {
+				a.Logger.Info().Msg("app: Opened web URL")
+			}
+		}
+
+		if a.Settings.Library.OpenTorrentClientOnStart && a.TorrentClientRepository != nil {
+			// Open the torrent client
+			ok := a.TorrentClientRepository.Start()
+			if !ok {
+				a.Logger.Warn().Msg("app: Failed to open torrent client")
+			} else {
+				a.Logger.Info().Msg("app: Opened torrent client")
+			}
+
+		}
+	}()
 
 }
 
