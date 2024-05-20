@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.0
 
+This release introduces two major features: Transcoding and Torrent streaming.
+Thank you to everyone who has supported the project so far.
+
 -  🎉 New: Media streaming / Transcoding (Experimental)
     - Watch your downloaded episodes on any device with a web browser using dynamic transcoding
     - Support for hardware acceleration (QSV, NVENC, VAAPI)
