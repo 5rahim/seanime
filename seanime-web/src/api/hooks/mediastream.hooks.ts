@@ -27,6 +27,7 @@ export function useSaveMediastreamSettings() {
         mutationKey: [API_ENDPOINTS.MEDIASTREAM.SaveMediastreamSettings.key],
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MEDIASTREAM.GetMediastreamSettings.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
             toast.success("Settings saved")
         },
     })

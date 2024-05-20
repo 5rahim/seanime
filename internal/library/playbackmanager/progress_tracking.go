@@ -1,9 +1,9 @@
 package playbackmanager
 
 import (
+	"cmp"
 	"context"
 	"errors"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/mal"
@@ -294,16 +294,16 @@ func (pm *PlaybackManager) getStreamPlaybackState(status *mediaplayer.PlaybackSt
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	if pm.currentStreamEpisodeCollection.IsAbsent() || pm.currentStreamMedia.IsAbsent() {
+	if pm.currentStreamEpisodeCollection.IsAbsent() || pm.currentStreamEpisode.IsAbsent() || pm.currentStreamMedia.IsAbsent() {
 		return PlaybackState{}
 	}
 
 	return PlaybackState{
 		EpisodeNumber:        pm.currentStreamEpisode.MustGet().GetProgressNumber(),
-		MediaTitle:           pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
-		MediaTotalEpisodes:   pm.currentMediaListEntry.MustGet().GetMedia().GetCurrentEpisodeCount(),
-		MediaId:              pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
-		Filename:             status.Filename,
+		MediaTitle:           pm.currentStreamMedia.MustGet().GetPreferredTitle(),
+		MediaTotalEpisodes:   pm.currentStreamMedia.MustGet().GetCurrentEpisodeCount(),
+		MediaId:              pm.currentStreamMedia.MustGet().GetID(),
+		Filename:             cmp.Or(status.Filename, "Stream"),
 		CompletionPercentage: status.CompletionPercentage,
 		CanPlayNext:          false, // DEVNOTE: This is not used for streams
 	}
@@ -435,7 +435,6 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 		// Stream
 		//
 		// Last sanity check
-		spew.Dump(pm.currentStreamEpisode, pm.currentStreamMedia)
 		if pm.currentStreamEpisode.IsAbsent() || pm.currentStreamMedia.IsAbsent() {
 			return errors.New("no video is being watched")
 		}

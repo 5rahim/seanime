@@ -405,5 +405,5 @@ func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent]) float64 {
 }
 
 func (c *Client) readyToStream() bool {
-	return c.getTorrentPercentage(c.currentTorrent) > 7.
+	return c.getTorrentPercentage(c.currentTorrent) > 5.
 }

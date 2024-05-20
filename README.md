@@ -11,7 +11,7 @@ Self-hosted anime and manga server for sea rovers.
 </h4>
 
 <p align="center">
-Scan, automate, watch and stream your anime collection, read manga, track your progress and more - all in one place.
+Scan, watch, automate, stream your anime collection, read manga, track your progress and more - all in one place.
 </p>
 
 <p align="center">
