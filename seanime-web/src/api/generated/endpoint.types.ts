@@ -23,6 +23,8 @@ import type {
     Models_MediastreamSettings,
     Models_Theme,
     Models_TorrentSettings,
+    Models_TorrentstreamSettings,
+    Torrent_AnimeTorrent,
 } from "@/api/generated/types.ts"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,20 @@ export type EditAnilistListEntry_Variables = {
 export type GetAnilistMediaDetails_Variables = {
     /**
      *  The AniList anime ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/anilist.go
+ * - Filename: anilist.go
+ * - Endpoint: /api/v1/anilist/studio-details/{id}
+ * @description
+ * Route returns details about a studio.
+ */
+export type GetAnilistStudioDetails_Variables = {
+    /**
+     *  The AniList studio ID
      */
     id: number
 }
@@ -1049,6 +1065,50 @@ export type SearchTorrent_Variables = {
  */
 export type SearchNsfwTorrent_Variables = {
     query: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// torrentstream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/torrentstream.go
+ * - Filename: torrentstream.go
+ * - Endpoint: /api/v1/torrentstream/episodes/{id}
+ * @description
+ * Route get list of episodes
+ */
+export type GetTorrentstreamEpisodeCollection_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/torrentstream.go
+ * - Filename: torrentstream.go
+ * - Endpoint: /api/v1/torrentstream/settings
+ * @description
+ * Route save torrentstream settings.
+ */
+export type SaveTorrentstreamSettings_Variables = {
+    settings: Models_TorrentstreamSettings
+}
+
+/**
+ * - Filepath: internal/handlers/torrentstream.go
+ * - Filename: torrentstream.go
+ * - Endpoint: /api/v1/torrentstream/start
+ * @description
+ * Route starts a torrent stream.
+ */
+export type TorrentstreamStartStream_Variables = {
+    mediaId: number
+    episodeNumber: number
+    aniDBEpisode: string
+    autoSelect: boolean
+    torrent?: Torrent_AnimeTorrent
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

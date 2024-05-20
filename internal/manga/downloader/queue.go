@@ -28,7 +28,7 @@ type (
 		current        *QueueInfo
 		runCh          chan *QueueInfo // Channel to tell downloader to run the next item
 		active         bool
-		wsEventManager events.IWSEventManager
+		wsEventManager events.WSEventManagerInterface
 	}
 
 	QueueStatus string
@@ -42,7 +42,7 @@ type (
 	}
 )
 
-func NewQueue(db *db.Database, logger *zerolog.Logger, wsEventManager events.IWSEventManager, runCh chan *QueueInfo) *Queue {
+func NewQueue(db *db.Database, logger *zerolog.Logger, wsEventManager events.WSEventManagerInterface, runCh chan *QueueInfo) *Queue {
 	return &Queue{
 		logger:         logger,
 		db:             db,

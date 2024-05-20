@@ -17,6 +17,17 @@ func StringToInt(str string) (int, bool) {
 	}
 	return i, true
 }
+func StringToIntMust(str string) int {
+	dotIndex := strings.IndexByte(str, '.')
+	if dotIndex != -1 {
+		str = str[:dotIndex]
+	}
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+	return i
+}
 
 func IntegerToRoman(number int) string {
 	maxRomanNumber := 3999

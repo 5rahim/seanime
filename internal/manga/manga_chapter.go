@@ -43,7 +43,7 @@ type (
 		ChapterId      string                         `json:"chapterId"`
 		Pages          []*manga_providers.ChapterPage `json:"pages"`
 		PageDimensions map[int]*PageDimension         `json:"pageDimensions"` // Indexed by page number
-		IsDownloaded   bool                           `json:"isDownloaded"`   // TODO
+		IsDownloaded   bool                           `json:"isDownloaded"`   // TODO remove
 	}
 
 	// PageDimension is used to store the dimensions of a page.

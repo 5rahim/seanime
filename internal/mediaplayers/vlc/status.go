@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 // Status contains information related to the VLC instance status. Use parseStatus to parse the response from a
@@ -202,6 +203,9 @@ func (vlc *VLC) AddAndPlay(uri string, option ...string) error {
 		return errors.New("please provide only one option")
 	}
 	urlSegment := "/requests/status.json?command=in_play&input=" + url.PathEscape(filepath.FromSlash(uri))
+	if strings.HasPrefix(uri, "http") {
+		urlSegment = "/requests/status.json?command=in_play&input=" + url.PathEscape(uri)
+	}
 	if len(option) == 1 {
 		if (option[0] != "noaudio") && (option[0] != "novideo") {
 			return errors.New("invalid option")

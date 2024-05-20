@@ -19,6 +19,7 @@ type EpisodeCardProps = {
     progressNumber?: number
     progressTotal?: number
     mRef?: React.RefObject<HTMLDivElement>
+    hasDiscrepancy?: boolean
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -39,11 +40,12 @@ export function EpisodeCard(props: EpisodeCardProps) {
         episodeNumber,
         progressTotal,
         progressNumber,
+        hasDiscrepancy,
         ...rest
     } = props
 
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
-    const offset = React.useMemo(() => progressNumber && episodeNumber ? progressNumber - episodeNumber : 0, [progressNumber, episodeNumber])
+    const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
     return (
         <div

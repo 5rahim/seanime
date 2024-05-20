@@ -9,7 +9,7 @@ import (
 // StartRandomVideo starts a random video from the collection.
 func (pm *PlaybackManager) StartRandomVideo() error {
 	pm.playlistHub.reset()
-	if err := pm.checkAnilistCollection(); err != nil {
+	if err := pm.checkOrLoadOfflineAnilistCollection(); err != nil {
 		return err
 	}
 

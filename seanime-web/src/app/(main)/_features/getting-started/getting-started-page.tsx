@@ -1,7 +1,6 @@
 import { Status } from "@/api/generated/types"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -67,6 +66,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         enableOnlinestream: data.enableOnlinestream,
                                         enableManga: data.enableManga,
                                         dohProvider: DEFAULT_DOH_PROVIDER,
+                                        openTorrentClientOnStart: false,
+                                        openWebURLOnStart: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -99,6 +100,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         transmissionPassword: data.transmissionPassword,
                                     },
                                     anilist: {
+                                        anilistClientId: "",
                                         hideAudienceScore: false,
                                         enableAdultContent: data.enableAdultContent,
                                         blurAdultContent: false,
@@ -122,8 +124,9 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 mpvSocket: mpvSocketPath,
                                 enableRichPresence: true,
                                 autoScan: false,
-                                enableOnlinestream: false,
                                 enableManga: true,
+                                enableOnlinestream: false,
+                                enableAdultContent: true,
                             }}
                             stackClass="space-y-4"
                         >
@@ -374,7 +377,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
 
                             <Field.Checkbox
                                 name="enableOnlinestream"
-                                label={<span>Online streaming <BetaBadge /></span>}
+                                label={<span>Online streaming</span>}
                                 help="Stream anime episodes from online sources."
                                 size="lg"
                             />

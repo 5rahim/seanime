@@ -115,17 +115,19 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     help="'Fast' is recommended. VAAPI does not support presets."
                 />
 
-                <Field.Text
-                    name="ffmpegPath"
-                    label="FFmpeg path"
-                    help="Path to the FFmpeg binary. Leave empty if binary is already in your PATH."
-                />
+                <div className="flex gap-3 items-center">
+                    <Field.Text
+                        name="ffmpegPath"
+                        label="FFmpeg path"
+                        help="Path to the FFmpeg binary. Leave empty if binary is already in your PATH."
+                    />
 
-                <Field.Text
-                    name="ffprobePath"
-                    label="FFprobe path"
-                    help="Path to the FFprobe binary. Leave empty if binary is already in your PATH."
-                />
+                    <Field.Text
+                        name="ffprobePath"
+                        label="FFprobe path"
+                        help="Path to the FFprobe binary. Leave empty if binary is already in your PATH."
+                    />
+                </div>
 
                 <SettingsSubmitButton isPending={isPending} />
             </Form>

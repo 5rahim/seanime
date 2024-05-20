@@ -18,6 +18,9 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
+	"github.com/seanime-app/seanime/internal/torrentstream"
+
+	"github.com/cli/browser"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -94,14 +97,26 @@ func (a *App) initModulesOnce() {
 	}
 
 	// Mediastream
-	// FEATURE FLAG
-	if a.FeatureFlags.IsExperimentalMediastreamEnabled() {
-		a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
-			Logger:         a.Logger,
-			WSEventManager: a.WSEventManager,
-			FileCacher:     a.FileCacher,
-		})
-	}
+	a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
+		FileCacher:     a.FileCacher,
+	})
+
+	// Torrent stream
+
+	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
+		Logger:                a.Logger,
+		AnizipCache:           a.AnizipCache,
+		BaseMediaCache:        anilist.NewBaseMediaCache(),
+		NyaaSearchCache:       a.NyaaSearchCache,
+		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
+		MetadataProvider:      a.MetadataProvider,
+		AnimeCollection:       nil, // Will be set in app.RefreshAnilistCollection
+		AnilistClientWrapper:  a.AnilistClientWrapper,
+		PlaybackManager:       a.PlaybackManager,
+		WSEventManager:        a.WSEventManager,
+	})
 
 }
 
@@ -183,6 +198,8 @@ func (a *App) InitOrRefreshModules() {
 		})
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
+
+		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)
 	} else {
 		a.Logger.Warn().Msg("app: Did not initialize media player module, no settings found")
 	}
@@ -316,7 +333,7 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			TranscodeEnabled:    true,
+			TranscodeEnabled:    false,
 			TranscodeHwAccel:    "cpu",
 			TranscodePreset:     "fast",
 			PreTranscodeEnabled: false,
@@ -329,6 +346,42 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 
 	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
+	a.SecondarySettings.Mediastream = settings
+}
+
+// InitOrRefreshTorrentstreamSettings will initialize or refresh the mediastream settings.
+// It is called after the App instance is created and after settings are updated.
+func (a *App) InitOrRefreshTorrentstreamSettings() {
+
+	var settings *models.TorrentstreamSettings
+	var found bool
+	settings, found = a.Database.GetTorrentstreamSettings()
+	if !found {
+
+		var err error
+		settings, err = a.Database.UpsertTorrentstreamSettings(&models.TorrentstreamSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			Enabled:             false,
+			AutoSelect:          true,
+			AddToLibrary:        false,
+			StreamingServerHost: "0.0.0.0",
+			StreamingServerPort: 43214,
+			TorrentClientPort:   43213,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")
+			return
+		}
+	}
+
+	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host)
+	if err != nil && settings.Enabled {
+		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
+	}
+
+	a.SecondarySettings.Torrentstream = settings
 }
 
 // initAnilistData will initialize the Anilist anime collection and the account.
@@ -355,6 +408,37 @@ func (a *App) initAnilistData() {
 	}
 
 	a.Logger.Info().Msg("app: Fetched Anilist collection")
+
+}
+
+func (a *App) launchModulesOnce() {
+
+	go func() {
+		if a.Settings == nil || a.Settings.Library == nil {
+			return
+		}
+
+		if a.Settings.Library.OpenWebURLOnStart {
+			// Open the web URL
+			err := browser.OpenURL(a.Config.GetServerURI("127.0.0.1"))
+			if err != nil {
+				a.Logger.Warn().Err(err).Msg("app: Failed to open web URL, please open it manually in your browser")
+			} else {
+				a.Logger.Info().Msg("app: Opened web URL")
+			}
+		}
+
+		if a.Settings.Library.OpenTorrentClientOnStart && a.TorrentClientRepository != nil {
+			// Open the torrent client
+			ok := a.TorrentClientRepository.Start()
+			if !ok {
+				a.Logger.Warn().Msg("app: Failed to open torrent client")
+			} else {
+				a.Logger.Info().Msg("app: Opened torrent client")
+			}
+
+		}
+	}()
 
 }
 

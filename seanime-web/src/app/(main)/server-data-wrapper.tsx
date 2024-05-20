@@ -58,8 +58,8 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
      * Check feature flag routes
      */
 
-    if (!serverStatus?.featureFlags?.experimental?.mediastream && pathname.startsWith("/mediastream")) {
-        return <LuffyError title="Feature not available" />
+    if (!serverStatus?.mediastreamSettings?.transcodeEnabled && pathname.startsWith("/mediastream")) {
+        return <LuffyError title="Transcoding not enabled" />
     }
 
     if (!serverStatus?.user && window?.location?.host === "127.0.0.1:43211") {
@@ -73,7 +73,10 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                         <h3>Welcome!</h3>
                         <Button
                             onClick={() => {
-                                window.open(ANILIST_OAUTH_URL, "_self")
+                                const url = serverStatus?.settings?.anilist?.anilistClientId
+                                    ? `https://anilist.co/api/v2/oauth/authorize?client_id=15168${serverStatus?.settings?.anilist?.anilistClientId}&response_type=token`
+                                    : ANILIST_OAUTH_URL
+                                window.open(url, "_self")
                             }}
                             leftIcon={<svg
                                 xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"

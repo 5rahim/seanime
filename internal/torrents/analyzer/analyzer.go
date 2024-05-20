@@ -93,6 +93,27 @@ func (a *Analysis) GetCorrespondingMainFiles() map[int]*File {
 	return ret
 }
 
+func (a *Analysis) GetMainFileByEpisode(episodeNumber int) (*File, bool) {
+	ret, _ := a.getCorrespondingFiles(func(f *File) bool {
+		return f.localFile.IsMain()
+	})
+	for _, f := range ret {
+		if f.localFile.Metadata.Episode == episodeNumber {
+			return f, true
+		}
+	}
+	return nil, false
+}
+
+func (a *Analysis) GetFileByAniDBEpisode(episode string) (*File, bool) {
+	for _, f := range a.files {
+		if f.localFile.Metadata.AniDBEpisode == episode {
+			return f, true
+		}
+	}
+	return nil, false
+}
+
 func (a *Analysis) GetUnselectedFiles() map[int]*File {
 	_, uRet := a.getCorrespondingFiles(func(f *File) bool {
 		return true
@@ -154,6 +175,10 @@ func (a *Analysis) GetUnselectedIndices(files map[int]*File) []int {
 
 func (f *File) GetLocalFile() *anime.LocalFile {
 	return f.localFile
+}
+
+func (f *File) GetIndex() int {
+	return f.index
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

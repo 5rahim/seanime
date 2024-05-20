@@ -110,8 +110,6 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 		}
 	}
 
-	println(finalQueryStr)
-
 	cacheKey := finalQueryStr + map[bool]string{true: "+batch", false: ""}[*opts.Batch]
 
 	// Check cache

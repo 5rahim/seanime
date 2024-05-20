@@ -59,7 +59,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 	// +---------------------+
 
 	// Whether AniList includes episode 0 as part of main episodes, but Anizip does not, however Anizip has "S1"
-	possibleSpecialInclusion, hasDiscrepancy := detectDiscrepancy(opts.LocalFiles, opts.Media, opts.AnizipMedia)
+	_, hasDiscrepancy := detectDiscrepancy(opts.LocalFiles, opts.Media, opts.AnizipMedia)
 
 	// I - Progress
 	// Get progress, if the media isn't in the user's list, progress is 0
@@ -158,8 +158,8 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 				}
 			}
 		}
-		// If there is a discrepancy and local files include episode 0, add -1 ("S1") to slice
-		if hasDiscrepancy && possibleSpecialInclusion {
+		// If there is a discrepancy, add -1 ("S1") to slice
+		if hasDiscrepancy {
 			lfsEpSlice = lo.Filter(lfsEpSlice, func(i int, _ int) bool { return i != 0 })
 			lfsEpSlice = append([]int{-1}, lfsEpSlice...) // e.g, [-1,1,2,...,12]
 		}

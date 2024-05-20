@@ -123,6 +123,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
 
+	v1Anilist.Get("/studio-details/:id", makeHandler(app, HandleGetAnilistStudioDetails))
+
 	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
 
 	v1Anilist.Delete("/list-entry", makeHandler(app, HandleDeleteAnilistListEntry))
@@ -306,23 +308,30 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/offline/sync", makeHandler(app, HandleSyncOfflineData))
 
 	//
-	// Stream
+	// Media Stream
 	//
 	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
 	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
-	if app.FeatureFlags.IsExperimentalMediastreamEnabled() {
+	v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
+	v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
+	// Direct play
+	v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirect))
+	// Direct stream
+	v1.Get("/mediastream/directstream/*", makeHandler(app, HandleMediastreamDirectStream))
+	// Transcode
+	v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
+	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
+	v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
 
-		v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
-		v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
-		// Direct play
-		v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirect))
-		// Direct stream
-		v1.Get("/mediastream/directstream/*", makeHandler(app, HandleMediastreamDirectStream))
-		// Transcode
-		v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
-		v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
-		v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
-	}
+	//
+	// Torrent stream
+	//
+	v1.Get("/torrentstream/episodes/:id", makeHandler(app, HandleGetTorrentstreamEpisodeCollection))
+	v1.Get("/torrentstream/settings", makeHandler(app, HandleGetTorrentstreamSettings))
+	v1.Patch("/torrentstream/settings", makeHandler(app, HandleSaveTorrentstreamSettings))
+	v1.Post("/torrentstream/start", makeHandler(app, HandleTorrentstreamStartStream))
+	v1.Post("/torrentstream/stop", makeHandler(app, HandleTorrentstreamStopStream))
+	v1.Post("/torrentstream/drop", makeHandler(app, HandleTorrentstreamDropTorrent))
 
 	//
 	// Websocket

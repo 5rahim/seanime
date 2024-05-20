@@ -42,6 +42,15 @@
 //     })
 // }
 
+// export function useGetAnilistStudioDetails(id: number) {
+//     return useServerQuery<AL_StudioDetails>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useDeleteAnilistListEntry() {
 //     return useServerMutation<AL_DeleteEntry, DeleteAnilistListEntry_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.endpoint,
@@ -1312,6 +1321,72 @@
 //         endpoint: API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.endpoint,
 //         method: API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.methods[0],
 //         mutationKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchNsfwTorrent.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// torrentstream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useGetTorrentstreamEpisodeCollection(id: number) {
+//     return useServerQuery<Torrentstream_EpisodeCollection>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.methods[0],
+//         queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetTorrentstreamSettings() {
+//     return useServerQuery<Models_TorrentstreamSettings>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamSettings.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamSettings.methods[0],
+//         queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamSettings.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveTorrentstreamSettings() {
+//     return useServerMutation<Models_TorrentstreamSettings, SaveTorrentstreamSettings_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.SaveTorrentstreamSettings.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.SaveTorrentstreamSettings.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.SaveTorrentstreamSettings.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useTorrentstreamStartStream() {
+//     return useServerMutation<boolean, TorrentstreamStartStream_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useTorrentstreamStopStream() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStopStream.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useTorrentstreamDropTorrent() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.TorrentstreamDropTorrent.key],
 //         onSuccess: async () => {
 // 
 //         },

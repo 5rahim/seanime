@@ -7394,6 +7394,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -7411,6 +7420,103 @@
         "goType": "[]MediaDetailsById_Media_Studios_Nodes",
         "typescriptType": "Array\u003cAL_MediaDetailsById_Media_Studios_Nodes\u003e",
         "usedStructName": "anilist.MediaDetailsById_Media_Studios_Nodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Staff_Edges_Node_Name",
+    "formattedName": "AL_MediaDetailsById_Media_Staff_Edges_Node_Name",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Full",
+        "jsonName": "full",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Staff_Edges_Node",
+    "formattedName": "AL_MediaDetailsById_Media_Staff_Edges_Node",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "MediaDetailsById_Media_Staff_Edges_Node_Name",
+        "typescriptType": "AL_MediaDetailsById_Media_Staff_Edges_Node_Name",
+        "usedStructName": "anilist.MediaDetailsById_Media_Staff_Edges_Node_Name",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Staff_Edges",
+    "formattedName": "AL_MediaDetailsById_Media_Staff_Edges",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Node",
+        "jsonName": "node",
+        "goType": "MediaDetailsById_Media_Staff_Edges_Node",
+        "typescriptType": "AL_MediaDetailsById_Media_Staff_Edges_Node",
+        "usedStructName": "anilist.MediaDetailsById_Media_Staff_Edges_Node",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Staff",
+    "formattedName": "AL_MediaDetailsById_Media_Staff",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Edges",
+        "jsonName": "edges",
+        "goType": "[]MediaDetailsById_Media_Staff_Edges",
+        "typescriptType": "Array\u003cAL_MediaDetailsById_Media_Staff_Edges\u003e",
+        "usedStructName": "anilist.MediaDetailsById_Media_Staff_Edges",
         "required": false,
         "public": true,
         "comments": []
@@ -7997,6 +8103,16 @@
         "goType": "MediaDetailsById_Media_Studios",
         "typescriptType": "AL_MediaDetailsById_Media_Studios",
         "usedStructName": "anilist.MediaDetailsById_Media_Studios",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Staff",
+        "jsonName": "staff",
+        "goType": "MediaDetailsById_Media_Staff",
+        "typescriptType": "AL_MediaDetailsById_Media_Staff",
+        "usedStructName": "anilist.MediaDetailsById_Media_Staff",
         "required": false,
         "public": true,
         "comments": []
@@ -9226,6 +9342,313 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_Title",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_Title",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "extraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio_Media",
+    "formattedName": "AL_StudioDetails_Studio_Media",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Nodes",
+        "jsonName": "nodes",
+        "goType": "[]BasicMedia",
+        "typescriptType": "Array\u003cAL_BasicMedia\u003e",
+        "usedStructName": "anilist.BasicMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails_Studio",
+    "formattedName": "AL_StudioDetails_Studio",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "StudioDetails_Studio_Media",
+        "typescriptType": "AL_StudioDetails_Studio_Media",
+        "usedStructName": "anilist.StudioDetails_Studio_Media",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "GetViewer_Viewer_Avatar",
     "formattedName": "AL_GetViewer_Viewer_Avatar",
     "package": "anilist",
@@ -9718,6 +10141,26 @@
         "goType": "ListRecentMedia_Page",
         "typescriptType": "AL_ListRecentMedia_Page",
         "usedStructName": "anilist.ListRecentMedia_Page",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "StudioDetails",
+    "formattedName": "AL_StudioDetails",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Studio",
+        "jsonName": "Studio",
+        "goType": "StudioDetails_Studio",
+        "typescriptType": "AL_StudioDetails_Studio",
+        "usedStructName": "anilist.StudioDetails_Studio",
         "required": false,
         "public": true,
         "comments": []
@@ -24066,11 +24509,30 @@
         "comments": []
       },
       {
+        "name": "TorrentstreamRepository",
+        "jsonName": "TorrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "FeatureFlags",
         "jsonName": "FeatureFlags",
         "goType": "FeatureFlags",
         "typescriptType": "INTERNAL_FeatureFlags",
         "usedStructName": "core.FeatureFlags",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SecondarySettings",
+        "jsonName": "SecondarySettings",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
         "public": true,
         "comments": []
@@ -24247,6 +24709,34 @@
       {
         "name": "Mediastream",
         "jsonName": "mediastream",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/flags.go",
+    "filename": "flags.go",
+    "name": "SeanimeFlags",
+    "formattedName": "INTERNAL_SeanimeFlags",
+    "package": "core",
+    "fields": [
+      {
+        "name": "DataDir",
+        "jsonName": "DataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrueWd",
+        "jsonName": "TrueWd",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -24550,6 +25040,15 @@
     "package": "models",
     "fields": [
       {
+        "name": "AnilistClientId",
+        "jsonName": "anilistClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "HideAudienceScore",
         "jsonName": "hideAudienceScore",
         "goType": "bool",
@@ -24765,6 +25264,24 @@
         "jsonName": "dohProvider",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OpenTorrentClientOnStart",
+        "jsonName": "openTorrentClientOnStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OpenWebURLOnStart",
+        "jsonName": "openWebURLOnStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -25497,6 +26014,100 @@
         "jsonName": "ffprobePath",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "TorrentstreamSettings",
+    "formattedName": "Models_TorrentstreamSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Enabled",
+        "jsonName": "enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "autoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PreferredResolution",
+        "jsonName": "preferredResolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableIPV6",
+        "jsonName": "disableIPV6",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadDir",
+        "jsonName": "downloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AddToLibrary",
+        "jsonName": "addToLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentClientPort",
+        "jsonName": "torrentClientPort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingServerHost",
+        "jsonName": "streamingServerHost",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingServerPort",
+        "jsonName": "streamingServerPort",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
@@ -26772,6 +27383,26 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MediastreamSettings",
+        "jsonName": "mediastreamSettings",
+        "goType": "models.MediastreamSettings",
+        "typescriptType": "Models_MediastreamSettings",
+        "usedStructName": "models.MediastreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamSettings",
+        "jsonName": "torrentstreamSettings",
+        "goType": "models.TorrentstreamSettings",
+        "typescriptType": "Models_TorrentstreamSettings",
+        "usedStructName": "models.TorrentstreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -27277,6 +27908,17 @@
         "comments": []
       },
       {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " AniDB episode number"
+        ]
+      },
+      {
         "name": "AbsoluteEpisodeNumber",
         "jsonName": "absoluteEpisodeNumber",
         "goType": "int",
@@ -27554,6 +28196,26 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/episode_collection.go",
+    "filename": "episode_collection.go",
+    "name": "MediaEntryEpisodeCollection",
+    "formattedName": "Anime_MediaEntryEpisodeCollection",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]MediaEntryEpisode",
+        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
+        "usedStructName": "anime.MediaEntryEpisode",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -28878,9 +29540,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -28984,9 +29646,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -29212,9 +29874,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -29286,9 +29948,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -29351,6 +30013,23 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/playback_manager.go",
+    "filename": "playback_manager.go",
+    "name": "PlaybackType",
+    "formattedName": "PlaybackManager_PlaybackType",
+    "package": "playbackmanager",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"localfile\"",
+        "\"stream\""
+      ]
+    },
     "comments": []
   },
   {
@@ -29419,9 +30098,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -29498,6 +30177,16 @@
         "comments": []
       },
       {
+        "name": "currentPlaybackType",
+        "jsonName": "currentPlaybackType",
+        "goType": "PlaybackType",
+        "typescriptType": "PlaybackManager_PlaybackType",
+        "usedStructName": "playbackmanager.PlaybackType",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "currentMediaPlaybackStatus",
         "jsonName": "currentMediaPlaybackStatus",
         "goType": "mediaplayer.PlaybackStatus",
@@ -29512,37 +30201,89 @@
       {
         "name": "currentMediaListEntry",
         "jsonName": "currentMediaListEntry",
-        "goType": "anilist.MediaListEntry",
-        "typescriptType": "AL_MediaListEntry",
-        "usedStructName": "anilist.MediaListEntry",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": [
-          " List Entry for the current video playback (can be nil)"
+          " List Entry for the current video playback"
         ]
       },
       {
         "name": "currentLocalFile",
         "jsonName": "currentLocalFile",
-        "goType": "anime.LocalFile",
-        "typescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": [
-          " Local file for the current video playback (can be nil)"
+          " Local file for the current video playback"
         ]
       },
       {
         "name": "currentLocalFileWrapperEntry",
         "jsonName": "currentLocalFileWrapperEntry",
-        "goType": "anime.LocalFileWrapperEntry",
-        "typescriptType": "Anime_LocalFileWrapperEntry",
-        "usedStructName": "anime.LocalFileWrapperEntry",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": [
-          " This contains the current media entry local file data (can be nil)"
+          " This contains the current media entry local file data"
+        ]
+      },
+      {
+        "name": "currentStreamEpisodeCollection",
+        "jsonName": "currentStreamEpisodeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " This is set by [SetStreamEpisodeCollection]"
+        ]
+      },
+      {
+        "name": "currentStreamEpisode",
+        "jsonName": "currentStreamEpisode",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current episode being streamed"
+        ]
+      },
+      {
+        "name": "currentStreamMedia",
+        "jsonName": "currentStreamMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current media being streamed"
+        ]
+      },
+      {
+        "name": "currentStreamAnizipMedia",
+        "jsonName": "currentStreamAnizipMedia",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current anizip media being streamed"
+        ]
+      },
+      {
+        "name": "currentStreamAnizipEpisode",
+        "jsonName": "currentStreamAnizipEpisode",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The current anizip episode being streamed"
         ]
       },
       {
@@ -29569,9 +30310,9 @@
       {
         "name": "offlineHub",
         "jsonName": "offlineHub",
-        "goType": "offline.Hub",
-        "typescriptType": "Offline_Hub",
-        "usedStructName": "offline.Hub",
+        "goType": "offline.HubInterface",
+        "typescriptType": "Offline_HubInterface",
+        "usedStructName": "offline.HubInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -29701,9 +30442,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -29781,9 +30522,9 @@
       {
         "name": "OfflineHub",
         "jsonName": "OfflineHub",
-        "goType": "offline.Hub",
-        "typescriptType": "Offline_Hub",
-        "usedStructName": "offline.Hub",
+        "goType": "offline.HubInterface",
+        "typescriptType": "Offline_HubInterface",
+        "usedStructName": "offline.HubInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -30510,9 +31251,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -30630,9 +31371,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -30662,9 +31403,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -31117,9 +31858,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -31363,9 +32104,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -31494,9 +32235,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -31666,7 +32407,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " TODO"
+          " TODO remove"
         ]
       }
     ],
@@ -31720,9 +32461,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -31927,9 +32668,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -33992,9 +34733,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -34069,9 +34810,9 @@
       {
         "name": "WsEventManager",
         "jsonName": "WsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34147,9 +34888,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34274,9 +35015,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -34330,6 +35071,51 @@
       {
         "name": "PlaybackStatusCh",
         "jsonName": "PlaybackStatusCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingTrackingStartedCh",
+        "jsonName": "StreamingTrackingStartedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingTrackingRetryCh",
+        "jsonName": "StreamingTrackingRetryCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingVideoCompletedCh",
+        "jsonName": "StreamingVideoCompletedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingTrackingStoppedCh",
+        "jsonName": "StreamingTrackingStoppedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamingPlaybackStatusCh",
+        "jsonName": "StreamingPlaybackStatusCh",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -34752,6 +35538,25 @@
         "comments": [
           " Reference to the mpv connection"
         ]
+      },
+      {
+        "name": "cmd",
+        "jsonName": "cmd",
+        "goType": "exec.Cmd",
+        "typescriptType": "Cmd",
+        "usedStructName": "exec.Cmd",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "prevSocketName",
+        "jsonName": "prevSocketName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -35673,9 +36478,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -35731,9 +36536,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -36029,9 +36834,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -36078,9 +36883,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -36567,6 +37372,15 @@
     "package": "transcoder",
     "fields": [
       {
+        "name": "kind",
+        "jsonName": "kind",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "handle",
         "jsonName": "handle",
         "goType": "StreamHandle",
@@ -36652,6 +37466,26 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -36855,6 +37689,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "killCh",
+        "jsonName": "killCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Close channel to stop tracker"
+        ]
       }
     ],
     "comments": []
@@ -36942,6 +37787,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FfmpegPath",
+        "jsonName": "FfmpegPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfprobePath",
+        "jsonName": "FfprobePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -36984,6 +37847,24 @@
       {
         "name": "TempOutDir",
         "jsonName": "TempOutDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfmpegPath",
+        "jsonName": "FfmpegPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FfprobePath",
+        "jsonName": "FfprobePath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -37521,9 +38402,9 @@
       {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -37677,9 +38558,9 @@
       {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
-        "goType": "events.IWSEventManager",
-        "typescriptType": "Events_IWSEventManager",
-        "usedStructName": "events.IWSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": true,
         "comments": []
@@ -38238,6 +39119,15 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/offline/test_helper.go",
+    "filename": "test_helper.go",
+    "name": "MockHub",
+    "formattedName": "Offline_MockHub",
+    "package": "offline",
+    "fields": [],
     "comments": []
   },
   {
@@ -45358,6 +46248,660 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrentstream/client.go",
+    "filename": "client.go",
+    "name": "Client",
+    "formattedName": "Torrentstream_Client",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentClient",
+        "jsonName": "torrentClient",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTorrent",
+        "jsonName": "currentTorrent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentFile",
+        "jsonName": "currentFile",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTorrentStatus",
+        "jsonName": "currentTorrentStatus",
+        "goType": "TorrentStatus",
+        "typescriptType": "Torrentstream_TorrentStatus",
+        "usedStructName": "torrentstream.TorrentStatus",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelFunc",
+        "jsonName": "cancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "stopCh",
+        "jsonName": "stopCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed when the media player stops"
+        ]
+      },
+      {
+        "name": "mediaPlayerPlaybackStatusCh",
+        "jsonName": "mediaPlayerPlaybackStatusCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Continuously receives playback status"
+        ]
+      },
+      {
+        "name": "timeSinceLoggedSeeding",
+        "jsonName": "timeSinceLoggedSeeding",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/client.go",
+    "filename": "client.go",
+    "name": "TorrentStatus",
+    "formattedName": "Torrentstream_TorrentStatus",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "UploadProgress",
+        "jsonName": "uploadProgress",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadProgress",
+        "jsonName": "downloadProgress",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProgressPercentage",
+        "jsonName": "progressPercentage",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadSpeed",
+        "jsonName": "downloadSpeed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadSpeed",
+        "jsonName": "uploadSpeed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/client.go",
+    "filename": "client.go",
+    "name": "NewClientOptions",
+    "formattedName": "Torrentstream_NewClientOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Repository",
+        "jsonName": "Repository",
+        "goType": "Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/events.go",
+    "filename": "events.go",
+    "name": "TorrentLoadingStatus",
+    "formattedName": "Torrentstream_TorrentLoadingStatus",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "TorrentBeingChecked",
+        "jsonName": "torrentBeingChecked",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "state",
+        "goType": "TorrentLoadingStatusState",
+        "typescriptType": "Torrentstream_TorrentLoadingStatusState",
+        "usedStructName": "torrentstream.TorrentLoadingStatusState",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/events.go",
+    "filename": "events.go",
+    "name": "TorrentLoadingStatusState",
+    "formattedName": "Torrentstream_TorrentLoadingStatusState",
+    "package": "torrentstream",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"SEARCHING_TORRENTS\"",
+        "\"CHECKING_TORRENT\"",
+        "\"ADDING_TORRENT\"",
+        "\"SELECTING_FILE\"",
+        "\"STARTING_SERVER\"",
+        "\"SENDING_STREAM_TO_MEDIA_PLAYER\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/list.go",
+    "filename": "list.go",
+    "name": "EpisodeCollection",
+    "formattedName": "Torrentstream_EpisodeCollection",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]anime.MediaEntryEpisode",
+        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
+        "usedStructName": "anime.MediaEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "Torrentstream_Repository",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "Client",
+        "typescriptType": "Torrentstream_Client",
+        "usedStructName": "torrentstream.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "serverManager",
+        "jsonName": "serverManager",
+        "goType": "serverManager",
+        "typescriptType": "Torrentstream_serverManager",
+        "usedStructName": "torrentstream.serverManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playback",
+        "jsonName": "playback",
+        "goType": "playback",
+        "typescriptType": "Torrentstream_playback",
+        "usedStructName": "torrentstream.playback",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " None by default, set and refreshed by [SetSettings]"
+        ]
+      },
+      {
+        "name": "currentEpisodeCollection",
+        "jsonName": "currentEpisodeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Refreshed in [list.go] when the user opens the streaming page for a media"
+        ]
+      },
+      {
+        "name": "anizipCache",
+        "jsonName": "anizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseMediaCache",
+        "jsonName": "baseMediaCache",
+        "goType": "anilist.BaseMediaCache",
+        "typescriptType": "AL_BaseMediaCache",
+        "usedStructName": "anilist.BaseMediaCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistClientWrapper",
+        "jsonName": "anilistClientWrapper",
+        "goType": "anilist.ClientWrapperInterface",
+        "typescriptType": "AL_ClientWrapperInterface",
+        "usedStructName": "anilist.ClientWrapperInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nyaaSearchCache",
+        "jsonName": "nyaaSearchCache",
+        "goType": "nyaa.SearchCache",
+        "typescriptType": "SearchCache",
+        "usedStructName": "nyaa.SearchCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animetoshoSearchCache",
+        "jsonName": "animetoshoSearchCache",
+        "goType": "animetosho.SearchCache",
+        "typescriptType": "AnimeTosho_SearchCache",
+        "usedStructName": "animetosho.SearchCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackManager",
+        "jsonName": "playbackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaPlayerRepository",
+        "jsonName": "mediaPlayerRepository",
+        "goType": "mediaplayer.Repository",
+        "typescriptType": "Repository",
+        "usedStructName": "mediaplayer.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaPlayerRepositorySubscriber",
+        "jsonName": "mediaPlayerRepositorySubscriber",
+        "goType": "mediaplayer.RepositorySubscriber",
+        "typescriptType": "RepositorySubscriber",
+        "usedStructName": "mediaplayer.RepositorySubscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/repository.go",
+    "filename": "repository.go",
+    "name": "Settings",
+    "formattedName": "Torrentstream_Settings",
+    "package": "torrentstream",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.TorrentstreamSettings"
+    ]
+  },
+  {
+    "filepath": "../internal/torrentstream/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "Torrentstream_NewRepositoryOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnizipCache",
+        "jsonName": "AnizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BaseMediaCache",
+        "jsonName": "BaseMediaCache",
+        "goType": "anilist.BaseMediaCache",
+        "typescriptType": "AL_BaseMediaCache",
+        "usedStructName": "anilist.BaseMediaCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistClientWrapper",
+        "jsonName": "AnilistClientWrapper",
+        "goType": "anilist.ClientWrapperInterface",
+        "typescriptType": "AL_ClientWrapperInterface",
+        "usedStructName": "anilist.ClientWrapperInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NyaaSearchCache",
+        "jsonName": "NyaaSearchCache",
+        "goType": "nyaa.SearchCache",
+        "typescriptType": "SearchCache",
+        "usedStructName": "nyaa.SearchCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeToshoSearchCache",
+        "jsonName": "AnimeToshoSearchCache",
+        "goType": "animetosho.SearchCache",
+        "typescriptType": "AnimeTosho_SearchCache",
+        "usedStructName": "animetosho.SearchCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackManager",
+        "jsonName": "PlaybackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/stream.go",
+    "filename": "stream.go",
+    "name": "StartStreamOptions",
+    "formattedName": "Torrentstream_StartStreamOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " RELATIVE Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Anizip episode"
+        ]
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "autoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Automatically select the best file to stream"
+        ]
+      },
+      {
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "itorrent.AnimeTorrent",
+        "typescriptType": "AnimeTorrent",
+        "usedStructName": "itorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Selected torrent"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/tracker/tracker.go",
+    "filename": "tracker.go",
+    "name": "Kind",
+    "formattedName": "Kind",
+    "package": "tracker",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
     "filepath": "../internal/updater/updater.go",
     "filename": "updater.go",
     "name": "Updater",
@@ -45711,6 +47255,128 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/fiberlogger/config.go",
+    "filename": "config.go",
+    "name": "Config",
+    "formattedName": "Config",
+    "package": "fiberlogger",
+    "fields": [
+      {
+        "name": "Next",
+        "jsonName": "Next",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipBody",
+        "jsonName": "SkipBody",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipResBody",
+        "jsonName": "SkipResBody",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GetResBody",
+        "jsonName": "GetResBody",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SkipURIs",
+        "jsonName": "SkipURIs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GetLogger",
+        "jsonName": "GetLogger",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Fields",
+        "jsonName": "Fields",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WrapHeaders",
+        "jsonName": "WrapHeaders",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FieldsSnakeCase",
+        "jsonName": "FieldsSnakeCase",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Messages",
+        "jsonName": "Messages",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Levels",
+        "jsonName": "Levels",
+        "goType": "[]zerolog.Level",
+        "typescriptType": "Array\u003cLevel\u003e",
+        "usedStructName": "zerolog.Level",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Config defines the config for middleware."
+    ]
   },
   {
     "filepath": "../internal/util/filecache/filecache.go",

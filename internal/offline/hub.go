@@ -17,12 +17,24 @@ import (
 	"time"
 )
 
+type HubInterface interface {
+	RetrieveCurrentSnapshot() (ret *Snapshot, ok bool)
+	GetCurrentSnapshot() (ret *Snapshot, ok bool)
+	UpdateAnimeListStatus(mediaId int, progress int, status anilist.MediaListStatus) (err error)
+	UpdateEntryListData(mediaId *int, status *anilist.MediaListStatus, score *int, progress *int, startDate *string, endDate *string, t string) (err error)
+	UpdateMangaListStatus(mediaId int, progress int, status anilist.MediaListStatus) (err error)
+	SyncListData() error
+	CreateSnapshot(opts *NewSnapshotOptions) error
+	GetLatestSnapshotEntry() (snapshotEntry *SnapshotEntry, err error)
+	GetLatestSnapshot(bypassCache bool) (snapshot *Snapshot, err error)
+}
+
 type (
 	// Hub is a struct that holds all the offline modules.
 	Hub struct {
 		anilistClientWrapper anilist.ClientWrapperInterface // Used to fetch anime and manga data from AniList
 		metadataProvider     *metadata.Provider             // Provides metadata for anime and manga entries
-		wsEventManager       events.IWSEventManager
+		wsEventManager       events.WSEventManagerInterface
 		mangaRepository      *manga.Repository
 		db                   *db.Database
 		offlineDb            *database // Stores snapshots
@@ -43,7 +55,7 @@ type (
 type (
 	NewHubOptions struct {
 		AnilistClientWrapper      anilist.ClientWrapperInterface
-		WSEventManager            events.IWSEventManager
+		WSEventManager            events.WSEventManagerInterface
 		MetadataProvider          *metadata.Provider
 		MangaRepository           *manga.Repository
 		Database                  *db.Database
@@ -391,7 +403,7 @@ func (h *Hub) SyncListData() error {
 			continue
 		}
 
-		listData.Score = listData.Score * 10
+		//listData.Score = listData.Score * 10
 
 		var startDate *anilist.FuzzyDateInput
 		var endDate *anilist.FuzzyDateInput

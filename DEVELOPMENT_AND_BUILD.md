@@ -144,9 +144,17 @@ Run this when you make changes to the GraphQL schema.
 
 ```bash
 go get github.com/Yamashou/gqlgenc
+```
+```bash
 cd internal/api/anilist
+```
+```bash
 go run github.com/Yamashou/gqlgenc
+```
+```bash
 cd ../../..
+```
+```bash
 go mod tidy
 ```
 

@@ -76,7 +76,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
                 </DropdownMenuItem>
 
                 {/*MEDIASTREAM*/}
-                {serverStatus?.featureFlags?.experimental?.mediastream && <>
+                {serverStatus?.mediastreamSettings?.transcodeEnabled && <>
                     <DropdownMenuSeparator />
 
                     <div

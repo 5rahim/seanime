@@ -3,3 +3,4 @@ Transcoder based on the amazing work of [zoriya/Kyoo](https://github.com/zoriya/
 Here is a list of some changes:
 - Removed CGO dependencies
 - Metadata extraction is done using github.com/coding-socks/matroska
+- Fixed goroutine leaks

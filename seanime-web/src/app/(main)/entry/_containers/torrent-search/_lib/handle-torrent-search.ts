@@ -1,7 +1,7 @@
 import { Anime_MediaEntry, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
 import { useSearchNsfwTorrent, useSearchTorrent } from "@/api/hooks/torrent_search.hooks"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { __torrentSearch_drawerEpisodeAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerEpisodeAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useDebounceWithSet } from "@/hooks/use-debounce"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
@@ -12,6 +12,7 @@ type TorrentSearchHookProps = {
     downloadInfo: Anime_MediaEntryDownloadInfo | undefined
     entry: Anime_MediaEntry | undefined
     isAdult: boolean
+    type: TorrentSearchType
 }
 
 export function useHandleTorrentSearch(props: TorrentSearchHookProps) {

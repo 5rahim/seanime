@@ -4,7 +4,7 @@ query AnimeCollection ($userName: String) {
       status
       entries {
         id
-        score(format: POINT_10)
+        score(format: POINT_100)
         progress
         status
         notes
@@ -87,6 +87,18 @@ query MediaDetailsById ($id: Int) {
     studios(isMain: true) {
       nodes {
         name
+        id
+      }
+    }
+    staff(sort: [RELEVANCE]) {
+      edges {
+        role
+        node {
+          name {
+            full
+          }
+          id
+        }
       }
     }
     rankings {

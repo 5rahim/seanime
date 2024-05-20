@@ -47,9 +47,10 @@ type Settings struct {
 }
 
 type AnilistSettings struct {
-	HideAudienceScore  bool `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
-	EnableAdultContent bool `gorm:"column:enable_adult_content" json:"enableAdultContent"`
-	BlurAdultContent   bool `gorm:"column:blur_adult_content" json:"blurAdultContent"`
+	AnilistClientId    string `gorm:"column:anilist_client_id" json:"anilistClientId"`
+	HideAudienceScore  bool   `gorm:"column:hide_audience_score" json:"hideAudienceScore"`
+	EnableAdultContent bool   `gorm:"column:enable_adult_content" json:"enableAdultContent"`
+	BlurAdultContent   bool   `gorm:"column:blur_adult_content" json:"blurAdultContent"`
 }
 
 type MediaPlayerSettings struct {
@@ -75,6 +76,8 @@ type LibrarySettings struct {
 	DisableAnimeCardTrailers bool   `gorm:"column:disable_anime_card_trailers" json:"disableAnimeCardTrailers"`
 	EnableManga              bool   `gorm:"column:enable_manga" json:"enableManga"`
 	DOHProvider              string `gorm:"column:doh_provider" json:"dohProvider"`
+	OpenTorrentClientOnStart bool   `gorm:"column:open_torrent_client_on_start" json:"openTorrentClientOnStart"`
+	OpenWebURLOnStart        bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
 }
 type TorrentSettings struct {
 	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
@@ -219,4 +222,21 @@ type MediastreamSettings struct {
 	PreTranscodeLibraryDir string `gorm:"column:pre_transcode_library_dir" json:"preTranscodeLibraryDir"`
 	FfmpegPath             string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
 	FfprobePath            string `gorm:"column:ffprobe_path" json:"ffprobePath"`
+}
+
+// +---------------------+
+// |    TorrentStream    |
+// +---------------------+
+
+type TorrentstreamSettings struct {
+	BaseModel
+	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
+	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
+	PreferredResolution string `gorm:"column:preferred_resolution" json:"preferredResolution"`
+	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
+	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
+	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`
+	TorrentClientPort   int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
+	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
+	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
 }

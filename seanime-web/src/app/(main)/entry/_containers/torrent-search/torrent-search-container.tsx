@@ -7,21 +7,31 @@ import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { __torrentSearch_drawerIsOpenAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { atom } from "jotai"
-import React, { startTransition, useCallback, useEffect, useLayoutEffect, useMemo } from "react"
+import { useAtom } from "jotai/react"
+import React, { startTransition } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
 
-export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
+export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchType, entry: Anime_MediaEntry }) {
     const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
-    const shouldLookForBatches = React.useMemo(() => !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length,
-        [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length])
+
+    const shouldLookForBatches = React.useMemo(() => {
+        if (type === "download") {
+            return !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length
+        } else {
+            return !!downloadInfo?.canBatch
+        }
+    }, [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length, type])
+
     const hasEpisodesToDownload = React.useMemo(() => !!downloadInfo?.episodesToDownload?.length, [downloadInfo?.episodesToDownload?.length])
     const [isAdult, setIsAdult] = React.useState(entry.media?.isAdult === true)
 
@@ -50,13 +60,14 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
         shouldLookForBatches,
         downloadInfo,
         entry,
+        type,
     })
 
-    useEffect(() => {
+    React.useEffect(() => {
         setSelectedTorrents([])
     }, [])
 
-    useLayoutEffect(() => {
+    React.useLayoutEffect(() => {
         if (smartSearch) {
             setGlobalFilter("")
         } else {
@@ -64,10 +75,10 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
         }
     }, [smartSearch])
 
-    const torrents = useMemo(() => data?.torrents ?? [], [data?.torrents])
-    const previews = useMemo(() => data?.previews ?? [], [data?.previews])
+    const torrents = React.useMemo(() => data?.torrents ?? [], [data?.torrents])
+    const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
 
-    const EpisodeNumberInput = useCallback(() => {
+    const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
             label="Episode number"
             value={smartSearchEpisode}
@@ -88,15 +99,55 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
         />
     }, [smartSearch, smartSearchBatch, downloadInfo, soughtEpisode])
 
-    const handleToggleTorrent = useCallback((t: Torrent_AnimeTorrent) => {
-        setSelectedTorrents(prev => {
-            const idx = prev.findIndex(n => n.link === t.link)
-            if (idx !== -1) {
-                return prev.filter(n => n.link !== t.link)
+    /**
+     * Select torrent
+     * - Download: Select multiple torrents
+     * - Select: Select only one torrent
+     */
+    const handleToggleTorrent = React.useCallback((t: Torrent_AnimeTorrent) => {
+        if (type === "download") {
+            setSelectedTorrents(prev => {
+                const idx = prev.findIndex(n => n.link === t.link)
+                if (idx !== -1) {
+                    return prev.filter(n => n.link !== t.link)
+                }
+                return [...prev, t]
+            })
+        } else if (type === "select") {
+            setSelectedTorrents(prev => {
+                const idx = prev.findIndex(n => n.link === t.link)
+                if (idx !== -1) {
+                    return []
+                }
+                return [t]
+            })
+        }
+    }, [setSelectedTorrents, smartSearchBest, type])
+
+    /**
+     * This function is called only when the type is 'select'
+     * Meaning, the user has selected a torrent and wants to start streaming
+     */
+    const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const onTorrentValidated = () => {
+        console.log("onTorrentValidated", selectedTorrents, smartSearchEpisode, entry.episodes)
+        if (type === "select") {
+            const ep = downloadInfo?.episodesToDownload?.find(n => n.episode?.episodeNumber === smartSearchEpisode)
+            if (selectedTorrents.length && !!ep?.aniDBEpisode) {
+                handleManualTorrentStreamSelection({
+                    torrent: selectedTorrents[0],
+                    entry,
+                    aniDBEpisode: ep.aniDBEpisode,
+                    episodeNumber: smartSearchEpisode,
+                })
+                setter(undefined)
+                React.startTransition(() => {
+                    setSelectedTorrents([])
+                })
             }
-            return [...prev, t]
-        })
-    }, [setSelectedTorrents, smartSearchBest])
+        }
+    }
 
     return (
         <>
@@ -118,14 +169,14 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
                         onValueChange={setSmartSearch}
                     />
 
-                    <TorrentConfirmationContinueButton />
+                    <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
                 </div> : <div className="py-4 flex items-center">
                     <div>
                         <div className="text-[--muted] italic">Smart search is not enabled for adult content</div>
                         <div className="">Provider: <strong>Nyaa Sukeibei</strong></div>
                     </div>
                     <div className="flex flex-1"></div>
-                    <TorrentConfirmationContinueButton />
+                    <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
                 </div>}
 
                 {smartSearch && <div>
@@ -208,11 +259,11 @@ export function TorrentSearchContainer({ entry }: { entry: Anime_MediaEntry }) {
                     onToggleTorrent={handleToggleTorrent}
                 />
             </div>
-            <TorrentConfirmationModal
+            {type === "download" && <TorrentConfirmationModal
                 onToggleTorrent={handleToggleTorrent}
                 media={entry.media!!}
                 entry={entry}
-            />
+            />}
         </>
     )
 

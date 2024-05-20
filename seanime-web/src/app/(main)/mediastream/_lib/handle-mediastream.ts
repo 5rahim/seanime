@@ -61,7 +61,7 @@ const mediastream_getHlsConfig = () => {
         // autoStartLoad: false,
         abrEwmaDefaultEstimate: 35_000_000,
         abrEwmaDefaultEstimateMax: 50_000_000,
-        debug: true,
+        // debug: true,
         lowLatencyMode: false,
         fragLoadPolicy: {
             default: {

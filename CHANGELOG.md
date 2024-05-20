@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.0
+
+-  🎉 New: Media streaming / Transcoding (Experimental)
+    - Watch your downloaded episodes on any device with a web browser using dynamic transcoding
+    - Support for hardware acceleration (QSV, NVENC, VAAPI)
+    - Dynamic quality selection based on bandwidth (HLS)
+- 🎉 New: Torrent streaming (Experimental)
+    - Stream torrents directly from the server to your media player
+    - Automatic selection with no input required, click and play
+    - Auto-selection of single episodes from batch torrents
+    - Support for seeding in the background after streaming
+- ✨ Added ability to view studios' other works
+  - Click on the studio name to view some of their other works
+- ✨ Added settings option to open web UI & torrent client on startup
+- ⚡️ Updated terminal logs
+- ⚡️ Improved support for AniList score options #51
+  - You can now use decimal scores
+- ⚡️ Added ability to change default AniList client ID for authentication
+- 💄 UI: Moved UI customization page to the settings page
+- 💄 UI: Improved data table component on mobile devices
+- 🦺 Fixed failed websocket connection due to protocol mismatch #50
+- 🏗️ Playback blocked on secondary devices unless media streaming is enabled
+- 🏗️ Online streaming is stable
+- 🏗️ Refactored MPV integration
+
 ## v1.4.3
 
 - ⚡️ Manga: Improved pagination

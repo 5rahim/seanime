@@ -50,7 +50,7 @@ export function useSkipData(mediaMalId: number | null | undefined, episodeNumber
             return { op: null, ed: null }
         },
         refetchOnWindowFocus: false,
-        enabled: !!mediaMalId && episodeNumber != 0,
+        enabled: !!mediaMalId && episodeNumber != -1,
     })
     return { data: res.data, isLoading: res.isLoading || res.isFetching, isError: res.isError }
 }

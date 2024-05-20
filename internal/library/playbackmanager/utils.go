@@ -3,6 +3,7 @@ package playbackmanager
 import (
 	"errors"
 	"fmt"
+	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"path/filepath"
@@ -11,15 +12,14 @@ import (
 
 // GetCurrentMediaID returns the media id of the currently playing media
 func (pm *PlaybackManager) GetCurrentMediaID() (int, error) {
-	if pm.currentLocalFile == nil {
+	if pm.currentLocalFile.IsAbsent() {
 		return 0, errors.New("no media is currently playing")
 	}
-	return pm.currentLocalFile.MediaId, nil
+	return pm.currentLocalFile.MustGet().MediaId, nil
 }
 
-// getListEntryFromLocalFilePath returns the list entry from the given anime.LocalFile path.
-// This method should be called once everytime a new video is played
-func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.MediaListEntry, *anime.LocalFile, *anime.LocalFileWrapperEntry, error) {
+// getLocalFilePlaybackDetails is called once everytime a new video is played. It returns the anilist entry, local file and local file wrapper entry.
+func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.MediaListEntry, *anime.LocalFile, *anime.LocalFileWrapperEntry, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	// Normalize path
@@ -69,4 +69,17 @@ func (pm *PlaybackManager) getListEntryFromLocalFilePath(path string) (*anilist.
 	}
 
 	return ret, lf, lfe, nil
+}
+
+// getStreamPlaybackDetails is called once everytime a new video is played.
+func (pm *PlaybackManager) getStreamPlaybackDetails(mId int) mo.Option[*anilist.MediaListEntry] {
+	pm.mu.Lock()
+	defer pm.mu.Unlock()
+
+	ret, ok := pm.anilistCollection.GetListEntryFromMediaId(mId)
+	if !ok {
+		return mo.None[*anilist.MediaListEntry]()
+	}
+
+	return mo.Some(ret)
 }

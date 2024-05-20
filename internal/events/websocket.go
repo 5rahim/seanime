@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type IWSEventManager interface {
+type WSEventManagerInterface interface {
 	SendEvent(t string, payload interface{})
 }
 
@@ -64,7 +64,7 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 	//	return
 	//}
 
-	if t != PlaybackManagerProgressPlaybackState {
+	if t != PlaybackManagerProgressPlaybackState && payload == nil {
 		m.Logger.Trace().Str("type", t).Msg("ws: Sending message")
 	}
 
@@ -74,7 +74,8 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 			Payload: payload,
 		})
 		if err != nil {
-			m.Logger.Err(err).Msg("ws: Failed to send message")
+			// FIXME NaN error coming from [progress_tracking.go]
+			//m.Logger.Err(err).Msg("ws: Failed to send message")
 		}
 		//m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
 	}

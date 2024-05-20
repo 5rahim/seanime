@@ -841,6 +841,7 @@ export type AL_MediaDetailsById_Media = {
     startDate?: AL_MediaDetailsById_Media_StartDate
     endDate?: AL_MediaDetailsById_Media_EndDate
     studios?: AL_MediaDetailsById_Media_Studios
+    staff?: AL_MediaDetailsById_Media_Staff
     rankings?: Array<AL_MediaDetailsById_Media_Rankings>
     recommendations?: AL_MediaDetailsById_Media_Recommendations
 }
@@ -973,6 +974,44 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_MediaDetailsById_Media_Staff = {
+    edges?: Array<AL_MediaDetailsById_Media_Staff_Edges>
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Staff_Edges = {
+    role?: string
+    node?: AL_MediaDetailsById_Media_Staff_Edges_Node
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Staff_Edges_Node = {
+    name?: AL_MediaDetailsById_Media_Staff_Edges_Node_Name
+    id: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Staff_Edges_Node_Name = {
+    full?: string
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_MediaDetailsById_Media_StartDate = {
     year?: number
     month?: number
@@ -995,6 +1034,7 @@ export type AL_MediaDetailsById_Media_Studios = {
  */
 export type AL_MediaDetailsById_Media_Studios_Nodes = {
     name: string
+    id: number
 }
 
 /**
@@ -1139,6 +1179,36 @@ export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CA
  *  Media type enum, anime or manga.
  */
 export type AL_MediaType = "ANIME" | "MANGA"
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_StudioDetails = {
+    Studio?: AL_StudioDetails_Studio
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_StudioDetails_Studio = {
+    id: number
+    isAnimationStudio: boolean
+    name: string
+    media?: AL_StudioDetails_Studio_Media
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_StudioDetails_Studio_Media = {
+    nodes?: Array<AL_BasicMedia>
+}
 
 /**
  * - Filepath: internal/api/anilist/client_gen.go
@@ -1362,6 +1432,10 @@ export type Anime_MediaEntryEpisode = {
      */
     episodeTitle: string
     episodeNumber: number
+    /**
+     * AniDB episode number
+     */
+    aniDBEpisode?: string
     absoluteEpisodeNumber: number
     /**
      * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
@@ -1605,6 +1679,8 @@ export type Status = {
     themeSettings?: Models_Theme
     isOffline: boolean
     featureFlags?: INTERNAL_FeatureFlags
+    mediastreamSettings?: Models_MediastreamSettings
+    torrentstreamSettings?: Models_TorrentstreamSettings
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1798,7 +1874,7 @@ export type Manga_PageContainer = {
      */
     pageDimensions?: Record<number, Manga_PageDimension>
     /**
-     * TODO
+     * TODO remove
      */
     isDownloaded: boolean
 }
@@ -1915,6 +1991,7 @@ export type Mediastream_StreamType = "file" | "direct" | "transcode" | "optimize
  * - Package: models
  */
 export type Models_AnilistSettings = {
+    anilistClientId: string
     hideAudienceScore: boolean
     enableAdultContent: boolean
     blurAdultContent: boolean
@@ -1997,6 +2074,8 @@ export type Models_LibrarySettings = {
     disableAnimeCardTrailers: boolean
     enableManga: boolean
     dohProvider: string
+    openTorrentClientOnStart: boolean
+    openWebURLOnStart: boolean
 }
 
 /**
@@ -2135,6 +2214,26 @@ export type Models_TorrentSettings = {
     transmissionPort: number
     transmissionUsername: string
     transmissionPassword: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_TorrentstreamSettings = {
+    enabled: boolean
+    autoSelect: boolean
+    preferredResolution: string
+    disableIPV6: boolean
+    downloadDir: string
+    addToLibrary: boolean
+    torrentClientPort: number
+    streamingServerHost: string
+    streamingServerPort: number
+    id: number
+    createdAt?: string
+    updatedAt?: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2444,6 +2543,56 @@ export type TorrentClient_Torrent = {
  * - Package: torrent_client
  */
 export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" | "other" | "stopped"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Torrentstream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/torrentstream/list.go
+ * - Filename: list.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_EpisodeCollection = {
+    episodes?: Array<Anime_MediaEntryEpisode>
+}
+
+/**
+ * - Filepath: internal/torrentstream/events.go
+ * - Filename: events.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_TorrentLoadingStatus = {
+    torrentBeingChecked: string
+    state: Torrentstream_TorrentLoadingStatusState
+}
+
+/**
+ * - Filepath: internal/torrentstream/events.go
+ * - Filename: events.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_TorrentLoadingStatusState = "SEARCHING_TORRENTS" |
+    "CHECKING_TORRENT" |
+    "ADDING_TORRENT" |
+    "SELECTING_FILE" |
+    "STARTING_SERVER" |
+    "SENDING_STREAM_TO_MEDIA_PLAYER"
+
+/**
+ * - Filepath: internal/torrentstream/client.go
+ * - Filename: client.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_TorrentStatus = {
+    uploadProgress: number
+    downloadProgress: number
+    progressPercentage: number
+    downloadSpeed: string
+    uploadSpeed: string
+    size: string
+    seeders: number
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tvdb

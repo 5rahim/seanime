@@ -193,8 +193,6 @@ func (ts *Stream) GetSegment(segment int32) (string, error) {
 		// It's used to interrupt the waiting process but might not be needed since there's a timeout
 		case <-ts.killCh:
 			return "", fmt.Errorf("transcoder: Stream killed while waiting for segment %d", segment)
-		case <-ts.ctx.Done():
-			return "", fmt.Errorf("transcoder: Context cancelled while waiting for segment %d", segment)
 		case <-readyChan:
 			break
 		case <-time.After(25 * time.Second):
@@ -481,7 +479,7 @@ func (ts *Stream) run(start int32) error {
 		outpath,
 	)
 
-	cmd := exec.Command(ts.settings.FfmpegPath, args...)
+	cmd := exec.CommandContext(context.Background(), ts.settings.FfmpegPath, args...)
 	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d of %s", start, end, ts.kind)
 
 	stdout, err := cmd.StdoutPipe()

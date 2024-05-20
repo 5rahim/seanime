@@ -13,7 +13,7 @@ export function TorrentSearchButton({ entry }: { entry: Anime_MediaEntry }) {
     const isMovie = useMemo(() => entry.media?.format === "MOVIE", [entry.media?.format])
 
     return (
-        <div>
+        <div className="w-full">
             {entry.downloadInfo?.hasInaccurateSchedule && <p className="text-orange-200 text-center mb-3">
                 <span className="block">Could not retrieve accurate scheduling information for this show.</span>
                 <span className="block text-[--muted]">Please check the schedule online for more information.</span>
@@ -24,7 +24,7 @@ export function TorrentSearchButton({ entry }: { entry: Anime_MediaEntry }) {
                 size="lg"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClass="text-2xl"
-                onClick={() => setter(true)}
+                onClick={() => setter("download")}
             >
                 {(!entry.downloadInfo?.hasInaccurateSchedule && !!count) ? <>
                     {(!isMovie) && `Download ${entry.downloadInfo?.batchAll ? "batch /" : "next"} ${count > 1 ? `${count} episodes` : "episode"}`}

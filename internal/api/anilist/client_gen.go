@@ -29,6 +29,7 @@ type GithubGraphQLClient interface {
 	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
 	ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error)
 	ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error)
+	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
 }
 
@@ -5032,6 +5033,7 @@ func (t *MediaDetailsById_Media_EndDate) GetDay() *int {
 
 type MediaDetailsById_Media_Studios_Nodes struct {
 	Name string "json:\"name\" graphql:\"name\""
+	ID   int    "json:\"id\" graphql:\"id\""
 }
 
 func (t *MediaDetailsById_Media_Studios_Nodes) GetName() string {
@@ -5039,6 +5041,12 @@ func (t *MediaDetailsById_Media_Studios_Nodes) GetName() string {
 		t = &MediaDetailsById_Media_Studios_Nodes{}
 	}
 	return t.Name
+}
+func (t *MediaDetailsById_Media_Studios_Nodes) GetID() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Studios_Nodes{}
+	}
+	return t.ID
 }
 
 type MediaDetailsById_Media_Studios struct {
@@ -5050,6 +5058,64 @@ func (t *MediaDetailsById_Media_Studios) GetNodes() []*MediaDetailsById_Media_St
 		t = &MediaDetailsById_Media_Studios{}
 	}
 	return t.Nodes
+}
+
+type MediaDetailsById_Media_Staff_Edges_Node_Name struct {
+	Full *string "json:\"full,omitempty\" graphql:\"full\""
+}
+
+func (t *MediaDetailsById_Media_Staff_Edges_Node_Name) GetFull() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Staff_Edges_Node_Name{}
+	}
+	return t.Full
+}
+
+type MediaDetailsById_Media_Staff_Edges_Node struct {
+	Name *MediaDetailsById_Media_Staff_Edges_Node_Name "json:\"name,omitempty\" graphql:\"name\""
+	ID   int                                           "json:\"id\" graphql:\"id\""
+}
+
+func (t *MediaDetailsById_Media_Staff_Edges_Node) GetName() *MediaDetailsById_Media_Staff_Edges_Node_Name {
+	if t == nil {
+		t = &MediaDetailsById_Media_Staff_Edges_Node{}
+	}
+	return t.Name
+}
+func (t *MediaDetailsById_Media_Staff_Edges_Node) GetID() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Staff_Edges_Node{}
+	}
+	return t.ID
+}
+
+type MediaDetailsById_Media_Staff_Edges struct {
+	Role *string                                  "json:\"role,omitempty\" graphql:\"role\""
+	Node *MediaDetailsById_Media_Staff_Edges_Node "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *MediaDetailsById_Media_Staff_Edges) GetRole() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Staff_Edges{}
+	}
+	return t.Role
+}
+func (t *MediaDetailsById_Media_Staff_Edges) GetNode() *MediaDetailsById_Media_Staff_Edges_Node {
+	if t == nil {
+		t = &MediaDetailsById_Media_Staff_Edges{}
+	}
+	return t.Node
+}
+
+type MediaDetailsById_Media_Staff struct {
+	Edges []*MediaDetailsById_Media_Staff_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *MediaDetailsById_Media_Staff) GetEdges() []*MediaDetailsById_Media_Staff_Edges {
+	if t == nil {
+		t = &MediaDetailsById_Media_Staff{}
+	}
+	return t.Edges
 }
 
 type MediaDetailsById_Media_Rankings struct {
@@ -5381,6 +5447,7 @@ type MediaDetailsById_Media struct {
 	StartDate       *MediaDetailsById_Media_StartDate       "json:\"startDate,omitempty\" graphql:\"startDate\""
 	EndDate         *MediaDetailsById_Media_EndDate         "json:\"endDate,omitempty\" graphql:\"endDate\""
 	Studios         *MediaDetailsById_Media_Studios         "json:\"studios,omitempty\" graphql:\"studios\""
+	Staff           *MediaDetailsById_Media_Staff           "json:\"staff,omitempty\" graphql:\"staff\""
 	Rankings        []*MediaDetailsById_Media_Rankings      "json:\"rankings,omitempty\" graphql:\"rankings\""
 	Recommendations *MediaDetailsById_Media_Recommendations "json:\"recommendations,omitempty\" graphql:\"recommendations\""
 }
@@ -5456,6 +5523,12 @@ func (t *MediaDetailsById_Media) GetStudios() *MediaDetailsById_Media_Studios {
 		t = &MediaDetailsById_Media{}
 	}
 	return t.Studios
+}
+func (t *MediaDetailsById_Media) GetStaff() *MediaDetailsById_Media_Staff {
+	if t == nil {
+		t = &MediaDetailsById_Media{}
+	}
+	return t.Staff
 }
 func (t *MediaDetailsById_Media) GetRankings() []*MediaDetailsById_Media_Rankings {
 	if t == nil {
@@ -6283,6 +6356,213 @@ func (t *ListRecentMedia_Page) GetAiringSchedules() []*ListRecentMedia_Page_Airi
 	return t.AiringSchedules
 }
 
+type StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer{}
+	}
+	return t.Thumbnail
+}
+
+type StudioDetails_Studio_Media_Nodes_BasicMedia_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Title) GetRomaji() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Title{}
+	}
+	return t.Romaji
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Title) GetEnglish() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Title{}
+	}
+	return t.English
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_Title) GetNative() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_Title{}
+	}
+	return t.Native
+}
+
+type StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage{}
+	}
+	return t.Large
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage{}
+	}
+	return t.Color
+}
+
+type StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate) GetYear() *int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate{}
+	}
+	return t.Year
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate{}
+	}
+	return t.Month
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate) GetDay() *int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
+type StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode) GetAiringAt() int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode{}
+	}
+	return t.AiringAt
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode) GetEpisode() int {
+	if t == nil {
+		t = &StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode{}
+	}
+	return t.Episode
+}
+
+type StudioDetails_Studio_Media struct {
+	Nodes []*BasicMedia "json:\"nodes,omitempty\" graphql:\"nodes\""
+}
+
+func (t *StudioDetails_Studio_Media) GetNodes() []*BasicMedia {
+	if t == nil {
+		t = &StudioDetails_Studio_Media{}
+	}
+	return t.Nodes
+}
+
+type StudioDetails_Studio struct {
+	ID                int                         "json:\"id\" graphql:\"id\""
+	IsAnimationStudio bool                        "json:\"isAnimationStudio\" graphql:\"isAnimationStudio\""
+	Name              string                      "json:\"name\" graphql:\"name\""
+	Media             *StudioDetails_Studio_Media "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *StudioDetails_Studio) GetID() int {
+	if t == nil {
+		t = &StudioDetails_Studio{}
+	}
+	return t.ID
+}
+func (t *StudioDetails_Studio) GetIsAnimationStudio() bool {
+	if t == nil {
+		t = &StudioDetails_Studio{}
+	}
+	return t.IsAnimationStudio
+}
+func (t *StudioDetails_Studio) GetName() string {
+	if t == nil {
+		t = &StudioDetails_Studio{}
+	}
+	return t.Name
+}
+func (t *StudioDetails_Studio) GetMedia() *StudioDetails_Studio_Media {
+	if t == nil {
+		t = &StudioDetails_Studio{}
+	}
+	return t.Media
+}
+
 type GetViewer_Viewer_Avatar struct {
 	Large  *string "json:\"large,omitempty\" graphql:\"large\""
 	Medium *string "json:\"medium,omitempty\" graphql:\"medium\""
@@ -6572,6 +6852,17 @@ func (t *ListRecentMedia) GetPage() *ListRecentMedia_Page {
 		t = &ListRecentMedia{}
 	}
 	return t.Page
+}
+
+type StudioDetails struct {
+	Studio *StudioDetails_Studio "json:\"Studio,omitempty\" graphql:\"Studio\""
+}
+
+func (t *StudioDetails) GetStudio() *StudioDetails_Studio {
+	if t == nil {
+		t = &StudioDetails{}
+	}
+	return t.Studio
 }
 
 type GetViewer struct {
@@ -7256,7 +7547,7 @@ const AnimeCollectionDocument = `query AnimeCollection ($userName: String) {
 			status
 			entries {
 				id
-				score(format: POINT_10)
+				score(format: POINT_100)
 				progress
 				status
 				notes
@@ -7783,6 +8074,18 @@ const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
 		studios(isMain: true) {
 			nodes {
 				name
+				id
+			}
+		}
+		staff(sort: [RELEVANCE]) {
+			edges {
+				role
+				node {
+					name {
+						full
+					}
+					id
+				}
 			}
 		}
 		rankings {
@@ -8163,6 +8466,85 @@ func (c *Client) ListRecentMedia(ctx context.Context, page *int, perPage *int, a
 	return &res, nil
 }
 
+const StudioDetailsDocument = `query StudioDetails ($id: Int) {
+	Studio(id: $id) {
+		id
+		isAnimationStudio
+		name
+		media(perPage: 80, sort: TRENDING_DESC, isMain: true) {
+			nodes {
+				... basicMedia
+			}
+		}
+	}
+}
+fragment basicMedia on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	episodes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	trailer {
+		id
+		site
+		thumbnail
+	}
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
+	nextAiringEpisode {
+		airingAt
+		timeUntilAiring
+		episode
+	}
+}
+`
+
+func (c *Client) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
+	vars := map[string]any{
+		"id": id,
+	}
+
+	var res StudioDetails
+	if err := c.Client.Post(ctx, "StudioDetails", StudioDetailsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const GetViewerDocument = `query GetViewer {
 	Viewer {
 		name
@@ -8216,5 +8598,6 @@ var DocumentOperationNames = map[string]string{
 	CompleteMediaByIDDocument:            "CompleteMediaById",
 	ListMediaDocument:                    "ListMedia",
 	ListRecentMediaDocument:              "ListRecentMedia",
+	StudioDetailsDocument:                "StudioDetails",
 	GetViewerDocument:                    "GetViewer",
 }

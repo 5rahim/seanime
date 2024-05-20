@@ -44,6 +44,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route returns details about a studio.
+         *  This fetches media produced by the studio.
+         */
+        GetAnilistStudioDetails: {
+            key: "ANILIST-get-anilist-studio-details",
+            methods: ["GET"],
+            endpoint: "/api/v1/anilist/studio-details/{id}",
+        },
+        /**
+         *  @description
          *  Route deletes an entry from the user's AniList list.
          *  This is used to delete an entry on AniList.
          *  The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.
@@ -1146,6 +1156,71 @@ export const API_ENDPOINTS = {
             key: "TORRENT-SEARCH-search-nsfw-torrent",
             methods: ["POST"],
             endpoint: "/api/v1/torrent/nsfw-search",
+        },
+    },
+    TORRENTSTREAM: {
+        /**
+         *  @description
+         *  Route get list of episodes
+         *  This returns a list of episodes.
+         */
+        GetTorrentstreamEpisodeCollection: {
+            key: "TORRENTSTREAM-get-torrentstream-episode-collection",
+            methods: ["GET"],
+            endpoint: "/api/v1/torrentstream/episodes/{id}",
+        },
+        /**
+         *  @description
+         *  Route get torrentstream settings.
+         *  This returns the torrentstream settings.
+         */
+        GetTorrentstreamSettings: {
+            key: "TORRENTSTREAM-get-torrentstream-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/torrentstream/settings",
+        },
+        /**
+         *  @description
+         *  Route save torrentstream settings.
+         *  This saves the torrentstream settings.
+         *  The client should refetch the server status.
+         */
+        SaveTorrentstreamSettings: {
+            key: "TORRENTSTREAM-save-torrentstream-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/torrentstream/settings",
+        },
+        /**
+         *  @description
+         *  Route starts a torrent stream.
+         *  This starts the entire streaming process.
+         */
+        TorrentstreamStartStream: {
+            key: "TORRENTSTREAM-torrentstream-start-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/start",
+        },
+        /**
+         *  @description
+         *  Route stop a torrent stream.
+         *  This stops the entire streaming process and drops the torrent if it's below a threshold.
+         *  This is made to be used while the stream is running.
+         */
+        TorrentstreamStopStream: {
+            key: "TORRENTSTREAM-torrentstream-stop-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/stop",
+        },
+        /**
+         *  @description
+         *  Route drops a torrent stream.
+         *  This stops the entire streaming process and drops the torrent completely.
+         *  This is made to be used to force drop a torrent.
+         */
+        TorrentstreamDropTorrent: {
+            key: "TORRENTSTREAM-torrentstream-drop-torrent",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/drop",
         },
     },
 } satisfies ApiEndpoints

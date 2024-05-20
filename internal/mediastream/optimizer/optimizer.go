@@ -20,7 +20,7 @@ type (
 	Quality string
 
 	Optimizer struct {
-		wsEventManager  events.IWSEventManager
+		wsEventManager  events.WSEventManagerInterface
 		logger          *zerolog.Logger
 		libraryDir      mo.Option[string]
 		concurrentTasks int
@@ -28,7 +28,7 @@ type (
 
 	NewOptimizerOptions struct {
 		Logger         *zerolog.Logger
-		WSEventManager events.IWSEventManager
+		WSEventManager events.WSEventManagerInterface
 	}
 )
 

@@ -23,7 +23,7 @@ type (
 )
 
 func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, error) {
-	ad.logger.Trace().Msg("autodownloader: Checking for new episodes from Nyaa")
+	ad.logger.Debug().Msg("autodownloader: Checking for new episodes from Nyaa")
 
 	// Fetch the RSS feed
 	torrents, err := nyaa.GetTorrentList(nyaa.SearchOptions{
@@ -66,7 +66,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 }
 
 func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorrent, error) {
-	ad.logger.Trace().Msg("autodownloader: Checking for new episodes from AnimeTosho")
+	ad.logger.Debug().Msg("autodownloader: Checking for new episodes from AnimeTosho")
 	normalizedTs := make([]*NormalizedTorrent, 0)
 
 	// Fetch the latest torrents

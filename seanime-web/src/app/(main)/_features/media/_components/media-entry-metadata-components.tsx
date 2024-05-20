@@ -81,32 +81,6 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
     )
 }
 
-type AnimeEntryStudioProps = {
-    studios?: { nodes?: Array<{ name: string } | null> | null } | null | undefined
-}
-
-export function AnimeEntryStudio(props: AnimeEntryStudioProps) {
-
-    const {
-        studios,
-        ...rest
-    } = props
-
-    if (!studios?.nodes) return null
-
-    return (
-        <>
-            <Badge
-                size="lg"
-                intent="gray"
-                className="rounded-full border-transparent"
-            >
-                {studios?.nodes?.[0]?.name}
-            </Badge>
-        </>
-    )
-}
-
 type MediaEntryRankingsProps = {
     rankings?: AL_MediaDetailsById_Media_Rankings[] | AL_MangaDetailsById_Media_Rankings[]
 }

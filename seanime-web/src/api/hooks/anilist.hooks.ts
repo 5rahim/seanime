@@ -12,6 +12,7 @@ import {
     AL_ListMedia,
     AL_ListRecentMedia,
     AL_MediaDetailsById_Media,
+    AL_StudioDetails,
     AL_UpdateMediaListEntry,
     Nullish,
 } from "@/api/generated/types"
@@ -117,3 +118,11 @@ export function useAnilistListRecentAiringAnime(variables: AnilistListRecentAiri
     })
 }
 
+export function useGetAnilistStudioDetails(id: number) {
+    return useServerQuery<AL_StudioDetails>({
+        endpoint: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.endpoint.replace("{id}", String(id)),
+        method: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.key, String(id)],
+        enabled: true,
+    })
+}

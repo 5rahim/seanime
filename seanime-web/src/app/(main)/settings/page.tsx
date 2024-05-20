@@ -1,33 +1,33 @@
 "use client"
 import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
+import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
+import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
+import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
-import Link from "next/link"
-import React, { useEffect } from "react"
+import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
-import { GoArrowRight } from "react-icons/go"
+import { GrTest } from "react-icons/gr"
 import { HiPlay } from "react-icons/hi"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary } from "react-icons/io5"
-import { LuLayoutDashboard } from "react-icons/lu"
-import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading } from "react-icons/md"
+import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
-import { SiAnilist } from "react-icons/si"
+import { SiAnilist, SiBittorrent } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
@@ -51,9 +51,11 @@ export default function Page() {
 
     const { mutate, data, isPending } = useSaveSettings()
 
-    const { data: mediastreamSettings } = useGetMediastreamSettings()
+    const { data: mediastreamSettings } = useGetMediastreamSettings(true)
 
-    useEffect(() => {
+    const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
+
+    React.useEffect(() => {
         if (!isPending && !!data?.settings) {
             setServerStatus(data)
         }
@@ -67,14 +69,7 @@ export default function Page() {
                     <p className="text-[--muted]">App version: {status?.version}-{status?.os}</p>
                 </div>
                 <div>
-                    <Link href="/settings/ui">
-                        <Button
-                            className="rounded-full"
-                            intent="primary-subtle"
-                            leftIcon={<LuLayoutDashboard />}
-                            rightIcon={<GoArrowRight />}
-                        >Customize UI</Button>
-                    </Link>
+
                 </div>
             </div>
             {/*<Separator/>*/}
@@ -87,20 +82,22 @@ export default function Page() {
                 triggerClass={tabsTriggerClass}
                 listClass={tabsListClass}
             >
-                <TabsList>
+                <TabsList className="flex-wrap max-w-full">
                     <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
                     <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                     <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                     <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
                     <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                    <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming
+                        <GrTest className="text-orange-300 text-md absolute right-2" /></TabsTrigger>
+                    <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent streaming
+                        <GrTest className="text-orange-300 text-md absolute right-2" /></TabsTrigger>
                     <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                     <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
                     <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                     <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
                     <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
-                    {/*FIXME Remove if stable*/}
-                    {status?.featureFlags?.experimental?.mediastream &&
-                        <TabsTrigger value="mediastream"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media streaming</TabsTrigger>}
+                    <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                 </TabsList>
 
                 <div className="">
@@ -118,6 +115,8 @@ export default function Page() {
                                     disableAnimeCardTrailers: data.disableAnimeCardTrailers,
                                     enableManga: data.enableManga,
                                     dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
+                                    openTorrentClientOnStart: data.openTorrentClientOnStart,
+                                    openWebURLOnStart: data.openWebURLOnStart,
                                 },
                                 mediaPlayer: {
                                     host: data.mediaPlayerHost,
@@ -150,6 +149,7 @@ export default function Page() {
                                     enableMangaRichPresence: data?.enableMangaRichPresence ?? false,
                                 },
                                 anilist: {
+                                    anilistClientId: data?.anilistClientId,
                                     hideAudienceScore: data.hideAudienceScore,
                                     enableAdultContent: data.enableAdultContent,
                                     blurAdultContent: data.blurAdultContent,
@@ -191,9 +191,12 @@ export default function Page() {
                             enableRichPresence: status?.settings?.discord?.enableRichPresence ?? false,
                             enableAnimeRichPresence: status?.settings?.discord?.enableAnimeRichPresence ?? false,
                             enableMangaRichPresence: status?.settings?.discord?.enableMangaRichPresence ?? false,
+                            anilistClientId: status?.settings?.anilist?.anilistClientId,
                             enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
                             blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
                             dohProvider: status?.settings?.library?.dohProvider || "-",
+                            openTorrentClientOnStart: status?.settings?.library?.openTorrentClientOnStart ?? false,
+                            openWebURLOnStart: status?.settings?.library?.openWebURLOnStart ?? false,
                         }}
                         stackClass="space-y-4"
                     >
@@ -229,10 +232,21 @@ export default function Page() {
                                 help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
                             />
                             <Separator />
+
+                            <h3>Server</h3>
+
                             <Field.Switch
                                 name="disableUpdateCheck"
                                 label="Do not check for updates"
                                 help="If enabled, Seanime will not check for new releases."
+                            />
+                            <Field.Switch
+                                name="openTorrentClientOnStart"
+                                label="Open torrent client on startup"
+                            />
+                            <Field.Switch
+                                name="openWebURLOnStart"
+                                label="Open localhost web URL on startup"
                             />
 
                             <SettingsSubmitButton isPending={isPending} />
@@ -274,6 +288,13 @@ export default function Page() {
                                 help=""
                             />
 
+                            <Separator />
+
+                            <Field.Text
+                                label="Client ID"
+                                name="anilistClientId"
+                                help="Client ID used for OAuth redirection. Leave empty to use the default Seanime client ID."
+                            />
                             <SettingsSubmitButton isPending={isPending} />
 
                         </TabsContent>
@@ -294,7 +315,7 @@ export default function Page() {
 
                         <TabsContent value="onlinestream" className="space-y-6">
 
-                            <h3>Online streaming <BetaBadge /></h3>
+                            <h3>Online streaming</h3>
 
                             <Field.Switch
                                 name="enableOnlinestream"
@@ -564,9 +585,25 @@ export default function Page() {
 
                     <TabsContent value="mediastream" className="space-y-6">
 
-                        <h3>Media streaming</h3>
+                        <h3>Media streaming <BetaBadge /></h3>
 
                         <MediastreamSettings settings={mediastreamSettings} />
+
+                    </TabsContent>
+
+                    <TabsContent value="ui" className="space-y-6">
+
+                        <h3>User Interface</h3>
+
+                        <UISettings />
+
+                    </TabsContent>
+
+                    <TabsContent value="torrentstream" className="space-y-6">
+
+                        <h3>Torrent streaming <BetaBadge /></h3>
+
+                        <TorrentstreamSettings settings={torrentstreamSettings} />
 
                     </TabsContent>
 
