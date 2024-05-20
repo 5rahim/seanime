@@ -375,6 +375,8 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 		args = append(args, filePath)
 	}
 
+	cmd = exec.CommandContext(cmdCtx, "mpv", args...)
+
 	if m.AppPath != "" {
 		cmd = exec.CommandContext(cmdCtx, m.AppPath, args...)
 	}
@@ -383,8 +385,6 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 	//if runtime.GOOS == "windows" {
 	//	cmdName = "mpv.exe"
 	//}
-
-	cmd = exec.CommandContext(cmdCtx, "mpv", args...)
 
 	return cmd, nil
 }
