@@ -170,7 +170,6 @@ func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
 
 	m.Playback = &Playback{}
 
-	// Launch player in idle or replace file
 	err := m.launchPlayer(false, filePath, args...)
 	if err != nil {
 		return err
@@ -193,6 +192,7 @@ func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
 		return err
 	}
 
+	// DEVNOTE: commented since not launching in idle
 	// Since MPV is launched with the "--idle" flag, we need to load the file
 	//m.conn.Call("loadfile", filePath, "replace")
 

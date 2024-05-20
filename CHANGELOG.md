@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.1
+
+- 🦺 Fixed MPV custom path being ignored
+
 ## v1.5.0
 
 This release introduces two major features: Transcoding and Torrent streaming.
