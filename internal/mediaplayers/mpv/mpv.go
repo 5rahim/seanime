@@ -55,12 +55,17 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		cmdCancel()
 	}
 
+	sn := socketName
+	if socketName == "" {
+		sn = getDefaultSocketName()
+	}
+
 	return &Mpv{
 		Logger:      logger,
 		Playback:    &Playback{},
 		mu:          sync.Mutex{},
 		playbackMu:  sync.RWMutex{},
-		SocketName:  socketName,
+		SocketName:  sn,
 		AppPath:     appPath,
 		subscribers: make(map[string]*Subscriber),
 	}
@@ -83,23 +88,18 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 
 		cmdCtx, cmdCancel = context.WithCancel(context.Background())
 
-		socketName := m.SocketName
-		if m.SocketName == "" {
-			socketName = getDefaultSocketName()
-		}
-
 		m.Logger.Debug().Msg("mpv: Starting player")
 		if idle {
-			args = append(args, "--input-ipc-server="+socketName, "--idle")
+			args = append(args, "--input-ipc-server="+m.SocketName, "--idle")
 			m.cmd, err = m.createCmd("", args...)
 		} else {
-			args = append(args, "--input-ipc-server="+socketName)
+			args = append(args, "--input-ipc-server="+m.SocketName)
 			m.cmd, err = m.createCmd(filePath, args...)
 		}
 		if err != nil {
 			return err
 		}
-		m.prevSocketName = socketName
+		m.prevSocketName = m.SocketName
 
 		err = m.cmd.Start()
 		if err != nil {
@@ -371,18 +371,20 @@ func getDefaultSocketName() string {
 func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
 
-	args = append(args, filePath)
+	if filePath != "" {
+		args = append(args, filePath)
+	}
 
 	if m.AppPath != "" {
 		cmd = exec.CommandContext(cmdCtx, m.AppPath, args...)
 	}
 
-	cmdName := "mpv"
-	if runtime.GOOS == "windows" {
-		cmdName = "mpv.exe"
-	}
+	//cmdName := "mpv"
+	//if runtime.GOOS == "windows" {
+	//	cmdName = "mpv.exe"
+	//}
 
-	cmd = exec.CommandContext(cmdCtx, cmdName, args...)
+	cmd = exec.CommandContext(cmdCtx, "mpv", args...)
 
 	return cmd, nil
 }
