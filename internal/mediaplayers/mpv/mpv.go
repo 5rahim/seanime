@@ -3,7 +3,6 @@ package mpv
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/jannson/mpvipc"
 	"github.com/rs/zerolog"
 	"os/exec"
@@ -342,31 +341,31 @@ func (s *Subscriber) Done() chan struct{} {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // getDefaultSocketName returns the default name of the socket/pipe.
-//func getDefaultSocketName() string {
-//	switch runtime.GOOS {
-//	case "windows":
-//		return "\\\\.\\pipe\\mpv_ipc"
-//	case "linux":
-//		return "/tmp/mpv_socket"
-//	case "darwin":
-//		return "/tmp/mpv_socket"
-//	default:
-//		return "/tmp/mpv_socket"
-//	}
-//}
-
 func getDefaultSocketName() string {
 	switch runtime.GOOS {
 	case "windows":
-		return fmt.Sprintf("\\\\.\\pipe\\mpv_ipc_%d", time.Now().UnixNano())
+		return "\\\\.\\pipe\\mpv_ipc"
 	case "linux":
-		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
+		return "/tmp/mpv_socket"
 	case "darwin":
-		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
+		return "/tmp/mpv_socket"
 	default:
-		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
+		return "/tmp/mpv_socket"
 	}
 }
+
+//func getDefaultSocketName() string {
+//	switch runtime.GOOS {
+//	case "windows":
+//		return fmt.Sprintf("\\\\.\\pipe\\mpv_ipc_%d", time.Now().UnixNano())
+//	case "linux":
+//		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
+//	case "darwin":
+//		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
+//	default:
+//		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
+//	}
+//}
 
 // createCmd returns a new exec.Cmd instance.
 func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
