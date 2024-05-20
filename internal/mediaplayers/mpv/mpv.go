@@ -171,7 +171,7 @@ func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
 	m.Playback = &Playback{}
 
 	// Launch player in idle or replace file
-	err := m.launchPlayer(true, filePath, args...)
+	err := m.launchPlayer(false, filePath, args...)
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
 	}
 
 	// Since MPV is launched with the "--idle" flag, we need to load the file
-	m.conn.Call("loadfile", filePath, "replace")
+	//m.conn.Call("loadfile", filePath, "replace")
 
 	m.isRunning = true
 	m.Logger.Debug().Msg("mpv: Connection established")
