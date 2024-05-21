@@ -58,9 +58,9 @@ func newServerManager(repository *Repository) *serverManager {
 		w.Write([]byte("pong"))
 	})
 
-	// DEVNOTE: Currently can't accurately track the last time the server was used
+	// DEVNOTE: Not needed since the server is stopped when the stream is done
 	// This risks stopping the server while it's being used
-	// FIXME - Find a way to get the playback manager to refresh the lastUsed time
+	// Find a way to get the playback manager to refresh the lastUsed time
 	//go func() {
 	//	for {
 	//		// Stop the server if it hasn't been used for 5 minutes

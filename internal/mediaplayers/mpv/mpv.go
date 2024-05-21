@@ -314,9 +314,11 @@ func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 }
 
 func (m *Mpv) CloseAll() {
-	err := m.conn.Close()
-	if err != nil {
-		m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
+	if m.conn != nil {
+		err := m.conn.Close()
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
+		}
 	}
 	m.resetPlaybackStatus()
 	m.isRunning = false

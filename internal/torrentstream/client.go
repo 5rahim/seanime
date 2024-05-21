@@ -87,7 +87,6 @@ func (c *Client) InitializeClient() error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
 	cfg.DisableIPv6 = true
-	//cfg.DownloadRateLimiter = rate.NewLimiter()
 	//cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
 	if settings.TorrentClientPort == 0 {
@@ -185,7 +184,11 @@ func (c *Client) InitializeClient() error {
 					}
 					c.repository.wsEventManager.SendEvent(eventTorrentStatus, c.currentTorrentStatus)
 					// Always log the progress so the user knows what's happening
-					c.repository.logger.Trace().Msgf("torrentstream: Progress: %.2f%%, Download speed: %s, Upload speed: %s, Size: %s", c.currentTorrentStatus.ProgressPercentage, c.currentTorrentStatus.DownloadSpeed, c.currentTorrentStatus.UploadSpeed, c.currentTorrentStatus.Size)
+					c.repository.logger.Trace().Msgf("torrentstream: Progress: %.2f%%, Download speed: %s, Upload speed: %s, Size: %s",
+						c.currentTorrentStatus.ProgressPercentage,
+						c.currentTorrentStatus.DownloadSpeed,
+						c.currentTorrentStatus.UploadSpeed,
+						c.currentTorrentStatus.Size)
 					c.timeSinceLoggedSeeding = time.Now()
 					c.mu.Unlock()
 				}
@@ -212,7 +215,6 @@ func (c *Client) GetStreamingUrl() string {
 
 	settings := c.repository.settings.MustGet()
 	if settings.StreamingServerHost == "0.0.0.0" {
-		// todo: use the local IP address
 		return fmt.Sprintf("http://127.0.0.1:%d/stream", settings.StreamingServerPort)
 	}
 	return fmt.Sprintf("http://%s:%d/stream", settings.StreamingServerHost, settings.StreamingServerPort)
