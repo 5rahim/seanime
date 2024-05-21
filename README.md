@@ -15,7 +15,7 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/v1/bento2.png" alt="preview" width="100%"/>
+<img src="docs/images/v1/bento.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -65,19 +65,19 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
 - Create **playlists** to binge-watch seamlessly
 
-#### 📱 Transcoding (Experimental)
+### 📱 Transcoding (Experimental)
 - Watch your downloaded episodes on any device with a web browser
 - On-the-fly transcoding with seeking support powered by **FFmpeg**
 - Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
 - Built-in player with subtitle support
 
-#### 📽️ Torrent streaming (Experimental)
+### 📽️ Torrent streaming (Experimental)
 - Stream torrents directly to your media player without waiting for the download to complete
 - Automatic torrent selection with no input required - click and play
 - Auto-selection of single episodes from batches
 - Support for seeding in the background after streaming
 
-#### 📺 Online streaming
+### 📺 Online streaming
   - Watch episodes from online sources using the built-in player
   - Support for multiple sources
 

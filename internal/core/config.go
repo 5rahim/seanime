@@ -43,9 +43,6 @@ type Config struct {
 		AppDataDir string
 		WorkingDir string
 	}
-	Experimental struct {
-		Mediastream *bool
-	}
 }
 
 type ConfigOptions struct {
