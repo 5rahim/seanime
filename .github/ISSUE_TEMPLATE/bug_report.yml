@@ -38,23 +38,25 @@ body:
       description: Select the general area of the app or process during which the bug occurred.
       options:
         - Other
-        - Browsing
         - Authentication
-        - Scanning
-        - Anime - Watching
-        - Anime - Downloading
-        - Anime - Streaming
-        - Manga - Reading
-        - Manga - Downloading
+        - Configuration
+        - Anime Library - Scanning
+        - Anime Library - Metadata
+        - Anime Library - Media Player
+        - Anime Library - Downloading
+        - Transcoding / Media Streaming
+        - Torrent Streaming
+        - Online Streaming
+        - Manga
         - Settings
         - Offline mode
-        - UI
+        - UI / Web Interface
     validations:
       required: true
   - type: textarea
     id: '4'
     attributes:
-      label: Bug Description
+      label: Bug Description / Steps to Reproduce
       description: Precisely describe the bug you encountered and the steps to reproduce it.
     validations:
       required: true
