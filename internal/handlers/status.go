@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"runtime"
@@ -10,16 +9,17 @@ import (
 // Status is a struct containing the user data, settings, and OS.
 // It is used by the client in various places to access necessary information.
 type Status struct {
-	OS                    string                        `json:"os"`
-	User                  *anime.User                   `json:"user"`
-	Settings              *models.Settings              `json:"settings"`
-	Mal                   *models.Mal                   `json:"mal"`
-	Version               string                        `json:"version"`
-	ThemeSettings         *models.Theme                 `json:"themeSettings"`
-	IsOffline             bool                          `json:"isOffline"`
-	FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
+	OS            string           `json:"os"`
+	User          *anime.User      `json:"user"`
+	Settings      *models.Settings `json:"settings"`
+	Mal           *models.Mal      `json:"mal"`
+	Version       string           `json:"version"`
+	ThemeSettings *models.Theme    `json:"themeSettings"`
+	IsOffline     bool             `json:"isOffline"`
+	//FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
 	MediastreamSettings   *models.MediastreamSettings   `json:"mediastreamSettings"`
 	TorrentstreamSettings *models.TorrentstreamSettings `json:"torrentstreamSettings"`
+	AnilistClientID       string                        `json:"anilistClientId"`
 }
 
 // NewStatus returns a new Status struct.
@@ -47,16 +47,17 @@ func NewStatus(c *RouteCtx) *Status {
 	theme, _ = c.App.Database.GetTheme()
 	mal, _ = c.App.Database.GetMalInfo()
 	return &Status{
-		OS:                    runtime.GOOS,
-		User:                  user,
-		Settings:              settings,
-		Mal:                   mal,
-		Version:               c.App.Version,
-		ThemeSettings:         theme,
-		IsOffline:             c.App.Config.Server.Offline,
-		FeatureFlags:          c.App.FeatureFlags,
+		OS:            runtime.GOOS,
+		User:          user,
+		Settings:      settings,
+		Mal:           mal,
+		Version:       c.App.Version,
+		ThemeSettings: theme,
+		IsOffline:     c.App.Config.Server.Offline,
+		//FeatureFlags:          c.App.FeatureFlags,
 		MediastreamSettings:   c.App.SecondarySettings.Mediastream,
 		TorrentstreamSettings: c.App.SecondarySettings.Torrentstream,
+		AnilistClientID:       c.App.Config.Anilist.ClientID,
 	}
 }
 

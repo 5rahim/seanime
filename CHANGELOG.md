@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.1
 
-- 🦺 Fixed MPV custom path being ignored
+- 🦺 Fixed MPV regression - custom path being ignored
+- 🦺 Fixed hanging request when re-enabling Torrent streaming after initialization failure
+- 🦺 Fixed error log coming from Torrent streaming internal package
+- 🦺 Fixed 'change default AniList client ID' not working
+- 🏗️ Moved 'change default AniList client ID' to config.toml
 
 ## v1.5.0
 

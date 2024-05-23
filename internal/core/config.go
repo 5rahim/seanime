@@ -43,6 +43,9 @@ type Config struct {
 		AppDataDir string
 		WorkingDir string
 	}
+	Anilist struct {
+		ClientID string
+	}
 }
 
 type ConfigOptions struct {

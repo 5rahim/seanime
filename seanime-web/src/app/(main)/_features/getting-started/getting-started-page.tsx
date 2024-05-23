@@ -100,7 +100,6 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         transmissionPassword: data.transmissionPassword,
                                     },
                                     anilist: {
-                                        anilistClientId: "",
                                         hideAudienceScore: false,
                                         enableAdultContent: data.enableAdultContent,
                                         blurAdultContent: false,

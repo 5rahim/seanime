@@ -73,8 +73,8 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                         <h3>Welcome!</h3>
                         <Button
                             onClick={() => {
-                                const url = serverStatus?.settings?.anilist?.anilistClientId
-                                    ? `https://anilist.co/api/v2/oauth/authorize?client_id=15168${serverStatus?.settings?.anilist?.anilistClientId}&response_type=token`
+                                const url = serverStatus?.anilistClientId
+                                    ? `https://anilist.co/api/v2/oauth/authorize?client_id=${serverStatus?.anilistClientId}&response_type=token`
                                     : ANILIST_OAUTH_URL
                                 window.open(url, "_self")
                             }}

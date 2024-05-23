@@ -134,6 +134,7 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		_ = os.MkdirAll(s.DownloadDir, os.ModePerm) // Create the directory if it doesn't exist
 	}
 
+	// DEVNOTE: Commented code below causes error log after initializing the client
 	//// Empty the download directory
 	//_ = os.RemoveAll(s.DownloadDir)
 

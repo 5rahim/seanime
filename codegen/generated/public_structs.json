@@ -24629,8 +24629,8 @@
         "comments": []
       },
       {
-        "name": "Experimental",
-        "jsonName": "Experimental",
+        "name": "Anilist",
+        "jsonName": "Anilist",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -24685,18 +24685,7 @@
     "name": "FeatureFlags",
     "formattedName": "INTERNAL_FeatureFlags",
     "package": "core",
-    "fields": [
-      {
-        "name": "Experimental",
-        "jsonName": "experimental",
-        "goType": "ExperimentalFeatureFlags",
-        "typescriptType": "INTERNAL_ExperimentalFeatureFlags",
-        "usedStructName": "core.ExperimentalFeatureFlags",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
+    "fields": [],
     "comments": []
   },
   {
@@ -24705,17 +24694,7 @@
     "name": "ExperimentalFeatureFlags",
     "formattedName": "INTERNAL_ExperimentalFeatureFlags",
     "package": "core",
-    "fields": [
-      {
-        "name": "Mediastream",
-        "jsonName": "mediastream",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
+    "fields": [],
     "comments": []
   },
   {
@@ -25039,15 +25018,6 @@
     "formattedName": "Models_AnilistSettings",
     "package": "models",
     "fields": [
-      {
-        "name": "AnilistClientId",
-        "jsonName": "anilistClientId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "HideAudienceScore",
         "jsonName": "hideAudienceScore",
@@ -27375,16 +27345,6 @@
         "comments": []
       },
       {
-        "name": "FeatureFlags",
-        "jsonName": "featureFlags",
-        "goType": "core.FeatureFlags",
-        "typescriptType": "INTERNAL_FeatureFlags",
-        "usedStructName": "core.FeatureFlags",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "MediastreamSettings",
         "jsonName": "mediastreamSettings",
         "goType": "models.MediastreamSettings",
@@ -27401,6 +27361,15 @@
         "typescriptType": "Models_TorrentstreamSettings",
         "usedStructName": "models.TorrentstreamSettings",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistClientID",
+        "jsonName": "anilistClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }

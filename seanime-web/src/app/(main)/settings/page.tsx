@@ -149,7 +149,6 @@ export default function Page() {
                                     enableMangaRichPresence: data?.enableMangaRichPresence ?? false,
                                 },
                                 anilist: {
-                                    anilistClientId: data?.anilistClientId,
                                     hideAudienceScore: data.hideAudienceScore,
                                     enableAdultContent: data.enableAdultContent,
                                     blurAdultContent: data.blurAdultContent,
@@ -191,7 +190,6 @@ export default function Page() {
                             enableRichPresence: status?.settings?.discord?.enableRichPresence ?? false,
                             enableAnimeRichPresence: status?.settings?.discord?.enableAnimeRichPresence ?? false,
                             enableMangaRichPresence: status?.settings?.discord?.enableMangaRichPresence ?? false,
-                            anilistClientId: status?.settings?.anilist?.anilistClientId,
                             enableAdultContent: status?.settings?.anilist?.enableAdultContent ?? false,
                             blurAdultContent: status?.settings?.anilist?.blurAdultContent ?? false,
                             dohProvider: status?.settings?.library?.dohProvider || "-",
@@ -288,13 +286,6 @@ export default function Page() {
                                 help=""
                             />
 
-                            <Separator />
-
-                            <Field.Text
-                                label="Client ID"
-                                name="anilistClientId"
-                                help="Client ID used for OAuth redirection. Leave empty to use the default Seanime client ID."
-                            />
                             <SettingsSubmitButton isPending={isPending} />
 
                         </TabsContent>
