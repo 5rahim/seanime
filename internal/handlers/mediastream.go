@@ -105,12 +105,9 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	switch b.StreamType {
 	case mediastream.StreamTypeTranscode:
 		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path)
-	case mediastream.StreamTypeFile:
+	case mediastream.StreamTypeOptimized:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
-		//mediaContainer, err = c.App.MediastreamRepository.RequestDirectPlay(b.Path)
-	case mediastream.StreamTypeDirectStream:
-		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
-		//mediaContainer, err = c.App.MediastreamRepository.RequestDirectStream(b.Path, b.AudioStreamIndex)
+		//mediaContainer, err = c.App.MediastreamRepository.RequestOptimizedStream(b.Path)
 	default:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 	}
@@ -159,23 +156,23 @@ func HandleMediastreamGetSubtitles(c *RouteCtx) error {
 	return c.App.MediastreamRepository.ServeFiberExtractedSubtitles(c.Fiber)
 }
 
+////
+//// Direct
+////
 //
-// Direct
+//func HandleMediastreamDirect(c *RouteCtx) error {
+//	client := "1"
+//	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
+//}
 //
-
-func HandleMediastreamDirect(c *RouteCtx) error {
-	client := "1"
-	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
-}
-
+////
+//// Direct Stream
+////
 //
-// Direct Stream
-//
-
-func HandleMediastreamDirectStream(c *RouteCtx) error {
-	client := "1"
-	return c.App.MediastreamRepository.ServeFiberDirectStream(c.Fiber, client)
-}
+//func HandleMediastreamDirectStream(c *RouteCtx) error {
+//	client := "1"
+//	return c.App.MediastreamRepository.ServeFiberDirectStream(c.Fiber, client)
+//}
 
 //
 // Transcode

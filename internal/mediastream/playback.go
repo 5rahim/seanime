@@ -11,10 +11,8 @@ import (
 )
 
 const (
-	StreamTypeFile         StreamType = "file"      // Direct play
-	StreamTypeDirectStream StreamType = "direct"    // Direct stream
-	StreamTypeTranscode    StreamType = "transcode" // On-the-fly transcoding
-	StreamTypeOptimized    StreamType = "optimized" // Pre-transcoded
+	StreamTypeTranscode StreamType = "transcode" // On-the-fly transcoding
+	StreamTypeOptimized StreamType = "optimized" // Pre-transcoded
 )
 
 type (
@@ -147,10 +145,6 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 	case StreamTypeTranscode:
 		// Live transcode the file.
 		streamUrl = "/api/v1/mediastream/transcode/master.m3u8"
-	case StreamTypeFile:
-		streamUrl = "/api/v1/mediastream/direct"
-	case StreamTypeDirectStream:
-		streamUrl = "/api/v1/mediastream/directstream/master.m3u8"
 	case StreamTypeOptimized:
 		// TODO: Check if the file is already transcoded when the feature is implemented.
 		// ...

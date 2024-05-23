@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/rs/zerolog"
@@ -9,6 +10,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/fiberlogger"
 	util2 "github.com/seanime-app/seanime/internal/util/proxies"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -314,10 +316,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
 	v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
 	v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
-	// Direct play
-	v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirect))
-	// Direct stream
-	v1.Get("/mediastream/directstream/*", makeHandler(app, HandleMediastreamDirectStream))
 	// Transcode
 	v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
 	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
@@ -376,8 +374,18 @@ func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) 
 		defer syncPool.Put(ctx)
 		ctx.App = app
 		ctx.Fiber = c
+		PrintMemUsage()
 		return handler(ctx)
 	}
+}
+
+func PrintMemUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("Alloc = %v MiB", m.Alloc/1024/1024)
+	fmt.Printf("\tTotalAlloc = %v MiB", m.TotalAlloc/1024/1024)
+	fmt.Printf("\tSys = %v MiB", m.Sys/1024/1024)
+	fmt.Printf("\tNumGC = %v\n", m.NumGC)
 }
 
 func (c *RouteCtx) AcceptJSON() {

@@ -30,7 +30,9 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 	go func() {
 		if c.App.Settings.Library.EnableManga {
 			_, _ = c.App.GetMangaCollection(bypassCache)
-			c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
+			if bypassCache {
+				c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
+			}
 		}
 	}()
 
@@ -116,9 +118,9 @@ func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 	return c.RespondWithData(details.GetMedia())
 }
 
-const studioDetailsCacheTTL = time.Hour * 24
+//----------------------------------------------------------------------------------------------------------------------
 
-var studioDetailsCache = result.NewCache[int, *anilist.StudioDetails]()
+var studioDetailsMap = result.NewResultMap[int, *anilist.StudioDetails]()
 
 // HandleGetAnilistStudioDetails
 //
@@ -134,14 +136,19 @@ func HandleGetAnilistStudioDetails(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if details, ok := studioDetailsCache.Get(mId); ok {
+	if details, ok := studioDetailsMap.Get(mId); ok {
 		return c.RespondWithData(details)
 	}
 	details, err := c.App.AnilistClientWrapper.StudioDetails(c.Fiber.Context(), &mId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
-	studioDetailsCache.Set(mId, details)
+
+	go func() {
+		if details != nil {
+			studioDetailsMap.Set(mId, details)
+		}
+	}()
 
 	return c.RespondWithData(details)
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"log"
@@ -14,8 +15,9 @@ import (
 )
 
 type Database struct {
-	gormdb *gorm.DB
-	logger *zerolog.Logger
+	gormdb         *gorm.DB
+	logger         *zerolog.Logger
+	currLocalFiles []*anime.LocalFile
 }
 
 func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {

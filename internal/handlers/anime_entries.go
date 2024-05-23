@@ -14,6 +14,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/library/summary"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"github.com/sourcegraph/conc/pool"
@@ -451,6 +452,8 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+var missingEpisodesMap = result.NewResultMap[string, *anime.MissingEpisodes]()
+
 // HandleGetMissingEpisodes
 //
 //	@summary returns a list of episodes missing from the user's library collection
@@ -460,15 +463,21 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 //	@returns anime.MissingEpisodes
 func HandleGetMissingEpisodes(c *RouteCtx) error {
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
 	// Get the user's anilist collection
 	// Do not bypass the cache, since this handler might be called multiple times, and we don't want to spam the API
 	// A cron job will refresh the cache every 10 minutes
 	anilistCollection, err := c.App.GetAnilistCollection(false)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret, ok := missingEpisodesMap.Get(util.GetMemAddrStr(anilistCollection))
+	if ok {
+		c.App.Logger.Info().Msg("api: Library collection cache HIT")
+		return c.RespondWithData(ret)
+	}
+
+	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -483,6 +492,13 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		SilencedMediaIds:  silencedMediaIds,
 		MetadataProvider:  c.App.MetadataProvider,
 	})
+
+	go func() {
+		if missingEps != nil {
+			missingEpisodesMap.Clear()
+			missingEpisodesMap.Set(util.GetMemAddrStr(anilistCollection), missingEps)
+		}
+	}()
 
 	return c.RespondWithData(missingEps)
 

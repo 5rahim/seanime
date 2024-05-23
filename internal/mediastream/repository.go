@@ -6,7 +6,6 @@ import (
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/mediastream/directstream"
 	"github.com/seanime-app/seanime/internal/mediastream/optimizer"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
@@ -20,7 +19,6 @@ type (
 		optimizer          *optimizer.Optimizer
 		settings           mo.Option[*models.MediastreamSettings]
 		playbackManager    *PlaybackManager
-		directStream       *directstream.DirectStream
 		mediaInfoExtractor *videofile.MediaInfoExtractor
 		logger             *zerolog.Logger
 		wsEventManager     events.WSEventManagerInterface
@@ -44,7 +42,6 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		}),
 		settings:           mo.None[*models.MediastreamSettings](),
 		transcoder:         mo.None[*transcoder.Transcoder](),
-		directStream:       directstream.NewDirectStream(opts.Logger),
 		wsEventManager:     opts.WSEventManager,
 		fileCacher:         opts.FileCacher,
 		mediaInfoExtractor: videofile.NewMediaInfoExtractor(opts.FileCacher),
@@ -93,46 +90,6 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 // CacheWasCleared should be called when the cache directory is manually cleared.
 func (r *Repository) CacheWasCleared() {
 	r.playbackManager.mediaContainers.Clear()
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Direct Play
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) RequestDirectPlay(fp string) (ret *MediaContainer, err error) {
-	r.logger.Debug().Str("filepath", fp).Msg("mediastream: Direct play requested")
-
-	if !r.IsInitialized() {
-		return nil, errors.New("module not initialized")
-	}
-
-	ret, err = r.playbackManager.RequestPlayback(fp, StreamTypeFile)
-
-	return
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Direct Stream
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) RequestDirectStream(fp string, audioStreamIndex int) (ret *MediaContainer, err error) {
-	r.logger.Debug().Str("fp", fp).Msg("mediastream: Direct play requested")
-
-	if !r.IsInitialized() {
-		return nil, errors.New("module not initialized")
-	}
-
-	ret, err = r.playbackManager.RequestPlayback(fp, StreamTypeDirectStream)
-
-	// Copy video and audio streams to HLS
-	r.directStream.CopyToHLS(&directstream.CopyToHLSOptions{
-		Filepath:         ret.Filepath,
-		Hash:             ret.Hash,
-		OutDir:           r.settings.MustGet().TranscodeTempDir,
-		AudioStreamIndex: audioStreamIndex,
-	})
-
-	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
