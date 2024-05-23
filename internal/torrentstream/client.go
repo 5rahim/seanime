@@ -101,6 +101,7 @@ func (c *Client) initializeClient() error {
 	// Create the torrent client
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
+		c.mu.Unlock()
 		return fmt.Errorf("error creating a new torrent client: %v", err)
 	}
 	c.repository.logger.Info().Msgf("torrentstream: Initialized torrent client on port %d", settings.TorrentClientPort)
