@@ -48,6 +48,7 @@
   - `providers`: Stream providers
   - `sources`: Video server sources
 - `test_utils`: Test methods
+- `torrentstream`: **Torrent Stream Repository** module
 - `torrents`
   - `analyzer`: Scan and identify torrent files
   - `animetosho`

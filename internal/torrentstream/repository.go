@@ -134,6 +134,9 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		_ = os.MkdirAll(s.DownloadDir, os.ModePerm) // Create the directory if it doesn't exist
 	}
 
+	//// Empty the download directory
+	//_ = os.RemoveAll(s.DownloadDir)
+
 	if s.StreamingServerPort == 0 {
 		s.StreamingServerPort = 43214
 	}
@@ -150,7 +153,7 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	})
 
 	// Initialize the torrent client
-	err = r.client.InitializeClient()
+	err = r.client.initializeClient()
 	if err != nil {
 		return err
 	}

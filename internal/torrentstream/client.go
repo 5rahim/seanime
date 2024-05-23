@@ -62,10 +62,10 @@ func NewClient(repository *Repository) *Client {
 	return ret
 }
 
-// InitializeClient will create and torrent client.
+// initializeClient will create and torrent client.
 // The client is designed to support only one torrent at a time, and seed it.
 // Upon initialization, the client will drop all torrents.
-func (c *Client) InitializeClient() error {
+func (c *Client) initializeClient() error {
 	// Fail if no settings
 	if err := c.repository.FailIfNoSettings(); err != nil {
 		return err

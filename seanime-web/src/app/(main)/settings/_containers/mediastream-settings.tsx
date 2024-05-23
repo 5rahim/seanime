@@ -4,6 +4,7 @@ import { useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Button } from "@/components/ui/button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
 import { FcFolder } from "react-icons/fc"
@@ -38,6 +39,7 @@ const MEDIASTREAM_PRESET_OPTIONS = [
 type MediastreamSettingsProps = {
     children?: React.ReactNode
     settings: Models_MediastreamSettings | undefined
+    isLoading: boolean
 }
 
 export function MediastreamSettings(props: MediastreamSettingsProps) {
@@ -45,6 +47,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
     const {
         children,
         settings,
+        isLoading,
         ...rest
     } = props
 
@@ -56,7 +59,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
         getTotalSize()
     })
 
-    if (!settings) return null
+    if (!settings) return <LoadingSpinner />
 
     return (
         <>
@@ -70,6 +73,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             settings: {
                                 ...settings,
                                 ...data,
+                                transcodeTempDir: data.transcodeTempDir,
                             },
                         })
                     }

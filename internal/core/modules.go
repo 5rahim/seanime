@@ -429,12 +429,12 @@ func (a *App) launchModulesOnce() {
 		}
 
 		if a.Settings.Library.OpenTorrentClientOnStart && a.TorrentClientRepository != nil {
-			// Open the torrent client
+			// Start the torrent client
 			ok := a.TorrentClientRepository.Start()
 			if !ok {
 				a.Logger.Warn().Msg("app: Failed to open torrent client")
 			} else {
-				a.Logger.Info().Msg("app: Opened torrent client")
+				a.Logger.Info().Msg("app: Started torrent client")
 			}
 
 		}

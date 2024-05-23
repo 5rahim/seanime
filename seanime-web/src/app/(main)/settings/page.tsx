@@ -51,7 +51,7 @@ export default function Page() {
 
     const { mutate, data, isPending } = useSaveSettings()
 
-    const { data: mediastreamSettings } = useGetMediastreamSettings(true)
+    const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
 
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 
@@ -587,7 +587,7 @@ export default function Page() {
 
                         <h3>Media streaming <BetaBadge /></h3>
 
-                        <MediastreamSettings settings={mediastreamSettings} />
+                        <MediastreamSettings settings={mediastreamSettings} isLoading={mediastreamSettingsLoading} />
 
                     </TabsContent>
 

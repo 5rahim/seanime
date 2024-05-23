@@ -41,7 +41,7 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 ### All-in-one
 
 - 🪶 Lightweight, cross-platform and performant server
-- 🔥 Simple and modern and customizable web interface
+- 🔥 Simple, modern and customizable web interface
 - 🌐 Automatic progress tracking and full integration with AniList
 - 🔒 No data collection
 - ✈️ **Offline mode**
