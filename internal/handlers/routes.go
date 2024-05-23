@@ -374,7 +374,6 @@ func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) 
 		defer syncPool.Put(ctx)
 		ctx.App = app
 		ctx.Fiber = c
-		PrintMemUsage()
 		return handler(ctx)
 	}
 }

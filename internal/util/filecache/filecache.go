@@ -237,6 +237,27 @@ func (c *Cacher) ClearMediastreamVideoFiles() error {
 	return err
 }
 
+// TrimMediastreamVideoFiles clears all mediastream video file caches if the number of files exceeds the given limit.
+func (c *Cacher) TrimMediastreamVideoFiles() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	// Remove the contents of the directory
+	files, err := os.ReadDir(filepath.Join(c.dir, "videofiles"))
+	if err != nil {
+		return nil
+	}
+
+	if len(files) > 3 {
+		for _, file := range files {
+			_ = os.RemoveAll(filepath.Join(c.dir, "videofiles", file.Name()))
+		}
+	}
+
+	c.stores = make(map[string]*CacheStore)
+	return err
+}
+
 func (c *Cacher) GetMediastreamVideoFilesTotalSize() (int64, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()

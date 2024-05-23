@@ -346,6 +346,14 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 
 	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
+	go func() {
+		if settings.TranscodeEnabled {
+			_ = a.FileCacher.TrimMediastreamVideoFiles()
+		} else {
+			_ = a.FileCacher.ClearMediastreamVideoFiles()
+		}
+	}()
+
 	a.SecondarySettings.Mediastream = settings
 }
 

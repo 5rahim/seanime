@@ -180,13 +180,14 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 
 	r.transcoder = mo.None[*transcoder.Transcoder]()
 
-	// If the temp directory is not set, don't initialize the transcoder
-	if settings.MustGet().TranscodeTempDir == "" {
+	// If the transcoder is not enabled, don't initialize the transcoder
+	if !settings.MustGet().TranscodeEnabled {
 		return false
 	}
 
-	// If the transcoder is not enabled, don't initialize the transcoder
-	if !settings.MustGet().TranscodeEnabled {
+	// If the temp directory is not set, don't initialize the transcoder
+	if settings.MustGet().TranscodeTempDir == "" {
+		r.logger.Error().Msg("mediastream: Transcode directory not set, could not initialize transcoder")
 		return false
 	}
 
