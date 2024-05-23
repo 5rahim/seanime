@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.1
 
+- ⚡️ Reduced memory usage when browsing library
+- ⚡️ Automatic Transcoding cache cleanup on server startup
 - 🦺 Fixed MPV regression - custom path being ignored
 - 🦺 Fixed hanging request when re-enabling Torrent streaming after initialization failure
 - 🦺 Fixed error log coming from Torrent streaming internal package

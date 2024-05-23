@@ -192,6 +192,7 @@ func HandleMediastreamTranscode(c *RouteCtx) error {
 //	@returns bool
 //	@route /api/v1/mediastream/shutdown-transcode [POST]
 func HandleMediastreamShutdownTranscodeStream(c *RouteCtx) error {
-	c.App.MediastreamRepository.ShutdownTranscodeStream()
+	client := "1"
+	c.App.MediastreamRepository.ShutdownTranscodeStream(client)
 	return c.RespondWithData(true)
 }

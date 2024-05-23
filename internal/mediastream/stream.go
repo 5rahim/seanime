@@ -230,7 +230,7 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 
 // ShutdownTranscodeStream It should be called when unmounting the player (playback is no longer needed).
 // This will also send an events.MediastreamShutdownStream event.
-func (r *Repository) ShutdownTranscodeStream() {
+func (r *Repository) ShutdownTranscodeStream(clientId string) {
 
 	if !r.IsInitialized() {
 		return

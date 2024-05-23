@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { MediaPlayer, MediaPlayerInstance, MediaProvider, Track } from "@vidstack/react"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
-import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
+import { DefaultAudioLayout, defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import { useAtom } from "jotai/react"
 import { CaptionsFileFormat } from "media-captions"
 import Image from "next/image"
@@ -23,6 +23,9 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
+import "@vidstack/react/player/styles/base.css"
+// import '@vidstack/react/player/styles/plyr/theme.css';
+import "@/app/(main)/mediastream/_components/player.css"
 
 
 export default function Page() {
@@ -159,10 +162,12 @@ export default function Page() {
                         {isError ?
                             <LuffyError title="Playback Error" /> :
                             (!!url && !isMediaContainerLoading) ? <MediaPlayer
+                                playsInline
                                 ref={playerRef}
                                 crossOrigin
                                 src={url}
-                                poster={mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
+                                aspectRatio="16/9"
+                                poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image || mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
                                 onProviderChange={onProviderChange}
                                 onProviderSetup={onProviderSetup}
                                 onTimeUpdate={e => {
@@ -187,6 +192,7 @@ export default function Page() {
                                 onEnded={onEnded}
                             >
                                 <MediaProvider>
+
                                     {subtitles?.map((sub) => (
                                         <Track
                                             key={String(sub.index)}
@@ -220,6 +226,9 @@ export default function Page() {
                                         //     <MediastreamAudioSubmenu />
                                         // )
                                     }}
+                                />
+                                <DefaultAudioLayout
+                                    icons={defaultLayoutIcons}
                                 />
                             </MediaPlayer> : (
                                 <Skeleton className="h-full w-full absolute flex justify-center items-center flex-col space-y-4">
