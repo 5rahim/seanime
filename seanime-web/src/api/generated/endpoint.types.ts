@@ -699,6 +699,7 @@ export type RequestMediastreamMediaContainer_Variables = {
     path: string
     streamType: Mediastream_StreamType
     audioStreamIndex: number
+    clientId: string
 }
 
 /**

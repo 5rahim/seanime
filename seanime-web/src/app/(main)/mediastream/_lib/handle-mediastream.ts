@@ -119,6 +119,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const [url, setUrl] = React.useState<string | undefined>(undefined)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode") // do not chance
 
+    const [sessionId, setSessionId] = React.useState<string>(uuidv4())
+
     /**
      * Fetch media container containing stream URL
      */
@@ -127,6 +129,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         path: filePath ?? undefined,
         // path: undefined,
         streamType: streamType,
+        clientId: sessionId,
     })
 
     const mediaContainer = React.useMemo(() => (!isPending && !isFetching) ? _mediaContainer : undefined, [_mediaContainer, isPending, isFetching])
@@ -282,7 +285,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         // When the media is detached, stop the transcoder but only if there was no playback error
                         if (!playbackErrored) {
                             if (mediaContainer?.streamType === "transcode") {
-                                shutdownTranscode()
+                                // shutdownTranscode()
                             }
                             changeUrl(undefined)
                         }

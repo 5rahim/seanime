@@ -91,7 +91,8 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	type body struct {
 		Path             string                 `json:"path"`             // The path of the file.
 		StreamType       mediastream.StreamType `json:"streamType"`       // The type of stream to request.
-		AudioStreamIndex int                    `json:"audioStreamIndex"` // The audio stream index to use.
+		AudioStreamIndex int                    `json:"audioStreamIndex"` // The audio stream index to use. (unused)
+		ClientId         string                 `json:"clientId"`         // The session id
 	}
 
 	var b body
@@ -104,7 +105,7 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 
 	switch b.StreamType {
 	case mediastream.StreamTypeTranscode:
-		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path)
+		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path, b.ClientId)
 	case mediastream.StreamTypeOptimized:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 		//mediaContainer, err = c.App.MediastreamRepository.RequestOptimizedStream(b.Path)

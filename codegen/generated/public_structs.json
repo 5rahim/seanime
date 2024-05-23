@@ -24771,6 +24771,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "currLocalFiles",
+        "jsonName": "currLocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -36351,74 +36361,6 @@
     ]
   },
   {
-    "filepath": "../internal/mediastream/directstream/directstream.go",
-    "filename": "directstream.go",
-    "name": "DirectStream",
-    "formattedName": "DirectStream",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediastream/directstream/directstream.go",
-    "filename": "directstream.go",
-    "name": "CopyToHLSOptions",
-    "formattedName": "CopyToHLSOptions",
-    "package": "directstream",
-    "fields": [
-      {
-        "name": "Filepath",
-        "jsonName": "Filepath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Hash",
-        "jsonName": "Hash",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OutDir",
-        "jsonName": "OutDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " The main temp directory. A subdirectory will be created for the file."
-        ]
-      },
-      {
-        "name": "AudioStreamIndex",
-        "jsonName": "AudioStreamIndex",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/mediastream/optimizer/optimizer.go",
     "filename": "optimizer.go",
     "name": "Quality",
@@ -36574,8 +36516,6 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
-        "\"file\"",
-        "\"direct\"",
         "\"transcode\"",
         "\"optimized\""
       ]
@@ -36766,16 +36706,6 @@
         "goType": "PlaybackManager",
         "typescriptType": "Mediastream_PlaybackManager",
         "usedStructName": "mediastream.PlaybackManager",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "directStream",
-        "jsonName": "directStream",
-        "goType": "directstream.DirectStream",
-        "typescriptType": "DirectStream",
-        "usedStructName": "directstream.DirectStream",
         "required": false,
         "public": false,
         "comments": []

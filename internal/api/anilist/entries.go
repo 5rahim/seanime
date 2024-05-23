@@ -10,7 +10,7 @@ import (
 
 func (c *Client) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, logger *zerolog.Logger) error {
 	if len(mIds) == 0 {
-		logger.Debug().Msg("anilist: no media added to planning list")
+		logger.Debug().Msg("anilist: No media added to planning list")
 		return nil
 	}
 	if rateLimiter == nil {

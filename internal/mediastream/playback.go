@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"github.com/seanime-app/seanime/internal/util/result"
 )
@@ -21,7 +20,6 @@ type (
 	PlaybackManager struct {
 		logger                *zerolog.Logger
 		currentMediaContainer mo.Option[*MediaContainer] // The current media being played.
-		transcoderSettings    mo.Option[*transcoder.Settings]
 		repository            *Repository
 		mediaContainers       *result.Map[string, *MediaContainer] // Temporary cache for the media containers.
 	}
@@ -55,24 +53,6 @@ func (p *PlaybackManager) KillPlayback() {
 	}
 }
 
-// PreloadPlayback is called by the frontend to preload a media container so that the data is stored in advanced
-func (p *PlaybackManager) PreloadPlayback(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
-
-	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Preloading playback")
-
-	// Create a new media container
-	ret, err = p.newMediaContainer(filepath, streamType)
-
-	if err != nil {
-		p.logger.Error().Err(err).Msg("mediastream: Failed to create media container")
-		return nil, fmt.Errorf("failed to create media container: %v", err)
-	}
-
-	p.logger.Info().Str("filepath", filepath).Msg("mediastream: Ready to play media")
-
-	return
-}
-
 // RequestPlayback is called by the frontend to stream a media file
 func (p *PlaybackManager) RequestPlayback(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
 
@@ -94,19 +74,27 @@ func (p *PlaybackManager) RequestPlayback(filepath string, streamType StreamType
 	return
 }
 
+// PreloadPlayback is called by the frontend to preload a media container so that the data is stored in advanced
+func (p *PlaybackManager) PreloadPlayback(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
+
+	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Preloading playback")
+
+	// Create a new media container
+	ret, err = p.newMediaContainer(filepath, streamType)
+
+	if err != nil {
+		p.logger.Error().Err(err).Msg("mediastream: Failed to create media container")
+		return nil, fmt.Errorf("failed to create media container: %v", err)
+	}
+
+	p.logger.Info().Str("filepath", filepath).Msg("mediastream: Ready to play media")
+
+	return
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Optimize
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Transcode
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (p *PlaybackManager) SetTranscoderSettings(settings mo.Option[*transcoder.Settings]) {
-	if settings.IsPresent() {
-		p.transcoderSettings = settings
-	}
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

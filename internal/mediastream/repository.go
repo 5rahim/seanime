@@ -11,6 +11,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"os"
+	"sync"
 )
 
 type (
@@ -23,6 +24,7 @@ type (
 		logger             *zerolog.Logger
 		wsEventManager     events.WSEventManagerInterface
 		fileCacher         *filecache.Cacher
+		reqMu              sync.Mutex
 		cacheDir           string
 	}
 
@@ -81,7 +83,6 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 
 	// Initialize the transcoder
 	if ok := r.initializeTranscoder(r.settings); ok {
-		r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
 	}
 
 	r.logger.Info().Msg("mediastream: Module initialized")
@@ -138,7 +139,10 @@ func (r *Repository) TranscoderIsInitialized() bool {
 	return r.IsInitialized() && r.transcoder.IsPresent()
 }
 
-func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContainer, err error) {
+func (r *Repository) RequestTranscodeStream(filepath string, clientId string) (ret *MediaContainer, err error) {
+	r.reqMu.Lock()
+	defer r.reqMu.Unlock()
+
 	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Transcode stream requested")
 
 	if !r.IsInitialized() {
@@ -149,8 +153,6 @@ func (r *Repository) RequestTranscodeStream(filepath string) (ret *MediaContaine
 	if ok := r.initializeTranscoder(r.settings); !ok {
 		return nil, errors.New("real-time transcoder not initialized, check your settings")
 	}
-
-	r.playbackManager.SetTranscoderSettings(mo.Some(r.transcoder.MustGet().GetSettings()))
 
 	ret, err = r.playbackManager.RequestPlayback(filepath, StreamTypeTranscode)
 
