@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - ⚡️ Reduced memory usage when browsing library
 - ⚡️ Automatic Transcoding cache cleanup on server startup
+- 🚀 Added Docker image for Linux arm64 #63
 - 🚑️ Fixed occasional runtime error caused by media player module
 - 🦺 Fixed Transcode playback error when switching episodes
 - 🦺 Fixed MPV regression caused by custom path being ignored
@@ -13,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Fixed error log coming from Torrent streaming internal package
 - 🦺 Fixed 'change default AniList client ID' not working
 - 🏗️ Moved 'change default AniList client ID' to config.toml
+- 🔨 Updated release workflow
 
 ## v1.5.0
 

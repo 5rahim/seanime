@@ -11,7 +11,6 @@ builds:
       - darwin
       - windows
     goarch:
-      #      - arm
       - amd64
       - arm64
     goarm:
@@ -20,10 +19,6 @@ builds:
     ignore:
       - goos: windows
         goarch: arm64
-#      - goos: darwin
-#        goarch: 386
-#      - goos: linux
-#        goarch: 386
 
 checksum:
   name_template: 'checksums.txt'
@@ -45,34 +40,6 @@ archives:
       - web/*
       - LICENSE
 
-#nfpms:
-#  - file_name_template: '{{- .ProjectName }}-
-#      {{- .Version }}_
-#      {{- title .Os }}_
-#      {{- if eq .Arch "amd64" }}x86_64
-#      {{- else if eq .Arch "386" }}i386
-#      {{- else }}{{ .Arch }}{{ end }}
-#      {{- if .Arm }}v{{ .Arm }}{{ end -}}'
-#    homepage: 'https://github.com/5rahim/seanime'
-#    maintainer: 5rahim <talkwithrahim@gmail.com>
-#    description: |-
-#      Enhance your local anime library experience!
-#    license: MIT
-#
-#    bindir: /usr/local/bin
-#    section: utils
-#
-#    deb:
-#      lintian_overrides:
-#        - statically-linked-binary
-#        - changelog-file-missing-in-native-package
-#
-#
-#    formats:
-#      - deb
-#      - rpm
-
-
 release:
   github:
     owner: 5rahim
@@ -92,12 +59,41 @@ release:
     Compare: https://github.com/5rahim/seanime/compare/{{ .PreviousTag }}...{{ .Tag }}
 
 dockers:
-  - goos: linux
+  - image_templates:
+      - "5rahim/seanime:{{ .Tag }}-amd64"
     goarch: amd64
-    image_templates:
-      - "5rahim/seanime:latest"
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/amd64"
     skip_push: false
-    use: docker
+    use: buildx
     dockerfile: goreleaser.dockerfile
     extra_files:
       - web
+  - image_templates:
+      - "5rahim/seanime:{{ .Tag }}-arm64"
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64"
+    skip_push: false
+    use: buildx
+    dockerfile: goreleaser.dockerfile
+    extra_files:
+      - web
+docker_manifests:
+  - name_template: '5rahim/seanime:latest'
+    image_templates:
+      - '5rahim/seanime:{{ .Tag }}-amd64'
+      - '5rahim/seanime:{{ .Tag }}-arm64'
+
+#dockers:
+#  - goos: linux
+#    goarch: amd64
+#    image_templates:
+#      - "5rahim/seanime:latest"
+#    skip_push: false
+#    use: docker
+#    dockerfile: goreleaser.dockerfile
+#    extra_files:
+#      - web
