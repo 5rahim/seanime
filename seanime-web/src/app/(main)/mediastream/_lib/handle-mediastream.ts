@@ -285,6 +285,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         // When the media is detached, stop the transcoder but only if there was no playback error
                         if (!playbackErrored) {
                             if (mediaContainer?.streamType === "transcode") {
+                                // DEVNOTE: Comment code below kills the transcoder AFTER changing episode due to delay
                                 // shutdownTranscode()
                             }
                             changeUrl(undefined)

@@ -9,6 +9,7 @@ import (
 	mpchc2 "github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	vlc2 "github.com/seanime-app/seanime/internal/mediaplayers/vlc"
+	"github.com/seanime-app/seanime/internal/util/result"
 	"sync"
 	"time"
 )
@@ -26,7 +27,7 @@ type (
 		mu                    sync.Mutex
 		isRunning             bool
 		currentPlaybackStatus *PlaybackStatus
-		subscribers           map[string]*RepositorySubscriber
+		subscribers           *result.Map[string, *RepositorySubscriber]
 		cancel                context.CancelFunc
 	}
 
@@ -72,7 +73,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		Mpv:                 opts.Mpv,
 		WSEventManager:      opts.WSEventManager,
 		completionThreshold: 0.8,
-		subscribers:         make(map[string]*RepositorySubscriber),
+		subscribers:         result.NewResultMap[string, *RepositorySubscriber](),
 	}
 }
 
@@ -89,7 +90,7 @@ func (m *Repository) Subscribe(id string) *RepositorySubscriber {
 		StreamingTrackingStoppedCh: make(chan string, 1),
 		StreamingPlaybackStatusCh:  make(chan *PlaybackStatus, 1),
 	}
-	m.subscribers[id] = sub
+	m.subscribers.Set(id, sub)
 	return sub
 }
 

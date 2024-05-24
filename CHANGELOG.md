@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 - ⚡️ Reduced memory usage when browsing library
 - ⚡️ Automatic Transcoding cache cleanup on server startup
+- 🚑️ Fixed occasional runtime error caused by media player module
+- 🦺 Fixed Transcode playback error when switching episodes
 - 🦺 Fixed MPV regression - custom path being ignored
 - 🦺 Fixed hanging request when re-enabling Torrent streaming after initialization failure
 - 🦺 Fixed error log coming from Torrent streaming internal package

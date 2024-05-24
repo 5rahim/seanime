@@ -148,17 +148,17 @@ func getKeyframes(path string, kf *Keyframe, logger *zerolog.Logger) error {
 		// This was to avoid creating segments as short as 0.2 seconds.
 		// However, there were instances where the -f segment muxer would ignore the specified segment time and choose a random keyframe to cut at.
 		// To counter this, treat every keyframe as a potential segment.
-		if done == 0 && len(ret) == 0 {
-
-			// There are instances where videos may not start exactly at 0:00. This needs to be considered,
-			// and we should only include keyframes that occur after the video's start time. If not done so,
-			// it can lead to a discrepancy in our segment count and potentially duplicate the same segment in the stream.
-
-			// For simplicity in code comprehension, we designate 0 as the initial keyframe, even though it's not genuine.
-			// This value is never actually passed to ffmpeg.
-			ret = append(ret, 0)
-			continue
-		}
+		//if done == 0 && len(ret) == 0 {
+		//
+		//	// There are instances where videos may not start exactly at 0:00. This needs to be considered,
+		//	// and we should only include keyframes that occur after the video's start time. If not done so,
+		//	// it can lead to a discrepancy in our segment count and potentially duplicate the same segment in the stream.
+		//
+		//	// For simplicity in code comprehension, we designate 0 as the initial keyframe, even though it's not genuine.
+		//	// This value is never actually passed to ffmpeg.
+		//	ret = append(ret, 0)
+		//	continue
+		//}
 		ret = append(ret, fpts)
 
 		if len(ret) == max {
