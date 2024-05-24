@@ -96,32 +96,32 @@ export default function Page() {
         }
     }, [mediaId, mediaEntry, mediaEntryLoading, filePath])
 
-    if (mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
+    if (mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
         <div
             className="grid xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
         >
-            <div className="aspect-video relative">
+            <div className="w-full min-h-[70dvh] relative">
                 <Skeleton className="h-full w-full absolute" />
             </div>
 
-            <Skeleton className="hidden lg:block relative h-[75dvh] overflow-y-auto pr-4 pt-0" />
+            <Skeleton className="hidden lg:block relative h-[78dvh] overflow-y-auto pr-4 pt-0" />
 
         </div>
     </div>
 
     return (
         <>
-            <AppLayoutStack className="p-8 z-[5]">
+            <AppLayoutStack className="px-4 lg:px-8 z-[5]">
 
                 <div className="flex w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
                         <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
                         </Link>
-                        <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">Streaming: {mediaEntry?.media?.title?.userPreferred}</h3>
+                        <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{mediaEntry?.media?.title?.userPreferred}</h3>
                     </div>
 
                     <div className="flex gap-2 items-center">
@@ -149,14 +149,15 @@ export default function Page() {
 
                 <div
                     className={cn(
-                        "grid gap-4 xl:gap-4 w-full",
-                        "xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px]",
+                        "flex gap-4 w-full flex-col 2xl:flex-row",
+                        // "grid gap-4 w-full grid-cols-1",
+                        // "xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px]",
                     )}
                 >
 
                     <div
                         className={cn(
-                            "aspect-video relative w-full",
+                            "aspect-video relative w-full self-start max-h-[78dvh] mx-auto",
                         )}
                     >
                         {isError ?
@@ -192,7 +193,6 @@ export default function Page() {
                                 onEnded={onEnded}
                             >
                                 <MediaProvider>
-
                                     {subtitles?.map((sub) => (
                                         <Track
                                             key={String(sub.index)}
@@ -231,29 +231,32 @@ export default function Page() {
                                     icons={defaultLayoutIcons}
                                 />
                             </MediaPlayer> : (
-                                <Skeleton className="h-full w-full absolute flex justify-center items-center flex-col space-y-4">
+                                <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
                                     <LoadingSpinner
                                         containerClass=""
-                                        spinner={<Image
-                                            src="/logo_2.png"
-                                            alt="Loading..."
-                                            priority
-                                            width={100}
-                                            height={100}
-                                            className="animate-pulse"
-                                        />}
+                                        spinner={<div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
+                                            <Image
+                                                src="/logo_2.png"
+                                                alt="Loading..."
+                                                priority
+                                                fill
+                                                className="animate-pulse"
+                                            />
+                                        </div>}
                                     />
-                                    <p>
-                                        Extracting video metadata...
-                                    </p>
-                                    <p>
-                                        This might take a while.
-                                    </p>
+                                    <div className="text-center text-xs lg:text-sm">
+                                        <p>
+                                            Extracting video metadata...
+                                        </p>
+                                        <p>
+                                            This might take a while.
+                                        </p>
+                                    </div>
                                 </Skeleton>
                             )}
                     </div>
 
-                    <ScrollArea className="relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
+                    <ScrollArea className="xl:max-w-[400px] 2xl:max-w-[500px] relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
                         <div className="space-y-4">
                             {episodes.map((episode) => (
                                 <EpisodeGridItem

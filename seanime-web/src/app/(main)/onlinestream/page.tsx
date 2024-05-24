@@ -3,8 +3,6 @@ import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
-import { MediaPageHeaderScoreAndProgress } from "@/app/(main)/_features/media/_components/media-page-header-components"
-import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
 import {
     OnlinestreamParametersButton,
@@ -41,13 +39,11 @@ import HLS from "hls.js"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
-import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
-import { BiCalendarAlt } from "react-icons/bi"
 import { useUpdateEffect } from "react-use"
 
 const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
@@ -218,25 +214,25 @@ export default function Page() {
 
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId)
 
-    if (!loadPage || !media || mediaEntryLoading) return <div className="p-4 sm:p-8 space-y-4">
+    if (!loadPage || !media || mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
         <div
             className="grid xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
         >
-            <div className="relative">
-                <Skeleton className="aspect-video h-full w-full absolute" />
+            <div className="w-full min-h-[70dvh] relative">
+                <Skeleton className="h-full w-full absolute" />
             </div>
 
-            <Skeleton className="hidden lg:block relative h-[75dvh] overflow-y-auto pr-4 pt-0" />
+            <Skeleton className="hidden lg:block relative h-[78dvh] overflow-y-auto pr-4 pt-0" />
 
         </div>
     </div>
 
     return (
         <>
-            <div className="relative z-[5] p-4 sm:p-8 space-y-4">
+            <div className="relative px-4 lg:px-8 z-[5] space-y-4">
                 <OnlinestreamManagerProvider
                     opts={opts}
                 >
@@ -281,18 +277,17 @@ export default function Page() {
 
                     <div
                         className={cn(
-                            "grid gap-4 xl:gap-4",
-                            !theaterMode && "xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px]",
+                            "flex gap-4 w-full flex-col 2xl:flex-row",
                         )}
                     >
-                        <div className="space-y-4">
+                        {/*<div className="space-y-4">*/}
                             <div
                                 className={cn(
-                                    "aspect-video relative",
-                                    !theaterMode ? "aspect-video" : "max-h-[75dvh] w-full",
+                                    "aspect-video relative w-full self-start max-h-[78dvh] mx-auto",
                                 )}
                             >
                                 {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
+                                    playsInline
                                     ref={ref}
                                     crossOrigin="anonymous"
                                     src={{
@@ -300,7 +295,7 @@ export default function Page() {
                                         type: "application/x-mpegurl",
                                     }}
                                     poster={currentEpisodeDetails?.image || media.coverImage?.extraLarge || ""}
-                                    // aspectRatio="16/9"
+                                    aspectRatio="16/9"
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
                                     // className="max-h-[75dvh] aspect-video"
@@ -429,89 +424,89 @@ export default function Page() {
                                 )}
                             </div>
 
-                            {currentEpisodeDetails && (
-                                <div className="space-y-4">
-                                    <h3 className="line-clamp-1">{currentEpisodeDetails?.title?.replaceAll("`", "'")}</h3>
-                                    {currentEpisodeDetails?.description && <p className="text-gray-400">
-                                        {currentEpisodeDetails?.description?.replaceAll("`", "'")}
-                                    </p>}
-                                </div>
-                            )}
+                        {/*{currentEpisodeDetails && (*/}
+                        {/*    <div className="space-y-4">*/}
+                        {/*        <h3 className="line-clamp-1">{currentEpisodeDetails?.title?.replaceAll("`", "'")}</h3>*/}
+                        {/*        {currentEpisodeDetails?.description && <p className="text-gray-400">*/}
+                        {/*            {currentEpisodeDetails?.description?.replaceAll("`", "'")}*/}
+                        {/*        </p>}*/}
+                        {/*    </div>*/}
+                        {/*)}*/}
 
-                            <div className="flex gap-4 lg:gap-5">
+                        {/*<div className="flex gap-4 lg:gap-5">*/}
 
-                                {media.coverImage?.large && <div
-                                    className="flex-none w-[200px] h-[270px] relative rounded-md overflow-hidden bg-[--background] shadow-md border block"
-                                >
-                                    <Image
-                                        src={media.coverImage.large}
-                                        alt="cover image"
-                                        fill
-                                        priority
-                                        className="object-cover object-center"
-                                    />
-                                </div>}
-
-
-                                <div className="space-y-2">
-                                    {/*TITLE*/}
-                                    <div className="space-y-2">
-                                        <p
-                                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-1 font-bold text-pretty text-xl lg:text-3xl"
-                                            children={media.title?.userPreferred || ""}
-                                        />
-                                        {media.title?.userPreferred?.toLowerCase() !== media.title?.english?.toLowerCase() &&
-                                            <p className="text-gray-400 line-clamp-2">{media.title?.english}</p>}
-                                        {media.title?.userPreferred?.toLowerCase() !== media.title?.romaji?.toLowerCase() &&
-                                            <p className="text-gray-400 line-clamp-2">{media.title?.romaji}</p>}
-                                    </div>
-
-                                    {/*SEASON*/}
-                                    {!!media.season ? (
-                                            <div>
-                                                <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
-                                                    <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                }).format(new Date(media.startDate?.year || 0,
-                                                    media.startDate?.month || 0))} - {capitalize(media.season ?? "")}
-                                                </p>
-                                            </div>
-                                        ) :
-                                        (
-                                            <p className="text-lg text-gray-200 flex w-full gap-1 items-center">
-
-                                            </p>
-                                        )}
-
-                                    {/*PROGRESS*/}
-                                    <div className="flex gap-2 md:gap-4 items-center">
-                                        <MediaPageHeaderScoreAndProgress
-                                            score={mediaEntry?.listData?.score}
-                                            progress={mediaEntry?.listData?.progress}
-                                            episodes={media.episodes}
-                                        />
-                                        <AnilistMediaEntryModal listData={mediaEntry?.listData} media={media} />
-                                        <p className="text-base md:text-lg">{capitalize(mediaEntry?.listData?.status === "CURRENT"
-                                            ? "Watching"
-                                            : mediaEntry?.listData?.status)}</p>
-                                    </div>
-
-                                    {mediaDetails &&
-                                        <ScrollArea className="h-32 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">{mediaDetails?.description?.replace(
-                                            /(<([^>]+)>)/ig,
-                                            "")}</ScrollArea>}
-                                </div>
-
-                            </div>
-
-                            <p className="text-lg font-semibold block lg:hidden">
-                                Episodes
-                            </p>
-                        </div>
+                        {/*    {media.coverImage?.large && <div*/}
+                        {/*        className="flex-none w-[200px] h-[270px] relative rounded-md overflow-hidden bg-[--background] shadow-md border block"*/}
+                        {/*    >*/}
+                        {/*        <Image*/}
+                        {/*            src={media.coverImage.large}*/}
+                        {/*            alt="cover image"*/}
+                        {/*            fill*/}
+                        {/*            priority*/}
+                        {/*            className="object-cover object-center"*/}
+                        {/*        />*/}
+                        {/*    </div>}*/}
 
 
-                        <ScrollArea className="relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
+                        {/*    <div className="space-y-2">*/}
+                        {/*        /!*TITLE*!/*/}
+                        {/*        <div className="space-y-2">*/}
+                        {/*            <p*/}
+                        {/*                className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-1 font-bold text-pretty text-xl lg:text-3xl"*/}
+                        {/*                children={media.title?.userPreferred || ""}*/}
+                        {/*            />*/}
+                        {/*            {media.title?.userPreferred?.toLowerCase() !== media.title?.english?.toLowerCase() &&*/}
+                        {/*                <p className="text-gray-400 line-clamp-2">{media.title?.english}</p>}*/}
+                        {/*            {media.title?.userPreferred?.toLowerCase() !== media.title?.romaji?.toLowerCase() &&*/}
+                        {/*                <p className="text-gray-400 line-clamp-2">{media.title?.romaji}</p>}*/}
+                        {/*        </div>*/}
+
+                        {/*        /!*SEASON*!/*/}
+                        {/*        {!!media.season ? (*/}
+                        {/*                <div>*/}
+                        {/*                    <p className="text-lg text-gray-200 flex w-full gap-1 items-center">*/}
+                        {/*                        <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {*/}
+                        {/*                        year: "numeric",*/}
+                        {/*                        month: "short",*/}
+                        {/*                    }).format(new Date(media.startDate?.year || 0,*/}
+                        {/*                        media.startDate?.month || 0))} - {capitalize(media.season ?? "")}*/}
+                        {/*                    </p>*/}
+                        {/*                </div>*/}
+                        {/*            ) :*/}
+                        {/*            (*/}
+                        {/*                <p className="text-lg text-gray-200 flex w-full gap-1 items-center">*/}
+
+                        {/*                </p>*/}
+                        {/*            )}*/}
+
+                        {/*        /!*PROGRESS*!/*/}
+                        {/*        <div className="flex gap-2 md:gap-4 items-center">*/}
+                        {/*            <MediaPageHeaderScoreAndProgress*/}
+                        {/*                score={mediaEntry?.listData?.score}*/}
+                        {/*                progress={mediaEntry?.listData?.progress}*/}
+                        {/*                episodes={media.episodes}*/}
+                        {/*            />*/}
+                        {/*            <AnilistMediaEntryModal listData={mediaEntry?.listData} media={media} />*/}
+                        {/*            <p className="text-base md:text-lg">{capitalize(mediaEntry?.listData?.status === "CURRENT"*/}
+                        {/*                ? "Watching"*/}
+                        {/*                : mediaEntry?.listData?.status)}</p>*/}
+                        {/*        </div>*/}
+
+                        {/*        {mediaDetails &&*/}
+                        {/*            <ScrollArea className="h-32 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">{mediaDetails?.description?.replace(*/}
+                        {/*                /(<([^>]+)>)/ig,*/}
+                        {/*                "")}</ScrollArea>}*/}
+                        {/*    </div>*/}
+
+                        {/*</div>*/}
+
+                        {/*<p className="text-lg font-semibold block lg:hidden">*/}
+                        {/*    Episodes*/}
+                        {/*</p>*/}
+                        {/*</div>*/}
+
+
+                        <ScrollArea className="xl:max-w-[400px] 2xl:max-w-[500px] relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
                             <div className="space-y-4">
                                 {(!episodes?.length && !loadPage) && <p>
                                     No episodes found
@@ -527,7 +522,7 @@ export default function Page() {
                                             <OnlinestreamEpisodeListItem
                                                 title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
                                                 episodeTitle={episode.title}
-                                                description={episode.description ?? undefined}
+                                                // description={episode.description ?? undefined}
                                                 image={episode.image}
                                                 media={media}
                                                 isSelected={episode.number === currentEpisodeNumber}

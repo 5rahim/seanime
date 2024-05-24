@@ -129,7 +129,7 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
                     {!!episodeTitle && <p className={cn("text-sm text-[--muted] line-clamp-2")}>{episodeTitle?.replaceAll("`", "'")}</p>}
 
                     {!!fileName && <p className="text-sm text-gray-600 line-clamp-1">{fileName}</p>}
-                    {!!description && <p className="text-sm text-gray-500 line-clamp-1 italic">{description}</p>}
+                    {!!description && <p className="text-sm text-[--muted] line-clamp-1 italic">{description}</p>}
                     {children && children}
                 </div>
             </div>

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.1
 
+- ⚡️ 
 - ⚡️ Reduced memory usage when browsing library
 - ⚡️ Automatic Transcoding cache cleanup on server startup
 - 🚀 Added Docker image for Linux arm64 #63
