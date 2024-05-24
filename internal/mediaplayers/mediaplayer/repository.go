@@ -440,63 +440,73 @@ func (m *Repository) StartTracking() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (m *Repository) trackingStopped(reason string) {
-	for _, sub := range m.subscribers {
-		sub.TrackingStoppedCh <- reason
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.TrackingStoppedCh <- reason
+		return true
+	})
 }
 
 func (m *Repository) trackingStarted(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.TrackingStartedCh <- status
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.TrackingStartedCh <- status
+		return true
+	})
 }
 
 func (m *Repository) trackingRetry(reason string) {
-	for _, sub := range m.subscribers {
-		sub.TrackingRetryCh <- reason
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.TrackingRetryCh <- reason
+		return true
+	})
 }
 
 func (m *Repository) videoCompleted(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.VideoCompletedCh <- status
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.VideoCompletedCh <- status
+		return true
+	})
 }
 
 func (m *Repository) playbackStatus(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.PlaybackStatusCh <- status
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.PlaybackStatusCh <- status
+		return true
+	})
 }
 
 func (m *Repository) streamingTrackingStopped(reason string) {
-	for _, sub := range m.subscribers {
-		sub.StreamingTrackingStoppedCh <- reason
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.StreamingTrackingStoppedCh <- reason
+		return true
+	})
 }
 
 func (m *Repository) streamingTrackingStarted(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.StreamingTrackingStartedCh <- status
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.StreamingTrackingStartedCh <- status
+		return true
+	})
 }
 
 func (m *Repository) streamingTrackingRetry(reason string) {
-	for _, sub := range m.subscribers {
-		sub.StreamingTrackingRetryCh <- reason
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.StreamingTrackingRetryCh <- reason
+		return true
+	})
 }
 
 func (m *Repository) streamingVideoCompleted(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.StreamingVideoCompletedCh <- status
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.StreamingVideoCompletedCh <- status
+		return true
+	})
 }
 
 func (m *Repository) streamingPlaybackStatus(status *PlaybackStatus) {
-	for _, sub := range m.subscribers {
-		sub.StreamingPlaybackStatusCh <- status
-	}
+	m.subscribers.Range(func(key string, value *RepositorySubscriber) bool {
+		value.StreamingPlaybackStatusCh <- status
+		return true
+	})
 }
 
 func (m *Repository) getStatus() (interface{}, error) {
