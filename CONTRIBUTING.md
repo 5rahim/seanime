@@ -20,6 +20,10 @@ Here are the guidelines, following them will make the process smoother:
 
 Here are some areas where you can contribute:
 
+### Clients
+
+You can help broaden the support for different platforms by creating clients for them, be it a port of the existing Web client or a new client built from scratch.
+
 ### Documentation
 
 Although the documentation has many details about the specific features, it may lack some important information
@@ -27,10 +31,6 @@ about specific use cases and platform-specific details. You can help by adding m
 - Installation on different platforms.
 - Configuration options.
 - Remote access and security.
-
-
-### Security
-If you find a security vulnerability, you can try to fix it and create a pull request. If you're not sure about the fix, create an issue.
 
 ### Code quality
 

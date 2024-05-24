@@ -12,7 +12,7 @@ import { useAnilistCollectionListener } from "@/app/(main)/_listeners/anilist-co
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
-import { TorrentStreamLoadingOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-loading-overlay"
+import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import React from "react"
@@ -42,7 +42,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ScannerModal />
             <PlaylistsModal />
             <ChapterDownloadsDrawer />
-            <TorrentStreamLoadingOverlay />
+            <TorrentStreamOverlay />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

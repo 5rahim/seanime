@@ -30,7 +30,7 @@ export const enum TorrentStreamState {
 export const __torrentstream__loadingStateAtom = atom<Torrentstream_TorrentLoadingStatusState | null>(null)
 export const __torrentstream__stateAtom = atom<TorrentStreamState>(TorrentStreamState.Stopped)
 
-export function TorrentStreamLoadingOverlay() {
+export function TorrentStreamOverlay() {
 
     const [loadingState, setLoadingState] = useAtom(__torrentstream__loadingStateAtom)
     const [state, setState] = useAtom(__torrentstream__stateAtom)
@@ -125,7 +125,8 @@ export function TorrentStreamLoadingOverlay() {
                         <BiGroup className="inline-block text-2xl" />
                         <span>{status.seeders}</span>
                         {`  `}
-                        <span className={cn({ "text-green-300": status.downloadProgress > 0 })}>{status.progressPercentage.toFixed(2)}%</span>
+                        <span className={cn("text-orange-500", { "text-green-300": status.downloadProgress > 5 })}>{status.progressPercentage.toFixed(
+                            2)}%</span>
                         {` `}
                         <BiDownArrow className="inline-block ml-2" />
                         {status.downloadSpeed !== "" ? status.downloadSpeed : "0 B/s"}

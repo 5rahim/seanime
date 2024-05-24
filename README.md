@@ -34,7 +34,18 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
 It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
-Feel free to open issues or contribute. Leave a star if you like this project!
+
+Feel free to open issues if you notice any bugs, open discussions if you have questions, or contribute to the project if you want to help make it better. Leave a star if you like this project!
+
+# Get started
+
+Read the installation guide to set up Seanime on your device.
+
+<p align="center">
+<a href="https://seanime.rahim.app/docs/getting-started" style="font-size:18px;" align="center">
+How to install Seanime
+</a>
+</p>
 
 # Features
 
@@ -92,27 +103,27 @@ Feel free to open issues or contribute. Leave a star if you like this project!
 - **MyAnimeList integration** for syncing progress
 - **Logs and scan summaries**
 
-# Get started
+## Philosophy
 
-Read the installation guide to set up Seanime on your device.
+The main goal of Seanime is to provide an all-in-one, easy-to-use alternative to traditional media servers like Plex and Jellyfin, designed specifically for anime and manga.
+Seanime eliminates the need for setting up and maintaining multiple tools and services (no need for organizing, renaming, setting up plugins, etc.).
+As someone who is new to the self-hosting world, I recognize the need something that is user-friendly, feature-rich, and just works out of the box.
+Note that unlike other media servers, Seanime does _natively_ run on all clients that seasoned self-hosting enjoyers might be used to (dedicated apps etc.), and it
+might have some rough edges in some use cases. 
 
-<p align="center">
-<a href="https://seanime.rahim.app/docs" style="font-size:18px;" align="center">
-How to install Seanime
-</a>
-</p>
-
-
- 
 ### Not planned
 
+The following features are not planned due to complexity but might be considered with the help of contributors:
+
 - Support for other providers such as Trakt, SIMKL, etc.
-- Support for other languages
-- Mobile app
+- Support for other media players
+- Dedicated clients (TV, mobile, etc.)
+- Support for other languages (internationalization)
 
 ## Development and Build
 
-To get started, you will need to be familiar with Go and React.
+Building from source is straightforward, you'll need Node.js and Go installed on your system.
+Development and testing might require additional configuration.
 
 [Read more here](https://github.com/5rahim/seanime/blob/main/DEVELOPMENT_AND_BUILD.md)
 

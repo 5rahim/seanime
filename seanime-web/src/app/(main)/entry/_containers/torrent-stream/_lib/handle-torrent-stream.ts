@@ -4,7 +4,7 @@ import {
     __torrentstream__loadingStateAtom,
     __torrentstream__stateAtom,
     TorrentStreamState,
-} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-loading-overlay"
+} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { useSetAtom } from "jotai/react"
 import React from "react"
 
