@@ -1,12 +1,19 @@
 import { Status } from "@/api/generated/types"
-import { useSaveSettings } from "@/api/hooks/settings.hooks"
+import { useGettingStarted } from "@/api/hooks/settings.hooks"
 import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { BetaBadge } from "@/components/shared/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
-import { DEFAULT_DOH_PROVIDER, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema, useDefaultSettingsPaths } from "@/lib/server/settings"
+import {
+    DEFAULT_DOH_PROVIDER,
+    DEFAULT_TORRENT_PROVIDER,
+    getDefaultMpcSocket,
+    gettingStartedSchema,
+    useDefaultSettingsPaths,
+} from "@/lib/server/settings"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
@@ -23,7 +30,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
     const { getDefaultVlcPath, getDefaultQBittorrentPath, getDefaultTransmissionPath } = useDefaultSettingsPaths()
     const setServerStatus = useSetServerStatus()
 
-    const { mutate, data, isPending, isSuccess } = useSaveSettings()
+    const { mutate, data, isPending, isSuccess } = useGettingStarted()
 
     /**
      * If the settings are returned, redirect to the home page
@@ -53,7 +60,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                         <h3>Getting started</h3>
                         <em className="text-[--muted]">These settings can be modified later.</em>
                         <Form
-                            schema={settingsSchema}
+                            schema={gettingStartedSchema}
                             onSubmit={data => {
                                 mutate({
                                     library: {
@@ -104,6 +111,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         enableAdultContent: data.enableAdultContent,
                                         blurAdultContent: false,
                                     },
+                                    enableTorrentStreaming: data.enableTorrentStreaming,
+                                    enableTranscode: data.enableTranscode,
                                 })
                             }}
                             defaultValues={{
@@ -126,6 +135,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 enableManga: true,
                                 enableOnlinestream: false,
                                 enableAdultContent: true,
+                                enableTorrentStreaming: false,
+                                enableTranscode: false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -374,10 +385,25 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 size="lg"
                             />
 
+
+                            <Field.Checkbox
+                                name="enableTorrentStreaming"
+                                label={<span>Torrent streaming <BetaBadge /></span>}
+                                help="Stream torrents directly to your media player without having to wait for the download to complete."
+                                size="lg"
+                            />
+
+                            <Field.Checkbox
+                                name="enableTranscode"
+                                label={<span>Media streaming / Transcoding <BetaBadge /></span>}
+                                help="Stream downloaded episodes to other devices. Some additional configuration is required."
+                                size="lg"
+                            />
+
                             <Field.Checkbox
                                 name="enableOnlinestream"
                                 label={<span>Online streaming</span>}
-                                help="Stream anime episodes from online sources."
+                                help="Watch anime episodes from online sources."
                                 size="lg"
                             />
 

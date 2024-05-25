@@ -4628,6 +4628,102 @@
     }
   },
   {
+    "name": "HandleGettingStarted",
+    "trimmedName": "GettingStarted",
+    "comments": [
+      "HandleGettingStarted",
+      "",
+      "\t@summary updates the app settings.",
+      "\t@desc This will update the app settings.",
+      "\t@desc The client should re-fetch the server status after this.",
+      "\t@route /api/v1/start [POST]",
+      "\t@returns handlers.Status",
+      ""
+    ],
+    "filepath": "internal/handlers/settings.go",
+    "filename": "settings.go",
+    "api": {
+      "summary": "updates the app settings.",
+      "descriptions": [
+        "This will update the app settings.",
+        "The client should re-fetch the server status after this."
+      ],
+      "endpoint": "/api/v1/start",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Library",
+          "jsonName": "library",
+          "goType": "models.LibrarySettings",
+          "usedStructType": "models.LibrarySettings",
+          "typescriptType": "Models_LibrarySettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaPlayer",
+          "jsonName": "mediaPlayer",
+          "goType": "models.MediaPlayerSettings",
+          "usedStructType": "models.MediaPlayerSettings",
+          "typescriptType": "Models_MediaPlayerSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "models.TorrentSettings",
+          "usedStructType": "models.TorrentSettings",
+          "typescriptType": "Models_TorrentSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Anilist",
+          "jsonName": "anilist",
+          "goType": "models.AnilistSettings",
+          "usedStructType": "models.AnilistSettings",
+          "typescriptType": "Models_AnilistSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Discord",
+          "jsonName": "discord",
+          "goType": "models.DiscordSettings",
+          "usedStructType": "models.DiscordSettings",
+          "typescriptType": "Models_DiscordSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EnableTranscode",
+          "jsonName": "enableTranscode",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EnableTorrentStreaming",
+          "jsonName": "enableTorrentStreaming",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "handlers.Status",
+      "returnGoType": "handlers.Status",
+      "returnTypescriptType": "Status"
+    }
+  },
+  {
     "name": "HandleSaveSettings",
     "trimmedName": "SaveSettings",
     "comments": [

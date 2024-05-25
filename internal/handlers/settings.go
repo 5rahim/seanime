@@ -25,6 +25,87 @@ func HandleGetSettings(c *RouteCtx) error {
 	return c.RespondWithData(settings)
 }
 
+// HandleGettingStarted
+//
+//	@summary updates the app settings.
+//	@desc This will update the app settings.
+//	@desc The client should re-fetch the server status after this.
+//	@route /api/v1/start [POST]
+//	@returns handlers.Status
+func HandleGettingStarted(c *RouteCtx) error {
+
+	type body struct {
+		Library                models.LibrarySettings     `json:"library"`
+		MediaPlayer            models.MediaPlayerSettings `json:"mediaPlayer"`
+		Torrent                models.TorrentSettings     `json:"torrent"`
+		Anilist                models.AnilistSettings     `json:"anilist"`
+		Discord                models.DiscordSettings     `json:"discord"`
+		EnableTranscode        bool                       `json:"enableTranscode"`
+		EnableTorrentStreaming bool                       `json:"enableTorrentStreaming"`
+	}
+	var b body
+
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	listSyncSettings := &models.ListSyncSettings{}
+	autoDownloaderSettings := &models.AutoDownloaderSettings{}
+	prevSettings, err := c.App.Database.GetSettings()
+	if err == nil && prevSettings.ListSync != nil {
+		listSyncSettings = prevSettings.ListSync
+	}
+	if err == nil && prevSettings.AutoDownloader != nil {
+		autoDownloaderSettings = prevSettings.AutoDownloader
+	}
+
+	settings, err := c.App.Database.UpsertSettings(&models.Settings{
+		BaseModel: models.BaseModel{
+			ID:        1,
+			UpdatedAt: time.Now(),
+		},
+		Library:        &b.Library,
+		MediaPlayer:    &b.MediaPlayer,
+		Torrent:        &b.Torrent,
+		Anilist:        &b.Anilist,
+		Discord:        &b.Discord,
+		ListSync:       listSyncSettings,
+		AutoDownloader: autoDownloaderSettings,
+	})
+
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	go func() {
+		if b.EnableTranscode {
+			stt := c.App.SecondarySettings.Mediastream
+			stt.TranscodeEnabled = true
+			_, err = c.App.Database.UpsertMediastreamSettings(stt)
+			if err != nil {
+				c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
+			}
+		}
+		if b.EnableTorrentStreaming {
+			stt := c.App.SecondarySettings.Torrentstream
+			stt.Enabled = true
+			_, err = c.App.Database.UpsertTorrentstreamSettings(stt)
+			if err != nil {
+				c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
+			}
+		}
+	}()
+
+	c.App.WSEventManager.SendEvent("settings", settings)
+
+	status := NewStatus(c)
+
+	// Refresh modules that depend on the settings
+	c.App.InitOrRefreshModules()
+
+	return c.RespondWithData(status)
+}
+
 // HandleSaveSettings
 //
 //	@summary updates the app settings.

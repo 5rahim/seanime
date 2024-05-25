@@ -34915,9 +34915,8 @@
       {
         "name": "subscribers",
         "jsonName": "subscribers",
-        "goType": "map[string]RepositorySubscriber",
-        "typescriptType": "Record\u003cstring, RepositorySubscriber\u003e",
-        "usedStructName": "mediaplayer.RepositorySubscriber",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []
@@ -36551,15 +36550,6 @@
         ]
       },
       {
-        "name": "transcoderSettings",
-        "jsonName": "transcoderSettings",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "repository",
         "jsonName": "repository",
         "goType": "Repository",
@@ -36746,6 +36736,16 @@
         "goType": "filecache.Cacher",
         "typescriptType": "Filecache_Cacher",
         "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "reqMu",
+        "jsonName": "reqMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
         "comments": []

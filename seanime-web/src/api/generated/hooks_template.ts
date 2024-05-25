@@ -1185,6 +1185,17 @@
 //     })
 // }
 
+// export function useGettingStarted() {
+//     return useServerMutation<Status, GettingStarted_Variables>({
+//         endpoint: API_ENDPOINTS.SETTINGS.GettingStarted.endpoint,
+//         method: API_ENDPOINTS.SETTINGS.GettingStarted.methods[0],
+//         mutationKey: [API_ENDPOINTS.SETTINGS.GettingStarted.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useSaveSettings() {
 //     return useServerMutation<Status, SaveSettings_Variables>({
 //         endpoint: API_ENDPOINTS.SETTINGS.SaveSettings.endpoint,

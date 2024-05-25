@@ -6,6 +6,11 @@ export const DEFAULT_TORRENT_CLIENT = "qbittorrent"
 
 export const DEFAULT_DOH_PROVIDER = ""
 
+export const _gettingStartedSchema = z.object({
+    enableTranscode: z.boolean().optional().default(false),
+    enableTorrentStreaming: z.boolean().optional().default(false),
+})
+
 export const settingsSchema = z.object({
     libraryPath: z.string().min(1),
     defaultPlayer: z.string(),
@@ -46,6 +51,8 @@ export const settingsSchema = z.object({
     openTorrentClientOnStart: z.boolean().optional().default(false),
     openWebURLOnStart: z.boolean().optional().default(false),
 })
+
+export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)
 
 export function useDefaultSettingsPaths() {
 

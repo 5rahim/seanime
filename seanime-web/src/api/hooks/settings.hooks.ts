@@ -1,5 +1,10 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { SaveAutoDownloaderSettings_Variables, SaveListSyncSettings_Variables, SaveSettings_Variables } from "@/api/generated/endpoint.types"
+import {
+    GettingStarted_Variables,
+    SaveAutoDownloaderSettings_Variables,
+    SaveListSyncSettings_Variables,
+    SaveSettings_Variables,
+} from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Models_Settings, Status } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -11,6 +16,20 @@ export function useGetSettings() {
         method: API_ENDPOINTS.SETTINGS.GetSettings.methods[0],
         queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key],
         enabled: true,
+    })
+}
+
+export function useGettingStarted() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<Status, GettingStarted_Variables>({
+        endpoint: API_ENDPOINTS.SETTINGS.GettingStarted.endpoint,
+        method: API_ENDPOINTS.SETTINGS.GettingStarted.methods[0],
+        mutationKey: [API_ENDPOINTS.SETTINGS.GettingStarted.key],
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
+        },
     })
 }
 

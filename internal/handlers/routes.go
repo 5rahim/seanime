@@ -85,6 +85,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Settings
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
+	v1.Post("/start", makeHandler(app, HandleGettingStarted))
 	v1.Patch("/settings/list-sync", makeHandler(app, HandleSaveListSyncSettings))
 	v1.Patch("/settings/auto-downloader", makeHandler(app, HandleSaveAutoDownloaderSettings))
 

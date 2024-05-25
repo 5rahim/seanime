@@ -1037,6 +1037,17 @@ export const API_ENDPOINTS = {
          *  This will update the app settings.
          *  The client should re-fetch the server status after this.
          */
+        GettingStarted: {
+            key: "SETTINGS-getting-started",
+            methods: ["POST"],
+            endpoint: "/api/v1/start",
+        },
+        /**
+         *  @description
+         *  Route updates the app settings.
+         *  This will update the app settings.
+         *  The client should re-fetch the server status after this.
+         */
         SaveSettings: {
             key: "SETTINGS-save-settings",
             methods: ["PATCH"],

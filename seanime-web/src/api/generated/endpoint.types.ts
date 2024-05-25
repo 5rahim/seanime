@@ -935,6 +935,23 @@ export type ScanLocalFiles_Variables = {
 /**
  * - Filepath: internal/handlers/settings.go
  * - Filename: settings.go
+ * - Endpoint: /api/v1/start
+ * @description
+ * Route updates the app settings.
+ */
+export type GettingStarted_Variables = {
+    library: Models_LibrarySettings
+    mediaPlayer: Models_MediaPlayerSettings
+    torrent: Models_TorrentSettings
+    anilist: Models_AnilistSettings
+    discord: Models_DiscordSettings
+    enableTranscode: boolean
+    enableTorrentStreaming: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/settings.go
+ * - Filename: settings.go
  * - Endpoint: /api/v1/settings
  * @description
  * Route updates the app settings.
