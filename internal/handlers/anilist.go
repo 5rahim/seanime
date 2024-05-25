@@ -28,6 +28,9 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 	}
 
 	go func() {
+		if c.App.Settings == nil {
+			return
+		}
 		if c.App.Settings.Library.EnableManga {
 			_, _ = c.App.GetMangaCollection(bypassCache)
 			if bypassCache {

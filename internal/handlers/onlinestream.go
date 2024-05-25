@@ -28,7 +28,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if !c.App.Settings.Library.EnableOnlinestream {
+	if c.App.Settings == nil || !c.App.Settings.Library.EnableOnlinestream {
 		return c.RespondWithError(errors.New("enable online streaming in the settings"))
 	}
 

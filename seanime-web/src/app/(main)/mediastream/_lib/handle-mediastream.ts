@@ -125,7 +125,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Fetch media container containing stream URL
      */
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, isFetching, refetch } = useRequestMediastreamMediaContainer({
-        // path: filePath,
+        path: filePath,
         streamType: streamType,
         clientId: sessionId,
     })

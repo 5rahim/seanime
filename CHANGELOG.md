@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.2
+
+- 🦺 Fixed transcoding not starting (regression in v1.5.1)
+- 🦺 Fixed Discover page header opacity issues
+- 🦺 Fixed runtime error caused by missing settings
+- 🏗️ Reduced latency when reading local files
+
 ## v1.5.1
 
 - ⚡️ Reduced memory usage
