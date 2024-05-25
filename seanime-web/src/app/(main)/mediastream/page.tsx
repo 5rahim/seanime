@@ -24,9 +24,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import "@vidstack/react/player/styles/base.css"
-// import '@vidstack/react/player/styles/plyr/theme.css';
-import "@/app/(main)/mediastream/_components/player.css"
-
 
 export default function Page() {
 
