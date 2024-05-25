@@ -5,6 +5,7 @@ seanime-web/.env.development
 seanime-web/.env.desktop
 seanime-web/.env.mobile
 .run/
+testdata/
 
 Dockerfile
 .dockerignore

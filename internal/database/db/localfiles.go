@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/goccy/go-json"
+	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"gorm.io/gorm/clause"
@@ -9,6 +10,11 @@ import (
 
 // GetLocalFiles will return the latest local files and the id of the entry.
 func (db *Database) GetLocalFiles() ([]*anime.LocalFile, uint, error) {
+
+	if db.currLocalFiles.IsPresent() {
+		return db.currLocalFiles.MustGet(), db.currLocalFilesDbId, nil
+	}
+
 	// Get the latest entry
 	var res models.LocalFiles
 	err := db.gormdb.Last(&res).Error
@@ -22,6 +28,11 @@ func (db *Database) GetLocalFiles() ([]*anime.LocalFile, uint, error) {
 	if err := json.Unmarshal(lfsBytes, &lfs); err != nil {
 		return nil, 0, err
 	}
+
+	db.logger.Debug().Msg("db: Got local files from database")
+
+	db.currLocalFiles = mo.Some(lfs)
+	db.currLocalFilesDbId = res.ID
 
 	return lfs, res.ID, nil
 }
@@ -51,6 +62,9 @@ func (db *Database) SaveLocalFiles(lfsId uint, lfs []*anime.LocalFile) ([]*anime
 		return lfs, nil
 	}
 
+	db.currLocalFiles = mo.Some(retLfs)
+	db.currLocalFilesDbId = ret.ID
+
 	return retLfs, nil
 }
 
@@ -64,11 +78,16 @@ func (db *Database) InsertLocalFiles(lfs []*anime.LocalFile) ([]*anime.LocalFile
 	}
 
 	// Save the local files to the database
-	if _, err := db.insertLocalFiles(&models.LocalFiles{
+	ret, err := db.insertLocalFiles(&models.LocalFiles{
 		Value: bytes,
-	}); err != nil {
+	})
+
+	if err != nil {
 		return nil, err
 	}
+
+	db.currLocalFiles = mo.Some(lfs)
+	db.currLocalFilesDbId = ret.ID
 
 	return lfs, nil
 

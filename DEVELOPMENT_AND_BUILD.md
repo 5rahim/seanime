@@ -11,13 +11,17 @@ I recommend creating a dummy AniList account for testing purposes.
 
 ## Server
 
-1. Run this command to start the server:
+1. Choose a data directory for testing. This is where the server will store all its data.
+
+2. Run this command to start the server:
 	```bash
 	go run cmd/main.go --datadir="path/to/datadir"
 	```
 	I recommend passing the `--datadir` flag to specify a test data directory. This will prevent the server from writing to your actual data directory.
 
-2. The server will start on `http://127.0.0.1:43211`.
+3. Change the port in the `config.toml` file to `43000` to avoid conflicts with the release version. And change the host to `0.0.0.0` to allow connections from other devices.
+
+4. The server will start on `http://127.0.0.1:43000`.
 
 ## Web
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"gorm.io/gorm"
@@ -15,9 +16,10 @@ import (
 )
 
 type Database struct {
-	gormdb         *gorm.DB
-	logger         *zerolog.Logger
-	currLocalFiles []*anime.LocalFile
+	gormdb             *gorm.DB
+	logger             *zerolog.Logger
+	currLocalFilesDbId uint
+	currLocalFiles     mo.Option[[]*anime.LocalFile]
 }
 
 func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
