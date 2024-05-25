@@ -3,12 +3,10 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
-	"github.com/seanime-app/seanime/internal/util/result"
 )
 
-var libraryCollectionMap = result.NewResultMap[string, *anime.LibraryCollection]()
+//var libraryCollectionMap = result.NewResultMap[string, *anime.LibraryCollection]()
 
 // HandleGetLibraryCollection
 //
@@ -28,11 +26,12 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	ret, ok := libraryCollectionMap.Get(util.GetMemAddrStr(anilistCollection))
-	if ok {
-		c.App.Logger.Debug().Msg("api: Library collection cache HIT")
-		return c.RespondWithData(ret)
-	}
+	// DEVNOTE: Bad
+	//ret, ok := libraryCollectionMap.Get(util.GetMemAddrStr(anilistCollection))
+	//if ok {
+	//	c.App.Logger.Debug().Msg("api: Library collection cache HIT")
+	//	return c.RespondWithData(ret)
+	//}
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
@@ -50,12 +49,12 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	go func() {
-		if libraryCollection != nil {
-			libraryCollectionMap.Clear()
-			libraryCollectionMap.Set(util.GetMemAddrStr(anilistCollection), libraryCollection)
-		}
-	}()
+	//go func() {
+	//	if libraryCollection != nil {
+	//		libraryCollectionMap.Clear()
+	//		libraryCollectionMap.Set(util.GetMemAddrStr(anilistCollection), libraryCollection)
+	//	}
+	//}()
 
 	return c.RespondWithData(libraryCollection)
 }

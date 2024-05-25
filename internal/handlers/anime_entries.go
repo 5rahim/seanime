@@ -14,7 +14,6 @@ import (
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/library/summary"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"github.com/sourcegraph/conc/pool"
@@ -452,7 +451,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-var missingEpisodesMap = result.NewResultMap[string, *anime.MissingEpisodes]()
+//var missingEpisodesMap = result.NewResultMap[string, *anime.MissingEpisodes]()
 
 // HandleGetMissingEpisodes
 //
@@ -471,11 +470,12 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	ret, ok := missingEpisodesMap.Get(util.GetMemAddrStr(anilistCollection))
-	if ok {
-		c.App.Logger.Info().Msg("api: Library collection cache HIT")
-		return c.RespondWithData(ret)
-	}
+	// DEVNOTE: Bad
+	//ret, ok := missingEpisodesMap.Get(util.GetMemAddrStr(anilistCollection))
+	//if ok {
+	//	c.App.Logger.Info().Msg("api: Library collection cache HIT")
+	//	return c.RespondWithData(ret)
+	//}
 
 	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
@@ -493,12 +493,12 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		MetadataProvider:  c.App.MetadataProvider,
 	})
 
-	go func() {
-		if missingEps != nil {
-			missingEpisodesMap.Clear()
-			missingEpisodesMap.Set(util.GetMemAddrStr(anilistCollection), missingEps)
-		}
-	}()
+	//go func() {
+	//	if missingEps != nil {
+	//		missingEpisodesMap.Clear()
+	//		missingEpisodesMap.Set(util.GetMemAddrStr(anilistCollection), missingEps)
+	//	}
+	//}()
 
 	return c.RespondWithData(missingEps)
 
