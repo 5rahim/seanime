@@ -30,6 +30,13 @@ export function DiscoverPageHeader() {
     return (
         <motion.div
             className="__header lg:h-[26rem]"
+            {...{
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                transition: {
+                    duration: 1.2,
+                },
+            }}
         >
             <div
                 className="CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[48rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-75% to-transparent via"
@@ -57,7 +64,7 @@ export function DiscoverPageHeader() {
                             priority
                             sizes="100vw"
                             {...{
-                                initial: { opacity: 0.1 },
+                                initial: { opacity: 1 },
                                 animate: { opacity: 1 },
                                 exit: { opacity: 0 },
                                 transition: {
