@@ -1,7 +1,6 @@
 import { Status } from "@/api/generated/types"
 import { useGettingStarted } from "@/api/hooks/settings.hooks"
 import { useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -386,19 +385,19 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             />
 
 
-                            <Field.Checkbox
-                                name="enableTorrentStreaming"
-                                label={<span>Torrent streaming <BetaBadge /></span>}
-                                help="Stream torrents directly to your media player without having to wait for the download to complete."
-                                size="lg"
-                            />
+                            {/*<Field.Checkbox*/}
+                            {/*    name="enableTorrentStreaming"*/}
+                            {/*    label={<span>Torrent streaming <BetaBadge /></span>}*/}
+                            {/*    help="Stream torrents directly to your media player without having to wait for the download to complete."*/}
+                            {/*    size="lg"*/}
+                            {/*/>*/}
 
-                            <Field.Checkbox
-                                name="enableTranscode"
-                                label={<span>Media streaming / Transcoding <BetaBadge /></span>}
-                                help="Stream downloaded episodes to other devices. Some additional configuration is required."
-                                size="lg"
-                            />
+                            {/*<Field.Checkbox*/}
+                            {/*    name="enableTranscode"*/}
+                            {/*    label={<span>Media streaming / Transcoding <BetaBadge /></span>}*/}
+                            {/*    help="Stream downloaded episodes to other devices. Some additional configuration is required."*/}
+                            {/*    size="lg"*/}
+                            {/*/>*/}
 
                             <Field.Checkbox
                                 name="enableOnlinestream"

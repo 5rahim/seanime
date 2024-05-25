@@ -6,7 +6,6 @@ All notable changes to this project will be documented in this file.
 
 - ⚡️ Reduced memory usage
 - ⚡️ Automatic Transcoding cache cleanup on server startup
-- ⚡️ Added more fields to getting started screen
 - 🚀 Added Docker image for Linux arm64 #63
 - 🚑️ Fixed occasional runtime error caused by internal module
 - 💄 UI: Improved stream page layouts

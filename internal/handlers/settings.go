@@ -77,24 +77,24 @@ func HandleGettingStarted(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	go func() {
-		if b.EnableTranscode {
-			stt := c.App.SecondarySettings.Mediastream
-			stt.TranscodeEnabled = true
-			_, err = c.App.Database.UpsertMediastreamSettings(stt)
-			if err != nil {
-				c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
-			}
-		}
-		if b.EnableTorrentStreaming {
-			stt := c.App.SecondarySettings.Torrentstream
-			stt.Enabled = true
-			_, err = c.App.Database.UpsertTorrentstreamSettings(stt)
-			if err != nil {
-				c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
-			}
-		}
-	}()
+	//go func() {
+	//	if b.EnableTranscode {
+	//		stt := c.App.SecondarySettings.Mediastream
+	//		stt.TranscodeEnabled = true
+	//		_, err = c.App.Database.UpsertMediastreamSettings(stt)
+	//		if err != nil {
+	//			c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
+	//		}
+	//	}
+	//	if b.EnableTorrentStreaming {
+	//		stt := c.App.SecondarySettings.Torrentstream
+	//		stt.Enabled = true
+	//		_, err = c.App.Database.UpsertTorrentstreamSettings(stt)
+	//		if err != nil {
+	//			c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
+	//		}
+	//	}
+	//}()
 
 	c.App.WSEventManager.SendEvent("settings", settings)
 
