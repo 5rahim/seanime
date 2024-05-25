@@ -42,7 +42,7 @@ Feel free to open issues if you notice any bugs, open discussions if you have qu
 Read the installation guide to set up Seanime on your device.
 
 <p align="center">
-<a href="https://seanime.rahim.app/docs/getting-started" style="font-size:18px;" align="center">
+<a href="https://seanime.rahim.app/docs" style="font-size:18px;" align="center">
 How to install Seanime
 </a>
 </p>

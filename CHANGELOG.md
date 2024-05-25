@@ -4,11 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.1
 
-- ⚡️ 
-- ⚡️ Reduced memory usage when browsing library
+- ⚡️ Reduced memory usage
 - ⚡️ Automatic Transcoding cache cleanup on server startup
 - 🚀 Added Docker image for Linux arm64 #63
-- 🚑️ Fixed occasional runtime error caused by media player module
+- 🚑️ Fixed occasional runtime error caused by internal module
+- 💄 UI: Improved stream page layouts
 - 🦺 Fixed Transcode playback error when switching episodes
 - 🦺 Fixed MPV regression caused by custom path being ignored
 - 🦺 Fixed hanging request when re-enabling Torrent streaming after initialization failure
