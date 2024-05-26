@@ -22,9 +22,8 @@ import (
 )
 
 func TestTorrentstream(t *testing.T) {
-	t.Skip()
 	test_utils.SetTwoLevelDeep()
-	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
+	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer(), test_utils.Torrentstream())
 
 	logger := util.NewLogger()
 	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)

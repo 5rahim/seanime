@@ -38,6 +38,7 @@ type (
 		EnableMalMutationTests     bool `mapstructure:"enable_mal_mutation_tests"`
 		EnableMediaPlayerTests     bool `mapstructure:"enable_media_player_tests"`
 		EnableTorrentClientTests   bool `mapstructure:"enable_torrent_client_tests"`
+		EnableTorrentstreamTests   bool `mapstructure:"enable_torrentstream_tests"`
 	}
 
 	ProviderConfig struct {
@@ -83,7 +84,16 @@ func Anilist() FlagFunc {
 
 func AnilistMutation() FlagFunc {
 	return func() bool {
-		return ConfigData.Flags.EnableAnilistMutationTests
+		f := ConfigData.Flags.EnableAnilistMutationTests
+		if !f {
+			fmt.Println("skipping anilist mutation tests")
+			return false
+		}
+		if ConfigData.Provider.AnilistJwt == "" {
+			fmt.Println("skipping anilist mutation tests, no anilist jwt")
+			return false
+		}
+		return true
 	}
 }
 func MyAnimeList() FlagFunc {
@@ -93,17 +103,40 @@ func MyAnimeList() FlagFunc {
 }
 func MyAnimeListMutation() FlagFunc {
 	return func() bool {
-		return ConfigData.Flags.EnableMalMutationTests
+		f := ConfigData.Flags.EnableMalMutationTests
+		if !f {
+			fmt.Println("skipping mal mutation tests")
+			return false
+		}
+		if ConfigData.Provider.MalJwt == "" {
+			fmt.Println("skipping mal mutation tests, no mal jwt")
+			return false
+		}
+		return true
 	}
 }
 func MediaPlayer() FlagFunc {
 	return func() bool {
-		return ConfigData.Flags.EnableMediaPlayerTests
+		f := ConfigData.Flags.EnableMediaPlayerTests
+		if !f {
+			fmt.Println("skipping media player tests")
+			return false
+		}
+		if ConfigData.Provider.MpvPath == "" {
+			fmt.Println("skipping media player tests, no mpv path")
+			return false
+		}
+		return true
 	}
 }
 func TorrentClient() FlagFunc {
 	return func() bool {
 		return ConfigData.Flags.EnableTorrentClientTests
+	}
+}
+func Torrentstream() FlagFunc {
+	return func() bool {
+		return ConfigData.Flags.EnableTorrentstreamTests
 	}
 }
 

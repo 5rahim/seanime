@@ -9,7 +9,7 @@ import (
 )
 
 func TestTrans(t *testing.T) {
-	//t.Skip()
+	t.Skip("Do not run")
 	var dest = "E:\\TRANSCODING_TEMP\\id\\index.m3u8"
 	var videopath = "E:\\ANIME\\Dungeon Meshi\\[EMBER] Dungeon Meshi - 15.mkv"
 	_ = os.MkdirAll(filepath.Dir(dest), 0755)

@@ -30,7 +30,7 @@ func TestEpisodes(t *testing.T) {
 		{"[Hatsuyuki] Dragon Ball Kai (2014) - 002 (100) [1280x720][DD66AFB7].mkv", []string{"002"}, false},
 		{"[Coalgirls]_White_Album_1-13_(1280×720_Blu-Ray_FLAC)", []string{"1", "13"}, false},
 		{"[Seanime]_One_Piece_800-994_(1280×720_Blu-Ray_FLAC)", []string{"800", "994"}, false},
-		{"Code_Geass_R2_TV_[20_of_25]_[ru_jp]_[HDTV]_[Varies_&_Cuba77_&_AnimeReactor_RU].mkv", []string{"20", "25"}, false},
+		{"Code_Geass_R2_TV_[20_of_25]_[ru_jp]_[HDTV]_[Varies_&_Cuba77_&_AnimeReactor_RU].mkv", []string{"20"}, true},
 		{"【MMZYSUB】★【Golden Time】[24（END）][GB][720P_MP4]", []string{"24"}, false},
 		{"[Trix] Shingeki no Kyojin - S04E29-31 (Part 3) [Multi Subs] (1080p AV1 E-AC3)", []string{"29", "31"}, false},
 	}

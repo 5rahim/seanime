@@ -18,13 +18,13 @@ func TestImageDownloader_DownloadImages(t *testing.T) {
 			name: "test1",
 			urls: []string{"https://s4.anilist.co/file/anilistcdn/media/anime/banner/153518-7uRvV7SLqmHV.jpg",
 				"https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx153518-LEK6pAXtI03D.jpg"},
-			downloadDir: "./test1",
+			downloadDir: t.TempDir(),
 			cancelAfter: 0,
 		},
 		{
 			name:        "test1",
 			urls:        []string{"https://s4.anilist.co/file/anilistcdn/media/anime/banner/153518-7uRvV7SLqmHVn.jpg"},
-			downloadDir: "./test1",
+			downloadDir: t.TempDir(),
 			cancelAfter: 0,
 		},
 	}

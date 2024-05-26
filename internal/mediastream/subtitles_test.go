@@ -11,7 +11,7 @@ import (
 )
 
 func TestExtract(t *testing.T) {
-	t.Skip()
+	t.Skip("Do not run")
 
 	filep := "E:/ANIME/[Judas] Blue Lock (Season 1) [1080p][HEVC x265 10bit][Dual-Audio][Multi-Subs]/[Judas] Blue Lock - S01E03v2.mkv"
 	outputDir := "E:/ANIME_TEST/blue_lock"
