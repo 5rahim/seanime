@@ -132,10 +132,10 @@ Development and testing might require additional configuration.
 <img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
 <img src="docs/images/v1/my-library_06.png" alt="preview" width="100%"/>
 
-<summary>View more</summary>
 <img src="docs/images/v1/playback.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
 <details>
+<summary>View more</summary>
 <img src="docs/images/v1/torrentstream_02.png" alt="preview" width="100%"/>
 <img src="docs/images/v1/mediastream.png" alt="preview" width="100%"/>
 
