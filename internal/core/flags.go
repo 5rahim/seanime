@@ -26,12 +26,11 @@ func GetSeanimeFlags() SeanimeFlags {
 	// Parse flags
 	var dataDir string
 	flag.StringVar(&dataDir, "datadir", "", "Directory that contains all Seanime data")
-	var truewd bool
-	flag.BoolVar(&truewd, "truewd", false, "Force Seanime to use the binary's directory as the working directory")
+	//var truewd bool
+	//flag.BoolVar(&truewd, "truewd", false, "Force Seanime to use the binary's directory as the working directory")
 	flag.Parse()
 
 	return SeanimeFlags{
 		DataDir: strings.TrimSpace(dataDir),
-		TrueWd:  truewd,
 	}
 }

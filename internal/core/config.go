@@ -14,9 +14,10 @@ import (
 type Config struct {
 	Version string
 	Server  struct {
-		Host    string
-		Port    int
-		Offline bool
+		Host          string
+		Port          int
+		Offline       bool
+		UseBinaryPath bool // Makes $SEANIME_WORKING_DIR point to the binary's directory
 	}
 	Database struct {
 		Name string
@@ -51,7 +52,6 @@ type Config struct {
 type ConfigOptions struct {
 	DataDir         string // The path to the Seanime data directory, if any
 	OnVersionChange []func(oldVersion string, newVersion string)
-	TrueWd          bool
 }
 
 // NewConfig initializes the config
@@ -85,7 +85,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	}
 
 	// Set Seanime's default custom environment variables
-	if err = setDefaultEnvironmentVariables(dataDir, options.TrueWd); err != nil {
+	if err = setDataDirEnv(dataDir); err != nil {
 		return nil, err
 	}
 
@@ -99,6 +99,8 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("server.host", defaultHost)
 	viper.SetDefault("server.port", defaultPort)
 	viper.SetDefault("server.offline", false)
+	// Use the binary's directory as the working directory environment variable on macOS
+	viper.SetDefault("server.useBinaryPath", true)
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.dir", "$SEANIME_WORKING_DIR/web")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
@@ -127,6 +129,11 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 
 	// Update the config if the version has changed
 	if err := updateVersion(cfg, options); err != nil {
+		return nil, err
+	}
+
+	// Before expanding the values, check if we need to override the working directory
+	if err = setWorkingDirEnv(cfg.Server.UseBinaryPath); err != nil {
 		return nil, err
 	}
 
@@ -160,40 +167,62 @@ func (cfg *Config) GetServerURI(df ...string) string {
 	return pAddr
 }
 
-func setDefaultEnvironmentVariables(dataDir string, trueWd bool) error {
+func getWorkingDir(useBinaryPath bool) (string, error) {
+	// Get the working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	binaryDir := ""
+	if exe, err := os.Executable(); err == nil {
+		if p, err := filepath.EvalSymlinks(exe); err == nil {
+			binaryDir = filepath.Dir(p)
+			binaryDir = filepath.FromSlash(binaryDir)
+		}
+	}
+
+	if useBinaryPath && binaryDir != "" {
+		return binaryDir, nil
+	}
+
+	//// Use the binary's directory as the working directory if needed
+	//if useBinaryPath {
+	//	exe, err := os.Executable()
+	//	if err != nil {
+	//		return wd, nil // Fallback to working dir
+	//	}
+	//	p, err := filepath.EvalSymlinks(exe)
+	//	if err != nil {
+	//		return wd, nil // Fallback to working dir
+	//	}
+	//	wd = filepath.Dir(p) // Set the binary's directory as the working directory
+	//	return wd, nil
+	//}
+	return wd, nil
+}
+
+func setDataDirEnv(dataDir string) error {
+	// Set the data directory environment variable
 	if os.Getenv("SEANIME_DATA_DIR") == "" {
 		if err := os.Setenv("SEANIME_DATA_DIR", dataDir); err != nil {
 			return err
 		}
 	}
 
-	var useGetwd bool
-	if trueWd {
-		if os.Getenv("SEANIME_WORKING_DIR") == "" {
-			wd, err := os.Executable()
-			if err != nil {
-				useGetwd = true
-			}
-			wd, err = filepath.EvalSymlinks(wd)
-			if err != nil {
-				useGetwd = true
-			}
-			wd = filepath.Dir(wd)
-			if err = os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
-				return err
-			}
-			useGetwd = false
-		}
-	} else {
-		useGetwd = true
+	return nil
+}
+
+func setWorkingDirEnv(useBinaryPath bool) error {
+	// Set the working directory environment variable
+	wd, err := getWorkingDir(useBinaryPath)
+	if err != nil {
+		return err
+	}
+	if err = os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
+		return err
 	}
 
-	if useGetwd {
-		wd, _ := os.Getwd()
-		if err := os.Setenv("SEANIME_WORKING_DIR", filepath.FromSlash(wd)); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
@@ -226,11 +255,6 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if cfg.Manga.DownloadDir == "" {
 		return errInvalidConfigValue("manga.downloadDir", "cannot be empty")
 	}
-
-	// Uncomment if "mediastream" is no longer an experimental feature
-	//if cfg.Experimental.Mediastream != nil {
-	//	logger.Warn().Msgf("app: 'Media streaming' feature is no longer experimental, please remove the flag from your config file")
-	//}
 
 	return nil
 }

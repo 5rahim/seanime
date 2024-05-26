@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.3
+
+- 🏗️ Use binary path as working directory variable by default
+  - This eliminates the need to use the `--truewd` flag to point to the correct web directory location
+- 🏗️ Added `server.usebinarypath` field to config.toml
+  - Enforces the use of binary path as working directory variable
+  - Default is `true`. Set to `false` to use the system's working directory
+- 🏗️ Removed `--truewd` flag
+
 ## v1.5.2
 
 - 🦺 Fixed transcoding not starting (regression in v1.5.1)

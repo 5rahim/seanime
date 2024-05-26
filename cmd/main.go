@@ -17,7 +17,6 @@ func main() {
 	// Create the app instance
 	app := core.NewApp(&core.ConfigOptions{
 		DataDir: flags.DataDir,
-		TrueWd:  flags.TrueWd,
 	})
 	defer app.Cleanup()
 
