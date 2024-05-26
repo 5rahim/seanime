@@ -200,7 +200,7 @@ func (q *Queue) runNext() {
 		return
 	}
 
-	// FIXME: This is a temporary fix to prevent the downloader from running too fast.
+	// TODO: This is a temporary fix to prevent the downloader from running too fast.
 	time.Sleep(5 * time.Second)
 
 	q.logger.Info().Msgf("chapter downloader: Running next item in queue: %s", id.ChapterId)

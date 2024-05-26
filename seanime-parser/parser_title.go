@@ -59,7 +59,7 @@ func (p *parser) parseEpisodeTitle() {
 	p.tokenManager.tokens.combineTitle(tkns[0], tkns[len(tkns)-1], metadataEpisodeTitle)
 
 	// If the episode title is between parentheses, then consider it a ReleaseGroup
-	// FIXME might lead to false positives
+	// TODO fix, might lead to false positives
 	_newTkn := p.tokenManager.tokens.getFromUUID(tkns[0].UUID)
 	if p.tokenManager.tokens.isBetweenParentheses(_newTkn) {
 		_newTkn.setMetadataCategory(metadataReleaseGroup)
@@ -180,7 +180,7 @@ func (p *parser) parseTitleIfAllEnclosed() (foundTitle bool) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 // DEVOTE
-// FIXME Evangelion 1.0 You Are [Not] Alone, fails because of "[Not]"'
+// TODO fix, Evangelion 1.0 You Are [Not] Alone, fails because of "[Not]"'
 // One solution would be to check if "[unknown]" is isolated, and if it is, add it to the title and continue until next opening bracket
 
 func (p *parser) parseTitle() {

@@ -74,7 +74,7 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 			Payload: payload,
 		})
 		if err != nil {
-			// FIXME NaN error coming from [progress_tracking.go]
+			// TODO NaN error coming from [progress_tracking.go]
 			//m.Logger.Err(err).Msg("ws: Failed to send message")
 		}
 		//m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
