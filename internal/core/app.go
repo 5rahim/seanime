@@ -200,7 +200,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		ListSyncCache:           listsync.NewCache(),
 		Logger:                  logger,
 		Version:                 constants.Version,
-		Updater:                 updater.New(constants.Version),
+		Updater:                 updater.New(constants.Version, logger),
 		FileCacher:              fileCacher,
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,

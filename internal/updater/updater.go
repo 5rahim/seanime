@@ -1,5 +1,7 @@
 package updater
 
+import "github.com/rs/zerolog"
+
 const (
 	PatchRelease = "patch"
 	MinorRelease = "minor"
@@ -12,6 +14,7 @@ type (
 		hasCheckedForUpdate bool
 		LatestRelease       *Release
 		checkForUpdate      bool
+		logger              *zerolog.Logger
 	}
 
 	Update struct {
@@ -46,11 +49,12 @@ type (
 	}
 )
 
-func New(currVersion string) *Updater {
+func New(currVersion string, logger *zerolog.Logger) *Updater {
 	return &Updater{
 		CurrentVersion:      currVersion,
 		hasCheckedForUpdate: false,
 		checkForUpdate:      true,
+		logger:              logger,
 	}
 }
 
