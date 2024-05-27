@@ -308,9 +308,15 @@ func NewFiberApp(app *App) *fiber.App {
 // RunServer starts the server
 func RunServer(app *App, fiberApp *fiber.App) {
 	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
+
+	app.Cleanups = append(app.Cleanups, func() {
+		_ = fiberApp.Shutdown()
+	})
 	// Start the server
 	go func() {
+
 		log.Fatal(fiberApp.Listen(app.Config.GetServerAddr()))
+
 	}()
 
 	app.Logger.Info().Msg("app: Seanime started at " + app.Config.GetServerURI())

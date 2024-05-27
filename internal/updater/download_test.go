@@ -16,7 +16,7 @@ func TestUpdater_DownloadLatestRelease(t *testing.T) {
 	tempDir := t.TempDir()
 
 	// Get the latest release
-	release, err := updater.getLatestRelease()
+	release, err := updater.GetLatestRelease()
 	if err != nil {
 		t.Fatal(err)
 	}

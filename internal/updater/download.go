@@ -36,7 +36,7 @@ func (u *Updater) DownloadLatestRelease(assetUrl, dest string) (string, error) {
 
 	u.logger.Info().Str("dest", dest).Msg("updater: Downloaded release assets")
 
-	fp, err := u.decompressAsset(fpath)
+	fp, err := u.decompressAsset(fpath, "")
 	if err != nil {
 		u.logger.Error().Err(err).Msg("updater: Failed to decompress release assets")
 		return fp, ErrExtractionFailed
@@ -48,8 +48,39 @@ func (u *Updater) DownloadLatestRelease(assetUrl, dest string) (string, error) {
 	return dest, nil
 }
 
-func (u *Updater) decompressZip(archivePath string) (dest string, err error) {
+func (u *Updater) DownloadLatestReleaseN(assetUrl, dest, folderName string) (string, error) {
+	if u.LatestRelease == nil {
+		return "", errors.New("no new release found")
+	}
+
+	u.logger.Debug().Str("asset_url", assetUrl).Str("dest", dest).Msg("updater: Downloading latest release")
+
+	fpath, err := u.downloadAsset(assetUrl, dest)
+	if err != nil {
+		return "", err
+	}
+
+	dest = filepath.Dir(fpath)
+
+	u.logger.Info().Str("dest", dest).Msg("updater: Downloaded release assets")
+
+	fp, err := u.decompressAsset(fpath, folderName)
+	if err != nil {
+		u.logger.Error().Err(err).Msg("updater: Failed to decompress release assets")
+		return fp, err
+	}
+	dest = fp
+
+	u.logger.Info().Str("dest", dest).Msg("updater: Successfully decompressed downloaded release assets")
+
+	return dest, nil
+}
+
+func (u *Updater) decompressZip(archivePath string, folderName string) (dest string, err error) {
 	topFolderName := "seanime-" + u.LatestRelease.Version
+	if folderName != "" {
+		topFolderName = folderName
+	}
 	// "/seanime-repo/seanime-v1.0.0.zip" -> "/seanime-repo/seanime-1.0.0/"
 	dest = filepath.Join(filepath.Dir(archivePath), topFolderName) // "/seanime-repo/seanime-v1.0.0"
 
@@ -116,8 +147,11 @@ func (u *Updater) decompressZip(archivePath string) (dest string, err error) {
 	return dest, nil
 }
 
-func (u *Updater) decompressTarGz(archivePath string) (dest string, err error) {
+func (u *Updater) decompressTarGz(archivePath string, folderName string) (dest string, err error) {
 	topFolderName := "seanime-" + u.LatestRelease.Version
+	if folderName != "" {
+		topFolderName = folderName
+	}
 	dest = filepath.Join(filepath.Dir(archivePath), topFolderName)
 
 	if _, err := os.Stat(dest); err == nil {
@@ -193,7 +227,7 @@ func (u *Updater) decompressTarGz(archivePath string) (dest string, err error) {
 
 // decompressAsset will uncompress the release assets and delete the compressed folder
 //   - "/seanime-repo/seanime-v1.0.0.zip" -> "/seanime-repo/seanime-1.0.0/"
-func (u *Updater) decompressAsset(archivePath string) (dest string, err error) {
+func (u *Updater) decompressAsset(archivePath string, folderName string) (dest string, err error) {
 
 	defer util.HandlePanicInModuleWithError("updater/download/decompressAsset", &err)
 
@@ -201,9 +235,9 @@ func (u *Updater) decompressAsset(archivePath string) (dest string, err error) {
 
 	ext := filepath.Ext(archivePath)
 	if ext == ".zip" {
-		return u.decompressZip(archivePath)
+		return u.decompressZip(archivePath, folderName)
 	} else if ext == ".gz" {
-		return u.decompressTarGz(archivePath)
+		return u.decompressTarGz(archivePath, folderName)
 	}
 
 	u.logger.Error().Msg("updater: Failed to decompress release assets, unsupported archive format")

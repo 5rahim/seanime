@@ -2,6 +2,7 @@ package updater
 
 import (
 	"github.com/davecgh/go-spew/spew"
+	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -10,7 +11,7 @@ func TestUpdater_getReleaseName(t *testing.T) {
 
 	updater := Updater{}
 
-	t.Log(updater.getReleaseName("0.2.2"))
+	t.Log(updater.GetReleaseName(constants.Version))
 }
 
 func TestUpdater_FetchLatestRelease(t *testing.T) {

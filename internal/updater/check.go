@@ -15,12 +15,14 @@ const (
 	latestReleaseUrl = "https://seanime.rahim.app/api/release" // GitHub API host
 )
 
-func (u *Updater) getReleaseName(version string) string {
+func (u *Updater) GetReleaseName(version string) string {
 
 	arch := runtime.GOARCH
 	switch runtime.GOARCH {
 	case "amd64":
 		arch = "x86_64"
+	case "arm64":
+		arch = "arm64"
 	case "386":
 		return "i386"
 	}
@@ -34,7 +36,12 @@ func (u *Updater) getReleaseName(version string) string {
 		oos = "MacOS"
 	}
 
-	return fmt.Sprintf("seanime-%s_%s_%s", version, oos, arch)
+	ext := "tar.gz"
+	if oos == "Windows" {
+		ext = "zip"
+	}
+
+	return fmt.Sprintf("seanime-%s_%s_%s.%s", version, oos, arch, ext)
 }
 
 func (u *Updater) fetchLatestRelease() (*Release, error) {
