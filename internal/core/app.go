@@ -36,7 +36,6 @@ import (
 	"log"
 	"runtime"
 	"strings"
-	"time"
 )
 
 type (
@@ -310,9 +309,11 @@ func NewFiberApp(app *App) *fiber.App {
 func RunServer(app *App, fiberApp *fiber.App) {
 	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
 
-	app.Cleanups = append(app.Cleanups, func() {
-		_ = fiberApp.ShutdownWithTimeout(time.Millisecond)
-	})
+	// DEVNOTE: Crashes self-update loop
+	//app.Cleanups = append(app.Cleanups, func() {
+	//	_ = fiberApp.ShutdownWithTimeout(time.Millisecond)
+	//})
+
 	// Start the server
 	go func() {
 

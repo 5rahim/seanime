@@ -63,7 +63,7 @@ appLoop:
 
 			select {
 			case <-selfupdater.Started():
-				//DEVNOTE: app.Cleanup() crashes self-update because of fiber Shutdown
+				app.Cleanup()
 				updateMode = true
 				break
 			}
