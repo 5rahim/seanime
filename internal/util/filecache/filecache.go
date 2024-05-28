@@ -222,18 +222,25 @@ func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 // ClearMediastreamVideoFiles clears all mediastream video file caches.
 func (c *Cacher) ClearMediastreamVideoFiles() error {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	// Remove the contents of the directory
 	files, err := os.ReadDir(filepath.Join(c.dir, "videofiles"))
 	if err != nil {
+		c.mu.Unlock()
 		return nil
 	}
 	for _, file := range files {
 		_ = os.RemoveAll(filepath.Join(c.dir, "videofiles", file.Name()))
 	}
+	c.mu.Unlock()
 
+	err = c.RemoveAllBy(func(filename string) bool {
+		return strings.HasPrefix(filename, "mediastream")
+	})
+
+	c.mu.Lock()
 	c.stores = make(map[string]*CacheStore)
+	c.mu.Unlock()
 	return err
 }
 

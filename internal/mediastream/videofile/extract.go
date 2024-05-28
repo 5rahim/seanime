@@ -1,6 +1,7 @@
 package videofile
 
 import (
+	"context"
 	"fmt"
 	"github.com/rs/zerolog"
 	"os"
@@ -17,7 +18,7 @@ func GetFileAttCacheDir(outDir string, hash string) string {
 }
 
 func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *MediaInfo, cacheDir string, logger *zerolog.Logger) (err error) {
-	logger.Trace().Str("path", path).Msgf("transcoder: Starting media attachment extraction")
+	logger.Debug().Str("path", path).Msgf("transcoder: Starting media attachment extraction")
 
 	attachmentPath := GetFileAttCacheDir(cacheDir, hash)
 	subsPath := GetFileSubsCacheDir(cacheDir, hash)
@@ -27,12 +28,13 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 	subsDir, err := os.ReadDir(subsPath)
 	if err == nil {
 		if len(subsDir) == len(mediaInfo.Subtitles) {
-			logger.Trace().Str("path", path).Msgf("transcoder: Attachments already extracted")
+			logger.Debug().Str("path", path).Msgf("transcoder: Attachments already extracted")
 			return
 		}
 	}
 
-	cmd := exec.Command(
+	cmd := exec.CommandContext(
+		context.Background(),
 		ffmpegPath,
 		"-dump_attachment:t", "",
 		// override old attachments

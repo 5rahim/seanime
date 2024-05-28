@@ -2,7 +2,11 @@
 
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
-import { __mediastream_progressItemAtom, useHandleMediastream } from "@/app/(main)/mediastream/_lib/handle-mediastream"
+import {
+    __mediastream_currentProgressAtom,
+    __mediastream_progressItemAtom,
+    useHandleMediastream,
+} from "@/app/(main)/mediastream/_lib/handle-mediastream"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -86,7 +90,7 @@ export default function Page() {
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 
-    const [currentProgress, setCurrentProgress] = React.useState(mediaEntry?.listData?.progress ?? 0)
+    const [currentProgress, setCurrentProgress] = useAtom(__mediastream_currentProgressAtom)
 
     React.useEffect(() => {
         if (!mediaId || (!mediaEntryLoading && !mediaEntry) || (!mediaEntryLoading && !!mediaEntry && !filePath)) {
@@ -126,7 +130,7 @@ export default function Page() {
                     </div>
 
                     <div className="flex gap-2 items-center">
-                        {(!!progressItem && !progressItem.updated && mediaEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
+                        {(!!progressItem && mediaEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
                             className="animate-pulse"
                             loading={isUpdatingProgress}
                             disabled={hasUpdatedProgress}
@@ -137,10 +141,7 @@ export default function Page() {
                                     totalEpisodes: mediaEntry.media!.episodes || 0,
                                     malId: mediaEntry.media!.idMal || undefined,
                                 }, {
-                                    onSuccess: () => setProgressItem(prev => !!prev ? ({
-                                        ...prev,
-                                        updated: true,
-                                    }) : undefined),
+                                    onSuccess: () => setProgressItem(undefined),
                                 })
                                 setCurrentProgress(progressItem.episodeNumber)
                             }}

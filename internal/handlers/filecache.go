@@ -86,7 +86,7 @@ func HandleClearFileCacheMediastreamVideoFiles(c *RouteCtx) error {
 	}
 
 	if c.App.MediastreamRepository != nil {
-		c.App.MediastreamRepository.CacheWasCleared()
+		go c.App.MediastreamRepository.CacheWasCleared()
 	}
 
 	// Return a success response

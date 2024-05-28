@@ -117,6 +117,9 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		Hash:       hash,
 		StreamType: streamType,
 	}
+
+	p.logger.Debug().Msg("mediastream: Extracting media info")
+
 	ret.MediaInfo, err = p.repository.mediaInfoExtractor.GetInfo(p.repository.settings.MustGet().FfprobePath, filepath)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-import { useGetFileCacheTotalSize, useRemoveFileCacheBucket } from "@/api/hooks/filecache.hooks"
+import { useClearFileCacheMediastreamVideoFiles, useGetFileCacheTotalSize, useRemoveFileCacheBucket } from "@/api/hooks/filecache.hooks"
 import { Button } from "@/components/ui/button"
 import React from "react"
 
@@ -16,9 +16,15 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
 
     const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheTotalSize()
 
-    const { mutate: clearBucket, isPending: isClearing } = useRemoveFileCacheBucket(() => {
+    const { mutate: clearBucket, isPending: _isClearing } = useRemoveFileCacheBucket(() => {
         getTotalSize()
     })
+
+    const { mutate: clearMediastreamCache, isPending: _isClearing2 } = useClearFileCacheMediastreamVideoFiles(() => {
+        getTotalSize()
+    })
+
+    const isClearing = _isClearing || _isClearing2
 
     return (
         <div className="space-y-4">
@@ -35,6 +41,9 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
             <div className="flex gap-2 flex-wrap items-center">
                 <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
                     Clear manga cache
+                </Button>
+                <Button intent="alert-subtle" onClick={() => clearMediastreamCache()} disabled={isClearing}>
+                    Clear media streaming cache
                 </Button>
                 <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "onlinestream" })} disabled={isClearing}>
                     Clear online streaming cache

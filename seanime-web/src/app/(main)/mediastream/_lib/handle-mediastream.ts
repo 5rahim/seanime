@@ -92,10 +92,11 @@ const mediastream_getHlsConfig = () => {
 
 type ProgressItem = {
     episodeNumber: number
-    updated: boolean
 }
 
 export const __mediastream_progressItemAtom = atom<ProgressItem | undefined>(undefined)
+
+export const __mediastream_currentProgressAtom = atom(0)
 
 type HandleMediastreamProps = {
     playerRef: React.RefObject<MediaPlayerInstance>
@@ -331,6 +332,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 
+    const episode = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath), [episodes, filePath])
+
     const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
         if (!!filePath && duration > 0 && (e.currentTime / duration) > 0.7 && preloadedNextFileForRef.current !== filePath) {
             logger("MEDIASTREAM").info("Preloading next file")
@@ -342,16 +345,17 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 preloadMediaContainer({ path: filePath, streamType: streamType, audioStreamIndex: 0 })
             }
         }
-        if ((!progressItem || !progressItem.updated) && duration > 0 && (e.currentTime / duration) > 0.8) {
-            const episode = episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+        if (
+            (!progressItem || (!!episode?.progressNumber && episode?.progressNumber > progressItem.episodeNumber)) &&
+            duration > 0 && (e.currentTime / duration) > 0.8
+        ) {
             if (episode) {
                 setProgressItem({
                     episodeNumber: episode.progressNumber,
-                    updated: false,
                 })
             }
         }
-    }, [duration, filePath, episodes, progressItem])
+    }, [duration, filePath, episodes, episode, progressItem])
 
     const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
         preloadedNextFileForRef.current = undefined

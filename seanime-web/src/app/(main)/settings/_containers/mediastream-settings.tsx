@@ -1,11 +1,8 @@
 import { Models_MediastreamSettings } from "@/api/generated/types"
-import { useClearFileCacheMediastreamVideoFiles, useGetFileCacheMediastreamVideoFilesTotalSize } from "@/api/hooks/filecache.hooks"
 import { useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
-import { Button } from "@/components/ui/button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Separator } from "@/components/ui/separator"
 import React from "react"
 import { FcFolder } from "react-icons/fc"
 
@@ -53,11 +50,11 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     const { mutate, isPending } = useSaveMediastreamSettings()
 
-    const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheMediastreamVideoFilesTotalSize()
+    // const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheMediastreamVideoFilesTotalSize()
 
-    const { mutate: clearCache, isPending: isClearing } = useClearFileCacheMediastreamVideoFiles(() => {
-        getTotalSize()
-    })
+    // const { mutate: clearCache, isPending: isClearing } = useClearFileCacheMediastreamVideoFiles(() => {
+    //     getTotalSize()
+    // })
 
     if (!settings) return <LoadingSpinner />
 
@@ -136,27 +133,27 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 <SettingsSubmitButton isPending={isPending} />
             </Form>
 
-            <Separator />
+            {/*<Separator />*/}
 
-            <h2>Cache</h2>
+            {/*<h2>Cache</h2>*/}
 
-            <div className="space-y-4">
-                <div className="flex gap-2 items-center">
-                    <Button intent="white-subtle" size="sm" onClick={() => getTotalSize()} disabled={isFetchingSize}>
-                        Show total size
-                    </Button>
-                    {!!totalSize && (
-                        <p>
-                            {totalSize}
-                        </p>
-                    )}
-                </div>
-                <div className="flex gap-2 flex-wrap items-center">
-                    <Button intent="alert-subtle" size="sm" onClick={() => clearCache()} disabled={isClearing}>
-                        Clear cache
-                    </Button>
-                </div>
-            </div>
+            {/*<div className="space-y-4">*/}
+            {/*    <div className="flex gap-2 items-center">*/}
+            {/*        <Button intent="white-subtle" size="sm" onClick={() => getTotalSize()} disabled={isFetchingSize}>*/}
+            {/*            Show total size*/}
+            {/*        </Button>*/}
+            {/*        {!!totalSize && (*/}
+            {/*            <p>*/}
+            {/*                {totalSize}*/}
+            {/*            </p>*/}
+            {/*        )}*/}
+            {/*    </div>*/}
+            {/*    <div className="flex gap-2 flex-wrap items-center">*/}
+            {/*        <Button intent="alert-subtle" size="sm" onClick={() => clearCache()} disabled={isClearing}>*/}
+            {/*            Clear cache*/}
+            {/*        </Button>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
         </>
     )
 }
