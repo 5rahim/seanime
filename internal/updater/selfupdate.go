@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
@@ -209,15 +210,16 @@ func (su *SelfUpdater) Run() error {
 	// Start the new executable
 	su.logger.Info().Msg("selfupdate: Starting new executable")
 
-	cmd := exec.Command(su.originalExePath.MustGet())
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	err = cmd.Start()
-	if err != nil {
-		su.logger.Warn().Err(err).Msg("selfupdate: Failed to start new executable")
+	switch runtime.GOOS {
+	case "windows":
+		err = openWindows(su.originalExePath.MustGet())
+	case "darwin":
+		err = openMacOS(su.originalExePath.MustGet())
+	case "linux":
+		err = openLinux(su.originalExePath.MustGet())
+	default:
+		su.logger.Fatal().Msg("selfupdate: Unsupported platform")
 	}
-	// ...
 
 	// Remove .old files (will fail on Windows for executable)
 	entries, err = os.ReadDir(exeDir)
@@ -225,17 +227,48 @@ func (su *SelfUpdater) Run() error {
 		os.Exit(0)
 		return nil
 	}
-
 	for _, entry := range entries {
-		// Trim the .old extension
 		if strings.HasSuffix(entry.Name(), ".old") {
 			_ = os.RemoveAll(filepath.Join(exeDir, entry.Name()))
 		}
 	}
 
 	os.Exit(0)
-
 	return nil
+}
+
+func openWindows(path string) error {
+	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", path)
+	return cmd.Start()
+}
+
+func openMacOS(path string) error {
+	script := fmt.Sprintf(`
+    tell application "Terminal"
+        do script %s
+        activate
+    end tell`, path)
+	cmd := exec.Command("osascript", "-e", script)
+	return cmd.Start()
+}
+
+func openLinux(path string) error {
+	terminals := []string{
+		"gnome-terminal", "--", path,
+		"konsole", "-e", path,
+		"xfce4-terminal", "-e", path,
+		"xterm", "-hold", "-e", path,
+		"lxterminal", "-e", path,
+	}
+
+	for i := 0; i < len(terminals); i += 2 {
+		if exec.Command("which", terminals[i]).Run() == nil {
+			cmd := exec.Command(terminals[i], terminals[i+1:]...)
+			return cmd.Start()
+		}
+	}
+
+	return fmt.Errorf("no supported terminal emulator found")
 }
 
 // moveContents moves contents of newReleaseDir to exeDir without deleting existing files
