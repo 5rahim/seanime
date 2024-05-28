@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/cron"
 	"github.com/seanime-app/seanime/internal/handlers"
 	"github.com/seanime-app/seanime/internal/updater"
+	"time"
 )
 
 func main() {
@@ -55,11 +56,11 @@ appLoop:
 			//Run the jobs in the background
 			cron.RunJobs(app)
 
-			// _FIXME TEST ONLY
-			//go func() {
-			//	<-time.After(2 * time.Second)
-			//	selfupdater.StartSelfUpdate()
-			//}()
+			// FIXME TEST ONLY
+			go func() {
+				<-time.After(2 * time.Second)
+				selfupdater.StartSelfUpdate()
+			}()
 
 			select {
 			case <-selfupdater.Started():
