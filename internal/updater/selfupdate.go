@@ -245,7 +245,7 @@ func openWindows(path string) error {
 func openMacOS(path string) error {
 	script := fmt.Sprintf(`
     tell application "Terminal"
-        do script %s
+        do script "%s"
         activate
     end tell`, path)
 	cmd := exec.Command("osascript", "-e", script)
