@@ -106,13 +106,13 @@ export function useToggleAnimeEntrySilenceStatus() {
     })
 }
 
-export function useUpdateAnimeEntryProgress(id: Nullish<string | number>) {
+export function useUpdateAnimeEntryProgress(id: Nullish<string | number>, episodeNumber: number) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, UpdateAnimeEntryProgress_Variables>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.endpoint,
         method: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.methods[0],
-        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.key],
+        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.key, episodeNumber],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })

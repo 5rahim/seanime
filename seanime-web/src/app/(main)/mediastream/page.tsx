@@ -66,9 +66,12 @@ export default function Page() {
         onPlayFile,
     } = useHandleMediastream({ playerRef, episodes })
 
+    const episodeNumber = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1,
+        [episodes, filePath])
+
     /** AniSkip **/
-    const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal,
-        episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1)
+    const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal, episodeNumber)
+
 
     const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
@@ -78,7 +81,8 @@ export default function Page() {
         Object.assign(playerRef.current ?? {}, { currentTime: time })
     }, [])
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId)
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId,
+        episodeNumber)
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 

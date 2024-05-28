@@ -212,7 +212,8 @@ export default function Page() {
         return ret
     }, [])
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId)
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId,
+        currentEpisodeNumber)
 
     if (!loadPage || !media || mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -254,7 +255,7 @@ export default function Page() {
                         </div>
 
                         <div className="flex gap-2 items-center">
-                            {(!!progressItem) && <Button
+                            {(!!progressItem && progressItem.episodeNumber > currentProgress) && <Button
                                 className="animate-pulse"
                                 loading={isUpdatingProgress}
                                 disabled={hasUpdatedProgress}
@@ -265,7 +266,9 @@ export default function Page() {
                                         totalEpisodes: media.episodes || 0,
                                         malId: media.idMal || undefined,
                                     }, {
-                                        onSuccess: () => setProgressItem(undefined),
+                                        onSuccess: () => {
+                                            setProgressItem(undefined)
+                                        },
                                     })
                                     setCurrentProgress(progressItem.episodeNumber)
                                 }}
@@ -281,148 +284,145 @@ export default function Page() {
                         )}
                     >
                         {/*<div className="space-y-4">*/}
-                            <div
-                                className={cn(
-                                    "aspect-video relative w-full self-start max-h-[78dvh] mx-auto",
-                                )}
-                            >
-                                {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
-                                    playsInline
-                                    ref={ref}
-                                    crossOrigin="anonymous"
-                                    src={{
-                                        src: url || "",
-                                        type: "application/x-mpegurl",
-                                    }}
-                                    poster={currentEpisodeDetails?.image || media.coverImage?.extraLarge || ""}
-                                    aspectRatio="16/9"
-                                    onProviderChange={onProviderChange}
-                                    onProviderSetup={onProviderSetup}
-                                    // className="max-h-[75dvh] aspect-video"
-                                    onTimeUpdate={(e) => {
-                                        if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
-                                            setShowSkipIntroButton(true)
-                                        } else {
-                                            setShowSkipIntroButton(false)
-                                        }
-                                        if (aniSkipData?.ed &&
-                                            Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
-                                            e?.currentTime &&
-                                            e?.currentTime >= aniSkipData.ed.interval.startTime &&
-                                            e?.currentTime <= aniSkipData.ed.interval.endTime
-                                        ) {
-                                            setShowSkipEndingButton(true)
-                                        } else {
-                                            setShowSkipEndingButton(false)
-                                        }
+                        <div
+                            className={cn(
+                                "aspect-video relative w-full self-start max-h-[78dvh] mx-auto",
+                            )}
+                        >
+                            {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
+                                playsInline
+                                ref={ref}
+                                crossOrigin="anonymous"
+                                src={{
+                                    src: url || "",
+                                    type: "application/x-mpegurl",
+                                }}
+                                poster={currentEpisodeDetails?.image || media.coverImage?.extraLarge || ""}
+                                aspectRatio="16/9"
+                                onProviderChange={onProviderChange}
+                                onProviderSetup={onProviderSetup}
+                                // className="max-h-[75dvh] aspect-video"
+                                onTimeUpdate={(e) => {
+                                    if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
+                                        setShowSkipIntroButton(true)
+                                    } else {
+                                        setShowSkipIntroButton(false)
+                                    }
+                                    if (aniSkipData?.ed &&
+                                        Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
+                                        e?.currentTime &&
+                                        e?.currentTime >= aniSkipData.ed.interval.startTime &&
+                                        e?.currentTime <= aniSkipData.ed.interval.endTime
+                                    ) {
+                                        setShowSkipEndingButton(true)
+                                    } else {
+                                        setShowSkipEndingButton(false)
+                                    }
 
-                                        if (currentEpisodeNumber > 0 &&
-                                            duration > 0 &&
-                                            e?.currentTime &&
-                                            ((e.currentTime / duration)) >= 0.8 &&
-                                            currentEpisodeNumber > currentProgress
-                                        ) {
-                                            if (!progressItem) {
-                                                setProgressItem({
-                                                    episodeNumber: currentEpisodeNumber,
-                                                })
-                                            }
-                                        }
-                                    }}
-                                    onEnded={(e) => {
-                                        if (autoNext) {
-                                            goToNextEpisode()
-                                        }
-                                    }}
-                                    onCanPlay={(e) => {
-                                        if (e.duration && e.duration > 0) {
-                                            setDuration(e.duration)
-                                        } else {
-                                            setDuration(0)
-                                        }
-                                        if (autoPlay) {
-                                            ref.current?.play()
-                                        }
-                                    }}
-                                >
-                                    <MediaProvider>
-                                        {episodeSource?.subtitles?.map((sub) => {
-                                            return <Track
-                                                key={sub.url}
-                                                {...{
-                                                    id: sub.language,
-                                                    label: sub.language,
-                                                    kind: "subtitles",
-                                                    src: sub.url,
-                                                    language: sub.language,
-                                                    default: sub.language
-                                                        ? sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us"
-                                                        : sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us",
-                                                }}
-                                            />
-                                        })}
-                                        {cues?.map((cue) => {
-                                            return <Track
-                                                key={cue.text}
-                                                {...{
-                                                    id: cue.text,
-                                                    label: cue.text,
-                                                    kind: "chapters",
-                                                    src: "",
-                                                    language: "",
-                                                    default: false,
-                                                    srcLang: "",
-                                                    startTime: cue.startTime,
-                                                    endTime: cue.endTime,
-                                                }}
-                                            />
-                                        })}
-                                    </MediaProvider>
-                                    <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
-                                        <div>
-                                            {(showSkipIntroButton) && (
-                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
-                                                                                                                                       intro</Button>
-                                            )}
-                                        </div>
-                                        <div>
-                                            {(showSkipEndingButton) && (
-                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
-                                                                                                                                       ending</Button>
-                                            )}
-                                        </div>
+                                    if (
+                                        (!progressItem || currentEpisodeNumber > progressItem.episodeNumber) &&
+                                        duration > 0 && (e.currentTime / duration) >= 0.8 &&
+                                        currentEpisodeNumber > currentProgress
+                                    ) {
+                                        setProgressItem({
+                                            episodeNumber: currentEpisodeNumber,
+                                        })
+                                    }
+                                }}
+                                onEnded={(e) => {
+                                    if (autoNext) {
+                                        goToNextEpisode()
+                                    }
+                                }}
+                                onCanPlay={(e) => {
+                                    if (e.duration && e.duration > 0) {
+                                        setDuration(e.duration)
+                                    } else {
+                                        setDuration(0)
+                                    }
+                                    if (autoPlay) {
+                                        ref.current?.play()
+                                    }
+                                }}
+                            >
+                                <MediaProvider>
+                                    {episodeSource?.subtitles?.map((sub) => {
+                                        return <Track
+                                            key={sub.url}
+                                            {...{
+                                                id: sub.language,
+                                                label: sub.language,
+                                                kind: "subtitles",
+                                                src: sub.url,
+                                                language: sub.language,
+                                                default: sub.language
+                                                    ? sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us"
+                                                    : sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us",
+                                            }}
+                                        />
+                                    })}
+                                    {cues?.map((cue) => {
+                                        return <Track
+                                            key={cue.text}
+                                            {...{
+                                                id: cue.text,
+                                                label: cue.text,
+                                                kind: "chapters",
+                                                src: "",
+                                                language: "",
+                                                default: false,
+                                                srcLang: "",
+                                                startTime: cue.startTime,
+                                                endTime: cue.endTime,
+                                            }}
+                                        />
+                                    })}
+                                </MediaProvider>
+                                <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
+                                    <div>
+                                        {(showSkipIntroButton) && (
+                                            <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
+                                                                                                                                   intro</Button>
+                                        )}
                                     </div>
-                                    <DefaultVideoLayout
-                                        icons={defaultLayoutIcons}
-                                        slots={{
-                                            settingsMenu: (
-                                                <OnlinestreamSettingsButton />
-                                            ),
-                                            beforeCaptionButton: (
-                                                <div className="flex items-center">
-                                                    <OnlinestreamProviderButton />
-                                                    <OnlinestreamServerButton />
-                                                </div>
-                                            ),
-                                        }}
-                                    />
-                                </MediaPlayer> : (
-                                    !isErrorEpisodeSource ? <Skeleton className="h-full w-full absolute">
-                                        <LoadingSpinner containerClass="h-full absolute" />
-                                    </Skeleton> : <div>
-                                        <LuffyError
-                                            title="Error"
-                                        >
-                                            <p>
-                                                Failed to load episode
-                                            </p>
-                                            <p>
-                                                Try changing the provider or refresh the page
-                                            </p>
-                                        </LuffyError>
+                                    <div>
+                                        {(showSkipEndingButton) && (
+                                            <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
+                                                                                                                                   ending</Button>
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                                <DefaultVideoLayout
+                                    icons={defaultLayoutIcons}
+                                    slots={{
+                                        settingsMenu: (
+                                            <OnlinestreamSettingsButton />
+                                        ),
+                                        beforeCaptionButton: (
+                                            <div className="flex items-center">
+                                                <OnlinestreamProviderButton />
+                                                <OnlinestreamServerButton />
+                                            </div>
+                                        ),
+                                    }}
+                                />
+                            </MediaPlayer> : (
+                                !isErrorEpisodeSource ? <Skeleton className="h-full w-full absolute">
+                                    <LoadingSpinner containerClass="h-full absolute" />
+                                </Skeleton> : <div>
+                                    <LuffyError
+                                        title="Error"
+                                    >
+                                        <p>
+                                            Failed to load episode
+                                        </p>
+                                        <p>
+                                            Try changing the provider or refresh the page
+                                        </p>
+                                    </LuffyError>
+                                </div>
+                            )}
+                        </div>
 
                         {/*{currentEpisodeDetails && (*/}
                         {/*    <div className="space-y-4">*/}
