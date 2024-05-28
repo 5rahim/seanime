@@ -9,7 +9,7 @@ import (
 type (
 	SeanimeFlags struct {
 		DataDir string
-		TrueWd  bool
+		Update  bool
 	}
 )
 
@@ -26,11 +26,14 @@ func GetSeanimeFlags() SeanimeFlags {
 	// Parse flags
 	var dataDir string
 	flag.StringVar(&dataDir, "datadir", "", "Directory that contains all Seanime data")
+	var update bool
+	flag.BoolVar(&update, "update", false, "Update the application")
 	//var truewd bool
 	//flag.BoolVar(&truewd, "truewd", false, "Force Seanime to use the binary's directory as the working directory")
 	flag.Parse()
 
 	return SeanimeFlags{
 		DataDir: strings.TrimSpace(dataDir),
+		Update:  update,
 	}
 }

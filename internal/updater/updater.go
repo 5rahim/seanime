@@ -1,5 +1,7 @@
 package updater
 
+import "github.com/rs/zerolog"
+
 const (
 	PatchRelease = "patch"
 	MinorRelease = "minor"
@@ -12,6 +14,7 @@ type (
 		hasCheckedForUpdate bool
 		LatestRelease       *Release
 		checkForUpdate      bool
+		logger              *zerolog.Logger
 	}
 
 	Update struct {
@@ -46,11 +49,12 @@ type (
 	}
 )
 
-func New(currVersion string) *Updater {
+func New(currVersion string, logger *zerolog.Logger) *Updater {
 	return &Updater{
 		CurrentVersion:      currVersion,
 		hasCheckedForUpdate: false,
 		checkForUpdate:      true,
+		logger:              logger,
 	}
 }
 
@@ -59,7 +63,7 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 		return nil, nil
 	}
 
-	rl, err := u.getLatestRelease()
+	rl, err := u.GetLatestRelease()
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +90,7 @@ func (u *Updater) SetEnabled(checkForUpdate bool) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // GetLatestRelease returns the latest release from the GitHub repository.
-func (u *Updater) getLatestRelease() (*Release, error) {
+func (u *Updater) GetLatestRelease() (*Release, error) {
 	if u.hasCheckedForUpdate {
 		return u.LatestRelease, nil
 	}

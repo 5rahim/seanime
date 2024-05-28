@@ -389,6 +389,10 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
 	}
 
+	a.Cleanups = append(a.Cleanups, func() {
+		a.TorrentstreamRepository.Shutdown()
+	})
+
 	a.SecondarySettings.Torrentstream = settings
 }
 

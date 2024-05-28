@@ -200,7 +200,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 		ListSyncCache:           listsync.NewCache(),
 		Logger:                  logger,
 		Version:                 constants.Version,
-		Updater:                 updater.New(constants.Version),
+		Updater:                 updater.New(constants.Version, logger),
 		FileCacher:              fileCacher,
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
@@ -308,6 +308,12 @@ func NewFiberApp(app *App) *fiber.App {
 // RunServer starts the server
 func RunServer(app *App, fiberApp *fiber.App) {
 	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
+
+	// DEVNOTE: Crashes self-update loop
+	//app.Cleanups = append(app.Cleanups, func() {
+	//	_ = fiberApp.ShutdownWithTimeout(time.Millisecond)
+	//})
+
 	// Start the server
 	go func() {
 		log.Fatal(fiberApp.Listen(app.Config.GetServerAddr()))

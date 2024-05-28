@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.3
 
+- ⚡️ Improved download and decompression process for new releases
+  - Downloading and decompressing the new release directly from the UI will now work as expected on all platforms
+- 🦺 Fix .tar.gz decompression error when downloading new releases
 - 🏗️ Use binary path as working directory variable by default
   - This eliminates the need to use the `--truewd` flag to point to the correct web directory location
 - 🏗️ Added `server.usebinarypath` field to config.toml

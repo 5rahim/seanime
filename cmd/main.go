@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/cron"
 	"github.com/seanime-app/seanime/internal/handlers"
+	"github.com/seanime-app/seanime/internal/updater"
 )
 
 func main() {
@@ -14,24 +16,59 @@ func main() {
 	// Get the flags
 	flags := core.GetSeanimeFlags()
 
-	// Create the app instance
-	app := core.NewApp(&core.ConfigOptions{
-		DataDir: flags.DataDir,
-	})
-	defer app.Cleanup()
+	selfupdater := updater.NewSelfUpdater()
 
-	// Create the fiber app instance
-	fiberApp := core.NewFiberApp(app)
+	updateMode := false
+	if flags.Update {
+		updateMode = true
+	}
 
-	// Initialize the routes
-	handlers.InitRoutes(app, fiberApp)
+appLoop:
+	for {
+		switch updateMode {
+		case true:
+			// Print the header
+			core.PrintHeader()
 
-	// Run the server
-	core.RunServer(app, fiberApp)
+			// Run the self-updater
+			err := selfupdater.Run()
+			if err != nil {
+				fmt.Printf("Error: %v", err)
+			}
 
-	// Run the jobs in the background
-	cron.RunJobs(app)
+			break appLoop
+		case false:
+			// Create the app instance
+			app := core.NewApp(&core.ConfigOptions{
+				DataDir: flags.DataDir,
+			})
 
-	select {}
+			// Create the fiber app instance
+			fiberApp := core.NewFiberApp(app)
+
+			// Initialize the routes
+			handlers.InitRoutes(app, fiberApp)
+
+			//Run the server
+			core.RunServer(app, fiberApp)
+
+			//Run the jobs in the background
+			cron.RunJobs(app)
+
+			// _FIXME TEST ONLY
+			//go func() {
+			//	<-time.After(2 * time.Second)
+			//	selfupdater.StartSelfUpdate()
+			//}()
+
+			select {
+			case <-selfupdater.Started():
+				app.Cleanup()
+				updateMode = true
+				break
+			}
+		}
+		continue
+	}
 
 }
