@@ -177,7 +177,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (mediaContainer?.streamUrl) {
             logger("MEDIASTREAM").info("Media container", mediaContainer)
 
-            const _newUrl = typeof window !== "undefined" ? (`${window?.location.protocol}//` + (process.env.NODE_ENV === "development"
+            const _newUrl = typeof window !== "undefined" ? (`${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
                 ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host) + mediaContainer.streamUrl) : undefined
 
@@ -207,7 +207,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 workerUrl: workerUrl,
                 legacyWasmUrl: legacyWasmUrl,
                 offscreenRender: false,
-                fonts: mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location.protocol}//` + (process.env.NODE_ENV === "development"
+                fonts: mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
                     ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                     : window?.location?.host) + `/api/v1/mediastream/att/${name}`),
             })
@@ -407,7 +407,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     // Subtitle endpoint URI
     const subtitleEndpointUri = React.useMemo(() => {
-        const baseUri = typeof window !== "undefined" ? (`${window?.location.protocol}//` + (process.env.NODE_ENV === "development"
+        const baseUri = typeof window !== "undefined" ? (`${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
             ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
             : window?.location?.host)) : ""
         if (mediaContainer?.streamUrl && mediaContainer?.streamType) {

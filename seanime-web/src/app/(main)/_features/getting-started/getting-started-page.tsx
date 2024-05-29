@@ -159,9 +159,9 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 label="Default player"
                                 leftIcon={<FcVideoCall />}
                                 options={[
-                                    { label: "VLC", value: "vlc" },
-                                    { label: "MPC-HC (Windows only)", value: "mpc-hc" },
                                     { label: "MPV", value: "mpv" },
+                                    { label: "VLC", value: "vlc" },
+                                    { label: "MPC-HC", value: "mpc-hc" },
                                 ]}
                                 help="Player that will be used to open files and track your progress automatically."
                             />

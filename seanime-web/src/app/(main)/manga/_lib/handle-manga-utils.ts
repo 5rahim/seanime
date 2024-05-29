@@ -33,7 +33,7 @@ export function useMangaReaderUtils() {
                 return process.env.NODE_ENV === "development"
                     ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
                         JSON.stringify(headers))}`
-                    : `${window?.location.protocol}//${window?.location?.host}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
+                    : `${window?.location?.protocol}//${window?.location?.host}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
                         JSON.stringify(
                         headers))}`
             }
@@ -42,7 +42,7 @@ export function useMangaReaderUtils() {
 
         return process.env.NODE_ENV === "development"
             ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/manga-downloads/${url}`
-            : `${window?.location.protocol}//${window?.location?.host}/manga-downloads/${url}`
+            : `${window?.location?.protocol}//${window?.location?.host}/manga-downloads/${url}`
     }, [])
     return {
         getChapterPageUrl,
