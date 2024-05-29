@@ -157,6 +157,10 @@ func HandleMediastreamGetSubtitles(c *RouteCtx) error {
 	return c.App.MediastreamRepository.ServeFiberExtractedSubtitles(c.Fiber)
 }
 
+func HandleMediastreamGetAttachments(c *RouteCtx) error {
+	return c.App.MediastreamRepository.ServeFiberExtractedAttachments(c.Fiber)
+}
+
 ////
 //// Direct
 ////

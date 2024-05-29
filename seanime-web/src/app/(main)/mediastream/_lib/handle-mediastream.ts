@@ -10,6 +10,7 @@ import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
+import { isApple } from "@/lib/utils/browser-detection"
 import {
     isHLSProvider,
     LibASSTextRenderer,
@@ -176,7 +177,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (mediaContainer?.streamUrl) {
             logger("MEDIASTREAM").info("Media container", mediaContainer)
 
-            const _newUrl = typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development"
+            const _newUrl = typeof window !== "undefined" ? (`${window?.location.protocol}//` + (process.env.NODE_ENV === "development"
                 ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host) + mediaContainer.streamUrl) : undefined
 
@@ -193,19 +194,30 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Add subtitle renderer
      */
     React.useEffect(() => {
-        if (playerRef.current) {
+        if (playerRef.current && !(isApple())) {
+            const workerUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
+            const wasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
+            const legacyWasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-legacy.wasm" : getAssetUrl("/jassub/jassub-worker.wasm.js")
+            // const workerUrl = "/jassub/jassub-worker.js"
+            // const wasmUrl = "/jassub/jassub-worker.wasm"
+            // const legacyWasmUrl = "/jassub/jassub-worker.wasm.js"
             // @ts-ignore
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
-                workerUrl: getAssetUrl("/jassub/jassub-worker.js"),
-                legacyWorkerUrl: getAssetUrl("/jassub/jassub-worker-legacy.js"),
+                wasmUrl: wasmUrl,
+                workerUrl: workerUrl,
+                legacyWasmUrl: legacyWasmUrl,
+                offscreenRender: false,
+                fonts: mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location.protocol}//` + (process.env.NODE_ENV === "development"
+                    ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
+                    : window?.location?.host) + `/api/v1/mediastream/att/${name}`),
             })
             playerRef.current!.textRenderers.add(renderer)
 
-            return () => {
-                playerRef.current!.textRenderers.remove(renderer)
-            }
+            // return () => {
+            //     playerRef.current!.textRenderers.remove(renderer)
+            // }
         }
-    }, [mediaContainer?.streamUrl])
+    }, [playerRef.current, mediaContainer?.mediaInfo?.fonts])
 
     function changeUrl(newUrl: string | undefined) {
         if (prevUrlRef.current !== newUrl) {
@@ -395,7 +407,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     // Subtitle endpoint URI
     const subtitleEndpointUri = React.useMemo(() => {
-        const baseUri = typeof window !== "undefined" ? ("http://" + (process.env.NODE_ENV === "development"
+        const baseUri = typeof window !== "undefined" ? (`${window?.location.protocol}//` + (process.env.NODE_ENV === "development"
             ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
             : window?.location?.host)) : ""
         if (mediaContainer?.streamUrl && mediaContainer?.streamType) {

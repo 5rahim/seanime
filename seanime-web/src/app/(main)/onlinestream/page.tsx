@@ -220,13 +220,13 @@ export default function Page() {
             <Skeleton className="h-12" />
         </div>
         <div
-            className="grid xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px] gap-4 xl:gap-4"
+            className="grid 2xl:grid-cols-[1fr,450px] gap-4 xl:gap-4"
         >
             <div className="w-full min-h-[70dvh] relative">
                 <Skeleton className="h-full w-full absolute" />
             </div>
 
-            <Skeleton className="hidden lg:block relative h-[78dvh] overflow-y-auto pr-4 pt-0" />
+            <Skeleton className="hidden 2xl:block relative h-[78dvh] overflow-y-auto pr-4 pt-0" />
 
         </div>
     </div>
@@ -286,7 +286,7 @@ export default function Page() {
                         {/*<div className="space-y-4">*/}
                         <div
                             className={cn(
-                                "aspect-video relative w-full self-start max-h-[78dvh] mx-auto",
+                                "aspect-video relative w-full self-start mx-auto",
                             )}
                         >
                             {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
@@ -506,7 +506,7 @@ export default function Page() {
                         {/*</div>*/}
 
 
-                        <ScrollArea className="xl:max-w-[400px] 2xl:max-w-[500px] relative xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
+                        <ScrollArea className="2xl:max-w-[450px] relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
                             <div className="space-y-4">
                                 {(!episodes?.length && !loadPage) && <p>
                                     No episodes found

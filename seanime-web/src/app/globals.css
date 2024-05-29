@@ -4,6 +4,7 @@
 
 @layer base {
     :root {
+        --media-cue-backdrop: blur(0px);
         /*--brand-color-50: #f2f0ff;*/
         /*--brand-color-100: #eeebff;*/
         /*--brand-color-200: #d4d0ff;*/
@@ -204,4 +205,8 @@ h6 {
 
 code {
     @apply bg-gray-800 rounded-md px-2 py-1 text-sm font-mono border
+}
+
+.JASSUB {
+    position: absolute !important;
 }
