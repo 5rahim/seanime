@@ -84,11 +84,12 @@ type (
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}
+		SelfUpdater *updater.SelfUpdater
 	}
 )
 
 // NewApp creates a new server instance
-func NewApp(configOpts *ConfigOptions) *App {
+func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	logger := util.NewLogger()
 
 	logger.Info().Msgf("app: Seanime %s-%s", constants.Version, constants.VersionName)
@@ -222,6 +223,7 @@ func NewApp(configOpts *ConfigOptions) *App {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}{Mediastream: nil, Torrentstream: nil},
+		SelfUpdater: selfupdater,
 	}
 
 	app.runMigrations()
@@ -250,7 +252,7 @@ func NewFiberApp(app *App) *fiber.App {
 	app.Logger.Info().Msgf("app: Web interface path: %s", app.Config.Web.Dir)
 	fiberApp.Static("/", app.Config.Web.Dir, fiber.Static{
 		Index:    "index.html",
-		Compress: true,
+		Compress: false,
 	})
 
 	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)

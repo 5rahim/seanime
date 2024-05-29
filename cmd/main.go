@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/cron"
 	"github.com/seanime-app/seanime/internal/handlers"
 	"github.com/seanime-app/seanime/internal/updater"
+	"time"
 )
 
 func main() {
@@ -27,21 +28,26 @@ appLoop:
 	for {
 		switch updateMode {
 		case true:
+
+			fmt.Println("Running in update mode")
+
 			// Print the header
 			core.PrintHeader()
 
 			// Run the self-updater
 			err := selfupdater.Run()
 			if err != nil {
-				fmt.Printf("Error: %v", err)
 			}
+
+			fmt.Println("Shutting down in 10 seconds...")
+			time.Sleep(10 * time.Second)
 
 			break appLoop
 		case false:
 			// Create the app instance
 			app := core.NewApp(&core.ConfigOptions{
 				DataDir: flags.DataDir,
-			})
+			}, selfupdater)
 
 			// Create the fiber app instance
 			fiberApp := core.NewFiberApp(app)

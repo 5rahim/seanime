@@ -1,8 +1,9 @@
 "use client"
 import { Updater_Release } from "@/api/generated/types"
 import { useDownloadRelease } from "@/api/hooks/download.hooks"
-import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
+import { useGetLatestUpdate, useInstallLatestUpdate } from "@/api/hooks/releases.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { BetaBadge } from "@/components/shared/beta-badge"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -15,6 +16,7 @@ import Link from "next/link"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiDownload, BiLinkExternal } from "react-icons/bi"
+import { GrInstall } from "react-icons/gr"
 import { toast } from "sonner"
 
 type UpdateModalProps = {
@@ -31,6 +33,8 @@ export function UpdateModal(props: UpdateModalProps) {
     const [downloaderOpen, setDownloaderOpen] = useAtom(downloaderOpenAtom)
 
     const { data: updateData, isLoading } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
+
+    const { mutate: installUpdate, isPending } = useInstallLatestUpdate()
 
     React.useEffect(() => {
         if (updateData && updateData.release) {
@@ -119,12 +123,28 @@ export function UpdateModal(props: UpdateModalProps) {
                         })}
                     </div>
                     <div className="flex gap-2 w-full !mt-4">
+                        <Modal
+                            trigger={<Button leftIcon={<GrInstall className="text-2xl" />}>
+                                Download and install
+                            </Button>}
+                            contentClass="max-w-xl"
+                            title={<span>Update Seanime <BetaBadge /></span>}
+                        >
+                            <p>
+                                Seanime will perform an update by downloading and <strong>replacing existing</strong> files.
+                                The application will restart after the update is complete.
+                                This update will not work if you have moved the web directory or installed Seanime via Docker.
+                            </p>
+
+                            <Button className="w-full" onClick={() => installUpdate()} disabled={isPending}>
+                                Install
+                            </Button>
+                        </Modal>
+                        <div className="flex flex-1" />
                         <Link href={updateData?.release?.html_url || ""} target="_blank">
                             <Button intent="white-subtle" rightIcon={<BiLinkExternal />}>See on GitHub</Button>
                         </Link>
-                        <div className="flex flex-1" />
-                        <Button intent="white" leftIcon={<BiDownload />} onClick={() => setDownloaderOpen(true)}>Download now</Button>
-                        <Button intent="white-subtle" onClick={() => ignoreUpdate()}>Ignore</Button>
+                        <Button intent="white" leftIcon={<BiDownload />} onClick={() => setDownloaderOpen(true)}>Download</Button>
                     </div>
                 </div>
             </Modal>

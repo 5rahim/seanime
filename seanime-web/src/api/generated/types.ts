@@ -1659,6 +1659,10 @@ export type Status = {
     mediastreamSettings?: Models_MediastreamSettings
     torrentstreamSettings?: Models_TorrentstreamSettings
     anilistClientId: string
+    /**
+     * If true, a new screen will be displayed
+     */
+    updating: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

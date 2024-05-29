@@ -995,6 +995,16 @@ export const API_ENDPOINTS = {
     RELEASES: {
         /**
          *  @description
+         *  Route installs the latest update.
+         *  This will install the latest update and launch the new version.
+         */
+        InstallLatestUpdate: {
+            key: "RELEASES-install-latest-update",
+            methods: ["POST"],
+            endpoint: "/api/v1/install-update",
+        },
+        /**
+         *  @description
          *  Route returns the latest update.
          *  This will return the latest update.
          *  If an error occurs, it will return an empty update.

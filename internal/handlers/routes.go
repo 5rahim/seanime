@@ -208,6 +208,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1.Get("/latest-update", makeHandler(app, HandleGetLatestUpdate))
+	v1.Post("/install-update", makeHandler(app, HandleInstallLatestUpdate))
 	v1.Post("/download-release", makeHandler(app, HandleDownloadRelease))
 
 	//

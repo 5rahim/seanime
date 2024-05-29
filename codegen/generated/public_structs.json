@@ -24536,6 +24536,16 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SelfUpdater",
+        "jsonName": "SelfUpdater",
+        "goType": "updater.SelfUpdater",
+        "typescriptType": "Updater_SelfUpdater",
+        "usedStructName": "updater.SelfUpdater",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -24666,15 +24676,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "TrueWd",
-        "jsonName": "TrueWd",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -24714,8 +24715,8 @@
         "comments": []
       },
       {
-        "name": "TrueWd",
-        "jsonName": "TrueWd",
+        "name": "Update",
+        "jsonName": "Update",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -24773,12 +24774,20 @@
         "comments": []
       },
       {
+        "name": "currLocalFilesDbId",
+        "jsonName": "currLocalFilesDbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "currLocalFiles",
         "jsonName": "currLocalFiles",
-        "goType": "[]anime.LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -27382,6 +27391,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Updating",
+        "jsonName": "updating",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " If true, a new screen will be displayed"
+        ]
       }
     ],
     "comments": [
@@ -40043,6 +40063,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "EnableTorrentstreamTests",
+        "jsonName": "EnableTorrentstreamTests",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -46801,6 +46830,63 @@
     "comments": []
   },
   {
+    "filepath": "../internal/updater/selfupdate.go",
+    "filename": "selfupdate.go",
+    "name": "SelfUpdater",
+    "formattedName": "Updater_SelfUpdater",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "breakLoopCh",
+        "jsonName": "breakLoopCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "originalExePath",
+        "jsonName": "originalExePath",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updater",
+        "jsonName": "updater",
+        "goType": "Updater",
+        "typescriptType": "Updater_Updater",
+        "usedStructName": "updater.Updater",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tmpExecutableName",
+        "jsonName": "tmpExecutableName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/updater/updater.go",
     "filename": "updater.go",
     "name": "Updater",
@@ -46841,6 +46927,16 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
         "public": false,
         "comments": []
       }

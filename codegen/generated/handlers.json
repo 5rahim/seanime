@@ -4416,6 +4416,36 @@
     }
   },
   {
+    "name": "HandleInstallLatestUpdate",
+    "trimmedName": "InstallLatestUpdate",
+    "comments": [
+      "HandleInstallLatestUpdate",
+      "",
+      "\t@summary installs the latest update.",
+      "\t@desc This will install the latest update and launch the new version.",
+      "\t@route /api/v1/install-update [POST]",
+      "\t@returns handler.Status",
+      ""
+    ],
+    "filepath": "internal/handlers/releases.go",
+    "filename": "releases.go",
+    "api": {
+      "summary": "installs the latest update.",
+      "descriptions": [
+        "This will install the latest update and launch the new version."
+      ],
+      "endpoint": "/api/v1/install-update",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "handler.Status",
+      "returnGoType": "handler.Status",
+      "returnTypescriptType": "Status"
+    }
+  },
+  {
     "name": "HandleGetLatestUpdate",
     "trimmedName": "GetLatestUpdate",
     "comments": [

@@ -66,7 +66,7 @@ func NewSelfUpdater() *SelfUpdater {
 }
 
 // Started returns a channel that will be closed when the app loop should be broken
-func (su *SelfUpdater) Started() chan struct{} {
+func (su *SelfUpdater) Started() <-chan struct{} {
 	return su.breakLoopCh
 }
 
@@ -86,6 +86,7 @@ func (su *SelfUpdater) recover() {
 	// Remove all files that do not have the .old extension
 	entries, err := os.ReadDir(exeDir)
 	if err != nil {
+		su.logger.Error().Err(err).Msg("selfupdate: Failed to recover, please manually update application")
 		return
 	}
 
@@ -133,9 +134,12 @@ func (su *SelfUpdater) Run() error {
 
 	// Get the new assets
 
+	su.logger.Info().Msg("selfupdate: Fetching latest release info")
+
 	// Get the latest release
 	release, err := su.updater.GetLatestRelease()
 	if err != nil {
+		su.logger.Error().Err(err).Msg("selfupdate: Failed to get latest release")
 		return err
 	}
 
@@ -145,13 +149,17 @@ func (su *SelfUpdater) Run() error {
 		return asset.Name == assetName
 	})
 	if !ok {
+		su.logger.Error().Msg("selfupdate: Asset not found")
 		return err
 	}
+
+	su.logger.Info().Msg("selfupdate: Downloading latest release")
 
 	// Download the asset
 	// The asset will be downloaded to exeDir/seanime_tmp
 	newReleaseDir, err := su.updater.DownloadLatestReleaseN(asset.BrowserDownloadUrl, exeDir, tempReleaseDir)
 	if err != nil {
+		su.logger.Error().Err(err).Msg("selfupdate: Failed to download latest release")
 		return err
 	}
 
@@ -170,9 +178,12 @@ func (su *SelfUpdater) Run() error {
 	// - LICENSE -> to rename
 	// - seanime.exe -> to rename
 
+	su.logger.Info().Msg("selfupdate: Renaming current assets")
+
 	entries, err := os.ReadDir(exeDir)
 	if err != nil {
 		su.recover()
+		su.logger.Error().Err(err).Msg("selfupdate: Failed to read directory")
 		return err
 	}
 
@@ -187,6 +198,7 @@ func (su *SelfUpdater) Run() error {
 		err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
 		if err != nil {
 			su.recover()
+			su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
 			return err
 		}
 	}
@@ -199,6 +211,7 @@ func (su *SelfUpdater) Run() error {
 	err = moveContents(newReleaseDir, exeDir)
 	if err != nil {
 		su.recover()
+		su.logger.Error().Err(err).Msg("selfupdate: Failed to move assets")
 		return err
 	}
 
@@ -224,6 +237,7 @@ func (su *SelfUpdater) Run() error {
 	// Remove .old files (will fail on Windows for executable)
 	entries, err = os.ReadDir(exeDir)
 	if err != nil {
+		su.logger.Warn().Err(err).Msg("selfupdate: Failed to read directory")
 		os.Exit(0)
 		return nil
 	}

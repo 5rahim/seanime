@@ -1135,6 +1135,17 @@
 // releases
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// export function useInstallLatestUpdate() {
+//     return useServerMutation<Status>({
+//         endpoint: API_ENDPOINTS.RELEASES.InstallLatestUpdate.endpoint,
+//         method: API_ENDPOINTS.RELEASES.InstallLatestUpdate.methods[0],
+//         mutationKey: [API_ENDPOINTS.RELEASES.InstallLatestUpdate.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useGetLatestUpdate() {
 //     return useServerQuery<Updater_Update>({
 //         endpoint: API_ENDPOINTS.RELEASES.GetLatestUpdate.endpoint,

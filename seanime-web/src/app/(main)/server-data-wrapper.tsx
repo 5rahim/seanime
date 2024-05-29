@@ -55,6 +55,21 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     }
 
     /**
+     * If the app is updating, show a different screen
+     */
+    if (serverStatus?.updating) {
+        return <div className="container max-w-3xl py-10">
+            <div className="mb-4 flex justify-center w-full">
+                <img src="/logo_2.png" alt="logo" className="w-36 h-auto" />
+            </div>
+            <p className="text-center text-lg">
+                The app is currently updating. Once the update is complete and the connection has been reestablished, please <strong>refresh the
+                                                                                                                                     page</strong>.
+            </p>
+        </div>
+    }
+
+    /**
      * Check feature flag routes
      */
 

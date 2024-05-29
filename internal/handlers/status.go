@@ -20,6 +20,7 @@ type Status struct {
 	MediastreamSettings   *models.MediastreamSettings   `json:"mediastreamSettings"`
 	TorrentstreamSettings *models.TorrentstreamSettings `json:"torrentstreamSettings"`
 	AnilistClientID       string                        `json:"anilistClientId"`
+	Updating              bool                          `json:"updating"` // If true, a new screen will be displayed
 }
 
 // NewStatus returns a new Status struct.
@@ -58,6 +59,7 @@ func NewStatus(c *RouteCtx) *Status {
 		MediastreamSettings:   c.App.SecondarySettings.Mediastream,
 		TorrentstreamSettings: c.App.SecondarySettings.Torrentstream,
 		AnilistClientID:       c.App.Config.Anilist.ClientID,
+		Updating:              false,
 	}
 }
 
