@@ -17,6 +17,7 @@ import (
 
 const (
 	tempReleaseDir = "seanime_tmp"
+	backupDirName  = "backup_restore_if_failed"
 )
 
 type (
@@ -187,11 +188,26 @@ func (su *SelfUpdater) Run() error {
 		return err
 	}
 
+	// Backup the current assets
+	backupDir := filepath.Join(exeDir, backupDirName)
+	_ = os.MkdirAll(backupDir, 0755)
+	for _, entry := range entries {
+		if entry.Name() == tempReleaseDir {
+			continue
+		}
+		if !entry.IsDir() {
+			_ = copyFile(filepath.Join(exeDir, entry.Name()), filepath.Join(backupDir, entry.Name()))
+		}
+		if entry.IsDir() {
+			_ = copyDir(filepath.Join(exeDir, entry.Name()), filepath.Join(backupDir, entry.Name()))
+		}
+	}
+
 	for _, entry := range entries {
 		su.logger.Info().Str("entry", entry.Name()).Msg("selfupdate: Found entry")
 
 		// Do not rename the new release directory
-		if entry.Name() == tempReleaseDir {
+		if entry.Name() == tempReleaseDir || entry.Name() == backupDirName {
 			continue
 		}
 		// Rename the contents
@@ -246,6 +262,8 @@ func (su *SelfUpdater) Run() error {
 			_ = os.RemoveAll(filepath.Join(exeDir, entry.Name()))
 		}
 	}
+
+	_ = os.RemoveAll(backupDir)
 
 	os.Exit(0)
 	return nil
