@@ -2,7 +2,7 @@ import { useDirectorySelector } from "@/api/hooks/directory_selector.hooks"
 import { Modal } from "@/components/ui/modal"
 import { TextInput, TextInputProps } from "@/components/ui/text-input"
 import { useBoolean } from "@/hooks/use-disclosure"
-import React, { memo, startTransition, useCallback, useEffect, useRef, useState } from "react"
+import React from "react"
 import { BiCheck, BiFolderOpen, BiFolderPlus, BiX } from "react-icons/bi"
 import { FaFolder } from "react-icons/fa"
 import { useUpdateEffect } from "react-use"
@@ -16,7 +16,7 @@ export type DirectorySelectorProps = {
     value: string
 } & Omit<TextInputProps, "onSelect" | "value">
 
-export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, DirectorySelectorProps>(function (props: DirectorySelectorProps, ref) {
+export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, DirectorySelectorProps>(function (props: DirectorySelectorProps, ref) {
 
     const {
         defaultValue,
@@ -26,12 +26,12 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
         ...rest
     } = props
 
-    const firstRender = useRef(true)
+    const firstRender = React.useRef(true)
 
-    const [input, setInput] = useState(defaultValue ? upath.normalize(defaultValue) : "")
-    const [debouncedInput] = useDebounce(input, 500)
+    const [input, setInput] = React.useState(defaultValue ? upath.normalize(defaultValue) : "")
+    const [debouncedInput] = useDebounce(input, 300)
     const selectorState = useBoolean(false)
-    const prevState = useRef<string>(input)
+    const prevState = React.useRef<string>(input)
 
     const { data, isLoading, error } = useDirectorySelector(debouncedInput)
 
@@ -45,31 +45,24 @@ export const DirectorySelector = memo(React.forwardRef<HTMLInputElement, Directo
         }
     }, [value])
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (input === ".") {
             setInput("")
         }
     }, [input])
 
     useUpdateEffect(() => {
-        if (debouncedInput.length > 0) {
-            if (shouldExist && data?.exists) {
-                onSelect(debouncedInput)
-                prevState.current = debouncedInput
-            } else if (!shouldExist) {
-                onSelect(debouncedInput)
-                prevState.current = debouncedInput
-            }
-        }
+        onSelect(debouncedInput)
+        prevState.current = debouncedInput
     }, [debouncedInput, data])
 
-    const checkDirectoryExists = useCallback(() => {
-        if (!isLoading && data && shouldExist && !data.exists) {
-            startTransition(() => {
+    const checkDirectoryExists = React.useCallback(() => {
+        if (!isLoading && data && shouldExist && !data.exists && input.length > 0) {
+            React.startTransition(() => {
                 setInput(prevState.current)
             })
         }
-    }, [isLoading, data, shouldExist, prevState.current])
+    }, [isLoading, data, input, shouldExist, prevState.current])
 
     return (
         <>

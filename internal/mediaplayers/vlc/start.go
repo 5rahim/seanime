@@ -46,6 +46,19 @@ func (vlc *VLC) isRunning(executable string) bool {
 		return false
 	}
 
+	// TODO
+	//var cmd *exec.Cmd
+	//switch runtime.GOOS {
+	//case "windows":
+	//	cmd = exec.Command("tasklist")
+	//case "linux":
+	//	cmd = exec.Command("pgrep", executable)
+	//case "darwin":
+	//	cmd = exec.Command("pgrep", executable)
+	//default:
+	//	return false
+	//}
+
 	return strings.Contains(string(output), executable)
 }
 

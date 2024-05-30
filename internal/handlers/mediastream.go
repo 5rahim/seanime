@@ -55,7 +55,13 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 
 	// Check Transcode directory
 	if b.Settings.TranscodeEnabled {
-		transcodeDir := filepath.Join(b.Settings.TranscodeTempDir)
+		transcodeDir := filepath.Clean(b.Settings.TranscodeTempDir)
+		if transcodeDir == "" {
+			c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, transcode directory is not set")
+			b.Settings.TranscodeEnabled = false
+			b.Settings.PreTranscodeEnabled = false
+			c.App.WSEventManager.SendEvent(events.ErrorToast, "Transcode directory is not set, transcoding has been disabled")
+		}
 		if !filepath.IsAbs(transcodeDir) {
 			c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, transcode directory is not an absolute path")
 			b.Settings.TranscodeEnabled = false

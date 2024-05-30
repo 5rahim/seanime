@@ -125,7 +125,7 @@ export function UpdateModal(props: UpdateModalProps) {
                     <div className="flex gap-2 w-full !mt-4">
                         <Modal
                             trigger={<Button leftIcon={<GrInstall className="text-2xl" />}>
-                                Download and install
+                                Update now
                             </Button>}
                             contentClass="max-w-xl"
                             title={<span>Update Seanime <BetaBadge /></span>}

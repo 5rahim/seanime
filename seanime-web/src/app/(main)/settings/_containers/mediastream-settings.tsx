@@ -11,7 +11,7 @@ const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeHwAccel: z.string(),
     transcodeThreads: z.number(),
     transcodePreset: z.string().min(2),
-    transcodeTempDir: z.string(),
+    transcodeTempDir: z.string().min(2),
     preTranscodeEnabled: z.boolean(),
     preTranscodeLibraryDir: z.string(),
     ffmpegPath: z.string().min(0),
