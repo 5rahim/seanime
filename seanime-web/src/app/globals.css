@@ -5,6 +5,8 @@
 @layer base {
     :root {
         --media-cue-backdrop: blur(0px);
+        --media-captions-padding: 0%;
+        --video-captions-offset: 0px;
         /*--brand-color-50: #f2f0ff;*/
         /*--brand-color-100: #eeebff;*/
         /*--brand-color-200: #d4d0ff;*/

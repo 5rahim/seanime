@@ -10,7 +10,7 @@ import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
-import { isApple } from "@/lib/utils/browser-detection"
+import { isApple, isMobile } from "@/lib/utils/browser-detection"
 import {
     isHLSProvider,
     LibASSTextRenderer,
@@ -194,7 +194,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Add subtitle renderer
      */
     React.useEffect(() => {
-        if (playerRef.current && !(isApple())) {
+        // Add JASSUB if not on Apple mobile
+        if (playerRef.current && !(isApple() && isMobile())) {
             const workerUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
             const wasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
             const legacyWasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-legacy.wasm" : getAssetUrl("/jassub/jassub-worker.wasm.js")
