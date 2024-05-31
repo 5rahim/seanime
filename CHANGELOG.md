@@ -4,15 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## v1.5.3
 
-- ⚡️ Improved download and decompression process for new releases
-  - Downloading and decompressing the new release directly from the UI will now work as expected on all platforms
-- 🦺 Fix .tar.gz decompression error when downloading new releases
+- ✨ Self update (Experimental)
+  - Update Seanime to the latest version directly from the web UI
+- 🦺 Media streaming: Fixed issue with media player not using JASSUB #65
+- 🦺 Online streaming: Fixed progress syncing #66
+- 🦺 Fixed .tar.gz decompression error when downloading new releases on macOS
+- 🏗️ Changed default subtitle renderer styles on mobile #65
 - 🏗️ Use binary path as working directory variable by default
-  - This eliminates the need to use the `--truewd` flag to point to the correct web directory location
+  - Fixes macOS startup process and other issues
 - 🏗️ Added `server.usebinarypath` field to config.toml
   - Enforces the use of binary path as working directory variable
-  - Default is `true`. Set to `false` to use the system's working directory
-- 🏗️ Removed `--truewd` flag
+  - Defaults to `true`. Set to `false` to use the system's working directory
+- 🏗️ Removed `-truewd` flag
+- 🏗️ Disabled Fiber file compression
 
 ## v1.5.2
 

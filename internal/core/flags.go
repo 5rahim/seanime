@@ -21,6 +21,8 @@ func GetSeanimeFlags() SeanimeFlags {
 		fmt.Printf("Flags:\n")
 		fmt.Printf("  -datadir, --datadir string")
 		fmt.Printf("   directory that contains all Seanime data\n")
+		fmt.Printf("  -update")
+		fmt.Printf("   update the application\n")
 		fmt.Printf("  -h                           show this help message\n")
 	}
 	// Parse flags

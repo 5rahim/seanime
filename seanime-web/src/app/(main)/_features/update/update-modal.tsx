@@ -131,9 +131,8 @@ export function UpdateModal(props: UpdateModalProps) {
                             title={<span>Update Seanime <BetaBadge /></span>}
                         >
                             <p>
-                                Seanime will perform an update by downloading and <strong>replacing existing</strong> files.
-                                The application will restart after the update is complete.
-                                This update will not work if you have moved the web directory or installed Seanime via Docker.
+                                Seanime will perform an update by downloading and replacing existing files.
+                                Refer to the documentation for more information.
                             </p>
 
                             <Button className="w-full" onClick={() => installUpdate()} disabled={isPending}>
