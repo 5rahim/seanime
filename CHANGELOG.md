@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Media streaming: Fixed issue with media player not using JASSUB #65
 - 🦺 Online streaming: Fixed progress syncing #66
 - 🦺 Fixed .tar.gz decompression error when downloading new releases on macOS
+- 🦺 Fixed some layout issues
 - 🏗️ Changed default subtitle renderer styles on mobile #65
 - 🏗️ Use binary path as working directory variable by default
   - Fixes macOS startup process and other issues
