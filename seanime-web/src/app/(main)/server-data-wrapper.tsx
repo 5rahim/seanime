@@ -63,8 +63,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                 <img src="/logo_2.png" alt="logo" className="w-36 h-auto" />
             </div>
             <p className="text-center text-lg">
-                The app is currently updating. Once the update is complete and the connection has been reestablished, please <strong>refresh the
-                                                                                                                                     page</strong>.
+                Seanime is currently updating. Refresh the page once the update is complete and the connection has been reestablished.
             </p>
         </div>
     }

@@ -97,6 +97,10 @@ func (su *SelfUpdater) recover() {
 		//	continue
 		//}
 
+		if entry.Name() == backupDirName {
+			continue
+		}
+
 		if !strings.HasSuffix(entry.Name(), ".old") {
 			_ = os.RemoveAll(filepath.Join(exeDir, entry.Name()))
 			continue
@@ -188,11 +192,14 @@ func (su *SelfUpdater) Run() error {
 		return err
 	}
 
-	// Backup the current assets
+	// Delete the backup directory if it exists
+	_ = os.RemoveAll(filepath.Join(exeDir, backupDirName))
+	// Create the backup directory
 	backupDir := filepath.Join(exeDir, backupDirName)
 	_ = os.MkdirAll(backupDir, 0755)
+	// Backup the current assets
 	for _, entry := range entries {
-		if entry.Name() == tempReleaseDir {
+		if entry.Name() == tempReleaseDir || entry.Name() == backupDirName {
 			continue
 		}
 		if !entry.IsDir() {
