@@ -107,8 +107,8 @@ How to install Seanime
 
 The main goal of Seanime is to provide an all-in-one, easy-to-use alternative to traditional media servers like Plex and Jellyfin, designed specifically for anime and manga.
 Seanime eliminates the need for setting up and maintaining multiple tools and services (no need for organizing, renaming, setting up plugins, etc.).
-As someone who is new to the self-hosting world, I recognize the need something that is user-friendly, feature-rich, and just works out of the box.
-Note that unlike other media servers, Seanime does _natively_ run on all clients that seasoned self-hosting enjoyers might be used to (dedicated apps etc.), and it
+As someone who is new to the self-hosting world, I recognize the need for something that is user-friendly, feature-rich, and just works out of the box.
+Note that unlike other media servers, Seanime does not _natively_ run on all clients that seasoned self-hosting enjoyers might be used to (dedicated apps etc.), and it
 might have some rough edges in some use cases. 
 
 ### Not planned
