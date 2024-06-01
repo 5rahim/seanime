@@ -69,7 +69,6 @@ export function AnimeEntryPage() {
                                 animate: { opacity: 1, y: 0 },
                                 exit: { opacity: 0, y: 20 },
                                 transition: {
-                                    type: "spring",
                                     damping: 10,
                                     stiffness: 80,
                                 },
@@ -88,7 +87,6 @@ export function AnimeEntryPage() {
                                 animate: { opacity: 1, y: 0 },
                                 exit: { opacity: 0, y: 20 },
                                 transition: {
-                                    type: "spring",
                                     damping: 10,
                                     stiffness: 80,
                                 },
