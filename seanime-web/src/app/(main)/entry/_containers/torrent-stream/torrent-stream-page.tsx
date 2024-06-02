@@ -11,11 +11,16 @@ import {
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/react"
+import Image from "next/image"
 import React, { useMemo } from "react"
+import { AiFillWarning } from "react-icons/ai"
+import { MdInfo } from "react-icons/md"
 
 type TorrentStreamPageProps = {
     children?: React.ReactNode
@@ -128,6 +133,51 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                         description={episode?.episodeMetadata?.overview}
                         isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
                         className="flex-none w-full"
+                        action={<>
+                            <Modal
+                                trigger={<IconButton
+                                    icon={<MdInfo />}
+                                    className="opacity-30 hover:opacity-100 transform-opacity"
+                                    intent="gray-basic"
+                                    size="xs"
+                                />}
+                                title={episode.displayTitle}
+                                contentClass="max-w-2xl"
+                                titleClass="text-xl"
+                            >
+
+                                {episode.episodeMetadata?.image && <div
+                                    className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+                                >
+                                    <Image
+                                        src={episode.episodeMetadata?.image}
+                                        alt="banner"
+                                        fill
+                                        quality={80}
+                                        priority
+                                        sizes="20rem"
+                                        className="object-cover object-center opacity-30"
+                                    />
+                                    <div
+                                        className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
+                                    />
+                                </div>}
+
+                                <div className="space-y-4">
+                                    <p className="text-lg line-clamp-2 font-semibold">
+                                        {episode.episodeTitle?.replaceAll("`", "'")}
+                                        {episode.isInvalid && <AiFillWarning />}
+                                    </p>
+                                    <p className="text-[--muted]">
+                                        {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
+                                    </p>
+                                    <p className="text-gray-300">
+                                        {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
+                                    </p>
+                                </div>
+
+                            </Modal>
+                        </>}
                     />
                 ))}
             </EpisodeListGrid>

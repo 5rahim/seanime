@@ -226,7 +226,7 @@ function EpisodeItemInfoModal(props: { episode: Anime_MediaEntryEpisode, }) {
                     <p className="text-[--muted]">
                         {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
                     </p>
-                    <p className="text-[--muted]">
+                    <p className="text-gray-300">
                         {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
                     </p>
                     {
