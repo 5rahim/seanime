@@ -138,7 +138,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				// ------- Playlist ------- //
 				if pm.currentMediaListEntry.IsPresent() && pm.currentLocalFile.IsPresent() {
-					go pm.playlistHub.onVideoCompleted(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
+					go pm.playlistHub.onPlaybackStatus(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
 				}
 
 				pm.eventMu.Unlock()
