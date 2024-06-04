@@ -197,8 +197,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         // Add JASSUB if not on Apple mobile
         if (playerRef.current && !(isApple() && isMobile())) {
             const workerUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
-            const wasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
-            const legacyWasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-legacy.wasm" : getAssetUrl("/jassub/jassub-worker.wasm.js")
+            const wasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
+            const legacyWasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.wasm.js" : getAssetUrl(
+                "/jassub/jassub-worker.wasm.js")
             // const workerUrl = "/jassub/jassub-worker.js"
             // const wasmUrl = "/jassub/jassub-worker.wasm"
             // const legacyWasmUrl = "/jassub/jassub-worker.wasm.js"
