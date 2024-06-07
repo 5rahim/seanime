@@ -1,5 +1,5 @@
 import { AL_AnimeCollection_MediaListCollection_Lists_Entries, AL_MediaListStatus } from "@/api/generated/types"
-import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { useGetRawAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import sortBy from "lodash/sortBy"
 import React, { useCallback } from "react"
@@ -7,7 +7,7 @@ import React, { useCallback } from "react"
 export function useHandleUserAnilistLists(debouncedSearchInput: string) {
 
     const serverStatus = useServerStatus()
-    const { data } = useGetAnilistCollection()
+    const { data } = useGetRawAnimeCollection()
 
     const lists = React.useMemo(() => data?.MediaListCollection?.lists, [data])
 
@@ -24,7 +24,11 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
         })
     }, [lists])
 
-    const getList = useCallback((status: AL_MediaListStatus) => {
+    const customLists = React.useMemo(() => {
+        return lists?.filter(obj => obj?.isCustomList)
+    }, [lists])
+
+    const getList = useCallback((status: AL_MediaListStatus, debouncedSearchInput: string) => {
         let obj = structuredClone(sortedLists?.find(n => n?.status === status))
         if (!obj || !obj.entries) return undefined
         if (!serverStatus?.settings?.anilist?.enableAdultContent) {
@@ -32,13 +36,13 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
         }
         obj.entries = filterEntriesByTitle(obj.entries, debouncedSearchInput)
         return obj
-    }, [sortedLists, debouncedSearchInput, serverStatus?.settings?.anilist?.enableAdultContent])
+    }, [sortedLists, serverStatus?.settings?.anilist?.enableAdultContent])
 
-    const currentList = React.useMemo(() => getList("CURRENT"), [debouncedSearchInput, getList, lists])
-    const planningList = React.useMemo(() => getList("PLANNING"), [debouncedSearchInput, getList, lists])
-    const pausedList = React.useMemo(() => getList("PAUSED"), [debouncedSearchInput, getList, lists])
-    const completedList = React.useMemo(() => getList("COMPLETED"), [debouncedSearchInput, getList, lists])
-    const droppedList = React.useMemo(() => getList("DROPPED"), [debouncedSearchInput, getList, lists])
+    const currentList = React.useMemo(() => getList("CURRENT", debouncedSearchInput), [debouncedSearchInput, getList, lists])
+    const planningList = React.useMemo(() => getList("PLANNING", debouncedSearchInput), [debouncedSearchInput, getList, lists])
+    const pausedList = React.useMemo(() => getList("PAUSED", debouncedSearchInput), [debouncedSearchInput, getList, lists])
+    const completedList = React.useMemo(() => getList("COMPLETED", debouncedSearchInput), [debouncedSearchInput, getList, lists])
+    const droppedList = React.useMemo(() => getList("DROPPED", debouncedSearchInput), [debouncedSearchInput, getList, lists])
 
     return {
         currentList,
@@ -46,6 +50,7 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
         pausedList,
         completedList,
         droppedList,
+        customLists,
     }
 }
 

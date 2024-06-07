@@ -42,6 +42,25 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 	return c.RespondWithData(anilistCollection)
 }
 
+// HandleGetRawAnimeCollection
+//
+//	@summary returns the user's AniList anime collection without filtering out custom lists.
+//	@desc Calling GET will return the cached anime collection.
+//	@returns anilist.AnimeCollection
+//	@route /api/v1/anilist/collection/raw [GET,POST]
+func HandleGetRawAnimeCollection(c *RouteCtx) error {
+
+	bypassCache := c.Fiber.Method() == "POST"
+
+	// Get the user's anilist collection
+	anilistCollection, err := c.App.GetRawAnilistCollection(bypassCache)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(anilistCollection)
+}
+
 // HandleEditAnilistListEntry
 //
 //	@summary updates the user's list entry on Anilist.

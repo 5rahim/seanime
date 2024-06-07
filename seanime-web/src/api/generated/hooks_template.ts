@@ -22,6 +22,26 @@
 //     })
 // }
 
+// export function useGetRawAnimeCollection() {
+//     return useServerQuery<AL_AnimeCollection>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetRawAnimeCollection() {
+//     return useServerMutation<AL_AnimeCollection>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.methods[1],
+//         mutationKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useEditAnilistListEntry() {
 //     return useServerMutation<AL_UpdateMediaListEntry, EditAnilistListEntry_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.EditAnilistListEntry.endpoint,

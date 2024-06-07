@@ -3558,6 +3558,24 @@
         "comments": []
       },
       {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsCustomList",
+        "jsonName": "isCustomList",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Entries",
         "jsonName": "entries",
         "goType": "[]MangaCollection_MediaListCollection_Lists_Entries",
@@ -5932,6 +5950,24 @@
         "goType": "MediaListStatus",
         "typescriptType": "AL_MediaListStatus",
         "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsCustomList",
+        "jsonName": "isCustomList",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []
@@ -24265,7 +24301,19 @@
         "required": false,
         "public": false,
         "comments": [
-          " should be retrieved with Get funcs in routes"
+          " TODO: Rename to animeCollection"
+        ]
+      },
+      {
+        "name": "rawAnimeCollection",
+        "jsonName": "rawAnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": [
+          " (retains custom lists)"
         ]
       },
       {
@@ -24276,8 +24324,18 @@
         "usedStructName": "anilist.MangaCollection",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "rawMangaCollection",
+        "jsonName": "rawMangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": false,
         "comments": [
-          " should be retrieved with Get funcs in routes"
+          " (retains custom lists)"
         ]
       },
       {
@@ -24288,9 +24346,7 @@
         "usedStructName": "models.Account",
         "required": false,
         "public": false,
-        "comments": [
-          " should be retrieved with Get funcs in routes"
-        ]
+        "comments": []
       },
       {
         "name": "WSEventManager",

@@ -25,6 +25,23 @@ func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, 
 
 }
 
+// GetRawAnilistCollection is the same as GetAnilistCollection but returns the raw collection that includes custom lists
+func (a *App) GetRawAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+
+	// Get Anilist Collection from App if it exists
+	if !bypassCache && a.rawAnimeCollection != nil {
+		return a.rawAnimeCollection, nil
+	}
+
+	_, err := a.RefreshAnilistCollection()
+	if err != nil {
+		return nil, err
+	}
+
+	return a.rawAnimeCollection, nil
+
+}
+
 // RefreshAnilistCollection queries Anilist for the user's collection
 func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 
@@ -39,7 +56,16 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 		return nil, err
 	}
 
-	// Remove lists with no status
+	// Save the raw collection to App (retains the lists with no status)
+	collectionCopy := *collection
+	a.rawAnimeCollection = &collectionCopy
+	listCollectionCopy := *collection.MediaListCollection
+	a.rawAnimeCollection.MediaListCollection = &listCollectionCopy
+	listsCopy := make([]*anilist.AnimeCollection_MediaListCollection_Lists, len(collection.MediaListCollection.Lists))
+	copy(listsCopy, collection.MediaListCollection.Lists)
+	a.rawAnimeCollection.MediaListCollection.Lists = listsCopy
+
+	// Remove lists with no status (custom lists)
 	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.AnimeCollection_MediaListCollection_Lists, _ int) bool {
 		return list.Status != nil
 	})
@@ -93,6 +119,22 @@ func (a *App) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, er
 
 }
 
+// GetRawMangaCollection does not exclude custom lists
+func (a *App) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+
+	// Get Anilist Collection from App if it exists
+	if !bypassCache && a.mangaCollection != nil {
+		return a.mangaCollection, nil
+	}
+
+	_, err := a.RefreshMangaCollection()
+	if err != nil {
+		return nil, err
+	}
+
+	return a.rawMangaCollection, nil
+}
+
 // RefreshMangaCollection queries Anilist for the user's manga collection
 func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 
@@ -106,6 +148,14 @@ func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	collectionCopy := *collection
+	a.rawMangaCollection = &collectionCopy
+	listCollectionCopy := *collection.MediaListCollection
+	a.rawMangaCollection.MediaListCollection = &listCollectionCopy
+	listsCopy := make([]*anilist.MangaCollection_MediaListCollection_Lists, len(collection.MediaListCollection.Lists))
+	copy(listsCopy, collection.MediaListCollection.Lists)
+	a.rawMangaCollection.MediaListCollection.Lists = listsCopy
 
 	// Remove lists with no status
 	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.MangaList, _ int) bool {

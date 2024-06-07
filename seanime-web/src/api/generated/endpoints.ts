@@ -22,6 +22,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route returns the user's AniList anime collection without filtering out custom lists.
+         *  Calling GET will return the cached anime collection.
+         */
+        GetRawAnimeCollection: {
+            key: "ANILIST-get-raw-anime-collection",
+            methods: ["GET", "POST"],
+            endpoint: "/api/v1/anilist/collection/raw",
+        },
+        /**
+         *  @description
          *  Route updates the user's list entry on Anilist.
          *  This is used to edit an entry on AniList.
          *  The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.

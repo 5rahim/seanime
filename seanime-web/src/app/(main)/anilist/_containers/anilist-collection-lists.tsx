@@ -1,5 +1,6 @@
 import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useHandleUserAnilistLists } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
+import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -28,6 +29,7 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         pausedList,
         completedList,
         droppedList,
+        customLists,
     } = useHandleUserAnilistLists(debouncedSearchInput)
 
     return (
@@ -44,22 +46,37 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
                     })
                 }}
             >
-                <TabsList>
-                    <TabsTrigger value="current">
-                        Currently Watching
-                    </TabsTrigger>
-                    <TabsTrigger value="planning">
-                        Planning
-                    </TabsTrigger>
-                    <TabsTrigger value="paused">
-                        Paused
-                    </TabsTrigger>
-                    <TabsTrigger value="completed">
-                        Completed
-                    </TabsTrigger>
-                    <TabsTrigger value="dropped">
-                        Dropped
-                    </TabsTrigger>
+                <TabsList className="block lg:h-auto space-y-2">
+                    <div className="inline-flex flex-wrap lg:flex-nowrap lg:h-12 items-center justify-center w-full">
+                        <TabsTrigger value="current">
+                            Currently Watching
+                        </TabsTrigger>
+                        <TabsTrigger value="planning">
+                            Planning
+                        </TabsTrigger>
+                        <TabsTrigger value="paused">
+                            Paused
+                        </TabsTrigger>
+                        <TabsTrigger value="completed">
+                            Completed
+                        </TabsTrigger>
+                        <TabsTrigger value="dropped">
+                            Dropped
+                        </TabsTrigger>
+                    </div>
+
+                    {!!customLists?.length && (
+                        <>
+                            <Separator />
+                            <div className="inline-flex flex-wrap lg:flex-nowrap lg:h-10 items-center justify-center w-full">
+                                {customLists.map((list, i) => (
+                                    <TabsTrigger key={list.name} value={list.name || ""} className="">
+                                        {list?.name}
+                                    </TabsTrigger>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </TabsList>
 
 
@@ -79,6 +96,11 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
                     <TabsContent value="dropped">
                         <AnilistMediaEntryList list={droppedList} />
                     </TabsContent>
+                    {customLists?.map(list => (
+                        <TabsContent key={list.name} value={list.name || ""}>
+                            <AnilistMediaEntryList list={list} />
+                        </TabsContent>
+                    ))}
                 </div>
             </Tabs>
         </>

@@ -31,6 +31,8 @@ export type AL_AnimeCollection_MediaListCollection = {
  */
 export type AL_AnimeCollection_MediaListCollection_Lists = {
     status?: AL_MediaListStatus
+    name?: string
+    isCustomList?: boolean
     entries?: Array<AL_AnimeCollection_MediaListCollection_Lists_Entries>
 }
 
@@ -651,6 +653,8 @@ export type AL_MangaCollection_MediaListCollection = {
  */
 export type AL_MangaCollection_MediaListCollection_Lists = {
     status?: AL_MediaListStatus
+    name?: string
+    isCustomList?: boolean
     entries?: Array<AL_MangaCollection_MediaListCollection_Lists_Entries>
 }
 

@@ -2443,8 +2443,10 @@ func (t *MangaCollection_MediaListCollection_Lists_Entries) GetMedia() *BaseMang
 }
 
 type MangaCollection_MediaListCollection_Lists struct {
-	Status  *MediaListStatus                                     "json:\"status,omitempty\" graphql:\"status\""
-	Entries []*MangaCollection_MediaListCollection_Lists_Entries "json:\"entries,omitempty\" graphql:\"entries\""
+	Status       *MediaListStatus                                     "json:\"status,omitempty\" graphql:\"status\""
+	Name         *string                                              "json:\"name,omitempty\" graphql:\"name\""
+	IsCustomList *bool                                                "json:\"isCustomList,omitempty\" graphql:\"isCustomList\""
+	Entries      []*MangaCollection_MediaListCollection_Lists_Entries "json:\"entries,omitempty\" graphql:\"entries\""
 }
 
 func (t *MangaCollection_MediaListCollection_Lists) GetStatus() *MediaListStatus {
@@ -2452,6 +2454,18 @@ func (t *MangaCollection_MediaListCollection_Lists) GetStatus() *MediaListStatus
 		t = &MangaCollection_MediaListCollection_Lists{}
 	}
 	return t.Status
+}
+func (t *MangaCollection_MediaListCollection_Lists) GetName() *string {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists{}
+	}
+	return t.Name
+}
+func (t *MangaCollection_MediaListCollection_Lists) GetIsCustomList() *bool {
+	if t == nil {
+		t = &MangaCollection_MediaListCollection_Lists{}
+	}
+	return t.IsCustomList
 }
 func (t *MangaCollection_MediaListCollection_Lists) GetEntries() []*MangaCollection_MediaListCollection_Lists_Entries {
 	if t == nil {
@@ -4050,8 +4064,10 @@ func (t *AnimeCollection_MediaListCollection_Lists_Entries) GetMedia() *BaseMedi
 }
 
 type AnimeCollection_MediaListCollection_Lists struct {
-	Status  *MediaListStatus                                     "json:\"status,omitempty\" graphql:\"status\""
-	Entries []*AnimeCollection_MediaListCollection_Lists_Entries "json:\"entries,omitempty\" graphql:\"entries\""
+	Status       *MediaListStatus                                     "json:\"status,omitempty\" graphql:\"status\""
+	Name         *string                                              "json:\"name,omitempty\" graphql:\"name\""
+	IsCustomList *bool                                                "json:\"isCustomList,omitempty\" graphql:\"isCustomList\""
+	Entries      []*AnimeCollection_MediaListCollection_Lists_Entries "json:\"entries,omitempty\" graphql:\"entries\""
 }
 
 func (t *AnimeCollection_MediaListCollection_Lists) GetStatus() *MediaListStatus {
@@ -4059,6 +4075,18 @@ func (t *AnimeCollection_MediaListCollection_Lists) GetStatus() *MediaListStatus
 		t = &AnimeCollection_MediaListCollection_Lists{}
 	}
 	return t.Status
+}
+func (t *AnimeCollection_MediaListCollection_Lists) GetName() *string {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists{}
+	}
+	return t.Name
+}
+func (t *AnimeCollection_MediaListCollection_Lists) GetIsCustomList() *bool {
+	if t == nil {
+		t = &AnimeCollection_MediaListCollection_Lists{}
+	}
+	return t.IsCustomList
 }
 func (t *AnimeCollection_MediaListCollection_Lists) GetEntries() []*AnimeCollection_MediaListCollection_Lists_Entries {
 	if t == nil {
@@ -7019,6 +7047,8 @@ const MangaCollectionDocument = `query MangaCollection ($userName: String) {
 	MediaListCollection(userName: $userName, type: MANGA) {
 		lists {
 			status
+			name
+			isCustomList
 			entries {
 				id
 				score(format: POINT_100)
@@ -7545,6 +7575,8 @@ const AnimeCollectionDocument = `query AnimeCollection ($userName: String) {
 	MediaListCollection(userName: $userName, type: ANIME) {
 		lists {
 			status
+			name
+			isCustomList
 			entries {
 				id
 				score(format: POINT_100)

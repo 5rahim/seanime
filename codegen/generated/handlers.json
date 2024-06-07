@@ -35,6 +35,37 @@
     }
   },
   {
+    "name": "HandleGetRawAnimeCollection",
+    "trimmedName": "GetRawAnimeCollection",
+    "comments": [
+      "HandleGetRawAnimeCollection",
+      "",
+      "\t@summary returns the user's AniList anime collection without filtering out custom lists.",
+      "\t@desc Calling GET will return the cached anime collection.",
+      "\t@returns anilist.AnimeCollection",
+      "\t@route /api/v1/anilist/collection/raw [GET,POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/anilist.go",
+    "filename": "anilist.go",
+    "api": {
+      "summary": "returns the user's AniList anime collection without filtering out custom lists.",
+      "descriptions": [
+        "Calling GET will return the cached anime collection."
+      ],
+      "endpoint": "/api/v1/anilist/collection/raw",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anilist.AnimeCollection",
+      "returnGoType": "anilist.AnimeCollection",
+      "returnTypescriptType": "AL_AnimeCollection"
+    }
+  },
+  {
     "name": "HandleEditAnilistListEntry",
     "trimmedName": "EditAnilistListEntry",
     "comments": [

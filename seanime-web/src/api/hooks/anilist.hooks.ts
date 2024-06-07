@@ -28,6 +28,15 @@ export function useGetAnilistCollection() {
     })
 }
 
+export function useGetRawAnimeCollection() {
+    return useServerQuery<AL_AnimeCollection>({
+        endpoint: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.endpoint,
+        method: API_ENDPOINTS.ANILIST.GetRawAnimeCollection.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key],
+        enabled: true,
+    })
+}
+
 export function useRefreshAnilistCollection() {
     const queryClient = useQueryClient()
 
@@ -39,6 +48,7 @@ export function useRefreshAnilistCollection() {
             toast.success("AniList is up-to-date")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })

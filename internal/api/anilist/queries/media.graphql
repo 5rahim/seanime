@@ -2,6 +2,8 @@ query AnimeCollection ($userName: String) {
   MediaListCollection(userName: $userName, type: ANIME) {
     lists {
       status
+      name
+      isCustomList
       entries {
         id
         score(format: POINT_100)

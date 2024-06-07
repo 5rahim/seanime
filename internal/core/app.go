@@ -49,9 +49,11 @@ type (
 		AnilistClientWrapper    anilist.ClientWrapperInterface
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
-		anilistCollection       *anilist.AnimeCollection // should be retrieved with Get funcs in routes
-		mangaCollection         *anilist.MangaCollection // should be retrieved with Get funcs in routes
-		account                 *models.Account          // should be retrieved with Get funcs in routes
+		anilistCollection       *anilist.AnimeCollection // TODO: Rename to animeCollection
+		rawAnimeCollection      *anilist.AnimeCollection // (retains custom lists)
+		mangaCollection         *anilist.MangaCollection
+		rawMangaCollection      *anilist.MangaCollection // (retains custom lists)
+		account                 *models.Account
 		WSEventManager          *events.WSEventManager
 		ListSyncCache           *listsync.Cache
 		AutoDownloader          *autodownloader.AutoDownloader
