@@ -226,7 +226,7 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
     return (
         <Button
             intent="primary"
-            className=""
+            className="animate-pulse"
             onClick={() => {
                 if (type === "download") {
                     setter(true)
@@ -236,7 +236,7 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
                 }
             }}
         >
-            Continue ({st.length})
+            Continue{type === "download" ? ` (${st.length})` : ""}
         </Button>
     )
 

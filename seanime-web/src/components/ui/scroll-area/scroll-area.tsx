@@ -17,6 +17,7 @@ export const ScrollAreaAnatomy = defineStyleAnatomy({
     viewport: cva([
         "UI-ScrollArea__viewport",
         "h-full w-full rounded-[inherit]",
+        "[&>div]:!block",
     ]),
     scrollbar:
         cva([

@@ -282,7 +282,13 @@ export default function Page() {
                                     className="flex-none w-full"
                                 />
                             ))}
+                            <div className="hidden 2xl:block h-[1rem]">
+
+                            </div>
                         </div>
+                        <div
+                            className={"hidden 2xl:block z-[5] absolute bottom-0 w-full h-[2rem] bg-gradient-to-t from-[--background] to-transparent"}
+                        />
                     </ScrollArea>
 
                 </div>

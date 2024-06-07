@@ -53,7 +53,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
     return <>
         <div
             className={cn(
-                "bg-[--background] hover:bg-[var(--hover-from-background-color)]",
+                "bg-[--background] hover:bg-[var(--hover-from-background-color)] max-w-full",
                 "border p-3 pr-12 rounded-lg relative transition group/episode-list-item",
                 {
                     // "opacity-50": isWatched && !isSelected,

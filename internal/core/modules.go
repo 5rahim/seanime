@@ -130,6 +130,8 @@ func (a *App) InitOrRefreshModules() {
 		return
 	}
 
+	a.Logger.Debug().Msgf("app: Refreshing modules")
+
 	var ctx context.Context
 	ctx, a.cancelContext = context.WithCancel(context.Background())
 	defer func() {

@@ -83,6 +83,17 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 Resolve hidden media ({unknownGroups.length})
             </Button>}
             <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+                {/*<DropdownMenuItem*/}
+                {/*    disabled={!hasScanned}*/}
+                {/*    className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}*/}
+                {/*    onClick={() => {*/}
+
+                {/*    }}*/}
+                {/*>*/}
+                {/*    <FaSearch />*/}
+                {/*    <span>Find</span>*/}
+                {/*</DropdownMenuItem>*/}
+
                 <DropdownMenuItem
                     disabled={!status?.settings?.library?.libraryPath}
                     className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}

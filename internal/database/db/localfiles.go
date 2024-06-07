@@ -29,7 +29,7 @@ func (db *Database) GetLocalFiles() ([]*anime.LocalFile, uint, error) {
 		return nil, 0, err
 	}
 
-	db.logger.Debug().Msg("db: Got local files from database")
+	db.logger.Debug().Msg("db: Local files retrieved")
 
 	db.currLocalFiles = mo.Some(lfs)
 	db.currLocalFilesDbId = res.ID
