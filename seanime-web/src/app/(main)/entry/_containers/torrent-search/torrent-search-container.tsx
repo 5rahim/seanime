@@ -133,7 +133,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
     const onTorrentValidated = () => {
         console.log("onTorrentValidated", selectedTorrents, smartSearchEpisode, entry.episodes)
         if (type === "select") {
-            const ep = downloadInfo?.episodesToDownload?.find(n => n.episode?.episodeNumber === smartSearchEpisode)
+            const ep = previews?.find(n => n?.torrent?.link === selectedTorrents[0]?.link)?.episode
             if (selectedTorrents.length && !!ep?.aniDBEpisode) {
                 handleManualTorrentStreamSelection({
                     torrent: selectedTorrents[0],
