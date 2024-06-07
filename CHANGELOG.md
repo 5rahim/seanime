@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.4
+
+- ⚡️ Added episode info to Torrent Streaming view #69
+- ⚡️ Custom lists are now shown in 'My Lists' page #70
+- 🦺 Fixed active playlist info not showing up on the web UI
+- 🦺 Torrent streaming: Fixed manual selection not working when episode is already watched
+- 🦺 Torrent Streaming: Fixed transition speed
+
 ## v1.5.3
 
 - ✨ Self update (Experimental)
