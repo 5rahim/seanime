@@ -26,7 +26,8 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 <p align="center">
   <a href="https://seanime.rahim.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
-  <a href="#screenshots">Screenshots</a>
+  <a href="#screenshots">Screenshots</a> |
+  <a href="https://discord.gg/Sbr7Phzt6m">Discord</a>
 </p>
 
 ## About
