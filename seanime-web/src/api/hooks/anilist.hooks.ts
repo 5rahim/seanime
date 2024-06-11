@@ -106,6 +106,7 @@ export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "a
             } else if (type === "manga") {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key, String(id)] })
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetAnilistMangaCollection.key] })
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
             }
             onSuccess()
         },
