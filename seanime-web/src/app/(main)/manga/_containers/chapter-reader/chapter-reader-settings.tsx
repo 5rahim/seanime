@@ -123,20 +123,6 @@ export const MANGA_PAGE_STRETCH_OPTIONS = [
     },
 ]
 
-const defaultSettings = {
-    [MangaReadingMode.LONG_STRIP]: {
-        pageFit: MangaPageFit.LARGER,
-        pageStretch: MangaPageStretch.NONE,
-    },
-    [MangaReadingMode.PAGED]: {
-        pageFit: MangaPageFit.CONTAIN,
-        pageStretch: MangaPageStretch.NONE,
-    },
-    [MangaReadingMode.DOUBLE_PAGE]: {
-        pageFit: MangaPageFit.CONTAIN,
-        pageStretch: MangaPageStretch.NONE,
-    },
-}
 
 export const __manga__readerSettingsDrawerOpen = atom(false)
 
@@ -158,6 +144,43 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     //---
     const [readerProgressBar, setReaderProgressBar] = useAtom(__manga_readerProgressBarAtom)
     const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
+
+    const { width } = useWindowSize()
+    const isMobile = width < 950
+
+    const defaultSettings = React.useMemo(() => {
+        if (isMobile) {
+            return {
+                [MangaReadingMode.LONG_STRIP]: {
+                    pageFit: MangaPageFit.COVER,
+                    pageStretch: MangaPageStretch.NONE,
+                },
+                [MangaReadingMode.PAGED]: {
+                    pageFit: MangaPageFit.CONTAIN,
+                    pageStretch: MangaPageStretch.NONE,
+                },
+                [MangaReadingMode.DOUBLE_PAGE]: {
+                    pageFit: MangaPageFit.CONTAIN,
+                    pageStretch: MangaPageStretch.NONE,
+                },
+            }
+        } else {
+            return {
+                [MangaReadingMode.LONG_STRIP]: {
+                    pageFit: MangaPageFit.LARGER,
+                    pageStretch: MangaPageStretch.NONE,
+                },
+                [MangaReadingMode.PAGED]: {
+                    pageFit: MangaPageFit.CONTAIN,
+                    pageStretch: MangaPageStretch.NONE,
+                },
+                [MangaReadingMode.DOUBLE_PAGE]: {
+                    pageFit: MangaPageFit.CONTAIN,
+                    pageStretch: MangaPageStretch.NONE,
+                },
+            }
+        }
+    }, [isMobile])
 
     /**
      * Remember settings for current media
@@ -270,7 +293,6 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     /**
      * Disabled double page on small screens
      */
-    const { width } = useWindowSize()
     React.useEffect(() => {
         if (readingMode === MangaReadingMode.DOUBLE_PAGE && width < 950) {
             setReadingMode(prev => {
@@ -287,8 +309,6 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
         }
         setReadingMode(mode)
     }
-
-    const isMobile = width < 950
 
     const [open, setOpen] = useAtom(__manga__readerSettingsDrawerOpen)
 
