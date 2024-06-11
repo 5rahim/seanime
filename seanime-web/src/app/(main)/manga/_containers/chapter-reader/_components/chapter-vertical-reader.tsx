@@ -17,6 +17,7 @@ import {
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
 import { cn } from "@/components/ui/core/styling"
+import { isMobile } from "@/lib/utils/browser-detection"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
@@ -46,7 +47,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
     const paginationMap = useAtom(__manga_paginationMapAtom)
 
-    const hiddenBar = useAtomValue(__manga_hiddenBarAtom)
+    const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
 
     const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
@@ -161,6 +162,11 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                 "max-h-[calc(100dvh-3rem)] overflow-hidden relative focus-visible:outline-none",
                 hiddenBar && "h-full max-h-full",
             )} tabIndex={-1}
+            onClick={() => {
+                if (!isMobile()) {
+                    setHideBar(prev => !prev)
+                }
+            }}
         >
             <div
                 className={cn(

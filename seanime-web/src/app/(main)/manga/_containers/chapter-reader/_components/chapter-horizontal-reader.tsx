@@ -20,6 +20,7 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
 import { cn } from "@/components/ui/core/styling"
+import { isMobile } from "@/lib/utils/browser-detection"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import React from "react"
@@ -41,7 +42,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const pageGapShadow = useAtomValue(__manga_pageGapShadowAtom)
     const pageOverflowContainerWidth = useAtomValue(__manga_pageOverflowContainerWidthAtom)
 
-    const hiddenBar = useAtomValue(__manga_hiddenBarAtom)
+    const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
 
     const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
@@ -129,6 +130,10 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
             onPaginate("left")
         } else if (clickPercentage >= 60) {
             onPaginate("right")
+        } else {
+            if (!isMobile()) {
+                setHideBar(prev => !prev)
+            }
         }
     }, [onPaginate, pageWrapperRef.current])
 
