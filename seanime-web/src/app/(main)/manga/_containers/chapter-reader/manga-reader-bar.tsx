@@ -11,6 +11,7 @@ import { __manga_selectedChapterAtom, MangaReader_SelectedChapter, useHandleChap
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
+    __manga_hiddenBarAtom,
     __manga_pageFitAtom,
     __manga_pageStretchAtom,
     __manga_paginationMapAtom,
@@ -61,6 +62,8 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
     const readingMode = useAtomValue(__manga_readingModeAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
     const readerProgressBar = useAtomValue(__manga_readerProgressBarAtom)
+
+    const hiddenBar = useAtomValue(__manga_hiddenBarAtom)
 
     const ChapterNavButton = React.useCallback(({ dir }: { dir: "left" | "right" }) => {
         const reversed = (readingDirection === MangaReadingDirection.RTL && (readingMode === MangaReadingMode.PAGED || readingMode === MangaReadingMode.DOUBLE_PAGE))
@@ -178,7 +181,12 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
     return (
         <>
-            {(pageContainer && readerProgressBar && allPagesLoaded) && <div className="bottom-12 w-full fixed z-10 hidden lg:block group/bp">
+            {(pageContainer && readerProgressBar && allPagesLoaded) && <div
+                className={cn(
+                    "bottom-12 w-full fixed z-10 hidden lg:block group/bp",
+                    hiddenBar && "bottom-0",
+                )}
+            >
                 <div className="flex max-w-full items-center">
                     {pageContainer.pages?.map((_, index) => (
                         <div
@@ -203,7 +211,13 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                 </div>
             </div>}
 
-            <div className="fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[var(--background)]" id="manga-reader-bar">
+
+            <div
+                className={cn(
+                    "fixed bottom-0 w-full h-12 gap-4 flex items-center px-4 z-[10] bg-[var(--background)] transition-transform",
+                    hiddenBar && "translate-y-60",
+                )} id="manga-reader-bar"
+            >
 
                 <IconButton
                     icon={<AiOutlineCloseCircle />}

@@ -4,6 +4,7 @@ import { useHandleChapterPageStatus, useHydrateMangaPaginationMap } from "@/app/
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
+    __manga_hiddenBarAtom,
     __manga_isLastPageAtom,
     __manga_kbsPageLeft,
     __manga_kbsPageRight,
@@ -39,6 +40,8 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
     const pageGap = useAtomValue(__manga_pageGapAtom)
     const pageGapShadow = useAtomValue(__manga_pageGapShadowAtom)
     const pageOverflowContainerWidth = useAtomValue(__manga_pageOverflowContainerWidthAtom)
+
+    const hiddenBar = useAtomValue(__manga_hiddenBarAtom)
 
     const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
@@ -152,6 +155,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
         <div
             className={cn(
                 "h-[calc(100dvh-3rem)] overflow-y-hidden overflow-x-hidden w-full px-4 select-none relative",
+                hiddenBar && "h-dvh max-h-full",
                 "focus-visible:outline-none",
                 pageFit === MangaPageFit.COVER && "overflow-y-auto",
                 pageFit === MangaPageFit.TRUE_SIZE && "overflow-y-auto",
@@ -189,6 +193,7 @@ export function MangaHorizontalReader({ pageContainer }: MangaHorizontalReaderPr
                         }}
                         containerClass={cn(
                             "w-full h-[calc(100dvh-3rem)] scroll-div min-h-[200px] relative page",
+                            hiddenBar && "h-dvh max-h-full",
                             "focus-visible:outline-none",
                             !currentPages?.includes(index) ? "hidden" : "displayed",
                             // Double Page, gap

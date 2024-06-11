@@ -2,6 +2,7 @@
 import {
     __manga_doublePageOffsetAtom,
     __manga_entryReaderSettings,
+    __manga_hiddenBarAtom,
     __manga_kbsChapterLeft,
     __manga_kbsChapterRight,
     __manga_kbsPageLeft,
@@ -25,6 +26,7 @@ import {
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
@@ -155,6 +157,7 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
     const [pageOverflowContainerWidth, setPageOverflowContainerWidth] = useAtom(__manga_pageOverflowContainerWidthAtom)
     //---
     const [readerProgressBar, setReaderProgressBar] = useAtom(__manga_readerProgressBarAtom)
+    const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
 
     /**
      * Remember settings for current media
@@ -287,24 +290,44 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
     const isMobile = width < 950
 
+    const [open, setOpen] = useAtom(__manga__readerSettingsDrawerOpen)
+
     return (
         <>
+            <DropdownMenu
+                trigger={<IconButton
+                    icon={<BiCog />}
+                    intent="gray-basic"
+                    className="flex lg:hidden"
+                />}
+                className="block lg:hidden"
+            >
+                <DropdownMenuItem
+                    onClick={() => setOpen(true)}
+                >Open settings</DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => setHideBar((prev) => !prev)}
+                >{hiddenBar ? "Show" : "Hide"} bar</DropdownMenuItem>
+            </DropdownMenu>
+
             <Drawer
                 trigger={
                     <IconButton
                         icon={<BiCog />}
                         intent="gray-basic"
-                        className=""
+                        className="hidden lg:flex"
                     />
                 }
                 title="Settings"
                 allowOutsideInteraction={false}
+                open={open}
+                onOpenChange={setOpen}
                 size="lg"
                 contentClass="z-[51]"
             >
                 <div className="space-y-4 py-4">
 
-                <RadioGroup
+                    <RadioGroup
                         {...radioGroupClasses}
                         label="Reading Mode"
                         options={MANGA_READING_MODE_OPTIONS}

@@ -3,6 +3,7 @@ import { ChapterPage } from "@/app/(main)/manga/_containers/chapter-reader/_comp
 import { useHandleChapterPageStatus, useHydrateMangaPaginationMap } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import {
     __manga_currentPageIndexAtom,
+    __manga_hiddenBarAtom,
     __manga_isLastPageAtom,
     __manga_kbsPageLeft,
     __manga_kbsPageRight,
@@ -44,6 +45,8 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     const pageOverflowContainerWidth = useAtomValue(__manga_pageOverflowContainerWidthAtom)
     const [currentPageIndex, setCurrentPageIndex] = useAtom(__manga_currentPageIndexAtom)
     const paginationMap = useAtom(__manga_paginationMapAtom)
+
+    const hiddenBar = useAtomValue(__manga_hiddenBarAtom)
 
     const kbsPageLeft = useAtomValue(__manga_kbsPageLeft)
     const kbsPageRight = useAtomValue(__manga_kbsPageRight)
@@ -153,10 +156,16 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
     }, [kbsPageLeft, kbsPageRight, paginationMap])
 
     return (
-        <div className="max-h-[calc(100dvh-3rem)] relative focus-visible:outline-none" tabIndex={-1}>
+        <div
+            className={cn(
+                "max-h-[calc(100dvh-3rem)] overflow-hidden relative focus-visible:outline-none",
+                hiddenBar && "h-full max-h-full",
+            )} tabIndex={-1}
+        >
             <div
                 className={cn(
-                    "w-full h-[calc(100dvh-60px)] overflow-y-auto overflow-x-hidden px-4 select-none relative focus-visible:outline-none",
+                    "w-full h-[calc(100dvh-3rem)] overflow-y-auto overflow-x-hidden px-4 select-none relative focus-visible:outline-none",
+                    hiddenBar && "h-dvh",
                     pageGap && "space-y-4",
                 )}
                 ref={containerRef}

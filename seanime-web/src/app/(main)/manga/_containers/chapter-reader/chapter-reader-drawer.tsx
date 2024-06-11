@@ -15,6 +15,7 @@ import { useDiscordMangaPresence } from "@/app/(main)/manga/_lib/handle-discord-
 import {
     __manga_currentPageIndexAtom,
     __manga_currentPaginationMapIndexAtom,
+    __manga_hiddenBarAtom,
     __manga_isLastPageAtom,
     __manga_kbsChapterLeft,
     __manga_kbsChapterRight,
@@ -25,7 +26,7 @@ import {
     MangaReadingMode,
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
@@ -33,6 +34,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import React from "react"
+import { TbLayoutBottombarExpandFilled } from "react-icons/tb"
 import { toast } from "sonner"
 
 type ChapterDrawerProps = {
@@ -68,6 +70,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const kbsChapterRight = useAtomValue(__manga_kbsChapterRight)
     const paginationMap = useAtomValue(__manga_paginationMapAtom)
     const readingDirection = useAtomValue(__manga_readingDirectionAtom)
+
+    const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
 
     useSwitchSettingsWithKeys()
 
@@ -194,6 +198,17 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         }
     }, [pageContainer?.pages, chapterContainer?.chapters, shouldUpdateProgress, isLastPage])
 
+    // Hide bar shortcut
+    React.useEffect(() => {
+        mousetrap.bind("b", () => {
+            setHideBar((prev) => !prev)
+        })
+
+        return () => {
+            mousetrap.unbind("b")
+        }
+    }, [])
+
     // Navigation
     React.useEffect(() => {
         mousetrap.bind(kbsChapterLeft, () => {
@@ -257,6 +272,18 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 </Card>
             </div>
 
+            {/*Exit fullscreen button*/}
+            {hiddenBar && <div className="fixed right-0 bottom-4 group/hiddenBarArea z-[10] px-4">
+                <IconButton
+                    rounded
+                    icon={<TbLayoutBottombarExpandFilled />}
+                    intent="white-outline"
+                    size="sm"
+                    onClick={() => setHideBar(false)}
+                    className="lg:opacity-0 opacity-30 group-hover/hiddenBarArea:opacity-100 transition-opacity duration-200"
+                />
+            </div>}
+
             <MangaReaderBar
                 previousChapter={previousChapter}
                 nextChapter={nextChapter}
@@ -266,7 +293,12 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             />
 
 
-            <div className="max-h-[calc(100dvh-3rem)] h-full" tabIndex={-1}>
+            <div
+                className={cn(
+                    "max-h-[calc(100dvh-3rem)] h-full",
+                    hiddenBar && "max-h-dvh",
+                )} tabIndex={-1}
+            >
                 {pageContainerError ? (
                     <LuffyError
                         title="Failed to load pages"
