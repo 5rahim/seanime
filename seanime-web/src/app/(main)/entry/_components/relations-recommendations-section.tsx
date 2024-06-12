@@ -32,6 +32,8 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
 
     const recommendations = details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation)?.filter(Boolean) || []
 
+    console.log(recommendations)
+
     if (!entry || !details) return null
 
     return (

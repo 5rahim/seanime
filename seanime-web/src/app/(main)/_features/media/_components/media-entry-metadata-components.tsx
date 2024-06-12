@@ -5,7 +5,7 @@ import { IconButton } from "@/components/ui/button"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { Tooltip } from "@/components/ui/tooltip"
 import capitalize from "lodash/capitalize"
-import React, { useMemo } from "react"
+import React from "react"
 import { AiFillStar, AiOutlineHeart, AiOutlineStar } from "react-icons/ai"
 import { BiHeart, BiHide } from "react-icons/bi"
 
@@ -44,18 +44,10 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
     } = props
 
     const status = useServerStatus()
-    const hideAudienceScore = useMemo(() => status?.settings?.anilist?.hideAudienceScore ?? false, [status?.settings?.anilist?.hideAudienceScore])
+    const hideAudienceScore = React.useMemo(() => status?.settings?.anilist?.hideAudienceScore ?? false,
+        [status?.settings?.anilist?.hideAudienceScore])
 
     if (!meanScore) return null
-
-    const ScoreBadge = (
-        <Badge
-            className=""
-            size="lg"
-            intent={meanScore >= 70 ? meanScore >= 82 ? "primary" : "success" : "gray"}
-            leftIcon={<BiHeart />}
-        >{meanScore / 10}</Badge>
-    )
 
     return (
         <>
@@ -73,10 +65,20 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                         </DisclosureTrigger>}
                     >Show audience score</Tooltip>
                     <DisclosureContent>
-                        {ScoreBadge}
+                        <Badge
+                            className=""
+                            size="lg"
+                            intent={meanScore >= 70 ? meanScore >= 82 ? "primary" : "success" : "gray"}
+                            leftIcon={<BiHeart />}
+                        >{meanScore / 10}</Badge>
                     </DisclosureContent>
                 </DisclosureItem>
-            </Disclosure> : ScoreBadge}
+            </Disclosure> : <Badge
+                className=""
+                size="lg"
+                intent={meanScore >= 70 ? meanScore >= 82 ? "primary" : "success" : "gray"}
+                leftIcon={<BiHeart />}
+            >{meanScore / 10}</Badge>}
         </>
     )
 }

@@ -73,10 +73,6 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-var (
-	detailsCache = result.NewCache[int, *anilist.MediaDetailsById_Media]()
-)
-
 //----------------------------------------------------------------------------------------------------------------------
 
 // HandleAnimeEntryBulkAction

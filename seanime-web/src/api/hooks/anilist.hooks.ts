@@ -84,7 +84,7 @@ export function useGetAnilistMediaDetails(id: Nullish<number | string>) {
     return useServerQuery<AL_MediaDetailsById_Media>({
         endpoint: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.methods[0],
-        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.key],
+        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.key, String(id)],
         enabled: true,
     })
 }

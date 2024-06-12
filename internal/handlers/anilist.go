@@ -114,6 +114,10 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+var (
+	detailsCache = result.NewCache[int, *anilist.MediaDetailsById_Media]()
+)
+
 // HandleGetAnilistMediaDetails
 //
 //	@summary returns more details about an AniList anime entry.
