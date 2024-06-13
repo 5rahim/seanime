@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 const (
@@ -210,6 +211,9 @@ func (su *SelfUpdater) Run() error {
 		}
 	}
 
+	failedAtRenaming := false
+	failedEntryNames := make([]string, 0)
+
 	for _, entry := range entries {
 		su.logger.Info().Str("entry", entry.Name()).Msg("selfupdate: Found entry")
 
@@ -218,11 +222,30 @@ func (su *SelfUpdater) Run() error {
 			continue
 		}
 		// Rename the contents
+		// - web -> web.old
+		// This will fail on Windows due to some files inside the directory being in use, this can happen for many reasons
 		err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
 		if err != nil {
-			su.recover()
+			failedAtRenaming = true
+			failedEntryNames = append(failedEntryNames, entry.Name())
+			//su.recover()
 			su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
-			return err
+			//return err
+		}
+	}
+
+	if failedAtRenaming {
+		fmt.Println("---------------------------------")
+		fmt.Println("Please close your browser and the file explorer, a second attempt will be made in 10 seconds")
+		fmt.Println("---------------------------------")
+		time.Sleep(10 * time.Second)
+		for _, entry := range failedEntryNames {
+			err = os.Rename(filepath.Join(exeDir, entry+".old"), filepath.Join(exeDir, entry+".old"))
+			if err != nil {
+				su.recover()
+				su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
+				return err
+			}
 		}
 	}
 
