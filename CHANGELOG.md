@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.5.5
+
+- ⚡️ Manga reader fullscreen mode (hide the bar)
+  - You can now toggle the manga reader bar by clicking the middle of the page or pressing `b` on desktop
+  - Click the cog icon to toggle the option on mobile
+- ⚡️ Changed manga reader defaults based on screen size
+  - Clicking `Reset defaults for (mode)` will now take into account the screen size
+- 🦺 Fixed list not updating after editing entry on 'My lists' page
+- 🦺 Fixed manga list not updating after deleting entry
+- 🦺 Fixed score and recommendations not updating when navigating between series
+
 ## v1.5.4
 
 - ⚡️ Added episode info to Torrent Streaming view #69

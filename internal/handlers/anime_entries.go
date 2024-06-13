@@ -73,8 +73,6 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------------------------------------------------
-
 // HandleAnimeEntryBulkAction
 //
 //	@summary perform given action on all the local files for the given media id.

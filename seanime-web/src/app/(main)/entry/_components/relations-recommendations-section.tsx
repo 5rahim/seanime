@@ -22,17 +22,19 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
 
     const serverStatus = useServerStatus()
 
-    const sourceManga = serverStatus?.settings?.library?.enableManga
-        ? entry?.media?.relations?.edges?.find(edge => (edge?.relationType === "SOURCE" || edge?.relationType === "ADAPTATION") && edge?.node?.format === "MANGA")?.node
-        : undefined
+    const sourceManga = React.useMemo(() => {
+        return serverStatus?.settings?.library?.enableManga
+            ? entry?.media?.relations?.edges?.find(edge => (edge?.relationType === "SOURCE" || edge?.relationType === "ADAPTATION") && edge?.node?.format === "MANGA")?.node
+            : undefined
+    }, [entry?.media?.relations?.edges, serverStatus?.settings?.library?.enableManga])
 
-    const relations = (entry?.media?.relations?.edges?.map(edge => edge) || [])
+    const relations = React.useMemo(() => (entry?.media?.relations?.edges?.map(edge => edge) || [])
         .filter(Boolean)
-        .filter(n => (n.node?.format === "TV" || n.node?.format === "OVA" || n.node?.format === "MOVIE" || n.node?.format === "SPECIAL") && (n.relationType === "PREQUEL" || n.relationType === "SEQUEL" || n.relationType === "PARENT" || n.relationType === "SIDE_STORY" || n.relationType === "ALTERNATIVE" || n.relationType === "ADAPTATION"))
+            .filter(n => (n.node?.format === "TV" || n.node?.format === "OVA" || n.node?.format === "MOVIE" || n.node?.format === "SPECIAL") && (n.relationType === "PREQUEL" || n.relationType === "SEQUEL" || n.relationType === "PARENT" || n.relationType === "SIDE_STORY" || n.relationType === "ALTERNATIVE" || n.relationType === "ADAPTATION")),
+        [entry?.media?.relations?.edges])
 
-    const recommendations = details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation)?.filter(Boolean) || []
-
-    console.log(recommendations)
+    const recommendations = React.useMemo(() => details?.recommendations?.edges?.map(edge => edge?.node?.mediaRecommendation)?.filter(Boolean) || [],
+        [details?.recommendations?.edges])
 
     if (!entry || !details) return null
 
