@@ -215,11 +215,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             })
             playerRef.current!.textRenderers.add(renderer)
 
-            // return () => {
-            //     playerRef.current!.textRenderers.remove(renderer)
-            // }
         }
-    }, [playerRef.current, mediaContainer?.mediaInfo?.fonts])
+    }, [playerRef.current, mediaContainer?.streamUrl])
 
     function changeUrl(newUrl: string | undefined) {
         if (prevUrlRef.current !== newUrl) {
@@ -281,16 +278,13 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                     logger("MEDIASTREAM").info("HLS Provider setup")
 
                     logger("MEDIASTREAM").info("Loading source", url)
-                    // provider.instance?.loadSource(url)
 
                     provider.instance?.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
                         logger("MEDIASTREAM").info("onManifestParsed", "attaching media")
-                        // provider?.instance?.attachMedia(provider.video)
                     })
 
                     provider.instance?.on(HLS.Events.MEDIA_ATTACHED, (event) => {
                         logger("MEDIASTREAM").info("onMediaAttached")
-                        // provider.instance?.startLoad(0)
                     })
 
                     provider.instance?.on(HLS.Events.MEDIA_DETACHED, (event) => {
@@ -317,7 +311,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         if (data?.fatal) {
                             // Record current time
                             previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-                            logger("MEDIASTREAM").error("handleFatalError")
+                            logger("MEDIASTREAM").error("handleFatalError", data)
                             // Shut down transcoder
                             if (mediaContainer?.streamType === "transcode") {
                                 shutdownTranscode()
