@@ -22,7 +22,6 @@ import {
     MediaProviderSetupEvent,
     MediaTimeUpdateEventDetail,
 } from "@vidstack/react"
-import Hls from "hls.js"
 import HLS, { LoadPolicy } from "hls.js"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
@@ -196,14 +195,16 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     React.useEffect(() => {
         // Add JASSUB if not on Apple mobile
         if (playerRef.current && !(isApple() && isMobile())) {
-            const workerUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
-            const wasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
-            const legacyWasmUrl = process.env.NODE_ENV === "development" ? "/jassub/jassub-worker.wasm.js" : getAssetUrl(
-                "/jassub/jassub-worker.wasm.js")
-            // const workerUrl = "/jassub/jassub-worker.js"
-            // const wasmUrl = "/jassub/jassub-worker.wasm"
-            // const legacyWasmUrl = "/jassub/jassub-worker.wasm.js"
-            // @ts-ignore
+            const wasmUrl = process.env.NODE_ENV === "development"
+                ? "/jassub/jassub-worker.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
+            const workerUrl = process.env.NODE_ENV === "development"
+                ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
+            const legacyWasmUrl = process.env.NODE_ENV === "development"
+                ? "/jassub/jassub-worker.wasm.js" : getAssetUrl("/jassub/jassub-worker.wasm.js")
+
+            logger("MEDIASTREAM").info("Adding JASSUB renderer", wasmUrl, workerUrl)
+
+            // @ts-expect-error
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
                 wasmUrl: wasmUrl,
                 workerUrl: workerUrl,
@@ -215,6 +216,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             })
             playerRef.current!.textRenderers.add(renderer)
 
+            return () => {
+                playerRef.current!.textRenderers.remove(renderer)
+            }
         }
     }, [playerRef.current, mediaContainer?.streamUrl])
 
@@ -279,7 +283,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
                     logger("MEDIASTREAM").info("Loading source", url)
 
-                    provider.instance?.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+                    provider.instance?.on(HLS.Events.MANIFEST_PARSED, function (event, data) {
                         logger("MEDIASTREAM").info("onManifestParsed", "attaching media")
                     })
 

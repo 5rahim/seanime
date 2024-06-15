@@ -240,7 +240,7 @@ func (su *SelfUpdater) Run() error {
 		fmt.Println("---------------------------------")
 		time.Sleep(10 * time.Second)
 		for _, entry := range failedEntryNames {
-			err = os.Rename(filepath.Join(exeDir, entry+".old"), filepath.Join(exeDir, entry+".old"))
+			err = os.Rename(filepath.Join(exeDir, entry), filepath.Join(exeDir, entry+".old"))
 			if err != nil {
 				su.recover()
 				su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
