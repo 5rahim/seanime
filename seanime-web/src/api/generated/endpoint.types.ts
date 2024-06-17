@@ -741,6 +741,28 @@ export type EmptyTVDBEpisodes_Variables = {
     mediaId: number
 }
 
+/**
+ * - Filepath: internal/handlers/metadata.go
+ * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata-provider/filler
+ * @description
+ * Route fetches and caches filler data for the given media.
+ */
+export type PopulateFillerData_Variables = {
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/metadata.go
+ * - Filename: metadata.go
+ * - Endpoint: /api/v1/metadata-provider/filler
+ * @description
+ * Route removes filler data cache.
+ */
+export type RemoveFillerData_Variables = {
+    mediaId: number
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // offline
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

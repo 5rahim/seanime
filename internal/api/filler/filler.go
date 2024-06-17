@@ -1,4 +1,4 @@
-package metadata
+package filler
 
 import (
 	"fmt"
@@ -10,18 +10,22 @@ import (
 )
 
 type (
-	FillerSearchOptions struct {
+	SearchOptions struct {
 		Titles []string
 	}
 
-	FillerSearchResult struct {
+	SearchResult struct {
 		Slug  string
 		Title string
 	}
 
-	FillerAPI interface {
-		Search(opts FillerSearchOptions) (*FillerSearchResult, error)
-		FindFillerEpisodes(slug string) ([]string, error)
+	API interface {
+		Search(opts SearchOptions) (*SearchResult, error)
+		FindFillerData(slug string) (*Data, error)
+	}
+
+	Data struct {
+		FillerEpisodes []string `json:"fillerEpisodes"`
 	}
 )
 
@@ -43,7 +47,7 @@ func NewAnimeFillerList(logger *zerolog.Logger) *AnimeFillerList {
 	}
 }
 
-func (af *AnimeFillerList) Search(opts FillerSearchOptions) (result *FillerSearchResult, err error) {
+func (af *AnimeFillerList) Search(opts SearchOptions) (result *SearchResult, err error) {
 
 	defer util.HandlePanicInModuleWithError("api/metadata/filler/Search", &err)
 
@@ -51,10 +55,10 @@ func (af *AnimeFillerList) Search(opts FillerSearchOptions) (result *FillerSearc
 		colly.UserAgent(af.userAgent),
 	)
 
-	ret := make([]*FillerSearchResult, 0)
+	ret := make([]*SearchResult, 0)
 
 	c.OnHTML("div.Group > ul > li > a", func(e *colly.HTMLElement) {
-		ret = append(ret, &FillerSearchResult{
+		ret = append(ret, &SearchResult{
 			Slug:  e.Attr("href"),
 			Title: e.Text,
 		})
@@ -148,7 +152,7 @@ func (af *AnimeFillerList) Search(opts FillerSearchOptions) (result *FillerSearc
 	return
 }
 
-func (af *AnimeFillerList) FindFillerEpisodes(slug string) (ret []string, err error) {
+func (af *AnimeFillerList) FindFillerData(slug string) (ret *Data, err error) {
 
 	defer util.HandlePanicInModuleWithError("api/metadata/filler/FindFillerEpisodes", &err)
 
@@ -156,16 +160,21 @@ func (af *AnimeFillerList) FindFillerEpisodes(slug string) (ret []string, err er
 		colly.UserAgent(af.userAgent),
 	)
 
-	ret = make([]string, 0)
+	ret = &Data{
+		FillerEpisodes: make([]string, 0),
+	}
 
+	fillerEps := make([]string, 0)
 	c.OnHTML("tr.filler", func(e *colly.HTMLElement) {
-		ret = append(ret, e.ChildText("td.Number"))
+		fillerEps = append(fillerEps, e.ChildText("td.Number"))
 	})
 
 	err = c.Visit(fmt.Sprintf("%s%s", af.baseUrl, slug))
 	if err != nil {
 		return nil, err
 	}
+
+	ret.FillerEpisodes = fillerEps
 
 	return
 }

@@ -68,6 +68,8 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	c.App.FillerManager.HydrateFillerData(entry)
+
 	return c.RespondWithData(entry)
 }
 
@@ -464,13 +466,6 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// DEVNOTE: Bad
-	//ret, ok := missingEpisodesMap.Get(util.GetMemAddrStr(anilistCollection))
-	//if ok {
-	//	c.App.Logger.Info().Msg("api: Library collection cache HIT")
-	//	return c.RespondWithData(ret)
-	//}
-
 	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
@@ -486,13 +481,6 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		SilencedMediaIds:  silencedMediaIds,
 		MetadataProvider:  c.App.MetadataProvider,
 	})
-
-	//go func() {
-	//	if missingEps != nil {
-	//		missingEpisodesMap.Clear()
-	//		missingEpisodesMap.Set(util.GetMemAddrStr(anilistCollection), missingEps)
-	//	}
-	//}()
 
 	return c.RespondWithData(missingEps)
 

@@ -812,6 +812,26 @@ export const API_ENDPOINTS = {
             methods: ["DELETE"],
             endpoint: "/api/v1/metadata-provider/tvdb-episodes",
         },
+        /**
+         *  @description
+         *  Route fetches and caches filler data for the given media.
+         *  This will fetch and cache filler data for the given media.
+         */
+        PopulateFillerData: {
+            key: "METADATA-populate-filler-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/metadata-provider/filler",
+        },
+        /**
+         *  @description
+         *  Route removes filler data cache.
+         *  This will remove the filler data cache for the given media.
+         */
+        RemoveFillerData: {
+            key: "METADATA-remove-filler-data",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/metadata-provider/filler",
+        },
     },
     OFFLINE: {
         /**

@@ -1,5 +1,6 @@
 import { AL_BaseMedia } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import Image from "next/image"
 import React from "react"
@@ -24,6 +25,7 @@ type EpisodeGridItemProps = {
     className?: string
     disabled?: boolean
     actionIcon?: React.ReactElement | null
+    isFiller?: boolean
 }
 
 export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
@@ -46,6 +48,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         imageContainerClassName,
         className,
         disabled,
+        isFiller,
         actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-70 text-4xl" /> : undefined,
         ...rest
     } = props
@@ -59,6 +62,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     // "opacity-50": isWatched && !isSelected,
                     "border-zinc-500 bg-gray-900 hover:bg-gray-900": isSelected,
                     "border-red-700": isInvalid,
+                    "border-yellow-900": isFiller,
                     // "opacity-50 pointer-events-none": disabled,
                     // "opacity-50": isWatched && !isSelected,
                 }, className,
@@ -66,6 +70,14 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
             {...rest}
         >
             {/*{isCompleted && <div className="absolute top-1 left-1 w-full h-1 bg-brand rounded-full"/>}*/}
+
+            {isFiller && (
+                <Badge
+                    className="font-semibold absolute top-0 left-0 z-[5] text-white bg-yellow-900 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
+                    intent="gray"
+                    size="lg"
+                >Filler</Badge>
+            )}
 
             <div
                 className={cn(

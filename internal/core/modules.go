@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
+	"github.com/seanime-app/seanime/internal/library/fillermanager"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
@@ -33,6 +34,12 @@ func (a *App) initModulesOnce() {
 	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
 	a.Cleanups = append(a.Cleanups, func() {
 		a.DiscordPresence.Close()
+	})
+
+	// Filler Manager
+	a.FillerManager = fillermanager.New(&fillermanager.NewFillerManagerOptions{
+		DB:     a.Database,
+		Logger: a.Logger,
 	})
 
 	// Playback Manager

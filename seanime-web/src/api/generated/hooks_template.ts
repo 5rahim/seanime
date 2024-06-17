@@ -923,6 +923,28 @@
 //     })
 // }
 
+// export function usePopulateFillerData() {
+//     return useServerMutation<true, PopulateFillerData_Variables>({
+//         endpoint: API_ENDPOINTS.METADATA.PopulateFillerData.endpoint,
+//         method: API_ENDPOINTS.METADATA.PopulateFillerData.methods[0],
+//         mutationKey: [API_ENDPOINTS.METADATA.PopulateFillerData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useRemoveFillerData() {
+//     return useServerMutation<boolean, RemoveFillerData_Variables>({
+//         endpoint: API_ENDPOINTS.METADATA.RemoveFillerData.endpoint,
+//         method: API_ENDPOINTS.METADATA.RemoveFillerData.methods[0],
+//         mutationKey: [API_ENDPOINTS.METADATA.RemoveFillerData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // offline
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1481,6 +1481,7 @@ export type Anime_MediaEntryEpisodeMetadata = {
     length?: number
     summary?: string
     overview?: string
+    isFiller?: boolean
 }
 
 /**

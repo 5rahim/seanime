@@ -84,3 +84,69 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 	// Respond
 	return c.RespondWithData(true)
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandlePopulateFillerData
+//
+//	@summary fetches and caches filler data for the given media.
+//	@desc This will fetch and cache filler data for the given media.
+//	@returns true
+//	@route /api/v1/metadata-provider/filler [POST]
+func HandlePopulateFillerData(c *RouteCtx) error {
+	type body struct {
+		MediaId int `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	animeCollection, err := c.App.GetAnilistCollection(false)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	media, found := animeCollection.FindMedia(b.MediaId)
+	if !found {
+		// Fetch media
+		mediaF, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+		media = mediaF.GetMedia()
+	}
+
+	// Fetch filler data
+	err = c.App.FillerManager.FetchAndStoreFillerData(b.MediaId, media.GetAllTitlesDeref())
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandleRemoveFillerData
+//
+//	@summary removes filler data cache.
+//	@desc This will remove the filler data cache for the given media.
+//	@returns bool
+//	@route /api/v1/metadata-provider/filler [DELETE]
+func HandleRemoveFillerData(c *RouteCtx) error {
+	type body struct {
+		MediaId int `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.FillerManager.RemoveFillerData(b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}

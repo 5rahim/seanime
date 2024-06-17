@@ -22092,6 +22092,110 @@
     ]
   },
   {
+    "filepath": "../internal/api/filler/filler.go",
+    "filename": "filler.go",
+    "name": "SearchOptions",
+    "formattedName": "SearchOptions",
+    "package": "filler",
+    "fields": [
+      {
+        "name": "Titles",
+        "jsonName": "Titles",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/filler/filler.go",
+    "filename": "filler.go",
+    "name": "SearchResult",
+    "formattedName": "SearchResult",
+    "package": "filler",
+    "fields": [
+      {
+        "name": "Slug",
+        "jsonName": "Slug",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "Title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/filler/filler.go",
+    "filename": "filler.go",
+    "name": "Data",
+    "formattedName": "Data",
+    "package": "filler",
+    "fields": [
+      {
+        "name": "FillerEpisodes",
+        "jsonName": "FillerEpisodes",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/filler/filler.go",
+    "filename": "filler.go",
+    "name": "AnimeFillerList",
+    "formattedName": "AnimeFillerList",
+    "package": "filler",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "userAgent",
+        "jsonName": "userAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/api/listsync/providers.go",
     "filename": "providers.go",
     "name": "Provider",
@@ -23461,7 +23565,9 @@
         "usedStructName": "anilist.BasicMedia",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " TODO should be basicMedia"
+        ]
       },
       {
         "name": "fileCacher",
@@ -24293,6 +24399,16 @@
         "comments": []
       },
       {
+        "name": "FillerManager",
+        "jsonName": "FillerManager",
+        "goType": "fillermanager.FillerManager",
+        "typescriptType": "FillerManager",
+        "usedStructName": "fillermanager.FillerManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "anilistCollection",
         "jsonName": "anilistCollection",
         "goType": "anilist.AnimeCollection",
@@ -24845,6 +24961,80 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "currMediaFillers",
+        "jsonName": "currMediaFillers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/database/db/media_filler.go",
+    "filename": "media_filler.go",
+    "name": "MediaFillerItem",
+    "formattedName": "DB_MediaFillerItem",
+    "package": "db",
+    "fields": [
+      {
+        "name": "DbId",
+        "jsonName": "DbId",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Slug",
+        "jsonName": "Slug",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastFetchedAt",
+        "jsonName": "LastFetchedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FillerEpisodes",
+        "jsonName": "FillerEpisodes",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],
@@ -26154,6 +26344,65 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "MediaFiller",
+    "formattedName": "Models_MediaFiller",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Slug",
+        "jsonName": "slug",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastFetchedAt",
+        "jsonName": "lastFetchedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -28133,6 +28382,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsFiller",
+        "jsonName": "isFiller",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -30043,8 +30301,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/filesystem/videopath.go",
-    "filename": "videopath.go",
+    "filepath": "../internal/library/filesystem/mediapath.go",
+    "filename": "mediapath.go",
     "name": "SeparatedFilePath",
     "formattedName": "Filesystem_SeparatedFilePath",
     "package": "filesystem",
@@ -30063,6 +30321,76 @@
         "jsonName": "Dirnames",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/fillermanager/fillermanager.go",
+    "filename": "fillermanager.go",
+    "name": "FillerManager",
+    "formattedName": "FillerManager",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fillerApi",
+        "jsonName": "fillerApi",
+        "goType": "filler.API",
+        "typescriptType": "API",
+        "usedStructName": "filler.API",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/fillermanager/fillermanager.go",
+    "filename": "fillermanager.go",
+    "name": "NewFillerManagerOptions",
+    "formattedName": "NewFillerManagerOptions",
+    "package": "fillermanager",
+    "fields": [
+      {
+        "name": "DB",
+        "jsonName": "DB",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
         "public": true,
         "comments": []

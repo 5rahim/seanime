@@ -3578,6 +3578,86 @@
     }
   },
   {
+    "name": "HandlePopulateFillerData",
+    "trimmedName": "PopulateFillerData",
+    "comments": [
+      "HandlePopulateFillerData",
+      "",
+      "\t@summary fetches and caches filler data for the given media.",
+      "\t@desc This will fetch and cache filler data for the given media.",
+      "\t@returns true",
+      "\t@route /api/v1/metadata-provider/filler [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "fetches and caches filler data for the given media.",
+      "descriptions": [
+        "This will fetch and cache filler data for the given media."
+      ],
+      "endpoint": "/api/v1/metadata-provider/filler",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "true",
+      "returnGoType": "true",
+      "returnTypescriptType": "true"
+    }
+  },
+  {
+    "name": "HandleRemoveFillerData",
+    "trimmedName": "RemoveFillerData",
+    "comments": [
+      "HandleRemoveFillerData",
+      "",
+      "\t@summary removes filler data cache.",
+      "\t@desc This will remove the filler data cache for the given media.",
+      "\t@returns bool",
+      "\t@route /api/v1/metadata-provider/filler [DELETE]",
+      ""
+    ],
+    "filepath": "internal/handlers/metadata.go",
+    "filename": "metadata.go",
+    "api": {
+      "summary": "removes filler data cache.",
+      "descriptions": [
+        "This will remove the filler data cache for the given media."
+      ],
+      "endpoint": "/api/v1/metadata-provider/filler",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleCreateOfflineSnapshot",
     "trimmedName": "CreateOfflineSnapshot",
     "comments": [

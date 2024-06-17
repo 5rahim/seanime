@@ -1,4 +1,4 @@
-package metadata
+package filler
 
 import (
 	"github.com/davecgh/go-spew/spew"
@@ -10,7 +10,7 @@ func TestAnimeFillerList_Search(t *testing.T) {
 
 	af := NewAnimeFillerList(util.NewLogger())
 
-	opts := FillerSearchOptions{
+	opts := SearchOptions{
 		Titles: []string{"Hunter x Hunter (2011)"},
 	}
 
