@@ -257,6 +257,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/metadata-provider/tvdb-episodes", makeHandler(app, HandlePopulateTVDBEpisodes))
 	v1.Delete("/metadata-provider/tvdb-episodes", makeHandler(app, HandleEmptyTVDBEpisodes))
 
+	v1.Post("/metadata-provider/filler", makeHandler(app, HandlePopulateFillerData))
+	v1.Delete("/metadata-provider/filler", makeHandler(app, HandleRemoveFillerData))
+
 	//
 	// Manga
 	//

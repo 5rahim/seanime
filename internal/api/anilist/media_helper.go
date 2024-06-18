@@ -97,6 +97,23 @@ func (m *BaseMedia) GetAllTitles() []*string {
 	return titles
 }
 
+func (m *BaseMedia) GetAllTitlesDeref() []string {
+	titles := make([]string, 0)
+	if m.HasRomajiTitle() {
+		titles = append(titles, *m.Title.Romaji)
+	}
+	if m.HasEnglishTitle() {
+		titles = append(titles, *m.Title.English)
+	}
+	if m.HasSynonyms() && len(m.Synonyms) > 1 {
+		syn := lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })
+		for _, s := range syn {
+			titles = append(titles, *s)
+		}
+	}
+	return titles
+}
+
 // GetCurrentEpisodeCount returns the current episode number for that media and -1 if it doesn't have one.
 // i.e. -1 is returned if the media has no episodes AND the next airing episode is not set.
 func (m *BaseMedia) GetCurrentEpisodeCount() int {
@@ -182,6 +199,16 @@ func (m *BasicMedia) GetBannerImageSafe() string {
 		return *m.GetBannerImage()
 	}
 	return m.GetCoverImageSafe()
+}
+
+func (m *BasicMedia) IsMovieOrSingleEpisode() bool {
+	if m == nil {
+		return false
+	}
+	if m.GetTotalEpisodeCount() == 1 {
+		return true
+	}
+	return false
 }
 
 func (m *BasicMedia) GetAllTitles() []*string {

@@ -16,6 +16,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
+	"github.com/seanime-app/seanime/internal/library/fillermanager"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
@@ -49,6 +50,7 @@ type (
 		AnilistClientWrapper    anilist.ClientWrapperInterface
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
+		FillerManager           *fillermanager.FillerManager
 		anilistCollection       *anilist.AnimeCollection // TODO: Rename to animeCollection
 		rawAnimeCollection      *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection         *anilist.MangaCollection
@@ -208,6 +210,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
+		FillerManager:           nil, // Initialized in App.initModulesOnce
 		MangaDownloader:         nil, // Initialized in App.initModulesOnce
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce
 		AutoDownloader:          nil, // Initialized in App.initModulesOnce

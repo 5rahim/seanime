@@ -20,6 +20,7 @@ type Database struct {
 	logger             *zerolog.Logger
 	currLocalFilesDbId uint
 	currLocalFiles     mo.Option[[]*anime.LocalFile]
+	currMediaFillers   mo.Option[map[int]*MediaFillerItem]
 }
 
 func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
@@ -59,8 +60,10 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 	logger.Info().Str("name", fmt.Sprintf("%s.db", dbName)).Msg("db: Database instantiated")
 
 	return &Database{
-		gormdb: db,
-		logger: logger,
+		gormdb:           db,
+		logger:           logger,
+		currLocalFiles:   mo.None[[]*anime.LocalFile](),
+		currMediaFillers: mo.None[map[int]*MediaFillerItem](),
 	}, nil
 }
 
@@ -79,8 +82,8 @@ func migrateTables(db *gorm.DB) error {
 		&models.PlaylistEntry{},
 		&models.ChapterDownloadQueueItem{},
 		&models.TorrentstreamSettings{},
-		// Feature flag
 		&models.MediastreamSettings{},
+		&models.MediaFiller{},
 	)
 	if err != nil {
 

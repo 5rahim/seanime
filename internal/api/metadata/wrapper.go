@@ -16,7 +16,7 @@ type (
 	// The user can request metadata to be fetched from TVDB as well, which will be done and stored in the cache.
 	MediaWrapper struct {
 		anizipMedia *anizip.Media
-		baseMedia   *anilist.BasicMedia
+		baseMedia   *anilist.BasicMedia // TODO should be basicMedia
 		fileCacher  *filecache.Cacher
 		logger      *zerolog.Logger
 

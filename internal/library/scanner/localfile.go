@@ -9,7 +9,7 @@ import (
 
 // GetLocalFilesFromDir creates a new LocalFile for each video file
 func GetLocalFilesFromDir(dirPath string, logger *zerolog.Logger) ([]*anime.LocalFile, error) {
-	paths, err := filesystem.GetVideoFilePathsFromDir(dirPath)
+	paths, err := filesystem.GetMediaFilePathsFromDirS(dirPath)
 
 	logger.Trace().
 		Any("dirPath", dirPath).

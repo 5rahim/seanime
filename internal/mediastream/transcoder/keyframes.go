@@ -3,6 +3,7 @@ package transcoder
 import (
 	"bufio"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"os/exec"
 	"path/filepath"
@@ -67,26 +68,26 @@ var keyframes = result.NewResultMap[string, *Keyframe]()
 
 func GetKeyframes(
 	path string,
-	sha string,
+	hash string,
 	logger *zerolog.Logger,
 	settings *Settings,
 ) *Keyframe {
-	ret, _ := keyframes.GetOrSet(sha, func() (*Keyframe, error) {
+	ret, _ := keyframes.GetOrSet(hash, func() (*Keyframe, error) {
 		kf := &Keyframe{
-			Sha:    sha,
+			Sha:    hash,
 			IsDone: false,
 			info:   &KeyframeInfo{},
 		}
 		kf.info.ready.Add(1)
 		go func() {
-			keyframesPath := filepath.Join(settings.StreamDir, sha, "keyframes.json")
+			keyframesPath := filepath.Join(settings.StreamDir, hash, "keyframes.json")
 			if err := getSavedInfo(keyframesPath, kf); err == nil {
 				logger.Trace().Msgf("transcoder: Keyframes Cache HIT")
 				kf.info.ready.Done()
 				return
 			}
 
-			err := getKeyframes(path, kf, logger)
+			err := getKeyframes(settings.FfprobePath, path, kf, hash, logger)
 			if err == nil {
 				saveInfo(keyframesPath, kf)
 			}
@@ -97,7 +98,7 @@ func GetKeyframes(
 	return ret
 }
 
-func getKeyframes(path string, kf *Keyframe, logger *zerolog.Logger) error {
+func getKeyframes(ffprobePath string, path string, kf *Keyframe, hash string, logger *zerolog.Logger) error {
 	defer printExecTime(logger, "ffprobe analysis for %s", path)()
 	// Execute ffprobe to retrieve all IFrames. IFrames are specific points in the video we can divide it into segments.
 	// We instruct ffprobe to return the timestamp and flags of each frame.
@@ -133,6 +134,11 @@ func getKeyframes(path string, kf *Keyframe, logger *zerolog.Logger) error {
 
 		x := strings.Split(frame, ",")
 		pts, flags := x[0], x[1]
+
+		// if no video track
+		if pts == "N/A" {
+			break
+		}
 
 		// Only take keyframes
 		if flags[0] != 'K' {
@@ -173,10 +179,34 @@ func getKeyframes(path string, kf *Keyframe, logger *zerolog.Logger) error {
 			ret = ret[:0]
 		}
 	}
+
+	// If there is less than 2 (i.e. equals 0 or 1 (it happens for audio files with poster))
+	if len(ret) < 2 {
+		dummy, err := getDummyKeyframes(ffprobePath, path, hash)
+		if err != nil {
+			return err
+		}
+		ret = dummy
+	}
+
 	kf.add(ret)
 	if done == 0 {
 		kf.info.ready.Done()
 	}
 	kf.IsDone = true
 	return nil
+}
+
+func getDummyKeyframes(ffprobePath string, path string, sha string) ([]float64, error) {
+	dummyKeyframeDuration := float64(2)
+	info, err := videofile.FfprobeGetInfo(ffprobePath, path, sha)
+	if err != nil {
+		return nil, err
+	}
+	segmentCount := int((float64(info.Duration) / dummyKeyframeDuration) + 1)
+	ret := make([]float64, segmentCount)
+	for segmentIndex := 0; segmentIndex < segmentCount; segmentIndex += 1 {
+		ret[segmentIndex] = float64(segmentIndex) * dummyKeyframeDuration
+	}
+	return ret, nil
 }

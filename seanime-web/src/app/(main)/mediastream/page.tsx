@@ -277,6 +277,7 @@ export default function Page() {
                                     //     ? `(Episode ${episode?.absoluteEpisodeNumber})`
                                     //     : undefined}
                                     isWatched={!!currentProgress && currentProgress >= episode?.progressNumber}
+                                    isFiller={episode.episodeMetadata?.isFiller}
                                     isSelected={episode.localFile?.path === filePath}
                                     imageContainerClassName="w-20 h-20"
                                     className="flex-none w-full"

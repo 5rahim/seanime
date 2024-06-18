@@ -268,5 +268,4 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	}
 
 	return localFiles, nil
-
 }

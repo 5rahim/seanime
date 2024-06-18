@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 const (
@@ -183,7 +184,7 @@ func (su *SelfUpdater) Run() error {
 	// - LICENSE -> to rename
 	// - seanime.exe -> to rename
 
-	su.logger.Info().Msg("selfupdate: Renaming current assets")
+	su.logger.Info().Msg("selfupdate: Creating backup")
 
 	entries, err := os.ReadDir(exeDir)
 	if err != nil {
@@ -210,6 +211,12 @@ func (su *SelfUpdater) Run() error {
 		}
 	}
 
+	su.logger.Info().Msg("selfupdate: Renaming assets")
+	time.Sleep(5 * time.Second)
+
+	renamingFailed := false
+	failedEntryNames := make([]string, 0)
+
 	for _, entry := range entries {
 		su.logger.Info().Str("entry", entry.Name()).Msg("selfupdate: Found entry")
 
@@ -217,12 +224,32 @@ func (su *SelfUpdater) Run() error {
 		if entry.Name() == tempReleaseDir || entry.Name() == backupDirName {
 			continue
 		}
+
 		// Rename the contents
+		// - web -> web.old
+		// This will fail on Windows due to some files inside the directory being in use, this can happen for many reasons
 		err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
 		if err != nil {
-			su.recover()
+			renamingFailed = true
+			failedEntryNames = append(failedEntryNames, entry.Name())
+			//su.recover()
 			su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
-			return err
+			//return err
+		}
+	}
+
+	if renamingFailed {
+		fmt.Println("---------------------------------")
+		fmt.Println("Please close your browser and the file explorer, a second attempt will be made in 30 seconds")
+		fmt.Println("---------------------------------")
+		time.Sleep(30 * time.Second)
+		for _, entry := range failedEntryNames {
+			err = os.Rename(filepath.Join(exeDir, entry), filepath.Join(exeDir, entry+".old"))
+			if err != nil {
+				su.recover()
+				su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
+				return err
+			}
 		}
 	}
 

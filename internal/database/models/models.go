@@ -240,3 +240,16 @@ type TorrentstreamSettings struct {
 	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
 	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
 }
+
+// +---------------------+
+// |        Filler       |
+// +---------------------+
+
+type MediaFiller struct {
+	BaseModel
+	Provider      string    `gorm:"column:provider" json:"provider"`
+	Slug          string    `gorm:"column:slug" json:"slug"`
+	MediaID       int       `gorm:"column:media_id" json:"mediaId"`
+	LastFetchedAt time.Time `gorm:"column:last_fetched_at" json:"lastFetchedAt"`
+	Data          []byte    `gorm:"column:data" json:"data"`
+}

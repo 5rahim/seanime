@@ -12,7 +12,6 @@ require (
 	github.com/anacrolix/torrent v1.55.0
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/cli/browser v1.3.0
-	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8
 	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dustin/go-humanize v1.0.1
@@ -40,6 +39,7 @@ require (
 	golang.org/x/net v0.24.0
 	golang.org/x/term v0.19.0
 	golang.org/x/text v0.14.0
+	gopkg.in/vansante/go-ffprobe.v2 v2.2.0
 	gorm.io/gorm v1.25.7
 )
 
@@ -73,6 +73,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.2.2 // indirect
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
+	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/fasthttp/websocket v1.5.7 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect

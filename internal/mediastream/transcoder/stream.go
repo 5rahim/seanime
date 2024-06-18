@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/util"
 	"io"
@@ -323,7 +324,7 @@ func (ts *Stream) isSegmentTranscoding(segment int32) bool {
 }
 
 func toSegmentStr(segments []float64) string {
-	return strings.Join(Map(segments, func(seg float64, _ int) string {
+	return strings.Join(lo.Map(segments, func(seg float64, _ int) string {
 		return fmt.Sprintf("%.6f", seg)
 	}), ",")
 }
@@ -467,7 +468,7 @@ func (ts *Stream) run(start int32) error {
 		// when segments are short (can make the video repeat itself)
 		"-segment_time_delta", "0.05",
 		"-segment_format", "mpegts",
-		"-segment_times", toSegmentStr(Map(segments, func(seg float64, _ int) float64 {
+		"-segment_times", toSegmentStr(lop.Map(segments, func(seg float64, _ int) float64 {
 			// segment_times want durations, not timestamps so we must substract the -ss param
 			// since we give a greater value to -ss to prevent wrong seeks but -segment_times
 			// needs precise segments, we use the keyframe we want to seek to as a reference.
