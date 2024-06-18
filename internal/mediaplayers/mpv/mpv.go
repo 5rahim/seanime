@@ -374,9 +374,10 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 		args = append(args, filePath)
 	}
 
-	cmd = exec.CommandContext(cmdCtx, "mpv", args...)
-
-	if m.AppPath != "" {
+	switch m.AppPath {
+	case "":
+		cmd = exec.CommandContext(cmdCtx, "mpv", args...)
+	default:
 		cmd = exec.CommandContext(cmdCtx, m.AppPath, args...)
 	}
 

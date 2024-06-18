@@ -40,16 +40,14 @@ body:
         - Other
         - Authentication
         - Configuration
-        - Anime Library - Scanning
-        - Anime Library - Metadata
-        - Anime Library - Media Player
-        - Anime Library - Downloading
+        - Anime Library
         - Transcoding / Media Streaming
         - Torrent Streaming
         - Online Streaming
         - Manga
         - Settings
         - Offline mode
+        - AniList
         - UI / Web Interface
     validations:
       required: true
@@ -57,7 +55,7 @@ body:
     id: '4'
     attributes:
       label: Bug Description / Steps to Reproduce
-      description: Precisely describe the bug you encountered and the steps to reproduce it.
+      description: Precisely describe the bug you encountered and the steps to reproduce it. Avoid vague descriptions.
     validations:
       required: true
   - type: textarea
@@ -65,8 +63,27 @@ body:
     attributes:
       label: Expected Behavior
       description: Describe what you expected to happen.
-  - type: input
+  - type: textarea
     id: '6'
+    attributes:
+      label: Logs / Additional Info
+      description: Include any logs, error messages, or additional information that might help in debugging the issue.
+    validations:
+      required: true
+  - type: checkboxes
+    id: '7'
+    attributes:
+      label: Debugging Checklist
+      description: Confirm you have included the necessary debugging information. If you haven't, please do so before submitting the issue.
+      options:
+        - label: >-
+            I have included logs and error messages (required)
+          required: true
+        - label: >-
+            I confirm that this report contains all the necessary information to help the maintainers debug the issue
+          required: true
+  - type: input
+    id: '8'
     attributes:
       label: App Version
       description: Enter the version of Seanime you are using.
@@ -74,7 +91,7 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: '7'
+    id: '9'
     attributes:
       label: Operating System
       options:
@@ -84,7 +101,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: '8'
+    id: '10'
     attributes:
       label: Screenshots
       description: If applicable, add screenshots of the bug, terminal output, logs or stack traces.
