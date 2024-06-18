@@ -170,15 +170,8 @@ func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
 
 	m.Playback = &Playback{}
 
-	var err error
-	switch runtime.GOOS {
-	case "darwin":
-		// Launch player with idle mode
-		err = m.launchPlayer(true, filePath, args...)
-	default:
-		// Load the file directly
-		err = m.launchPlayer(false, filePath, args...)
-	}
+	// Launch player or replace file
+	err := m.launchPlayer(false, filePath, args...)
 	if err != nil {
 		return err
 	}
@@ -198,14 +191,6 @@ func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
 	err = m.conn.Open()
 	if err != nil {
 		return err
-	}
-
-	switch runtime.GOOS {
-	case "darwin":
-		// Since MPV is launched with the "--idle" flag, we need to load the file
-		m.conn.Call("loadfile", filePath, "replace")
-	default:
-		// nothing
 	}
 
 	m.isRunning = true
