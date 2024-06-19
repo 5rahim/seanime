@@ -17,7 +17,6 @@ import { CurrencyInput, CurrencyInputProps } from "../currency-input"
 import { DatePicker, DatePickerProps, DateRangePicker, DateRangePickerProps } from "../date-picker"
 import { NativeSelect, NativeSelectProps } from "../native-select"
 import { NumberInput, NumberInputProps } from "../number-input"
-import { PhoneInput, PhoneInputProps } from "../phone-input"
 import { Popover } from "../popover"
 import { RadioGroup, RadioGroupProps } from "../radio-group"
 import { Select, SelectProps } from "../select"
@@ -348,16 +347,6 @@ const CurrencyInputField = React.memo(withControlledInput(forwardRef<HTMLInputEl
     },
 )))
 
-const PhoneInputField = React.memo(withControlledInput(forwardRef<HTMLInputElement, FieldComponent<PhoneInputProps>>(
-    ({ onChange, ...props }, ref) => {
-        return <PhoneInput
-            {...props}
-            onValueChange={onChange}
-            ref={ref}
-        />
-    },
-)))
-
 const AutocompleteField = React.memo(withControlledInput(forwardRef<HTMLInputElement, FieldComponent<AutocompleteProps>>(
     ({ onChange, ...props }, ref) => {
         return <Autocomplete
@@ -434,7 +423,6 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     DatePicker: typeof DatePickerField
     DateRangePicker: typeof DateRangePickerField
     Combobox: typeof ComboboxField
-    Phone: typeof PhoneInputField
     Autocomplete: typeof AutocompleteField
     Address: typeof AddressInputField
     SimpleDropzone: typeof SimpleDropzoneField
@@ -456,7 +444,6 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     DatePicker: DatePickerField,
     DateRangePicker: DateRangePickerField,
     Combobox: ComboboxField,
-    Phone: PhoneInputField,
     Autocomplete: AutocompleteField,
     Address: AddressInputField,
     SimpleDropzone: SimpleDropzoneField,

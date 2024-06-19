@@ -2685,6 +2685,7 @@ export type MediaInfo = {
     sha: string
     path: string
     extension: string
+    mimeCodec?: string
     size: number
     duration: number
     container?: string

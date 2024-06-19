@@ -4550,7 +4550,17 @@
         "POST"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "FallbackDestination",
+          "jsonName": "fallback_destination",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "handler.Status",
       "returnGoType": "handler.Status",
       "returnTypescriptType": "Status"

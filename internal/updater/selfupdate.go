@@ -27,6 +27,7 @@ type (
 		breakLoopCh     chan struct{}
 		originalExePath mo.Option[string]
 		updater         *Updater
+		fallbackDest    string
 
 		tmpExecutableName string
 	}
@@ -72,12 +73,13 @@ func (su *SelfUpdater) Started() <-chan struct{} {
 	return su.breakLoopCh
 }
 
-func (su *SelfUpdater) StartSelfUpdate() {
+func (su *SelfUpdater) StartSelfUpdate(fallbackDestination string) {
+	su.fallbackDest = fallbackDestination
 	close(su.breakLoopCh)
 }
 
 // recover will attempt to recover the application from a failed update AFTER renaming the executable
-func (su *SelfUpdater) recover() {
+func (su *SelfUpdater) recover(assetUrl string) {
 
 	if su.originalExePath.IsAbsent() {
 		return
@@ -112,6 +114,11 @@ func (su *SelfUpdater) recover() {
 			newName := strings.TrimSuffix(entry.Name(), ".old")
 			_ = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, newName))
 		}
+	}
+
+	if su.fallbackDest != "" {
+		su.logger.Info().Str("dest", su.fallbackDest).Msg("selfupdate: Attempting to download the latest release")
+		_, err = su.updater.DownloadLatestRelease(assetUrl, su.fallbackDest)
 	}
 
 	su.logger.Info().Msg("selfupdate: Recovered")
@@ -188,7 +195,7 @@ func (su *SelfUpdater) Run() error {
 
 	entries, err := os.ReadDir(exeDir)
 	if err != nil {
-		su.recover()
+		su.recover(asset.BrowserDownloadUrl)
 		su.logger.Error().Err(err).Msg("selfupdate: Failed to read directory")
 		return err
 	}
@@ -236,6 +243,21 @@ func (su *SelfUpdater) Run() error {
 			su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
 			//return err
 		}
+
+		// TESTONLY: Simulate a failed rename
+		//var err error
+		//if entry.Name() == "web" {
+		//	err = fmt.Errorf("Access is denied")
+		//} else {
+		//	err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
+		//}
+		//if err != nil {
+		//	renamingFailed = true
+		//	failedEntryNames = append(failedEntryNames, entry.Name())
+		//	su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
+		//	su.recover(asset.BrowserDownloadUrl)
+		//	return err
+		//}
 	}
 
 	if renamingFailed {
@@ -246,8 +268,8 @@ func (su *SelfUpdater) Run() error {
 		for _, entry := range failedEntryNames {
 			err = os.Rename(filepath.Join(exeDir, entry), filepath.Join(exeDir, entry+".old"))
 			if err != nil {
-				su.recover()
 				su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
+				su.recover(asset.BrowserDownloadUrl)
 				return err
 			}
 		}
@@ -260,7 +282,7 @@ func (su *SelfUpdater) Run() error {
 	// Move the new release elements to the exeDir
 	err = moveContents(newReleaseDir, exeDir)
 	if err != nil {
-		su.recover()
+		su.recover(asset.BrowserDownloadUrl)
 		su.logger.Error().Err(err).Msg("selfupdate: Failed to move assets")
 		return err
 	}

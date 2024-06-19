@@ -12,10 +12,17 @@ import (
 //	@route /api/v1/install-update [POST]
 //	@returns handler.Status
 func HandleInstallLatestUpdate(c *RouteCtx) error {
+	type body struct {
+		FallbackDestination string `json:"fallback_destination"`
+	}
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
 
 	go func() {
 		time.Sleep(2 * time.Second)
-		c.App.SelfUpdater.StartSelfUpdate()
+		c.App.SelfUpdater.StartSelfUpdate(b.FallbackDestination)
 	}()
 
 	status := NewStatus(c)

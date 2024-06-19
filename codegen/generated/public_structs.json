@@ -22147,7 +22147,7 @@
     "fields": [
       {
         "name": "FillerEpisodes",
-        "jsonName": "FillerEpisodes",
+        "jsonName": "fillerEpisodes",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -37287,36 +37287,6 @@
     ]
   },
   {
-    "filepath": "../internal/mediastream/transcoder/cmap.go",
-    "filename": "cmap.go",
-    "name": "CMap",
-    "formattedName": "CMap",
-    "package": "transcoder",
-    "fields": [
-      {
-        "name": "data",
-        "jsonName": "data",
-        "goType": "map[K]V",
-        "typescriptType": "Record\u003cK, V\u003e",
-        "usedStructName": "transcoder.V",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "lock",
-        "jsonName": "lock",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/mediastream/transcoder/filestream.go",
     "filename": "filestream.go",
     "name": "FileStream",
@@ -37440,25 +37410,6 @@
       " FileStream represents a stream of file data.",
       " It holds the keyframes, media information, video streams, and audio streams."
     ]
-  },
-  {
-    "filepath": "../internal/mediastream/transcoder/handers_utils.go",
-    "filename": "handers_utils.go",
-    "name": "Item",
-    "formattedName": "Item",
-    "package": "transcoder",
-    "fields": [
-      {
-        "name": "Path",
-        "jsonName": "path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
   },
   {
     "filepath": "../internal/mediastream/transcoder/hwaccel.go",
@@ -38260,6 +38211,15 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeCodec",
+        "jsonName": "mimeCodec",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -47255,6 +47215,15 @@
         "typescriptType": "Updater_Updater",
         "usedStructName": "updater.Updater",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fallbackDest",
+        "jsonName": "fallbackDest",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": false,
         "comments": []
       },

@@ -34,7 +34,9 @@ export function UpdateModal(props: UpdateModalProps) {
 
     const { data: updateData, isLoading } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
 
+    // Install update
     const { mutate: installUpdate, isPending } = useInstallLatestUpdate()
+    const [fallbackDestination, setFallbackDestination] = React.useState<string>("")
 
     React.useEffect(() => {
         if (updateData && updateData.release) {
@@ -61,6 +63,14 @@ export function UpdateModal(props: UpdateModalProps) {
         }
         return body.split(/\n/).filter((line) => line.trim() !== "" && line.trim().startsWith("-"))
     }, [updateData])
+
+    function handleInstallUpdate() {
+        if (!updateData || !updateData.release) return
+        if (serverStatus?.os === "windows" && !fallbackDestination) {
+            return toast.error("Select a fallback destination")
+        }
+        installUpdate({ fallback_destination: fallbackDestination })
+    }
 
     if (serverStatus?.settings?.library?.disableUpdateCheck) return null
 
@@ -130,14 +140,31 @@ export function UpdateModal(props: UpdateModalProps) {
                             contentClass="max-w-xl"
                             title={<span>Update Seanime <BetaBadge /></span>}
                         >
-                            <p>
-                                Seanime will perform an update by downloading and replacing existing files.
-                                Refer to the documentation for more information.
-                            </p>
+                            <div className="space-y-4">
+                                <p>
+                                    Seanime will perform an update by downloading and replacing existing files.
+                                    Refer to the documentation for more information.
+                                </p>
 
-                            <Button className="w-full" onClick={() => installUpdate()} disabled={isPending}>
-                                Install
-                            </Button>
+                                {serverStatus?.os === "windows" && (
+                                    <div className="space-y-2 p-4 border rounded-md">
+                                        <p>
+                                            Select a fallback destination in case the update fails due to permission issues.
+                                            It should not be the same as the current installation directory.
+                                        </p>
+                                        <DirectorySelector
+                                            label="Select fallback destination"
+                                            onSelect={setFallbackDestination}
+                                            value={fallbackDestination}
+                                            rightAddon={`/seanime-${updateData?.release?.version}`}
+                                        />
+                                    </div>
+                                )}
+
+                                <Button className="w-full" onClick={handleInstallUpdate} disabled={isPending}>
+                                    Install
+                                </Button>
+                            </div>
                         </Modal>
                         <div className="flex flex-1" />
                         <Link href={updateData?.release?.html_url || ""} target="_blank">
