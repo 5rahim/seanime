@@ -154,6 +154,11 @@ func (as *AutoScanner) waitAndScan() {
 	as.scan()
 }
 
+// RunNow bypasses checks and triggers a scan immediately, even if the autoscanner is disabled.
+func (as *AutoScanner) RunNow() {
+	as.scan()
+}
+
 // scan is used to trigger a scan.
 func (as *AutoScanner) scan() {
 

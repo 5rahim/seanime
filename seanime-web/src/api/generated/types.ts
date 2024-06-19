@@ -2062,6 +2062,7 @@ export type Models_LibrarySettings = {
     dohProvider: string
     openTorrentClientOnStart: boolean
     openWebURLOnStart: boolean
+    refreshLibraryOnStart: boolean
 }
 
 /**

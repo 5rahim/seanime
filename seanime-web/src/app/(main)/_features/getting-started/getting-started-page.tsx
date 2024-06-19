@@ -74,6 +74,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         dohProvider: DEFAULT_DOH_PROVIDER,
                                         openTorrentClientOnStart: false,
                                         openWebURLOnStart: false,
+                                        refreshLibraryOnStart: false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

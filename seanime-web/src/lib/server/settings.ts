@@ -50,6 +50,7 @@ export const settingsSchema = z.object({
     dohProvider: z.string().optional().default(""),
     openTorrentClientOnStart: z.boolean().optional().default(false),
     openWebURLOnStart: z.boolean().optional().default(false),
+    refreshLibraryOnStart: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

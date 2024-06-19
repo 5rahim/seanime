@@ -449,6 +449,14 @@ func (a *App) launchModulesOnce() {
 			}
 		}
 
+		if a.Settings.Library.RefreshLibraryOnStart {
+			go func() {
+				a.Logger.Debug().Msg("app: Refreshing library")
+				a.AutoScanner.RunNow()
+				a.Logger.Info().Msg("app: Refreshed library")
+			}()
+		}
+
 		if a.Settings.Library.OpenTorrentClientOnStart && a.TorrentClientRepository != nil {
 			// Start the torrent client
 			ok := a.TorrentClientRepository.Start()

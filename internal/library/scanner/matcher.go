@@ -308,10 +308,12 @@ func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
 			Msg("Best media")
 	}
 	if bestTitleRes.Rating < 0.5 {
-		m.ScanLogger.LogMatcher(zerolog.DebugLevel).
-			Str("filename", lf.Name).
-			Any("rating", bestTitleRes.Rating).
-			Msg("Best title rating too low, un-matching file")
+		if m.ScanLogger != nil {
+			m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+				Str("filename", lf.Name).
+				Any("rating", bestTitleRes.Rating).
+				Msg("Best title rating too low, un-matching file")
+		}
 		m.ScanSummaryLogger.LogFailedMatch(lf, "Rating too low")
 		return
 	}

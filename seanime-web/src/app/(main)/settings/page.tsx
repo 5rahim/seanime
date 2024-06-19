@@ -115,6 +115,7 @@ export default function Page() {
                                     dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
                                     openTorrentClientOnStart: data.openTorrentClientOnStart,
                                     openWebURLOnStart: data.openWebURLOnStart,
+                                    refreshLibraryOnStart: data.refreshLibraryOnStart,
                                 },
                                 mediaPlayer: {
                                     host: data.mediaPlayerHost,
@@ -193,6 +194,7 @@ export default function Page() {
                             dohProvider: status?.settings?.library?.dohProvider || "-",
                             openTorrentClientOnStart: status?.settings?.library?.openTorrentClientOnStart ?? false,
                             openWebURLOnStart: status?.settings?.library?.openWebURLOnStart ?? false,
+                            refreshLibraryOnStart: status?.settings?.library?.refreshLibraryOnStart ?? false,
                         }}
                         stackClass="space-y-4"
                     >
@@ -218,6 +220,17 @@ export default function Page() {
                                         <em>Note:</em> This works best when single files are added/deleted. If you are adding a batch, not all
                                                        files
                                                        are guaranteed to be picked up.
+                                    </p>
+                                </div>}
+                            />
+                            <Field.Switch
+                                name="refreshLibraryOnStart"
+                                label="Refresh library on startup"
+                                help={<div>
+                                    <p>If enabled, your library will be refreshed in the background when the server starts. Make sure to
+                                       lock your files regularly.</p>
+                                    <p>
+                                        <em>Note:</em> Visit the scan summary page to see the results.
                                     </p>
                                 </div>}
                             />

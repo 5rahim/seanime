@@ -25520,6 +25520,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "RefreshLibraryOnStart",
+        "jsonName": "refreshLibraryOnStart",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

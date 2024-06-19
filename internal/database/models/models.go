@@ -78,6 +78,7 @@ type LibrarySettings struct {
 	DOHProvider              string `gorm:"column:doh_provider" json:"dohProvider"`
 	OpenTorrentClientOnStart bool   `gorm:"column:open_torrent_client_on_start" json:"openTorrentClientOnStart"`
 	OpenWebURLOnStart        bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
+	RefreshLibraryOnStart    bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
 }
 type TorrentSettings struct {
 	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
