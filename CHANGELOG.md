@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.6.0
+
+- 🚀 The web interface is now bundled with the binary
+- ✨ Metadata: View filler episodes #74
+- ✨ Setting: Refresh library on startup
+  - You can now fetch additional metadata for series to highlight filler episodes if available
+- ⚡️ Scanner now supports symbolic links
+- 🦺 Fixed (recovered) runtime error when files aren't matched by the autoscanner
+- 🏗️ Added delay when updating Seanime to (hopefully) fix access issues on Windows
+- 🏗️ Updated transcoder FFprobe code
+- ⬆️ Updated dependencies
+
 ## v1.5.5
 
 - ⚡️ Manga reader fullscreen mode (hide the bar)
