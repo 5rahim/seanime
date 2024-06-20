@@ -233,7 +233,7 @@ func (su *SelfUpdater) Run() error {
 		}
 
 		// Rename the contents
-		// - web -> web.old
+		// - LICENSE -> LICENSE.old
 		// This will fail on Windows due to some files inside the directory being in use, this can happen for many reasons
 		err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
 		if err != nil {

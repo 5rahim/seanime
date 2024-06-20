@@ -65,11 +65,10 @@ export function UpdateModal(props: UpdateModalProps) {
     }, [updateData])
 
     function handleInstallUpdate() {
-        if (!updateData || !updateData.release) return
-        if (serverStatus?.os === "windows" && !fallbackDestination) {
-            return toast.error("Select a fallback destination")
-        }
-        installUpdate({ fallback_destination: fallbackDestination })
+        // if (serverStatus?.os === "windows" && !fallbackDestination) {
+        //     return toast.error("Select a fallback destination")
+        // }
+        installUpdate({ fallback_destination: "" })
     }
 
     if (serverStatus?.settings?.library?.disableUpdateCheck) return null
@@ -146,20 +145,20 @@ export function UpdateModal(props: UpdateModalProps) {
                                     Refer to the documentation for more information.
                                 </p>
 
-                                {serverStatus?.os === "windows" && (
-                                    <div className="space-y-2 p-4 border rounded-md">
-                                        <p>
-                                            Select a fallback destination in case the update fails due to permission issues.
-                                            It should not be the same as the current installation directory.
-                                        </p>
-                                        <DirectorySelector
-                                            label="Select fallback destination"
-                                            onSelect={setFallbackDestination}
-                                            value={fallbackDestination}
-                                            rightAddon={`/seanime-${updateData?.release?.version}`}
-                                        />
-                                    </div>
-                                )}
+                                {/*{serverStatus?.os === "windows" && (*/}
+                                {/*    <div className="space-y-2 p-4 border rounded-md">*/}
+                                {/*        <p>*/}
+                                {/*            Select a fallback destination in case the update fails due to permission issues.*/}
+                                {/*            It should not be the same as the current installation directory.*/}
+                                {/*        </p>*/}
+                                {/*        <DirectorySelector*/}
+                                {/*            label="Select fallback destination"*/}
+                                {/*            onSelect={setFallbackDestination}*/}
+                                {/*            value={fallbackDestination}*/}
+                                {/*            rightAddon={`/seanime-${updateData?.release?.version}`}*/}
+                                {/*        />*/}
+                                {/*    </div>*/}
+                                {/*)}*/}
 
                                 <Button className="w-full" onClick={handleInstallUpdate} disabled={isPending}>
                                     Install
