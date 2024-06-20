@@ -39,7 +39,9 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type (
@@ -269,6 +271,35 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 	fiberApp.Use("/", filesystem.New(filesystem.Config{
 		Root:   http.FS(distFS),
 		Browse: true,
+		Next: func(c *fiber.Ctx) bool {
+			path := c.Path()
+			if strings.HasPrefix(path, "/api") ||
+				strings.HasPrefix(path, "/events") ||
+				strings.HasPrefix(path, "/assets") ||
+				strings.HasPrefix(path, "/manga-downloads") ||
+				strings.HasPrefix(path, "/offline-assets") {
+				return false
+			}
+			if !strings.HasSuffix(path, ".html") && filepath.Ext(path) == "" {
+				if strings.Contains(path, "?") {
+					// Split the path into the actual path and the query string
+					parts := strings.SplitN(path, "?", 2)
+					actualPath := parts[0]
+					queryString := parts[1]
+					// Add ".html" to the actual path
+					actualPath += ".html"
+					// Reassemble the path with the query string
+					path = actualPath + "?" + queryString
+				} else {
+					path += ".html"
+				}
+			}
+			if path == "/.html" {
+				path = "/index.html"
+			}
+			c.Path(path)
+			return false // Continue to the filesystem handler
+		},
 	}))
 
 	app.Logger.Info().Msgf("app: Serving embedded web interface")

@@ -45,6 +45,23 @@ func (a *App) runMigrations() {
 				}
 				done = true
 			}
+			if (a.previousVersion == "1.5.0" ||
+				a.previousVersion == "1.5.1" ||
+				a.previousVersion == "1.5.2" ||
+				a.previousVersion == "1.5.3" ||
+				a.previousVersion == "1.5.4" ||
+				a.previousVersion == "1.5.5") ||
+				versionComp > 0 {
+				a.Logger.Debug().Msg("app: Executing version migration task")
+				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
+					return strings.HasPrefix(filename, "mediastream_mediainfo_")
+				})
+				if err != nil {
+					a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
+					a.Logger.Error().Msg("app: Failed to remove transcoding cache files, please clear them manually by going to the settings. Ignore this message if you have no transcoding cache files.")
+				}
+				done = true
+			}
 		}
 	}()
 

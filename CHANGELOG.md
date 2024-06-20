@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Scanner now supports symbolic links
 - 🦺 Fixed (recovered) runtime error when files aren't matched by the autoscanner
 - 🏗️ Added delay when updating Seanime to (hopefully) fix access issues on Windows
-- 🏗️ Media streaming: Metadata extraction done using FFprobe only
+- 🏗️ BREAKING: Media streaming: Metadata extraction done using FFprobe only
 - ⬆️ Updated dependencies
 
 ## v1.5.5
