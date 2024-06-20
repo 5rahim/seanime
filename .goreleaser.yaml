@@ -5,7 +5,7 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    main: ./cmd
+    main: .
     goos:
       - linux
       - darwin
@@ -37,7 +37,6 @@ archives:
       - goos: windows
         format: zip
     files:
-      - web/*
       - LICENSE
 
 release:
@@ -68,8 +67,6 @@ dockers:
     skip_push: false
     use: buildx
     dockerfile: goreleaser.dockerfile
-    extra_files:
-      - web
   - image_templates:
       - "5rahim/seanime:{{ .Tag }}-arm64"
     goarch: arm64
@@ -79,21 +76,8 @@ dockers:
     skip_push: false
     use: buildx
     dockerfile: goreleaser.dockerfile
-    extra_files:
-      - web
 docker_manifests:
   - name_template: '5rahim/seanime:latest'
     image_templates:
       - '5rahim/seanime:{{ .Tag }}-amd64'
       - '5rahim/seanime:{{ .Tag }}-arm64'
-
-#dockers:
-#  - goos: linux
-#    goarch: amd64
-#    image_templates:
-#      - "5rahim/seanime:latest"
-#    skip_push: false
-#    use: docker
-#    dockerfile: goreleaser.dockerfile
-#    extra_files:
-#      - web

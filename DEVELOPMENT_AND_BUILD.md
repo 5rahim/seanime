@@ -15,7 +15,7 @@ I recommend creating a dummy AniList account for testing purposes.
 
 2. Run this command to start the server:
 	```bash
-	go run cmd/main.go --datadir="path/to/datadir"
+	go run main.go --datadir="path/to/datadir"
 	```
 	I recommend passing the `--datadir` flag to specify a test data directory. This will prevent the server from writing to your actual data directory.
 
@@ -47,7 +47,7 @@ Since in development mode, the web interface cannot be served by the server, it 
 1. Build the server using the following command:
 
 	```bash
-	go build -o seanime cmd/main.go
+	go build -o seanime main.go
 	```
 	
 	This will create a `seanime` binary in the root of the project.

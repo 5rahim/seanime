@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: '18'
 
+      # outputs in "../web"
       - name: Install dependencies and build Next.js app
         run: |
           cd seanime-web/
@@ -35,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: web
-          path: seanime-web/out
+          path: web # output dir of the build
 
   create-release-draft:
     runs-on: ubuntu-latest

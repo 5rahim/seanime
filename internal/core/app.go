@@ -1,8 +1,10 @@
 package core
 
 import (
+	"embed"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
@@ -34,7 +36,9 @@ import (
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
+	"io/fs"
 	"log"
+	"net/http"
 	"runtime"
 	"strings"
 )
@@ -246,7 +250,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 // NewFiberApp creates a new fiber app instance
 // and sets up the static file server for the web interface.
-func NewFiberApp(app *App) *fiber.App {
+func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 	// Create a new fiber app
 	fiberApp := fiber.New(fiber.Config{
 		JSONEncoder:           json.Marshal,
@@ -254,11 +258,15 @@ func NewFiberApp(app *App) *fiber.App {
 		DisableStartupMessage: true,
 	})
 
-	app.Logger.Info().Msgf("app: Web interface path: %s", app.Config.Web.Dir)
-	fiberApp.Static("/", app.Config.Web.Dir, fiber.Static{
-		Index:    "index.html",
-		Compress: false,
-	})
+	distFS, err := fs.Sub(webFS, "web")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fiberApp.Use("/", filesystem.New(filesystem.Config{
+		Root:   http.FS(distFS),
+		Browse: true,
+	}))
 
 	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)
 	fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/cron"
@@ -8,6 +9,9 @@ import (
 	"github.com/seanime-app/seanime/internal/updater"
 	"time"
 )
+
+//go:embed all:web
+var WebFS embed.FS
 
 func main() {
 
@@ -50,7 +54,7 @@ appLoop:
 			}, selfupdater)
 
 			// Create the fiber app instance
-			fiberApp := core.NewFiberApp(app)
+			fiberApp := core.NewFiberApp(app, &WebFS)
 
 			// Initialize the routes
 			handlers.InitRoutes(app, fiberApp)
