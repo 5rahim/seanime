@@ -6,6 +6,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     main: .
+    binary: seanime
     goos:
       - linux
       - darwin

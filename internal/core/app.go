@@ -40,7 +40,6 @@ import (
 	"log"
 	"net/http"
 	"runtime"
-	"strings"
 )
 
 type (
@@ -258,6 +257,10 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 		DisableStartupMessage: true,
 	})
 
+	//
+	// Serve the embedded web interface
+	//
+
 	distFS, err := fs.Sub(webFS, "web")
 	if err != nil {
 		log.Fatal(err)
@@ -268,12 +271,16 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 		Browse: true,
 	}))
 
+	app.Logger.Info().Msgf("app: Serving embedded web interface")
+
+	// Serve the web assets
 	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)
 	fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{
 		Index:    "index.html",
 		Compress: false,
 	})
 
+	// Serve the manga downloads
 	if app.Config.Manga.DownloadDir != "" {
 		app.Logger.Info().Msgf("app: Manga downloads path: %s", app.Config.Manga.DownloadDir)
 		fiberApp.Static("/manga-downloads", app.Config.Manga.DownloadDir, fiber.Static{
@@ -282,6 +289,7 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 		})
 	}
 
+	// Serve the offline assets
 	if app.IsOffline() {
 		app.Logger.Info().Msgf("app: Offline assets path: %s", app.Config.Offline.AssetDir)
 		fiberApp.Static("/offline-assets", app.Config.Offline.AssetDir, fiber.Static{
@@ -289,33 +297,6 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 			Compress: false,
 		})
 	}
-
-	fiberApp.Get("*", func(c *fiber.Ctx) error {
-		path := c.OriginalURL()
-		if strings.HasPrefix(path, "/api") || strings.HasPrefix(path, "/events") {
-			return c.Next()
-		}
-		if !strings.HasSuffix(path, ".html") {
-			if strings.Contains(path, "?") {
-				// Split the path into the actual path and the query string
-				parts := strings.SplitN(path, "?", 2)
-				actualPath := parts[0]
-				queryString := parts[1]
-
-				// Add ".html" to the actual path
-				actualPath += ".html"
-
-				// Reassemble the path with the query string
-				path = actualPath + "?" + queryString
-			} else {
-				path += ".html"
-			}
-		}
-		if path == "/.html" {
-			path = "/index.html"
-		}
-		return c.SendFile(app.Config.Web.Dir + path)
-	})
 
 	return fiberApp
 }
