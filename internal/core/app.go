@@ -2,6 +2,7 @@ package core
 
 import (
 	"embed"
+	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
@@ -273,12 +274,13 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 		Browse: true,
 		Next: func(c *fiber.Ctx) bool {
 			path := c.Path()
+			fmt.Println(path)
 			if strings.HasPrefix(path, "/api") ||
 				strings.HasPrefix(path, "/events") ||
 				strings.HasPrefix(path, "/assets") ||
 				strings.HasPrefix(path, "/manga-downloads") ||
 				strings.HasPrefix(path, "/offline-assets") {
-				return false
+				return true // Continue to the next handler
 			}
 			if !strings.HasSuffix(path, ".html") && filepath.Ext(path) == "" {
 				if strings.Contains(path, "?") {

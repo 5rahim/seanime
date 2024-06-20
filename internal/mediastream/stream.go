@@ -67,8 +67,9 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		//
 		// When the media container is not found but this route is called, something went wrong
 		//
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media has been requested")
-		return errors.New("no media has been requested")
+		r.logger.Error().Msg("mediastream: media container is nil, nothing has been preloaded")
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media preloaded")
+		return errors.New("no media preloaded")
 	}
 
 	// /master.m3u8
@@ -193,6 +194,8 @@ func (r *Repository) ShutdownTranscodeStream(clientId string) {
 	if !r.TranscoderIsInitialized() {
 		return
 	}
+
+	r.logger.Warn().Str("client_id", clientId).Msg("mediastream: Received shutdown transcode stream request")
 
 	if !r.playbackManager.currentMediaContainer.IsPresent() {
 		return

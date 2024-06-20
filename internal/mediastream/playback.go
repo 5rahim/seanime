@@ -48,8 +48,10 @@ func NewPlaybackManager(repository *Repository) *PlaybackManager {
 }
 
 func (p *PlaybackManager) KillPlayback() {
+	p.logger.Debug().Msg("mediastream: Killing playback")
 	if p.currentMediaContainer.IsPresent() {
 		p.currentMediaContainer = mo.None[*MediaContainer]()
+		p.logger.Trace().Msg("mediastream: Removed current media container")
 	}
 }
 
