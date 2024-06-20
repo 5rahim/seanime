@@ -9,7 +9,10 @@ All notable changes to this project will be documented in this file.
 - ✨ Setting: Refresh library on startup
   - You can now fetch additional metadata for series to highlight filler episodes if available
 - ⚡️ Scanner now supports symbolic links
-- 🦺 Fixed (recovered) runtime error when files aren't matched by the autoscanner
+- 🚀 Transcoding: JASSUB files are now embedded in the binary
+  - No need to download JASSUB files separately unless you need to support legacy browsers
+- 🦺 Scanner: Fixed runtime error when files aren't matched by the autoscanner
+- 🦺 Transcoding: Fixed JASSUB on iOS
 - 🏗️ Added delay when updating Seanime to (hopefully) fix access issues on Windows
 - 🏗️ BREAKING: Media streaming: Metadata extraction done using FFprobe only
 - ⬆️ Updated dependencies

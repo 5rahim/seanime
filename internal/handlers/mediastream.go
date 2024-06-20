@@ -110,6 +110,8 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	var err error
 
 	switch b.StreamType {
+	case mediastream.StreamTypeDirect:
+		mediaContainer, err = c.App.MediastreamRepository.RequestDirectPlay(b.Path, b.ClientId)
 	case mediastream.StreamTypeTranscode:
 		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path, b.ClientId)
 	case mediastream.StreamTypeOptimized:
@@ -167,15 +169,15 @@ func HandleMediastreamGetAttachments(c *RouteCtx) error {
 	return c.App.MediastreamRepository.ServeFiberExtractedAttachments(c.Fiber)
 }
 
-////
-//// Direct
-////
 //
-//func HandleMediastreamDirect(c *RouteCtx) error {
-//	client := "1"
-//	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
-//}
+// Direct
 //
+
+func HandleMediastreamDirectPlay(c *RouteCtx) error {
+	client := "1"
+	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
+}
+
 ////
 //// Direct Stream
 ////

@@ -171,6 +171,25 @@ func (r *Repository) RequestPreloadTranscodeStream(filepath string) (err error) 
 	return
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Direct Play
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (r *Repository) RequestDirectPlay(filepath string, clientId string) (ret *MediaContainer, err error) {
+	r.reqMu.Lock()
+	defer r.reqMu.Unlock()
+
+	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Direct play requested")
+
+	if !r.IsInitialized() {
+		return nil, errors.New("module not initialized")
+	}
+
+	ret, err = r.playbackManager.RequestPlayback(filepath, StreamTypeDirect)
+
+	return
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) initializeTranscoder(settings mo.Option[*models.MediastreamSettings]) bool {

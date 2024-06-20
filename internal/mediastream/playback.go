@@ -12,6 +12,7 @@ import (
 const (
 	StreamTypeTranscode StreamType = "transcode" // On-the-fly transcoding
 	StreamTypeOptimized StreamType = "optimized" // Pre-transcoded
+	StreamTypeDirect    StreamType = "direct"    // Direct streaming
 )
 
 type (
@@ -109,7 +110,7 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 	}
 
 	// Check the cache
-	if mc, ok := p.mediaContainers.Get(hash); ok {
+	if mc, ok := p.mediaContainers.Get(hash); ok && mc.StreamType == streamType {
 		return mc, nil
 	}
 
@@ -135,6 +136,9 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 
 	streamUrl := ""
 	switch streamType {
+	case StreamTypeDirect:
+		// Directly serve the file.
+		streamUrl = "/api/v1/mediastream/direct"
 	case StreamTypeTranscode:
 		// Live transcode the file.
 		streamUrl = "/api/v1/mediastream/transcode/master.m3u8"

@@ -36929,7 +36929,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"transcode\"",
-        "\"optimized\""
+        "\"optimized\"",
+        "\"direct\""
       ]
     },
     "comments": []

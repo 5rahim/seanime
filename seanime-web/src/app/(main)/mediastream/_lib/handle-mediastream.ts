@@ -10,7 +10,6 @@ import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
-import { isApple, isMobile } from "@/lib/utils/browser-detection"
 import {
     isHLSProvider,
     LibASSTextRenderer,
@@ -168,10 +167,36 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      */
     const isStreamError = !!mediaContainer && !url
 
+
+    const isCodecSupported = React.useCallback((codec: string) => {
+        if (navigator.userAgent.search("Firefox") === -1)
+            codec = codec.replace("video/x-matroska", "video/mp4")
+        const videos = document.getElementsByTagName("video")
+        const video = videos.item(0) ?? document.createElement("video")
+        return video.canPlayType(codec) === "probably"
+    }, [])
+
     /**
-     * Set URL and stream type when media container is available
+     * Effect triggered when media container is available
+     * - Check compatibility
+     * - Set URL and stream type when media container is available
      */
     React.useEffect(() => {
+
+
+        /**
+         * Check if codec is supported, if it is, switch to direct play
+         */
+        // DEVNOTE: Doesn't work
+        // const codecSupported = isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec ?? "")
+        // if (codecSupported && mediaContainer?.streamType === "transcode") {
+        //     logger("MEDIASTREAM").info("Codec supported, switching to direct play", mediaContainer?.mediaInfo?.mimeCodec)
+        //     setStreamType("direct")
+        //     changeUrl(undefined)
+        //     return
+        // } else if (!codecSupported) {
+        //     logger("MEDIASTREAM").info("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
+        // }
 
         if (mediaContainer?.streamUrl) {
             logger("MEDIASTREAM").info("Media container", mediaContainer)
@@ -190,26 +215,29 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     }, [mediaContainer?.streamUrl])
 
     /**
+     * Effect used to set LibASS renderer
      * Add subtitle renderer
      */
     React.useEffect(() => {
-        // Add JASSUB if not on Apple mobile
-        if (playerRef.current && !(isApple() && isMobile())) {
-            const wasmUrl = process.env.NODE_ENV === "development"
-                ? "/jassub/jassub-worker.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
-            const workerUrl = process.env.NODE_ENV === "development"
-                ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
+        if (playerRef.current) {
+            // const wasmUrl = process.env.NODE_ENV === "development"
+            //     ? "/jassub/jassub-worker.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
+            // const workerUrl = process.env.NODE_ENV === "development"
+            //     ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
             const legacyWasmUrl = process.env.NODE_ENV === "development"
                 ? "/jassub/jassub-worker.wasm.js" : getAssetUrl("/jassub/jassub-worker.wasm.js")
 
-            logger("MEDIASTREAM").info("Adding JASSUB renderer", wasmUrl, workerUrl)
+            logger("MEDIASTREAM").info("Loading JASSUB renderer")
 
             // @ts-expect-error
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
-                wasmUrl: wasmUrl,
-                workerUrl: workerUrl,
+                wasmUrl: "/jassub/jassub-worker.wasm",
+                workerUrl: "/jassub/jassub-worker.js",
                 legacyWasmUrl: legacyWasmUrl,
+                // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
                 offscreenRender: false,
+                prescaleFactor: 0.8,
+                onDemandRender: false,
                 fonts: mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
                     ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                     : window?.location?.host) + `/api/v1/mediastream/att/${name}`),

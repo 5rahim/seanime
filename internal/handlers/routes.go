@@ -329,6 +329,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
 	v1.Get("/mediastream/att/*", makeHandler(app, HandleMediastreamGetAttachments))
 
+	v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirectPlay))
+
 	//
 	// Torrent stream
 	//

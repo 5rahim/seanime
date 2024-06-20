@@ -4,7 +4,6 @@ logs/
 seanime-web/.env.development
 seanime-web/.env.desktop
 seanime-web/.env.mobile
-seanime-web/public/jassub
 .run/
 testdata/
 
