@@ -33,10 +33,10 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 ## About
 
 Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
-It combines a lightweight server with a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
+It combines a lightweight server and a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
 
-Feel free to open issues if you notice any bugs, open discussions if you have questions, or contribute to the project if you want to help make it better. Leave a star if you like this project!
+Feel free to open issues if you notice any bugs, open discussions if you have questions, or contribute to the project if you want to help make it better. **Leave a star** if you like this project!
 
 # Get started
 
@@ -106,20 +106,26 @@ How to install Seanime
 
 ## Philosophy
 
+
 The main goal of Seanime is to provide an all-in-one, easy-to-use alternative to traditional media servers like Plex and Jellyfin, designed specifically for anime and manga.
 Seanime eliminates the need for setting up and maintaining multiple tools and services (no need for organizing, renaming, setting up plugins, etc.).
 As someone who is new to the self-hosting world, I recognize the need for something that is user-friendly, feature-rich, and just works out of the box.
 Note that unlike other media servers, Seanime does not _natively_ run on all clients that seasoned self-hosting enjoyers might be used to (dedicated apps etc.), and it
 might have some rough edges in some use cases. 
 
-### Not planned
+🚨 **Important note**: Remember that this is a one-man project. Seanime is not meant to fulfill all the needs of every user, as such, your specific use case or scenarios might not be supported, and that's okay.
+Feel free to turn to other tools or services that better suit your needs.
 
-The following features are not planned due to complexity but might be considered with the help of contributors:
+### Not planned
 
 - Support for other providers such as Trakt, SIMKL, etc.
 - Support for other media players
 - Dedicated clients (TV, mobile, etc.)
+- Support for Usenet, Debrid services, private trackers
 - Support for other languages (internationalization)
+
+These features will not be implemented, mainly due to the scope of the project, time required or lack of resources.
+
 
 ## Development and Build
 
