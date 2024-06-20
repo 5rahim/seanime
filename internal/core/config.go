@@ -23,7 +23,6 @@ type Config struct {
 		Name string
 	}
 	Web struct {
-		Dir      string
 		AssetDir string
 	}
 	Logs struct {
@@ -102,7 +101,6 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	// Use the binary's directory as the working directory environment variable on macOS
 	viper.SetDefault("server.useBinaryPath", true)
 	viper.SetDefault("database.name", "seanime")
-	viper.SetDefault("web.dir", "$SEANIME_WORKING_DIR/web")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")
 	viper.SetDefault("manga.backupDir", "$SEANIME_DATA_DIR/cache/manga")
@@ -237,9 +235,6 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if cfg.Database.Name == "" {
 		return errInvalidConfigValue("database.name", "cannot be empty")
 	}
-	if cfg.Web.Dir == "" {
-		return errInvalidConfigValue("web.dir", "cannot be empty")
-	}
 	if cfg.Web.AssetDir == "" {
 		return errInvalidConfigValue("web.assetDir", "cannot be empty")
 	}
@@ -290,7 +285,6 @@ func expandEnvironmentValues(cfg *Config) {
 		}
 	}()
 	cfg.Web.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Web.AssetDir))
-	cfg.Web.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Web.Dir))
 	cfg.Cache.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.Dir))
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
 	cfg.Manga.BackupDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.BackupDir))
