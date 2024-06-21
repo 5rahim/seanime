@@ -232,8 +232,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             let firstFont = ""
             if (!!fonts?.length) {
                 for (const font of fonts) {
-                    let _name = font
-                    const name = _name.split("/").pop()?.split(".")[0]
+                    const name = font.split("/").pop()?.split(".")[0]
                     console.log(font)
                     if (name) {
                         if (!firstFont) {

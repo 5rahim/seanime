@@ -2,13 +2,12 @@ package fiberlogger
 
 import (
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 )
-
-// source: Fiberzerolog
 
 // New creates a new middleware handler
 func New(config ...Config) fiber.Handler {
@@ -21,6 +20,8 @@ func New(config ...Config) fiber.Handler {
 		skipURIs[uri] = struct{}{}
 	}
 
+	// Mutex to protect the map
+	var mu sync.Mutex
 	checkedSkippedURIs := make(map[string]struct{})
 
 	// Return new handler
@@ -30,16 +31,19 @@ func New(config ...Config) fiber.Handler {
 			return c.Next()
 		}
 
-		// skip uri
-		//if _, ok := skipURIs[c.Path()]; ok {
-		//	return c.Next()
-		//}
+		// Skip URI check
+		mu.Lock()
 		if _, ok := checkedSkippedURIs[c.Path()]; ok {
+			mu.Unlock()
 			return c.Next()
 		}
+		mu.Unlock()
+
 		for uri := range skipURIs {
 			if strings.HasPrefix(c.Path(), uri) {
+				mu.Lock()
 				checkedSkippedURIs[c.Path()] = struct{}{}
+				mu.Unlock()
 				return c.Next()
 			}
 		}
