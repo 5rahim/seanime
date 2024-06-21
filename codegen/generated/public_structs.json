@@ -26227,6 +26227,15 @@
         "comments": []
       },
       {
+        "name": "DisableAutoSwitchToDirectPlay",
+        "jsonName": "disableAutoSwitchToDirectPlay",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "PreTranscodeEnabled",
         "jsonName": "preTranscodeEnabled",
         "goType": "bool",

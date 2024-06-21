@@ -1,5 +1,6 @@
 import { Anime_MediaEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
 import {
+    useGetMediastreamSettings,
     useMediastreamShutdownTranscodeStream,
     usePreloadMediastreamMediaContainer,
     useRequestMediastreamMediaContainer,
@@ -111,6 +112,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const router = useRouter()
     const { filePath, setFilePath } = useMediastreamCurrentFile()
 
+    const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
+
     /**
      * Stream URL
      */
@@ -128,7 +131,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         path: filePath,
         streamType: streamType,
         clientId: sessionId,
-    })
+    }, !!mediastreamSettings && !mediastreamSettingsLoading)
 
     const mediaContainer = React.useMemo(() => (!isPending && !isFetching) ? _mediaContainer : undefined, [_mediaContainer, isPending, isFetching])
 
@@ -187,16 +190,29 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         /**
          * Check if codec is supported, if it is, switch to direct play
          */
-        // DEVNOTE: Doesn't work
-        // const codecSupported = isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec ?? "")
-        // if (codecSupported && mediaContainer?.streamType === "transcode") {
-        //     logger("MEDIASTREAM").info("Codec supported, switching to direct play", mediaContainer?.mediaInfo?.mimeCodec)
-        //     setStreamType("direct")
-        //     changeUrl(undefined)
-        //     return
-        // } else if (!codecSupported) {
-        //     logger("MEDIASTREAM").info("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
-        // }
+        const codecSupported = isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec ?? "")
+        // If the codec is supported, switch to direct play
+        if (mediaContainer?.streamType === "transcode") {
+            if (codecSupported && !mediastreamSettings?.disableAutoSwitchToDirectPlay) {
+                logger("MEDIASTREAM").info("Codec supported", mediaContainer?.mediaInfo?.mimeCodec)
+                logger("MEDIASTREAM").warning("Switching to direct play")
+                setStreamType("direct")
+                changeUrl(undefined)
+                return
+            } else {
+                logger("MEDIASTREAM").info("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
+            }
+        }
+        // If the codec is not supported, switch to transcode
+        if (mediaContainer?.streamType === "direct") {
+            if (!codecSupported) {
+                logger("MEDIASTREAM").warning("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
+                logger("MEDIASTREAM").warning("Switching to transcode")
+                setStreamType("transcode")
+                changeUrl(undefined)
+                return
+            }
+        }
 
         if (mediaContainer?.streamUrl) {
             logger("MEDIASTREAM").info("Media container", mediaContainer)
@@ -205,14 +221,14 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
                 : window?.location?.host) + mediaContainer.streamUrl) : undefined
 
-            logger("MEDIASTREAM").info("Setting stream URL available", _newUrl, mediaContainer.streamType)
+            logger("MEDIASTREAM").info("Received new stream URL", _newUrl, "streamType:", mediaContainer.streamType)
 
             changeUrl(_newUrl)
         } else {
             changeUrl(undefined)
         }
 
-    }, [mediaContainer?.streamUrl])
+    }, [mediaContainer?.streamUrl, mediastreamSettings?.disableAutoSwitchToDirectPlay])
 
     /**
      * Effect used to set LibASS renderer
@@ -233,7 +249,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             if (!!fonts?.length) {
                 for (const font of fonts) {
                     const name = font.split("/").pop()?.split(".")[0]
-                    console.log(font)
                     if (name) {
                         if (!firstFont) {
                             firstFont = name.toLowerCase()
@@ -242,7 +257,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                     }
                 }
             }
-            console.log(availableFonts)
+
+            logger("MEDIASTREAM").info("Available fonts:", availableFonts)
+            logger("MEDIASTREAM").info("Fallback font:", firstFont)
 
 
             // @ts-expect-error
@@ -260,6 +277,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             })
             playerRef.current!.textRenderers.add(renderer)
 
+            logger("MEDIASTREAM").info("JASSUB renderer added to player")
+
             return () => {
                 playerRef.current!.textRenderers.remove(renderer)
             }
@@ -267,12 +286,18 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     }, [playerRef.current, mediaContainer?.streamUrl, mediaContainer?.mediaInfo?.fonts])
 
     function changeUrl(newUrl: string | undefined) {
+        logger("MEDIASTREAM").info("Changing URL", "newURL:", newUrl)
         if (prevUrlRef.current !== newUrl) {
+            logger("MEDIASTREAM").info("Resetting playback error status")
             setPlaybackErrored(false)
         }
         setUrl(prevUrl => {
-            if (prevUrl === newUrl) return prevUrl
+            if (prevUrl === newUrl) {
+                logger("MEDIASTREAM").info("URL has not changed")
+                return prevUrl
+            }
             prevUrlRef.current = prevUrl
+            logger("MEDIASTREAM").info("URL changed")
             return newUrl
         })
         if (newUrl) {
@@ -288,7 +313,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         provider: MediaProviderAdapter | null,
         nativeEvent: MediaProviderChangeEvent,
     ) {
-        logger("MEDIASTREAM").info("Provider change")
+        logger("MEDIASTREAM").info("Provider changed", provider, nativeEvent)
         if (isHLSProvider(provider)) {
             provider.library = HLS
             if (mediaContainer?.streamType === "transcode") {
@@ -374,13 +399,17 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         }
                     })
                 } else if (!HLS.isSupported() && url.endsWith(".m3u8") && provider.video.canPlayType("application/vnd.apple.mpegurl")) {
+                    logger("MEDIASTREAM").info("HLS not supported, using native HLS")
                     provider.video.src = url
                 } else {
+                    logger("MEDIASTREAM").info("HLS not supported, using native HLS")
                     provider.video.src = url
                 }
             } else {
                 logger("MEDIASTREAM").error("Provider setup - no URL")
             }
+        } else {
+            logger("MEDIASTREAM").info("Provider setup - not HLS")
         }
     }
 
@@ -414,6 +443,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     }, [duration, filePath, episodes, episode, progressItem])
 
     const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
+        logger("MEDIASTREAM").info("Can play event received", e)
         preloadedNextFileForRef.current = undefined
         setDuration(e.duration)
     }, [])
@@ -471,11 +501,17 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         onPlayFile,
         filePath,
 
+        setStreamType: (type: Mediastream_StreamType) => {
+            setStreamType(type)
+            changeUrl(undefined)
+        },
+
         onTimeUpdate,
         onCanPlay,
         onEnded,
         onProviderChange,
         onProviderSetup,
+        isCodecSupported,
     }
 
 }

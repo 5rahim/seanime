@@ -14,6 +14,7 @@ const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeTempDir: z.string().min(2),
     preTranscodeEnabled: z.boolean(),
     preTranscodeLibraryDir: z.string(),
+    disableAutoSwitchToDirectPlay: z.boolean(),
     ffmpegPath: z.string().min(0),
     ffprobePath: z.string().min(0),
 }))
@@ -83,6 +84,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     transcodeTempDir: settings?.transcodeTempDir,
                     preTranscodeEnabled: settings?.preTranscodeEnabled,
                     preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
+                    disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay,
                     ffmpegPath: settings?.ffmpegPath,
                     ffprobePath: settings?.ffprobePath,
                 }}
@@ -92,6 +94,12 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     name="transcodeEnabled"
                     label="Enable real-time transcoding"
                     help="Enable transcoding for media files."
+                />
+
+                <Field.Switch
+                    name="disableAutoSwitchToDirectPlay"
+                    label="Disable auto switch to direct play"
+                    help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client. Enable this to deactive this behavior."
                 />
 
                 <Field.DirectorySelector

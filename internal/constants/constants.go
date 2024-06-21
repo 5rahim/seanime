@@ -4,7 +4,7 @@ import "time"
 
 const (
 	Version              = "1.6.0"
-	VersionName          = "Blackbeard"
+	VersionName          = "Kuzan"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"

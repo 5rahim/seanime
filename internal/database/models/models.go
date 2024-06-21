@@ -214,15 +214,16 @@ type ChapterDownloadQueueItem struct {
 
 type MediastreamSettings struct {
 	BaseModel
-	TranscodeEnabled       bool   `gorm:"column:transcode_enabled" json:"transcodeEnabled"`
-	TranscodeHwAccel       string `gorm:"column:transcode_hw_accel" json:"transcodeHwAccel"`
-	TranscodeThreads       int    `gorm:"column:transcode_threads" json:"transcodeThreads"`
-	TranscodePreset        string `gorm:"column:transcode_preset" json:"transcodePreset"`
-	TranscodeTempDir       string `gorm:"column:transcode_temp_dir" json:"transcodeTempDir"`
-	PreTranscodeEnabled    bool   `gorm:"column:pre_transcode_enabled" json:"preTranscodeEnabled"`
-	PreTranscodeLibraryDir string `gorm:"column:pre_transcode_library_dir" json:"preTranscodeLibraryDir"`
-	FfmpegPath             string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
-	FfprobePath            string `gorm:"column:ffprobe_path" json:"ffprobePath"`
+	TranscodeEnabled              bool   `gorm:"column:transcode_enabled" json:"transcodeEnabled"`
+	TranscodeHwAccel              string `gorm:"column:transcode_hw_accel" json:"transcodeHwAccel"`
+	TranscodeThreads              int    `gorm:"column:transcode_threads" json:"transcodeThreads"`
+	TranscodePreset               string `gorm:"column:transcode_preset" json:"transcodePreset"`
+	TranscodeTempDir              string `gorm:"column:transcode_temp_dir" json:"transcodeTempDir"`
+	DisableAutoSwitchToDirectPlay bool   `gorm:"column:disable_auto_switch_to_direct_play" json:"disableAutoSwitchToDirectPlay"`
+	PreTranscodeEnabled           bool   `gorm:"column:pre_transcode_enabled" json:"preTranscodeEnabled"`
+	PreTranscodeLibraryDir        string `gorm:"column:pre_transcode_library_dir" json:"preTranscodeLibraryDir"`
+	FfmpegPath                    string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
+	FfprobePath                   string `gorm:"column:ffprobe_path" json:"ffprobePath"`
 }
 
 // +---------------------+

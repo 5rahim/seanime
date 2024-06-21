@@ -11,11 +11,6 @@ import (
 
 func PrintHeader() {
 
-	//const (
-	//	width       = 96
-	//	columnWidth = 30
-	//)
-
 	var (
 		subtle     = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 		titleStyle = lipgloss.NewStyle().
@@ -52,7 +47,8 @@ func PrintHeader() {
 		var (
 			title  strings.Builder
 			titles = []string{"Seanime", constants.Version, constants.VersionName}
-			colors = []string{"#5243cb", "#5243cb", "#312887", "#14F9D5"}
+			//colors = []string{"#5243cb", "#5243cb", "#312887", "#14F9D5"}
+			colors = []string{"#5243cb", "#5243cb", "#2a2887", "#14F9D5"}
 		)
 
 		for i, v := range titles {

@@ -109,7 +109,7 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		return nil, err
 	}
 
-	// Check the cache
+	// Check the cache ONLY if the stream type is the same.
 	if mc, ok := p.mediaContainers.Get(hash); ok && mc.StreamType == streamType {
 		return mc, nil
 	}

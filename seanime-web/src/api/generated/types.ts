@@ -2122,6 +2122,7 @@ export type Models_MediastreamSettings = {
     transcodeThreads: number
     transcodePreset: string
     transcodeTempDir: string
+    disableAutoSwitchToDirectPlay: boolean
     preTranscodeEnabled: boolean
     preTranscodeLibraryDir: string
     ffmpegPath: string

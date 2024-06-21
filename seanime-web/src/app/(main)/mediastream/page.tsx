@@ -10,17 +10,21 @@ import {
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MediaPlayer, MediaPlayerInstance, MediaProvider, Track } from "@vidstack/react"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { DefaultAudioLayout, defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import { useAtom } from "jotai/react"
+import { uniq } from "lodash"
 import { CaptionsFileFormat } from "media-captions"
 import Image from "next/image"
 import Link from "next/link"
@@ -28,6 +32,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import "@vidstack/react/player/styles/base.css"
+import { BiInfoCircle } from "react-icons/bi"
+
 
 export default function Page() {
 
@@ -68,6 +74,8 @@ export default function Page() {
         onCanPlay,
         onEnded,
         onPlayFile,
+        isCodecSupported,
+        setStreamType,
     } = useHandleMediastream({ playerRef, episodes })
 
     const episodeNumber = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1,
@@ -157,105 +165,158 @@ export default function Page() {
                     )}
                 >
 
-                    <div
-                        className={cn(
-                            "aspect-video relative w-full self-start mx-auto",
-                        )}
-                    >
-                        {isError ?
-                            <LuffyError title="Playback Error" /> :
-                            (!!url && !isMediaContainerLoading) ? <MediaPlayer
-                                playsInline
-                                ref={playerRef}
-                                crossOrigin
-                                src={url}
-                                aspectRatio="16/9"
-                                poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image || mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
-                                onProviderChange={onProviderChange}
-                                onProviderSetup={onProviderSetup}
-                                onTimeUpdate={e => {
-                                    if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
-                                        setShowSkipIntroButton(true)
-                                    } else {
-                                        setShowSkipIntroButton(false)
-                                    }
-                                    if (aniSkipData?.ed &&
-                                        Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
-                                        e?.currentTime &&
-                                        e?.currentTime >= aniSkipData.ed.interval.startTime &&
-                                        e?.currentTime <= aniSkipData.ed.interval.endTime
-                                    ) {
-                                        setShowSkipEndingButton(true)
-                                    } else {
-                                        setShowSkipEndingButton(false)
-                                    }
-                                    onTimeUpdate(e)
-                                }}
-                                onCanPlay={onCanPlay}
-                                onEnded={onEnded}
-                            >
-                                <MediaProvider>
-                                    {subtitles?.map((sub) => (
-                                        <Track
-                                            key={String(sub.index)}
-                                            src={subtitleEndpointUri + sub.link}
-                                            label={sub.title || sub.language}
-                                            lang={sub.language}
-                                            type={(sub.extension?.replace(".", "") || "ass") as CaptionsFileFormat}
-                                            kind="subtitles"
-                                            default={sub.isDefault || (!subtitles.some(n => n.isDefault) && sub.language?.startsWith("en"))}
-                                        />
-                                    ))}
-                                </MediaProvider>
-                                <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
-                                    <div>
-                                        {(showSkipIntroButton) && (
-                                            <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
-                                                                                                                                   intro</Button>
-                                        )}
-                                    </div>
-                                    <div>
-                                        {(showSkipEndingButton) && (
-                                            <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
-                                                                                                                                   ending</Button>
-                                        )}
-                                    </div>
-                                </div>
-                                <DefaultVideoLayout
-                                    icons={defaultLayoutIcons}
-                                    slots={{
-                                        // beforeSettingsMenu: (
-                                        //     <MediastreamAudioSubmenu />
-                                        // )
-                                    }}
-                                />
-                                <DefaultAudioLayout
-                                    icons={defaultLayoutIcons}
-                                />
-                            </MediaPlayer> : (
-                                <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
-                                    <LoadingSpinner
-                                        containerClass=""
-                                        spinner={<div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
-                                            <Image
-                                                src="/logo_2.png"
-                                                alt="Loading..."
-                                                priority
-                                                fill
-                                                className="animate-pulse"
-                                            />
-                                        </div>}
-                                    />
-                                    <div className="text-center text-xs lg:text-sm">
-                                        <p>
-                                            Extracting video metadata...
-                                        </p>
-                                        <p>
-                                            This might take a while.
-                                        </p>
-                                    </div>
-                                </Skeleton>
+                    <div className="relative w-full">
+                        <div
+                            className={cn(
+                                "aspect-video relative w-full self-start mx-auto",
                             )}
+                        >
+                            {isError ?
+                                <LuffyError title="Playback Error" /> :
+                                (!!url && !isMediaContainerLoading) ? <MediaPlayer
+                                    playsInline
+                                    ref={playerRef}
+                                    crossOrigin
+                                    src={mediaContainer?.streamType === "direct" ? {
+                                        src: url,
+                                        type: "video/mp4",
+                                    } : url}
+                                    aspectRatio="16/9"
+                                    poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image || mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
+                                    onProviderChange={onProviderChange}
+                                    onProviderSetup={onProviderSetup}
+                                    onTimeUpdate={e => {
+                                        if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
+                                            setShowSkipIntroButton(true)
+                                        } else {
+                                            setShowSkipIntroButton(false)
+                                        }
+                                        if (aniSkipData?.ed &&
+                                            Math.abs(aniSkipData.ed.interval.startTime - (aniSkipData?.ed?.episodeLength)) < 500 &&
+                                            e?.currentTime &&
+                                            e?.currentTime >= aniSkipData.ed.interval.startTime &&
+                                            e?.currentTime <= aniSkipData.ed.interval.endTime
+                                        ) {
+                                            setShowSkipEndingButton(true)
+                                        } else {
+                                            setShowSkipEndingButton(false)
+                                        }
+                                        onTimeUpdate(e)
+                                    }}
+                                    onCanPlay={onCanPlay}
+                                    onEnded={onEnded}
+                                >
+                                    <MediaProvider>
+                                        {subtitles?.map((sub) => (
+                                            <Track
+                                                key={String(sub.index)}
+                                                src={subtitleEndpointUri + sub.link}
+                                                label={sub.title || sub.language}
+                                                lang={sub.language}
+                                                type={(sub.extension?.replace(".", "") || "ass") as CaptionsFileFormat}
+                                                kind="subtitles"
+                                                default={sub.isDefault || (!subtitles.some(n => n.isDefault) && sub.language?.startsWith("en"))}
+                                            />
+                                        ))}
+                                    </MediaProvider>
+                                    <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
+                                        <div>
+                                            {(showSkipIntroButton) && (
+                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
+                                                                                                                                       intro</Button>
+                                            )}
+                                        </div>
+                                        <div>
+                                            {(showSkipEndingButton) && (
+                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
+                                                                                                                                       ending</Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <DefaultVideoLayout
+                                        icons={defaultLayoutIcons}
+                                        slots={{
+                                            // beforeSettingsMenu: (
+                                            //     <MediastreamAudioSubmenu />
+                                            // )
+                                        }}
+                                    />
+                                    <DefaultAudioLayout
+                                        icons={defaultLayoutIcons}
+                                    />
+                                </MediaPlayer> : (
+                                    <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
+                                        <LoadingSpinner
+                                            containerClass=""
+                                            spinner={<div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
+                                                <Image
+                                                    src="/logo_2.png"
+                                                    alt="Loading..."
+                                                    priority
+                                                    fill
+                                                    className="animate-pulse"
+                                                />
+                                            </div>}
+                                        />
+                                        <div className="text-center text-xs lg:text-sm">
+                                            <p>
+                                                Extracting video metadata...
+                                            </p>
+                                            <p>
+                                                This might take a while.
+                                            </p>
+                                        </div>
+                                    </Skeleton>
+                                )}
+                        </div>
+
+                        {!!mediaContainer?.mediaInfo?.mimeCodec && (
+                            <div className="space-y-2 py-6">
+                                <p className="truncate line-clamp-1 text-[--muted]">
+                                    {mediaContainer?.mediaInfo?.path}
+                                </p>
+                                <Modal
+                                    title="Playback"
+                                    trigger={
+                                        <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-outline">
+                                            Playback information
+                                        </Button>
+                                    }
+                                >
+                                    <div className="space-y-2">
+                                        {isCodecSupported(mediaContainer.mediaInfo.mimeCodec) ? <Alert
+                                            intent="success"
+                                            description="File video and audio codecs are compatible with this client"
+                                        /> : <Alert
+                                            intent="alert"
+                                            description="File video and audio codecs are not compatible with this client"
+                                        />}
+
+                                        <p>
+                                            <span className="font-bold">Video codec: </span>
+                                            <span>{mediaContainer.mediaInfo.video?.mimeCodec}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-bold">Audio codec: </span>
+                                            <span>{uniq(mediaContainer.mediaInfo.audios?.map(n => n.mimeCodec)).join(", ")}</span>
+                                        </p>
+
+                                        <Separator />
+
+                                        {(mediaContainer?.streamType === "direct") &&
+                                            <Button intent="alert-outline" onClick={() => setStreamType("transcode")}>
+                                                Switch to transcoding
+                                            </Button>}
+
+                                        {(mediaContainer?.streamType === "transcode" && isCodecSupported(mediaContainer.mediaInfo.mimeCodec)) &&
+                                            <Button intent="alert-outline" onClick={() => setStreamType("direct")}>
+                                                Switch to direct play
+                                            </Button>}
+
+                                    </div>
+                                </Modal>
+                            </div>
+                        )}
                     </div>
 
                     <ScrollArea className="2xl:max-w-[450px] w-full relative 2xl:sticky 2xl:h-[75dvh] overflow-y-auto pr-4 pt-0">

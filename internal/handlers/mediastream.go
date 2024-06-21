@@ -151,6 +151,8 @@ func HandlePreloadMediastreamMediaContainer(c *RouteCtx) error {
 	switch b.StreamType {
 	case mediastream.StreamTypeTranscode:
 		err = c.App.MediastreamRepository.RequestPreloadTranscodeStream(b.Path)
+	case mediastream.StreamTypeDirect:
+		err = c.App.MediastreamRepository.RequestPreloadDirectPlay(b.Path)
 	default:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 	}

@@ -160,7 +160,7 @@ func (r *Repository) RequestTranscodeStream(filepath string, clientId string) (r
 }
 
 func (r *Repository) RequestPreloadTranscodeStream(filepath string) (err error) {
-	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Transcode stream requested")
+	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Transcode stream preloading requested")
 
 	if !r.IsInitialized() {
 		return errors.New("module not initialized")
@@ -186,6 +186,18 @@ func (r *Repository) RequestDirectPlay(filepath string, clientId string) (ret *M
 	}
 
 	ret, err = r.playbackManager.RequestPlayback(filepath, StreamTypeDirect)
+
+	return
+}
+
+func (r *Repository) RequestPreloadDirectPlay(filepath string) (err error) {
+	r.logger.Debug().Str("filepath", filepath).Msg("mediastream: Direct stream preloading requested")
+
+	if !r.IsInitialized() {
+		return errors.New("module not initialized")
+	}
+
+	_, err = r.playbackManager.PreloadPlayback(filepath, StreamTypeDirect)
 
 	return
 }

@@ -5,16 +5,23 @@ All notable changes to this project will be documented in this file.
 ## v1.6.0
 
 - 🚀 The web interface is now bundled with the binary
+  - Seanime now ships without the `web` directory
+  - This should solve issues with auto updates on Windows
+- 🎉 Media streaming: Direct play support
+  - Seanime will now, automatically attempt to play media files directly without transcoding if the client supports the codecs
 - ✨ Metadata: View filler episodes #74
+  - Fetch additional metadata to highlight filler episodes
 - ✨ Setting: Refresh library on startup
-  - You can now fetch additional metadata for series to highlight filler episodes if available
-- ⚡️ Scanner now supports symbolic links
+- ⚡️ Scanner: Support for symbolic links
 - 🚀 Transcoding: JASSUB files are now embedded in the binary
-  - No need to download JASSUB files separately unless you need to support legacy browsers
+  - No need to download JASSUB files separately unless you need to support old browsers
+- 🦺 Transcoding: Fixed subtitle rendering issues
+  - This should solve issues with subtitles not showing up in the media player
 - 🦺 Scanner: Fixed runtime error when files aren't matched by the autoscanner
 - 🦺 Transcoding: Fixed JASSUB on iOS
-- 🏗️ Added delay when updating Seanime to (hopefully) fix access issues on Windows
+- 🦺 Fixed crash caused by concurrent logs
 - 🏗️ BREAKING: Media streaming: Metadata extraction done using FFprobe only
+- 🔨 Updated release workflow
 - ⬆️ Updated dependencies
 
 ## v1.5.5
