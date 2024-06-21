@@ -15,10 +15,10 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Scanner: Support for symbolic links
 - 🚀 Transcoding: JASSUB files are now embedded in the binary
   - No need to download JASSUB files separately unless you need to support old browsers
-- 🦺 Transcoding: Fixed subtitle rendering issues
+- 🦺 Media streaming: Fixed subtitle rendering issues
   - This should solve issues with subtitles not showing up in the media player
 - 🦺 Scanner: Fixed runtime error when files aren't matched by the autoscanner
-- 🦺 Transcoding: Fixed JASSUB on iOS
+- 🦺 Media streaming: Fixed JASSUB on iOS
 - 🦺 Fixed crash caused by concurrent logs
 - 🏗️ BREAKING: Media streaming: Metadata extraction done using FFprobe only
 - 🔨 Updated release workflow

@@ -11,6 +11,7 @@ import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
+import { isMobile } from "@/lib/utils/browser-detection"
 import {
     isHLSProvider,
     LibASSTextRenderer,
@@ -41,7 +42,7 @@ let cId = typeof window === "undefined" ? "-" : uuidv4()
 const mediastream_getHlsConfig = () => {
     const loadPolicy: LoadPolicy = {
         default: {
-            maxTimeToFirstByteMs: Infinity,
+            maxTimeToFirstByteMs: Number.POSITIVE_INFINITY,
             maxLoadTimeMs: 60_000,
             timeoutRetry: {
                 maxNumRetry: 2,
@@ -56,16 +57,14 @@ const mediastream_getHlsConfig = () => {
         },
     }
     return {
-        startLevel: Infinity,
         autoStartLoad: true,
-        // autoStartLoad: false,
         abrEwmaDefaultEstimate: 35_000_000,
         abrEwmaDefaultEstimateMax: 50_000_000,
         // debug: true,
         lowLatencyMode: false,
         fragLoadPolicy: {
             default: {
-                maxTimeToFirstByteMs: Infinity,
+                maxTimeToFirstByteMs: Number.POSITIVE_INFINITY,
                 maxLoadTimeMs: 60_000,
                 timeoutRetry: {
                     // maxNumRetry: 15,
@@ -172,6 +171,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
 
     const isCodecSupported = React.useCallback((codec: string) => {
+        if (isMobile()) return false
         if (navigator.userAgent.search("Firefox") === -1)
             codec = codec.replace("video/x-matroska", "video/mp4")
         const videos = document.getElementsByTagName("video")
@@ -420,16 +420,16 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const episode = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath), [episodes, filePath])
 
     const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
-        if (!!filePath && duration > 0 && (e.currentTime / duration) > 0.7 && preloadedNextFileForRef.current !== filePath) {
-            logger("MEDIASTREAM").info("Preloading next file")
-
-            const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
-            const nextFile = currentEpisodeIndex !== -1 ? episodes[currentEpisodeIndex + 1] : undefined
-            if (nextFile?.localFile?.path) {
-                preloadedNextFileForRef.current = filePath
-                preloadMediaContainer({ path: filePath, streamType: streamType, audioStreamIndex: 0 })
-            }
-        }
+        // DEVNOTE: Disable preloading next file, it causes issues
+        // if (!!filePath && duration > 0 && (e.currentTime / duration) > 0.7 && preloadedNextFileForRef.current !== filePath) {
+        //     const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+        //     const nextFile = currentEpisodeIndex !== -1 ? episodes[currentEpisodeIndex + 1] : undefined
+        //     if (nextFile?.localFile?.path && nextFile?.localFile?.path !== preloadedNextFileForRef.current) {
+        //         logger("MEDIASTREAM").info("Preloading next file")
+        //         preloadedNextFileForRef.current = filePath
+        //         preloadMediaContainer({ path: nextFile?.localFile?.path, streamType: streamType, audioStreamIndex: 0 })
+        //     }
+        // }
         if (
             (!progressItem || (!!episode?.progressNumber && episode?.progressNumber > progressItem.episodeNumber)) &&
             duration > 0 && (e.currentTime / duration) > 0.8
@@ -500,6 +500,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         mediaContainer: _mediaContainer,
         onPlayFile,
         filePath,
+        disabledAutoSwitchToDirectPlay: mediastreamSettings?.disableAutoSwitchToDirectPlay,
 
         setStreamType: (type: Mediastream_StreamType) => {
             setStreamType(type)

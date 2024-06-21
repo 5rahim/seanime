@@ -76,6 +76,7 @@ export default function Page() {
         onPlayFile,
         isCodecSupported,
         setStreamType,
+        disabledAutoSwitchToDirectPlay,
     } = useHandleMediastream({ playerRef, episodes })
 
     const episodeNumber = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1,
@@ -304,9 +305,18 @@ export default function Page() {
                                         <Separator />
 
                                         {(mediaContainer?.streamType === "direct") &&
-                                            <Button intent="alert-outline" onClick={() => setStreamType("transcode")}>
-                                                Switch to transcoding
-                                            </Button>}
+                                            <div className="space-y-2">
+                                                <Button
+                                                    intent="alert-outline"
+                                                    onClick={() => setStreamType("transcode")}
+                                                    disabled={!disabledAutoSwitchToDirectPlay}
+                                                >
+                                                    Switch to transcoding
+                                                </Button>
+                                                <p className="text-[--muted]">
+                                                    Disable 'auto switch to direct play' if you need to switch to transcoding
+                                                </p>
+                                            </div>}
 
                                         {(mediaContainer?.streamType === "transcode" && isCodecSupported(mediaContainer.mediaInfo.mimeCodec)) &&
                                             <Button intent="alert-outline" onClick={() => setStreamType("direct")}>
