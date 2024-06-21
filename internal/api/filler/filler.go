@@ -142,6 +142,10 @@ func (af *AnimeFillerList) Search(opts SearchOptions) (result *SearchResult, err
 		return nil, fmt.Errorf("no results found")
 	}
 
+	if bestResult.Distance > 10 {
+		return nil, fmt.Errorf("no results found")
+	}
+
 	// Get the result
 	for _, r := range ret {
 		if r.Title == bestResult.OriginalValue {
