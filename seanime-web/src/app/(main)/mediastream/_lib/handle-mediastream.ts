@@ -219,15 +219,32 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Add subtitle renderer
      */
     React.useEffect(() => {
-        if (playerRef.current) {
-            // const wasmUrl = process.env.NODE_ENV === "development"
-            //     ? "/jassub/jassub-worker.wasm" : getAssetUrl("/jassub/jassub-worker.wasm")
-            // const workerUrl = process.env.NODE_ENV === "development"
-            //     ? "/jassub/jassub-worker.js" : getAssetUrl("/jassub/jassub-worker.js")
+        if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts) {
             const legacyWasmUrl = process.env.NODE_ENV === "development"
                 ? "/jassub/jassub-worker.wasm.js" : getAssetUrl("/jassub/jassub-worker.wasm.js")
 
             logger("MEDIASTREAM").info("Loading JASSUB renderer")
+
+            const fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
+                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
+                : window?.location?.host) + `/api/v1/mediastream/att/${name}`)
+            let availableFonts: Record<string, string> = {}
+            let firstFont = ""
+            if (!!fonts?.length) {
+                for (const font of fonts) {
+                    let _name = font
+                    const name = _name.split("/").pop()?.split(".")[0]
+                    console.log(font)
+                    if (name) {
+                        if (!firstFont) {
+                            firstFont = name.toLowerCase()
+                        }
+                        availableFonts[name.toLowerCase()] = font
+                    }
+                }
+            }
+            console.log(availableFonts)
+
 
             // @ts-expect-error
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
@@ -238,9 +255,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 offscreenRender: false,
                 prescaleFactor: 0.8,
                 onDemandRender: false,
-                fonts: mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
-                    ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                    : window?.location?.host) + `/api/v1/mediastream/att/${name}`),
+                fonts: fonts,
+                availableFonts: availableFonts,
+                fallbackFont: firstFont,
             })
             playerRef.current!.textRenderers.add(renderer)
 
@@ -248,7 +265,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 playerRef.current!.textRenderers.remove(renderer)
             }
         }
-    }, [playerRef.current, mediaContainer?.streamUrl])
+    }, [playerRef.current, mediaContainer?.streamUrl, mediaContainer?.mediaInfo?.fonts])
 
     function changeUrl(newUrl: string | undefined) {
         if (prevUrlRef.current !== newUrl) {
