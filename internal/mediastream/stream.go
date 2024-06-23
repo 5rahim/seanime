@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -30,6 +31,11 @@ func (r *Repository) ServeFiberDirectPlay(fiberCtx *fiber.Ctx, clientId string) 
 	if !found {
 		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media has been requested")
 		return errors.New("no media has been requested")
+	}
+
+	_, err := os.Stat(mediaContainer.Filepath)
+	if err != nil {
+		return err
 	}
 
 	return fiberCtx.SendFile(mediaContainer.Filepath)
@@ -294,6 +300,8 @@ func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
 	if retPath == "" {
 		return errors.New("could not find subtitles")
 	}
+
+	subFilePath, _ = url.QueryUnescape(subFilePath)
 
 	contentB, err := os.ReadFile(filepath.Join(retPath, subFilePath))
 	if err != nil {

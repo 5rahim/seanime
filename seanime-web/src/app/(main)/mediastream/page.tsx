@@ -273,9 +273,6 @@ export default function Page() {
 
                         {!!mediaContainer?.mediaInfo?.mimeCodec && (
                             <div className="space-y-2 py-6">
-                                <p className="truncate line-clamp-1 text-[--muted]">
-                                    {mediaContainer?.mediaInfo?.path}
-                                </p>
                                 <Modal
                                     title="Playback"
                                     trigger={
@@ -285,6 +282,9 @@ export default function Page() {
                                     }
                                 >
                                     <div className="space-y-2">
+                                        <p className="line-clamp-1 text-[--muted]">
+                                            {mediaContainer?.mediaInfo?.path}
+                                        </p>
                                         {isCodecSupported(mediaContainer.mediaInfo.mimeCodec) ? <Alert
                                             intent="success"
                                             description="File video and audio codecs are compatible with this client"
@@ -313,9 +313,9 @@ export default function Page() {
                                                 >
                                                     Switch to transcoding
                                                 </Button>
-                                                <p className="text-[--muted]">
+                                                {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted]">
                                                     Disable 'auto switch to direct play' if you need to switch to transcoding
-                                                </p>
+                                                </p>}
                                             </div>}
 
                                         {(mediaContainer?.streamType === "transcode" && isCodecSupported(mediaContainer.mediaInfo.mimeCodec)) &&
@@ -329,7 +329,7 @@ export default function Page() {
                         )}
                     </div>
 
-                    <ScrollArea className="2xl:max-w-[450px] w-full relative 2xl:sticky 2xl:h-[75dvh] overflow-y-auto pr-4 pt-0">
+                    <ScrollArea className="2xl:max-w-[450px] w-full relative 2xl:sticky 2xl:h-[75dvh] overflow-y-auto 2xl:pr-4 pt-0">
                         <div className="space-y-4">
                             {episodes.map((episode) => (
                                 <EpisodeGridItem
