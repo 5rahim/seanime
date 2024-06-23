@@ -29,8 +29,8 @@ func (r *Repository) ServeFiberDirectPlay(fiberCtx *fiber.Ctx, clientId string) 
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
 	if !found {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media has been requested")
-		return errors.New("no media has been requested")
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "no file has been loaded")
+		return errors.New("no file has been loaded")
 	}
 
 	_, err := os.Stat(mediaContainer.Filepath)
@@ -248,7 +248,7 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
 	if !found {
-		return errors.New("no media has been requested")
+		return errors.New("no file has been loaded")
 	}
 
 	retPath := videofile.GetFileSubsCacheDir(r.cacheDir, mediaContainer.Hash)
@@ -292,7 +292,7 @@ func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
 	if !found {
-		return errors.New("no media has been requested")
+		return errors.New("no file has been loaded")
 	}
 
 	retPath := videofile.GetFileAttCacheDir(r.cacheDir, mediaContainer.Hash)
@@ -336,8 +336,8 @@ func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
 //	// Get current media
 //	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
 //	if !found {
-//		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media has been requested")
-//		return errors.New("no media has been requested")
+//		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "no file has been loaded")
+//		return errors.New("no file has been loaded")
 //	}
 //
 //	r.logger.Trace().Any("path", mediaContainer.Filepath).Msg("mediastream: Direct stream")
