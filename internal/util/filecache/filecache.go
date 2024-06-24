@@ -249,13 +249,14 @@ func (c *Cacher) TrimMediastreamVideoFiles() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	// Remove the contents of the directory
+	// Remove the contents of the "videofiles" cache directory
 	files, err := os.ReadDir(filepath.Join(c.dir, "videofiles"))
 	if err != nil {
 		return nil
 	}
 
-	if len(files) > 3 {
+	// If the number of files exceeds 10, remove all files
+	if len(files) > 10 {
 		for _, file := range files {
 			_ = os.RemoveAll(filepath.Join(c.dir, "videofiles", file.Name()))
 		}
