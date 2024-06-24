@@ -66,24 +66,32 @@ body:
   - type: textarea
     id: '6'
     attributes:
-      label: Logs / Additional Info
-      description: Include any logs, error messages, or additional information that might help in debugging the issue.
+      label: Screenshots
+      description: If applicable, add screenshots of the bug
+  - type: textarea
+    id: '7'
+    attributes:
+      label: Logs
+      description: If applicable, add terminal output, browser console logs or stack traces. You can use [pastebin](https://pastebin.com) to share large logs.
     validations:
       required: true
   - type: checkboxes
-    id: '7'
+    id: '8'
     attributes:
       label: Debugging Checklist
-      description: Confirm you have included the necessary debugging information. If you haven't, please do so before submitting the issue.
+      description: Confirm you have included at least some of the following debugging information. If you haven't, please do so before submitting the issue.
       options:
         - label: >-
-            I have included logs and error messages (required)
-          required: true
+            I have included error messages
+          required: false
         - label: >-
-            I confirm that this report contains all the necessary information to help the maintainers debug the issue
-          required: true
+            I have included terminal output
+          required: false
+        - label: >-
+            I have included browser console logs
+          required: false
   - type: input
-    id: '8'
+    id: '9'
     attributes:
       label: App Version
       description: Enter the version of Seanime you are using.
@@ -91,7 +99,7 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: '9'
+    id: '10'
     attributes:
       label: Operating System
       options:
@@ -100,8 +108,3 @@ body:
         - MacOS
     validations:
       required: true
-  - type: textarea
-    id: '10'
-    attributes:
-      label: Screenshots
-      description: If applicable, add screenshots of the bug, terminal output, logs or stack traces.
