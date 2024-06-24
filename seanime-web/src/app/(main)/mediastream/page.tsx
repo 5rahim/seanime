@@ -180,7 +180,7 @@ export default function Page() {
                                     crossOrigin
                                     src={mediaContainer?.streamType === "direct" ? {
                                         src: url,
-                                        type: "video/mp4",
+                                        type: "video/webm",
                                     } : url}
                                     aspectRatio="16/9"
                                     poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image || mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}

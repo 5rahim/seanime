@@ -355,10 +355,13 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 
 	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
+	// Cleanup cache
 	go func() {
 		if settings.TranscodeEnabled {
+			// If transcoding is enabled, trim files
 			_ = a.FileCacher.TrimMediastreamVideoFiles()
 		} else {
+			// If transcoding is disabled, clear all files
 			_ = a.FileCacher.ClearMediastreamVideoFiles()
 		}
 	}()
