@@ -46,7 +46,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		transcoder:         mo.None[*transcoder.Transcoder](),
 		wsEventManager:     opts.WSEventManager,
 		fileCacher:         opts.FileCacher,
-		mediaInfoExtractor: videofile.NewMediaInfoExtractor(opts.FileCacher),
+		mediaInfoExtractor: videofile.NewMediaInfoExtractor(opts.FileCacher, opts.Logger),
 	}
 	ret.playbackManager = NewPlaybackManager(ret)
 

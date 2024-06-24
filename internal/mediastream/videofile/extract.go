@@ -18,7 +18,7 @@ func GetFileAttCacheDir(outDir string, hash string) string {
 }
 
 func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *MediaInfo, cacheDir string, logger *zerolog.Logger) (err error) {
-	logger.Debug().Str("path", path).Msgf("transcoder: Starting media attachment extraction")
+	logger.Debug().Str("hash", hash).Msgf("videofile: Starting media attachment extraction")
 
 	attachmentPath := GetFileAttCacheDir(cacheDir, hash)
 	subsPath := GetFileSubsCacheDir(cacheDir, hash)
@@ -28,8 +28,15 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 	subsDir, err := os.ReadDir(subsPath)
 	if err == nil {
 		if len(subsDir) == len(mediaInfo.Subtitles) {
-			logger.Debug().Str("path", path).Msgf("transcoder: Attachments already extracted")
+			logger.Debug().Str("hash", hash).Msgf("videofile: Attachments already extracted")
 			return
+		}
+	}
+
+	for _, sub := range mediaInfo.Subtitles {
+		if sub.Extension == nil || *sub.Extension == "" {
+			logger.Error().Msgf("videofile: Subtitle format is not supported")
+			return fmt.Errorf("videofile: Unsupported subtitle format")
 		}
 	}
 
@@ -53,10 +60,12 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 			)
 		}
 	}
+
 	cmd.Stdout = nil
+	//cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
-		logger.Error().Err(err).Msgf("transcoder: Error starting ffmpeg")
+		logger.Error().Err(err).Msgf("videofile: Error starting FFmepg")
 	}
 
 	return err

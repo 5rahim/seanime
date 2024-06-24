@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"golang.org/x/text/language"
@@ -110,11 +111,13 @@ type Chapter struct {
 
 type MediaInfoExtractor struct {
 	fileCacher *filecache.Cacher
+	logger     *zerolog.Logger
 }
 
-func NewMediaInfoExtractor(fileCacher *filecache.Cacher) *MediaInfoExtractor {
+func NewMediaInfoExtractor(fileCacher *filecache.Cacher, logger *zerolog.Logger) *MediaInfoExtractor {
 	return &MediaInfoExtractor{
 		fileCacher: fileCacher,
+		logger:     logger,
 	}
 }
 
@@ -126,21 +129,33 @@ func (e *MediaInfoExtractor) GetInfo(ffprobePath, path string) (mi *MediaInfo, e
 		return nil, err
 	}
 
-	bucket := filecache.NewBucket(fmt.Sprintf("mediastream_mediainfo_%s", hash), 24*7*52*time.Hour)
+	e.logger.Debug().Str("path", path).Str("hash", hash).Msg("mediastream: Getting media information [MediaInfoExtractor]")
+
+	bucketName := fmt.Sprintf("mediastream_mediainfo_%s", hash)
+	bucket := filecache.NewBucket(bucketName, 24*7*52*time.Hour)
+	e.logger.Trace().Str("bucketName", bucketName).Msg("mediastream: Using cache bucket [MediaInfoExtractor]")
+
+	e.logger.Trace().Msg("mediastream: Getting media information from cache [MediaInfoExtractor]")
 
 	// Look in the cache
 	if found, _ := e.fileCacher.Get(bucket, hash, &mi); found {
+		e.logger.Debug().Str("hash", hash).Msg("mediastream: Media information cache HIT [MediaInfoExtractor]")
 		return mi, nil
 	}
+
+	e.logger.Debug().Str("hash", hash).Msg("mediastream: Extracting media information using FFprobe")
 
 	// Get the media information of the file.
 	mi, err = FfprobeGetInfo(ffprobePath, path, hash)
 	if err != nil {
+		e.logger.Error().Err(err).Str("path", path).Msg("mediastream: Failed to extract media information using FFprobe")
 		return nil, err
 	}
 
 	// Save in the cache
 	_ = e.fileCacher.Set(bucket, hash, mi)
+
+	e.logger.Debug().Str("hash", hash).Msg("mediastream: Extracted media information using FFprobe")
 
 	return mi, nil
 }
@@ -211,6 +226,7 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 			"subrip": "srt",
 			"ass":    "ass",
 			"vtt":    "vtt",
+			"ssa":    "ssa",
 		}
 		extension, ok := subExtensions[stream.CodecName]
 		var link *string

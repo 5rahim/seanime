@@ -102,17 +102,22 @@ func (p *PlaybackManager) PreloadPlayback(filepath string, streamType StreamType
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamType) (ret *MediaContainer, err error) {
-	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: Creating media container")
+	p.logger.Debug().Str("filepath", filepath).Any("type", streamType).Msg("mediastream: New media container requested")
 	// Get the hash of the file.
 	hash, err := videofile.GetHashFromPath(filepath)
 	if err != nil {
 		return nil, err
 	}
 
+	p.logger.Trace().Str("hash", hash).Msg("mediastream: Checking cache")
+
 	// Check the cache ONLY if the stream type is the same.
 	if mc, ok := p.mediaContainers.Get(hash); ok && mc.StreamType == streamType {
+		p.logger.Debug().Str("hash", hash).Msg("mediastream: Media container cache HIT")
 		return mc, nil
 	}
+
+	p.logger.Trace().Str("hash", hash).Msg("mediastream: Creating media container")
 
 	// Get the media information of the file.
 	ret = &MediaContainer{
@@ -128,11 +133,16 @@ func (p *PlaybackManager) newMediaContainer(filepath string, streamType StreamTy
 		return nil, err
 	}
 
+	p.logger.Debug().Msg("mediastream: Extracted media info, extracting attachments")
+
 	// Extract the attachments from the file.
 	err = videofile.ExtractAttachment(p.repository.settings.MustGet().FfmpegPath, filepath, hash, ret.MediaInfo, p.repository.cacheDir, p.logger)
 	if err != nil {
+		p.logger.Error().Err(err).Msg("mediastream: Failed to extract attachments")
 		return nil, err
 	}
+
+	p.logger.Debug().Msg("mediastream: Extracted attachments")
 
 	streamUrl := ""
 	switch streamType {
