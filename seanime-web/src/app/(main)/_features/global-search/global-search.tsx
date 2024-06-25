@@ -80,14 +80,16 @@ export function GlobalSearch() {
                                                     placeholder="Search..."
                                                     onChange={(event) => setInputValue(event.target.value)}
                                                 />
-                                                <Link href="/search" onClick={() => setOpen(false)} className="hidden lg:block">
-                                                    <Button
-                                                        className="absolute top-3 right-2 z-1"
-                                                        intent="gray-basic"
-                                                    >
-                                                        Advanced search
-                                                    </Button>
-                                                </Link>
+                                                <Button
+                                                    className="block fixed lg:absolute top-3 right-3 z-1"
+                                                    intent="white"
+                                                    onClick={() => {
+                                                        setOpen(false)
+                                                        router.push("/search")
+                                                    }}
+                                                >
+                                                    Advanced search
+                                                </Button>
                                             </div>
 
                                             {(!!media && media.length > 0) && (
