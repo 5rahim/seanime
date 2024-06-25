@@ -169,7 +169,10 @@ export function MainSidebar() {
                             {
                                 iconType: FiSearch,
                                 name: "Search",
-                                onClick: () => setGlobalSearchIsOpen(true),
+                                onClick: () => {
+                                    ctx.setOpen(false)
+                                    setGlobalSearchIsOpen(true)
+                                },
                             },
                         ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}

@@ -11,7 +11,7 @@ import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import React, { Fragment, useState } from "react"
+import React, { Fragment } from "react"
 import { BiChevronRight } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
 
@@ -19,7 +19,7 @@ export const __globalSearch_isOpenAtom = atom(false)
 
 export function GlobalSearch() {
 
-    const [inputValue, setInputValue] = useState("")
+    const [inputValue, setInputValue] = React.useState("")
     const debouncedQuery = useDebounce(inputValue, 500)
 
     const router = useRouter()
@@ -39,7 +39,7 @@ export function GlobalSearch() {
     return (
         <>
             <Transition.Root show={open} as={Fragment} afterLeave={() => setInputValue("")} appear>
-                <Dialog as="div" className="relative z-[99]" onClose={setOpen}>
+                <Dialog as="div" className="relative z-[200]" onClose={setOpen}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -52,7 +52,7 @@ export function GlobalSearch() {
                         <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity backdrop-blur-sm" />
                     </Transition.Child>
 
-                    <div className="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">
+                    <div className="fixed inset-0 z-[200] overflow-y-auto p-4 sm:p-6 md:p-20">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
