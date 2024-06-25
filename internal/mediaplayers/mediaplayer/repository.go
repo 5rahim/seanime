@@ -6,12 +6,20 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/mediaplayers/libmpv"
 	mpchc2 "github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	vlc2 "github.com/seanime-app/seanime/internal/mediaplayers/vlc"
 	"github.com/seanime-app/seanime/internal/util/result"
 	"sync"
 	"time"
+)
+
+type MpvType string
+
+const (
+	MpvTypeLibMpv MpvType = "libmpv"
+	MpvTypeSocket MpvType = "mpv"
 )
 
 type (
@@ -22,6 +30,8 @@ type (
 		VLC                   *vlc2.VLC
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
+		LibMpv                *libmpv.LibMpv
+		MpvType               MpvType
 		WSEventManager        events.WSEventManagerInterface
 		completionThreshold   float64
 		mu                    sync.Mutex
@@ -37,6 +47,8 @@ type (
 		VLC            *vlc2.VLC
 		MpcHc          *mpchc2.MpcHc
 		Mpv            *mpv.Mpv
+		LibMpv         *libmpv.LibMpv
+		MpvType        string
 		WSEventManager events.WSEventManagerInterface
 	}
 
@@ -65,12 +77,23 @@ type (
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
+
+	mpvType := MpvTypeSocket
+	switch opts.MpvType {
+	case "libmpv":
+		mpvType = MpvTypeLibMpv
+	case "socket":
+		mpvType = MpvTypeSocket
+	}
+
 	return &Repository{
 		Logger:              opts.Logger,
 		Default:             opts.Default,
 		VLC:                 opts.VLC,
 		MpcHc:               opts.MpcHc,
 		Mpv:                 opts.Mpv,
+		LibMpv:              opts.LibMpv,
+		MpvType:             mpvType,
 		WSEventManager:      opts.WSEventManager,
 		completionThreshold: 0.8,
 		subscribers:         result.NewResultMap[string, *RepositorySubscriber](),
@@ -133,11 +156,22 @@ func (m *Repository) Play(path string) error {
 		}
 		return nil
 	case "mpv":
-		err := m.Mpv.OpenAndPlay(path)
-		if err != nil {
-			return fmt.Errorf("could not open and play video, %s", err.Error())
+		switch m.MpvType {
+		case MpvTypeLibMpv:
+			err := m.LibMpv.OpenAndPlay(path)
+			if err != nil {
+				return fmt.Errorf("could not open and play video, %s", err.Error())
+			}
+			return nil
+		case MpvTypeSocket:
+			err := m.Mpv.OpenAndPlay(path)
+			if err != nil {
+				return fmt.Errorf("could not open and play video, %s", err.Error())
+			}
+			return nil
+		default:
+			return errors.New("unknown mpv type")
 		}
-		return nil
 	default:
 		return errors.New("no default media player set")
 	}
@@ -171,7 +205,14 @@ func (m *Repository) Stream(streamUrl string) error {
 	case "mpc-hc":
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 	case "mpv":
-		err = m.Mpv.OpenAndStream(streamUrl, "--no-cache", "--force-window")
+		switch m.MpvType {
+		case MpvTypeSocket:
+			err = m.Mpv.OpenAndStream(streamUrl, "--no-cache", "--force-window")
+		case MpvTypeLibMpv:
+			err = m.LibMpv.OpenAndPlay(streamUrl)
+		default:
+			return errors.New("unknown mpv type")
+		}
 	}
 
 	if err != nil {
@@ -193,7 +234,12 @@ func (m *Repository) Cancel() {
 	}
 	// Close MPV if it's the default player
 	if m.Default == "mpv" {
-		m.Mpv.CloseAll()
+		switch m.MpvType {
+		case MpvTypeSocket:
+			m.Mpv.CloseAll()
+		case MpvTypeLibMpv:
+			m.LibMpv.CloseAll()
+		}
 	}
 	m.mu.Unlock()
 }
@@ -208,7 +254,12 @@ func (m *Repository) Stop() {
 	}
 	// Close MPV if it's the default player
 	if m.Default == "mpv" {
-		m.Mpv.CloseAll()
+		switch m.MpvType {
+		case MpvTypeSocket:
+			m.Mpv.CloseAll()
+		case MpvTypeLibMpv:
+			m.LibMpv.CloseAll()
+		}
 	}
 	m.mu.Unlock()
 }
@@ -556,19 +607,35 @@ func (m *Repository) processStatus(player string, status interface{}) (*Playback
 		return ret, true
 	case "mpv":
 		// Process MPV status
-		st := status.(*mpv.Playback)
-		if st == nil || st.Duration == 0 || st.IsRunning == false {
-			return nil, false
+		switch m.MpvType {
+		case MpvTypeSocket:
+			st := status.(*mpv.Playback)
+			if st == nil || st.Duration == 0 || st.IsRunning == false {
+				return nil, false
+			}
+			ret := &PlaybackStatus{
+				CompletionPercentage: st.Position / st.Duration,
+				Playing:              !st.Paused,
+				Filename:             st.Filename,
+				Duration:             int(st.Duration),
+				Filepath:             st.Filepath,
+			}
+			return ret, true
+		case MpvTypeLibMpv:
+			st := status.(*libmpv.Playback)
+			if st == nil || st.Duration == 0 || st.IsRunning == false {
+				return nil, false
+			}
+			ret := &PlaybackStatus{
+				CompletionPercentage: st.Position / st.Duration,
+				Playing:              !st.Paused,
+				Filename:             st.Filename,
+				Duration:             int(st.Duration),
+				Filepath:             st.Filepath,
+			}
+			return ret, true
 		}
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position / st.Duration,
-			Playing:              !st.Paused,
-			Filename:             st.Filename,
-			Duration:             int(st.Duration),
-			Filepath:             st.Filepath,
-		}
-
-		return ret, true
+		return nil, false
 	default:
 		return nil, false
 	}
@@ -609,19 +676,35 @@ func (m *Repository) processStreamStatus(player string, status interface{}) (*Pl
 		return ret, true
 	case "mpv":
 		// Process MPV status
-		st := status.(*mpv.Playback)
-		if st == nil || st.IsRunning == false {
-			return nil, false
+		switch m.MpvType {
+		case MpvTypeSocket:
+			st := status.(*mpv.Playback)
+			if st == nil || st.Duration == 0 || st.IsRunning == false {
+				return nil, false
+			}
+			ret := &PlaybackStatus{
+				CompletionPercentage: st.Position / st.Duration,
+				Playing:              !st.Paused,
+				Filename:             st.Filename,
+				Duration:             int(st.Duration),
+				Filepath:             st.Filepath,
+			}
+			return ret, true
+		case MpvTypeLibMpv:
+			st := status.(*libmpv.Playback)
+			if st == nil || st.Duration == 0 || st.IsRunning == false {
+				return nil, false
+			}
+			ret := &PlaybackStatus{
+				CompletionPercentage: st.Position / st.Duration,
+				Playing:              !st.Paused,
+				Filename:             st.Filename,
+				Duration:             int(st.Duration),
+				Filepath:             st.Filepath,
+			}
+			return ret, true
 		}
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position / st.Duration,
-			Playing:              !st.Paused,
-			Filename:             st.Filename,
-			Duration:             int(st.Duration),
-			Filepath:             st.Filepath,
-		}
-
-		return ret, true
+		return nil, false
 	default:
 		return nil, false
 	}

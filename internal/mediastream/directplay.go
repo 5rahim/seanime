@@ -62,6 +62,7 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string, clientId strin
 		// Get the file information
 		info, err := f.Stat()
 		if err != nil {
+			_ = f.Close()
 			r.logger.Error().Err(err).Msgf("mediastream: Error getting file information")
 			return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 		}

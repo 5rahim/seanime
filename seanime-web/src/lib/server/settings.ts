@@ -6,6 +6,8 @@ export const DEFAULT_TORRENT_CLIENT = "qbittorrent"
 
 export const DEFAULT_DOH_PROVIDER = ""
 
+export const DEFAULT_MPV_TYPE = "socket"
+
 export const _gettingStartedSchema = z.object({
     enableTranscode: z.boolean().optional().default(false),
     enableTorrentStreaming: z.boolean().optional().default(false),
@@ -25,6 +27,7 @@ export const settingsSchema = z.object({
     mpcPath: z.string().optional().default(""),
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
+    mpvType: z.string().optional().default(DEFAULT_MPV_TYPE),
     defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
     qbittorrentPath: z.string().optional().default(""),
     qbittorrentHost: z.string().optional().default(""),

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
 import {
     DEFAULT_DOH_PROVIDER,
+    DEFAULT_MPV_TYPE,
     DEFAULT_TORRENT_PROVIDER,
     getDefaultMpcSocket,
     gettingStartedSchema,
@@ -87,6 +88,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         mpcPath: data.mpcPath || "",
                                         mpvSocket: data.mpvSocket || "",
                                         mpvPath: data.mpvPath || "",
+                                        mpvType: data.mpvType || DEFAULT_MPV_TYPE,
                                     },
                                     discord: {
                                         enableRichPresence: data.enableRichPresence,
@@ -137,6 +139,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 enableAdultContent: true,
                                 enableTorrentStreaming: false,
                                 enableTranscode: false,
+                                mpvType: DEFAULT_MPV_TYPE,
                             }}
                             stackClass="space-y-4"
                         >

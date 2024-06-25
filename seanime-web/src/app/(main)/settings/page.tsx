@@ -128,6 +128,7 @@ export default function Page() {
                                     mpcPath: data.mpcPath || "",
                                     mpvSocket: data.mpvSocket || "",
                                     mpvPath: data.mpvPath || "",
+                                    mpvType: data.mpvType,
                                 },
                                 torrent: {
                                     defaultTorrentClient: data.defaultTorrentClient,
@@ -475,6 +476,16 @@ export default function Page() {
                                                 help="Leave empty to automatically use the 'mpv' command"
                                             />
                                         </div>
+
+                                        <Field.Select
+                                            name="mpvType"
+                                            label="Communication type"
+                                            options={[
+                                                { label: "Socket", value: "socket" },
+                                                { label: "Libmpv", value: "libmpv" },
+                                            ]}
+                                            help="Default is 'socket'. Switch to 'libmpv' if you are experiencing issues."
+                                        />
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>

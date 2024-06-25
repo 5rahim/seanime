@@ -25411,6 +25411,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MpvType",
+        "jsonName": "mpvType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"libmpv\" or \"mpv\""
+        ]
       }
     ],
     "comments": []
@@ -35231,6 +35242,170 @@
     "comments": []
   },
   {
+    "filepath": "../internal/mediaplayers/libmpv/libmpv.go",
+    "filename": "libmpv.go",
+    "name": "LibMpv",
+    "formattedName": "LibMpv",
+    "package": "libmpv",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playback",
+        "jsonName": "playback",
+        "goType": "Playback",
+        "typescriptType": "Playback",
+        "usedStructName": "libmpv.Playback",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelFunc",
+        "jsonName": "cancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "instance",
+        "jsonName": "instance",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackMu",
+        "jsonName": "playbackMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "subscribers",
+        "jsonName": "subscribers",
+        "goType": "map[string]Subscriber",
+        "typescriptType": "Record\u003cstring, Subscriber\u003e",
+        "usedStructName": "libmpv.Subscriber",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Subscribers to the mpv events"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/libmpv/libmpv.go",
+    "filename": "libmpv.go",
+    "name": "Subscriber",
+    "formattedName": "Subscriber",
+    "package": "libmpv",
+    "fields": [
+      {
+        "name": "ClosedCh",
+        "jsonName": "ClosedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/libmpv/libmpv.go",
+    "filename": "libmpv.go",
+    "name": "Playback",
+    "formattedName": "Playback",
+    "package": "libmpv",
+    "fields": [
+      {
+        "name": "Filename",
+        "jsonName": "Filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Position",
+        "jsonName": "Position",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "Duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRunning",
+        "jsonName": "IsRunning",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "Filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -35282,6 +35457,16 @@
         "goType": "mpv.Mpv",
         "typescriptType": "Mpv",
         "usedStructName": "mpv.Mpv",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibMpv",
+        "jsonName": "LibMpv",
+        "goType": "libmpv.LibMpv",
+        "typescriptType": "LibMpv",
+        "usedStructName": "libmpv.LibMpv",
         "required": false,
         "public": true,
         "comments": []
@@ -35411,6 +35596,27 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "LibMpv",
+        "jsonName": "LibMpv",
+        "goType": "libmpv.LibMpv",
+        "typescriptType": "LibMpv",
+        "usedStructName": "libmpv.LibMpv",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpvType",
+        "jsonName": "MpvType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"libmpv\" or \"mpv\""
+        ]
       },
       {
         "name": "WSEventManager",
@@ -36782,6 +36988,44 @@
     ]
   },
   {
+    "filepath": "../internal/mediastream/directplay.go",
+    "filename": "directplay.go",
+    "name": "VideoStream",
+    "formattedName": "Mediastream_VideoStream",
+    "package": "mediastream",
+    "fields": [
+      {
+        "name": "FilePath",
+        "jsonName": "FilePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "File",
+        "jsonName": "File",
+        "goType": "os.File",
+        "typescriptType": "File",
+        "usedStructName": "os.File",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileSize",
+        "jsonName": "FileSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/mediastream/optimizer/optimizer.go",
     "filename": "optimizer.go",
     "name": "Quality",
@@ -37091,6 +37335,15 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "directPlayVideoStreamCache",
+        "jsonName": "directPlayVideoStreamCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
         "public": false,
         "comments": []
       },
@@ -38619,6 +38872,16 @@
         "goType": "filecache.Cacher",
         "typescriptType": "Filecache_Cacher",
         "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
         "comments": []

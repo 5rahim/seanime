@@ -64,6 +64,7 @@ type MediaPlayerSettings struct {
 	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
 	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
 	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
+	MpvType     string `gorm:"column:mpv_type" json:"mpvType"` // "libmpv" or "socket"
 }
 
 type LibrarySettings struct {

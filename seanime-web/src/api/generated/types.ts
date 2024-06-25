@@ -2109,6 +2109,10 @@ export type Models_MediaPlayerSettings = {
     mpcPath: string
     mpvSocket: string
     mpvPath: string
+    /**
+     * "libmpv" or "mpv"
+     */
+    mpvType: string
 }
 
 /**

@@ -2,6 +2,7 @@ package mediaplayer
 
 import (
 	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/mediaplayers/libmpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
@@ -41,6 +42,7 @@ func NewTestRepository(t *testing.T, defaultPlayer string) *Repository {
 		Mpv:            _mpv,
 		VLC:            _vlc,
 		MpcHc:          _mpc,
+		LibMpv:         libmpv.New(logger),
 	})
 
 	return repo

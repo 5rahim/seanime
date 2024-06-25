@@ -22,6 +22,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
+	"github.com/seanime-app/seanime/internal/mediaplayers/libmpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
@@ -65,9 +66,10 @@ type (
 		ListSyncCache           *listsync.Cache
 		AutoDownloader          *autodownloader.AutoDownloader
 		MediaPlayer             struct {
-			VLC   *vlc.VLC
-			MpcHc *mpchc.MpcHc
-			Mpv   *mpv.Mpv
+			VLC    *vlc.VLC
+			MpcHc  *mpchc.MpcHc
+			Mpv    *mpv.Mpv
+			LibMpv *libmpv.LibMpv
 		}
 		MediaPlayerRepository   *mediaplayer.Repository
 		Version                 string
