@@ -110,6 +110,10 @@ func (a *App) initModulesOnce() {
 		FileCacher:     a.FileCacher,
 	})
 
+	a.Cleanups = append(a.Cleanups, func() {
+		a.MediastreamRepository.OnCleanup()
+	})
+
 	// Torrent stream
 
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{

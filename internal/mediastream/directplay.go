@@ -29,32 +29,51 @@ func (r *Repository) ServeFiberDirectPlay(ctx *fiber.Ctx, clientId string) error
 		return errors.New("no file has been loaded")
 	}
 
-	//_, err := os.Stat(mediaContainer.Filepath)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//return ctx.SendFile(mediaContainer.Filepath)
-	return r.streamVideo(ctx, mediaContainer.Filepath)
+	return r.streamVideo(ctx, mediaContainer.Filepath, clientId)
 }
 
-func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string) error {
-	// Open the video file
-	file, err := os.Open(filePath)
-	if err != nil {
-		r.logger.Error().Err(err).Msgf("mediastream: Error opening video file")
-		return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
-	}
-	defer file.Close()
+type VideoStream struct {
+	FilePath string
+	File     *os.File
+	FileSize int64
+}
 
-	// Get the file size
-	fileInfo, err := file.Stat()
-	if err != nil {
-		r.logger.Error().Err(err).Msgf("mediastream: Error getting file information")
-		return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
-	}
+func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string, clientId string) error {
 
-	fileSize := fileInfo.Size()
+	// Check if the file is already open
+	videoStream, found := r.directPlayVideoStreamCache.Get(clientId)
+	if !found || videoStream.FilePath != filePath {
+
+		// If a file was previously opened by the client, close it
+		if videoStream != nil {
+			go func() {
+				_ = videoStream.File.Close()
+				r.directPlayVideoStreamCache.Delete(clientId)
+			}()
+		}
+
+		// Open the video file
+		f, err := os.Open(filePath)
+		if err != nil {
+			r.logger.Error().Err(err).Msgf("mediastream: Error opening video file")
+			return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		}
+
+		// Get the file information
+		info, err := f.Stat()
+		if err != nil {
+			r.logger.Error().Err(err).Msgf("mediastream: Error getting file information")
+			return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		}
+
+		videoStream = &VideoStream{
+			FilePath: filePath,
+			FileSize: info.Size(),
+			File:     f,
+		}
+
+		r.directPlayVideoStreamCache.Set(clientId, videoStream)
+	}
 
 	// Default chunk size for partial content to 5MB
 	const defaultChunkSize int64 = 5242880
@@ -71,8 +90,8 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string) error {
 		}
 
 		// Get the start range
-		start, err = strconv.ParseInt(ranges[0], 10, 64)
-		if err != nil || start >= fileSize {
+		start, err := strconv.ParseInt(ranges[0], 10, 64)
+		if err != nil || start >= videoStream.FileSize {
 			r.logger.Error().Err(err).Msg("mediastream: Error parsing start byte position or start out of range")
 			return ctx.Status(fiber.StatusRequestedRangeNotSatisfiable).SendString("Invalid Range Start")
 		}
@@ -80,13 +99,13 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string) error {
 		// Calculate the end range if not provided
 		if ranges[1] == "" {
 			end = start + defaultChunkSize - 1
-			if end >= fileSize {
-				end = fileSize - 1
+			if end >= videoStream.FileSize {
+				end = videoStream.FileSize - 1
 			}
 		} else {
 			end, err = strconv.ParseInt(ranges[1], 10, 64)
-			if err != nil || end >= fileSize {
-				end = fileSize - 1
+			if err != nil || end >= videoStream.FileSize {
+				end = videoStream.FileSize - 1
 			}
 		}
 
@@ -96,7 +115,7 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string) error {
 			return ctx.Status(fiber.StatusRequestedRangeNotSatisfiable).SendString("Invalid Range End")
 		}
 
-		// If range is well-defined, serve the entire file using SendFile
+		// If range is well-defined, serve the file using SendFile
 		if ranges[1] != "" {
 			return ctx.SendFile(filePath)
 		}
@@ -104,18 +123,25 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string) error {
 		// Setting required response headers for partial content
 		ctx.Set(fiber.HeaderContentType, "video/webm")
 		ctx.Set(fiber.HeaderAcceptRanges, "bytes")
-		ctx.Set(fiber.HeaderContentRange, fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
+		ctx.Set(fiber.HeaderContentRange, fmt.Sprintf("bytes %d-%d/%d", start, end, videoStream.FileSize))
 		ctx.Set(fiber.HeaderContentLength, strconv.FormatInt(end-start+1, 10))
 		ctx.Status(fiber.StatusPartialContent)
 
 		//fmt.Printf("Bytes: %d-%d/%d\n", start, end, fileSize)
 
 		// Seek to the start position
-		_, seekErr := file.Seek(start, io.SeekStart)
+		_, seekErr := videoStream.File.Seek(start, io.SeekStart)
 		if seekErr != nil {
 			r.logger.Error().Err(seekErr).Msg("mediastream: Error seeking to start position")
 			return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 		}
+
+		//remainingBytes := end - start + 1
+		//_, copyErr := io.CopyN(ctx.Response().BodyWriter(), videoStream.File, remainingBytes)
+		//if copyErr != nil && copyErr != io.EOF {
+		//	r.logger.Error().Err(copyErr).Msg("mediastream: Error copying bytes to response")
+		//	return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		//}
 
 		// Copy the specified range of bytes to the response in smaller chunks
 		buffer := make([]byte, 4096)
@@ -123,7 +149,7 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string) error {
 		var totalCopied int64
 
 		for totalCopied < remainingBytes {
-			bytesRead, readErr := file.Read(buffer)
+			bytesRead, readErr := videoStream.File.Read(buffer)
 			if readErr != nil {
 				if readErr != io.EOF {
 					r.logger.Error().Err(readErr).Msg("mediastream: Error reading file")
