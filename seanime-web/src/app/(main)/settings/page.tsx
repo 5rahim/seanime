@@ -169,6 +169,7 @@ export default function Page() {
                             mpcPath: status?.settings?.mediaPlayer?.mpcPath,
                             mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
                             mpvPath: status?.settings?.mediaPlayer?.mpvPath,
+                            mpvType: status?.settings?.mediaPlayer?.mpvType,
                             defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards
                                                                                                                              // compatibility)
                             qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
@@ -477,15 +478,15 @@ export default function Page() {
                                             />
                                         </div>
 
-                                        <Field.Select
-                                            name="mpvType"
-                                            label="Communication type"
-                                            options={[
-                                                { label: "Socket", value: "socket" },
-                                                { label: "Libmpv", value: "libmpv" },
-                                            ]}
-                                            help="Default is 'socket'. Switch to 'libmpv' if you are experiencing issues."
-                                        />
+                                        {/*<Field.Select*/}
+                                        {/*    name="mpvType"*/}
+                                        {/*    label="Communication type"*/}
+                                        {/*    options={[*/}
+                                        {/*        { label: "Socket", value: "socket" },*/}
+                                        {/*        { label: "Libmpv", value: "libmpv" },*/}
+                                        {/*    ]}*/}
+                                        {/*    help="Default is 'socket'. Switch to 'libmpv' if you are experiencing issues."*/}
+                                        {/*/>*/}
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
