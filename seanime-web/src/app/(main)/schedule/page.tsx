@@ -2,6 +2,7 @@
 
 import { useGetMissingEpisodes } from "@/api/hooks/anime_entries.hooks"
 import { MissingEpisodes } from "@/app/(main)/schedule/_components/missing-episodes"
+import { MonthCalendar } from "@/app/(main)/schedule/_components/month-calendar"
 import { ComingUpNext } from "@/app/(main)/schedule/_containers/coming-up-next"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -20,6 +21,7 @@ export default function Page() {
         >
             <MissingEpisodes data={data} isLoading={isLoading} />
             <ComingUpNext />
+            <MonthCalendar />
         </PageWrapper>
     )
 }
