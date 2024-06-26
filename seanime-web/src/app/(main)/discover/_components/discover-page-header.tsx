@@ -153,7 +153,7 @@ export function DiscoverPageHeader() {
                                                 size="md"
                                                 className="text-md w-[14rem] border-opacity-50 text-sm"
                                             >
-                                                Watch now
+                                                {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" : "Watch now"}
                                             </Button>
                                         </Link>
                                     </div>
@@ -177,7 +177,7 @@ export function DiscoverPageHeader() {
                             stiffness: 100,
                         },
                     }}
-                    className="absolute bottom-16 left-8 z-[3] cursor-pointer opacity-80 transition-opacity hover:opacity-100"
+                    className="absolute bottom-16 left-8 z-[3] cursor-pointer opacity-80 transition-opacity hover:opacity-100 ring-brand hover:ring-2 rounded-md"
                     onClick={() => router.push(`/search`)}
                 >
                     <TextInput

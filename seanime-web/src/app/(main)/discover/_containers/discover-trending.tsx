@@ -42,14 +42,20 @@ export function DiscoverTrending() {
     const firedRef = React.useRef(false)
     React.useEffect(() => {
         if (!firedRef.current && data) {
-            setRandomTrendingAtom(data?.Page?.media?.filter(Boolean)[randomNumber])
-            firedRef.current = true
+            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
+            if (random) {
+                setRandomTrendingAtom(random)
+                firedRef.current = true
+            }
         }
     }, [data, randomNumber])
 
     React.useEffect(() => {
         if (firedRef.current) {
-            setRandomTrendingAtom(data?.Page?.media?.filter(Boolean)[randomNumber])
+            const random = data?.Page?.media?.filter(Boolean)[randomNumber]
+            if (random) {
+                setRandomTrendingAtom(random)
+            }
         }
     }, [randomNumber])
 
