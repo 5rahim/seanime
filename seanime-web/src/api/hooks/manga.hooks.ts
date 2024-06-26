@@ -91,12 +91,13 @@ export function useGetMangaEntryPages(variables: Partial<GetMangaEntryPages_Vari
     })
 }
 
-export function useAnilistListManga(variables: AnilistListManga_Variables) {
+export function useAnilistListManga(variables: AnilistListManga_Variables, enabled?: boolean) {
     return useServerQuery<AL_ListManga, AnilistListManga_Variables>({
         endpoint: API_ENDPOINTS.MANGA.AnilistListManga.endpoint,
         method: API_ENDPOINTS.MANGA.AnilistListManga.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.AnilistListManga.key, variables],
         data: variables,
+        enabled: enabled ?? true,
     })
 }
 

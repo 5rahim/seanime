@@ -1,8 +1,10 @@
 "use client"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
+import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Select } from "@/components/ui/select"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Combobox, Dialog, Transition } from "@headlessui/react"
 import { atom } from "jotai"
@@ -22,24 +24,38 @@ export function GlobalSearch() {
     const [inputValue, setInputValue] = React.useState("")
     const debouncedQuery = useDebounce(inputValue, 500)
 
+    const [type, setType] = React.useState<string>("anime")
+
     const router = useRouter()
 
     const [open, setOpen] = useAtom(__globalSearch_isOpenAtom)
 
-    const { data, isLoading, isFetching } = useAnilistListAnime({
+    const { data: animeData, isLoading: animeIsLoading, isFetching: animeIsFetching } = useAnilistListAnime({
         search: debouncedQuery,
         page: 1,
         perPage: 10,
         status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
         sort: ["SEARCH_MATCH"],
-    }, debouncedQuery.length > 0)
+    }, debouncedQuery.length > 0 && type === "anime")
 
-    const media = React.useMemo(() => data?.Page?.media?.filter(Boolean), [data])
+    const { data: mangaData, isLoading: mangaIsLoading, isFetching: mangaIsFetching } = useAnilistListManga({
+        search: debouncedQuery,
+        page: 1,
+        perPage: 10,
+        status: ["FINISHED", "CANCELLED", "NOT_YET_RELEASED", "RELEASING"],
+        sort: ["SEARCH_MATCH"],
+    }, debouncedQuery.length > 0 && type === "manga")
+
+    const isLoading = type === "anime" ? animeIsLoading : mangaIsLoading
+    const isFetching = type === "anime" ? animeIsFetching : mangaIsFetching
+
+    const media = React.useMemo(() => type === "anime" ? animeData?.Page?.media?.filter(Boolean) : mangaData?.Page?.media?.filter(Boolean),
+        [animeData, mangaData, type])
 
     return (
         <>
             <Transition.Root show={open} as={Fragment} afterLeave={() => setInputValue("")} appear>
-                <Dialog as="div" className="relative z-[200]" onClose={setOpen}>
+                <Dialog as="div" className="relative z-50" onClose={setOpen}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -52,7 +68,7 @@ export function GlobalSearch() {
                         <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity backdrop-blur-sm" />
                     </Transition.Child>
 
-                    <div className="fixed inset-0 z-[200] overflow-y-auto p-4 sm:p-6 md:p-20">
+                    <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -80,16 +96,27 @@ export function GlobalSearch() {
                                                     placeholder="Search..."
                                                     onChange={(event) => setInputValue(event.target.value)}
                                                 />
-                                                <Button
-                                                    className="block fixed lg:absolute top-3 right-3 z-1"
-                                                    intent="white"
-                                                    onClick={() => {
-                                                        setOpen(false)
-                                                        router.push("/search")
-                                                    }}
-                                                >
-                                                    Advanced search
-                                                </Button>
+                                                {/*<Button*/}
+                                                {/*    className="block fixed lg:absolute top-3 right-3 z-1"*/}
+                                                {/*    intent="white"*/}
+                                                {/*    onClick={() => {*/}
+                                                {/*        setOpen(false)*/}
+                                                {/*        router.push("/search")*/}
+                                                {/*    }}*/}
+                                                {/*>*/}
+                                                {/*    Advanced search*/}
+                                                {/*</Button>*/}
+                                                <div className="block fixed lg:absolute top-3 right-3 z-1">
+                                                    <Select
+                                                        fieldClass="w-fit"
+                                                        value={type}
+                                                        onValueChange={(value) => setType(value)}
+                                                        options={[
+                                                            { value: "anime", label: "Anime" },
+                                                            { value: "manga", label: "Manga" },
+                                                        ]}
+                                                    />
+                                                </div>
                                             </div>
 
                                             {(!!media && media.length > 0) && (
@@ -110,7 +137,11 @@ export function GlobalSearch() {
                                                                     key={item.id}
                                                                     value={item}
                                                                     onClick={() => {
-                                                                        router.push(`/entry?id=${item.id}`)
+                                                                        if (type === "anime") {
+                                                                            router.push(`/entry?id=${item.id}`)
+                                                                        } else {
+                                                                            router.push(`/manga/entry?id=${item.id}`)
+                                                                        }
                                                                         setOpen(false)
                                                                     }}
                                                                     className={({ active }) =>
@@ -181,7 +212,9 @@ export function GlobalSearch() {
                                                                 </p>
                                                             </div>
                                                             <Link
-                                                                href={`/entry?id=${activeOption.id}`}
+                                                                href={type === "anime"
+                                                                    ? `/entry?id=${activeOption.id}`
+                                                                    : `/manga/entry?id=${activeOption.id}`}
                                                                 onClick={() => setOpen(false)}
                                                             >
                                                                 <Button
