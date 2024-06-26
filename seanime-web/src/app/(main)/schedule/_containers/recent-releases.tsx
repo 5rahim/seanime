@@ -27,8 +27,8 @@ export function RecentReleases() {
     if (!media?.length) return null
 
     return (
-        <AppLayoutStack>
-            <h2>Recent releases</h2>
+        <AppLayoutStack className="pb-6">
+            <h2>Recent episodes</h2>
             <Carousel
                 className="w-full max-w-full"
                 gap="md"

@@ -149,7 +149,7 @@ export function DiscoverPageHeader() {
                                             href={`/entry?id=${randomTrending.id}`}
                                         >
                                             <Button
-                                                intent="primary-outline"
+                                                intent="white-outline"
                                                 size="md"
                                                 className="text-md w-[14rem] border-opacity-50 text-sm"
                                             >

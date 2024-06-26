@@ -4,6 +4,7 @@ import { DiscoverPastSeason, DiscoverPopular } from "@/app/(main)/discover/_cont
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-trending-movies"
 import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-upcoming"
+import { RecentReleases } from "@/app/(main)/schedule/_containers/recent-releases"
 import { motion } from "framer-motion"
 import React from "react"
 
@@ -24,6 +25,7 @@ export default function Page() {
                     <h2>Trending this season</h2>
                     <DiscoverTrending />
                 </div>
+                <RecentReleases />
                 <div className="space-y-2 z-[5] relative">
                     <h2>Highest rated last season</h2>
                     <DiscoverPastSeason />
