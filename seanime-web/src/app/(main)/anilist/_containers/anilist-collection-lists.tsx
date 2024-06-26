@@ -1,3 +1,4 @@
+import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useHandleUserAnilistLists } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
 import { Separator } from "@/components/ui/separator"
@@ -6,7 +7,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
-import React, { startTransition, useState, useTransition } from "react"
+import React, { useState } from "react"
 import { FiSearch } from "react-icons/fi"
 
 const selectedIndexAtom = atom("current")
@@ -19,7 +20,6 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
     const {} = props
 
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
-    const [pending, startTransition] = useTransition()
     const searchInput = useAtomValue(watchListSearchInputAtom)
     const debouncedSearchInput = useDebounce(searchInput, 500)
 
@@ -32,6 +32,26 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         customLists,
     } = useHandleUserAnilistLists(debouncedSearchInput)
 
+    React.useEffect(() => {
+        const lists = {
+            current: currentList,
+            planning: planningList,
+            paused: pausedList,
+            completed: completedList,
+            dropped: droppedList,
+        } as Record<string, AL_AnimeCollection_MediaListCollection_Lists | undefined>
+        if (lists[selectedIndex]?.entries?.length === 0) {
+            React.startTransition(() => {
+                if (!!currentList?.entries && currentList?.entries?.length > 0) setSelectedIndex("current")
+                if (!!planningList?.entries && planningList?.entries?.length > 0) setSelectedIndex("planning")
+                if (!!pausedList?.entries && pausedList?.entries?.length > 0) setSelectedIndex("paused")
+                if (!!completedList?.entries && completedList?.entries?.length > 0) setSelectedIndex("completed")
+                if (!!droppedList?.entries && droppedList?.entries?.length > 0) setSelectedIndex("dropped")
+            })
+        }
+
+    }, [selectedIndex, debouncedSearchInput])
+
     return (
         <>
             <SearchInput />
@@ -41,7 +61,7 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
                 listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"
                 value={selectedIndex}
                 onValueChange={value => {
-                    startTransition(() => {
+                    React.startTransition(() => {
                         setSelectedIndex(value)
                     })
                 }}
@@ -122,9 +142,7 @@ const SearchInput = () => {
                 value={inputValue}
                 onValueChange={v => {
                     setInputValue(v)
-                    startTransition(() => {
-                        setter(v)
-                    })
+                    setter(v)
                 }}
             />
         </div>
