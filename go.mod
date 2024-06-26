@@ -12,11 +12,11 @@ require (
 	github.com/anacrolix/torrent v1.56.1
 	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/cli/browser v1.3.0
-	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.14.1
 	github.com/fsnotify/fsnotify v1.7.0
+	github.com/gen2brain/go-mpv v0.2.3
 	github.com/glebarez/sqlite v1.11.0
 	github.com/goccy/go-json v0.10.3
 	github.com/gocolly/colly v1.2.0
@@ -35,7 +35,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/xfrr/goffmpeg v1.0.0
-	golang.org/x/image v0.17.0
+	golang.org/x/image v0.18.0
 	golang.org/x/net v0.25.0
 	golang.org/x/term v0.20.0
 	golang.org/x/text v0.16.0
@@ -74,11 +74,9 @@ require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/charmbracelet/x/ansi v0.1.1 // indirect
-	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8 // indirect
 	github.com/ebitengine/purego v0.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/fasthttp/websocket v1.5.8 // indirect
-	github.com/gen2brain/go-mpv v0.2.3 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-llsqlite/adapter v0.0.0-20230927005056-7f5ce7f0c916 // indirect
 	github.com/go-llsqlite/crawshaw v0.5.2-0.20240425034140-f30eb7704568 // indirect
