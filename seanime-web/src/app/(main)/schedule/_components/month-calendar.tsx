@@ -138,8 +138,9 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                     key={day.date}
                                     className={cn(
                                         day.isCurrentMonth ? "bg-gray-950" : "opacity-30",
-                                        "relative py-2 px-3 lg:min-h-20 overflow-hidden",
+                                        "relative py-2 px-3 lg:min-h-28 overflow-hidden",
                                         // "hover:bg-gray-900",
+                                        "flex flex-col justify-between",
                                     )}
                                 >
                                     {day.events[0] && (
