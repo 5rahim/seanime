@@ -1,8 +1,45 @@
-import { AL_AnimeCollection_MediaListCollection_Lists_Entries, AL_MediaListStatus } from "@/api/generated/types"
+import {
+    AL_AnimeCollection_MediaListCollection_Lists_Entries,
+    AL_MediaFormat,
+    AL_MediaListStatus,
+    AL_MediaSeason,
+    AL_MediaStatus,
+} from "@/api/generated/types"
 import { useGetRawAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { atomWithImmer } from "jotai-immer"
 import sortBy from "lodash/sortBy"
 import React, { useCallback } from "react"
+
+type Sorting = "START_DATE" | "START_DATE_DESC" | "END_DATE" | "END_DATE_DESC" | "SCORE" | "SCORE_DESC" | "RELEASE_DATE" | "RELEASE_DATE_DESC"
+
+type Params = {
+    sorting: Sorting
+    genre: string[] | null
+    status: AL_MediaStatus[] | null
+    format: AL_MediaFormat | null
+    season: AL_MediaSeason | null
+    year: string | null
+    isAdult: boolean
+}
+
+export const __myListsSearch_paramsAtom = atomWithImmer<Params>({
+    sorting: "SCORE_DESC",
+    genre: null,
+    status: null,
+    format: null,
+    season: null,
+    year: null,
+    isAdult: false,
+})
+
+function __myListsSearch_getParamValue<T extends any>(value: T | ""): any {
+    if (value === "") return undefined
+    if (Array.isArray(value) && value.filter(Boolean).length === 0) return undefined
+    if (typeof value === "string" && !isNaN(parseInt(value))) return Number(value)
+    if (value === null) return undefined
+    return value
+}
 
 export function useHandleUserAnilistLists(debouncedSearchInput: string) {
 

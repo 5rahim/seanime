@@ -1,14 +1,15 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
-import { useHandleUserAnilistLists } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
+import { __myListsSearch_paramsAtom, useHandleUserAnilistLists } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { atom } from "jotai/index"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useState } from "react"
 import { FiSearch } from "react-icons/fi"
+import { useMount } from "react-use"
 
 const selectedIndexAtom = atom("current")
 const watchListSearchInputAtom = atom<string>("")
@@ -32,6 +33,20 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         customLists,
     } = useHandleUserAnilistLists(debouncedSearchInput)
 
+    const setParams = useSetAtom(__myListsSearch_paramsAtom)
+
+    useMount(() => {
+        setParams({
+            sorting: "SCORE_DESC",
+            genre: null,
+            status: null,
+            format: null,
+            season: null,
+            year: null,
+            isAdult: false,
+        })
+    })
+
     React.useEffect(() => {
         const lists = {
             current: currentList,
@@ -42,14 +57,30 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         } as Record<string, AL_AnimeCollection_MediaListCollection_Lists | undefined>
         if (lists[selectedIndex]?.entries?.length === 0) {
             React.startTransition(() => {
-                if (!!currentList?.entries && currentList?.entries?.length > 0) setSelectedIndex("current")
-                if (!!planningList?.entries && planningList?.entries?.length > 0) setSelectedIndex("planning")
-                if (!!pausedList?.entries && pausedList?.entries?.length > 0) setSelectedIndex("paused")
-                if (!!completedList?.entries && completedList?.entries?.length > 0) setSelectedIndex("completed")
-                if (!!droppedList?.entries && droppedList?.entries?.length > 0) setSelectedIndex("dropped")
+                (() => {
+                    if (!!currentList?.entries && currentList?.entries?.length > 0) {
+                        setSelectedIndex("current")
+                        return
+                    }
+                    if (!!planningList?.entries && planningList?.entries?.length > 0) {
+                        setSelectedIndex("planning")
+                        return
+                    }
+                    if (!!pausedList?.entries && pausedList?.entries?.length > 0) {
+                        setSelectedIndex("paused")
+                        return
+                    }
+                    if (!!completedList?.entries && completedList?.entries?.length > 0) {
+                        setSelectedIndex("completed")
+                        return
+                    }
+                    if (!!droppedList?.entries && droppedList?.entries?.length > 0) {
+                        setSelectedIndex("dropped")
+                        return
+                    }
+                })()
             })
         }
-
     }, [selectedIndex, debouncedSearchInput])
 
     return (
