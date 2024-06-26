@@ -34,8 +34,8 @@ export const MYLISTS_SORTING_OPTIONS = [
     { label: "Oldest start date", value: "START_DATE" },
     { label: "Recent completion date", value: "END_DATE_DESC" },
     { label: "Oldest completion date", value: "END_DATE" },
-    // { label: "Oldest release", value: "RELEASE_DATE" },
-    // { label: "Released recently", value: "RELEASE_DATE_DESC" },
+    { label: "Oldest release", value: "RELEASE_DATE" },
+    { label: "Released recently", value: "RELEASE_DATE_DESC" },
 ]
 
 type Params = {
@@ -90,11 +90,38 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
         return lists?.map(obj => {
             if (!obj) return undefined
             let arr = structuredClone(obj?.entries)
+
+            // Filter by isAdult
+            if (!!arr && params.isAdult) arr = arr.filter(n => n.media?.isAdult)
+
+            // Filter by format
+            if (!!arr && params.format) arr = arr.filter(n => n.media?.format === params.format)
+
+            // Filter by season
+            if (!!arr && params.season) arr = arr.filter(n => n.media?.season === params.season)
+
+            // Filter by status
+            if (!!arr && params.status) arr = arr.filter(n => n.media?.status === params.status)
+
+            // Filter by year
+            if (!!arr && params.year) arr = arr.filter(n => n.media?.startDate?.year === Number(params.year))
+
             // Sort by name
             arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+
+            // Sort by release date
+            if (__myListsSearch_getParamValue(params.sorting) === "RELEASE_DATE" || __myListsSearch_getParamValue(params.sorting) === "RELEASE_DATE_DESC") {
+                arr = obj.entries?.filter(n => n.media?.startDate && !!n.media.startDate.year && !!n.media.startDate.month)
+            }
+            if (__myListsSearch_getParamValue(params.sorting) === "RELEASE_DATE") arr = sortBy(arr,
+                n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1))
+            if (__myListsSearch_getParamValue(params.sorting) === "RELEASE_DATE_DESC") arr = sortBy(arr,
+                n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1)).reverse()
+
             // Sort by score
             if (__myListsSearch_getParamValue(params.sorting) === "SCORE") arr = sortBy(arr, n => n?.score)
             if (__myListsSearch_getParamValue(params.sorting) === "SCORE_DESC") arr = sortBy(arr, n => n?.score).reverse()
+
             // Sort by start date
             if (__myListsSearch_getParamValue(params.sorting) === "START_DATE" || __myListsSearch_getParamValue(params.sorting) === "START_DATE_DESC") {
                 arr = obj.entries?.filter(n => n.startedAt && !!n.startedAt.year && !!n.startedAt.month && !!n.startedAt.day)
@@ -103,6 +130,7 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
                 n => new Date(n?.startedAt?.year!, n?.startedAt?.month! - 1, n?.startedAt?.day))
             if (__myListsSearch_getParamValue(params.sorting) === "START_DATE_DESC") arr = sortBy(arr,
                 n => new Date(n?.startedAt?.year!, n?.startedAt?.month! - 1, n?.startedAt?.day)).reverse()
+
             // Sort by end date
             if (__myListsSearch_getParamValue(params.sorting) === "END_DATE" || __myListsSearch_getParamValue(params.sorting) === "END_DATE_DESC") {
                 arr = obj.entries?.filter(n => n.completedAt && !!n.completedAt.year && !!n.completedAt.month && !!n.completedAt.day)
@@ -116,17 +144,8 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
             if (__myListsSearch_getParamValue(params.sorting) === "PROGRESS") arr = sortBy(arr, n => n?.progress || 0)
             if (__myListsSearch_getParamValue(params.sorting) === "PROGRESS_DESC") arr = sortBy(arr, n => n?.progress || 0).reverse()
 
-            // Filter by format
-            if (!!arr && params.format) arr = arr.filter(n => n.media?.format === params.format)
 
-            // Filter by season
-            if (!!arr && params.season) arr = arr.filter(n => n.media?.season === params.season)
-
-            // Filter by status
-            if (!!arr && params.status) arr = arr.filter(n => n.media?.status === params.status)
-
-            // Filter by isAdult
-            if (!!arr && params.isAdult) arr = arr.filter(n => n.media?.isAdult)
+            // Filter by year
 
             return {
                 ...obj,

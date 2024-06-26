@@ -14,13 +14,14 @@ import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
+import { getYear } from "date-fns"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useState } from "react"
 import { BiTrash } from "react-icons/bi"
 import { FaSortAmountDown } from "react-icons/fa"
 import { FiSearch } from "react-icons/fi"
-import { LuLeaf } from "react-icons/lu"
+import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
 import { useMount } from "react-use"
@@ -277,7 +278,7 @@ export function SearchOptions({
                     />
                 </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-5">
                 {/*<Combobox*/}
                 {/*    multiple*/}
                 {/*    leftAddon={<TbSwords />}*/}
@@ -322,36 +323,21 @@ export function SearchOptions({
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<LuLeaf />}
-                    label="Season"
-                    placeholder="All seasons"
+                    leftAddon={<LuCalendar />}
+                    label="Year" placeholder="Timeless"
                     className="w-full"
-                    fieldClass="w-full flex items-center"
-                    inputContainerClass="w-full"
-                    options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
-                    value={params.season || ""}
+                    fieldClass="w-full"
+                    options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx).map(year => ({
+                        value: String(year),
+                        label: String(year),
+                    }))}
+                    value={params.year || ""}
                     onValueChange={v => setParams(draft => {
-                        draft.season = v as any
+                        draft.year = v as any
                         return
                     })}
                     fieldLabelClass="hidden"
                 />
-                {/*<Select*/}
-                {/*    leftAddon={<LuCalendar />}*/}
-                {/*    label="Year" placeholder="Timeless"*/}
-                {/*    className="w-full"*/}
-                {/*    fieldClass="w-full"*/}
-                {/*    options={[...Array(70)].map((v, idx) => getYear(new Date()) - idx).map(year => ({*/}
-                {/*        value: String(year),*/}
-                {/*        label: String(year),*/}
-                {/*    }))}*/}
-                {/*    value={params.year || ""}*/}
-                {/*    onValueChange={v => setParams(draft => {*/}
-                {/*        draft.year = v as any*/}
-                {/*        return*/}
-                {/*    })}*/}
-                {/*    fieldLabelClass="hidden"*/}
-                {/*/>*/}
                 <Select
                     leftAddon={<RiSignalTowerLine />}
                     label="Status" placeholder="All statuses"
@@ -363,6 +349,21 @@ export function SearchOptions({
                     value={params.status || ""}
                     onValueChange={v => setParams(draft => {
                         draft.status = v as any
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />
+                <Select
+                    leftAddon={<LuLeaf />}
+                    label="Season"
+                    placeholder="All seasons"
+                    className="w-full"
+                    fieldClass="w-full flex items-center"
+                    inputContainerClass="w-full"
+                    options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
+                    value={params.season || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.season = v as any
                         return
                     })}
                     fieldLabelClass="hidden"
