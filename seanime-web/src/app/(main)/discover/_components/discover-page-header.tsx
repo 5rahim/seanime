@@ -1,12 +1,13 @@
 import { AL_BaseMedia } from "@/api/generated/types"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
+import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
-import { useSetAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -20,6 +21,8 @@ const MotionImage = motion(Image)
 export function DiscoverPageHeader() {
 
     const router = useRouter()
+
+    const [pageType, setPageType] = useAtom(__discord_pageTypeAtom)
 
     const randomTrending = useAtomValue(__discover_randomTrendingAtom)
     const isTransitioning = useAtomValue(__discover_headerIsTransitioningAtom)
@@ -105,7 +108,7 @@ export function DiscoverPageHeader() {
                             className="absolute bottom-[8rem] right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block"
                         >
                             <div
-                                className="flex flex-row-reverse relative items-start gap-6 p-6 pr-3 w-fit overflow-hidden"
+                                className="flex flex-row-reverse items-center relative gap-6 p-6 pr-3 w-fit overflow-hidden"
                                 onMouseEnter={() => setHoveringHeader(true)}
                                 onMouseLeave={() => setHoveringHeader(false)}
                             >
@@ -131,29 +134,33 @@ export function DiscoverPageHeader() {
                                     {!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode &&
                                         <div className="flex items-center justify-center max-w-md gap-4">
                                             {!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode?.airingAt &&
-                                            <p className="text-lg text-brand-200 inline-flex items-center gap-1.5"><RiSignalTowerLine /> Airing now
-                                            </p>}
+                                                <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
+                                                    <RiSignalTowerLine /> Releasing now
+                                                </p>}
                                             {(!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode || !!(randomTrending as AL_BaseMedia).episodes) && (
-                                            <p className="text-lg font-semibold">
-                                                {!!(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode ?
-                                                    <span>{(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode} episodes</span> :
-                                                    <span>{(randomTrending as AL_BaseMedia).episodes} episodes</span>}
-                                            </p>
-                                        )}
+                                                <p className="text-lg font-semibold">
+                                                    {!!(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode ?
+                                                        <span>{(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode} episodes</span> :
+                                                        <span>{(randomTrending as AL_BaseMedia).episodes} episodes</span>}
+                                                </p>
+                                            )}
                                         </div>}
                                     <div className="pt-2">
                                         <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
                                             /(<([^>]+)>)/ig,
                                             "")}</ScrollArea>
                                         <Link
-                                            href={`/entry?id=${randomTrending.id}`}
+                                            href={pageType === "anime"
+                                                ? `/entry?id=${randomTrending.id}`
+                                                : `/manga/entry?id=${randomTrending.id}`}
                                         >
                                             <Button
                                                 intent="white-outline"
                                                 size="md"
                                                 className="text-md w-[14rem] border-opacity-50 text-sm"
                                             >
-                                                {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" : "See now"}
+                                                {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" :
+                                                    pageType === "anime" ? "Watch now" : "Read now"}
                                             </Button>
                                         </Link>
                                     </div>

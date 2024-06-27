@@ -120,18 +120,18 @@ export function MainSidebar() {
                                     intent="alert-solid"
                                 >{missingEpisodeCount}</Badge> : undefined,
                             },
-                            {
-                                iconType: BiCollection,
-                                name: "My lists",
-                                href: "/anilist",
-                                isCurrent: pathname === "/anilist",
-                            },
                             ...[serverStatus?.settings?.library?.enableManga && {
                                 iconType: FaBookReader,
                                 name: "Manga",
                                 href: "/manga",
                                 isCurrent: pathname.startsWith("/manga"),
                             }].filter(Boolean) as any,
+                            {
+                                iconType: BiCollection,
+                                name: "My lists",
+                                href: "/anilist",
+                                isCurrent: pathname === "/anilist",
+                            },
                             {
                                 iconType: BiChart,
                                 name: "Discover",
