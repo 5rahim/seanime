@@ -1,22 +1,30 @@
-import { AL_BaseManga, AL_BaseMedia } from "@/api/generated/types"
+import { useAnilistListManga } from "@/api/hooks/manga.hooks"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
-import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_lib/handle-discover-queries"
+import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { StaticTabs } from "@/components/ui/tabs"
-import { atom } from "jotai"
+import { TextInput } from "@/components/ui/text-input"
+import { useDebounce } from "@/hooks/use-debounce"
+import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useEffect, useState } from "react"
+import { FiSearch } from "react-icons/fi"
 
-export const __discover_randomTrendingAtom = atom<AL_BaseMedia | AL_BaseManga | undefined>(undefined)
-export const __discover_headerIsTransitioningAtom = atom(false)
+const trendingGenresAtom = atom<string[]>([])
 
-export function DiscoverTrending() {
+export function DiscoverTrendingManga() {
+    const genres = useAtomValue(trendingGenresAtom)
+    const { data, isLoading } = useAnilistListManga({
+        page: 1,
+        perPage: 20,
+        sort: ["TRENDING_DESC"],
+        genres: genres.length > 0 ? genres : undefined,
+    })
 
-    const { data, isLoading } = useDiscoverTrendingAnime()
     const setRandomTrendingAtom = useSetAtom(__discover_randomTrendingAtom)
     const isHoveringHeader = useAtomValue(__discover_hoveringHeaderAtom)
     const setHeaderIsTransitioning = useSetAtom(__discover_headerIsTransitioningAtom)
@@ -62,50 +70,36 @@ export function DiscoverTrending() {
     return (
         <Carousel
             className="w-full max-w-full"
-            gap="xl"
+            gap="md"
             opts={{
                 align: "start",
             }}
             autoScroll
         >
             <GenreSelector />
-            {/*<CarouselMasks />*/}
             <CarouselDotButtons />
             <CarouselContent className="px-6">
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-
                         <MediaEntryCard
                             key={media.id}
                             media={media}
-                            showLibraryBadge
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
-                            showTrailer
-                            type="anime"
+                            type="manga"
                         />
                     )
                 }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )
-
 }
 
-type GenreSelectorProps = {
-    children?: React.ReactNode
-}
+function GenreSelector() {
 
-function GenreSelector(props: GenreSelectorProps) {
-
-    const {
-        children,
-        ...rest
-    } = props
-
-    const [selectedGenre, setSelectedGenre] = useAtom(__discover_trendingGenresAtom)
+    const [selectedGenre, setSelectedGenre] = useAtom(trendingGenresAtom)
 
     return (
-        <HorizontalDraggableScroll className="w-full scroll-pb-1 pt-4">
+        <HorizontalDraggableScroll className="w-full scroll-pb-1 pt-0">
             <StaticTabs
                 className="px-2 overflow-visible py-4"
                 triggerClass="text-base rounded-md ring-2 ring-transparent data-[current=true]:ring-brand-500 data-[current=true]:text-brand-300"
@@ -126,3 +120,53 @@ function GenreSelector(props: GenreSelectorProps) {
     )
 }
 
+const mangaSearchInputAtom = atom<string>("")
+
+export function DiscoverMangaSearchBar() {
+    const [searchInput, setSearchInput] = useAtom(mangaSearchInputAtom)
+    const search = useDebounce(searchInput, 500)
+
+    const { data, isLoading, isFetching } = useAnilistListManga({
+        page: 1,
+        perPage: 10,
+        search: search,
+    })
+
+    return (
+        <div className="space-y-4">
+            <div className="container">
+                <TextInput
+                    leftIcon={<FiSearch />}
+                    value={searchInput}
+                    onValueChange={v => {
+                        setSearchInput(v)
+                    }}
+                    className="rounded-full"
+                    placeholder="Search manga"
+                />
+            </div>
+
+            {!!search && <Carousel
+                className="w-full max-w-full"
+                gap="md"
+                opts={{
+                    align: "start",
+                }}
+                autoScroll
+            >
+                <CarouselContent className="px-6">
+                    {!(isLoading || isFetching) ? data?.Page?.media?.filter(Boolean).map(media => {
+                        return (
+                            <MediaEntryCard
+                                key={media.id}
+                                media={media}
+                                containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
+                                type="manga"
+                            />
+                        )
+                    }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
+                </CarouselContent>
+            </Carousel>}
+        </div>
+    )
+}
