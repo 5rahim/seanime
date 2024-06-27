@@ -2,6 +2,7 @@ import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Tooltip } from "@/components/ui/tooltip"
 import { addMonths, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
@@ -77,6 +78,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                         datetime: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
                         href: `/entry?id=${item.id}`,
                         image: item.bannerImage ?? item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium,
+                        episode: item.nextAiringEpisode?.episode || 1,
                     }
                 }),
             })
@@ -138,7 +140,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                     key={day.date}
                                     className={cn(
                                         day.isCurrentMonth ? "bg-gray-950" : "opacity-30",
-                                        "relative py-2 px-3 lg:min-h-28 overflow-hidden",
+                                        "relative py-2 px-3 lg:min-h-24 overflow-hidden",
                                         // "hover:bg-gray-900",
                                         "flex flex-col justify-between",
                                     )}
@@ -155,7 +157,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                         dateTime={day.date}
                                         className={
                                             day.isToday
-                                                ? "flex h-7 w-7 text-xs items-center justify-center rounded-full bg-brand font-semibold text-white"
+                                                ? "z-[1] relative flex h-7 w-7 text-xs items-center justify-center rounded-full bg-brand font-semibold text-white"
                                                 : "text-xs md:text-base"
                                         }
                                     >
@@ -164,19 +166,25 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                     {day.events.length > 0 && (
                                         <ol className="mt-2 relative z-[1]">
                                             {day.events.slice(0, 4).map((event) => (
-                                                <li key={event.id}>
-                                                    <Link className="group flex" href={event.href}>
-                                                        <p className="flex-auto truncate font-medium text-gray-100 group-hover:text-gray-200">
-                                                            {event.name}
-                                                        </p>
-                                                        <time
-                                                            dateTime={event.datetime}
-                                                            className="ml-3 hidden flex-none text-gray-500 group-hover:text-gray-200 xl:block"
-                                                        >
-                                                            {event.time}
-                                                        </time>
-                                                    </Link>
-                                                </li>
+                                                <Tooltip
+                                                    trigger={
+                                                        <li key={event.id}>
+                                                            <Link className="group flex" href={event.href}>
+                                                                <p className="flex-auto truncate font-medium text-gray-100 group-hover:text-gray-200">
+                                                                    {event.name}
+                                                                </p>
+                                                                <time
+                                                                    dateTime={event.datetime}
+                                                                    className="ml-3 hidden flex-none text-gray-500 group-hover:text-gray-200 xl:block"
+                                                                >
+                                                                    {event.time}
+                                                                </time>
+                                                            </Link>
+                                                        </li>
+                                                    }
+                                                >
+                                                    Episode {event.episode}
+                                                </Tooltip>
                                             ))}
                                             {day.events.length > 2 && <li className="text-gray-500">+ {day.events.length - 2} more</li>}
                                         </ol>

@@ -1,6 +1,7 @@
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { MonthCalendar } from "@/app/(main)/schedule/_components/month-calendar"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow } from "date-fns"
@@ -34,8 +35,13 @@ export function ComingUpNext() {
 
     return (
         <AppLayoutStack>
-            <h2>Coming up next</h2>
+            <h2>Release schedule</h2>
             <p className="text-[--muted]">Based on your anime list</p>
+
+            <MonthCalendar />
+
+            <h2>Coming up next</h2>
+
             <Carousel
                 className="w-full max-w-full"
                 gap="md"
