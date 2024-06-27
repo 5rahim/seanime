@@ -97,6 +97,7 @@ export type AL_BaseManga = {
     countryOfOrigin?: string
     meanScore?: number
     description?: string
+    genres?: Array<string>
     title?: AL_BaseManga_Title
     coverImage?: AL_BaseManga_CoverImage
     startDate?: AL_BaseManga_StartDate
@@ -189,6 +190,7 @@ export type AL_BaseMedia = {
     countryOfOrigin?: string
     meanScore?: number
     description?: string
+    genres?: Array<string>
     trailer?: AL_BaseMedia_Trailer
     title?: AL_BaseMedia_Title
     coverImage?: AL_BaseMedia_CoverImage
@@ -2110,7 +2112,7 @@ export type Models_MediaPlayerSettings = {
     mpvSocket: string
     mpvPath: string
     /**
-     * "libmpv" or "mpv"
+     * "libmpv" or "socket"
      */
     mpvType: string
 }

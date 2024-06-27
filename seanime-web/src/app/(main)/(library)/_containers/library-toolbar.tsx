@@ -7,12 +7,13 @@ import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/pl
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
+import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Tooltip } from "@/components/ui/tooltip"
-import { useSetAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
@@ -28,11 +29,18 @@ export type LibraryToolbarProps = {
     unmatchedLocalFiles: Anime_LocalFile[]
     unknownGroups: Anime_UnknownGroup[]
     isLoading: boolean
+    hasScanned: boolean
 }
 
 export function LibraryToolbar(props: LibraryToolbarProps) {
 
-    const { collectionList, ignoredLocalFiles, unmatchedLocalFiles, unknownGroups } = props
+    const {
+        collectionList,
+        ignoredLocalFiles,
+        unmatchedLocalFiles,
+        unknownGroups,
+        hasScanned,
+    } = props
 
     const setBulkActionIsOpen = useSetAtom(__bulkAction_modalAtomIsOpen)
 
@@ -42,15 +50,25 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const setUnknownMediaManagerOpen = useSetAtom(__unknownMedia_drawerIsOpen)
     const setPlaylistsModalOpen = useSetAtom(__playlists_modalOpenAtom)
 
-    const hasScanned = collectionList.some(n => !!n.entries?.length)
+    const [libraryView, setLibraryView] = useAtom(__library_viewAtom)
 
     const { mutate: openInExplorer } = useOpenInExplorer()
 
     return (
-        <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[4]">
+        <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]">
             <div className="flex flex-1"></div>
             {(!!status?.settings?.library?.libraryPath && hasScanned) && (
                 <>
+                    <Tooltip
+                        trigger={<IconButton
+                            intent={libraryView === "base" ? "white-subtle" : "primary"}
+                            icon={<IoLibrary className="text-2xl" />}
+                            onClick={() => setLibraryView(p => p === "detailed" ? "base" : "detailed")}
+                        />}
+                    >
+                        Switch view
+                    </Tooltip>
+
                     <Tooltip
                         trigger={<IconButton
                             intent={"white-subtle"}
@@ -61,11 +79,6 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                     <PlayRandomEpisodeButton />
 
-                    <IconButton
-                        intent={"white-subtle"}
-                        icon={<IoLibrary className="text-2xl" />}
-                        // onClick={() => setPlaylistsModalOpen(true)}
-                    />
 
                     <Button
                         intent={hasScanned ? "primary-subtle" : "primary"}

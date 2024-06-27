@@ -196,6 +196,15 @@
         "comments": []
       },
       {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Title",
         "jsonName": "title",
         "goType": "BaseManga_Title",
@@ -770,6 +779,15 @@
         "jsonName": "description",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -25420,7 +25438,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " \"libmpv\" or \"mpv\""
+          " \"libmpv\" or \"socket\""
         ]
       }
     ],
@@ -35408,6 +35426,23 @@
   {
     "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
     "filename": "repository.go",
+    "name": "MpvType",
+    "formattedName": "MpvType",
+    "package": "mediaplayer",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"libmpv\"",
+        "\"mpv\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
+    "filename": "repository.go",
     "name": "Repository",
     "formattedName": "Repository",
     "package": "mediaplayer",
@@ -35468,6 +35503,16 @@
         "typescriptType": "LibMpv",
         "usedStructName": "libmpv.LibMpv",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpvType",
+        "jsonName": "MpvType",
+        "goType": "MpvType",
+        "typescriptType": "MpvType",
+        "usedStructName": "mediaplayer.MpvType",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -35614,9 +35659,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " \"libmpv\" or \"mpv\""
-        ]
+        "comments": []
       },
       {
         "name": "WSEventManager",

@@ -267,6 +267,7 @@ fragment baseMedia on Media {
   countryOfOrigin
   meanScore
   description
+  genres
   trailer {
     id
     site

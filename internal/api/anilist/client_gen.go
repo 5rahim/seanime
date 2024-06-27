@@ -57,6 +57,7 @@ type BaseManga struct {
 	CountryOfOrigin *string               "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
 	MeanScore       *int                  "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description     *string               "json:\"description,omitempty\" graphql:\"description\""
+	Genres          []*string             "json:\"genres,omitempty\" graphql:\"genres\""
 	Title           *BaseManga_Title      "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage      *BaseManga_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate       *BaseManga_StartDate  "json:\"startDate,omitempty\" graphql:\"startDate\""
@@ -153,6 +154,12 @@ func (t *BaseManga) GetDescription() *string {
 		t = &BaseManga{}
 	}
 	return t.Description
+}
+func (t *BaseManga) GetGenres() []*string {
+	if t == nil {
+		t = &BaseManga{}
+	}
+	return t.Genres
 }
 func (t *BaseManga) GetTitle() *BaseManga_Title {
 	if t == nil {
@@ -481,6 +488,7 @@ type BaseMedia struct {
 	CountryOfOrigin   *string                      "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
 	MeanScore         *int                         "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description       *string                      "json:\"description,omitempty\" graphql:\"description\""
+	Genres            []*string                    "json:\"genres,omitempty\" graphql:\"genres\""
 	Trailer           *BaseMedia_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *BaseMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BaseMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
@@ -573,6 +581,12 @@ func (t *BaseMedia) GetDescription() *string {
 		t = &BaseMedia{}
 	}
 	return t.Description
+}
+func (t *BaseMedia) GetGenres() []*string {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.Genres
 }
 func (t *BaseMedia) GetTrailer() *BaseMedia_Trailer {
 	if t == nil {
@@ -7090,6 +7104,7 @@ fragment baseManga on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	title {
 		userPreferred
 		romaji
@@ -7205,6 +7220,7 @@ fragment baseManga on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	title {
 		userPreferred
 		romaji
@@ -7319,6 +7335,7 @@ fragment baseManga on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	title {
 		userPreferred
 		romaji
@@ -7617,6 +7634,7 @@ fragment baseMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	trailer {
 		id
 		site
@@ -7970,6 +7988,7 @@ fragment baseMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	trailer {
 		id
 		site
