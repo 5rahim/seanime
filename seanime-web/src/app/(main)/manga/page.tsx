@@ -5,9 +5,11 @@ import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-l
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
+import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom, LibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { useMangaCollection } from "@/app/(main)/manga/_lib/handle-manga"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -36,6 +38,12 @@ export default function Page() {
                 <>
                     <CustomLibraryBanner />
                     <div className="h-32"></div>
+                </>
+            )}
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && (
+                <>
+                    <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
+                    <div className="h-10"></div>
                 </>
             )}
 
@@ -76,19 +84,50 @@ export default function Page() {
 }
 
 const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
+
+    const ts = useThemeSettings()
+    const [currentHeaderImage, setCurrentHeaderImage] = useAtom(__mangaLibraryHeaderImageAtom)
+    const headerManga = useAtomValue(__mangaLibraryHeaderMangaAtom)
+
+    React.useEffect(() => {
+        if (list.type === "current") {
+            if (currentHeaderImage === null && list.entries?.[0]?.media?.bannerImage) {
+                setCurrentHeaderImage(list.entries?.[0]?.media?.bannerImage)
+            }
+        }
+    }, [])
+
     return (
         <React.Fragment key={list.type}>
-            <h2>{getMangaCollectionTitle(list.type)}</h2>
+            <h2>{list.type === "current" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
+
+            {(list.type === "current" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&
+                <TextGenerateEffect
+                    words={headerManga?.title?.userPreferred || ""}
+                    className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
+                />
+            }
+
             <MediaCardGrid>
                 {list.entries?.map(entry => {
-                    return <MediaEntryCard
+                    return <div
                         key={entry.media?.id}
-                        media={entry.media!}
-                        listData={entry.listData}
-                        showListDataButton
-                        withAudienceScore={false}
-                        type="manga"
-                    />
+                        onMouseEnter={() => {
+                            if (list.type === "current" && entry.media?.bannerImage) {
+                                React.startTransition(() => {
+                                    setCurrentHeaderImage(entry.media?.bannerImage!)
+                                })
+                            }
+                        }}
+                    >
+                        <MediaEntryCard
+                            media={entry.media!}
+                            listData={entry.listData}
+                            showListDataButton
+                            withAudienceScore={false}
+                            type="manga"
+                        />
+                    </div>
                 })}
             </MediaCardGrid>
         </React.Fragment>
