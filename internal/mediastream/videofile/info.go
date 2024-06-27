@@ -247,6 +247,14 @@ func FfprobeGetInfo(ffprobePath, path, hash string) (*MediaInfo, error) {
 		}
 	})
 
+	// Remove subtitles without extensions (not supported)
+	mi.Subtitles = lo.Filter(mi.Subtitles, func(item Subtitle, _ int) bool {
+		if item.Extension == nil || *item.Extension == "" || item.Link == nil {
+			return false
+		}
+		return true
+	})
+
 	// Get chapters
 	mi.Chapters = lo.Map(data.Chapters, func(chapter *ffprobe.Chapter, _ int) Chapter {
 		return Chapter{

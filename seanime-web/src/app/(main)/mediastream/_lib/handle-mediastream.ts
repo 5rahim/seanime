@@ -243,7 +243,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
             const fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
                 ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host) + `/api/v1/mediastream/att/${name}`)
+                : window?.location?.host) + `/api/v1/mediastream/att/${name}`) || []
+
+            // Extracted fonts
             let availableFonts: Record<string, string> = {}
             let firstFont = ""
             if (!!fonts?.length) {
@@ -255,6 +257,18 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         }
                         availableFonts[name.toLowerCase()] = font
                     }
+                }
+            }
+
+            // Fallback font if no fonts are available
+            if (!firstFont) {
+                firstFont = "liberation sans"
+            }
+            if (Object.keys(availableFonts).length === 0) {
+                availableFonts = {
+                    "liberation sans": `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
+                        ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
+                        : window?.location?.host) + `/jassub/default.woff2`,
                 }
             }
 
