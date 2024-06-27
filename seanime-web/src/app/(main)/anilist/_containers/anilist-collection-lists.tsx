@@ -4,16 +4,17 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __myListsSearch_paramsAtom,
     __myListsSearch_paramsInputAtom,
-    MYLISTS_SORTING_OPTIONS,
     useHandleUserAnilistLists,
 } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
-import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_SEASONS, ADVANCED_SEARCH_STATUS } from "@/app/(main)/search/_lib/advanced-search-constants"
+import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_MEDIA_GENRES, ADVANCED_SEARCH_STATUS } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
+import { Combobox } from "@/components/ui/combobox"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
+import { COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import { getYear } from "date-fns"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
@@ -21,9 +22,10 @@ import React, { useState } from "react"
 import { BiTrash } from "react-icons/bi"
 import { FaSortAmountDown } from "react-icons/fa"
 import { FiSearch } from "react-icons/fi"
-import { LuCalendar, LuLeaf } from "react-icons/lu"
+import { LuCalendar } from "react-icons/lu"
 import { MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
+import { TbSwords } from "react-icons/tb"
 import { useMount } from "react-use"
 
 const selectedIndexAtom = atom("-")
@@ -62,42 +64,6 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         })
     })
 
-    React.useEffect(() => {
-        const lists = {
-            current: currentList,
-            planning: planningList,
-            paused: pausedList,
-            completed: completedList,
-            dropped: droppedList,
-        } as Record<string, AL_AnimeCollection_MediaListCollection_Lists | undefined>
-        if (lists[selectedIndex]?.entries?.length === 0) {
-            React.startTransition(() => {
-                (() => {
-                    if (!!currentList?.entries && currentList?.entries?.length > 0) {
-                        setSelectedIndex("current")
-                        return
-                    }
-                    if (!!planningList?.entries && planningList?.entries?.length > 0) {
-                        setSelectedIndex("planning")
-                        return
-                    }
-                    if (!!pausedList?.entries && pausedList?.entries?.length > 0) {
-                        setSelectedIndex("paused")
-                        return
-                    }
-                    if (!!completedList?.entries && completedList?.entries?.length > 0) {
-                        setSelectedIndex("completed")
-                        return
-                    }
-                    if (!!droppedList?.entries && droppedList?.entries?.length > 0) {
-                        setSelectedIndex("dropped")
-                        return
-                    }
-                })()
-            })
-        }
-    }, [selectedIndex, debouncedSearchInput])
-
     return (
         <>
             <SearchOptions customLists={customLists} />
@@ -130,74 +96,6 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
                     </div> : null
                 })}
             </div>
-
-            {/*<Tabs*/}
-            {/*    triggerClass="w-fit md:w-full rounded-full border-none data-[state=active]:border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-[--brand]"*/}
-            {/*    listClass="w-full flex flex-wrap md:flex-nowrap h-fit md:h-12"*/}
-            {/*    value={selectedIndex}*/}
-            {/*    onValueChange={value => {*/}
-            {/*        React.startTransition(() => {*/}
-            {/*            setSelectedIndex(value)*/}
-            {/*        })*/}
-            {/*    }}*/}
-            {/*>*/}
-            {/*    <TabsList className="block lg:h-auto space-y-2">*/}
-            {/*        <div className="inline-flex flex-wrap lg:flex-nowrap lg:h-12 items-center justify-center w-full">*/}
-            {/*            <TabsTrigger value="current">*/}
-            {/*                Currently Watching*/}
-            {/*            </TabsTrigger>*/}
-            {/*            <TabsTrigger value="planning">*/}
-            {/*                Planning*/}
-            {/*            </TabsTrigger>*/}
-            {/*            <TabsTrigger value="paused">*/}
-            {/*                Paused*/}
-            {/*            </TabsTrigger>*/}
-            {/*            <TabsTrigger value="completed">*/}
-            {/*                Completed*/}
-            {/*            </TabsTrigger>*/}
-            {/*            <TabsTrigger value="dropped">*/}
-            {/*                Dropped*/}
-            {/*            </TabsTrigger>*/}
-            {/*        </div>*/}
-
-            {/*        {!!customLists?.length && (*/}
-            {/*            <>*/}
-            {/*                <Separator />*/}
-            {/*                <div className="inline-flex flex-wrap lg:flex-nowrap lg:h-10 items-center justify-center w-full">*/}
-            {/*                    {customLists.map((list, i) => (*/}
-            {/*                        <TabsTrigger key={list.name} value={list.name || ""} className="">*/}
-            {/*                            {list?.name}*/}
-            {/*                        </TabsTrigger>*/}
-            {/*                    ))}*/}
-            {/*                </div>*/}
-            {/*            </>*/}
-            {/*        )}*/}
-            {/*    </TabsList>*/}
-
-
-            {/*    <div className="py-6">*/}
-            {/*        <TabsContent value="current">*/}
-            {/*            <AnilistMediaEntryList list={currentList} />*/}
-            {/*        </TabsContent>*/}
-            {/*        <TabsContent value="planning">*/}
-            {/*            <AnilistMediaEntryList list={planningList} />*/}
-            {/*        </TabsContent>*/}
-            {/*        <TabsContent value="paused">*/}
-            {/*            <AnilistMediaEntryList list={pausedList} />*/}
-            {/*        </TabsContent>*/}
-            {/*        <TabsContent value="completed">*/}
-            {/*            <AnilistMediaEntryList list={completedList} />*/}
-            {/*        </TabsContent>*/}
-            {/*        <TabsContent value="dropped">*/}
-            {/*            <AnilistMediaEntryList list={droppedList} />*/}
-            {/*        </TabsContent>*/}
-            {/*        {customLists?.map(list => (*/}
-            {/*            <TabsContent key={list.name} value={list.name || ""}>*/}
-            {/*                <AnilistMediaEntryList list={list} />*/}
-            {/*            </TabsContent>*/}
-            {/*        ))}*/}
-            {/*    </div>*/}
-            {/*</Tabs>*/}
         </>
     )
 }
@@ -279,28 +177,28 @@ export function SearchOptions({
                 </div>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-5">
-                {/*<Combobox*/}
-                {/*    multiple*/}
-                {/*    leftAddon={<TbSwords />}*/}
-                {/*    emptyMessage="No options found"*/}
-                {/*    label="Genre" placeholder="All genres"*/}
-                {/*    className="w-full"*/}
-                {/*    fieldClass="w-full"*/}
-                {/*    options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}*/}
-                {/*    value={params.genre ? params.genre : []}*/}
-                {/*    onValueChange={v => setParams(draft => {*/}
-                {/*        draft.genre = v*/}
-                {/*        return*/}
-                {/*    })}*/}
-                {/*    fieldLabelClass="hidden"*/}
-                {/*/>*/}
+                <Combobox
+                    multiple
+                    leftAddon={<TbSwords />}
+                    emptyMessage="No options found"
+                    label="Genre" placeholder="All genres"
+                    className="w-full"
+                    fieldClass="w-full"
+                    options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}
+                    value={params.genre ? params.genre : []}
+                    onValueChange={v => setParams(draft => {
+                        draft.genre = v
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />
                 <Select
                     label="Sorting"
                     leftAddon={<FaSortAmountDown />}
                     className="w-full"
                     fieldClass="flex items-center"
                     inputContainerClass="w-full"
-                    options={MYLISTS_SORTING_OPTIONS}
+                    options={COLLECTION_SORTING_OPTIONS}
                     value={params.sorting || "SCORE_DESC"}
                     onValueChange={v => setParams(draft => {
                         draft.sorting = v as any
@@ -353,21 +251,21 @@ export function SearchOptions({
                     })}
                     fieldLabelClass="hidden"
                 />
-                <Select
-                    leftAddon={<LuLeaf />}
-                    label="Season"
-                    placeholder="All seasons"
-                    className="w-full"
-                    fieldClass="w-full flex items-center"
-                    inputContainerClass="w-full"
-                    options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
-                    value={params.season || ""}
-                    onValueChange={v => setParams(draft => {
-                        draft.season = v as any
-                        return
-                    })}
-                    fieldLabelClass="hidden"
-                />
+                {/*<Select*/}
+                {/*    leftAddon={<LuLeaf />}*/}
+                {/*    label="Season"*/}
+                {/*    placeholder="All seasons"*/}
+                {/*    className="w-full"*/}
+                {/*    fieldClass="w-full flex items-center"*/}
+                {/*    inputContainerClass="w-full"*/}
+                {/*    options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}*/}
+                {/*    value={params.season || ""}*/}
+                {/*    onValueChange={v => setParams(draft => {*/}
+                {/*        draft.season = v as any*/}
+                {/*        return*/}
+                {/*    })}*/}
+                {/*    fieldLabelClass="hidden"*/}
+                {/*/>*/}
             </div>
 
             {serverStatus?.settings?.anilist?.enableAdultContent && <Switch

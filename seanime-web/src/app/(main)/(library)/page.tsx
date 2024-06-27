@@ -4,7 +4,7 @@ import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-l
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
 import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
-import { useHandleLibraryCollection } from "@/app/(main)/(library)/_lib/library-collection"
+import { useHandleLibraryCollection } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { DetailedLibraryView } from "@/app/(main)/(library)/_screens/detailed-library-view"
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
