@@ -135,9 +135,9 @@ export function MonthCalendar(props: WeekCalendarProps) {
                     </div>
                     <div className="flex bg-gray-900 text-xs leading-6 text-gray-200 lg:flex-auto">
                         <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-                            {days.map((day) => (
+                            {days.map((day, index) => (
                                 <div
-                                    key={day.date}
+                                    key={day.date + index}
                                     className={cn(
                                         day.isCurrentMonth ? "bg-gray-950" : "opacity-30",
                                         "relative py-2 px-3 lg:min-h-24 overflow-hidden",
@@ -167,6 +167,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                         <ol className="mt-2 relative z-[1]">
                                             {day.events.slice(0, 4).map((event) => (
                                                 <Tooltip
+                                                    key={event.id}
                                                     trigger={
                                                         <li key={event.id}>
                                                             <Link className="group flex" href={event.href}>

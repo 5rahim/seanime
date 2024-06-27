@@ -84,6 +84,10 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const progressTotal = type === "anime" ? (media as AL_BaseMedia)?.episodes : (media as AL_BaseManga)?.chapters
 
+    // React.useEffect(() => {
+    //     console.log("rendered", media.title?.userPreferred)
+    // }, [])
+
     // For pages where listData or libraryData is not accessible (where LibraryCollection is not fetched),
     // use cached LibraryCollection
     React.useEffect(() => {

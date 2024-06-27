@@ -35,6 +35,33 @@ export function MediaCardLazyGrid({
     itemCount,
     ...rest
 }: MediaCardLazyGridProps) {
+
+    if (itemCount === 0) {
+        return null
+    }
+
+    if (itemCount <= 20) {
+        return (
+            <MediaCardGrid {...rest}>
+                {children}
+            </MediaCardGrid>
+        )
+    }
+
+    return (
+        <MediaCardLazyGridRenderer itemCount={itemCount} {...rest}>
+            {children}
+        </MediaCardLazyGridRenderer>
+    )
+
+}
+
+
+export function MediaCardLazyGridRenderer({
+    children,
+    itemCount,
+    ...rest
+}: MediaCardLazyGridProps) {
     const [visibleItems, setVisibleItems] = React.useState<number[]>([])
     const [itemHeight, setItemHeight] = React.useState<number | null>(null)
     const [itemsPerRow, setItemsPerRow] = React.useState<number | null>(null)

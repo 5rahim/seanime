@@ -8,6 +8,7 @@ import {
     useHandleDetailedLibraryCollection,
 } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
+import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
@@ -109,13 +110,11 @@ const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCol
     return (
         <React.Fragment key={list.type}>
             <h2>{getLibraryCollectionTitle(list.type)}</h2>
-            <div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
-            >
+            <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
                 })}
-            </div>
+            </MediaCardLazyGrid>
         </React.Fragment>
     )
 })

@@ -1,5 +1,6 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
+import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
@@ -88,13 +89,11 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
     return (
         <React.Fragment key={list.type}>
             <h2>{getLibraryCollectionTitle(list.type)}</h2>
-            <div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
-            >
+            <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
                 })}
-            </div>
+            </MediaCardLazyGrid>
         </React.Fragment>
     )
 })
