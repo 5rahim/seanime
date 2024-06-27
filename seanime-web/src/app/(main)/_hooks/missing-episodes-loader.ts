@@ -8,6 +8,10 @@ export function useMissingEpisodeCount() {
     return useAtomValue(missingEpisodeCountAtom)
 }
 
+export function useMissingEpisodes() {
+    return useAtomValue(missingEpisodesAtom)
+}
+
 /**
  * @description
  * - When the user is not on the main page, send a request to get missing episodes
