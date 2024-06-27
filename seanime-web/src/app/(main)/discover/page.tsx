@@ -35,7 +35,7 @@ export default function Page() {
                 transition={{ duration: 0.5, delay: 0.6 }}
                 className="p-4 sm:p-8 space-y-10 pb-10 relative z-[4]"
             >
-                <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center">
+                <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center">
                     {serverStatus?.settings?.library?.enableManga && <div className="max-w-fit border rounded-full">
                         <StaticTabs
                             className="h-10"

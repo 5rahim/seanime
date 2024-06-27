@@ -549,6 +549,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/manga/anilist/collection",
         },
+        GetRawAnilistMangaCollection: {
+            key: "MANGA-get-raw-anilist-manga-collection",
+            methods: ["GET", "POST"],
+            endpoint: "/api/v1/manga/anilist/collection/raw",
+        },
         /**
          *  @description
          *  Route returns the user's main manga collection.

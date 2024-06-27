@@ -2,6 +2,7 @@ import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/ty
 import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
+    __myLists_selectedTypeAtom,
     __myListsSearch_paramsAtom,
     __myListsSearch_paramsInputAtom,
     useHandleUserAnilistLists,
@@ -15,8 +16,10 @@ import {
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
+import { cn } from "@/components/ui/core/styling"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { StaticTabs } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
@@ -42,6 +45,8 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
 
     const {} = props
 
+    const serverStatus = useServerStatus()
+    const [pageType, setPageType] = useAtom(__myLists_selectedTypeAtom)
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
     const searchInput = useAtomValue(watchListSearchInputAtom)
     const debouncedSearchInput = useDebounce(searchInput, 500)
@@ -70,7 +75,18 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
     })
 
     return (
-        <>
+        <AppLayoutStack className="space-y-6">
+            {serverStatus?.settings?.library?.enableManga && <div className="w-full flex justify-center">
+                <StaticTabs
+                    className="h-10 w-fit border rounded-full"
+                    triggerClass="px-4 py-1"
+                    items={[
+                        { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
+                        { name: "Manga", isCurrent: pageType === "manga", onClick: () => setPageType("manga") },
+                    ]}
+                />
+            </div>}
+
             <SearchOptions customLists={customLists} />
 
             <div className="py-6 space-y-6">
@@ -101,7 +117,7 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
                     </div> : null
                 })}
             </div>
-        </>
+        </AppLayoutStack>
     )
 }
 
@@ -138,6 +154,7 @@ export function SearchOptions({
     const setActualParams = useSetAtom(__myListsSearch_paramsAtom)
     const debouncedParams = useDebounce(params, 500)
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
+    const [pageType, setPageType] = useAtom(__myLists_selectedTypeAtom)
 
     React.useEffect(() => {
         setActualParams(params)
@@ -181,7 +198,12 @@ export function SearchOptions({
                     />
                 </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-5">
+            <div
+                className={cn(
+                    "grid grid-cols-2 gap-5",
+                    pageType === "anime" ? "lg:grid-cols-6" : "lg:grid-cols-4",
+                )}
+            >
                 <Combobox
                     multiple
                     leftAddon={<TbSwords />}
@@ -212,7 +234,7 @@ export function SearchOptions({
                     fieldLabelClass="hidden"
                     // disabled={!!params.title && params.title.length > 0}
                 />
-                <Select
+                {pageType === "anime" && <Select
                     leftAddon={<MdPersonalVideo />}
                     label="Format" placeholder="All formats"
                     className="w-full"
@@ -224,7 +246,7 @@ export function SearchOptions({
                         return
                     })}
                     fieldLabelClass="hidden"
-                />
+                />}
                 <Select
                     leftAddon={<RiSignalTowerLine />}
                     label="Status" placeholder="All statuses"
@@ -240,7 +262,7 @@ export function SearchOptions({
                     })}
                     fieldLabelClass="hidden"
                 />
-                <Select
+                {pageType === "anime" && <Select
                     leftAddon={<LuLeaf />}
                     label="Season"
                     placeholder="All seasons"
@@ -254,7 +276,7 @@ export function SearchOptions({
                         return
                     })}
                     fieldLabelClass="hidden"
-                />
+                />}
                 <Select
                     leftAddon={<LuCalendar />}
                     label="Year" placeholder="Timeless"

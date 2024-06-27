@@ -77,8 +77,8 @@ export function useMangaCollection() {
                 data.lists.find(n => n.type === "current"),
                 data.lists.find(n => n.type === "paused"),
                 data.lists.find(n => n.type === "planned"),
-                data.lists.find(n => n.type === "completed"),
-                data.lists.find(n => n.type === "dropped"),
+                // data.lists.find(n => n.type === "completed"), // DO NOT SHOW THIS LIST IN MANGA VIEW
+                // data.lists.find(n => n.type === "dropped"), // DO NOT SHOW THIS LIST IN MANGA VIEW
             ].filter(Boolean),
         } as Manga_Collection
     }, [data])

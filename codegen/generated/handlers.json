@@ -2397,6 +2397,34 @@
     }
   },
   {
+    "name": "HandleGetRawAnilistMangaCollection",
+    "trimmedName": "GetRawAnilistMangaCollection",
+    "comments": [
+      "HandleGetRawAnilistMangaCollection",
+      "",
+      "\t@summary returns the user's AniList manga collection.",
+      "\t@route /api/v1/manga/anilist/collection/raw [GET,POST]",
+      "\t@returns anilist.MangaCollection",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the user's AniList manga collection.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/anilist/collection/raw",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anilist.MangaCollection",
+      "returnGoType": "anilist.MangaCollection",
+      "returnTypescriptType": "AL_MangaCollection"
+    }
+  },
+  {
     "name": "HandleGetMangaCollection",
     "trimmedName": "GetMangaCollection",
     "comments": [

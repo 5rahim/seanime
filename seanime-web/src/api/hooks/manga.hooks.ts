@@ -29,6 +29,16 @@ export function useGetAnilistMangaCollection() {
     })
 }
 
+
+export function useGetRawAnilistMangaCollection() {
+    return useServerQuery<AL_MangaCollection, GetAnilistMangaCollection_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.endpoint,
+        method: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key],
+        enabled: true,
+    })
+}
+
 export function useGetMangaCollection() {
     return useServerQuery<Manga_Collection>({
         endpoint: API_ENDPOINTS.MANGA.GetMangaCollection.endpoint,

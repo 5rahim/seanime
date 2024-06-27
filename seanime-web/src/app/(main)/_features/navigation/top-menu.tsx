@@ -39,6 +39,12 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
                     intent="alert-solid"
                 /> : undefined,
             },
+            ...[serverStatus?.settings?.library?.enableManga && {
+                href: "/manga",
+                icon: null,
+                isCurrent: pathname.startsWith("/manga"),
+                name: "Manga",
+            }].filter(Boolean) as NavigationMenuProps["items"],
             {
                 href: "/anilist",
                 icon: null,
@@ -51,12 +57,6 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
                 isCurrent: pathname.startsWith("/discover") || pathname.startsWith("/search"),
                 name: "Discover",
             },
-            ...[serverStatus?.settings?.library?.enableManga && {
-                href: "/manga",
-                icon: null,
-                isCurrent: pathname.startsWith("/manga"),
-                name: "Manga",
-            }].filter(Boolean) as NavigationMenuProps["items"],
         ].filter(Boolean)
     }, [pathname, missingEpisodeCount, serverStatus?.settings?.library?.enableManga])
 

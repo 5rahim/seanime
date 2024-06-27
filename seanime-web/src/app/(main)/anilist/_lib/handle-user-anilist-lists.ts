@@ -1,31 +1,49 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { useGetRawAnimeCollection } from "@/api/hooks/anilist.hooks"
+import { useGetRawAnilistMangaCollection } from "@/api/hooks/manga.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterEntriesByTitle, filterListEntries } from "@/lib/helpers/filtering"
-import { useAtomValue } from "jotai"
 import { atomWithImmer } from "jotai-immer"
+import { useAtom } from "jotai/react"
 import React from "react"
 import { useDebounce } from "use-debounce"
 
-export const __myListsSearch_paramsAtom = atomWithImmer<CollectionParams>({
+export const MYLISTS_DEFAULT_PARAMS: CollectionParams = {
     ...DEFAULT_COLLECTION_PARAMS,
     sorting: "SCORE_DESC",
-})
+}
 
-export const __myListsSearch_paramsInputAtom = atomWithImmer<CollectionParams>({
-    ...DEFAULT_COLLECTION_PARAMS,
-    sorting: "SCORE_DESC",
-})
+export const __myListsSearch_paramsAtom = atomWithImmer<CollectionParams>(MYLISTS_DEFAULT_PARAMS)
+
+export const __myListsSearch_paramsInputAtom = atomWithImmer<CollectionParams>(MYLISTS_DEFAULT_PARAMS)
+
+export const __myLists_selectedTypeAtom = atomWithImmer<"anime" | "manga">("anime")
 
 export function useHandleUserAnilistLists(debouncedSearchInput: string) {
 
     const serverStatus = useServerStatus()
-    const { data } = useGetRawAnimeCollection()
+    const [selectedType, setSelectedType] = useAtom(__myLists_selectedTypeAtom)
+    const { data: animeData } = useGetRawAnimeCollection()
+    const { data: mangaData } = useGetRawAnilistMangaCollection()
+
+    const data = React.useMemo(() => {
+        return selectedType === "anime" ? animeData : mangaData
+    }, [selectedType, animeData, mangaData])
 
     const lists = React.useMemo(() => data?.MediaListCollection?.lists, [data])
 
-    const params = useAtomValue(__myListsSearch_paramsAtom)
+    const [params, _setParams] = useAtom(__myListsSearch_paramsAtom)
     const [debouncedParams] = useDebounce(params, 500)
+
+    React.useLayoutEffect(() => {
+        if (selectedType === "manga" && !serverStatus?.settings?.library?.enableManga) {
+            setSelectedType("anime")
+        }
+    }, [serverStatus?.settings?.library?.enableManga])
+
+    React.useLayoutEffect(() => {
+        _setParams(MYLISTS_DEFAULT_PARAMS)
+    }, [selectedType])
 
     const _filteredLists: AL_AnimeCollection_MediaListCollection_Lists[] = React.useMemo(() => {
         return lists?.map(obj => {
