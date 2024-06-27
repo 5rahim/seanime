@@ -16,9 +16,11 @@ import { useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
-import { FiPlayCircle, FiSearch } from "react-icons/fi"
-import { IoLibrarySharp } from "react-icons/io5"
+import { FiSearch } from "react-icons/fi"
+import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
+import { MdOutlineVideoLibrary } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
+import { TbReload } from "react-icons/tb"
 
 export type LibraryToolbarProps = {
     collectionList: Anime_LibraryCollectionList[]
@@ -52,17 +54,26 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     <Tooltip
                         trigger={<IconButton
                             intent={"white-subtle"}
-                            icon={<FiPlayCircle className="text-2xl" />}
+                            icon={<MdOutlineVideoLibrary className="text-2xl" />}
                             onClick={() => setPlaylistsModalOpen(true)}
                         />}
                     >Playlists</Tooltip>
+
                     <PlayRandomEpisodeButton />
+
+                    <IconButton
+                        intent={"white-subtle"}
+                        icon={<IoLibrary className="text-2xl" />}
+                        // onClick={() => setPlaylistsModalOpen(true)}
+                    />
+
                     <Button
                         intent={hasScanned ? "primary-subtle" : "primary"}
-                        leftIcon={<FiSearch className="text-xl" />}
+                        leftIcon={hasScanned ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
                         onClick={() => setScannerModalOpen(true)}
+                        hideTextOnSmallScreen
                     >
-                        {hasScanned ? "Refresh entries" : "Scan your library"}
+                        {hasScanned ? "Refresh library" : "Scan your library"}
                     </Button>
                 </>
             )}
