@@ -60,7 +60,7 @@ export default function Page() {
                 </div>
                 <AnimatePresence mode="wait" initial={false}>
                     {pageType === "anime" && <PageWrapper
-                        key="episode-list"
+                        key="anime"
                         className="relative 2xl:order-first pb-10 pt-4"
                         {...{
                             initial: { opacity: 0, y: 60 },
@@ -94,7 +94,7 @@ export default function Page() {
                         </div>
                     </PageWrapper>}
                     {pageType === "manga" && <PageWrapper
-                        key="episode-list"
+                        key="manga"
                         className="relative 2xl:order-first pb-10 pt-4"
                         {...{
                             initial: { opacity: 0, y: 60 },
