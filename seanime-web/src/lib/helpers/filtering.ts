@@ -1,9 +1,12 @@
 import {
     AL_AnimeCollection_MediaListCollection_Lists_Entries,
+    AL_BaseManga,
+    AL_BaseMedia,
     AL_MangaCollection_MediaListCollection_Lists_Entries,
     AL_MediaFormat,
     AL_MediaSeason,
     AL_MediaStatus,
+    Anime_LibraryCollectionEntry,
 } from "@/api/generated/types"
 import sortBy from "lodash/sortBy"
 
@@ -62,10 +65,12 @@ function getParamValue<T extends any>(value: T | ""): any {
 }
 
 
-export function filterEntriesByTitle(arr: AL_AnimeCollection_MediaListCollection_Lists_Entries[] | null | undefined, input: string) {
+export function filterEntriesByTitle<T extends { media?: AL_BaseMedia | AL_BaseManga }[] | null | undefined>(arr: T, input: string): T {
+    // @ts-expect-error
     if (!arr) return []
     if (arr.length > 0 && input.length > 0) {
         const _input = input.toLowerCase().trim().replace(/\s+/g, " ")
+        // @ts-expect-error
         return arr.filter(entry => (
             entry.media?.title?.english?.toLowerCase().includes(_input)
             || entry.media?.title?.userPreferred?.toLowerCase().includes(_input)
@@ -76,7 +81,7 @@ export function filterEntriesByTitle(arr: AL_AnimeCollection_MediaListCollection
     return arr
 }
 
-export function filterCollectionEntries<T extends AL_MangaCollection_MediaListCollection_Lists_Entries[] | AL_AnimeCollection_MediaListCollection_Lists_Entries[]>(
+export function filterListEntries<T extends AL_MangaCollection_MediaListCollection_Lists_Entries[] | AL_AnimeCollection_MediaListCollection_Lists_Entries[]>(
     entries: T | null | undefined,
     params: CollectionParams,
     showAdultContent: boolean | undefined,
@@ -150,6 +155,84 @@ export function filterCollectionEntries<T extends AL_MangaCollection_MediaListCo
         arr = sortBy(arr, n => n?.progress || 0)
     if (getParamValue(params.sorting) === "PROGRESS_DESC")
         arr = sortBy(arr, n => n?.progress || 0).reverse()
+
+    return arr
+}
+
+export function filterCollectionEntries<T extends Anime_LibraryCollectionEntry[]>(
+    entries: T | null | undefined,
+    params: CollectionParams,
+    showAdultContent: boolean | undefined,
+) {
+    if (!entries) return []
+    let arr = [...entries]
+
+    // Filter by isAdult
+    if (!!arr && params.isAdult) arr = arr.filter(n => n.media?.isAdult)
+
+    // Filter by showAdultContent
+    if (!showAdultContent) arr = arr.filter(n => !n.media?.isAdult)
+
+    // Filter by format
+    if (!!arr && !!params.format) arr = arr.filter(n => n.media?.format === params.format)
+
+    // Filter by season
+    if (!!arr && !!params.season) arr = arr.filter(n => n.media?.season === params.season)
+
+    // Filter by status
+    if (!!arr && !!params.status) arr = arr.filter(n => n.media?.status === params.status)
+
+    // Filter by year
+    if (!!arr && !!params.year) arr = arr.filter(n => n.media?.startDate?.year === Number(params.year))
+
+    // Filter by genre
+    if (!!arr && !!params.genre?.length) {
+        arr = arr.filter(n => {
+            return params.genre?.every(genre => n.media?.genres?.includes(genre))
+        })
+    }
+
+    // Sort by name
+    arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+
+    // Sort by release date
+    if (getParamValue(params.sorting) === "RELEASE_DATE" || getParamValue(params.sorting) === "RELEASE_DATE_DESC") {
+        arr = arr?.filter(n => n.media?.startDate && !!n.media.startDate.year && !!n.media.startDate.month)
+    }
+    if (getParamValue(params.sorting) === "RELEASE_DATE")
+        arr = sortBy(arr, n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1))
+    if (getParamValue(params.sorting) === "RELEASE_DATE_DESC")
+        arr = sortBy(arr, n => new Date(n?.media?.startDate?.year!, n?.media?.startDate?.month! - 1)).reverse()
+
+    // Sort by score
+    if (getParamValue(params.sorting) === "SCORE")
+        arr = sortBy(arr, n => n?.listData?.score)
+    if (getParamValue(params.sorting) === "SCORE_DESC")
+        arr = sortBy(arr, n => n?.listData?.score).reverse()
+
+    // Sort by start date
+    if (getParamValue(params.sorting) === "START_DATE" || getParamValue(params.sorting) === "START_DATE_DESC") {
+        arr = arr?.filter(n => !!n.listData?.startedAt)
+    }
+    if (getParamValue(params.sorting) === "START_DATE")
+        arr = sortBy(arr, n => new Date(n?.listData?.startedAt!))
+    if (getParamValue(params.sorting) === "START_DATE_DESC")
+        arr = sortBy(arr, n => new Date(n?.listData?.startedAt!)).reverse()
+
+    // Sort by end date
+    if (getParamValue(params.sorting) === "END_DATE" || getParamValue(params.sorting) === "END_DATE_DESC") {
+        arr = arr?.filter(n => !!n.listData?.completedAt)
+    }
+    if (getParamValue(params.sorting) === "END_DATE")
+        arr = sortBy(arr, n => new Date(n?.listData?.completedAt!))
+    if (getParamValue(params.sorting) === "END_DATE_DESC")
+        arr = sortBy(arr, n => new Date(n?.listData?.completedAt!)).reverse()
+
+    // Sort by progress
+    if (getParamValue(params.sorting) === "PROGRESS")
+        arr = sortBy(arr, n => n?.listData?.progress || 0)
+    if (getParamValue(params.sorting) === "PROGRESS_DESC")
+        arr = sortBy(arr, n => n?.listData?.progress || 0).reverse()
 
     return arr
 }

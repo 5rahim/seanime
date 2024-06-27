@@ -49,7 +49,7 @@ export const ComboboxAnatomy = defineStyleAnatomy({
     ]),
     inputValuesContainer: cva([
         "UI-Combobox__inputValuesContainer",
-        "grow flex flex-wrap gap-2",
+        "grow flex overflow-hidden gap-2",
     ]),
     chevronIcon: cva([
         "UI-Combobox__chevronIcon",

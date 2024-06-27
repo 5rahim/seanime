@@ -1,43 +1,53 @@
+import { Anime_LibraryCollectionList } from "@/api/generated/types"
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
-import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useSetAtom } from "jotai/react"
-import React, { useEffect, useMemo } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
+import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, filterEntriesByTitle } from "@/lib/helpers/filtering"
+import { atomWithImmer } from "jotai-immer"
+import { useAtomValue } from "jotai/index"
+import React from "react"
 
+export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
+    ...DEFAULT_COLLECTION_PARAMS,
+    sorting: "PROGRESS_DESC",
+}
+
+export const _library_paramsAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
+
+export const _library_paramsInputAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
+
+export const __library_selectedListAtom = atomWithImmer<string>("-")
+
+export const _library_debouncedSearchInputAtom = atomWithImmer<string>("")
 
 export function useHandleDetailedLibraryCollection() {
     const serverStatus = useServerStatus()
-
-    const atom_setLibraryCollection = useSetAtom(libraryCollectionAtom)
 
     /**
      * Fetch the library collection data
      */
     const { data, isLoading } = useGetLibraryCollection()
 
-    /**
-     * Store the received data in `libraryCollectionAtom`
-     */
-    useEffect(() => {
-        if (!!data) {
-            atom_setLibraryCollection(data)
-        }
-    }, [data])
+    const params = useAtomValue(_library_paramsAtom)
+    const debouncedParams = useDebounce(params, 500)
+
+    const debouncedSearchInput = useAtomValue(_library_debouncedSearchInputAtom)
 
     /**
      * Sort and filter the collection data
      */
-    const sortedCollection = useMemo(() => {
+    const _sortedCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
         if (!data || !data.lists) return []
 
-        let _lists = data.lists
-        if (!serverStatus?.settings?.anilist?.enableAdultContent) {
-            _lists = _lists.map(list => {
-                list.entries = list.entries?.filter(entry => !entry.media?.isAdult) ?? []
-                return list
-            })
-        }
-
+        let _lists = data.lists.map(obj => {
+            if (!obj) return obj
+            const arr = filterCollectionEntries(obj.entries, params, serverStatus?.settings?.anilist?.enableAdultContent)
+            return {
+                type: obj.type,
+                status: obj.status,
+                entries: arr,
+            }
+        })
         return [
             _lists.find(n => n.type === "current"),
             _lists.find(n => n.type === "paused"),
@@ -45,7 +55,19 @@ export function useHandleDetailedLibraryCollection() {
             _lists.find(n => n.type === "completed"),
             _lists.find(n => n.type === "dropped"),
         ].filter(Boolean)
-    }, [data, serverStatus?.settings?.anilist?.enableAdultContent])
+    }, [data, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent])
+
+    const sortedCollection: Anime_LibraryCollectionList[] = React.useMemo(() => {
+        return _sortedCollection.map(obj => {
+            if (!obj) return obj
+            const arr = filterEntriesByTitle(obj.entries, debouncedSearchInput)
+            return {
+                type: obj.type,
+                status: obj.status,
+                entries: arr,
+            }
+        }).filter(Boolean)
+    }, [_sortedCollection, debouncedSearchInput])
 
     const continueWatchingList = React.useMemo(() => {
         if (!data?.continueWatchingList) return []

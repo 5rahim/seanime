@@ -1,4 +1,5 @@
 "use client"
+import { LibraryHeader } from "@/app/(main)/(library)/_components/library-header"
 import { BulkActionModal } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
@@ -37,6 +38,7 @@ export default function Library() {
     return (
         <div>
             {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner />}
+            {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
             <LibraryToolbar
                 collectionList={libraryCollectionList}
                 unmatchedLocalFiles={unmatchedLocalFiles}

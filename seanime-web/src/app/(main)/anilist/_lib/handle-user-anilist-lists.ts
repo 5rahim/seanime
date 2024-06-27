@@ -1,7 +1,7 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { useGetRawAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, filterEntriesByTitle } from "@/lib/helpers/filtering"
+import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterEntriesByTitle, filterListEntries } from "@/lib/helpers/filtering"
 import { useAtomValue } from "jotai"
 import { atomWithImmer } from "jotai-immer"
 import React from "react"
@@ -30,7 +30,7 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
     const _filteredLists: AL_AnimeCollection_MediaListCollection_Lists[] = React.useMemo(() => {
         return lists?.map(obj => {
             if (!obj) return undefined
-            const arr = filterCollectionEntries(obj?.entries, params, serverStatus?.settings?.anilist?.enableAdultContent)
+            const arr = filterListEntries(obj?.entries, params, serverStatus?.settings?.anilist?.enableAdultContent)
             return {
                 name: obj?.name,
                 isCustomList: obj?.isCustomList,
@@ -45,7 +45,9 @@ export function useHandleUserAnilistLists(debouncedSearchInput: string) {
             if (!obj) return undefined
             const arr = filterEntriesByTitle(obj?.entries, debouncedSearchInput)
             return {
-                ...obj,
+                name: obj?.name,
+                isCustomList: obj?.isCustomList,
+                status: obj?.status,
                 entries: arr,
             }
         })?.filter(Boolean) ?? []

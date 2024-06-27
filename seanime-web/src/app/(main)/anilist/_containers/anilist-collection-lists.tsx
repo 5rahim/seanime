@@ -6,7 +6,12 @@ import {
     __myListsSearch_paramsInputAtom,
     useHandleUserAnilistLists,
 } from "@/app/(main)/anilist/_lib/handle-user-anilist-lists"
-import { ADVANCED_SEARCH_FORMATS, ADVANCED_SEARCH_MEDIA_GENRES, ADVANCED_SEARCH_STATUS } from "@/app/(main)/search/_lib/advanced-search-constants"
+import {
+    ADVANCED_SEARCH_FORMATS,
+    ADVANCED_SEARCH_MEDIA_GENRES,
+    ADVANCED_SEARCH_SEASONS,
+    ADVANCED_SEARCH_STATUS,
+} from "@/app/(main)/search/_lib/advanced-search-constants"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
@@ -22,7 +27,7 @@ import React, { useState } from "react"
 import { BiTrash } from "react-icons/bi"
 import { FaSortAmountDown } from "react-icons/fa"
 import { FiSearch } from "react-icons/fi"
-import { LuCalendar } from "react-icons/lu"
+import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
 import { TbSwords } from "react-icons/tb"
@@ -176,7 +181,7 @@ export function SearchOptions({
                     />
                 </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-6 gap-5">
                 <Combobox
                     multiple
                     leftAddon={<TbSwords />}
@@ -221,6 +226,36 @@ export function SearchOptions({
                     fieldLabelClass="hidden"
                 />
                 <Select
+                    leftAddon={<RiSignalTowerLine />}
+                    label="Status" placeholder="All statuses"
+                    className="w-full"
+                    fieldClass="w-full"
+                    options={[
+                        ...ADVANCED_SEARCH_STATUS,
+                    ]}
+                    value={params.status || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.status = v as any
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />
+                <Select
+                    leftAddon={<LuLeaf />}
+                    label="Season"
+                    placeholder="All seasons"
+                    className="w-full"
+                    fieldClass="w-full flex items-center"
+                    inputContainerClass="w-full"
+                    options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}
+                    value={params.season || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.season = v as any
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />
+                <Select
                     leftAddon={<LuCalendar />}
                     label="Year" placeholder="Timeless"
                     className="w-full"
@@ -236,36 +271,6 @@ export function SearchOptions({
                     })}
                     fieldLabelClass="hidden"
                 />
-                <Select
-                    leftAddon={<RiSignalTowerLine />}
-                    label="Status" placeholder="All statuses"
-                    className="w-full"
-                    fieldClass="w-full"
-                    options={[
-                        ...ADVANCED_SEARCH_STATUS,
-                    ]}
-                    value={params.status || ""}
-                    onValueChange={v => setParams(draft => {
-                        draft.status = v as any
-                        return
-                    })}
-                    fieldLabelClass="hidden"
-                />
-                {/*<Select*/}
-                {/*    leftAddon={<LuLeaf />}*/}
-                {/*    label="Season"*/}
-                {/*    placeholder="All seasons"*/}
-                {/*    className="w-full"*/}
-                {/*    fieldClass="w-full flex items-center"*/}
-                {/*    inputContainerClass="w-full"*/}
-                {/*    options={ADVANCED_SEARCH_SEASONS.map(season => ({ value: season.toUpperCase(), label: season }))}*/}
-                {/*    value={params.season || ""}*/}
-                {/*    onValueChange={v => setParams(draft => {*/}
-                {/*        draft.season = v as any*/}
-                {/*        return*/}
-                {/*    })}*/}
-                {/*    fieldLabelClass="hidden"*/}
-                {/*/>*/}
             </div>
 
             {serverStatus?.settings?.anilist?.enableAdultContent && <Switch
