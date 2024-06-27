@@ -94,15 +94,14 @@ export function MonthCalendar(props: WeekCalendarProps) {
     return (
         <>
             <div className="hidden lg:flex lg:h-full lg:flex-col rounded-md border">
-                <header className="flex items-center justify-between py-4 px-6 gap-4 lg:flex-none border-b">
+                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none border-b">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
-                            "text-lg font-semibold text-gray-100",
+                            "text-lg font-semibold text-gray-100 text-center w-[200px]",
                             isSameMonth(currentDate, new Date()) && "text-brand-200",
                         )}
                     >
-                        {/*<time dateTime="2022-01">January 2022</time>*/}
                         <time dateTime={format(currentDate, "yyyy-MM")}>
                             {format(currentDate, "MMMM yyyy")}
                         </time>

@@ -153,7 +153,7 @@ const SearchInput = () => {
                 onValueChange={v => {
                     setInputValue(v)
                 }}
-                className="rounded-full"
+                className="rounded-full bg-gray-900/50"
             />
         </div>
     )
