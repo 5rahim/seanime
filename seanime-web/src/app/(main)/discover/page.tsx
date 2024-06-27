@@ -1,4 +1,5 @@
 "use client"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverPastSeason, DiscoverPopular } from "@/app/(main)/discover/_containers/discover-popular"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { StaticTabs } from "@/components/ui/tabs"
 import { AnimatePresence, motion } from "framer-motion"
 import { useAtom } from "jotai/react"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { FaSearch } from "react-icons/fa"
 
@@ -20,6 +22,8 @@ export const dynamic = "force-static"
 
 export default function Page() {
 
+    const serverStatus = useServerStatus()
+    const router = useRouter()
     const [pageType, setPageType] = useAtom(__discord_pageTypeAtom)
 
     return (
@@ -32,7 +36,7 @@ export default function Page() {
                 className="p-4 sm:p-8 space-y-10 pb-10 relative z-[4]"
             >
                 <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center">
-                    <div className="max-w-fit border rounded-full">
+                    {serverStatus?.settings?.library?.enableManga && <div className="max-w-fit border rounded-full">
                         <StaticTabs
                             className="h-10"
                             triggerClass="px-4 py-1"
@@ -41,13 +45,14 @@ export default function Page() {
                                 { name: "Manga", isCurrent: pageType === "manga", onClick: () => setPageType("manga") },
                             ]}
                         />
-                    </div>
+                    </div>}
                     <div>
                         <Button
                             leftIcon={<FaSearch />}
                             intent="gray-outline"
                             // size="lg"
                             className="rounded-full"
+                            onClick={() => router.push("/search")}
                         >
                             Advanced search
                         </Button>
