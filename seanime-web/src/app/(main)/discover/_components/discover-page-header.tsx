@@ -10,7 +10,7 @@ import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import React from "react"
 import { RiSignalTowerLine } from "react-icons/ri"
 
@@ -20,7 +20,7 @@ const MotionImage = motion(Image)
 
 export function DiscoverPageHeader() {
 
-    const router = useRouter()
+    const pathname = usePathname()
 
     const [pageType, setPageType] = useAtom(__discord_pageTypeAtom)
 
@@ -28,6 +28,13 @@ export function DiscoverPageHeader() {
     const isTransitioning = useAtomValue(__discover_headerIsTransitioningAtom)
 
     const setHoveringHeader = useSetAtom(__discover_hoveringHeaderAtom)
+
+    // Reset page type to anime when on home page
+    React.useLayoutEffect(() => {
+        if (pathname === "/") {
+            setPageType("anime")
+        }
+    }, [pathname])
 
     return (
         <motion.div
