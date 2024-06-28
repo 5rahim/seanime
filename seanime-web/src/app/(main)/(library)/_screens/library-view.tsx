@@ -1,13 +1,11 @@
 import { Anime_LibraryCollectionList, Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
 import { LibraryCollectionFilteredLists, LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
-import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __mainLibrary_paramsAtom, __mainLibrary_paramsInputAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
+import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { cn } from "@/components/ui/core/styling"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Skeleton } from "@/components/ui/skeleton"
-import { StaticTabs } from "@/components/ui/tabs"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/index"
@@ -36,7 +34,6 @@ export function LibraryView(props: LibraryViewProps) {
     } = props
 
     const ts = useThemeSettings()
-    const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
 
     const [params, setParams] = useAtom(__mainLibrary_paramsAtom)
 
@@ -46,7 +43,6 @@ export function LibraryView(props: LibraryViewProps) {
             <div
                 className={cn(
                     "grid h-[22rem] min-[2000px]:h-[24rem] grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4",
-                    // "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8"
                 )}
             >
                 {[1, 2, 3, 4, 5, 6, 7, 8]?.map((_, idx) => {
@@ -105,35 +101,21 @@ function GenreSelector({
     if (!genres.length) return null
 
     return (
-        <HorizontalDraggableScroll className="scroll-pb-1 pt-4 flex">
-            <div className="flex flex-1"></div>
-            <StaticTabs
-                className="px-2 overflow-visible gap-2 py-4 w-fit"
-                triggerClass="text-base rounded-md ring-2 ring-transparent data-[current=true]:ring-brand-500 data-[current=true]:text-brand-300"
-                items={[
-                    // {
-                    //     name: "All",
-                    //     isCurrent: !params!.genre?.length,
-                    //     onClick: () => setParams(draft => {
-                    //         draft.genre = []
-                    //         return
-                    //     }),
-                    // },
-                    ...genres.map(genre => ({
-                        name: genre,
-                        isCurrent: params!.genre?.includes(genre) ?? false,
-                        onClick: () => setParams(draft => {
-                            if (draft.genre?.includes(genre)) {
-                                draft.genre = draft.genre?.filter(g => g !== genre)
-                            } else {
-                                draft.genre = [...(draft.genre || []), genre]
-                            }
-                            return
-                        }),
-                    })),
-                ]}
-            />
-            <div className="flex flex-1"></div>
-        </HorizontalDraggableScroll>
+        <MediaGenreSelector
+            items={[
+                ...genres.map(genre => ({
+                    name: genre,
+                    isCurrent: params!.genre?.includes(genre) ?? false,
+                    onClick: () => setParams(draft => {
+                        if (draft.genre?.includes(genre)) {
+                            draft.genre = draft.genre?.filter(g => g !== genre)
+                        } else {
+                            draft.genre = [...(draft.genre || []), genre]
+                        }
+                        return
+                    }),
+                })),
+            ]}
+        />
     )
 }

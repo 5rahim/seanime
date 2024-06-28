@@ -10,6 +10,7 @@ import {
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     ADVANCED_SEARCH_FORMATS,
@@ -20,7 +21,6 @@ import {
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -298,33 +298,29 @@ function GenreSelector() {
     }, [debouncedParams])
 
     return (
-        <HorizontalDraggableScroll className="w-full scroll-pb-1 pt-4">
-            <StaticTabs
-                className="px-2 gap-2 overflow-visible py-4"
-                triggerClass="text-base rounded-md ring-2 ring-transparent data-[current=true]:ring-brand-500 data-[current=true]:text-brand-300"
-                items={[
-                    {
-                        name: "All",
-                        isCurrent: !params!.genre?.length,
-                        onClick: () => setParams(draft => {
-                            draft.genre = []
-                            return
-                        }),
-                    },
-                    ...ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({
-                        name: genre,
-                        isCurrent: params!.genre?.includes(genre) ?? false,
-                        onClick: () => setParams(draft => {
-                            if (draft.genre?.includes(genre)) {
-                                draft.genre = draft.genre?.filter(g => g !== genre)
-                            } else {
-                                draft.genre = [...(draft.genre || []), genre]
-                            }
-                            return
-                        }),
-                    })),
-                ]}
-            />
-        </HorizontalDraggableScroll>
+        <MediaGenreSelector
+            items={[
+                {
+                    name: "All",
+                    isCurrent: !params!.genre?.length,
+                    onClick: () => setParams(draft => {
+                        draft.genre = []
+                        return
+                    }),
+                },
+                ...ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({
+                    name: genre,
+                    isCurrent: params!.genre?.includes(genre) ?? false,
+                    onClick: () => setParams(draft => {
+                        if (draft.genre?.includes(genre)) {
+                            draft.genre = draft.genre?.filter(g => g !== genre)
+                        } else {
+                            draft.genre = [...(draft.genre || []), genre]
+                        }
+                        return
+                    }),
+                })),
+            ]}
+        />
     )
 }

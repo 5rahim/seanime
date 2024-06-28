@@ -183,6 +183,8 @@ type Theme struct {
 	LibraryScreenCustomBannerOpacity     int    `gorm:"column:library_screen_custom_banner_opacity" json:"libraryScreenCustomBannerOpacity"`
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`
+	// Library
+	//LibraryScreen
 }
 
 // +---------------------+

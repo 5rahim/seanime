@@ -1,12 +1,11 @@
 import { AL_BaseManga, AL_BaseMedia } from "@/api/generated/types"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
+import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
 import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_lib/handle-discover-queries"
 import { ADVANCED_SEARCH_MEDIA_GENRES } from "@/app/(main)/search/_lib/advanced-search-constants"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
-import { StaticTabs } from "@/components/ui/tabs"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useEffect, useState } from "react"
@@ -105,24 +104,20 @@ function GenreSelector(props: GenreSelectorProps) {
     const [selectedGenre, setSelectedGenre] = useAtom(__discover_trendingGenresAtom)
 
     return (
-        <HorizontalDraggableScroll className="w-full scroll-pb-1 pt-4">
-            <StaticTabs
-                className="px-2 gap-2 overflow-visible py-4"
-                triggerClass="text-base rounded-md ring-2 ring-transparent data-[current=true]:ring-brand-500 data-[current=true]:text-brand-300"
-                items={[
-                    {
-                        name: "All",
-                        isCurrent: selectedGenre.length === 0,
-                        onClick: () => setSelectedGenre([]),
-                    },
-                    ...ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({
-                        name: genre,
-                        isCurrent: selectedGenre.includes(genre),
-                        onClick: () => setSelectedGenre([genre]),
-                    })),
-                ]}
-            />
-        </HorizontalDraggableScroll>
+        <MediaGenreSelector
+            items={[
+                {
+                    name: "All",
+                    isCurrent: selectedGenre.length === 0,
+                    onClick: () => setSelectedGenre([]),
+                },
+                ...ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({
+                    name: genre,
+                    isCurrent: selectedGenre.includes(genre),
+                    onClick: () => setSelectedGenre([genre]),
+                })),
+            ]}
+        />
     )
 }
 
