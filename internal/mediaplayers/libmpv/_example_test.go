@@ -5,8 +5,6 @@ import (
 	"runtime/debug"
 	"testing"
 	"time"
-
-	"github.com/gen2brain/go-mpv"
 )
 
 func isUsingCgo() bool {

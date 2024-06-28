@@ -22,7 +22,6 @@ import (
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/mediaplayers/libmpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
@@ -66,10 +65,9 @@ type (
 		ListSyncCache           *listsync.Cache
 		AutoDownloader          *autodownloader.AutoDownloader
 		MediaPlayer             struct {
-			VLC    *vlc.VLC
-			MpcHc  *mpchc.MpcHc
-			Mpv    *mpv.Mpv
-			LibMpv *libmpv.LibMpv
+			VLC   *vlc.VLC
+			MpcHc *mpchc.MpcHc
+			Mpv   *mpv.Mpv
 		}
 		MediaPlayerRepository   *mediaplayer.Repository
 		Version                 string
@@ -222,11 +220,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce
 		AutoDownloader:          nil, // Initialized in App.initModulesOnce
 		AutoScanner:             nil, // Initialized in App.initModulesOnce
+		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
+		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
-		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
-		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
 		WD:                      cfg.Data.WorkingDir,
 		previousVersion:         previousVersion,
 		OfflineHub:              offlineHub,

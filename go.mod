@@ -16,7 +16,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.14.1
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/gen2brain/go-mpv v0.2.3
 	github.com/glebarez/sqlite v1.11.0
 	github.com/goccy/go-json v0.10.3
 	github.com/gocolly/colly v1.2.0
@@ -74,7 +73,6 @@ require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/charmbracelet/x/ansi v0.1.1 // indirect
-	github.com/ebitengine/purego v0.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/fasthttp/websocket v1.5.8 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect

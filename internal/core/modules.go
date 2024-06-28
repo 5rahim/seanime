@@ -11,7 +11,6 @@ import (
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/mediaplayers/libmpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
@@ -207,9 +206,7 @@ func (a *App) InitOrRefreshModules() {
 			Default:        settings.MediaPlayer.Default,
 			VLC:            a.MediaPlayer.VLC,
 			MpcHc:          a.MediaPlayer.MpcHc,
-			Mpv:            a.MediaPlayer.Mpv,            // Socket
-			LibMpv:         libmpv.New(a.Logger),         // Libmpv
-			MpvType:        settings.MediaPlayer.MpvType, // Set mpv type
+			Mpv:            a.MediaPlayer.Mpv, // Socket
 			WSEventManager: a.WSEventManager,
 		})
 

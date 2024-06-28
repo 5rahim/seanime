@@ -16,6 +16,8 @@ import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
@@ -44,11 +46,15 @@ const tabsListClass = cn(
 
 export const dynamic = "force-static"
 
+const tabAtom = atom<string>("seanime")
+
 export default function Page() {
     const status = useServerStatus()
     const setServerStatus = useSetServerStatus()
 
     const { mutate, data, isPending } = useSaveSettings()
+
+    const [tab, setTab] = useAtom(tabAtom)
 
     const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
 
@@ -76,7 +82,8 @@ export default function Page() {
 
             {/*<Card className="p-0 overflow-hidden">*/}
             <Tabs
-                defaultValue="seanime"
+                value={tab}
+                onValueChange={setTab}
                 className={tabsRootClass}
                 triggerClass={tabsTriggerClass}
                 listClass={tabsListClass}
@@ -128,7 +135,6 @@ export default function Page() {
                                     mpcPath: data.mpcPath || "",
                                     mpvSocket: data.mpvSocket || "",
                                     mpvPath: data.mpvPath || "",
-                                    mpvType: data.mpvType,
                                 },
                                 torrent: {
                                     defaultTorrentClient: data.defaultTorrentClient,
@@ -169,7 +175,6 @@ export default function Page() {
                             mpcPath: status?.settings?.mediaPlayer?.mpcPath,
                             mpvSocket: status?.settings?.mediaPlayer?.mpvSocket,
                             mpvPath: status?.settings?.mediaPlayer?.mpvPath,
-                            mpvType: status?.settings?.mediaPlayer?.mpvType,
                             defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards
                                                                                                                              // compatibility)
                             qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
@@ -477,16 +482,6 @@ export default function Page() {
                                                 help="Leave empty to automatically use the 'mpv' command"
                                             />
                                         </div>
-
-                                        {/*<Field.Select*/}
-                                        {/*    name="mpvType"*/}
-                                        {/*    label="Communication type"*/}
-                                        {/*    options={[*/}
-                                        {/*        { label: "Socket", value: "socket" },*/}
-                                        {/*        { label: "Libmpv", value: "libmpv" },*/}
-                                        {/*    ]}*/}
-                                        {/*    help="Default is 'socket'. Switch to 'libmpv' if you are experiencing issues."*/}
-                                        {/*/>*/}
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gen2brain/go-mpv"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
+	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/util"
 	"sync"
 )

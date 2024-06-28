@@ -25429,17 +25429,6 @@
         "required": true,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "MpvType",
-        "jsonName": "mpvType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " \"libmpv\" or \"socket\""
-        ]
       }
     ],
     "comments": []
@@ -35442,10 +35431,7 @@
     "aliasOf": {
       "goType": "string",
       "typescriptType": "string",
-      "declaredValues": [
-        "\"libmpv\"",
-        "\"mpv\""
-      ]
+      "declaredValues": []
     },
     "comments": []
   },
@@ -35501,16 +35487,6 @@
         "goType": "mpv.Mpv",
         "typescriptType": "Mpv",
         "usedStructName": "mpv.Mpv",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LibMpv",
-        "jsonName": "LibMpv",
-        "goType": "libmpv.LibMpv",
-        "typescriptType": "LibMpv",
-        "usedStructName": "libmpv.LibMpv",
         "required": false,
         "public": true,
         "comments": []
@@ -35647,16 +35623,6 @@
         "goType": "mpv.Mpv",
         "typescriptType": "Mpv",
         "usedStructName": "mpv.Mpv",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LibMpv",
-        "jsonName": "LibMpv",
-        "goType": "libmpv.LibMpv",
-        "typescriptType": "LibMpv",
-        "usedStructName": "libmpv.LibMpv",
         "required": false,
         "public": true,
         "comments": []
