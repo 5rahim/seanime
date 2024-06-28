@@ -4,7 +4,6 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries } from "@/lib/helpers/filtering"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom, useSetAtom } from "jotai/react"
-import { uniq } from "lodash"
 import React from "react"
 
 export const MAIN_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
@@ -39,7 +38,7 @@ export function useHandleLibraryCollection() {
         const allGenres = data?.lists?.flatMap(l => {
             return l.entries?.flatMap(e => e.media?.genres) ?? []
         })
-        return uniq(allGenres)?.filter(Boolean) ?? []
+        return [...new Set(allGenres)].filter(Boolean)
     }, [data])
 
     const [params, setParams] = useAtom(__mainLibrary_paramsAtom)

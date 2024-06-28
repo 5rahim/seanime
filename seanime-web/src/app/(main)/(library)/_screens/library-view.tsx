@@ -8,6 +8,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { AnimatePresence } from "framer-motion"
 import { useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -69,20 +70,22 @@ export function LibraryView(props: LibraryViewProps) {
                 isLoading={isLoading}
             />
 
-            <PageWrapper className="space-y-3 lg:space-y-6 relative z-[4]">
-                <GenreSelector genres={genres} />
-            </PageWrapper>
+            <GenreSelector genres={genres} />
 
-            {!params.genre?.length ?
-                <LibraryCollectionLists
-                    collectionList={collectionList}
-                    isLoading={isLoading}
-                />
-                : <LibraryCollectionFilteredLists
-                    collectionList={filteredCollectionList}
-                    isLoading={isLoading}
-                />
-            }
+            <AnimatePresence mode="wait">
+                {!params.genre?.length ?
+                    <LibraryCollectionLists
+                        key="library-collection-lists"
+                        collectionList={collectionList}
+                        isLoading={isLoading}
+                    />
+                    : <LibraryCollectionFilteredLists
+                        key="library-filtered-lists"
+                        collectionList={filteredCollectionList}
+                        isLoading={isLoading}
+                    />
+                }
+            </AnimatePresence>
         </>
     )
 }
@@ -101,21 +104,23 @@ function GenreSelector({
     if (!genres.length) return null
 
     return (
-        <MediaGenreSelector
-            items={[
-                ...genres.map(genre => ({
-                    name: genre,
-                    isCurrent: params!.genre?.includes(genre) ?? false,
-                    onClick: () => setParams(draft => {
-                        if (draft.genre?.includes(genre)) {
-                            draft.genre = draft.genre?.filter(g => g !== genre)
-                        } else {
-                            draft.genre = [...(draft.genre || []), genre]
-                        }
-                        return
-                    }),
-                })),
-            ]}
-        />
+        <PageWrapper className="space-y-3 lg:space-y-6 relative z-[4]">
+            <MediaGenreSelector
+                items={[
+                    ...genres.map(genre => ({
+                        name: genre,
+                        isCurrent: params!.genre?.includes(genre) ?? false,
+                        onClick: () => setParams(draft => {
+                            if (draft.genre?.includes(genre)) {
+                                draft.genre = draft.genre?.filter(g => g !== genre)
+                            } else {
+                                draft.genre = [...(draft.genre || []), genre]
+                            }
+                            return
+                        }),
+                    })),
+                ]}
+            />
+        </PageWrapper>
     )
 }

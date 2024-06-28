@@ -184,7 +184,7 @@ type Theme struct {
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`
 	// Library
-	//LibraryScreen
+	DisableLibraryScreenGenreSelector bool `gorm:"column:disable_library_screen_genre_selector" json:"disableLibraryScreenGenreSelector"`
 }
 
 // +---------------------+

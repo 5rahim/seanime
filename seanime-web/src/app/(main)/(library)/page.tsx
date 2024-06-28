@@ -53,7 +53,7 @@ export default function Library() {
 
             <EmptyLibraryView isLoading={isLoading} hasScanned={hasScanned} />
 
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="wait">
                 {view === "base" && <PageWrapper
                     key="base"
                     className="relative 2xl:order-first pb-10 pt-4"

@@ -1,10 +1,8 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
-import { __mainLibrary_paramsAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
-import { useAtomValue } from "jotai"
 import React from "react"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
@@ -13,7 +11,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
 }) {
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]">
             {collectionList.map(collection => {
                 if (!collection.entries?.length) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} />
@@ -28,13 +26,13 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
     isLoading: boolean
 }) {
 
-    const params = useAtomValue(__mainLibrary_paramsAtom)
+    // const params = useAtomValue(__mainLibrary_paramsAtom)
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]">
-            <h3 className="text-center truncate">
-                {params.genre?.join(", ")}
-            </h3>
+        <PageWrapper key="library-filtered-lists" className="p-4 space-y-8 relative z-[4]">
+            {/*<h3 className="text-center truncate">*/}
+            {/*    {params.genre?.join(", ")}*/}
+            {/*</h3>*/}
             <MediaCardLazyGrid itemCount={collectionList?.flatMap(n => n.entries)?.length ?? 0}>
                 {collectionList?.flatMap(n => n.entries)?.filter(Boolean)?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
