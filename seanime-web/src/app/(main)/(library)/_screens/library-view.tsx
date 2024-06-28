@@ -3,10 +3,7 @@ import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-wa
 import { LibraryCollectionFilteredLists, LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __mainLibrary_paramsAtom, __mainLibrary_paramsInputAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
-import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
-import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -16,7 +13,6 @@ import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { FiSearch } from "react-icons/fi"
 
 type LibraryViewProps = {
     genres: string[]
@@ -69,32 +65,6 @@ export function LibraryView(props: LibraryViewProps) {
             </div>
         </div>
     </React.Fragment>
-
-    if (!hasScanned && !isLoading) return (
-        <>
-            <DiscoverPageHeader />
-            <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8 relative z-[4]">
-                <div className="text-center space-y-4">
-                    <div className="w-fit mx-auto space-y-4">
-                        <h2>Empty library</h2>
-                        <Button
-                            intent="warning-subtle"
-                            leftIcon={<FiSearch />}
-                            size="xl"
-                            rounded
-                            onClick={() => setScannerModalOpen(true)}
-                        >
-                            Scan your library
-                        </Button>
-                    </div>
-                </div>
-                <div>
-                    <h3>Trending this season</h3>
-                    <DiscoverTrending />
-                </div>
-            </PageWrapper>
-        </>
-    )
 
     return (
         <>

@@ -1,9 +1,9 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList, Anime_MediaEntryEpisode } from "@/api/generated/types"
 import {
+    __library_debouncedSearchInputAtom,
+    __library_paramsAtom,
+    __library_paramsInputAtom,
     __library_selectedListAtom,
-    _library_debouncedSearchInputAtom,
-    _library_paramsAtom,
-    _library_paramsInputAtom,
     DETAILED_LIBRARY_DEFAULT_PARAMS,
     useHandleDetailedLibraryCollection,
 } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
@@ -138,7 +138,7 @@ const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_Library
 const SearchInput = () => {
 
     const [inputValue, setInputValue] = React.useState("")
-    const setDebouncedInput = useSetAtom(_library_debouncedSearchInputAtom)
+    const setDebouncedInput = useSetAtom(__library_debouncedSearchInputAtom)
     const debouncedInput = useDebounce(inputValue, 500)
 
     React.useEffect(() => {
@@ -163,8 +163,8 @@ const SearchInput = () => {
 export function SearchOptions() {
 
     const serverStatus = useServerStatus()
-    const [params, setParams] = useAtom(_library_paramsInputAtom)
-    const setActualParams = useSetAtom(_library_paramsAtom)
+    const [params, setParams] = useAtom(__library_paramsInputAtom)
+    const setActualParams = useSetAtom(__library_paramsAtom)
     const debouncedParams = useDebounce(params, 500)
 
     const [selectedIndex, setSelectedIndex] = useAtom(__library_selectedListAtom)
@@ -289,8 +289,8 @@ export function SearchOptions() {
 }
 
 function GenreSelector() {
-    const [params, setParams] = useAtom(_library_paramsInputAtom)
-    const setActualParams = useSetAtom(_library_paramsAtom)
+    const [params, setParams] = useAtom(__library_paramsInputAtom)
+    const setActualParams = useSetAtom(__library_paramsAtom)
     const debouncedParams = useDebounce(params, 500)
 
     React.useEffect(() => {

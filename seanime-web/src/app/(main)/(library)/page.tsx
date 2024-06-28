@@ -8,6 +8,7 @@ import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatch
 import { useHandleLibraryCollection } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { DetailedLibraryView } from "@/app/(main)/(library)/_screens/detailed-library-view"
+import { EmptyLibraryView } from "@/app/(main)/(library)/_screens/empty-library-view"
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
@@ -49,6 +50,8 @@ export default function Library() {
                 isLoading={isLoading}
                 hasScanned={hasScanned}
             />
+
+            <EmptyLibraryView isLoading={isLoading} hasScanned={hasScanned} />
 
             <AnimatePresence mode="wait" initial={false}>
                 {view === "base" && <PageWrapper

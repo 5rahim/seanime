@@ -1,3 +1,4 @@
+import { LuffyError } from "@/components/shared/luffy-error"
 import React from "react"
 import { useWindowSize } from "react-use"
 import { useDebounce } from "use-debounce"
@@ -12,6 +13,12 @@ export function MediaCardGrid(props: MediaCardGridProps) {
         children,
         ...rest
     } = props
+
+    if (React.Children.toArray(children).length === 0) {
+        return <LuffyError title={null}>
+            <p>Nothing to see</p>
+        </LuffyError>
+    }
 
     return (
         <>
@@ -37,7 +44,9 @@ export function MediaCardLazyGrid({
 }: MediaCardLazyGridProps) {
 
     if (itemCount === 0) {
-        return null
+        return <LuffyError title={null}>
+            <p>Nothing to see</p>
+        </LuffyError>
     }
 
     if (itemCount <= 20) {

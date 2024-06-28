@@ -12,13 +12,13 @@ export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
     sorting: "PROGRESS_DESC",
 }
 
-export const _library_paramsAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
+export const __library_paramsAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
 
-export const _library_paramsInputAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
+export const __library_paramsInputAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
 
 export const __library_selectedListAtom = atomWithImmer<string>("-")
 
-export const _library_debouncedSearchInputAtom = atomWithImmer<string>("")
+export const __library_debouncedSearchInputAtom = atomWithImmer<string>("")
 
 export function useHandleDetailedLibraryCollection() {
     const serverStatus = useServerStatus()
@@ -28,10 +28,10 @@ export function useHandleDetailedLibraryCollection() {
      */
     const { data, isLoading } = useGetLibraryCollection()
 
-    const params = useAtomValue(_library_paramsAtom)
+    const params = useAtomValue(__library_paramsAtom)
     const debouncedParams = useDebounce(params, 500)
 
-    const debouncedSearchInput = useAtomValue(_library_debouncedSearchInputAtom)
+    const debouncedSearchInput = useAtomValue(__library_debouncedSearchInputAtom)
 
     /**
      * Sort and filter the collection data
