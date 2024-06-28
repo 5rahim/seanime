@@ -17,6 +17,7 @@ import { RiSignalTowerLine } from "react-icons/ri"
 
 type MediaEntryCardContainerProps = {
     children?: React.ReactNode
+    mRef?: React.RefObject<HTMLDivElement>
 } & React.HTMLAttributes<HTMLDivElement>
 
 export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
@@ -24,11 +25,13 @@ export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
     const {
         children,
         className,
+        mRef,
         ...rest
     } = props
 
     return (
         <div
+            ref={mRef}
             className={cn(
                 "h-full col-span-1 group/anime-list-item relative flex flex-col place-content-stretch focus-visible:outline-0 flex-none",
                 className,

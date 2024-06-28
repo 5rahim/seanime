@@ -68,6 +68,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     const [libraryData, setLibraryData] = useState<Anime_MediaEntryLibraryData | undefined>(_libraryData)
     const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
 
+    const ref = React.useRef<HTMLDivElement>(null)
+
     const [__atomicLibraryCollection, getAtomicLibraryEntry] = useAtom(getAtomicLibraryEntryAtom)
 
     const showLibraryBadge = !!libraryData && !!props.showLibraryBadge
@@ -128,7 +130,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     if (!media) return null
 
     return (
-        <MediaEntryCardContainer className={props.containerClassName}>
+        <MediaEntryCardContainer mRef={ref} className={props.containerClassName}>
 
             <MediaEntryCardOverlay overlay={overlay} />
 
