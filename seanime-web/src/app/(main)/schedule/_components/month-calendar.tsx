@@ -1,4 +1,4 @@
-import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { AL_BaseMedia, Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -14,31 +14,20 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 
 type WeekCalendarProps = {
     children?: React.ReactNode
+    media: AL_BaseMedia[]
+    missingEpisodes: Anime_MediaEntryEpisode[]
 }
 
 export function MonthCalendar(props: WeekCalendarProps) {
 
     const {
         children,
+        media,
+        missingEpisodes,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
-    const { data: anilistCollection } = useGetAnilistCollection()
-    const _media = React.useMemo(() => {
-        const collectionEntries = anilistCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []
-        return collectionEntries?.map(entry => entry?.media)?.filter(Boolean)
-    }, [anilistCollection])
-
-    const media = React.useMemo(() => {
-        let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
-            .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
-        if (serverStatus?.settings?.anilist?.enableAdultContent) {
-            return ret
-        } else {
-            return ret.filter(item => !item.isAdult)
-        }
-    }, [_media])
 
     // State for the current displayed month
     const [currentDate, setCurrentDate] = React.useState(new Date())
@@ -64,30 +53,45 @@ export function MonthCalendar(props: WeekCalendarProps) {
         let day = startOfCalendar
 
         while (day <= endOfCalendar) {
+            const upcomingMedia = media.filter((item) => !!item.nextAiringEpisode?.airingAt && isSameDay(new Date(item.nextAiringEpisode?.airingAt * 1000),
+                day)).map((item) => {
+                return {
+                    id: item.id,
+                    name: item.title?.userPreferred,
+                    time: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "h:mm a"),
+                    datetime: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
+                    href: `/entry?id=${item.id}`,
+                    image: item.bannerImage ?? item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium,
+                    episode: item.nextAiringEpisode?.episode || 1,
+                }
+            })
+
+            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(new Date(item.episodeMetadata?.airDate),
+                day)).map((item) => {
+                return {
+                    id: item.basicMedia?.id,
+                    name: item.basicMedia?.title?.userPreferred,
+                    time: format(new Date(item.basicMedia?.nextAiringEpisode?.airingAt! * 1000), "h:mm a"),
+                    datetime: format(new Date(item.basicMedia?.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
+                    href: `/entry?id=${item.basicMedia?.id}`,
+                    image: item.basicMedia?.bannerImage ?? item.basicMedia?.coverImage?.extraLarge ?? item.basicMedia?.coverImage?.large ?? item.basicMedia?.coverImage?.medium,
+                    episode: item.basicMedia?.nextAiringEpisode?.episode || 1,
+                }
+            })
+
             daysArray.push({
                 date: format(day, "yyyy-MM-dd"),
                 isCurrentMonth: isSameMonth(day, currentDate),
                 isToday: isToday(day),
                 isSelected: false,
-                events: media.filter((item) => !!item.nextAiringEpisode?.airingAt && isSameDay(new Date(item.nextAiringEpisode?.airingAt * 1000),
-                    day)).map((item) => {
-                    return {
-                        id: item.id,
-                        name: item.title?.userPreferred,
-                        time: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "h:mm a"),
-                        datetime: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
-                        href: `/entry?id=${item.id}`,
-                        image: item.bannerImage ?? item.coverImage?.extraLarge ?? item.coverImage?.large ?? item.coverImage?.medium,
-                        episode: item.nextAiringEpisode?.episode || 1,
-                    }
-                }),
+                events: [...upcomingMedia, ...pastMedia],
             })
             day = addDays(day, 1)
         }
         return daysArray
-    }, [currentDate, media])
+    }, [currentDate, media, missingEpisodes])
 
-    if (media.length === 0) return null
+    if (media?.length === 0 && missingEpisodes?.length === 0) return null
 
     // const selectedDay = days.find((day) => day.isSelected)
 

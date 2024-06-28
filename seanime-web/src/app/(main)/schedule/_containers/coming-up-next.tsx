@@ -1,5 +1,6 @@
 import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MonthCalendar } from "@/app/(main)/schedule/_components/month-calendar"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -15,21 +16,23 @@ import React from "react"
  */
 export function ComingUpNext() {
     const serverStatus = useServerStatus()
+
     const { data: anilistCollection } = useGetAnilistCollection()
-    const _media = React.useMemo(() => {
-        const collectionEntries = anilistCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []
-        return collectionEntries?.map(entry => entry?.media)?.filter(Boolean)
-    }, [anilistCollection])
+    const missingEpisodes = useMissingEpisodes()
 
     const media = React.useMemo(() => {
+        // get all media
+        const _media = (anilistCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
+        // keep media with next airing episodes
         let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
             .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
         if (serverStatus?.settings?.anilist?.enableAdultContent) {
             return ret
         } else {
+            // remove adult media
             return ret.filter(item => !item.isAdult)
         }
-    }, [_media])
+    }, [anilistCollection])
 
     if (media.length === 0) return null
 
@@ -40,7 +43,10 @@ export function ComingUpNext() {
                 <p className="text-[--muted]">Based on your anime list</p>
             </div>
 
-            <MonthCalendar />
+            <MonthCalendar
+                media={media}
+                missingEpisodes={missingEpisodes}
+            />
 
             <h2>Coming up next</h2>
 

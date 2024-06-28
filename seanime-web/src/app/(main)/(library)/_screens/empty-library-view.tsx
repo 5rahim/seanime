@@ -42,7 +42,7 @@ export function EmptyLibraryView(props: EmptyLibraryViewProps) {
                     <div className="w-fit mx-auto space-y-4">
                         <h2>Empty library</h2>
                         <Button
-                            intent="warning-subtle"
+                            intent="primary-outline"
                             leftIcon={<FiSearch />}
                             size="xl"
                             rounded
