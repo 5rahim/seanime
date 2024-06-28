@@ -26096,6 +26096,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "DisableLibraryScreenGenreSelector",
+        "jsonName": "disableLibraryScreenGenreSelector",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

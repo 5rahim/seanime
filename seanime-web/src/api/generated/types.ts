@@ -2186,6 +2186,7 @@ export type Models_Theme = {
     libraryScreenCustomBannerOpacity: number
     libraryScreenCustomBackgroundImage: string
     libraryScreenCustomBackgroundOpacity: number
+    disableLibraryScreenGenreSelector: boolean
     id: number
     createdAt?: string
     updatedAt?: string

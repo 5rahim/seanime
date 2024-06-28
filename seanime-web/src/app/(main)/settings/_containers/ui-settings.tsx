@@ -26,6 +26,8 @@ const themeSchema = defineSchema(({ z }) => z.object({
     libraryScreenCustomBackgroundOpacity: z.number()
         .transform(v => v === 0 ? 100 : v)
         .default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundOpacity),
+    disableLibraryScreenGenreSelector: z.boolean().default(false),
+
 }))
 
 
@@ -73,6 +75,7 @@ export function UISettings() {
                     libraryScreenCustomBannerOpacity: themeSettings?.libraryScreenCustomBannerOpacity,
                     libraryScreenCustomBackgroundImage: themeSettings?.libraryScreenCustomBackgroundImage,
                     libraryScreenCustomBackgroundOpacity: themeSettings?.libraryScreenCustomBackgroundOpacity,
+                    disableLibraryScreenGenreSelector: themeSettings?.disableLibraryScreenGenreSelector,
                 }}
                 stackClass="space-y-4"
             >
@@ -164,16 +167,17 @@ export function UISettings() {
 
                         <Separator />
 
-                        <h3>Library page</h3>
-
-                        <h5>Anime</h5>
+                        <h3>Library</h3>
 
                         <Field.Switch
                             label="Smaller episode carousel size"
                             name="smallerEpisodeCarouselSize"
                         />
 
-                        <h5>Banner</h5>
+                        <Field.Switch
+                            label="Disable genre selector"
+                            name="disableLibraryScreenGenreSelector"
+                        />
 
                         <Field.RadioCards
                             label="Banner type"

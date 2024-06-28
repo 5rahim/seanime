@@ -70,7 +70,7 @@ export function LibraryView(props: LibraryViewProps) {
                 isLoading={isLoading}
             />
 
-            <GenreSelector genres={genres} />
+            {!ts.disableLibraryScreenGenreSelector && <GenreSelector genres={genres} />}
 
             <AnimatePresence mode="wait">
                 {!params.genre?.length ?
