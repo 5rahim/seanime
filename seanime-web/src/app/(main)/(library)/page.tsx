@@ -20,7 +20,9 @@ export const dynamic = "force-static"
 export default function Library() {
 
     const {
+        libraryGenres,
         libraryCollectionList,
+        filteredLibraryCollectionList,
         isLoading,
         continueWatchingList,
         unmatchedLocalFiles,
@@ -62,7 +64,9 @@ export default function Library() {
                     }}
                 >
                     <LibraryView
+                        genres={libraryGenres}
                         collectionList={libraryCollectionList}
+                        filteredCollectionList={filteredLibraryCollectionList}
                         continueWatchingList={continueWatchingList}
                         isLoading={isLoading}
                         hasScanned={hasScanned}

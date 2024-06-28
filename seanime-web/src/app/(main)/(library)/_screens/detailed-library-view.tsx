@@ -20,7 +20,7 @@ import {
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
-import { Combobox } from "@/components/ui/combobox"
+import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -41,7 +41,6 @@ import { FiSearch } from "react-icons/fi"
 import { LuCalendar, LuLeaf } from "react-icons/lu"
 import { MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
-import { TbSwords } from "react-icons/tb"
 
 type LibraryViewProps = {
     collectionList: Anime_LibraryCollectionList[]
@@ -91,6 +90,8 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                 </div>
 
                 <SearchOptions />
+
+                <GenreSelector />
 
                 {libraryCollectionList.map(collection => {
                     if (!collection.entries?.length) return null
@@ -188,22 +189,7 @@ export function SearchOptions() {
                     ]}
                 />
             </div>
-            <div className="grid grid-cols-3 2xl:grid-cols-[minmax(200px,1fr)_1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4">
-                <Combobox
-                    multiple
-                    leftAddon={<TbSwords />}
-                    emptyMessage="No options found"
-                    label="Genre" placeholder="All genres"
-                    className="w-full"
-                    fieldClass="w-full"
-                    options={ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({ value: genre, label: genre, textValue: genre }))}
-                    value={params.genre ? params.genre : []}
-                    onValueChange={v => setParams(draft => {
-                        draft.genre = v
-                        return
-                    })}
-                    fieldLabelClass="hidden"
-                />
+            <div className="grid grid-cols-3 2xl:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4">
                 <Select
                     label="Sorting"
                     leftAddon={<FaSortAmountDown />}
@@ -299,5 +285,46 @@ export function SearchOptions() {
             </div>
 
         </AppLayoutStack>
+    )
+}
+
+function GenreSelector() {
+    const [params, setParams] = useAtom(_library_paramsInputAtom)
+    const setActualParams = useSetAtom(_library_paramsAtom)
+    const debouncedParams = useDebounce(params, 500)
+
+    React.useEffect(() => {
+        setActualParams(params)
+    }, [debouncedParams])
+
+    return (
+        <HorizontalDraggableScroll className="w-full scroll-pb-1 pt-4">
+            <StaticTabs
+                className="px-2 gap-2 overflow-visible py-4"
+                triggerClass="text-base rounded-md ring-2 ring-transparent data-[current=true]:ring-brand-500 data-[current=true]:text-brand-300"
+                items={[
+                    {
+                        name: "All",
+                        isCurrent: !params!.genre?.length,
+                        onClick: () => setParams(draft => {
+                            draft.genre = []
+                            return
+                        }),
+                    },
+                    ...ADVANCED_SEARCH_MEDIA_GENRES.map(genre => ({
+                        name: genre,
+                        isCurrent: params!.genre?.includes(genre) ?? false,
+                        onClick: () => setParams(draft => {
+                            if (draft.genre?.includes(genre)) {
+                                draft.genre = draft.genre?.filter(g => g !== genre)
+                            } else {
+                                draft.genre = [...(draft.genre || []), genre]
+                            }
+                            return
+                        }),
+                    })),
+                ]}
+            />
+        </HorizontalDraggableScroll>
     )
 }

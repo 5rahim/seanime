@@ -107,7 +107,7 @@ function GenreSelector(props: GenreSelectorProps) {
     return (
         <HorizontalDraggableScroll className="w-full scroll-pb-1 pt-4">
             <StaticTabs
-                className="px-2 overflow-visible py-4"
+                className="px-2 gap-2 overflow-visible py-4"
                 triggerClass="text-base rounded-md ring-2 ring-transparent data-[current=true]:ring-brand-500 data-[current=true]:text-brand-300"
                 items={[
                     {
