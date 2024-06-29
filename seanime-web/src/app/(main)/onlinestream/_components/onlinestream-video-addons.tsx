@@ -4,6 +4,7 @@ import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/on
 import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
+    __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
@@ -14,6 +15,7 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { Tooltip as CTooltip } from "@/components/ui/tooltip"
 import { Menu, Tooltip, useCaptionOptions, usePlaybackRateOptions, useVideoQualityOptions } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
@@ -387,5 +389,35 @@ function SubmenuButton({ label, hint, icon: Icon, disabled }: SubmenuButtonProps
             <span className="ml-auto text-sm text-white/50">{hint}</span>
             <ChevronRightIcon className="parent-data-[open]:hidden ml-0.5 h-[18px] w-[18px] text-sm text-white/50" />
         </Menu.Button>
+    )
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type SwitchSubOrDubButtonProps = {}
+
+export function SwitchSubOrDubButton(props: SwitchSubOrDubButtonProps) {
+
+    const {
+        ...rest
+    } = props
+
+    const [dubbed, setDubbed] = useAtom(__onlinestream_selectedDubbedAtom)
+
+    return (
+        <CTooltip
+            trigger={<Button
+                className=""
+                rounded
+                intent="gray-outline"
+                size="sm"
+                onClick={() => setDubbed(p => !p)}
+            >
+                {dubbed ? "Dubbed" : "Subbed"}
+            </Button>}
+        >
+            {dubbed ? "Switch to subs" : "Switch to dub"}
+        </CTooltip>
     )
 }

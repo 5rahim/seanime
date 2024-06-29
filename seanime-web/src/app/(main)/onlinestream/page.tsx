@@ -10,13 +10,10 @@ import {
     OnlinestreamProviderButton,
     OnlinestreamServerButton,
     OnlinestreamSettingsButton,
+    SwitchSubOrDubButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
 import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
-import {
-    __onlinestream_autoNextAtom,
-    __onlinestream_autoPlayAtom,
-    __onlinestream_selectedEpisodeNumberAtom,
-} from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
+import { __onlinestream_autoNextAtom, __onlinestream_autoPlayAtom } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
@@ -39,7 +36,6 @@ import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/l
 import HLS from "hls.js"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
-import { atomWithStorage } from "jotai/utils"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -47,7 +43,6 @@ import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { useUpdateEffect } from "react-use"
 
-const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
 type ProgressItem = {
     episodeNumber: number
 }
@@ -70,8 +65,7 @@ export default function Page() {
 
     const mediaIdRef = React.useRef(mediaId)
 
-    const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
-    const [_episodeNumber, _setEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
+    // const [_episodeNumber, _setEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
@@ -277,6 +271,8 @@ export default function Page() {
                                     setCurrentProgress(progressItem.episodeNumber)
                                 }}
                             >Update progress</Button>}
+
+                            <SwitchSubOrDubButton />
 
                             {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
                         </div>
