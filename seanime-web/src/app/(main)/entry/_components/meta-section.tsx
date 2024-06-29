@@ -130,8 +130,8 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
                             mediaId={entry.mediaId}
                             size="lg"
                         />
-                        <AnimeEntryDropdownMenu entry={entry} />
                     </>}
+                    <AnimeEntryDropdownMenu entry={entry} />
                 </div>
 
                 {(!entry.aniDBId || entry.aniDBId === 0) && (
