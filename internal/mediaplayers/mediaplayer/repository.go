@@ -176,7 +176,7 @@ func (m *Repository) Stream(streamUrl string) error {
 	case "mpc-hc":
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 	case "mpv":
-		err = m.Mpv.OpenAndStream(streamUrl, "--no-cache", "--force-window")
+		err = m.Mpv.OpenAndPlay(streamUrl, "--no-cache", "--force-window")
 	}
 
 	if err != nil {

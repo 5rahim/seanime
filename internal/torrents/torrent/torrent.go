@@ -13,6 +13,12 @@ import (
 	"time"
 )
 
+const (
+	ProviderNyaa       = "nyaa"
+	ProviderAnimeTosho = "animetosho"
+	ProviderNone       = "none"
+)
+
 type (
 	AnimeTorrent struct {
 		Name          string `json:"name"`
@@ -58,7 +64,7 @@ func NewAnimeTorrentFromNyaa(torrent *nyaa.DetailedTorrent) *AnimeTorrent {
 		Link:          torrent.GUID,
 		DownloadUrl:   torrent.Link,
 		InfoHash:      torrent.InfoHash,
-		Provider:      "nyaa",
+		Provider:      ProviderNyaa,
 	}
 
 	hydrateMetadata(t, metadata)
@@ -84,7 +90,7 @@ func NewAnimeTorrentFromAnimeTosho(torrent *animetosho.Torrent) *AnimeTorrent {
 		Link:          torrent.Link,
 		DownloadUrl:   torrent.TorrentUrl,
 		InfoHash:      torrent.InfoHash,
-		Provider:      "animetosho",
+		Provider:      ProviderAnimeTosho,
 	}
 
 	hydrateMetadata(t, metadata)

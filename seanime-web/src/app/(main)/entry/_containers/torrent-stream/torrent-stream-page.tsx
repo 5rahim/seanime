@@ -9,6 +9,7 @@ import {
     __torrentSearch_drawerIsOpenAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
@@ -37,8 +38,15 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
+
+    /**
+     * Get all episodes to watch
+     */
     const { data: episodeCollection, isLoading } = useGetTorrentstreamEpisodeCollection(entry.mediaId)
 
+    /**
+     * Organize episodes to watch
+     */
     const episodesToWatch = useMemo(() => {
         if (!episodeCollection?.episodes) return []
         let ret = episodeCollection?.episodes
@@ -53,7 +61,13 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
 
+    /**
+     * Handle start torrent stream
+     */
     const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
+
+    // Stores the episode that was clicked
+    const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
 
     /**
      * Handle episode click
@@ -62,20 +76,25 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      */
     const handleEpisodeClick = (episode: Anime_MediaEntryEpisode) => {
         if (isPending) return
-        if (serverStatus?.torrentstreamSettings?.autoSelect) {
-            if (episode.aniDBEpisode) {
-                handleAutoSelectTorrentStream({
-                    entry,
-                    episodeNumber: episode.episodeNumber,
-                    aniDBEpisode: episode.aniDBEpisode,
+
+        setTorrentStreamingSelectedEpisode(episode)
+
+        React.startTransition(() => {
+            if (serverStatus?.torrentstreamSettings?.autoSelect) {
+                if (episode.aniDBEpisode) {
+                    handleAutoSelectTorrentStream({
+                        entry,
+                        episodeNumber: episode.episodeNumber,
+                        aniDBEpisode: episode.aniDBEpisode,
+                    })
+                }
+            } else {
+                setTorrentSearchEpisode(episode.episodeNumber)
+                React.startTransition(() => {
+                    setTorrentDrawerIsOpen("select")
                 })
             }
-        } else {
-            setTorrentSearchEpisode(episode.episodeNumber)
-            React.startTransition(() => {
-                setTorrentDrawerIsOpen("select")
-            })
-        }
+        })
         // toast.info("Starting torrent stream...")
     }
 

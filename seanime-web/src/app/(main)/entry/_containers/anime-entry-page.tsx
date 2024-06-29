@@ -14,7 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { useUnmount } from "react-use"
 
-export const __anime_torrentStreamingActiveAtom = atom(false)
+export const __anime_torrentStreamingViewActiveAtom = atom(false)
 
 export function AnimeEntryPage() {
 
@@ -24,7 +24,7 @@ export function AnimeEntryPage() {
     const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: mediaDetails, isLoading: mediaDetailsLoading } = useGetAnilistMediaDetails(mediaId)
 
-    const [wantStreaming, setWantStreaming] = useAtom(__anime_torrentStreamingActiveAtom)
+    const [isTorrentStreamingView, setIsTorrentStreamingView] = useAtom(__anime_torrentStreamingViewActiveAtom)
 
     React.useEffect(() => {
         if (!mediaId) {
@@ -35,7 +35,7 @@ export function AnimeEntryPage() {
     }, [mediaEntry, mediaEntryLoading])
 
     useUnmount(() => {
-        setWantStreaming(false)
+        setIsTorrentStreamingView(false)
     })
 
     if (mediaEntryLoading || mediaDetailsLoading) return <LoadingDisplay />
@@ -61,7 +61,7 @@ export function AnimeEntryPage() {
                     }}
                 >
                     <AnimatePresence mode="wait" initial={false}>
-                        {!wantStreaming && <PageWrapper
+                        {!isTorrentStreamingView && <PageWrapper
                             key="episode-list"
                             className="relative 2xl:order-first pb-10 pt-4"
                             {...{
@@ -78,7 +78,7 @@ export function AnimeEntryPage() {
                             </EpisodeListGridProvider>
                         </PageWrapper>}
 
-                        {wantStreaming && <PageWrapper
+                        {isTorrentStreamingView && <PageWrapper
                             key="torrent-streaming-episodes"
                             className="relative 2xl:order-first pb-10 pt-4"
                             {...{

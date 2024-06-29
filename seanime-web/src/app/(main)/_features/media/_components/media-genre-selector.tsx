@@ -24,7 +24,7 @@ export function MediaGenreSelector(props: MediaGenreSelectorProps) {
         <>
             <HorizontalDraggableScroll
                 className={cn(
-                    "scroll-pb-1 pt-4 flex",
+                    "scroll-pb-1 flex",
                     className,
                 )}
             >

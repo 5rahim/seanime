@@ -15,7 +15,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema } from "@/lib/server/settings"
+import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -353,11 +353,12 @@ export default function Page() {
                             <Field.Select
                                 name="torrentProvider"
                                 // label="Torrent Provider"
-                                help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results."
+                                help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results. Select 'None' if you don't need torrent support."
                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                 options={[
-                                    { label: "AnimeTosho (recommended)", value: "animetosho" },
-                                    { label: "Nyaa", value: "nyaa" },
+                                    { label: "AnimeTosho (recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
+                                    { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
+                                    { label: "None", value: TORRENT_PROVIDER.NONE },
                                 ]}
                             />
 

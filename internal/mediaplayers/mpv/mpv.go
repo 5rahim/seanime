@@ -3,8 +3,8 @@ package mpv
 import (
 	"context"
 	"errors"
-	"github.com/jannson/mpvipc"
 	"github.com/rs/zerolog"
+	"github.com/seanime-app/seanime/internal/mediaplayers/mpvipc"
 	"os/exec"
 	"runtime"
 	"sync"
@@ -143,8 +143,7 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 		return nil
 	}
 
-	m.conn = mpvipc.NewConnection(m.SocketName)
-	err = m.conn.Open()
+	err = m.establishConnection()
 	if err != nil {
 		return err
 	}
@@ -163,46 +162,24 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
-// OpenAndStream first opens MPV before loading the stream.
-func (m *Mpv) OpenAndStream(filePath string, args ...string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	m.Playback = &Playback{}
-
-	// Launch player or replace file
-	err := m.launchPlayer(false, filePath, args...)
-	if err != nil {
-		return err
+func (m *Mpv) establishConnection() error {
+	tries := 1
+	for {
+		m.conn = mpvipc.NewConnection(m.SocketName)
+		err := m.conn.Open()
+		if err != nil {
+			if tries >= 4 {
+				m.Logger.Error().Err(err).Msg("mpv: Failed to establish connection")
+				return err
+			}
+			m.Logger.Error().Err(err).Msgf("mpv: Failed to establish connection (%d/3), retrying...", tries)
+			tries++
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		m.Logger.Debug().Msg("mpv: Connection established")
+		break
 	}
-
-	// Create context for the connection
-	// When the cancel method is called (by launchPlayer), the previous connection will be closed
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
-	// Establish new connection, only if it doesn't exist
-	// We don't continue past this point if the connection is already open, because it means the goroutine is already running
-	if m.conn != nil && !m.conn.IsClosed() {
-		return nil
-	}
-
-	m.conn = mpvipc.NewConnection(m.SocketName)
-	err = m.conn.Open()
-	if err != nil {
-		return err
-	}
-
-	m.isRunning = true
-	m.Logger.Debug().Msg("mpv: Connection established")
-
-	// Reset subscriber's done channel in case it was closed
-	for _, sub := range m.subscribers {
-		sub.ClosedCh = make(chan struct{})
-	}
-
-	// Listen for events in a goroutine
-	go m.listenForEvents(ctx)
 
 	return nil
 }

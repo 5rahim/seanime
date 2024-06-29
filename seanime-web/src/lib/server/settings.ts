@@ -8,6 +8,12 @@ export const DEFAULT_DOH_PROVIDER = ""
 
 export const DEFAULT_MPV_TYPE = "socket"
 
+export const enum TORRENT_PROVIDER {
+    ANIMETOSHO = "animetosho",
+    NYAA = "nyaa",
+    NONE = "none",
+}
+
 export const _gettingStartedSchema = z.object({
     enableTranscode: z.boolean().optional().default(false),
     enableTorrentStreaming: z.boolean().optional().default(false),
@@ -99,6 +105,7 @@ export function useDefaultSettingsPaths() {
     }
 
 }
+
 export function getDefaultMpcSocket(os: string) {
     switch (os) {
         case "windows":
