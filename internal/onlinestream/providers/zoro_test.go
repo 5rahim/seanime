@@ -151,7 +151,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		{
 			name: "Apothecary Diaries",
 			episode: &EpisodeDetails{
-				ID:     "the-apothecary-diaries-18578$episode$122954$sub",
+				ID:     "the-apothecary-diaries-18578$episode$122954$dub",
 				Number: 24,
 				URL:    "https://hianime.to/watch/the-apothecary-diaries-18578?ep=122954",
 			},

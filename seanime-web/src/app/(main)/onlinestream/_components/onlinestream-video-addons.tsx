@@ -403,7 +403,8 @@ export function SwitchSubOrDubButton(props: SwitchSubOrDubButtonProps) {
         ...rest
     } = props
 
-    const [dubbed, setDubbed] = useAtom(__onlinestream_selectedDubbedAtom)
+    const [dubbed] = useAtom(__onlinestream_selectedDubbedAtom)
+    const { toggleDubbed } = useOnlinestreamManagerContext()
 
     return (
         <CTooltip
@@ -412,7 +413,7 @@ export function SwitchSubOrDubButton(props: SwitchSubOrDubButtonProps) {
                 rounded
                 intent="gray-outline"
                 size="sm"
-                onClick={() => setDubbed(p => !p)}
+                onClick={() => toggleDubbed()}
             >
                 {dubbed ? "Dubbed" : "Subbed"}
             </Button>}

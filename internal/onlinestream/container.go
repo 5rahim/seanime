@@ -109,6 +109,17 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 				continue
 			}
 
+			// Zoro dubs
+			if provider == onlinestream_providers.ZoroProvider && dubbed {
+				// If the episode details have both sub and dub, we need to get the dub episode.
+				if !strings.HasSuffix(episodeDetails.ID, string(onlinestream_providers.SubAndDub)) {
+					// Skip sub-only episodes
+					continue
+				}
+				// Replace "both" with "dub" so that [getProviderEpisodeServers] can find the dub episode.
+				episodeDetails.ID = strings.Replace(episodeDetails.ID, string(onlinestream_providers.SubAndDub), string(onlinestream_providers.Dub), 1)
+			}
+
 			// Fetch episode servers
 			servers, err := os.getProviderEpisodeServers(provider, episodeDetails)
 			if err != nil {

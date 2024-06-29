@@ -6,6 +6,7 @@ import {
 import {
     __onlinestream_autoPlayAtom,
     __onlinestream_qualityAtom,
+    __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedEpisodeNumberAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
@@ -38,6 +39,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
     const setEpisodeNumber = useSetAtom(__onlinestream_selectedEpisodeNumberAtom)
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
+    const setDubbed = useSetAtom(__onlinestream_selectedDubbedAtom)
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
     const currentProviderRef = React.useRef<string | null>(null)
@@ -169,6 +171,13 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
         setServer(server)
     }, [videoSource])
 
+    // Dubbed
+    const toggleDubbed = React.useCallback(() => {
+        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+        previousIsPlayingRef.current = playerRef.current?.paused === false
+        setDubbed((prev) => !prev)
+    }, [videoSource])
+
     // Episode
     const handleChangeEpisodeNumber = React.useCallback((epNumber: number) => {
         setEpisodeNumber(epNumber)
@@ -200,6 +209,7 @@ export function useOnlinestreamManager(props: OnlinestreamManagerProps) {
             changeQuality,
             changeProvider,
             changeServer,
+            toggleDubbed,
         },
     }
 
