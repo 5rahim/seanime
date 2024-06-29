@@ -3,7 +3,8 @@ import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
-import { OnlinestreamEpisodeListItem } from "@/app/(main)/onlinestream/_components/onlinestream-episode-list-item"
+import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
     OnlinestreamParametersButton,
     OnlinestreamProviderButton,
@@ -177,17 +178,20 @@ export default function Page() {
     }
 
     /** Scroll to selected episode element when the episode list changes (on mount) **/
+    const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
     React.useEffect(() => {
-        React.startTransition(() => {
-            const element = document.getElementById(`episode-${currentEpisodeNumber}`)
-            if (element) {
-                element.scrollIntoView()
-                React.startTransition(() => {
-                    window.scrollTo({ top: 0 })
-                })
-            }
-        })
-    }, [episodes, currentEpisodeNumber])
+        if (episodeListContainerRef.current) {
+            React.startTransition(() => {
+                const element = document.getElementById(`episode-${currentEpisodeNumber}`)
+                if (element) {
+                    element.scrollIntoView()
+                    React.startTransition(() => {
+                        window.scrollTo({ top: 0 })
+                    })
+                }
+            })
+        }
+    }, [episodeListContainerRef.current, episodes, currentEpisodeNumber])
 
     const cues = React.useMemo(() => {
         const introStart = aniSkipData?.op?.interval?.startTime ?? 0
@@ -424,112 +428,39 @@ export default function Page() {
                             )}
                         </div>
 
-                        {/*{currentEpisodeDetails && (*/}
-                        {/*    <div className="space-y-4">*/}
-                        {/*        <h3 className="line-clamp-1">{currentEpisodeDetails?.title?.replaceAll("`", "'")}</h3>*/}
-                        {/*        {currentEpisodeDetails?.description && <p className="text-gray-400">*/}
-                        {/*            {currentEpisodeDetails?.description?.replaceAll("`", "'")}*/}
-                        {/*        </p>}*/}
-                        {/*    </div>*/}
-                        {/*)}*/}
-
-                        {/*<div className="flex gap-4 lg:gap-5">*/}
-
-                        {/*    {media.coverImage?.large && <div*/}
-                        {/*        className="flex-none w-[200px] h-[270px] relative rounded-md overflow-hidden bg-[--background] shadow-md border block"*/}
-                        {/*    >*/}
-                        {/*        <Image*/}
-                        {/*            src={media.coverImage.large}*/}
-                        {/*            alt="cover image"*/}
-                        {/*            fill*/}
-                        {/*            priority*/}
-                        {/*            className="object-cover object-center"*/}
-                        {/*        />*/}
-                        {/*    </div>}*/}
-
-
-                        {/*    <div className="space-y-2">*/}
-                        {/*        /!*TITLE*!/*/}
-                        {/*        <div className="space-y-2">*/}
-                        {/*            <p*/}
-                        {/*                className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-1 font-bold text-pretty text-xl lg:text-3xl"*/}
-                        {/*                children={media.title?.userPreferred || ""}*/}
-                        {/*            />*/}
-                        {/*            {media.title?.userPreferred?.toLowerCase() !== media.title?.english?.toLowerCase() &&*/}
-                        {/*                <p className="text-gray-400 line-clamp-2">{media.title?.english}</p>}*/}
-                        {/*            {media.title?.userPreferred?.toLowerCase() !== media.title?.romaji?.toLowerCase() &&*/}
-                        {/*                <p className="text-gray-400 line-clamp-2">{media.title?.romaji}</p>}*/}
-                        {/*        </div>*/}
-
-                        {/*        /!*SEASON*!/*/}
-                        {/*        {!!media.season ? (*/}
-                        {/*                <div>*/}
-                        {/*                    <p className="text-lg text-gray-200 flex w-full gap-1 items-center">*/}
-                        {/*                        <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {*/}
-                        {/*                        year: "numeric",*/}
-                        {/*                        month: "short",*/}
-                        {/*                    }).format(new Date(media.startDate?.year || 0,*/}
-                        {/*                        media.startDate?.month || 0))} - {capitalize(media.season ?? "")}*/}
-                        {/*                    </p>*/}
-                        {/*                </div>*/}
-                        {/*            ) :*/}
-                        {/*            (*/}
-                        {/*                <p className="text-lg text-gray-200 flex w-full gap-1 items-center">*/}
-
-                        {/*                </p>*/}
-                        {/*            )}*/}
-
-                        {/*        /!*PROGRESS*!/*/}
-                        {/*        <div className="flex gap-2 md:gap-4 items-center">*/}
-                        {/*            <MediaPageHeaderScoreAndProgress*/}
-                        {/*                score={mediaEntry?.listData?.score}*/}
-                        {/*                progress={mediaEntry?.listData?.progress}*/}
-                        {/*                episodes={media.episodes}*/}
-                        {/*            />*/}
-                        {/*            <AnilistMediaEntryModal listData={mediaEntry?.listData} media={media} />*/}
-                        {/*            <p className="text-base md:text-lg">{capitalize(mediaEntry?.listData?.status === "CURRENT"*/}
-                        {/*                ? "Watching"*/}
-                        {/*                : mediaEntry?.listData?.status)}</p>*/}
-                        {/*        </div>*/}
-
-                        {/*        {mediaDetails &&*/}
-                        {/*            <ScrollArea className="h-32 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">{mediaDetails?.description?.replace(*/}
-                        {/*                /(<([^>]+)>)/ig,*/}
-                        {/*                "")}</ScrollArea>}*/}
-                        {/*    </div>*/}
-
-                        {/*</div>*/}
-
-                        {/*<p className="text-lg font-semibold block lg:hidden">*/}
-                        {/*    Episodes*/}
-                        {/*</p>*/}
-                        {/*</div>*/}
-
-
-                        <ScrollArea className="2xl:max-w-[450px] relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0">
+                        <ScrollArea
+                            ref={episodeListContainerRef}
+                            className="2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0"
+                        >
                             <div className="space-y-4">
                                 {(!episodes?.length && !loadPage) && <p>
                                     No episodes found
                                 </p>}
                                 {episodes?.filter(Boolean)?.sort((a, b) => a!.number - b!.number)?.map((episode, idx) => {
                                     return (
-                                        <div
+                                        <EpisodeGridItem
                                             key={idx + (episode.title || "") + episode.number}
-                                            className={"block cursor-pointer"}
                                             id={`episode-${String(episode.number)}`}
                                             onClick={() => handleChangeEpisodeNumber(episode.number)}
-                                        >
-                                            <OnlinestreamEpisodeListItem
-                                                title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
-                                                episodeTitle={episode.title}
-                                                // description={episode.description ?? undefined}
-                                                image={episode.image}
-                                                media={media}
-                                                isSelected={episode.number === currentEpisodeNumber}
-                                                disabled={episodeLoading}
-                                                isWatched={progress ? episode.number <= progress : undefined}
-                                            />
-                                        </div>
+                                            title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
+                                            episodeTitle={episode.title}
+                                            description={episode.description ?? undefined}
+                                            image={episode.image}
+                                            media={media}
+                                            isSelected={episode.number === currentEpisodeNumber}
+                                            disabled={episodeLoading}
+                                            isWatched={progress ? episode.number <= progress : undefined}
+                                            imageContainerClassName="w-20 h-20"
+                                            className="flex-none w-full"
+                                            action={<>
+                                                <MediaEpisodeInfoModal
+                                                    title={media.format === "MOVIE" ? "Complete movie" : `Episode ${episode.number}`}
+                                                    image={episode?.image}
+                                                    episodeTitle={episode.title}
+                                                    summary={episode?.description}
+                                                />
+                                            </>}
+                                        />
                                     )
                                 })}
                                 <p className="text-center text-[--muted] py-2">End</p>

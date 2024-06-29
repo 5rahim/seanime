@@ -2,6 +2,7 @@
 
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
     __mediastream_currentProgressAtom,
     __mediastream_progressItemAtom,
@@ -94,13 +95,24 @@ export default function Page() {
         Object.assign(playerRef.current ?? {}, { currentTime: time })
     }, [])
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId,
-        episodeNumber)
+    /**
+     * Progress update
+     */
+    const {
+        mutate: updateProgress,
+        isPending: isUpdatingProgress,
+        isSuccess: hasUpdatedProgress,
+    } = useUpdateAnimeEntryProgress(mediaId, episodeNumber)
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 
     const [currentProgress, setCurrentProgress] = useAtom(__mediastream_currentProgressAtom)
 
+    /**
+     * Effect for when media entry changes
+     * - Redirect if media entry is not found
+     * - Reset current progress
+     */
     React.useEffect(() => {
         if (!mediaId || (!mediaEntryLoading && !mediaEntry) || (!mediaEntryLoading && !!mediaEntry && !filePath)) {
             router.push("/")
@@ -109,6 +121,22 @@ export default function Page() {
             setCurrentProgress(mediaEntry.listData?.progress ?? 0)
         }
     }, [mediaId, mediaEntry, mediaEntryLoading, filePath])
+
+    /** Scroll to selected episode element when the episode list changes (on mount) **/
+    const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
+    React.useEffect(() => {
+        if (episodeListContainerRef.current) {
+            React.startTransition(() => {
+                const element = document.getElementById(`episode-${episodeNumber}`)
+                if (element) {
+                    element.scrollIntoView()
+                    React.startTransition(() => {
+                        window.scrollTo({ top: 0 })
+                    })
+                }
+            })
+        }
+    }, [episodeListContainerRef.current, episodes, episodeNumber])
 
     if (mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -329,11 +357,15 @@ export default function Page() {
                         )}
                     </div>
 
-                    <ScrollArea className="2xl:max-w-[450px] w-full relative 2xl:sticky 2xl:h-[75dvh] overflow-y-auto 2xl:pr-4 pt-0">
+                    <ScrollArea
+                        ref={episodeListContainerRef}
+                        className="2xl:max-w-[450px] w-full relative 2xl:sticky 2xl:h-[75dvh] overflow-y-auto 2xl:pr-4 pt-0"
+                    >
                         <div className="space-y-4">
                             {episodes.map((episode) => (
                                 <EpisodeGridItem
                                     key={episode.localFile?.path || ""}
+                                    id={`episode-${String(episode.episodeNumber)}`}
                                     media={episode?.basicMedia as any}
                                     title={episode?.displayTitle || episode?.basicMedia?.title?.userPreferred || ""}
                                     image={episode?.episodeMetadata?.image || episode?.basicMedia?.coverImage?.large}
@@ -352,6 +384,17 @@ export default function Page() {
                                     isSelected={episode.localFile?.path === filePath}
                                     imageContainerClassName="w-20 h-20"
                                     className="flex-none w-full"
+                                    action={<>
+                                        <MediaEpisodeInfoModal
+                                            title={episode.displayTitle}
+                                            image={episode.episodeMetadata?.image}
+                                            episodeTitle={episode.episodeTitle}
+                                            airDate={episode.episodeMetadata?.airDate}
+                                            length={episode.episodeMetadata?.length}
+                                            summary={episode.episodeMetadata?.summary}
+                                            isInvalid={episode.isInvalid}
+                                        />
+                                    </>}
                                 />
                             ))}
                             <div className="hidden 2xl:block h-[1rem]">
