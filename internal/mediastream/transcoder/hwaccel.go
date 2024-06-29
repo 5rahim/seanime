@@ -4,6 +4,8 @@
 
 package transcoder
 
+import "runtime"
+
 type (
 	HwAccelOptions struct {
 		Kind   string
@@ -17,6 +19,12 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 		name = "disabled"
 	}
 	streamLogger.Debug().Msgf("transcoder: Hardware acceleration: %s", name)
+
+	defaultOSDevice := "/dev/dri/renderD128"
+	switch runtime.GOOS {
+	case "windows":
+		defaultOSDevice = "auto"
+	}
 
 	// superfast or ultrafast would produce heavy files, so opt for "fast" by default.
 	// vaapi does not have any presets so this flag is unused for vaapi hwaccel.
@@ -46,7 +54,7 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			Name: name,
 			DecodeFlags: []string{
 				"-hwaccel", "vaapi",
-				"-hwaccel_device", GetEnvOr("SEANIME_TRANSCODER_VAAPI_RENDERER", "/dev/dri/renderD128"),
+				"-hwaccel_device", GetEnvOr("SEANIME_TRANSCODER_VAAPI_RENDERER", defaultOSDevice),
 				"-hwaccel_output_format", "vaapi",
 			},
 			EncodeFlags: []string{
@@ -74,7 +82,7 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			Name: name,
 			DecodeFlags: []string{
 				"-hwaccel", "qsv",
-				"-qsv_device", GetEnvOr("SEANIME_TRANSCODER_QSV_RENDERER", "/dev/dri/renderD128"),
+				"-qsv_device", GetEnvOr("SEANIME_TRANSCODER_QSV_RENDERER", defaultOSDevice),
 				"-hwaccel_output_format", "qsv",
 			},
 			EncodeFlags: []string{
