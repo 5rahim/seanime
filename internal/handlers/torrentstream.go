@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"errors"
+	lop "github.com/samber/lo/parallel"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrentstream"
 )
@@ -25,9 +27,9 @@ func HandleGetTorrentstreamEpisodeCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	for _, e := range ec.Episodes {
+	lop.ForEach(ec.Episodes, func(e *anime.MediaEntryEpisode, _ int) {
 		c.App.FillerManager.HydrateEpisodeFillerData(mId, e)
-	}
+	})
 
 	return c.RespondWithData(ec)
 }
