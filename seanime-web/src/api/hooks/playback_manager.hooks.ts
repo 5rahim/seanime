@@ -36,7 +36,11 @@ export function usePlaybackPlayNextEpisode(...keys: any) {
     })
 }
 
-export function usePlaybackStartPlaylist() {
+export function usePlaybackStartPlaylist({
+    onSuccess,
+}: {
+    onSuccess?: () => void
+}) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, PlaybackStartPlaylist_Variables>({
@@ -44,7 +48,8 @@ export function usePlaybackStartPlaylist() {
         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.methods[0],
         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.key],
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylists.key] })
+            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylists.key] })
+            onSuccess?.()
         },
     })
 }

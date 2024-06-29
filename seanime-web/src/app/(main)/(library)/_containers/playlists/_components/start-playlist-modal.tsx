@@ -22,7 +22,9 @@ export function StartPlaylistModal(props: StartPlaylistModalProps) {
         ...rest
     } = props
 
-    const { mutate: startPlaylist, isPending } = usePlaybackStartPlaylist()
+    const { mutate: startPlaylist, isPending } = usePlaybackStartPlaylist({
+        onSuccess: onPlaylistLoaded,
+    })
 
     if (!playlist?.localFiles?.length) return null
 

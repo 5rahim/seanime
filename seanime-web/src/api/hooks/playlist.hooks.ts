@@ -37,7 +37,7 @@ export function useUpdatePlaylist() {
         method: API_ENDPOINTS.PLAYLIST.UpdatePlaylist.methods[0],
         mutationKey: [API_ENDPOINTS.PLAYLIST.UpdatePlaylist.key],
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylists.key] })
+            await queryClient.refetchQueries({ queryKey: [API_ENDPOINTS.PLAYLIST.GetPlaylists.key] })
             toast.success("Playlist updated")
         },
     })
