@@ -25,6 +25,10 @@ func HandleGetTorrentstreamEpisodeCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	for _, e := range ec.Episodes {
+		c.App.FillerManager.HydrateEpisodeFillerData(mId, e)
+	}
+
 	return c.RespondWithData(ec)
 }
 

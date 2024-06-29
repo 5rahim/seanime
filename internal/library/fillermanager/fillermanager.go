@@ -196,3 +196,16 @@ func (fm *FillerManager) HydrateFillerData(e *anime.MediaEntry) {
 		ep.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(e.Media.ID, ep.EpisodeNumber)
 	}
 }
+
+func (fm *FillerManager) HydrateEpisodeFillerData(mId int, e *anime.MediaEntryEpisode) {
+	if fm == nil || e == nil {
+		return
+	}
+
+	// Check if the filler data has been fetched
+	if !fm.HasFillerFetched(mId) {
+		return
+	}
+
+	e.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(mId, e.EpisodeNumber)
+}
