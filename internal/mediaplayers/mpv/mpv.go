@@ -1,12 +1,14 @@
 package mpv
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpvipc"
 	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 )
@@ -33,7 +35,6 @@ type (
 		Playback       *Playback
 		SocketName     string
 		AppPath        string
-		isRunning      bool
 		mu             sync.Mutex
 		playbackMu     sync.RWMutex
 		cancel         context.CancelFunc     // Cancel function for the context
@@ -74,48 +75,79 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 // launchPlayer starts the mpv player and plays the file.
 // If the player is already running, it just loads the new file.
 func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
-	// Cancel previous context
-	// This is done so that we only have one connection open at a time
-	// DEVNOTE: Commented in favor of replacing the file
-	//if m.cancel != nil {
-	//	m.Logger.Debug().Msg("mpv: Cancelling previous context")
-	//	m.cancel()
-	//}
-
 	var err error
 
-	if m.conn == nil || m.conn.IsClosed() {
+	// Cancel previous goroutine context
+	if m.cancel != nil {
+		m.Logger.Debug().Msg("mpv: Cancelling previous context")
+		m.cancel()
+	}
+	// Cancel previous command context
+	if cmdCancel != nil {
+		cmdCancel()
+	}
+	cmdCtx, cmdCancel = context.WithCancel(context.Background())
 
-		cmdCtx, cmdCancel = context.WithCancel(context.Background())
-
-		m.Logger.Debug().Msg("mpv: Starting player")
-		if idle {
-			args = append(args, "--input-ipc-server="+m.SocketName, "--idle")
-			m.cmd, err = m.createCmd("", args...)
-		} else {
-			args = append(args, "--input-ipc-server="+m.SocketName)
-			m.cmd, err = m.createCmd(filePath, args...)
-		}
-		if err != nil {
-			return err
-		}
-		m.prevSocketName = m.SocketName
-
-		err = m.cmd.Start()
-		if err != nil {
-			return err
-		}
+	m.Logger.Debug().Msg("mpv: Starting player")
+	if idle {
+		args = append(args, "--input-ipc-server="+m.SocketName, "--idle")
+		m.cmd, err = m.createCmd("", args...)
 	} else {
-		m.Logger.Debug().Msg("mpv: Replacing file")
-		// If the connection is still open, just play the file
-		_, err = m.conn.Call("loadfile", filePath, "replace")
+		args = append(args, "--input-ipc-server="+m.SocketName)
+		m.cmd, err = m.createCmd(filePath, args...)
+	}
+	if err != nil {
+		return err
+	}
+	m.prevSocketName = m.SocketName
+
+	// Create a pipe for stdout
+	stdoutPipe, err := m.cmd.StdoutPipe()
+	if err != nil {
+		m.Logger.Error().Err(err).Msg("mpv: Failed to create stdout pipe")
+		return err
+	}
+
+	err = m.cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		scanner := bufio.NewScanner(stdoutPipe)
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line != "" {
+				m.Logger.Trace().Msg("mpv cmd: " + line) // Print to logger
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			m.Logger.Error().Err(err).Msg("mpv: Error reading from stdout")
+		}
+	}()
+
+	go func() {
+		err := m.cmd.Wait()
+		if err != nil {
+			m.Logger.Error().Err(err).Msg("mpv: Player has exited")
+		}
+	}()
+
+	// Wait 1 second for the player to start
+	time.Sleep(1 * time.Second)
+
+	return nil
+}
+
+func (m *Mpv) replaceFile(filePath string) error {
+	m.Logger.Debug().Msg("mpv: Replacing file")
+
+	if m.conn != nil && !m.conn.IsClosed() {
+		_, err := m.conn.Call("loadfile", filePath, "replace")
 		if err != nil {
 			return err
 		}
 	}
-
-	// Wait 1 second for the player to start
-	time.Sleep(1 * time.Second)
 
 	return nil
 }
@@ -126,8 +158,15 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 
 	m.Playback = &Playback{}
 
-	// Launch player or replace file
-	err := m.launchPlayer(false, filePath, args...)
+	// If the player is already running, just load the new file
+	var err error
+	if m.conn != nil && !m.conn.IsClosed() {
+		// Launch player or replace file
+		err = m.replaceFile(filePath)
+	} else {
+		// Launch player
+		err = m.launchPlayer(false, filePath, args...)
+	}
 	if err != nil {
 		return err
 	}
@@ -147,9 +186,6 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	if err != nil {
 		return err
 	}
-
-	m.isRunning = true
-	m.Logger.Debug().Msg("mpv: Connection established")
 
 	// Reset subscriber's done channel in case it was closed
 	for _, sub := range m.subscribers {
@@ -188,12 +224,8 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 	// Close the connection when the goroutine ends
 	defer func() {
 		m.Logger.Debug().Msg("mpv: Closing socket connection")
-		m.resetPlaybackStatus()
-		m.isRunning = false
 		m.conn.Close()
-		m.publishDone()
-		m.cancel()
-		cmdCancel()
+		m.terminate()
 		m.Logger.Debug().Msg("mpv: Instance closed")
 	}()
 
@@ -288,14 +320,22 @@ func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 }
 
 func (m *Mpv) CloseAll() {
+	m.Logger.Debug().Msg("mpv: Received close request")
 	if m.conn != nil {
 		err := m.conn.Close()
 		if err != nil {
 			m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
 		}
 	}
+	m.terminate()
+}
+
+func (m *Mpv) terminate() {
+	m.Logger.Trace().Msg("mpv: Terminating")
 	m.resetPlaybackStatus()
-	m.isRunning = false
+	m.publishDone()
+	m.cancel()
+	cmdCancel()
 }
 
 func (m *Mpv) Subscribe(id string) *Subscriber {
@@ -386,5 +426,6 @@ func (m *Mpv) publishDone() {
 	}()
 	for _, sub := range m.subscribers {
 		close(sub.ClosedCh)
+		sub.ClosedCh = make(chan struct{})
 	}
 }
