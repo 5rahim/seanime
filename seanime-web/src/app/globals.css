@@ -213,3 +213,7 @@ code {
     position: absolute !important;
     width: 100%;
 }
+
+.force-hidden {
+    display: none !important;
+}

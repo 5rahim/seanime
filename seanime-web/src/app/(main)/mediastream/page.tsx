@@ -159,7 +159,7 @@ export default function Page() {
         <>
             <AppLayoutStack className="px-4 lg:px-8 z-[5]">
 
-                <div className="flex flex-col md:flex-row w-full justify-between">
+                <div className="flex flex-col lg:flex-row w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
                         <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
@@ -290,6 +290,7 @@ export default function Page() {
                             {isError ?
                                 <LuffyError title="Playback Error" /> :
                                 (!!url && !isMediaContainerLoading) ? <MediaPlayer
+                                    streamType="on-demand" // force VOD
                                     playsInline
                                     ref={playerRef}
                                     crossOrigin

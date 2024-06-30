@@ -30,7 +30,7 @@ import { usePathname } from "next/navigation"
 import React, { useState } from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
-import { RiDownload2Line } from "react-icons/ri"
+import { RiCalendarLine } from "react-icons/ri"
 
 type MediaEntryCardBaseProps = {
     overlay?: React.ReactNode
@@ -255,9 +255,9 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
                         <Badge
                             className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-br-none"
-                            intent="warning"
+                            intent="gray-solid"
                             size="xl"
-                        ><RiDownload2Line /></Badge>
+                        ><RiCalendarLine /></Badge>
                     </div>
                 )}
             </MediaEntryCardBody>

@@ -7,9 +7,10 @@ import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episod
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
     OnlinestreamParametersButton,
+    OnlinestreamPlaybackSubmenu,
     OnlinestreamProviderButton,
     OnlinestreamServerButton,
-    OnlinestreamSettingsButton,
+    OnlinestreamVideoQualitySubmenu,
     SwitchSubOrDubButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
 import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
@@ -210,6 +211,21 @@ export default function Page() {
         return ret
     }, [])
 
+    React.useEffect(() => {
+        const t = setTimeout(() => {
+            const element = document.querySelector(".vds-quality-menu")
+            console.log(element)
+            if (opts.hasCustomQualities) {
+                // Toggle the class
+                element?.classList?.add("force-hidden")
+            } else {
+                // Toggle the class
+                element?.classList?.remove("force-hidden")
+            }
+        }, 1000)
+        return () => clearTimeout(t)
+    }, [opts.hasCustomQualities, url])
+
     const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId,
         currentEpisodeNumber)
 
@@ -236,7 +252,7 @@ export default function Page() {
                     opts={opts}
                 >
 
-                    <div className="flex w-full justify-between">
+                    <div className="flex flex-col lg:flex-row w-full justify-between">
                         <div className="flex gap-4 items-center relative">
                             <Link href={`/entry?id=${media?.id}`}>
                                 <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
@@ -290,6 +306,7 @@ export default function Page() {
                             )}
                         >
                             {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
+                                streamType="on-demand"
                                 playsInline
                                 ref={ref}
                                 crossOrigin="anonymous"
@@ -395,9 +412,12 @@ export default function Page() {
                                 <DefaultVideoLayout
                                     icons={defaultLayoutIcons}
                                     slots={{
-                                        settingsMenu: (
-                                            <OnlinestreamSettingsButton />
-                                        ),
+                                        settingsMenuEndItems: (<>
+                                            {opts.hasCustomQualities ? (
+                                                <OnlinestreamVideoQualitySubmenu />
+                                            ) : null}
+                                            <OnlinestreamPlaybackSubmenu />
+                                        </>),
                                         beforeCaptionButton: (
                                             <div className="flex items-center">
                                                 <OnlinestreamProviderButton />
