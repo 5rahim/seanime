@@ -58,9 +58,9 @@ export default function Library() {
                     key="base"
                     className="relative 2xl:order-first pb-10 pt-4"
                     {...{
-                        initial: { opacity: 0, y: 0 },
+                        initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
-                        exit: { opacity: 0 },
+                        exit: { opacity: 0, scale: 0.99 },
                         transition: {
                             duration: 0.25,
                         },

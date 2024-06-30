@@ -11,7 +11,17 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
 }) {
 
     return (
-        <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper
+            key="library-collection-lists"
+            className="space-y-8"
+            {...{
+                initial: { opacity: 0, y: 60 },
+                animate: { opacity: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.99 },
+                transition: {
+                    duration: 0.25,
+                },
+            }}>
             {collectionList.map(collection => {
                 if (!collection.entries?.length) return null
                 return <LibraryCollectionListItem key={collection.type} list={collection} />
@@ -29,7 +39,17 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
     // const params = useAtomValue(__mainLibrary_paramsAtom)
 
     return (
-        <PageWrapper key="library-filtered-lists" className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper
+            key="library-filtered-lists"
+            className="space-y-8"
+            {...{
+                initial: { opacity: 0, y: 60 },
+                animate: { opacity: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.99 },
+                transition: {
+                    duration: 0.25,
+                },
+            }}>
             {/*<h3 className="text-center truncate">*/}
             {/*    {params.genre?.join(", ")}*/}
             {/*</h3>*/}

@@ -113,11 +113,20 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 		return err
 	}
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+	receivedLog := false
+
 	go func() {
 		scanner := bufio.NewScanner(stdoutPipe)
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
 			if line != "" {
+				if !receivedLog {
+					receivedLog = true
+					wg.Done()
+				}
 				m.Logger.Trace().Msg("mpv cmd: " + line) // Print to logger
 			}
 		}
@@ -133,7 +142,7 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 		}
 	}()
 
-	// Wait 1 second for the player to start
+	wg.Wait()
 	time.Sleep(1 * time.Second)
 
 	return nil
@@ -204,11 +213,11 @@ func (m *Mpv) establishConnection() error {
 		m.conn = mpvipc.NewConnection(m.SocketName)
 		err := m.conn.Open()
 		if err != nil {
-			if tries >= 4 {
+			if tries >= 5 {
 				m.Logger.Error().Err(err).Msg("mpv: Failed to establish connection")
 				return err
 			}
-			m.Logger.Error().Err(err).Msgf("mpv: Failed to establish connection (%d/3), retrying...", tries)
+			m.Logger.Error().Err(err).Msgf("mpv: Failed to establish connection (%d/4), retrying...", tries)
 			tries++
 			time.Sleep(1 * time.Second)
 			continue

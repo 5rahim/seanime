@@ -65,7 +65,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
                     </Disclosure>
                 </div>}
 
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait" initial={false}>
                     {!params.genre?.length ?
                         <CollectionLists key="lists" collectionList={collection} />
                         : <FilteredCollectionLists key="filtered-collection" collectionList={filteredCollection} />
@@ -81,7 +81,17 @@ export function CollectionLists({ collectionList }: {
 }) {
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper
+            className="p-4 space-y-8 relative z-[4]"
+            {...{
+                initial: { opacity: 0, y: 60 },
+                animate: { opacity: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.99 },
+                transition: {
+                    duration: 0.35,
+                },
+            }}
+        >
             {collectionList?.lists?.map(collection => {
                 if (!collection.entries?.length) return null
                 return <CollectionListItem key={collection.type} list={collection} />
@@ -100,7 +110,17 @@ export function FilteredCollectionLists({ collectionList }: {
     }, [collectionList])
 
     return (
-        <PageWrapper className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper
+            className="p-4 space-y-8 relative z-[4]"
+            {...{
+                initial: { opacity: 0, y: 60 },
+                animate: { opacity: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.99 },
+                transition: {
+                    duration: 0.35,
+                },
+            }}
+        >
             <MediaCardLazyGrid itemCount={entries?.length || 0}>
                 {entries.map(entry => {
                     return <div
@@ -177,7 +197,7 @@ function GenreSelector({
 }: { genres: string[] }) {
     const [params, setParams] = useAtom(__mangaLibrary_paramsInputAtom)
     const setActualParams = useSetAtom(__mangaLibrary_paramsAtom)
-    const debouncedParams = useDebounce(params, 500)
+    const debouncedParams = useDebounce(params, 200)
 
     React.useEffect(() => {
         setActualParams(params)

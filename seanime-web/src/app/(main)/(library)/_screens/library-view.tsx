@@ -72,20 +72,22 @@ export function LibraryView(props: LibraryViewProps) {
 
             {!ts.disableLibraryScreenGenreSelector && <GenreSelector genres={genres} />}
 
-            <AnimatePresence mode="wait">
-                {!params.genre?.length ?
-                    <LibraryCollectionLists
-                        key="library-collection-lists"
-                        collectionList={collectionList}
-                        isLoading={isLoading}
-                    />
-                    : <LibraryCollectionFilteredLists
-                        key="library-filtered-lists"
-                        collectionList={filteredCollectionList}
-                        isLoading={isLoading}
-                    />
-                }
-            </AnimatePresence>
+            <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]">
+                <AnimatePresence mode="wait" initial={false}>
+                    {!params.genre?.length ?
+                        <LibraryCollectionLists
+                            key="library-collection-lists"
+                            collectionList={collectionList}
+                            isLoading={isLoading}
+                        />
+                        : <LibraryCollectionFilteredLists
+                            key="library-filtered-lists"
+                            collectionList={filteredCollectionList}
+                            isLoading={isLoading}
+                        />
+                    }
+                </AnimatePresence>
+            </PageWrapper>
         </>
     )
 }
@@ -95,7 +97,7 @@ function GenreSelector({
 }: { genres: string[] }) {
     const [params, setParams] = useAtom(__mainLibrary_paramsInputAtom)
     const setActualParams = useSetAtom(__mainLibrary_paramsAtom)
-    const debouncedParams = useDebounce(params, 500)
+    const debouncedParams = useDebounce(params, 200)
 
     React.useEffect(() => {
         setActualParams(params)

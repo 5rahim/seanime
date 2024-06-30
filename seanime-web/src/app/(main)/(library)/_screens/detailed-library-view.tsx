@@ -71,34 +71,32 @@ export function DetailedLibraryView(props: LibraryViewProps) {
     if (!hasScanned) return null
 
     return (
-        <>
-            <PageWrapper className="p-4 space-y-8 relative z-[4]">
+        <PageWrapper className="p-4 space-y-8 relative z-[4]">
 
-                <div className="flex flex-col md:flex-row gap-4 justify-between">
-                    <div className="flex gap-4 items-center relative w-fit">
-                        <IconButton
-                            icon={<AiOutlineArrowLeft />}
-                            rounded
-                            intent="white-outline"
-                            size="sm"
-                            onClick={() => setView("base")}
-                        />
-                        <h3 className="text-ellipsis truncate">Library</h3>
-                    </div>
-
-                    <SearchInput />
+            <div className="flex flex-col md:flex-row gap-4 justify-between">
+                <div className="flex gap-4 items-center relative w-fit">
+                    <IconButton
+                        icon={<AiOutlineArrowLeft />}
+                        rounded
+                        intent="white-outline"
+                        size="sm"
+                        onClick={() => setView("base")}
+                    />
+                    <h3 className="text-ellipsis truncate">Library</h3>
                 </div>
 
-                <SearchOptions />
+                <SearchInput />
+            </div>
 
-                <GenreSelector />
+            <SearchOptions />
 
-                {libraryCollectionList.map(collection => {
-                    if (!collection.entries?.length) return null
-                    return <LibraryCollectionListItem key={collection.type} list={collection} />
-                })}
-            </PageWrapper>
-        </>
+            <GenreSelector />
+
+            {libraryCollectionList.map(collection => {
+                if (!collection.entries?.length) return null
+                return <LibraryCollectionListItem key={collection.type} list={collection} />
+            })}
+        </PageWrapper>
     )
 }
 
