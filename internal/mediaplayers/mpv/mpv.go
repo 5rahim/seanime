@@ -13,13 +13,6 @@ import (
 	"time"
 )
 
-const (
-	StartExecCommand    = iota // Start mpv using the "mpv" command
-	StartDetectPlayback        // Skip starting mpv, just detect if it's already running
-	StartExecPath              // Start mpv using the path provided
-	StartExec                  // Start mpv using the path provided, if not provided, use the "mpv" command
-)
-
 type (
 	Playback struct {
 		Filename  string
@@ -79,7 +72,7 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 
 	// Cancel previous goroutine context
 	if m.cancel != nil {
-		m.Logger.Debug().Msg("mpv: Cancelling previous context")
+		m.Logger.Trace().Msg("mpv: Cancelling previous context")
 		m.cancel()
 	}
 	// Cancel previous command context
@@ -379,19 +372,6 @@ func getDefaultSocketName() string {
 	}
 }
 
-//func getDefaultSocketName() string {
-//	switch runtime.GOOS {
-//	case "windows":
-//		return fmt.Sprintf("\\\\.\\pipe\\mpv_ipc_%d", time.Now().UnixNano())
-//	case "linux":
-//		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
-//	case "darwin":
-//		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
-//	default:
-//		return fmt.Sprintf("/tmp/mpv_socket_%d", time.Now().UnixNano())
-//	}
-//}
-
 // createCmd returns a new exec.Cmd instance.
 func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
@@ -400,24 +380,23 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 		args = append(args, filePath)
 	}
 
+	binaryPath := "mpv"
 	switch m.AppPath {
 	case "":
-		cmd = exec.CommandContext(cmdCtx, "mpv", args...)
 	default:
-		cmd = exec.CommandContext(cmdCtx, m.AppPath, args...)
+		binaryPath = m.AppPath
 	}
 
-	//cmdName := "mpv"
-	//if runtime.GOOS == "windows" {
-	//	cmdName = "mpv.exe"
-	//}
+	cmd = exec.CommandContext(cmdCtx, binaryPath, args...)
+
+	m.Logger.Trace().Msgf("mpv: Command: %s", strings.Join(cmd.Args, " "))
 
 	return cmd, nil
 }
 
 func (m *Mpv) resetPlaybackStatus() {
 	m.playbackMu.Lock()
-	m.Logger.Debug().Msg("mpv: Resetting playback status")
+	m.Logger.Trace().Msg("mpv: Resetting playback status")
 	m.Playback.Filename = ""
 	m.Playback.Filepath = ""
 	m.Playback.Paused = false
