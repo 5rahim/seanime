@@ -43,8 +43,8 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		//
 		// When the media container is not found but this route is called, something went wrong
 		//
-		r.logger.Error().Msg("mediastream: media container is nil, nothing has been preloaded")
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media preloaded")
+		//r.logger.Error().Msg("mediastream: media container is nil, nothing has been preloaded")
+		//r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media preloaded")
 		return errors.New("no media preloaded")
 	}
 

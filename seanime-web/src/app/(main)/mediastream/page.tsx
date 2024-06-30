@@ -8,12 +8,13 @@ import {
     __mediastream_progressItemAtom,
     useHandleMediastream,
 } from "@/app/(main)/mediastream/_lib/handle-mediastream"
-import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
@@ -80,13 +81,13 @@ export default function Page() {
         disabledAutoSwitchToDirectPlay,
     } = useHandleMediastream({ playerRef, episodes })
 
+    const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
+
     const episodeNumber = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1,
         [episodes, filePath])
 
     /** AniSkip **/
     const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal, episodeNumber)
-
-
     const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
     const [duration, setDuration] = React.useState(0)
@@ -158,7 +159,7 @@ export default function Page() {
         <>
             <AppLayoutStack className="px-4 lg:px-8 z-[5]">
 
-                <div className="flex w-full justify-between">
+                <div className="flex flex-col md:flex-row w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
                         <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
@@ -167,6 +168,92 @@ export default function Page() {
                     </div>
 
                     <div className="flex gap-2 items-center">
+
+                        {!!mediaContainer?.mediaInfo?.mimeCodec && (
+                            <div className="">
+                                <Modal
+                                    title="Playback"
+                                    trigger={
+                                        <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-outline">
+                                            Playback info
+                                        </Button>
+                                    }
+                                >
+                                    <div className="space-y-2">
+                                        <p className="line-clamp-1 text-[--muted]">
+                                            {mediaContainer?.mediaInfo?.path}
+                                        </p>
+                                        {isCodecSupported(mediaContainer.mediaInfo.mimeCodec) ? <Alert
+                                            intent="success"
+                                            description="File video and audio codecs are compatible with this client"
+                                        /> : <Alert
+                                            intent="alert"
+                                            description="File video and audio codecs are not compatible with this client"
+                                        />}
+
+                                        <p>
+                                            <span className="font-bold">Video codec: </span>
+                                            <span>{mediaContainer.mediaInfo.video?.mimeCodec}</span>
+                                        </p>
+                                        <p>
+                                            <span className="font-bold">Audio codec: </span>
+                                            <span>{uniq(mediaContainer.mediaInfo.audios?.map(n => n.mimeCodec)).join(", ")}</span>
+                                        </p>
+
+                                        <Modal
+                                            title="Playback"
+                                            trigger={
+                                                <Button size="sm" className="rounded-full" intent="gray-outline">
+                                                    More data
+                                                </Button>
+                                            }
+                                            contentClass="max-w-3xl"
+                                        >
+                                           <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-md bg-gray-900">
+                                                {JSON.stringify(mediaContainer, null, 2)}
+                                           </pre>
+                                        </Modal>
+
+
+                                        <Separator />
+
+                                        <p className="font-semibold text-lg">
+                                            Jassub
+                                        </p>
+
+                                        <Checkbox
+                                            label="Offscreen rendering"
+                                            value={jassubOffscreenRender}
+                                            onValueChange={v => setJassubOffscreenRender(v as boolean)}
+                                            help="Enable this if you are experiencing performance issues"
+                                        />
+
+                                        <Separator />
+
+                                        {(mediaContainer?.streamType === "direct") &&
+                                            <div className="space-y-2">
+                                                <Button
+                                                    intent="alert-outline"
+                                                    onClick={() => setStreamType("transcode")}
+                                                    disabled={!disabledAutoSwitchToDirectPlay}
+                                                >
+                                                    Switch to transcoding
+                                                </Button>
+                                                {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted]">
+                                                    Disable 'auto switch to direct play' if you need to switch to transcoding
+                                                </p>}
+                                            </div>}
+
+                                        {(mediaContainer?.streamType === "transcode" && isCodecSupported(mediaContainer.mediaInfo.mimeCodec)) &&
+                                            <Button intent="alert-outline" onClick={() => setStreamType("direct")}>
+                                                Switch to direct play
+                                            </Button>}
+
+                                    </div>
+                                </Modal>
+                            </div>
+                        )}
+
                         {(!!progressItem && mediaEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
                             className="animate-pulse"
                             loading={isUpdatingProgress}
@@ -298,63 +385,6 @@ export default function Page() {
                                     </Skeleton>
                                 )}
                         </div>
-
-                        {!!mediaContainer?.mediaInfo?.mimeCodec && (
-                            <div className="space-y-2 py-6">
-                                <Modal
-                                    title="Playback"
-                                    trigger={
-                                        <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-outline">
-                                            Playback information
-                                        </Button>
-                                    }
-                                >
-                                    <div className="space-y-2">
-                                        <p className="line-clamp-1 text-[--muted]">
-                                            {mediaContainer?.mediaInfo?.path}
-                                        </p>
-                                        {isCodecSupported(mediaContainer.mediaInfo.mimeCodec) ? <Alert
-                                            intent="success"
-                                            description="File video and audio codecs are compatible with this client"
-                                        /> : <Alert
-                                            intent="alert"
-                                            description="File video and audio codecs are not compatible with this client"
-                                        />}
-
-                                        <p>
-                                            <span className="font-bold">Video codec: </span>
-                                            <span>{mediaContainer.mediaInfo.video?.mimeCodec}</span>
-                                        </p>
-                                        <p>
-                                            <span className="font-bold">Audio codec: </span>
-                                            <span>{uniq(mediaContainer.mediaInfo.audios?.map(n => n.mimeCodec)).join(", ")}</span>
-                                        </p>
-
-                                        <Separator />
-
-                                        {(mediaContainer?.streamType === "direct") &&
-                                            <div className="space-y-2">
-                                                <Button
-                                                    intent="alert-outline"
-                                                    onClick={() => setStreamType("transcode")}
-                                                    disabled={!disabledAutoSwitchToDirectPlay}
-                                                >
-                                                    Switch to transcoding
-                                                </Button>
-                                                {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted]">
-                                                    Disable 'auto switch to direct play' if you need to switch to transcoding
-                                                </p>}
-                                            </div>}
-
-                                        {(mediaContainer?.streamType === "transcode" && isCodecSupported(mediaContainer.mediaInfo.mimeCodec)) &&
-                                            <Button intent="alert-outline" onClick={() => setStreamType("direct")}>
-                                                Switch to direct play
-                                            </Button>}
-
-                                    </div>
-                                </Modal>
-                            </div>
-                        )}
                     </div>
 
                     <ScrollArea
