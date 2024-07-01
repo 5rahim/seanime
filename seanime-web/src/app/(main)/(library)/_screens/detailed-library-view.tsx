@@ -63,6 +63,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
     const setView = useSetAtom(__library_viewAtom)
 
     const {
+        stats,
         libraryCollectionList,
     } = useHandleDetailedLibraryCollection()
 
@@ -86,6 +87,35 @@ export function DetailedLibraryView(props: LibraryViewProps) {
                 </div>
 
                 <SearchInput />
+            </div>
+
+            <div>
+                <div className="grid grid-cols-4 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]">
+                    <div>
+                        <h3>{stats?.totalSize}</h3>
+                        <p>Library</p>
+                    </div>
+                    <div>
+                        <h3>{stats?.totalFiles}</h3>
+                        <p>Files</p>
+                    </div>
+                    <div>
+                        <h3>{stats?.totalEntries}</h3>
+                        <p>Entries</p>
+                    </div>
+                    <div>
+                        <h3>{stats?.totalShows}</h3>
+                        <p>TV Shows</p>
+                    </div>
+                    <div>
+                        <h3>{stats?.totalMovies}</h3>
+                        <p>Movies</p>
+                    </div>
+                    <div>
+                        <h3>{stats?.totalSpecials}</h3>
+                        <p>Specials</p>
+                    </div>
+                </div>
             </div>
 
             <SearchOptions />

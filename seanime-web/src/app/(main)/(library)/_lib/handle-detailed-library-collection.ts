@@ -85,6 +85,7 @@ export function useHandleDetailedLibraryCollection() {
 
     return {
         isLoading: isLoading,
+        stats: data?.stats,
         libraryCollectionList: sortedCollection,
         continueWatchingList: continueWatchingList,
         unmatchedLocalFiles: data?.unmatchedLocalFiles ?? [],

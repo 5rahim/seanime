@@ -1425,6 +1425,7 @@ export type Anime_LibraryCollection = {
     unmatchedGroups?: Array<Anime_UnmatchedGroup>
     ignoredLocalFiles?: Array<Anime_LocalFile>
     unknownGroups?: Array<Anime_UnknownGroup>
+    stats?: Anime_LibraryCollectionStats
 }
 
 /**
@@ -1462,6 +1463,20 @@ export type Anime_LibraryCollectionList = {
  * - Package: anime
  */
 export type Anime_LibraryCollectionListType = "current" | "planned" | "completed" | "paused" | "dropped"
+
+/**
+ * - Filepath: internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_LibraryCollectionStats = {
+    totalEntries: number
+    totalFiles: number
+    totalShows: number
+    totalMovies: number
+    totalSpecials: number
+    totalSize: string
+}
 
 /**
  * - Filepath: internal/library/anime/localfile.go

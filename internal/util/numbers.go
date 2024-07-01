@@ -17,6 +17,7 @@ func StringToInt(str string) (int, bool) {
 	}
 	return i, true
 }
+
 func StringToIntMust(str string) int {
 	dotIndex := strings.IndexByte(str, '.')
 	if dotIndex != -1 {

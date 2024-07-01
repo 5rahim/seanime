@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/dustin/go-humanize"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 )
@@ -26,13 +27,6 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// DEVNOTE: Bad
-	//ret, ok := libraryCollectionMap.Get(util.GetMemAddrStr(anilistCollection))
-	//if ok {
-	//	c.App.Logger.Debug().Msg("api: Library collection cache HIT")
-	//	return c.RespondWithData(ret)
-	//}
-
 	lfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
 		return c.RespondWithError(err)
@@ -49,12 +43,8 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	//go func() {
-	//	if libraryCollection != nil {
-	//		libraryCollectionMap.Clear()
-	//		libraryCollectionMap.Set(util.GetMemAddrStr(anilistCollection), libraryCollection)
-	//	}
-	//}()
+	// Hydrate total library size
+	libraryCollection.Stats.TotalSize = humanize.Bytes(c.App.TotalLibrarySize)
 
 	return c.RespondWithData(libraryCollection)
 }

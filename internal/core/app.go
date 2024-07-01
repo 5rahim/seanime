@@ -93,7 +93,8 @@ type (
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}
-		SelfUpdater *updater.SelfUpdater
+		SelfUpdater      *updater.SelfUpdater
+		TotalLibrarySize uint64 // Initialized in modules.go
 	}
 )
 

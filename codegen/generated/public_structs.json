@@ -25628,6 +25628,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "TotalLibrarySize",
+        "jsonName": "TotalLibrarySize",
+        "goType": "uint64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Initialized in modules.go"
+        ]
       }
     ],
     "comments": []
@@ -28855,6 +28866,16 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Stats",
+        "jsonName": "stats",
+        "goType": "LibraryCollectionStats",
+        "typescriptType": "Anime_LibraryCollectionStats",
+        "usedStructName": "anime.LibraryCollectionStats",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28877,6 +28898,70 @@
         "\"dropped\""
       ]
     },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/collection.go",
+    "filename": "collection.go",
+    "name": "LibraryCollectionStats",
+    "formattedName": "Anime_LibraryCollectionStats",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "TotalEntries",
+        "jsonName": "totalEntries",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalFiles",
+        "jsonName": "totalFiles",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalShows",
+        "jsonName": "totalShows",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalMovies",
+        "jsonName": "totalMovies",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalSpecials",
+        "jsonName": "totalSpecials",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalSize",
+        "jsonName": "totalSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -32695,6 +32780,15 @@
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalSize",
+        "jsonName": "TotalSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
