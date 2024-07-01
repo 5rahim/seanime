@@ -1,7 +1,12 @@
 import { Anime_MediaEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import {
+    __mediastream_autoNextAtom,
+    __mediastream_autoPlayAtom,
+    useMediastreamCurrentFile,
+    useMediastreamJassubOffscreenRender,
+} from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
@@ -19,6 +24,7 @@ import {
     MediaTimeUpdateEventDetail,
 } from "@vidstack/react"
 import HLS, { LoadPolicy } from "hls.js"
+import { useAtomValue } from "jotai"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
@@ -116,7 +122,13 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const prevUrlRef = React.useRef<string | undefined>(undefined)
     const definedUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
+    const autoNext = useAtomValue(__mediastream_autoNextAtom)
+    const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode") // do not chance
+
+    // Refs
+    const previousCurrentTimeRef = React.useRef(0)
+    const previousIsPlayingRef = React.useRef(false)
 
     const [sessionId, setSessionId] = React.useState<string>(uuidv4())
 
@@ -344,8 +356,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
-    const previousCurrentTimeRef = React.useRef<number>(0)
-
     function onProviderSetup(provider: MediaProviderAdapter, nativeEvent: MediaProviderSetupEvent) {
         if (isHLSProvider(provider)) {
             if (url) {
@@ -353,11 +363,11 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 if (definedUrlRef.current === url && playbackErrored) {
                     if (previousCurrentTimeRef.current > 0) {
                         Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
-                        // setTimeout(() => {
-                        //     if (previousIsPlayingRef.current) {
-                        //         playerRef.current?.play()
-                        //     }
-                        // }, 500)
+                        setTimeout(() => {
+                            if (previousIsPlayingRef.current) {
+                                playerRef.current?.play()
+                            }
+                        }, 500)
                         previousCurrentTimeRef.current = 0
                         setPlaybackErrored(false)
                     }
@@ -434,20 +444,33 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
-    const preloadedNextFileForRef = React.useRef<string | undefined>(undefined) // unsused
+    const preloadedNextFileForRef = React.useRef<string | undefined>(undefined) // unused
 
     const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
         logger("MEDIASTREAM").info("Can play event received", e)
         preloadedNextFileForRef.current = undefined
         setDuration(e.duration)
-    }, [])
+
+        if (autoPlay) {
+            playerRef.current?.play()
+        }
+    }, [autoPlay])
 
     const onEnded = React.useCallback((e: MediaEndedEvent) => {
-
-    }, [])
+        if (autoNext) {
+            const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+            if (currentEpisodeIndex !== -1) {
+                const nextFile = episodes[currentEpisodeIndex + 1]
+                if (nextFile?.localFile?.path) {
+                    onPlayFile(nextFile.localFile.path)
+                }
+            }
+        }
+    }, [autoNext])
 
     const onPlayFile = React.useCallback((filepath: string) => {
         logger("MEDIASTREAM").info("Playing file", filepath)
+        previousCurrentTimeRef.current = 0
         setFilePath(filepath)
     }, [])
 
@@ -457,7 +480,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 
-    const episode = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath), [episodes, filePath])
+    const episode = React.useMemo(() => {
+        return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+    }, [episodes, filePath])
 
     const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
         // DEVNOTE: Disable preloading next file, it causes issues
@@ -480,7 +505,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 })
             }
         }
-    }, [duration, filePath, episodes, episode, progressItem])
+    }, [duration, filePath, episode, progressItem])
 
     //////////////////////////////////////////////////////////////
     // Events

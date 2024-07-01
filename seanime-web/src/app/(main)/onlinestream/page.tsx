@@ -298,6 +298,7 @@ export default function Page() {
                                 streamType="on-demand"
                                 playsInline
                                 ref={ref}
+                                autoPlay={autoPlay}
                                 crossOrigin="anonymous"
                                 src={{
                                     src: url || "",

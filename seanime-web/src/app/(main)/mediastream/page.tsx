@@ -9,7 +9,11 @@ import {
     __mediastream_progressItemAtom,
     useHandleMediastream,
 } from "@/app/(main)/mediastream/_lib/handle-mediastream"
-import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import {
+    __mediastream_autoPlayAtom,
+    useMediastreamCurrentFile,
+    useMediastreamJassubOffscreenRender,
+} from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
@@ -26,6 +30,7 @@ import { MediaPlayer, MediaPlayerInstance, MediaProvider, Track } from "@vidstac
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { DefaultAudioLayout, defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
+import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import { uniq } from "lodash"
 import { CaptionsFileFormat } from "media-captions"
@@ -82,10 +87,15 @@ export default function Page() {
         disabledAutoSwitchToDirectPlay,
     } = useHandleMediastream({ playerRef, episodes })
 
+    const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
 
-    const episodeNumber = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1,
-        [episodes, filePath])
+    /**
+     * The episode number of the current file
+     */
+    const episodeNumber = React.useMemo(() => {
+        return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)?.episodeNumber || -1
+    }, [episodes, filePath])
 
     /** AniSkip **/
     const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal, episodeNumber)
@@ -138,6 +148,8 @@ export default function Page() {
             })
         }
     }, [episodeListContainerRef.current, episodes, episodeNumber])
+
+    const checkTimeRef = React.useRef<number>(0)
 
     if (mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -291,6 +303,7 @@ export default function Page() {
                                     streamType="on-demand" // force VOD
                                     playsInline
                                     ref={playerRef}
+                                    autoPlay={autoPlay}
                                     crossOrigin
                                     src={mediaContainer?.streamType === "direct" ? {
                                         src: url,
@@ -301,6 +314,12 @@ export default function Page() {
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
                                     onTimeUpdate={e => {
+                                        if (checkTimeRef.current < 200) {
+                                            checkTimeRef.current++
+                                            return
+                                        }
+                                        checkTimeRef.current = 0
+
                                         if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
                                             setShowSkipIntroButton(true)
                                         } else {
