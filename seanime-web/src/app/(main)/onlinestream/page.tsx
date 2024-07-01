@@ -1,7 +1,6 @@
 "use client"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
-import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
@@ -9,11 +8,11 @@ import {
     OnlinestreamParametersButton,
     OnlinestreamPlaybackSubmenu,
     OnlinestreamProviderButton,
-    OnlinestreamServerButton,
     OnlinestreamVideoQualitySubmenu,
     SwitchSubOrDubButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
-import { OnlinestreamManagerProvider, useOnlinestreamManager } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
+import { useHandleOnlinestream } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
+import { OnlinestreamManagerProvider } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { __onlinestream_autoNextAtom, __onlinestream_autoPlayAtom } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -22,7 +21,6 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useQueryClient } from "@tanstack/react-query"
 import {
     isHLSProvider,
     MediaPlayer,
@@ -55,18 +53,12 @@ export default function Page() {
 
     const router = useRouter()
     const pathname = usePathname()
-    const qc = useQueryClient()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const urlEpNumber = searchParams.get("episode")
     const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
-    const { data: mediaDetails } = useGetAnilistMediaDetails(mediaId)
 
     const ref = React.useRef<MediaPlayerInstance>(null)
-
-    const mediaIdRef = React.useRef(mediaId)
-
-    // const [_episodeNumber, _setEpisodeNumber] = useAtom(__onlinestream_selectedEpisodeNumberAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
@@ -86,6 +78,7 @@ export default function Page() {
         url,
         onMediaDetached,
         onProviderSetup: _onProviderSetup,
+        onCanPlay: _onCanPlay,
         onFatalError,
         loadPage,
         media,
@@ -95,7 +88,7 @@ export default function Page() {
         episodeLoading,
         isErrorEpisodeSource,
         isErrorProvider,
-    } = useOnlinestreamManager({
+    } = useHandleOnlinestream({
         mediaId,
         ref,
     })
@@ -115,16 +108,17 @@ export default function Page() {
     }, [])
 
     /**
-     * Set episode number
+     * Set episode number on mount
      */
+    const firstRenderRef = React.useRef(true)
     useUpdateEffect(() => {
-        if (!!media) {
+        if (!!media && firstRenderRef.current) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = mediaEntry?.listData?.progress ?? 0
             const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
-            console.log(nextProgressNumber, progress)
             handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
+            firstRenderRef.current = false
         }
     }, [media])
 
@@ -226,8 +220,12 @@ export default function Page() {
         return () => clearTimeout(t)
     }, [opts.hasCustomQualities, url])
 
-    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(mediaId,
-        currentEpisodeNumber)
+    const { mutate: updateProgress, isPending: isUpdatingProgress, isSuccess: hasUpdatedProgress } = useUpdateAnimeEntryProgress(
+        mediaId,
+        currentEpisodeNumber,
+    )
+
+    const checkTimeRef = React.useRef<number>(0)
 
     if (!loadPage || !media || mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -251,21 +249,12 @@ export default function Page() {
                 <OnlinestreamManagerProvider
                     opts={opts}
                 >
-
-                    <div className="flex flex-col lg:flex-row w-full justify-between">
-                        <div className="flex gap-4 items-center relative">
+                    <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
+                        <div className="flex w-full gap-4 items-center relative">
                             <Link href={`/entry?id=${media?.id}`}>
                                 <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
                             </Link>
-                            <h3>{media.title?.userPreferred}</h3>
-
-                            {/*<IconButton*/}
-                            {/*    icon={!theaterMode ? <GiTheater /> : <TbResize />}*/}
-                            {/*    onClick={() => setTheaterMode(p => !p)}*/}
-                            {/*    intent="gray-basic"*/}
-                            {/*    size="lg"*/}
-                            {/*/>*/}
-
+                            <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{media.title?.userPreferred}</h3>
                         </div>
 
                         <div className="flex gap-2 items-center">
@@ -320,6 +309,12 @@ export default function Page() {
                                 onProviderSetup={onProviderSetup}
                                 // className="max-h-[75dvh] aspect-video"
                                 onTimeUpdate={(e) => {
+                                    if (checkTimeRef.current < 200) {
+                                        checkTimeRef.current++
+                                        return
+                                    }
+                                    checkTimeRef.current = 0
+
                                     if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
                                         setShowSkipIntroButton(true)
                                     } else {
@@ -347,6 +342,7 @@ export default function Page() {
                                     }
                                 }}
                                 onEnded={(e) => {
+                                    console.log("onEnded", e)
                                     if (autoNext) {
                                         goToNextEpisode()
                                     }
@@ -360,6 +356,7 @@ export default function Page() {
                                     if (autoPlay) {
                                         ref.current?.play()
                                     }
+                                    _onCanPlay()
                                 }}
                             >
                                 <MediaProvider>
@@ -421,7 +418,6 @@ export default function Page() {
                                         beforeCaptionButton: (
                                             <div className="flex items-center">
                                                 <OnlinestreamProviderButton />
-                                                <OnlinestreamServerButton />
                                             </div>
                                         ),
                                     }}

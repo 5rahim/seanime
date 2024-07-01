@@ -3,6 +3,7 @@
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
+import { MediastreamPlaybackSubmenu } from "@/app/(main)/mediastream/_components/mediastream-video-addons"
 import {
     __mediastream_currentProgressAtom,
     __mediastream_progressItemAtom,
@@ -90,7 +91,6 @@ export default function Page() {
     const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal, episodeNumber)
     const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
-    const [duration, setDuration] = React.useState(0)
 
     const seekTo = React.useCallback((time: number) => {
         Object.assign(playerRef.current ?? {}, { currentTime: time })
@@ -159,7 +159,7 @@ export default function Page() {
         <>
             <AppLayoutStack className="px-4 lg:px-8 z-[5]">
 
-                <div className="flex flex-col lg:flex-row w-full justify-between">
+                <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
                         <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
@@ -276,8 +276,6 @@ export default function Page() {
                 <div
                     className={cn(
                         "flex gap-4 w-full flex-col 2xl:flex-row",
-                        // "grid gap-4 w-full grid-cols-1",
-                        // "xl:grid-cols-[1fr,400px] 2xl:grid-cols-[1fr,500px]",
                     )}
                 >
 
@@ -353,9 +351,9 @@ export default function Page() {
                                     <DefaultVideoLayout
                                         icons={defaultLayoutIcons}
                                         slots={{
-                                            // beforeSettingsMenu: (
-                                            //     <MediastreamAudioSubmenu />
-                                            // )
+                                            settingsMenuEndItems: <>
+                                                <MediastreamPlaybackSubmenu />
+                                            </>,
                                         }}
                                     />
                                     <DefaultAudioLayout

@@ -46,7 +46,7 @@ export function OnlinestreamVideoQualitySubmenu() {
 
     return (
         <Menu.Root>
-            <SubmenuButton
+            <VdsSubmenuButton
                 label={`Quality`}
                 hint={videoSource?.quality || ""}
                 disabled={false}
@@ -68,14 +68,6 @@ export function OnlinestreamVideoQualitySubmenu() {
                         </Radio>
                     ))}
                 </Menu.RadioGroup>
-                {/*<RadioGroup*/}
-                {/*    value={videoSource?.quality || "-"}*/}
-                {/*    options={customQualities.map(v => ({ value: v, label: v }))}*/}
-                {/*    onValueChange={(v) => {*/}
-                {/*        changeQuality(v)*/}
-                {/*    }}*/}
-                {/*    itemContainerClass={radioGroupItemContainerClass}*/}
-                {/*/>*/}
             </Menu.Content>
         </Menu.Root>
     )
@@ -89,7 +81,7 @@ export function OnlinestreamPlaybackSubmenu() {
     return (
         <>
             <Menu.Root>
-                <SubmenuButton
+                <VdsSubmenuButton
                     label={`Auto Play`}
                     hint={autoPlay ? "On" : "Off"}
                     disabled={false}
@@ -105,7 +97,7 @@ export function OnlinestreamPlaybackSubmenu() {
                 </Menu.Content>
             </Menu.Root>
             <Menu.Root>
-                <SubmenuButton
+                <VdsSubmenuButton
                     label={`Play Next`}
                     hint={autoNext ? "On" : "Off"}
                     disabled={false}
@@ -182,19 +174,19 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
         ...rest
     } = props
 
-    const { servers, changeProvider } = useOnlinestreamManagerContext()
+    const { changeProvider, servers, changeServer } = useOnlinestreamManagerContext()
 
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
+    const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
-
-    if (!servers.length || !provider) return null
+    if (!servers.length || !selectedServer) return null
 
     return (
         <Menu.Root className="parent">
             <Tooltip.Root>
                 <Tooltip.Trigger asChild>
                     <Menu.Button className={buttonClass}>
-                        <MdVideoSettings className="text-2xl" />
+                        <AiOutlineCloudServer className="text-3xl" />
                     </Menu.Button>
                 </Tooltip.Trigger>
                 <Tooltip.Content className={tooltipClass} placement="top">
@@ -210,37 +202,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
                     }}
                     itemContainerClass={radioGroupItemContainerClass}
                 />
-            </Menu.Content>
-        </Menu.Root>
-    )
-}
-
-export function OnlinestreamServerButton(props: OnlinestreamServerButtonProps) {
-
-    const {
-        children,
-        ...rest
-    } = props
-
-    const { servers, changeServer } = useOnlinestreamManagerContext()
-
-    const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
-
-    if (!servers.length || !selectedServer) return null
-
-    return (
-        <Menu.Root className="parent">
-            <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                    <Menu.Button className={buttonClass}>
-                        <AiOutlineCloudServer className="text-3xl" />
-                    </Menu.Button>
-                </Tooltip.Trigger>
-                <Tooltip.Content className={tooltipClass} placement="top">
-                    Server
-                </Tooltip.Content>
-            </Tooltip.Root>
-            <Menu.Content className={menuClass} placement="top">
+                <Separator />
                 <RadioGroup
                     value={selectedServer}
                     options={servers.map((server) => ({ label: server, value: server }))}
@@ -272,14 +234,14 @@ function Radio({ children, ...props }: RadioProps) {
     )
 }
 
-export interface SubmenuButtonProps {
+export interface VdsSubmenuButtonProps {
     label: string;
     hint: string;
     disabled?: boolean;
     icon: any;
 }
 
-function SubmenuButton({ label, hint, icon: Icon, disabled }: SubmenuButtonProps) {
+export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubmenuButtonProps) {
     return (
         <Menu.Button
             className="ring-media-focus group/parent left-0 z-10 flex w-full cursor-pointer select-none items-center justify-start rounded-sm bg-black/60 p-2.5 outline-none ring-inset data-[open]:sticky data-[open]:-top-2.5 data-[hocus]:bg-white/10 data-[focus]:ring-[3px] aria-disabled:hidden"
@@ -299,13 +261,7 @@ function SubmenuButton({ label, hint, icon: Icon, disabled }: SubmenuButtonProps
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type SwitchSubOrDubButtonProps = {}
-
-export function SwitchSubOrDubButton(props: SwitchSubOrDubButtonProps) {
-
-    const {
-        ...rest
-    } = props
+export function SwitchSubOrDubButton() {
 
     const [dubbed] = useAtom(__onlinestream_selectedDubbedAtom)
     const { toggleDubbed } = useOnlinestreamManagerContext()
