@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func customQuery(body []byte, logger *zerolog.Logger) (data interface{}, err error) {
+func customQuery(body []byte, logger *zerolog.Logger, token ...string) (data interface{}, err error) {
 
 	var rlRemainingStr string
 
@@ -46,6 +46,9 @@ func customQuery(body []byte, logger *zerolog.Logger) (data interface{}, err err
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
+	if len(token) > 0 {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token[0]))
+	}
 
 	// Send request
 	retryCount := 2

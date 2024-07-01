@@ -128,16 +128,16 @@ export function MainSidebar() {
                                 isCurrent: pathname.startsWith("/manga"),
                             }],
                             {
-                                iconType: BiCollection,
-                                name: "My lists",
-                                href: "/anilist",
-                                isCurrent: pathname === "/anilist",
-                            },
-                            {
                                 iconType: BiChart,
                                 name: "Discover",
                                 href: "/discover",
                                 isCurrent: pathname === "/discover",
+                            },
+                            {
+                                iconType: BiCollection,
+                                name: "AniList",
+                                href: "/anilist",
+                                isCurrent: pathname === "/anilist",
                             },
                             ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
                                 iconType: FaRssSquare,

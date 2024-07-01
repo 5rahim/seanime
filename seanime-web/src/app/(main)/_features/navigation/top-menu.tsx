@@ -46,16 +46,16 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
                 name: "Manga",
             }].filter(Boolean) as NavigationMenuProps["items"],
             {
-                href: "/anilist",
-                icon: null,
-                isCurrent: pathname.startsWith("/anilist"),
-                name: "My lists",
-            },
-            {
                 href: "/discover",
                 icon: null,
                 isCurrent: pathname.startsWith("/discover") || pathname.startsWith("/search"),
                 name: "Discover",
+            },
+            {
+                href: "/anilist",
+                icon: null,
+                isCurrent: pathname.startsWith("/anilist"),
+                name: "AniList",
             },
         ].filter(Boolean)
     }, [pathname, missingEpisodeCount, serverStatus?.settings?.library?.enableManga])

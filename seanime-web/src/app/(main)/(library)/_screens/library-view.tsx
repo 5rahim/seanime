@@ -70,7 +70,10 @@ export function LibraryView(props: LibraryViewProps) {
                 isLoading={isLoading}
             />
 
-            {!ts.disableLibraryScreenGenreSelector && <GenreSelector genres={genres} />}
+            {(
+                !ts.disableLibraryScreenGenreSelector &&
+                collectionList.flatMap(n => n.entries)?.length > 2
+            ) && <GenreSelector genres={genres} />}
 
             <PageWrapper key="library-collection-lists" className="p-4 space-y-8 relative z-[4]">
                 <AnimatePresence mode="wait" initial={false}>

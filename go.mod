@@ -24,7 +24,6 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
-	github.com/jannson/mpvipc v0.0.0-20240209020512-d8e3b16fdac3
 	github.com/likexian/doh-go v0.6.4
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.33.0

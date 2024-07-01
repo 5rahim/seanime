@@ -390,3 +390,30 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	return c.RespondWithData(ret)
 }
+
+var anilistStatsCache = result.NewCache[int, *anilist.Stats]()
+
+// HandleGetAniListStats
+//
+//	@summary returns the anilist stats.
+//	@desc This returns the AniList stats for the user.
+//	@route /api/v1/anilist/stats [GET]
+//	@returns anilist.Stats
+func HandleGetAniListStats(c *RouteCtx) error {
+	cached, ok := anilistStatsCache.Get(0)
+	if ok {
+		return c.RespondWithData(cached)
+	}
+
+	ret, err := anilist.GetStats(
+		c.Fiber.Context(),
+		c.App.AnilistClientWrapper,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	anilistStatsCache.SetT(0, ret, time.Hour*1)
+
+	return c.RespondWithData(ret)
+}

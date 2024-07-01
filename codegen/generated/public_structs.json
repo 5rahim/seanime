@@ -1095,6 +1095,329 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "UserFormatStats",
+    "formattedName": "AL_UserFormatStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Format",
+        "jsonName": "format",
+        "goType": "MediaFormat",
+        "typescriptType": "AL_MediaFormat",
+        "usedStructName": "anilist.MediaFormat",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UserGenreStats",
+    "formattedName": "AL_UserGenreStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Genre",
+        "jsonName": "genre",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UserStatusStats",
+    "formattedName": "AL_UserStatusStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UserScoreStats",
+    "formattedName": "AL_UserScoreStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UserStudioStats",
+    "formattedName": "AL_UserStudioStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Studio",
+        "jsonName": "studio",
+        "goType": "UserStudioStats_Studio",
+        "typescriptType": "AL_UserStudioStats_Studio",
+        "usedStructName": "anilist.UserStudioStats_Studio",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "BaseManga_Title",
     "formattedName": "AL_BaseManga_Title",
     "package": "anilist",
@@ -2897,6 +3220,43 @@
         "typescriptType": "Array\u003cAL_CompleteMedia_Relations_Edges\u003e",
         "usedStructName": "anilist.CompleteMedia_Relations_Edges",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UserStudioStats_Studio",
+    "formattedName": "AL_UserStudioStats_Studio",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -9396,6 +9756,313 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio",
+    "formattedName": "AL_ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ViewerStats_Viewer_Statistics_Anime",
+    "formattedName": "AL_ViewerStats_Viewer_Statistics_Anime",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodesWatched",
+        "jsonName": "episodesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Formats",
+        "jsonName": "formats",
+        "goType": "[]UserFormatStats",
+        "typescriptType": "Array\u003cAL_UserFormatStats\u003e",
+        "usedStructName": "anilist.UserFormatStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]UserGenreStats",
+        "typescriptType": "Array\u003cAL_UserGenreStats\u003e",
+        "usedStructName": "anilist.UserGenreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Statuses",
+        "jsonName": "statuses",
+        "goType": "[]UserStatusStats",
+        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
+        "usedStructName": "anilist.UserStatusStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Studios",
+        "jsonName": "studios",
+        "goType": "[]UserStudioStats",
+        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
+        "usedStructName": "anilist.UserStudioStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Scores",
+        "jsonName": "scores",
+        "goType": "[]UserScoreStats",
+        "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
+        "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio",
+    "formattedName": "AL_ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAnimationStudio",
+        "jsonName": "isAnimationStudio",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ViewerStats_Viewer_Statistics_Manga",
+    "formattedName": "AL_ViewerStats_Viewer_Statistics_Manga",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Formats",
+        "jsonName": "formats",
+        "goType": "[]UserFormatStats",
+        "typescriptType": "Array\u003cAL_UserFormatStats\u003e",
+        "usedStructName": "anilist.UserFormatStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]UserGenreStats",
+        "typescriptType": "Array\u003cAL_UserGenreStats\u003e",
+        "usedStructName": "anilist.UserGenreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Statuses",
+        "jsonName": "statuses",
+        "goType": "[]UserStatusStats",
+        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
+        "usedStructName": "anilist.UserStatusStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Studios",
+        "jsonName": "studios",
+        "goType": "[]UserStudioStats",
+        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
+        "usedStructName": "anilist.UserStudioStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Scores",
+        "jsonName": "scores",
+        "goType": "[]UserScoreStats",
+        "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
+        "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ViewerStats_Viewer_Statistics",
+    "formattedName": "AL_ViewerStats_Viewer_Statistics",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Anime",
+        "jsonName": "anime",
+        "goType": "ViewerStats_Viewer_Statistics_Anime",
+        "typescriptType": "AL_ViewerStats_Viewer_Statistics_Anime",
+        "usedStructName": "anilist.ViewerStats_Viewer_Statistics_Anime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Manga",
+        "jsonName": "manga",
+        "goType": "ViewerStats_Viewer_Statistics_Manga",
+        "typescriptType": "AL_ViewerStats_Viewer_Statistics_Manga",
+        "usedStructName": "anilist.ViewerStats_Viewer_Statistics_Manga",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ViewerStats_Viewer",
+    "formattedName": "AL_ViewerStats_Viewer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Statistics",
+        "jsonName": "statistics",
+        "goType": "ViewerStats_Viewer_Statistics",
+        "typescriptType": "AL_ViewerStats_Viewer_Statistics",
+        "usedStructName": "anilist.ViewerStats_Viewer_Statistics",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer",
     "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer",
     "package": "anilist",
@@ -10195,6 +10862,26 @@
         "goType": "ListRecentMedia_Page",
         "typescriptType": "AL_ListRecentMedia_Page",
         "usedStructName": "anilist.ListRecentMedia_Page",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ViewerStats",
+    "formattedName": "AL_ViewerStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Viewer",
+        "jsonName": "Viewer",
+        "goType": "ViewerStats_Viewer",
+        "typescriptType": "AL_ViewerStats_Viewer",
+        "usedStructName": "anilist.ViewerStats_Viewer",
         "required": false,
         "public": true,
         "comments": []
@@ -21694,6 +22381,211 @@
     "comments": [
       " The language the user wants to see media titles in"
     ]
+  },
+  {
+    "filepath": "../internal/api/anilist/stats.go",
+    "filename": "stats.go",
+    "name": "Stats",
+    "formattedName": "AL_Stats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AnimeStats",
+        "jsonName": "animeStats",
+        "goType": "AnimeStats",
+        "typescriptType": "AL_AnimeStats",
+        "usedStructName": "anilist.AnimeStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaStats",
+        "jsonName": "mangaStats",
+        "goType": "MangaStats",
+        "typescriptType": "AL_MangaStats",
+        "usedStructName": "anilist.MangaStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/stats.go",
+    "filename": "stats.go",
+    "name": "AnimeStats",
+    "formattedName": "AL_AnimeStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodesWatched",
+        "jsonName": "episodesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]UserGenreStats",
+        "typescriptType": "Array\u003cAL_UserGenreStats\u003e",
+        "usedStructName": "anilist.UserGenreStats",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the genre name"
+        ]
+      },
+      {
+        "name": "Formats",
+        "jsonName": "formats",
+        "goType": "[]UserFormatStats",
+        "typescriptType": "Array\u003cAL_UserFormatStats\u003e",
+        "usedStructName": "anilist.UserFormatStats",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the format name"
+        ]
+      },
+      {
+        "name": "Statuses",
+        "jsonName": "statuses",
+        "goType": "[]UserStatusStats",
+        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
+        "usedStructName": "anilist.UserStatusStats",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the status name"
+        ]
+      },
+      {
+        "name": "Studios",
+        "jsonName": "studios",
+        "goType": "[]UserStudioStats",
+        "typescriptType": "Array\u003cAL_UserStudioStats\u003e",
+        "usedStructName": "anilist.UserStudioStats",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the studio name"
+        ]
+      },
+      {
+        "name": "Scores",
+        "jsonName": "scores",
+        "goType": "[]UserScoreStats",
+        "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
+        "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/stats.go",
+    "filename": "stats.go",
+    "name": "MangaStats",
+    "formattedName": "AL_MangaStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Genres",
+        "jsonName": "genres",
+        "goType": "[]UserGenreStats",
+        "typescriptType": "Array\u003cAL_UserGenreStats\u003e",
+        "usedStructName": "anilist.UserGenreStats",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the genre name"
+        ]
+      },
+      {
+        "name": "Statuses",
+        "jsonName": "statuses",
+        "goType": "[]UserStatusStats",
+        "typescriptType": "Array\u003cAL_UserStatusStats\u003e",
+        "usedStructName": "anilist.UserStatusStats",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the status name"
+        ]
+      },
+      {
+        "name": "Scores",
+        "jsonName": "scores",
+        "goType": "[]UserScoreStats",
+        "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
+        "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/api/anilist/test_helpers.go",
@@ -35258,8 +36150,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/mediaplayers/libmpv/libmpv.go",
-    "filename": "libmpv.go",
+    "filepath": "../internal/mediaplayers/libmpv/_libmpv.go",
+    "filename": "_libmpv.go",
     "name": "LibMpv",
     "formattedName": "LibMpv",
     "package": "libmpv",
@@ -35339,8 +36231,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/mediaplayers/libmpv/libmpv.go",
-    "filename": "libmpv.go",
+    "filepath": "../internal/mediaplayers/libmpv/_libmpv.go",
+    "filename": "_libmpv.go",
     "name": "Subscriber",
     "formattedName": "Subscriber",
     "package": "libmpv",
@@ -35358,8 +36250,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/mediaplayers/libmpv/libmpv.go",
-    "filename": "libmpv.go",
+    "filepath": "../internal/mediaplayers/libmpv/_libmpv.go",
+    "filename": "_libmpv.go",
     "name": "Playback",
     "formattedName": "Playback",
     "package": "libmpv",
@@ -36099,15 +36991,6 @@
         "comments": []
       },
       {
-        "name": "isRunning",
-        "jsonName": "isRunning",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
@@ -36203,6 +37086,177 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/mpvipc/mpvipc.go",
+    "filename": "mpvipc.go",
+    "name": "Connection",
+    "formattedName": "Connection",
+    "package": "mpvipc",
+    "fields": [
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "net.Conn",
+        "typescriptType": "Conn",
+        "usedStructName": "net.Conn",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "socketName",
+        "jsonName": "socketName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastRequest",
+        "jsonName": "lastRequest",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "waitingRequests",
+        "jsonName": "waitingRequests",
+        "goType": "map[uint]",
+        "typescriptType": "Record\u003cnumber, any\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastListener",
+        "jsonName": "lastListener",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "eventListeners",
+        "jsonName": "eventListeners",
+        "goType": "map[uint]",
+        "typescriptType": "Record\u003cnumber, any\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastCloseWaiter",
+        "jsonName": "lastCloseWaiter",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closeWaiters",
+        "jsonName": "closeWaiters",
+        "goType": "map[uint]",
+        "typescriptType": "Record\u003cnumber, any\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lock",
+        "jsonName": "lock",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Connection represents a connection to a mpv IPC socket"
+    ]
+  },
+  {
+    "filepath": "../internal/mediaplayers/mpvipc/mpvipc.go",
+    "filename": "mpvipc.go",
+    "name": "Event",
+    "formattedName": "Event",
+    "package": "mpvipc",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "event",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Reason",
+        "jsonName": "reason",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Prefix",
+        "jsonName": "prefix",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Level",
+        "jsonName": "level",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Text",
+        "jsonName": "text",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Event represents an event received from mpv. For a list of all possible",
+      " events, see https://mpv.io/manual/master/#list-of-events"
+    ]
   },
   {
     "filepath": "../internal/mediaplayers/vlc/browse.go",
@@ -40149,7 +41203,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " Episode slug"
+          " Episode slug, e.g \"the-apothecary-diaries-18578\""
         ]
       },
       {

@@ -41,6 +41,7 @@ type ClientWrapperInterface interface {
 	MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error)
 	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
+	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
 }
 
 type (
@@ -190,6 +191,11 @@ func (cw *ClientWrapper) ListManga(ctx context.Context, page *int, search *strin
 func (cw *ClientWrapper) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
 	cw.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
 	return cw.Client.StudioDetails(ctx, id, interceptors...)
+}
+
+func (cw *ClientWrapper) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
+	cw.logger.Debug().Msg("anilist: Fetching stats")
+	return cw.Client.ViewerStats(ctx, interceptors...)
 }
 
 // customDoFunc is a custom request interceptor function that handles rate limiting and retries.
