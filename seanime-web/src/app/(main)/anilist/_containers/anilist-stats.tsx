@@ -286,6 +286,9 @@ export function AnilistStats(props: AnilistStatsProps) {
                 </ChartContainer>
             </div>
 
+            {/*////////////////////////////////////////////////////*/}
+            {/*////////////////////////////////////////////////////*/}
+            {/*////////////////////////////////////////////////////*/}
 
             <h1 className="text-center pt-20">Manga</h1>
 
@@ -302,7 +305,7 @@ export function AnilistStats(props: AnilistStatsProps) {
                         {
                             icon: <LuHourglass />,
                             name: "Total chapters",
-                            value: Math.round((stats?.mangaStats?.chaptersRead ?? 0) / 60),
+                            value: stats?.mangaStats?.chaptersRead ?? 0,
                         },
                         {
                             icon: <FaRegStar />,
