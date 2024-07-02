@@ -116,7 +116,7 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
 
                     <div className="py-6 space-y-6">
                         {(!!currentList?.entries?.length && ["-", "current"].includes(selectedIndex)) && <>
-                            <h2>Watching <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
+                            <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
                             <AnilistMediaEntryList list={currentList} />
                         </>}
                         {(!!planningList?.entries?.length && ["-", "planning"].includes(selectedIndex)) && <>
