@@ -16,15 +16,16 @@ All notable changes to this project will be documented in this file.
   - New stats section for anime and manga
 - ✨ Global search now supports manga
 - ✨ Online streaming: Added support for dubs
+- ✨ Media streaming: Auto play and auto next #77
 - ⚡️ 'None' option for torrent provider #85
 	- This option disables torrent-related UI elements and features
 - ⚡️ Torrent streaming: Added filler metadata
 - ⚡️ Ability to fetch metadata for shows that are not in the library
 - ⚡️ MPV: Added retry mechanism for connection errors
+- ⚡️ Perf: Improved speed when saving settings
 - ⚡️ Perf: Virtualize media lists for better performance if there are many entries
 - ⚡️ Transcoding: Option to toggle JASSUB offscreen rendering
 - ⚡️ Online streaming: Refactored media player controls
-- ⚡️ Media streaming: Auto play and auto next #77
 - ⚡️ UI: Improved layout for media streaming & online streaming
 - ⚡️ UI: Added indicator for missing episodes on media cards
 - 🦺 Media streaming: Fixed direct play #82

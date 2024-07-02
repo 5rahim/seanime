@@ -136,7 +136,7 @@ func (a *App) initModulesOnce() {
 // This function is called:
 //   - After the App instance is created
 //   - After settings are updated.
-func (a *App) InitOrRefreshModules() {
+func (a *App) InitOrRefreshModules(bypassRefreshAniListData ...bool) {
 	if a.cancelContext != nil {
 		a.Logger.Warn().Msg("app: Concurrent module refresh")
 		return
@@ -290,12 +290,14 @@ func (a *App) InitOrRefreshModules() {
 	// |       AniList       |
 	// +---------------------+
 
-	// Fetch Anilist collection and set account if not offline
-	if !a.IsOffline() {
-		a.initAnilistData()
+	if len(bypassRefreshAniListData) == 0 {
+		// Fetch Anilist collection and set account if not offline
+		if !a.IsOffline() {
+			a.initAnilistData()
+		}
 	}
 
-	a.Logger.Info().Msg("app: Initialized modules")
+	a.Logger.Info().Msg("app: Refreshed modules")
 
 }
 
