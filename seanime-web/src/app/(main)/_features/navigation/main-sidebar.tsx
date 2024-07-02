@@ -149,12 +149,12 @@ export function MainSidebar() {
                                     intent="alert-solid"
                                 >{autoDownloaderQueueCount}</Badge> : undefined,
                             }],
-                            {
+                            ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
                                 iconType: BiDownload,
                                 name: "Torrent list",
                                 href: "/torrent-list",
                                 isCurrent: pathname === "/torrent-list",
-                            },
+                            }],
                             {
                                 iconType: PiClockCounterClockwiseFill,
                                 name: "Scan summaries",

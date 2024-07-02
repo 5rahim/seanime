@@ -82,17 +82,21 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
 
     return (
         <AppLayoutStack className="space-y-6">
-            {serverStatus?.settings?.library?.enableManga && <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center">
                 <StaticTabs
                     className="h-10 w-fit border rounded-full"
                     triggerClass="px-4 py-1"
                     items={[
                         { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
-                        { name: "Manga", isCurrent: pageType === "manga", onClick: () => setPageType("manga") },
+                        ...[serverStatus?.settings?.library?.enableManga && {
+                            name: "Manga",
+                            isCurrent: pageType === "manga",
+                            onClick: () => setPageType("manga"),
+                        }],
                         { name: "Stats", isCurrent: pageType === "stats", onClick: () => setPageType("stats") },
-                    ]}
+                    ].filter(Boolean)}
                 />
-            </div>}
+            </div>
 
 
             <AnimatePresence mode="wait" initial={false}>
