@@ -30,18 +30,18 @@ type (
 	//  - sending notifications to the client
 	//  - DEVNOTE: in the future, it could also be used to implement w2g, handle built-in player or allow multiple watchers
 	PlaybackManager struct {
-		Logger                       *zerolog.Logger
-		Database                     *db.Database
-		MediaPlayerRepository        *mediaplayer.Repository           // MediaPlayerRepository is used to control the media player
-		discordPresence              *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
-		mediaPlayerRepoSubscriber    *mediaplayer.RepositorySubscriber // Used to listen for media player events
-		wsEventManager               events.WSEventManagerInterface
-		anilistClientWrapper         anilist.ClientWrapperInterface
-		anilistCollection            *anilist.AnimeCollection
-		refreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
-		mu                           sync.Mutex
-		eventMu                      sync.Mutex
-		cancel                       context.CancelFunc
+		Logger                     *zerolog.Logger
+		Database                   *db.Database
+		MediaPlayerRepository      *mediaplayer.Repository           // MediaPlayerRepository is used to control the media player
+		discordPresence            *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
+		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
+		wsEventManager             events.WSEventManagerInterface
+		anilistClientWrapper       anilist.ClientWrapperInterface
+		animeCollection            *anilist.AnimeCollection
+		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
+		mu                         sync.Mutex
+		eventMu                    sync.Mutex
+		cancel                     context.CancelFunc
 		// historyMap stores a PlaybackState whose state is "completed"
 		// Since PlaybackState is sent to client continuously, once a PlaybackState is stored in historyMap, only IT will be sent to the client.
 		// This is so when the user seeks back to a video, the client can show the last known "completed" state of the video
@@ -88,32 +88,32 @@ type (
 	}
 
 	NewPlaybackManagerOptions struct {
-		WSEventManager               events.WSEventManagerInterface
-		Logger                       *zerolog.Logger
-		AnilistClientWrapper         anilist.ClientWrapperInterface
-		AnilistCollection            *anilist.AnimeCollection
-		Database                     *db.Database
-		RefreshAnilistCollectionFunc func() // This function is called to refresh the AniList collection
-		DiscordPresence              *discordrpc_presence.Presence
-		IsOffline                    bool
-		OfflineHub                   offline.HubInterface
+		WSEventManager             events.WSEventManagerInterface
+		Logger                     *zerolog.Logger
+		AnilistClientWrapper       anilist.ClientWrapperInterface
+		AnimeCollection            *anilist.AnimeCollection
+		Database                   *db.Database
+		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
+		DiscordPresence            *discordrpc_presence.Presence
+		IsOffline                  bool
+		OfflineHub                 offline.HubInterface
 	}
 )
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	return &PlaybackManager{
-		Logger:                       opts.Logger,
-		Database:                     opts.Database,
-		discordPresence:              opts.DiscordPresence,
-		wsEventManager:               opts.WSEventManager,
-		anilistClientWrapper:         opts.AnilistClientWrapper,
-		anilistCollection:            opts.AnilistCollection,
-		refreshAnilistCollectionFunc: opts.RefreshAnilistCollectionFunc,
-		playlistHub:                  newPlaylistHub(opts.Logger, opts.WSEventManager),
-		mu:                           sync.Mutex{},
-		historyMap:                   make(map[string]PlaybackState),
-		isOffline:                    opts.IsOffline,
-		offlineHub:                   opts.OfflineHub,
+		Logger:                     opts.Logger,
+		Database:                   opts.Database,
+		discordPresence:            opts.DiscordPresence,
+		wsEventManager:             opts.WSEventManager,
+		anilistClientWrapper:       opts.AnilistClientWrapper,
+		animeCollection:            opts.AnimeCollection,
+		refreshAnimeCollectionFunc: opts.RefreshAnimeCollectionFunc,
+		playlistHub:                newPlaylistHub(opts.Logger, opts.WSEventManager),
+		mu:                         sync.Mutex{},
+		historyMap:                 make(map[string]PlaybackState),
+		isOffline:                  opts.IsOffline,
+		offlineHub:                 opts.OfflineHub,
 	}
 }
 
@@ -121,11 +121,11 @@ func (pm *PlaybackManager) SetAnilistClientWrapper(anilistClientWrapper anilist.
 	pm.anilistClientWrapper = anilistClientWrapper
 }
 
-func (pm *PlaybackManager) SetAnilistCollection(anilistCollection *anilist.AnimeCollection) {
+func (pm *PlaybackManager) SetAnimeCollection(animeCollection *anilist.AnimeCollection) {
 	go func() {
 		pm.mu.Lock()
 		defer pm.mu.Unlock()
-		pm.anilistCollection = anilistCollection
+		pm.animeCollection = animeCollection
 	}()
 }
 
@@ -202,7 +202,7 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
 	pm.playlistHub.reset()
-	if err := pm.checkOrLoadOfflineAnilistCollection(); err != nil {
+	if err := pm.checkOrLoadOfflineAnimeCollection(); err != nil {
 		return err
 	}
 
@@ -274,14 +274,14 @@ func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 	pm.playlistHub.loadPlaylist(playlist)
 
-	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
+	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.anilistCollection == nil {
+	if pm.isOffline && pm.animeCollection == nil {
 		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
 		if !found {
 			return errors.New("could not retrieve anime collection")
 		}
-		pm.anilistCollection = snapshot.Collections.AnimeCollection
+		pm.animeCollection = snapshot.Collections.AnimeCollection
 	}
 
 	// Play the first video in the playlist
@@ -353,16 +353,16 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (pm *PlaybackManager) checkOrLoadOfflineAnilistCollection() error {
-	// When offline, pm.anilistCollection is nil because SetAnilistCollection is not called
+func (pm *PlaybackManager) checkOrLoadOfflineAnimeCollection() error {
+	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.anilistCollection == nil {
+	if pm.isOffline && pm.animeCollection == nil {
 		pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
 		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
 		if !found {
 			return errors.New("could not retrieve anime collection")
 		}
-		pm.anilistCollection = snapshot.Collections.AnimeCollection
+		pm.animeCollection = snapshot.Collections.AnimeCollection
 	}
 	return nil
 }

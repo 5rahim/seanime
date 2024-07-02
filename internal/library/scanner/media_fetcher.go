@@ -22,21 +22,21 @@ type MediaFetcher struct {
 	AllMedia           []*anilist.BaseMedia
 	CollectionMediaIds []int
 	UnknownMediaIds    []int // Media IDs that are not in the user's collection
-	AnilistCollection  *anilist.AnimeCollection
+	AnimeCollection    *anilist.AnimeCollection
 	ScanLogger         *ScanLogger
 }
 
 type MediaFetcherOptions struct {
-	Enhanced                 bool
-	Username                 string
-	AnilistClientWrapper     anilist.ClientWrapperInterface
-	LocalFiles               []*anime.LocalFile
-	BaseMediaCache           *anilist.BaseMediaCache
-	AnizipCache              *anizip.Cache
-	Logger                   *zerolog.Logger
-	AnilistRateLimiter       *limiter.Limiter
-	DisableAnilistCollection bool
-	ScanLogger               *ScanLogger
+	Enhanced               bool
+	Username               string
+	AnilistClientWrapper   anilist.ClientWrapperInterface
+	LocalFiles             []*anime.LocalFile
+	BaseMediaCache         *anilist.BaseMediaCache
+	AnizipCache            *anizip.Cache
+	Logger                 *zerolog.Logger
+	AnilistRateLimiter     *limiter.Limiter
+	DisableAnimeCollection bool
+	ScanLogger             *ScanLogger
 }
 
 // NewMediaFetcher
@@ -80,11 +80,11 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		return nil, err
 	}
 
-	mf.AnilistCollection = animeCollection
+	mf.AnimeCollection = animeCollection
 
 	mf.AllMedia = make([]*anilist.BaseMedia, 0)
 
-	if !opts.DisableAnilistCollection {
+	if !opts.DisableAnimeCollection {
 		// For each collection entry, append the media to AllMedia
 		for _, list := range animeCollection.GetMediaListCollection().GetLists() {
 			for _, entry := range list.GetEntries() {

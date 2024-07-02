@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// HandleGetAnilistCollection
+// HandleGetAnimeCollection
 //
 //	@summary returns the user's AniList anime collection.
 //	@desc Calling GET will return the cached anime collection.
@@ -17,12 +17,12 @@ import (
 //	@desc Calling POST will refetch both the anime and manga collections.
 //	@returns anilist.AnimeCollection
 //	@route /api/v1/anilist/collection [GET,POST]
-func HandleGetAnilistCollection(c *RouteCtx) error {
+func HandleGetAnimeCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"
 
 	// Get the user's anilist collection
-	anilistCollection, err := c.App.GetAnilistCollection(bypassCache)
+	animeCollection, err := c.App.GetAnimeCollection(bypassCache)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -39,7 +39,7 @@ func HandleGetAnilistCollection(c *RouteCtx) error {
 		}
 	}()
 
-	return c.RespondWithData(anilistCollection)
+	return c.RespondWithData(animeCollection)
 }
 
 // HandleGetRawAnimeCollection
@@ -53,12 +53,12 @@ func HandleGetRawAnimeCollection(c *RouteCtx) error {
 	bypassCache := c.Fiber.Method() == "POST"
 
 	// Get the user's anilist collection
-	anilistCollection, err := c.App.GetRawAnilistCollection(bypassCache)
+	animeCollection, err := c.App.GetRawAnimeCollection(bypassCache)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	return c.RespondWithData(anilistCollection)
+	return c.RespondWithData(animeCollection)
 }
 
 // HandleEditAnilistListEntry
@@ -101,11 +101,11 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 
 	switch p.Type {
 	case "anime":
-		_, _ = c.App.RefreshAnilistCollection()
+		_, _ = c.App.RefreshAnimeCollection()
 	case "manga":
 		_, _ = c.App.RefreshMangaCollection()
 	default:
-		_, _ = c.App.RefreshAnilistCollection()
+		_, _ = c.App.RefreshAnimeCollection()
 		_, _ = c.App.RefreshMangaCollection()
 	}
 
@@ -210,12 +210,12 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 	switch *p.Type {
 	case "anime":
 		// Get the list entry ID
-		anilistCollection, err := c.App.GetAnilistCollection(false)
+		animeCollection, err := c.App.GetAnimeCollection(false)
 		if err != nil {
 			return c.RespondWithError(err)
 		}
 
-		listEntry, found := anilistCollection.GetListEntryFromMediaId(*p.MediaId)
+		listEntry, found := animeCollection.GetListEntryFromMediaId(*p.MediaId)
 		if !found {
 			return c.RespondWithError(errors.New("list entry not found"))
 		}
@@ -245,7 +245,7 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 
 	switch *p.Type {
 	case "anime":
-		_, _ = c.App.RefreshAnilistCollection()
+		_, _ = c.App.RefreshAnimeCollection()
 	case "manga":
 		_, _ = c.App.RefreshMangaCollection()
 	}

@@ -1,4 +1,4 @@
-import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import { useEffect } from "react"
@@ -7,10 +7,10 @@ import { useEffect } from "react"
  * @description
  * - Fetches the Anilist collection
  */
-export function useAnilistCollectionLoader() {
+export function useAnimeCollectionLoader() {
     const setter = useSetAtom(anilistUserMediaAtom)
 
-    const { data } = useGetAnilistCollection()
+    const { data } = useGetAnimeCollection()
 
     // Store the user's media in `userMediaAtom`
     useEffect(() => {

@@ -38,8 +38,8 @@ func (e *AnimeEntry) IsEqual(other *AnimeEntry) bool {
 	return true
 }
 
-// FromAnilistCollection converts an AniList anime collection to a list of AnimeEntry
-func FromAnilistCollection(collection *anilist.AnimeCollection) []*AnimeEntry {
+// FromAnimeCollection converts an AniList anime collection to a list of AnimeEntry
+func FromAnimeCollection(collection *anilist.AnimeCollection) []*AnimeEntry {
 	p := pool.NewWithResults[*AnimeEntry]()
 	for _, list := range collection.GetMediaListCollection().GetLists() {
 		list := list

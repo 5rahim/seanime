@@ -112,7 +112,7 @@ func (h *playlistHub) playNextFile() (*anime.LocalFile, bool) {
 	return nil, false
 }
 
-func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, anilistCollection *anilist.AnimeCollection, ps PlaybackState) {
+func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, animeCollection *anilist.AnimeCollection, ps PlaybackState) {
 	if !h.check(currListEntry, currLf, ps) {
 		return
 	}
@@ -130,7 +130,7 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf
 		MediaImage: currListEntry.GetMedia().GetCoverImageSafe(),
 	}
 	if h.nextLocalFile != nil {
-		lfe, found := anilistCollection.GetListEntryFromMediaId(h.nextLocalFile.MediaId)
+		lfe, found := animeCollection.GetListEntryFromMediaId(h.nextLocalFile.MediaId)
 		if found {
 			playlistState.Next = &PlaylistStateItem{
 				Name:       fmt.Sprintf("%s - Episode %d", lfe.GetMedia().GetPreferredTitle(), h.nextLocalFile.GetEpisodeNumber()),

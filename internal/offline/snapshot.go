@@ -101,7 +101,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 			MediaId:              lfEntry.GetMediaId(),
 			LocalFiles:           lfs,
 			AnizipCache:          anizipCache,
-			AnilistCollection:    animeCollection,
+			AnimeCollection:      animeCollection,
 			AnilistClientWrapper: h.anilistClientWrapper,
 			MetadataProvider:     h.metadataProvider,
 		})

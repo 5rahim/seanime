@@ -7,16 +7,16 @@ import { useQueryClient } from "@tanstack/react-query"
  * @description
  * - Listens to REFRESHED_ANILIST_COLLECTION events and re-fetches queries associated with AniList collection.
  */
-export function useAnilistCollectionListener() {
+export function useAnimeCollectionListener() {
 
     const qc = useQueryClient()
 
     useWebsocketMessageListener({
-        type: WSEvents.REFRESHED_ANILIST_COLLECTION,
+        type: WSEvents.REFRESHED_ANILIST_ANIME_COLLECTION,
         onMessage: data => {
             (async () => {
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+                await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
                 await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
             })()
         },

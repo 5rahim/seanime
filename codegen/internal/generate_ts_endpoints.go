@@ -100,7 +100,7 @@ func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir
 				writeLine(f, "         */")
 			}
 
-			writeLine(f, fmt.Sprintf("\t\t%s: {", strings.TrimPrefix(route.Name, "Handle"))) // GetAnilistCollection: {
+			writeLine(f, fmt.Sprintf("\t\t%s: {", strings.TrimPrefix(route.Name, "Handle"))) // GetAnimeCollection: {
 
 			methodStr := ""
 			if len(route.Api.Methods) > 1 {

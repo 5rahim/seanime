@@ -20,11 +20,11 @@ type (
 	}
 
 	NewMissingEpisodesOptions struct {
-		AnilistCollection *anilist.AnimeCollection
-		LocalFiles        []*LocalFile
-		AnizipCache       *anizip.Cache
-		SilencedMediaIds  []int
-		MetadataProvider  *metadata.Provider
+		AnimeCollection  *anilist.AnimeCollection
+		LocalFiles       []*LocalFile
+		AnizipCache      *anizip.Cache
+		SilencedMediaIds []int
+		MetadataProvider *metadata.Provider
 	}
 )
 
@@ -38,7 +38,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 	p := pool.NewWithResults[[]*MediaEntryDownloadEpisode]()
 	for mId, lfs := range groupedLfs {
 		p.Go(func() []*MediaEntryDownloadEpisode {
-			entry, found := opts.AnilistCollection.GetListEntryFromMediaId(mId)
+			entry, found := opts.AnimeCollection.GetListEntryFromMediaId(mId)
 			if !found {
 				return nil
 			}

@@ -48,23 +48,23 @@ type (
 		mu              sync.Mutex
 		currentSnapshot *Snapshot
 
-		RefreshAnilistCollections func()
+		RefreshAnilistCollectionsFunc func()
 	}
 )
 
 type (
 	NewHubOptions struct {
-		AnilistClientWrapper      anilist.ClientWrapperInterface
-		WSEventManager            events.WSEventManagerInterface
-		MetadataProvider          *metadata.Provider
-		MangaRepository           *manga.Repository
-		Database                  *db.Database
-		FileCacher                *filecache.Cacher
-		Logger                    *zerolog.Logger
-		OfflineDir                string
-		AssetDir                  string
-		IsOffline                 bool
-		RefreshAnilistCollections func()
+		AnilistClientWrapper        anilist.ClientWrapperInterface
+		WSEventManager              events.WSEventManagerInterface
+		MetadataProvider            *metadata.Provider
+		MangaRepository             *manga.Repository
+		Database                    *db.Database
+		FileCacher                  *filecache.Cacher
+		Logger                      *zerolog.Logger
+		OfflineDir                  string
+		AssetDir                    string
+		IsOffline                   bool
+		RefreshAnimeCollectionsFunc func()
 	}
 )
 
@@ -91,19 +91,19 @@ func NewHub(opts *NewHubOptions) *Hub {
 	imgDownloader := image_downloader.NewImageDownloader(opts.AssetDir, opts.Logger)
 
 	return &Hub{
-		anilistClientWrapper:      opts.AnilistClientWrapper,
-		wsEventManager:            opts.WSEventManager,
-		metadataProvider:          opts.MetadataProvider,
-		mangaRepository:           opts.MangaRepository,
-		db:                        opts.Database,
-		offlineDb:                 offlineDb,
-		fileCacher:                opts.FileCacher,
-		logger:                    opts.Logger,
-		offlineDir:                opts.OfflineDir,
-		assetDir:                  opts.AssetDir,
-		isOffline:                 opts.IsOffline,
-		assetsHandler:             newAssetsHandler(opts.Logger, imgDownloader),
-		RefreshAnilistCollections: opts.RefreshAnilistCollections,
+		anilistClientWrapper:          opts.AnilistClientWrapper,
+		wsEventManager:                opts.WSEventManager,
+		metadataProvider:              opts.MetadataProvider,
+		mangaRepository:               opts.MangaRepository,
+		db:                            opts.Database,
+		offlineDb:                     offlineDb,
+		fileCacher:                    opts.FileCacher,
+		logger:                        opts.Logger,
+		offlineDir:                    opts.OfflineDir,
+		assetDir:                      opts.AssetDir,
+		isOffline:                     opts.IsOffline,
+		assetsHandler:                 newAssetsHandler(opts.Logger, imgDownloader),
+		RefreshAnilistCollectionsFunc: opts.RefreshAnimeCollectionsFunc,
 	}
 }
 
@@ -453,9 +453,9 @@ func (h *Hub) SyncListData() error {
 
 	_ = h.offlineDb.DeleteSnapshot(snapshotItem.ID)
 
-	h.RefreshAnilistCollections()
+	h.RefreshAnilistCollectionsFunc()
 
-	h.wsEventManager.SendEvent(events.RefreshedAnilistCollection, nil)
+	h.wsEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, nil)
 	h.wsEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 
 	return nil

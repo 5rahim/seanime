@@ -30,10 +30,10 @@ type (
 	LogType int
 
 	ScanSummaryLogger struct {
-		Logs              []*ScanSummaryLog
-		LocalFiles        []*anime.LocalFile
-		AllMedia          []*anime.NormalizedMedia
-		AnilistCollection *anilist.AnimeCollection
+		Logs            []*ScanSummaryLog
+		LocalFiles      []*anime.LocalFile
+		AllMedia        []*anime.NormalizedMedia
+		AnimeCollection *anilist.AnimeCollection
 	}
 
 	ScanSummaryLog struct { // Holds a log entry. The log entry will then be used to generate a ScanSummary.
@@ -72,14 +72,14 @@ func NewScanSummaryLogger() *ScanSummaryLogger {
 }
 
 // HydrateData will hydrate the data needed to generate the summary.
-func (l *ScanSummaryLogger) HydrateData(lfs []*anime.LocalFile, media []*anime.NormalizedMedia, anilistCollection *anilist.AnimeCollection) {
+func (l *ScanSummaryLogger) HydrateData(lfs []*anime.LocalFile, media []*anime.NormalizedMedia, animeCollection *anilist.AnimeCollection) {
 	l.LocalFiles = lfs
 	l.AllMedia = media
-	l.AnilistCollection = anilistCollection
+	l.AnimeCollection = animeCollection
 }
 
 func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
-	if l == nil || l.LocalFiles == nil || l.AllMedia == nil || l.AnilistCollection == nil {
+	if l == nil || l.LocalFiles == nil || l.AllMedia == nil || l.AnimeCollection == nil {
 		return nil
 	}
 	summary := &ScanSummary{
@@ -134,7 +134,7 @@ func (l *ScanSummaryLogger) GenerateSummary() *ScanSummary {
 				break
 			}
 		}
-		if _, found := l.AnilistCollection.GetListEntryFromMediaId(mediaId); found {
+		if _, found := l.AnimeCollection.GetListEntryFromMediaId(mediaId); found {
 			mediaIsInCollection = true
 		}
 

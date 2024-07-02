@@ -22,10 +22,10 @@ func TestNewMediaFetcher(t *testing.T) {
 	dir := "E:/Anime"
 
 	tests := []struct {
-		name                     string
-		paths                    []string
-		enhanced                 bool
-		disableAnilistCollection bool
+		name                   string
+		paths                  []string
+		enhanced               bool
+		disableAnimeCollection bool
 	}{
 		{
 			name: "86 - Eighty Six Part 1 & 2",
@@ -35,8 +35,8 @@ func TestNewMediaFetcher(t *testing.T) {
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
 			},
-			enhanced:                 false,
-			disableAnilistCollection: false,
+			enhanced:               false,
+			disableAnimeCollection: false,
 		},
 		{
 			name: "86 - Eighty Six Part 1 & 2",
@@ -46,8 +46,8 @@ func TestNewMediaFetcher(t *testing.T) {
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 22v2 (1080p) [58BF43B4].mkv",
 				"E:/Anime/[SubsPlease] 86 - Eighty Six (01-23) (1080p) [Batch]/[SubsPlease] 86 - Eighty Six - 23v2 (1080p) [D94B4894].mkv",
 			},
-			enhanced:                 true,
-			disableAnilistCollection: true,
+			enhanced:               true,
+			disableAnimeCollection: true,
 		},
 	}
 
@@ -75,16 +75,16 @@ func TestNewMediaFetcher(t *testing.T) {
 			// +---------------------+
 
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
-				Enhanced:                 tt.enhanced,
-				Username:                 test_utils.ConfigData.Provider.AnilistUsername,
-				AnilistClientWrapper:     anilistClientWrapper,
-				LocalFiles:               lfs,
-				BaseMediaCache:           baseMediaCache,
-				AnizipCache:              anizipCache,
-				Logger:                   util.NewLogger(),
-				AnilistRateLimiter:       anilistRateLimiter,
-				ScanLogger:               scanLogger,
-				DisableAnilistCollection: tt.disableAnilistCollection,
+				Enhanced:               tt.enhanced,
+				Username:               test_utils.ConfigData.Provider.AnilistUsername,
+				AnilistClientWrapper:   anilistClientWrapper,
+				LocalFiles:             lfs,
+				BaseMediaCache:         baseMediaCache,
+				AnizipCache:            anizipCache,
+				Logger:                 util.NewLogger(),
+				AnilistRateLimiter:     anilistRateLimiter,
+				ScanLogger:             scanLogger,
+				DisableAnimeCollection: tt.disableAnimeCollection,
 			})
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())

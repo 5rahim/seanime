@@ -25515,62 +25515,6 @@
         "comments": []
       },
       {
-        "name": "anilistCollection",
-        "jsonName": "anilistCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": false,
-        "comments": [
-          " TODO: Rename to animeCollection"
-        ]
-      },
-      {
-        "name": "rawAnimeCollection",
-        "jsonName": "rawAnimeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": false,
-        "comments": [
-          " (retains custom lists)"
-        ]
-      },
-      {
-        "name": "mangaCollection",
-        "jsonName": "mangaCollection",
-        "goType": "anilist.MangaCollection",
-        "typescriptType": "AL_MangaCollection",
-        "usedStructName": "anilist.MangaCollection",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "rawMangaCollection",
-        "jsonName": "rawMangaCollection",
-        "goType": "anilist.MangaCollection",
-        "typescriptType": "AL_MangaCollection",
-        "usedStructName": "anilist.MangaCollection",
-        "required": false,
-        "public": false,
-        "comments": [
-          " (retains custom lists)"
-        ]
-      },
-      {
-        "name": "account",
-        "jsonName": "account",
-        "goType": "models.Account",
-        "typescriptType": "Models_Account",
-        "usedStructName": "models.Account",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
         "goType": "events.WSEventManager",
@@ -25709,17 +25653,6 @@
         "comments": []
       },
       {
-        "name": "WD",
-        "jsonName": "WD",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Working directory"
-        ]
-      },
-      {
         "name": "DiscordPresence",
         "jsonName": "DiscordPresence",
         "goType": "discordrpc_presence.Presence",
@@ -25746,24 +25679,6 @@
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
-        "comments": []
-      },
-      {
-        "name": "cancelContext",
-        "jsonName": "cancelContext",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "previousVersion",
-        "jsonName": "previousVersion",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
         "comments": []
       },
       {
@@ -25835,6 +25750,71 @@
         "comments": [
           " Initialized in modules.go"
         ]
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": [
+          " TODO: Rename to animeCollection"
+        ]
+      },
+      {
+        "name": "rawAnimeCollection",
+        "jsonName": "rawAnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": false,
+        "comments": [
+          " (retains custom lists)"
+        ]
+      },
+      {
+        "name": "mangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "rawMangaCollection",
+        "jsonName": "rawMangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": false,
+        "comments": [
+          " (retains custom lists)"
+        ]
+      },
+      {
+        "name": "account",
+        "jsonName": "account",
+        "goType": "models.Account",
+        "typescriptType": "Models_Account",
+        "usedStructName": "models.Account",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "previousVersion",
+        "jsonName": "previousVersion",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -29329,8 +29309,8 @@
     "package": "anime",
     "fields": [
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -30276,8 +30256,8 @@
         "comments": []
       },
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -30710,8 +30690,8 @@
         ]
       },
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -30770,8 +30750,8 @@
     "package": "anime",
     "fields": [
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -31059,8 +31039,8 @@
         "comments": []
       },
       {
-        "name": "anilistCollection",
-        "jsonName": "anilistCollection",
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -31195,8 +31175,8 @@
         "comments": []
       },
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -31717,8 +31697,8 @@
         "comments": []
       },
       {
-        "name": "anilistCollection",
-        "jsonName": "anilistCollection",
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -31727,8 +31707,8 @@
         "comments": []
       },
       {
-        "name": "refreshAnilistCollectionFunc",
-        "jsonName": "refreshAnilistCollectionFunc",
+        "name": "refreshAnimeCollectionFunc",
+        "jsonName": "refreshAnimeCollectionFunc",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -32071,8 +32051,8 @@
         "comments": []
       },
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -32091,8 +32071,8 @@
         "comments": []
       },
       {
-        "name": "RefreshAnilistCollectionFunc",
-        "jsonName": "RefreshAnilistCollectionFunc",
+        "name": "RefreshAnimeCollectionFunc",
+        "jsonName": "RefreshAnimeCollectionFunc",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -32529,8 +32509,8 @@
         ]
       },
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -32639,8 +32619,8 @@
         "comments": []
       },
       {
-        "name": "DisableAnilistCollection",
-        "jsonName": "DisableAnilistCollection",
+        "name": "DisableAnimeCollection",
+        "jsonName": "DisableAnimeCollection",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -33094,8 +33074,8 @@
         "comments": []
       },
       {
-        "name": "AnilistCollection",
-        "jsonName": "AnilistCollection",
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
         "typescriptType": "AL_AnimeCollection",
         "usedStructName": "anilist.AnimeCollection",
@@ -40434,8 +40414,8 @@
         "comments": []
       },
       {
-        "name": "RefreshAnilistCollections",
-        "jsonName": "RefreshAnilistCollections",
+        "name": "RefreshAnimeCollections",
+        "jsonName": "RefreshAnimeCollections",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -40550,8 +40530,8 @@
         "comments": []
       },
       {
-        "name": "RefreshAnilistCollections",
-        "jsonName": "RefreshAnilistCollections",
+        "name": "RefreshAnimeCollections",
+        "jsonName": "RefreshAnimeCollections",
         "goType": "",
         "typescriptType": "any",
         "required": true,

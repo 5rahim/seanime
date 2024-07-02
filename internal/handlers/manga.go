@@ -68,13 +68,13 @@ func HandleGetRawAnilistMangaCollection(c *RouteCtx) error {
 //	@returns manga.Collection
 func HandleGetMangaCollection(c *RouteCtx) error {
 
-	anilistCollection, err := c.App.GetMangaCollection(false)
+	animeCollection, err := c.App.GetMangaCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	collection, err := manga.NewCollection(&manga.NewCollectionOptions{
-		MangaCollection:      anilistCollection,
+		MangaCollection:      animeCollection,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 	})
 	if err != nil {
@@ -98,7 +98,7 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anilistCollection, err := c.App.GetMangaCollection(false)
+	animeCollection, err := c.App.GetMangaCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -108,7 +108,7 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 		Logger:               c.App.Logger,
 		FileCacher:           c.App.FileCacher,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		MangaCollection:      anilistCollection,
+		MangaCollection:      animeCollection,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

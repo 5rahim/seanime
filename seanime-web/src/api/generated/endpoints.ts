@@ -15,8 +15,8 @@ export const API_ENDPOINTS = {
          *  The manga collection is also refreshed in the background, and upon completion, a WebSocket event is sent.
          *  Calling POST will refetch both the anime and manga collections.
          */
-        GetAnilistCollection: {
-            key: "ANILIST-get-anilist-collection",
+        GetAnimeCollection: {
+            key: "ANILIST-get-anime-collection",
             methods: ["GET", "POST"],
             endpoint: "/api/v1/anilist/collection",
         },

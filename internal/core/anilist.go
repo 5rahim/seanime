@@ -8,42 +8,43 @@ import (
 	"github.com/seanime-app/seanime/internal/database/models"
 )
 
-func (a *App) IsOffline() bool {
-	return a.Config.Server.Offline
+// UpdateAnilistClientToken will update the Anilist Client Wrapper token.
+// This function should be called when a user logs in
+func (a *App) UpdateAnilistClientToken(token string) {
+	a.AnilistClientWrapper = anilist.NewClientWrapper(token)
+	a.PlaybackManager.SetAnilistClientWrapper(a.AnilistClientWrapper) // Update Anilist Client Wrapper in Playback Manager
 }
 
-// GetAnilistCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
+// GetAnimeCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.
 // When bypassCache is true, it will always query Anilist for the user's collection
-func (a *App) GetAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+func (a *App) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 
 	// Get Anilist Collection from App if it exists
-	if !bypassCache && a.anilistCollection != nil {
-		return a.anilistCollection, nil
+	if !bypassCache && a.animeCollection != nil {
+		return a.animeCollection, nil
 	}
 
-	return a.RefreshAnilistCollection()
-
+	return a.RefreshAnimeCollection()
 }
 
-// GetRawAnilistCollection is the same as GetAnilistCollection but returns the raw collection that includes custom lists
-func (a *App) GetRawAnilistCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+// GetRawAnimeCollection is the same as GetAnimeCollection but returns the raw collection that includes custom lists
+func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 
 	// Get Anilist Collection from App if it exists
 	if !bypassCache && a.rawAnimeCollection != nil {
 		return a.rawAnimeCollection, nil
 	}
 
-	_, err := a.RefreshAnilistCollection()
+	_, err := a.RefreshAnimeCollection()
 	if err != nil {
 		return nil, err
 	}
 
 	return a.rawAnimeCollection, nil
-
 }
 
-// RefreshAnilistCollection queries Anilist for the user's collection
-func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
+// RefreshAnimeCollection queries Anilist for the user's collection
+func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 
 	// If the account is nil, return false
 	if a.account == nil {
@@ -71,13 +72,13 @@ func (a *App) RefreshAnilistCollection() (*anilist.AnimeCollection, error) {
 	})
 
 	// Save the collection to App
-	a.anilistCollection = collection
+	a.animeCollection = collection
 
 	// Save the collection to AutoDownloader
-	a.AutoDownloader.SetAnilistCollection(collection)
+	a.AutoDownloader.SetAnimeCollection(collection)
 
 	// Save the collection to PlaybackManager
-	a.PlaybackManager.SetAnilistCollection(collection)
+	a.PlaybackManager.SetAnimeCollection(collection)
 
 	// Save the collection to TorrentstreamRepository
 	a.TorrentstreamRepository.SetAnimeCollection(collection)
@@ -102,12 +103,11 @@ func (a *App) GetAccount() (*models.Account, error) {
 	}
 
 	return a.account, nil
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// GetMangaCollection is the same as GetAnilistCollection but for manga
+// GetMangaCollection is the same as GetAnimeCollection but for manga
 func (a *App) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
 
 	// Get Anilist Collection from App if it exists

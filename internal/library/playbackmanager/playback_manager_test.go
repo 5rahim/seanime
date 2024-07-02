@@ -25,7 +25,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -35,10 +35,10 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 		WSEventManager:       wsEventManager,
 		AnilistClientWrapper: anilistClientWrapper,
 		Database:             database,
-		AnilistCollection:    anilistCollection,
-		RefreshAnilistCollectionFunc: func() {
+		AnimeCollection:      animeCollection,
+		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},
 		IsOffline: false,
-	}), anilistClientWrapper, anilistCollection, nil
+	}), anilistClientWrapper, animeCollection, nil
 }

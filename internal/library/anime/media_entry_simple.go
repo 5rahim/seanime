@@ -30,14 +30,14 @@ type (
 	NewSimpleMediaEntryOptions struct {
 		MediaId              int
 		LocalFiles           []*LocalFile // All local files
-		AnilistCollection    *anilist.AnimeCollection
+		AnimeCollection      *anilist.AnimeCollection
 		AnilistClientWrapper anilist.ClientWrapperInterface
 	}
 )
 
 func NewSimpleMediaEntry(opts *NewSimpleMediaEntryOptions) (*SimpleMediaEntry, error) {
 
-	if opts.AnilistCollection == nil ||
+	if opts.AnimeCollection == nil ||
 		opts.AnilistClientWrapper == nil {
 		return nil, errors.New("missing arguments when creating simple media entry")
 	}
@@ -50,7 +50,7 @@ func NewSimpleMediaEntry(opts *NewSimpleMediaEntryOptions) (*SimpleMediaEntry, e
 	// +---------------------+
 
 	// Get the Anilist List entry
-	anilistEntry, found := opts.AnilistCollection.GetListEntryFromMediaId(opts.MediaId)
+	anilistEntry, found := opts.AnimeCollection.GetListEntryFromMediaId(opts.MediaId)
 
 	// Set the media
 	// If the Anilist List entry does not exist, fetch the media from AniList

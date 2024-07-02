@@ -20,11 +20,11 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useGetAnilistCollection() {
+export function useGetAnimeCollection() {
     return useServerQuery<AL_AnimeCollection>({
-        endpoint: API_ENDPOINTS.ANILIST.GetAnilistCollection.endpoint,
-        method: API_ENDPOINTS.ANILIST.GetAnilistCollection.methods[0],
-        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key],
+        endpoint: API_ENDPOINTS.ANILIST.GetAnimeCollection.endpoint,
+        method: API_ENDPOINTS.ANILIST.GetAnimeCollection.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key],
         enabled: true,
     })
 }
@@ -38,17 +38,17 @@ export function useGetRawAnimeCollection() {
     })
 }
 
-export function useRefreshAnilistCollection() {
+export function useRefreshAnimeCollection() {
     const queryClient = useQueryClient()
 
     return useServerMutation<AL_AnimeCollection>({
-        endpoint: API_ENDPOINTS.ANILIST.GetAnilistCollection.endpoint,
-        method: API_ENDPOINTS.ANILIST.GetAnilistCollection.methods[1],
-        mutationKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key],
+        endpoint: API_ENDPOINTS.ANILIST.GetAnimeCollection.endpoint,
+        method: API_ENDPOINTS.ANILIST.GetAnimeCollection.methods[1],
+        mutationKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key],
         onSuccess: async () => {
             toast.success("AniList is up-to-date")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
@@ -70,7 +70,7 @@ export function useEditAnilistListEntry(id: Nullish<string | number>, type: "ani
             if (type === "anime") {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key] })
             } else if (type === "manga") {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key, String(id)] })
@@ -102,7 +102,7 @@ export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "a
             if (type === "anime") {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key] })
+                await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key] })
             } else if (type === "manga") {
                 await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key, String(id)] })

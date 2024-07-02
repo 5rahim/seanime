@@ -1,5 +1,5 @@
 "use client"
-import { useRefreshAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import React from "react"
@@ -17,7 +17,7 @@ export const RefreshAnilistButton: React.FC<RefreshAnilistButtonProps> = (props)
      * @description
      * - Asks the server to fetch an up-to-date version of the user's AniList collection.
      */
-    const { mutate, isPending } = useRefreshAnilistCollection()
+    const { mutate, isPending } = useRefreshAnimeCollection()
 
     return (
         <>

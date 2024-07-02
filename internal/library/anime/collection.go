@@ -83,7 +83,7 @@ type (
 type (
 	// NewLibraryCollectionOptions is a struct that holds the data needed for creating a new LibraryCollection.
 	NewLibraryCollectionOptions struct {
-		AnilistCollection    *anilist.AnimeCollection
+		AnimeCollection      *anilist.AnimeCollection
 		LocalFiles           []*LocalFile
 		AnizipCache          *anizip.Cache
 		AnilistClientWrapper anilist.ClientWrapperInterface
@@ -97,7 +97,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
 
 	// Get lists from collection
-	aniLists := opts.AnilistCollection.GetMediaListCollection().GetLists()
+	aniLists := opts.AnimeCollection.GetMediaListCollection().GetLists()
 
 	lc = new(LibraryCollection)
 
@@ -112,7 +112,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	// Add Continue Watching list
 	lc.hydrateContinueWatchingList(
 		opts.LocalFiles,
-		opts.AnilistCollection,
+		opts.AnimeCollection,
 		opts.AnizipCache,
 		opts.AnilistClientWrapper,
 		opts.MetadataProvider,
@@ -309,7 +309,7 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 // This should be called after the LibraryCollectionList's have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
-	anilistCollection *anilist.AnimeCollection,
+	animeCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
 	anilistClientWrapper anilist.ClientWrapperInterface,
 	metadataProvider *metadata.Provider,
@@ -338,7 +338,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 			me, _ := NewMediaEntry(&NewMediaEntryOptions{
 				MediaId:              mId,
 				LocalFiles:           localFiles,
-				AnilistCollection:    anilistCollection,
+				AnimeCollection:      animeCollection,
 				AnizipCache:          anizipCache,
 				AnilistClientWrapper: anilistClientWrapper,
 				MetadataProvider:     metadataProvider,

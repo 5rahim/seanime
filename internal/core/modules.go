@@ -1,9 +1,7 @@
 package core
 
 import (
-	"context"
 	"github.com/cli/browser"
-	"github.com/dustin/go-humanize"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
@@ -11,18 +9,17 @@ import (
 	"github.com/seanime-app/seanime/internal/library/autoscanner"
 	"github.com/seanime-app/seanime/internal/library/fillermanager"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
-	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
 	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
 	"github.com/seanime-app/seanime/internal/mediastream"
+	"github.com/seanime-app/seanime/internal/offline"
 	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
 	"github.com/seanime-app/seanime/internal/torrentstream"
-	"github.com/seanime-app/seanime/internal/util"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -30,18 +27,50 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
 
-	// Initialize Discord RPC
+	// +---------------------+
+	// |     Offline Hub     |
+	// +---------------------+
+
+	// Will exit if offline mode is enabled and no snapshots are found
+	a.OfflineHub = offline.NewHub(&offline.NewHubOptions{
+		AnilistClientWrapper: a.AnilistClientWrapper,
+		MetadataProvider:     a.MetadataProvider,
+		MangaRepository:      a.MangaRepository,
+		WSEventManager:       a.WSEventManager,
+		Database:             a.Database,
+		FileCacher:           a.FileCacher,
+		Logger:               a.Logger,
+		OfflineDir:           a.Config.Offline.Dir,
+		AssetDir:             a.Config.Offline.AssetDir,
+		IsOffline:            a.Config.Server.Offline,
+		RefreshAnimeCollectionsFunc: func() {
+			_, _ = a.RefreshAnimeCollection()
+			_, _ = a.RefreshMangaCollection()
+		},
+	})
+
+	// +---------------------+
+	// |     Discord RPC     |
+	// +---------------------+
+
 	// Settings are set in InitOrRefreshModules
 	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
-	a.Cleanups = append(a.Cleanups, func() {
+	a.AddCleanupFunction(func() {
 		a.DiscordPresence.Close()
 	})
 
-	// Filler Manager
+	// +---------------------+
+	// |       Filler        |
+	// +---------------------+
+
 	a.FillerManager = fillermanager.New(&fillermanager.NewFillerManagerOptions{
 		DB:     a.Database,
 		Logger: a.Logger,
 	})
+
+	// +---------------------+
+	// |   Playback Manager  |
+	// +---------------------+
 
 	// Playback Manager
 	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
@@ -49,30 +78,37 @@ func (a *App) initModulesOnce() {
 		WSEventManager:       a.WSEventManager,
 		AnilistClientWrapper: a.AnilistClientWrapper,
 		Database:             a.Database,
-		AnilistCollection:    nil, // Will be set and refreshed in app.RefreshAnilistCollection
-		RefreshAnilistCollectionFunc: func() {
-			_, _ = a.RefreshAnilistCollection()
+		AnimeCollection:      nil, // Will be set and refreshed in app.RefreshAnimeCollection
+		DiscordPresence:      a.DiscordPresence,
+		IsOffline:            a.IsOffline(),
+		OfflineHub:           a.OfflineHub,
+		RefreshAnimeCollectionFunc: func() {
+			_, _ = a.RefreshAnimeCollection()
 		},
-		DiscordPresence: a.DiscordPresence,
-		IsOffline:       a.IsOffline(),
-		OfflineHub:      a.OfflineHub,
 	})
 
-	// Auto downloader
+	// +---------------------+
+	// |   Auto Downloader   |
+	// +---------------------+
+
 	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
 		Logger:                  a.Logger,
 		TorrentClientRepository: a.TorrentClientRepository,
-		AnilistCollection:       nil, // Will be set and refreshed in app.RefreshAnilistCollection
+		AnimeCollection:         nil, // Will be set and refreshed in app.RefreshAnimeCollection
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		AnizipCache:             a.AnizipCache,
 	})
 
 	if !a.IsOffline() {
+		// This is run in a goroutine
 		a.AutoDownloader.Start()
 	}
 
-	// Auto scanner
+	// +---------------------+
+	// |   Auto Scanner      |
+	// +---------------------+
+
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
 		Database:             a.Database,
 		Enabled:              false, // Will be set in InitOrRefreshModules
@@ -82,9 +118,13 @@ func (a *App) initModulesOnce() {
 		WSEventManager:       a.WSEventManager,
 	})
 
+	// This is run in a goroutine
 	a.AutoScanner.Start()
 
-	// Manga Downloader
+	// +---------------------+
+	// |  Manga Downloader   |
+	// +---------------------+
+
 	a.MangaDownloader = manga.NewDownloader(&manga.NewDownloaderOptions{
 		Database:       a.Database,
 		Logger:         a.Logger,
@@ -94,28 +134,27 @@ func (a *App) initModulesOnce() {
 	})
 
 	if !a.IsOffline() {
+		// This is run in a goroutine
 		a.MangaDownloader.Start()
 	}
 
-	//
+	// +---------------------+
+	// |    Media Stream     |
+	// +---------------------+
 
-	a.OfflineHub.RefreshAnilistCollections = func() {
-		_, _ = a.RefreshAnilistCollection()
-		_, _ = a.RefreshMangaCollection()
-	}
-
-	// Mediastream
 	a.MediastreamRepository = mediastream.NewRepository(&mediastream.NewRepositoryOptions{
 		Logger:         a.Logger,
 		WSEventManager: a.WSEventManager,
 		FileCacher:     a.FileCacher,
 	})
 
-	a.Cleanups = append(a.Cleanups, func() {
+	a.AddCleanupFunction(func() {
 		a.MediastreamRepository.OnCleanup()
 	})
 
-	// Torrent stream
+	// +---------------------+
+	// |   Torrent Stream    |
+	// +---------------------+
 
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
 		Logger:                a.Logger,
@@ -124,10 +163,10 @@ func (a *App) initModulesOnce() {
 		NyaaSearchCache:       a.NyaaSearchCache,
 		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
 		MetadataProvider:      a.MetadataProvider,
-		AnimeCollection:       nil, // Will be set in app.RefreshAnilistCollection
 		AnilistClientWrapper:  a.AnilistClientWrapper,
 		PlaybackManager:       a.PlaybackManager,
 		WSEventManager:        a.WSEventManager,
+		AnimeCollection:       nil, // Will be set in app.RefreshAnimeCollection
 	})
 
 }
@@ -136,20 +175,11 @@ func (a *App) initModulesOnce() {
 // This function is called:
 //   - After the App instance is created
 //   - After settings are updated.
-func (a *App) InitOrRefreshModules(bypassRefreshAniListData ...bool) {
-	if a.cancelContext != nil {
-		a.Logger.Warn().Msg("app: Concurrent module refresh")
-		return
-	}
+func (a *App) InitOrRefreshModules() {
+	a.moduleMu.Lock()
+	defer a.moduleMu.Unlock()
 
 	a.Logger.Debug().Msgf("app: Refreshing modules")
-
-	var ctx context.Context
-	ctx, a.cancelContext = context.WithCancel(context.Background())
-	defer func() {
-		ctx.Done()
-		a.cancelContext = nil
-	}()
 
 	// Stop watching if already watching
 	if a.Watcher != nil {
@@ -286,57 +316,7 @@ func (a *App) InitOrRefreshModules(bypassRefreshAniListData ...bool) {
 		a.DiscordPresence.SetSettings(settings.Discord)
 	}
 
-	// +---------------------+
-	// |       AniList       |
-	// +---------------------+
-
-	if len(bypassRefreshAniListData) == 0 {
-		// Fetch Anilist collection and set account if not offline
-		if !a.IsOffline() {
-			a.initAnilistData()
-		}
-	}
-
 	a.Logger.Info().Msg("app: Refreshed modules")
-
-}
-
-// initLibraryWatcher will initialize the library watcher.
-//   - Used by AutoScanner
-func (a *App) initLibraryWatcher(path string) {
-	// Create a new watcher
-	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
-		Logger:         a.Logger,
-		WSEventManager: a.WSEventManager,
-	})
-	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to initialize watcher")
-		return
-	}
-
-	// Initialize library file watcher
-	err = watcher.InitLibraryFileWatcher(&scanner.WatchLibraryFilesOptions{
-		LibraryPath: path,
-	})
-	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to watch library files")
-		return
-	}
-
-	dirSize, _ := util.DirSize(path)
-	a.TotalLibrarySize = dirSize
-
-	a.Logger.Info().Msgf("app: Library size: %s", humanize.Bytes(dirSize))
-
-	// Set the watcher
-	a.Watcher = watcher
-
-	// Start watching
-	a.Watcher.StartWatching(
-		func() {
-			// Notify the auto scanner when a file action occurs
-			a.AutoScanner.Notify()
-		})
 
 }
 
@@ -420,10 +400,10 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 	a.SecondarySettings.Torrentstream = settings
 }
 
-// initAnilistData will initialize the Anilist anime collection and the account.
+// InitOrRefreshAnilistData will initialize the Anilist anime collection and the account.
 // This function should be called after App.Database is initialized and after settings are updated.
-func (a *App) initAnilistData() {
-	a.Logger.Debug().Msg("app: Initializing Anilist data")
+func (a *App) InitOrRefreshAnilistData() {
+	a.Logger.Debug().Msg("app: Fetching Anilist data")
 
 	acc, err := a.Database.GetAccount()
 	if err != nil {
@@ -436,18 +416,18 @@ func (a *App) initAnilistData() {
 
 	// Set account
 	a.account = acc
+	a.Logger.Info().Msg("app: Authenticated to AniList as " + acc.Username)
 
-	_, err = a.RefreshAnilistCollection()
+	_, err = a.RefreshAnimeCollection()
 	if err != nil {
 		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
 		return
 	}
 
-	a.Logger.Info().Msg("app: Fetched Anilist collection")
-
+	a.Logger.Info().Msg("app: Fetched Anilist data")
 }
 
-func (a *App) launchModulesOnce() {
+func (a *App) performActionsOnce() {
 
 	go func() {
 		if a.Settings == nil || a.Settings.Library == nil {
@@ -484,11 +464,4 @@ func (a *App) launchModulesOnce() {
 		}
 	}()
 
-}
-
-// UpdateAnilistClientToken will update the Anilist Client Wrapper token.
-// This function should be called when a user logs in
-func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClientWrapper = anilist.NewClientWrapper(token)
-	a.PlaybackManager.SetAnilistClientWrapper(a.AnilistClientWrapper) // Update Anilist Client Wrapper in Playback Manager
 }

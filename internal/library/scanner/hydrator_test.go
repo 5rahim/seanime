@@ -18,12 +18,12 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	logger := util.NewLogger()
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
 	}
 
-	allMedia := anilistCollection.GetAllMedia()
+	allMedia := animeCollection.GetAllMedia()
 
 	tests := []struct {
 		name            string

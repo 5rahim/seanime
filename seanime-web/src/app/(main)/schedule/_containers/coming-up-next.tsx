@@ -1,4 +1,4 @@
-import { useGetAnilistCollection } from "@/api/hooks/anilist.hooks"
+import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -17,12 +17,12 @@ import React from "react"
 export function ComingUpNext() {
     const serverStatus = useServerStatus()
 
-    const { data: anilistCollection } = useGetAnilistCollection()
+    const { data: animeCollection } = useGetAnimeCollection()
     const missingEpisodes = useMissingEpisodes()
 
     const media = React.useMemo(() => {
         // get all media
-        const _media = (anilistCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
+        const _media = (animeCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
         // keep media with next airing episodes
         let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
             .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
@@ -32,7 +32,7 @@ export function ComingUpNext() {
             // remove adult media
             return ret.filter(item => !item.isAdult)
         }
-    }, [anilistCollection])
+    }, [animeCollection])
 
     if (media.length === 0) return null
 

@@ -42,7 +42,7 @@ type (
 		MediaId              int
 		LocalFiles           []*LocalFile // All local files
 		AnizipCache          *anizip.Cache
-		AnilistCollection    *anilist.AnimeCollection
+		AnimeCollection      *anilist.AnimeCollection
 		AnilistClientWrapper anilist.ClientWrapperInterface
 		MetadataProvider     *metadata.Provider
 	}
@@ -63,7 +63,7 @@ type (
 //   - CurrentEpisodeCount: Current episode count
 func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
-	if opts.AnilistCollection == nil ||
+	if opts.AnimeCollection == nil ||
 		opts.AnilistClientWrapper == nil {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
@@ -77,7 +77,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// +---------------------+
 
 	// Get the Anilist List entry
-	anilistEntry, found := opts.AnilistCollection.GetListEntryFromMediaId(opts.MediaId)
+	anilistEntry, found := opts.AnimeCollection.GetListEntryFromMediaId(opts.MediaId)
 
 	// Set the media
 	// If the Anilist List entry does not exist, fetch the media from AniList
@@ -128,7 +128,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 		simpleMediaEntry, err := NewSimpleMediaEntry(&NewSimpleMediaEntryOptions{
 			MediaId:              opts.MediaId,
 			LocalFiles:           opts.LocalFiles,
-			AnilistCollection:    opts.AnilistCollection,
+			AnimeCollection:      opts.AnimeCollection,
 			AnilistClientWrapper: opts.AnilistClientWrapper,
 		})
 		if err != nil {

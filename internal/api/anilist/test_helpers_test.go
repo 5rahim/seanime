@@ -15,7 +15,7 @@ import (
 // The generated AnimeCollection will be used to test various Anilist API methods.
 // You can use TestModifyAnimeCollectionEntry to modify the generated AnimeCollection before using it in a test.
 //   - DO NOT RUN IF YOU DON'T PLAN TO GENERATE A NEW 'test/data/BoilerplateAnimeCollection'
-func TestGenerateBoilerplateAnilistCollection(t *testing.T) {
+func TestGenerateBoilerplateAnimeCollection(t *testing.T) {
 	t.Skip("This test is not meant to be run")
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 

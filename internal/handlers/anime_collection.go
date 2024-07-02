@@ -22,7 +22,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	bypassCache := c.Fiber.Method() == "POST"
 
-	anilistCollection, err := c.App.GetAnilistCollection(bypassCache)
+	animeCollection, err := c.App.GetAnimeCollection(bypassCache)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -33,7 +33,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 	}
 
 	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
-		AnilistCollection:    anilistCollection,
+		AnimeCollection:      animeCollection,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		AnizipCache:          c.App.AnizipCache,
 		LocalFiles:           lfs,
@@ -73,11 +73,11 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 	}
 
 	// Bypass the cache
-	anilistCollection, err := c.App.GetAnilistCollection(true)
+	animeCollection, err := c.App.GetAnimeCollection(true)
 	if err != nil {
 		return c.RespondWithError(errors.New("error: Anilist responded with an error, wait one minute before refreshing"))
 	}
 
-	return c.RespondWithData(anilistCollection)
+	return c.RespondWithData(animeCollection)
 
 }

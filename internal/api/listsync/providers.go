@@ -24,7 +24,7 @@ type (
 
 // NewAnilistProvider creates a new provider for Anilist
 func NewAnilistProvider(collection *anilist.AnimeCollection) *Provider {
-	entries := FromAnilistCollection(collection)
+	entries := FromAnimeCollection(collection)
 	entriesMap := make(map[int]*AnimeEntry)
 	for _, entry := range entries {
 		entriesMap[entry.MalID] = entry

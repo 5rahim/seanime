@@ -15,11 +15,11 @@ import (
 func TestMediaTreeAnalysis(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	allMedia := anilistCollection.GetAllMedia()
+	allMedia := animeCollection.GetAllMedia()
 
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewBaseMediaRelationTree()

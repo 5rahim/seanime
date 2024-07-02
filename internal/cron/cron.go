@@ -25,7 +25,7 @@ func RunJobs(app *core.App) {
 			for {
 				select {
 				case <-refreshAnilistTicker.C:
-					RefreshAnilistCollectionJob(ctx)
+					RefreshAnimeCollectionJob(ctx)
 				case <-refetchReleaseTicker.C:
 					app.Updater.ShouldRefetchReleases()
 				}

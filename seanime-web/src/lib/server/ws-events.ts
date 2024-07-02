@@ -1,7 +1,7 @@
 export const enum WSEvents {
     SCAN_PROGRESS = "scan-progress",
     SCAN_STATUS = "scan-status",
-    REFRESHED_ANILIST_COLLECTION = "refreshed-anilist-collection",
+    REFRESHED_ANILIST_ANIME_COLLECTION = "refreshed-anilist-anime-collection",
     REFRESHED_ANILIST_MANGA_COLLECTION = "refreshed-anilist-manga-collection",
     LIBRARY_WATCHER_FILE_ADDED = "library-watcher-file-added",
     LIBRARY_WATCHER_FILE_REMOVED = "library-watcher-file-removed",

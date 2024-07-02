@@ -54,9 +54,9 @@ func TestTorrentstream(t *testing.T) {
 		WSEventManager:       wsEventManager,
 		Logger:               logger,
 		AnilistClientWrapper: anilistClientWrapper,
-		AnilistCollection:    animeCollection,
+		AnimeCollection:      animeCollection,
 		Database:             database,
-		RefreshAnilistCollectionFunc: func() {
+		RefreshAnimeCollectionFunc: func() {
 
 		},
 		DiscordPresence: nil,
@@ -64,7 +64,7 @@ func TestTorrentstream(t *testing.T) {
 		OfflineHub:      offline.NewMockHub(),
 	})
 
-	playbackManager.SetAnilistCollection(animeCollection)
+	playbackManager.SetAnimeCollection(animeCollection)
 	playbackManager.SetMediaPlayerRepository(mediaPlayerRepo)
 
 	repo := NewRepository(&NewRepositoryOptions{

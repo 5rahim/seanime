@@ -1,9 +1,9 @@
 [
   {
-    "name": "HandleGetAnilistCollection",
-    "trimmedName": "GetAnilistCollection",
+    "name": "HandleGetAnimeCollection",
+    "trimmedName": "GetAnimeCollection",
     "comments": [
-      "HandleGetAnilistCollection",
+      "HandleGetAnimeCollection",
       "",
       "\t@summary returns the user's AniList anime collection.",
       "\t@desc Calling GET will return the cached anime collection.",

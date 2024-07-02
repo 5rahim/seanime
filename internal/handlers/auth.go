@@ -70,6 +70,8 @@ func HandleLogin(c *RouteCtx) error {
 
 	c.App.InitOrRefreshModules()
 
+	c.App.InitOrRefreshAnilistData()
+
 	// Return new status
 	return c.RespondWithData(status)
 
@@ -103,6 +105,8 @@ func HandleLogout(c *RouteCtx) error {
 	status := NewStatus(c)
 
 	c.App.InitOrRefreshModules()
+
+	c.App.InitOrRefreshAnilistData()
 
 	return c.RespondWithData(status)
 }

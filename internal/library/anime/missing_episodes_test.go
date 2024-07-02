@@ -18,7 +18,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 	metadataProvider := metadata.TestGetMockProvider(t)
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// Mock Anilist collection
-			anilist.TestModifyAnimeCollectionEntry(anilistCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
+			anilist.TestModifyAnimeCollectionEntry(animeCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 				Progress:      lo.ToPtr(tt.currentProgress), // Mock progress
 				AiredEpisodes: lo.ToPtr(tt.mediaAiredEpisodes),
 				NextAiringEpisode: &anilist.BaseMedia_NextAiringEpisode{
@@ -69,10 +69,10 @@ func TestNewMissingEpisodes(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			missingData := NewMissingEpisodes(&NewMissingEpisodesOptions{
-				AnilistCollection: anilistCollection,
-				LocalFiles:        tt.localFiles,
-				AnizipCache:       anizip.NewCache(),
-				MetadataProvider:  metadataProvider,
+				AnimeCollection:  animeCollection,
+				LocalFiles:       tt.localFiles,
+				AnizipCache:      anizip.NewCache(),
+				MetadataProvider: metadataProvider,
 			})
 
 			assert.Equal(t, tt.expectedMissingEpisodes, len(missingData.Episodes))

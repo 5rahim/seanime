@@ -212,8 +212,8 @@ func Test(t *testing.T) {
 	
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	// Called with a nil username
-    // `anilistCollection` will contain the dummy collection
-    anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+    // `animeCollection` will contain the dummy collection
+    animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
     if err != nil {
     	t.Fatal(err)
     }

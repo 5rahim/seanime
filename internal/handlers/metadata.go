@@ -103,7 +103,7 @@ func HandlePopulateFillerData(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	animeCollection, err := c.App.GetAnilistCollection(false)
+	animeCollection, err := c.App.GetAnimeCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

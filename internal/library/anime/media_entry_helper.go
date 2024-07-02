@@ -144,7 +144,8 @@ func (e *MediaEntry) FindListData() (*MediaEntryListData, bool) {
 	}
 	return e.MediaEntryListData, true
 }
-func (e *MediaEntry) IsInAniListCollection() bool {
+
+func (e *MediaEntry) IsInAnimeCollection() bool {
 	_, ok := e.FindListData()
 	return ok
 }
@@ -217,6 +218,7 @@ func (e *SimpleMediaEntry) FindLatestLocalFile() (*LocalFile, bool) {
 	}
 	return latest, true
 }
+
 func (e *SimpleMediaEntry) FindMainLocalFiles() ([]*LocalFile, bool) {
 	if e.LocalFiles == nil {
 		return nil, false
@@ -242,7 +244,8 @@ func (e *SimpleMediaEntry) FindListData() (*MediaEntryListData, bool) {
 	}
 	return e.MediaEntryListData, true
 }
-func (e *SimpleMediaEntry) IsInAniListCollection() bool {
+
+func (e *SimpleMediaEntry) IsInAnimeCollection() bool {
 	_, ok := e.FindListData()
 	return ok
 }

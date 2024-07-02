@@ -5,10 +5,10 @@ import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
-import { useAnilistCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
+import { useAnimeCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
-import { useAnilistCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
+import { useAnimeCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
@@ -23,14 +23,14 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
      * Data loaders
      */
     useAnimeLibraryCollectionLoader()
-    useAnilistCollectionLoader()
+    useAnimeCollectionLoader()
     useMissingEpisodesLoader()
 
     /**
      * Websocket listeners
      */
     useAutoDownloaderItemListener()
-    useAnilistCollectionListener()
+    useAnimeCollectionListener()
     useToastEventListeners()
     useMangaListener()
 

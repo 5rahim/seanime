@@ -3,7 +3,7 @@ package events
 const (
 	EventScanProgress                      = "scan-progress"                              // Progress of the scan
 	EventScanStatus                        = "scan-status"                                // Status text of the scan
-	RefreshedAnilistCollection             = "refreshed-anilist-collection"               // The anilist collection has been refreshed
+	RefreshedAnilistAnimeCollection        = "refreshed-anilist-anime-collection"         // The anilist collection has been refreshed
 	RefreshedAnilistMangaCollection        = "refreshed-anilist-manga-collection"         // The manga collection has been refreshed
 	LibraryWatcherFileAdded                = "library-watcher-file-added"                 // A new file has been added to the library
 	LibraryWatcherFileRemoved              = "library-watcher-file-removed"               // A file has been removed from the library

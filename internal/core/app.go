@@ -1,10 +1,6 @@
 package core
 
 import (
-	"embed"
-	"github.com/goccy/go-json"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
@@ -36,12 +32,8 @@ import (
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
-	"io/fs"
-	"log"
-	"net/http"
-	"path/filepath"
 	"runtime"
-	"strings"
+	"sync"
 )
 
 type (
@@ -56,11 +48,6 @@ type (
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
 		FillerManager           *fillermanager.FillerManager
-		anilistCollection       *anilist.AnimeCollection // TODO: Rename to animeCollection
-		rawAnimeCollection      *anilist.AnimeCollection // (retains custom lists)
-		mangaCollection         *anilist.MangaCollection
-		rawMangaCollection      *anilist.MangaCollection // (retains custom lists)
-		account                 *models.Account
 		WSEventManager          *events.WSEventManager
 		ListSyncCache           *listsync.Cache
 		AutoDownloader          *autodownloader.AutoDownloader
@@ -79,12 +66,9 @@ type (
 		Onlinestream            *onlinestream.OnlineStream
 		MangaRepository         *manga.Repository
 		MetadataProvider        *metadata.Provider
-		WD                      string // Working directory
 		DiscordPresence         *discordrpc_presence.Presence
 		MangaDownloader         *manga.Downloader
 		Cleanups                []func()
-		cancelContext           func()
-		previousVersion         string
 		OfflineHub              *offline.Hub
 		MediastreamRepository   *mediastream.Repository
 		TorrentstreamRepository *torrentstream.Repository
@@ -93,8 +77,15 @@ type (
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}
-		SelfUpdater      *updater.SelfUpdater
-		TotalLibrarySize uint64 // Initialized in modules.go
+		SelfUpdater        *updater.SelfUpdater
+		TotalLibrarySize   uint64                   // Initialized in modules.go
+		animeCollection    *anilist.AnimeCollection // TODO: Rename to animeCollection
+		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
+		mangaCollection    *anilist.MangaCollection
+		rawMangaCollection *anilist.MangaCollection // (retains custom lists)
+		account            *models.Account
+		previousVersion    string
+		moduleMu           sync.Mutex
 	}
 )
 
@@ -185,21 +176,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DownloadDir:    cfg.Manga.DownloadDir,
 	})
 
-	// Offline Hub
-	// Will exit if offline mode is enabled and no snapshots are found
-	offlineHub := offline.NewHub(&offline.NewHubOptions{
-		AnilistClientWrapper: anilistCW,
-		MetadataProvider:     metadataProvider,
-		MangaRepository:      mangaRepository,
-		WSEventManager:       wsEventManager,
-		Database:             database,
-		FileCacher:           fileCacher,
-		Logger:               logger,
-		OfflineDir:           cfg.Offline.Dir,
-		AssetDir:             cfg.Offline.AssetDir,
-		IsOffline:            cfg.Server.Offline,
-	})
-
 	app := &App{
 		Config:                  cfg,
 		Database:                database,
@@ -223,135 +199,54 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		AutoScanner:             nil, // Initialized in App.initModulesOnce
 		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
 		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
+		OfflineHub:              nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
-		WD:                      cfg.Data.WorkingDir,
 		previousVersion:         previousVersion,
-		OfflineHub:              offlineHub,
 		FeatureFlags:            NewFeatureFlags(cfg, logger),
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater: selfupdater,
+		moduleMu:    sync.Mutex{},
 	}
 
+	// Perform necessary migrations if the version has changed
 	app.runMigrations()
+
+	// Initialize all modules that only need to be initialized once
 	app.initModulesOnce()
+
+	// Initialize all setting-dependent modules
 	app.InitOrRefreshModules()
 
+	// Fetch Anilist collection and set account if not offline
+	if !app.IsOffline() {
+		app.InitOrRefreshAnilistData()
+	}
+
+	// Initialize mediastream settings
 	app.InitOrRefreshMediastreamSettings()
 
+	// Initialize torrentstream settings
 	app.InitOrRefreshTorrentstreamSettings()
 
-	app.launchModulesOnce()
+	// Perform actions that need to be done after the app has been initialized
+	app.performActionsOnce()
 
 	return app
 }
 
-// NewFiberApp creates a new fiber app instance
-// and sets up the static file server for the web interface.
-func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
-	// Create a new fiber app
-	fiberApp := fiber.New(fiber.Config{
-		JSONEncoder:           json.Marshal,
-		JSONDecoder:           json.Unmarshal,
-		DisableStartupMessage: true,
-	})
-
-	//
-	// Serve the embedded web interface
-	//
-
-	distFS, err := fs.Sub(webFS, "web")
-	if err != nil {
-		log.Fatal(err)
+func (a *App) IsOffline() bool {
+	if a.Config == nil {
+		return false
 	}
 
-	fiberApp.Use("/", filesystem.New(filesystem.Config{
-		Root:   http.FS(distFS),
-		Browse: true,
-		Next: func(c *fiber.Ctx) bool {
-			path := c.Path()
-			if strings.HasPrefix(path, "/api") ||
-				strings.HasPrefix(path, "/events") ||
-				strings.HasPrefix(path, "/assets") ||
-				strings.HasPrefix(path, "/manga-downloads") ||
-				strings.HasPrefix(path, "/offline-assets") {
-				return true // Continue to the next handler
-			}
-			if !strings.HasSuffix(path, ".html") && filepath.Ext(path) == "" {
-				if strings.Contains(path, "?") {
-					// Split the path into the actual path and the query string
-					parts := strings.SplitN(path, "?", 2)
-					actualPath := parts[0]
-					queryString := parts[1]
-					// Add ".html" to the actual path
-					actualPath += ".html"
-					// Reassemble the path with the query string
-					path = actualPath + "?" + queryString
-				} else {
-					path += ".html"
-				}
-			}
-			if path == "/.html" {
-				path = "/index.html"
-			}
-			c.Path(path)
-			return false // Continue to the filesystem handler
-		},
-	}))
-
-	app.Logger.Info().Msgf("app: Serving embedded web interface")
-
-	// Serve the web assets
-	app.Logger.Info().Msgf("app: Web assets path: %s", app.Config.Web.AssetDir)
-	fiberApp.Static("/assets", app.Config.Web.AssetDir, fiber.Static{
-		Index:    "index.html",
-		Compress: false,
-	})
-
-	// Serve the manga downloads
-	if app.Config.Manga.DownloadDir != "" {
-		app.Logger.Info().Msgf("app: Manga downloads path: %s", app.Config.Manga.DownloadDir)
-		fiberApp.Static("/manga-downloads", app.Config.Manga.DownloadDir, fiber.Static{
-			Index:    "index.html",
-			Compress: false,
-		})
-	}
-
-	// Serve the offline assets
-	if app.IsOffline() {
-		app.Logger.Info().Msgf("app: Offline assets path: %s", app.Config.Offline.AssetDir)
-		fiberApp.Static("/offline-assets", app.Config.Offline.AssetDir, fiber.Static{
-			Index:    "index.html",
-			Compress: false,
-		})
-	}
-
-	return fiberApp
+	return a.Config.Server.Offline
 }
 
-// RunServer starts the server
-func RunServer(app *App, fiberApp *fiber.App) {
-	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
-
-	// DEVNOTE: Crashes self-update loop
-	//app.Cleanups = append(app.Cleanups, func() {
-	//	_ = fiberApp.ShutdownWithTimeout(time.Millisecond)
-	//})
-
-	// Start the server
-	go func() {
-		log.Fatal(fiberApp.Listen(app.Config.GetServerAddr()))
-	}()
-
-	app.Logger.Info().Msg("app: Seanime started at " + app.Config.GetServerURI())
-}
-
-func (a *App) Cleanup() {
-	for _, f := range a.Cleanups {
-		f()
-	}
+func (a *App) AddCleanupFunction(f func()) {
+	a.Cleanups = append(a.Cleanups, f)
 }

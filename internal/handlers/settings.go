@@ -148,7 +148,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 	status := NewStatus(c)
 
 	// Refresh modules that depend on the settings
-	c.App.InitOrRefreshModules(true)
+	c.App.InitOrRefreshModules()
 
 	return c.RespondWithData(status)
 }

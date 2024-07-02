@@ -16,7 +16,7 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 	metadataProvider := metadata.TestGetMockProvider(t)
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +97,7 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			anilistEntry, _ := anilistCollection.GetListEntryFromMediaId(tt.mediaId)
+			anilistEntry, _ := animeCollection.GetListEntryFromMediaId(tt.mediaId)
 
 			info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
 				LocalFiles:       tt.localFiles,

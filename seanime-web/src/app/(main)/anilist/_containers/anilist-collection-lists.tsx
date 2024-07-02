@@ -43,9 +43,9 @@ import { useMount } from "react-use"
 const selectedIndexAtom = atom("-")
 const watchListSearchInputAtom = atom<string>("")
 
-type AnilistCollectionListsProps = {}
+type AnimeCollectionListsProps = {}
 
-export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
+export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
 
     const {} = props
 

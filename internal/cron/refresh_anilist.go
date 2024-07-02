@@ -4,7 +4,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 )
 
-func RefreshAnilistCollectionJob(c *JobCtx) {
+func RefreshAnimeCollectionJob(c *JobCtx) {
 	defer func() {
 		if r := recover(); r != nil {
 		}
@@ -15,7 +15,7 @@ func RefreshAnilistCollectionJob(c *JobCtx) {
 	}
 
 	// Refresh the Anilist Collection
-	anilistCollection, err := c.App.GetAnilistCollection(true)
+	animeCollection, err := c.App.GetAnimeCollection(true)
 	if err != nil {
 		return
 	}
@@ -28,5 +28,5 @@ func RefreshAnilistCollectionJob(c *JobCtx) {
 		c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, mangaCollection)
 	}
 
-	c.App.WSEventManager.SendEvent(events.RefreshedAnilistCollection, anilistCollection)
+	c.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, animeCollection)
 }

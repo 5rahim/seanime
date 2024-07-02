@@ -29,7 +29,7 @@ type (
 		logger                  *zerolog.Logger
 		torrentClientRepository *torrent_client.Repository
 		database                *db.Database
-		anilistCollection       *anilist.AnimeCollection
+		animeCollection         *anilist.AnimeCollection
 		wsEventManager          events.WSEventManagerInterface
 		settings                *models.AutoDownloaderSettings
 		anizipCache             *anizip.Cache
@@ -45,7 +45,7 @@ type (
 		TorrentClientRepository *torrent_client.Repository
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
-		AnilistCollection       *anilist.AnimeCollection
+		AnimeCollection         *anilist.AnimeCollection
 		AnizipCache             *anizip.Cache
 	}
 
@@ -61,7 +61,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		torrentClientRepository: opts.TorrentClientRepository,
 		database:                opts.Database,
 		wsEventManager:          opts.WSEventManager,
-		anilistCollection:       opts.AnilistCollection,
+		animeCollection:         opts.AnimeCollection,
 		anizipCache:             opts.AnizipCache,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              torrent.ProviderNyaa, // Default provider, will be updated after the settings are fetched
@@ -108,11 +108,11 @@ func (ad *AutoDownloader) SetTorrentClientRepository(repo *torrent_client.Reposi
 	ad.torrentClientRepository = repo
 }
 
-func (ad *AutoDownloader) SetAnilistCollection(collection *anilist.AnimeCollection) {
+func (ad *AutoDownloader) SetAnimeCollection(collection *anilist.AnimeCollection) {
 	if ad == nil {
 		return
 	}
-	ad.anilistCollection = collection
+	ad.animeCollection = collection
 }
 
 // Start will start the auto downloader in a goroutine
@@ -654,11 +654,11 @@ func (ad *AutoDownloader) isEpisodeMatch(
 }
 
 func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
-	if rule == nil || rule.MediaId == 0 || ad.anilistCollection == nil {
+	if rule == nil || rule.MediaId == 0 || ad.animeCollection == nil {
 		return nil, false
 	}
 
-	listEntry, found := ad.anilistCollection.GetListEntryFromMediaId(rule.MediaId)
+	listEntry, found := ad.animeCollection.GetListEntryFromMediaId(rule.MediaId)
 	if !found {
 		return nil, false
 	}

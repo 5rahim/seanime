@@ -20,12 +20,6 @@ func PrintHeader() {
 				Italic(true).
 				Foreground(lipgloss.Color("#FFF7DB")).
 				SetString("Seanime")
-		//list = lipgloss.NewStyle().
-		//	Border(lipgloss.NormalBorder(), false, true, false, false).
-		//	BorderForeground(subtle).
-		//	MarginRight(2).
-		//	Height(8).
-		//	Width(columnWidth + 1)
 		docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
 	)
 

@@ -239,7 +239,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Verifying file integrity...")
 
 	// Hydrate the summary logger before merging files
-	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnilistCollection)
+	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnimeCollection)
 
 	// +---------------------+
 	// |    Merge files      |

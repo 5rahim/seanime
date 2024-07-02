@@ -18,7 +18,7 @@ func TestNewLibraryCollection(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 
 	if assert.NoError(t, err) {
 
@@ -40,7 +40,7 @@ func TestNewLibraryCollection(t *testing.T) {
 				{metadataEpisode: 7, metadataAniDbEpisode: "7", metadataType: LocalFileTypeMain},
 			}),
 		)...)
-		anilist.TestModifyAnimeCollectionEntry(anilistCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
+		anilist.TestModifyAnimeCollectionEntry(animeCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 			Status:   lo.ToPtr(anilist.MediaListStatusCurrent),
 			Progress: lo.ToPtr(4), // Mock progress
 		})
@@ -58,7 +58,7 @@ func TestNewLibraryCollection(t *testing.T) {
 				{metadataEpisode: 1075, metadataAniDbEpisode: "1075", metadataType: LocalFileTypeMain},
 			}),
 		)...)
-		anilist.TestModifyAnimeCollectionEntry(anilistCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
+		anilist.TestModifyAnimeCollectionEntry(animeCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 			Status:   lo.ToPtr(anilist.MediaListStatusCurrent),
 			Progress: lo.ToPtr(1060), // Mock progress
 		})
@@ -75,7 +75,7 @@ func TestNewLibraryCollection(t *testing.T) {
 		)...)
 
 		libraryCollection, err := NewLibraryCollection(&NewLibraryCollectionOptions{
-			AnilistCollection:    anilistCollection,
+			AnimeCollection:      animeCollection,
 			LocalFiles:           lfs,
 			AnizipCache:          anizip.NewCache(),
 			AnilistClientWrapper: anilistClientWrapper,

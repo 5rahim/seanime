@@ -69,7 +69,7 @@ func TestNewMediaEntry(t *testing.T) {
 	}
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestNewMediaEntry(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			anilist.TestModifyAnimeCollectionEntry(anilistCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
+			anilist.TestModifyAnimeCollectionEntry(animeCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 				Progress: lo.ToPtr(tt.currentProgress), // Mock progress
 			})
 
@@ -88,7 +88,7 @@ func TestNewMediaEntry(t *testing.T) {
 				MediaId:              tt.mediaId,
 				LocalFiles:           tt.localFiles,
 				AnizipCache:          aniZipCache,
-				AnilistCollection:    anilistCollection,
+				AnimeCollection:      animeCollection,
 				AnilistClientWrapper: anilistClientWrapper,
 				MetadataProvider:     metadataProvider,
 			})

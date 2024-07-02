@@ -2,20 +2,20 @@
 // anilist
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// export function useGetAnilistCollection() {
+// export function useGetAnimeCollection() {
 //     return useServerQuery<AL_AnimeCollection>({
-//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistCollection.endpoint,
-//         method: API_ENDPOINTS.ANILIST.GetAnilistCollection.methods[0],
-//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key],
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnimeCollection.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetAnimeCollection.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key],
 //         enabled: true,
 //     })
 // }
 
-// export function useGetAnilistCollection() {
+// export function useGetAnimeCollection() {
 //     return useServerMutation<AL_AnimeCollection>({
-//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistCollection.endpoint,
-//         method: API_ENDPOINTS.ANILIST.GetAnilistCollection.methods[1],
-//         mutationKey: [API_ENDPOINTS.ANILIST.GetAnilistCollection.key],
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnimeCollection.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetAnimeCollection.methods[1],
+//         mutationKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key],
 //         onSuccess: async () => {
 // 
 //         },

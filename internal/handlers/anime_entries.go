@@ -50,7 +50,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 	}
 
 	// Get the user's anilist collection
-	anilistCollection, err := c.App.GetAnilistCollection(false)
+	animeCollection, err := c.App.GetAnimeCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -60,7 +60,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 		MediaId:              mId,
 		LocalFiles:           lfs,
 		AnizipCache:          c.App.AnizipCache,
-		AnilistCollection:    anilistCollection,
+		AnimeCollection:      animeCollection,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		MetadataProvider:     c.App.MetadataProvider,
 	})
@@ -351,7 +351,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anilistCollection, err := c.App.GetAnilistCollection(false)
+	animeCollection, err := c.App.GetAnimeCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -416,7 +416,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	fh.HydrateMetadata()
 
 	// Hydrate the summary logger before merging files
-	fh.ScanSummaryLogger.HydrateData(selectedLfs, normalizedMedia, anilistCollection)
+	fh.ScanSummaryLogger.HydrateData(selectedLfs, normalizedMedia, animeCollection)
 
 	// Save the scan summary
 	go func() {
@@ -461,7 +461,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 	// Get the user's anilist collection
 	// Do not bypass the cache, since this handler might be called multiple times, and we don't want to spam the API
 	// A cron job will refresh the cache every 10 minutes
-	anilistCollection, err := c.App.GetAnilistCollection(false)
+	animeCollection, err := c.App.GetAnimeCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -475,11 +475,11 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 	silencedMediaIds, _ := c.App.Database.GetSilencedMediaEntryIds()
 
 	missingEps := anime.NewMissingEpisodes(&anime.NewMissingEpisodesOptions{
-		AnilistCollection: anilistCollection,
-		LocalFiles:        lfs,
-		AnizipCache:       c.App.AnizipCache,
-		SilencedMediaIds:  silencedMediaIds,
-		MetadataProvider:  c.App.MetadataProvider,
+		AnimeCollection:  animeCollection,
+		LocalFiles:       lfs,
+		AnizipCache:      c.App.AnizipCache,
+		SilencedMediaIds: silencedMediaIds,
+		MetadataProvider: c.App.MetadataProvider,
 	})
 
 	return c.RespondWithData(missingEps)
@@ -585,7 +585,7 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	_, _ = c.App.RefreshAnilistCollection() // Refresh the AniList collection
+	_, _ = c.App.RefreshAnimeCollection() // Refresh the AniList collection
 
 	go func() {
 		// Update the progress on MAL if an account is linked
