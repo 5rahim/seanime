@@ -50,7 +50,7 @@ func (a *App) runMigrations() {
 				a.previousVersion == "1.5.2" ||
 				a.previousVersion == "1.5.3" ||
 				a.previousVersion == "1.5.4" ||
-				a.previousVersion == "1.5.5") ||
+				a.previousVersion == "1.5.5") &&
 				versionComp > 0 {
 				a.Logger.Debug().Msg("app: Executing version migration task")
 				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
