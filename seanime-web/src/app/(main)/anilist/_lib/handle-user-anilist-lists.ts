@@ -1,70 +1,88 @@
-import { AL_AnimeCollection_MediaListCollection_Lists_Entries, AL_MediaListStatus } from "@/api/generated/types"
+import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { useGetRawAnimeCollection } from "@/api/hooks/anilist.hooks"
+import { useGetRawAnilistMangaCollection } from "@/api/hooks/manga.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import sortBy from "lodash/sortBy"
-import React, { useCallback } from "react"
+import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterEntriesByTitle, filterListEntries } from "@/lib/helpers/filtering"
+import { atomWithImmer } from "jotai-immer"
+import { useAtom } from "jotai/react"
+import React from "react"
+import { useDebounce } from "use-debounce"
+
+export const MYLISTS_DEFAULT_PARAMS: CollectionParams = {
+    ...DEFAULT_COLLECTION_PARAMS,
+    sorting: "SCORE_DESC",
+}
+
+export const __myListsSearch_paramsAtom = atomWithImmer<CollectionParams>(MYLISTS_DEFAULT_PARAMS)
+
+export const __myListsSearch_paramsInputAtom = atomWithImmer<CollectionParams>(MYLISTS_DEFAULT_PARAMS)
+
+export const __myLists_selectedTypeAtom = atomWithImmer<"anime" | "manga" | "stats">("anime")
 
 export function useHandleUserAnilistLists(debouncedSearchInput: string) {
 
     const serverStatus = useServerStatus()
-    const { data } = useGetRawAnimeCollection()
+    const [selectedType, setSelectedType] = useAtom(__myLists_selectedTypeAtom)
+    const { data: animeData } = useGetRawAnimeCollection()
+    const { data: mangaData } = useGetRawAnilistMangaCollection()
+
+    const data = React.useMemo(() => {
+        return selectedType === "anime" ? animeData : mangaData
+    }, [selectedType, animeData, mangaData])
 
     const lists = React.useMemo(() => data?.MediaListCollection?.lists, [data])
 
-    const sortedLists = React.useMemo(() => {
+    const [params, _setParams] = useAtom(__myListsSearch_paramsAtom)
+    const [debouncedParams] = useDebounce(params, 500)
+
+    React.useLayoutEffect(() => {
+        if (selectedType === "manga" && !serverStatus?.settings?.library?.enableManga) {
+            setSelectedType("anime")
+        }
+    }, [serverStatus?.settings?.library?.enableManga])
+
+    React.useLayoutEffect(() => {
+        _setParams(MYLISTS_DEFAULT_PARAMS)
+    }, [selectedType])
+
+    const _filteredLists: AL_AnimeCollection_MediaListCollection_Lists[] = React.useMemo(() => {
         return lists?.map(obj => {
             if (!obj) return undefined
-            let arr = obj?.entries
-            // Sort by name
-            arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
-            // Sort by score
-            arr = (sortBy(arr, n => n?.score).reverse())
-            obj.entries = arr
-            return obj
-        })
-    }, [lists])
+            const arr = filterListEntries(obj?.entries, params, serverStatus?.settings?.anilist?.enableAdultContent)
+            return {
+                name: obj?.name,
+                isCustomList: obj?.isCustomList,
+                status: obj?.status,
+                entries: arr,
+            }
+        }).filter(Boolean) ?? []
+    }, [lists, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent])
+
+    const filteredLists: AL_AnimeCollection_MediaListCollection_Lists[] = React.useMemo(() => {
+        return _filteredLists?.map(obj => {
+            if (!obj) return undefined
+            const arr = filterEntriesByTitle(obj?.entries, debouncedSearchInput)
+            return {
+                name: obj?.name,
+                isCustomList: obj?.isCustomList,
+                status: obj?.status,
+                entries: arr,
+            }
+        })?.filter(Boolean) ?? []
+    }, [_filteredLists, debouncedSearchInput])
 
     const customLists = React.useMemo(() => {
-        return lists?.filter(obj => obj?.isCustomList)
-    }, [lists])
-
-    const getList = useCallback((status: AL_MediaListStatus, debouncedSearchInput: string) => {
-        let obj = structuredClone(sortedLists?.find(n => n?.status === status))
-        if (!obj || !obj.entries) return undefined
-        if (!serverStatus?.settings?.anilist?.enableAdultContent) {
-            obj.entries = obj.entries?.filter(entry => !entry?.media?.isAdult)
-        }
-        obj.entries = filterEntriesByTitle(obj.entries, debouncedSearchInput)
-        return obj
-    }, [sortedLists, serverStatus?.settings?.anilist?.enableAdultContent])
-
-    const currentList = React.useMemo(() => getList("CURRENT", debouncedSearchInput), [debouncedSearchInput, getList, lists])
-    const planningList = React.useMemo(() => getList("PLANNING", debouncedSearchInput), [debouncedSearchInput, getList, lists])
-    const pausedList = React.useMemo(() => getList("PAUSED", debouncedSearchInput), [debouncedSearchInput, getList, lists])
-    const completedList = React.useMemo(() => getList("COMPLETED", debouncedSearchInput), [debouncedSearchInput, getList, lists])
-    const droppedList = React.useMemo(() => getList("DROPPED", debouncedSearchInput), [debouncedSearchInput, getList, lists])
+        return filteredLists?.filter(obj => obj?.isCustomList) ?? []
+    }, [filteredLists])
 
     return {
-        currentList,
-        planningList,
-        pausedList,
-        completedList,
-        droppedList,
+        currentList: React.useMemo(() => filteredLists?.find(l => l?.status === "CURRENT"), [filteredLists]),
+        planningList: React.useMemo(() => filteredLists?.find(l => l?.status === "PLANNING"), [filteredLists]),
+        pausedList: React.useMemo(() => filteredLists?.find(l => l?.status === "PAUSED"), [filteredLists]),
+        completedList: React.useMemo(() => filteredLists?.find(l => l?.status === "COMPLETED"), [filteredLists]),
+        droppedList: React.useMemo(() => filteredLists?.find(l => l?.status === "DROPPED"), [filteredLists]),
         customLists,
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function filterEntriesByTitle(arr: AL_AnimeCollection_MediaListCollection_Lists_Entries[], input: string) {
-    if (arr.length > 0 && input.length > 0) {
-        const _input = input.toLowerCase().trim().replace(/\s+/g, " ")
-        return arr.filter(entry => (
-            entry.media?.title?.english?.toLowerCase().includes(_input)
-            || entry.media?.title?.userPreferred?.toLowerCase().includes(_input)
-            || entry.media?.title?.romaji?.toLowerCase().includes(_input)
-            || entry.media?.synonyms?.some(syn => syn?.toLowerCase().includes(_input))
-        ))
-    }
-    return arr
-}

@@ -4,9 +4,10 @@
 
 <h2 align="center"><b>Seanime Server</b></h2>
 
-- `api`: Third-party metadata API
+- `api`: Third-party APIs
   - `anilist`: AniList structs and methods
   - `anizip`: Metadata API
+  - `filler`: Filler API
   - `listsync`
   - `mal`: MyAnimeList API
   - `mappings`: Mapping API
@@ -39,10 +40,11 @@
   - `mediaplayer`: **Media Player Repository** module
   - `mpchc`
   - `mpv`
+  - `mpvipc`
   - `vlc` 
 - `mediastream`: **Media Stream Repository** module
-  - `transcoder`
-  - `videofile`
+  - `transcoder`: Transcoder
+  - `videofile`: Media metadata
 - `offline`: **Offline hub module**
 - `onlinestream`: **Onlinestream module**
   - `providers`: Stream providers

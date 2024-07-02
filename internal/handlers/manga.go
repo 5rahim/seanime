@@ -38,10 +38,6 @@ func HandleGetAnilistMangaCollection(c *RouteCtx) error {
 		BypassCache bool `json:"bypassCache"`
 	}
 
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
-
 	var b body
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
@@ -53,6 +49,24 @@ func HandleGetAnilistMangaCollection(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(collection)
+}
+
+// HandleGetRawAnilistMangaCollection
+//
+//	@summary returns the user's AniList manga collection.
+//	@route /api/v1/manga/anilist/collection/raw [GET,POST]
+//	@returns anilist.MangaCollection
+func HandleGetRawAnilistMangaCollection(c *RouteCtx) error {
+
+	bypassCache := c.Fiber.Method() == "POST"
+
+	// Get the user's anilist collection
+	mangaCollection, err := c.App.GetRawMangaCollection(bypassCache)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(mangaCollection)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

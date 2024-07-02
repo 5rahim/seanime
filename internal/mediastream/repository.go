@@ -10,22 +10,24 @@ import (
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
 	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"github.com/seanime-app/seanime/internal/util/filecache"
+	"github.com/seanime-app/seanime/internal/util/result"
 	"os"
 	"sync"
 )
 
 type (
 	Repository struct {
-		transcoder         mo.Option[*transcoder.Transcoder]
-		optimizer          *optimizer.Optimizer
-		settings           mo.Option[*models.MediastreamSettings]
-		playbackManager    *PlaybackManager
-		mediaInfoExtractor *videofile.MediaInfoExtractor
-		logger             *zerolog.Logger
-		wsEventManager     events.WSEventManagerInterface
-		fileCacher         *filecache.Cacher
-		reqMu              sync.Mutex
-		cacheDir           string
+		transcoder                 mo.Option[*transcoder.Transcoder]
+		directPlayVideoStreamCache *result.Map[string, *VideoStream]
+		optimizer                  *optimizer.Optimizer
+		settings                   mo.Option[*models.MediastreamSettings]
+		playbackManager            *PlaybackManager
+		mediaInfoExtractor         *videofile.MediaInfoExtractor
+		logger                     *zerolog.Logger
+		wsEventManager             events.WSEventManagerInterface
+		fileCacher                 *filecache.Cacher
+		reqMu                      sync.Mutex
+		cacheDir                   string
 	}
 
 	NewRepositoryOptions struct {
@@ -42,11 +44,12 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 			Logger:         opts.Logger,
 			WSEventManager: opts.WSEventManager,
 		}),
-		settings:           mo.None[*models.MediastreamSettings](),
-		transcoder:         mo.None[*transcoder.Transcoder](),
-		wsEventManager:     opts.WSEventManager,
-		fileCacher:         opts.FileCacher,
-		mediaInfoExtractor: videofile.NewMediaInfoExtractor(opts.FileCacher, opts.Logger),
+		directPlayVideoStreamCache: result.NewResultMap[string, *VideoStream](),
+		settings:                   mo.None[*models.MediastreamSettings](),
+		transcoder:                 mo.None[*transcoder.Transcoder](),
+		wsEventManager:             opts.WSEventManager,
+		fileCacher:                 opts.FileCacher,
+		mediaInfoExtractor:         videofile.NewMediaInfoExtractor(opts.FileCacher, opts.Logger),
 	}
 	ret.playbackManager = NewPlaybackManager(ret)
 
@@ -55,6 +58,13 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 
 func (r *Repository) IsInitialized() bool {
 	return r.settings.IsPresent()
+}
+
+func (r *Repository) OnCleanup() {
+	r.directPlayVideoStreamCache.Range(func(key string, value *VideoStream) bool {
+		_ = value.File.Close()
+		return true
+	})
 }
 
 func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cacheDir string) {

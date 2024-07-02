@@ -97,6 +97,7 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 				Str("key", key).
 				Msgf("onlinestream: Fetching episode '%d' servers", episodeDetails.Number)
 
+			// Check episode cache
 			var cached *episodeData
 			if found, _ := os.fileCacher.Get(fcEpisodeDataBucket, key, &cached); found {
 				ec.Episodes = append(ec.Episodes, cached)
@@ -106,6 +107,17 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 					Msgf("onlinestream: Cache HIT for episode '%d' servers", episodeDetails.Number)
 
 				continue
+			}
+
+			// Zoro dubs
+			if provider == onlinestream_providers.ZoroProvider && dubbed {
+				// If the episode details have both sub and dub, we need to get the dub episode.
+				if !strings.HasSuffix(episodeDetails.ID, string(onlinestream_providers.SubAndDub)) {
+					// Skip sub-only episodes
+					continue
+				}
+				// Replace "both" with "dub" so that [getProviderEpisodeServers] can find the dub episode.
+				episodeDetails.ID = strings.Replace(episodeDetails.ID, string(onlinestream_providers.SubAndDub), string(onlinestream_providers.Dub), 1)
 			}
 
 			// Fetch episode servers
@@ -200,6 +212,10 @@ func (os *OnlineStream) getProviderEpisodeServers(provider onlinestream_provider
 func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_providers.Provider, titles []*string, dubbed bool) ([]*onlinestream_providers.EpisodeDetails, error) {
 	var ret []*onlinestream_providers.EpisodeDetails
 	romajiTitle := strings.ReplaceAll(*titles[0], ":", "")
+	englishTitle := ""
+	if len(titles) > 1 {
+		englishTitle = strings.ReplaceAll(*titles[1], ":", "")
+	}
 
 	// Get search results.
 	var searchResults []*onlinestream_providers.SearchResult
@@ -208,11 +224,21 @@ func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_p
 		res, err := os.gogo.Search(romajiTitle, dubbed)
 		if err == nil {
 			searchResults = res
+		} else {
+			res, err = os.gogo.Search(englishTitle, dubbed)
+			if err == nil {
+				searchResults = res
+			}
 		}
 	case onlinestream_providers.ZoroProvider:
 		res, err := os.zoro.Search(romajiTitle, dubbed)
 		if err == nil {
 			searchResults = res
+		} else {
+			res, err = os.zoro.Search(englishTitle, dubbed)
+			if err == nil {
+				searchResults = res
+			}
 		}
 	}
 	if len(searchResults) == 0 {

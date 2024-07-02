@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type MegaCloud struct {
@@ -24,7 +23,7 @@ type MegaCloud struct {
 
 func NewMegaCloud() *MegaCloud {
 	return &MegaCloud{
-		Script:    "https://megacloud.tv/js/player/a/prod/e1-player.min.js?v=",
+		Script:    "https://megacloud.tv/js/player/a/prod/e1-player.min.js",
 		Sources:   "https://megacloud.tv/embed-2/ajax/e-1/getSources?id=",
 		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
 	}
@@ -78,6 +77,29 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 	if encryptedString, ok := srcData["sources"]; ok {
 
 		switch encryptedString.(type) {
+		case []interface{}:
+			if len(encryptedString.([]interface{})) == 0 {
+				return nil, ErrNoVideoSourceFound
+			}
+			videoSources := make([]*VideoSource, 0)
+			if e, ok := encryptedString.([]interface{})[0].(map[string]interface{}); ok {
+				file, ok := e["file"].(string)
+				if ok {
+					videoSources = append(videoSources, &VideoSource{
+						URL:       file,
+						Type:      map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(file, ".m3u8")],
+						Subtitles: subtitles,
+						Quality:   QualityAuto,
+					})
+				}
+			}
+
+			if len(videoSources) == 0 {
+				return nil, ErrNoVideoSourceFound
+			}
+
+			return videoSources, nil
+
 		case []map[string]interface{}:
 			if srcData["encrypted"].(bool) && ok {
 				videoSources := make([]*VideoSource, 0)
@@ -95,7 +117,7 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 				return videoSources, nil
 			}
 		case string:
-			res, err = client.Get(m.Script + time.Now().String())
+			res, err = client.Get(m.Script)
 			if err != nil {
 				return nil, err
 			}

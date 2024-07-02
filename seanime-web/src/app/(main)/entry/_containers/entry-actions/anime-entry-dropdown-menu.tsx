@@ -23,6 +23,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
     const serverStatus = useServerStatus()
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)
 
+    const inLibrary = !!entry.libraryData
+
     // Start default media player
     const { mutate: startDefaultMediaPlayer } = useStartDefaultMediaPlayer()
     // Open entry in explorer
@@ -56,19 +58,21 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
         <>
             <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="lg" />}>
 
-                <DropdownMenuItem
-                    onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
-                >
-                    Open folder
-                </DropdownMenuItem>
+                {inLibrary && <>
+                    <DropdownMenuItem
+                        onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
+                    >
+                        Open folder
+                    </DropdownMenuItem>
 
-                {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
-                    onClick={() => startDefaultMediaPlayer}
-                >
-                    Start video player
-                </DropdownMenuItem>}
+                    {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
+                        onClick={() => startDefaultMediaPlayer}
+                    >
+                        Start video player
+                    </DropdownMenuItem>}
+                    <DropdownMenuSeparator />
+                </>}
 
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                     onClick={() => setIsMetadataManagerOpen(p => !p)}
                 >
@@ -76,7 +80,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
                 </DropdownMenuItem>
 
                 {/*MEDIASTREAM*/}
-                {serverStatus?.mediastreamSettings?.transcodeEnabled && <>
+                {(inLibrary && serverStatus?.mediastreamSettings?.transcodeEnabled) && <>
                     <DropdownMenuSeparator />
 
                     <div
@@ -98,22 +102,24 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
                     </div>
                 </>}
 
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
-                <DropdownMenuItem
-                    className="text-red-500 dark:text-red-200 flex justify-between"
-                    onClick={confirmDeleteFiles.open}
-                    disabled={isPending}
-                >
-                    <span>Unmatch all files</span> <BiRightArrowAlt />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    className="text-red-500 dark:text-red-200 flex justify-between"
-                    onClick={() => setBulkDeleteFilesModalOpen(true)}
-                    disabled={isPending}
-                >
-                    <span>Delete some files</span> <BiRightArrowAlt />
-                </DropdownMenuItem>
+                {inLibrary && <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
+                    <DropdownMenuItem
+                        className="text-red-500 dark:text-red-200 flex justify-between"
+                        onClick={confirmDeleteFiles.open}
+                        disabled={isPending}
+                    >
+                        <span>Unmatch all files</span> <BiRightArrowAlt />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        className="text-red-500 dark:text-red-200 flex justify-between"
+                        onClick={() => setBulkDeleteFilesModalOpen(true)}
+                        disabled={isPending}
+                    >
+                        <span>Delete some files</span> <BiRightArrowAlt />
+                    </DropdownMenuItem>
+                </>}
             </DropdownMenu>
 
             <AnimeEntryMetadataManager entry={entry} />

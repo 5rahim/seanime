@@ -29,6 +29,16 @@ export function useGetAnilistMangaCollection() {
     })
 }
 
+
+export function useGetRawAnilistMangaCollection() {
+    return useServerQuery<AL_MangaCollection, GetAnilistMangaCollection_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.endpoint,
+        method: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key],
+        enabled: true,
+    })
+}
+
 export function useGetMangaCollection() {
     return useServerQuery<Manga_Collection>({
         endpoint: API_ENDPOINTS.MANGA.GetMangaCollection.endpoint,
@@ -91,12 +101,13 @@ export function useGetMangaEntryPages(variables: Partial<GetMangaEntryPages_Vari
     })
 }
 
-export function useAnilistListManga(variables: AnilistListManga_Variables) {
+export function useAnilistListManga(variables: AnilistListManga_Variables, enabled?: boolean) {
     return useServerQuery<AL_ListManga, AnilistListManga_Variables>({
         endpoint: API_ENDPOINTS.MANGA.AnilistListManga.endpoint,
         method: API_ENDPOINTS.MANGA.AnilistListManga.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.AnilistListManga.key, variables],
         data: variables,
+        enabled: enabled ?? true,
     })
 }
 

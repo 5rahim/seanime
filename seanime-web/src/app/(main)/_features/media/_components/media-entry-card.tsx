@@ -18,7 +18,9 @@ import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_component
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
@@ -28,6 +30,7 @@ import { usePathname } from "next/navigation"
 import React, { useState } from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
+import { RiCalendarLine } from "react-icons/ri"
 
 type MediaEntryCardBaseProps = {
     overlay?: React.ReactNode
@@ -60,9 +63,12 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         withAudienceScore = true,
     } = props
 
+    const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_MediaEntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_MediaEntryLibraryData | undefined>(_libraryData)
     const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
+
+    const ref = React.useRef<HTMLDivElement>(null)
 
     const [__atomicLibraryCollection, getAtomicLibraryEntry] = useAtom(getAtomicLibraryEntryAtom)
 
@@ -79,6 +85,10 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     const link = type === "anime" ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
 
     const progressTotal = type === "anime" ? (media as AL_BaseMedia)?.episodes : (media as AL_BaseManga)?.chapters
+
+    // React.useEffect(() => {
+    //     console.log("rendered", media.title?.userPreferred)
+    // }, [])
 
     // For pages where listData or libraryData is not accessible (where LibraryCollection is not fetched),
     // use cached LibraryCollection
@@ -120,7 +130,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     if (!media) return null
 
     return (
-        <MediaEntryCardContainer className={props.containerClassName}>
+        <MediaEntryCardContainer mRef={ref} className={props.containerClassName}>
 
             <MediaEntryCardOverlay overlay={overlay} />
 
@@ -241,6 +251,15 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         progressTotal={progressTotal}
                     />
                 </div>
+                {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.basicMedia?.id === media.id)) && (
+                    <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
+                        <Badge
+                            className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-br-none"
+                            intent="gray-solid"
+                            size="xl"
+                        ><RiCalendarLine /></Badge>
+                    </div>
+                )}
             </MediaEntryCardBody>
 
             <MediaEntryCardTitleSection

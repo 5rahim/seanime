@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"runtime"
 	"time"
 )
@@ -77,25 +78,6 @@ func HandleGettingStarted(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	//go func() {
-	//	if b.EnableTranscode {
-	//		stt := c.App.SecondarySettings.Mediastream
-	//		stt.TranscodeEnabled = true
-	//		_, err = c.App.Database.UpsertMediastreamSettings(stt)
-	//		if err != nil {
-	//			c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
-	//		}
-	//	}
-	//	if b.EnableTorrentStreaming {
-	//		stt := c.App.SecondarySettings.Torrentstream
-	//		stt.Enabled = true
-	//		_, err = c.App.Database.UpsertTorrentstreamSettings(stt)
-	//		if err != nil {
-	//			c.App.Logger.Error().Err(err).Msg("app: Failed to update mediastream settings")
-	//		}
-	//	}
-	//}()
-
 	c.App.WSEventManager.SendEvent("settings", settings)
 
 	status := NewStatus(c)
@@ -136,6 +118,11 @@ func HandleSaveSettings(c *RouteCtx) error {
 	}
 	if err == nil && prevSettings.AutoDownloader != nil {
 		autoDownloaderSettings = prevSettings.AutoDownloader
+	}
+	// Disable auto-downloader if the torrent provider is set to none
+	if b.Library.TorrentProvider == torrent.ProviderNone {
+		c.App.Logger.Debug().Msg("app: Disabling auto-downloader because the torrent provider is set to none")
+		autoDownloaderSettings.Enabled = false
 	}
 
 	settings, err := c.App.Database.UpsertSettings(&models.Settings{

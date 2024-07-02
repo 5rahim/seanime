@@ -29,6 +29,7 @@ type GithubGraphQLClient interface {
 	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
 	ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error)
 	ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error)
+	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
 	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
 }
@@ -57,6 +58,7 @@ type BaseManga struct {
 	CountryOfOrigin *string               "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
 	MeanScore       *int                  "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description     *string               "json:\"description,omitempty\" graphql:\"description\""
+	Genres          []*string             "json:\"genres,omitempty\" graphql:\"genres\""
 	Title           *BaseManga_Title      "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage      *BaseManga_CoverImage "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate       *BaseManga_StartDate  "json:\"startDate,omitempty\" graphql:\"startDate\""
@@ -153,6 +155,12 @@ func (t *BaseManga) GetDescription() *string {
 		t = &BaseManga{}
 	}
 	return t.Description
+}
+func (t *BaseManga) GetGenres() []*string {
+	if t == nil {
+		t = &BaseManga{}
+	}
+	return t.Genres
 }
 func (t *BaseManga) GetTitle() *BaseManga_Title {
 	if t == nil {
@@ -481,6 +489,7 @@ type BaseMedia struct {
 	CountryOfOrigin   *string                      "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
 	MeanScore         *int                         "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description       *string                      "json:\"description,omitempty\" graphql:\"description\""
+	Genres            []*string                    "json:\"genres,omitempty\" graphql:\"genres\""
 	Trailer           *BaseMedia_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *BaseMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BaseMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
@@ -573,6 +582,12 @@ func (t *BaseMedia) GetDescription() *string {
 		t = &BaseMedia{}
 	}
 	return t.Description
+}
+func (t *BaseMedia) GetGenres() []*string {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.Genres
 }
 func (t *BaseMedia) GetTrailer() *BaseMedia_Trailer {
 	if t == nil {
@@ -780,6 +795,328 @@ func (t *CompleteMedia) GetRelations() *CompleteMedia_Relations {
 		t = &CompleteMedia{}
 	}
 	return t.Relations
+}
+
+type UserFormatStats struct {
+	Format         *MediaFormat "json:\"format,omitempty\" graphql:\"format\""
+	MeanScore      float64      "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int          "json:\"count\" graphql:\"count\""
+	MinutesWatched int          "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int       "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int          "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserFormatStats) GetFormat() *MediaFormat {
+	if t == nil {
+		t = &UserFormatStats{}
+	}
+	return t.Format
+}
+func (t *UserFormatStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserFormatStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserFormatStats) GetCount() int {
+	if t == nil {
+		t = &UserFormatStats{}
+	}
+	return t.Count
+}
+func (t *UserFormatStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserFormatStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserFormatStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserFormatStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserFormatStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserFormatStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserGenreStats struct {
+	Genre          *string "json:\"genre,omitempty\" graphql:\"genre\""
+	MeanScore      float64 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int     "json:\"count\" graphql:\"count\""
+	MinutesWatched int     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserGenreStats) GetGenre() *string {
+	if t == nil {
+		t = &UserGenreStats{}
+	}
+	return t.Genre
+}
+func (t *UserGenreStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserGenreStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserGenreStats) GetCount() int {
+	if t == nil {
+		t = &UserGenreStats{}
+	}
+	return t.Count
+}
+func (t *UserGenreStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserGenreStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserGenreStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserGenreStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserGenreStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserGenreStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserStatusStats struct {
+	Status         *MediaListStatus "json:\"status,omitempty\" graphql:\"status\""
+	MeanScore      float64          "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int              "json:\"count\" graphql:\"count\""
+	MinutesWatched int              "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int           "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int              "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserStatusStats) GetStatus() *MediaListStatus {
+	if t == nil {
+		t = &UserStatusStats{}
+	}
+	return t.Status
+}
+func (t *UserStatusStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserStatusStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserStatusStats) GetCount() int {
+	if t == nil {
+		t = &UserStatusStats{}
+	}
+	return t.Count
+}
+func (t *UserStatusStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserStatusStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserStatusStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserStatusStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserStatusStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserStatusStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserScoreStats struct {
+	Score          *int    "json:\"score,omitempty\" graphql:\"score\""
+	MeanScore      float64 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int     "json:\"count\" graphql:\"count\""
+	MinutesWatched int     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserScoreStats) GetScore() *int {
+	if t == nil {
+		t = &UserScoreStats{}
+	}
+	return t.Score
+}
+func (t *UserScoreStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserScoreStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserScoreStats) GetCount() int {
+	if t == nil {
+		t = &UserScoreStats{}
+	}
+	return t.Count
+}
+func (t *UserScoreStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserScoreStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserScoreStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserScoreStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserScoreStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserScoreStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserStudioStats struct {
+	Studio         *UserStudioStats_Studio "json:\"studio,omitempty\" graphql:\"studio\""
+	MeanScore      float64                 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int                     "json:\"count\" graphql:\"count\""
+	MinutesWatched int                     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int                  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int                     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserStudioStats) GetStudio() *UserStudioStats_Studio {
+	if t == nil {
+		t = &UserStudioStats{}
+	}
+	return t.Studio
+}
+func (t *UserStudioStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserStudioStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserStudioStats) GetCount() int {
+	if t == nil {
+		t = &UserStudioStats{}
+	}
+	return t.Count
+}
+func (t *UserStudioStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserStudioStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserStudioStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserStudioStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserStudioStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserStudioStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserStartYearStats struct {
+	StartYear      *int    "json:\"startYear,omitempty\" graphql:\"startYear\""
+	MeanScore      float64 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int     "json:\"count\" graphql:\"count\""
+	MinutesWatched int     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserStartYearStats) GetStartYear() *int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.StartYear
+}
+func (t *UserStartYearStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserStartYearStats) GetCount() int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.Count
+}
+func (t *UserStartYearStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserStartYearStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserStartYearStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserReleaseYearStats struct {
+	ReleaseYear    *int    "json:\"releaseYear,omitempty\" graphql:\"releaseYear\""
+	MeanScore      float64 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int     "json:\"count\" graphql:\"count\""
+	MinutesWatched int     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserReleaseYearStats) GetReleaseYear() *int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.ReleaseYear
+}
+func (t *UserReleaseYearStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserReleaseYearStats) GetCount() int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.Count
+}
+func (t *UserReleaseYearStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserReleaseYearStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserReleaseYearStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.ChaptersRead
 }
 
 type BaseManga_Title struct {
@@ -2004,6 +2341,31 @@ func (t *CompleteMedia_Relations) GetEdges() []*CompleteMedia_Relations_Edges {
 		t = &CompleteMedia_Relations{}
 	}
 	return t.Edges
+}
+
+type UserStudioStats_Studio struct {
+	ID                int    "json:\"id\" graphql:\"id\""
+	Name              string "json:\"name\" graphql:\"name\""
+	IsAnimationStudio bool   "json:\"isAnimationStudio\" graphql:\"isAnimationStudio\""
+}
+
+func (t *UserStudioStats_Studio) GetID() int {
+	if t == nil {
+		t = &UserStudioStats_Studio{}
+	}
+	return t.ID
+}
+func (t *UserStudioStats_Studio) GetName() string {
+	if t == nil {
+		t = &UserStudioStats_Studio{}
+	}
+	return t.Name
+}
+func (t *UserStudioStats_Studio) GetIsAnimationStudio() bool {
+	if t == nil {
+		t = &UserStudioStats_Studio{}
+	}
+	return t.IsAnimationStudio
 }
 
 type UpdateEntry_SaveMediaListEntry struct {
@@ -6384,6 +6746,240 @@ func (t *ListRecentMedia_Page) GetAiringSchedules() []*ListRecentMedia_Page_Airi
 	return t.AiringSchedules
 }
 
+type ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio struct {
+	ID                int    "json:\"id\" graphql:\"id\""
+	Name              string "json:\"name\" graphql:\"name\""
+	IsAnimationStudio bool   "json:\"isAnimationStudio\" graphql:\"isAnimationStudio\""
+}
+
+func (t *ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio) GetID() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio{}
+	}
+	return t.ID
+}
+func (t *ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio) GetName() string {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio{}
+	}
+	return t.Name
+}
+func (t *ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio) GetIsAnimationStudio() bool {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio{}
+	}
+	return t.IsAnimationStudio
+}
+
+type ViewerStats_Viewer_Statistics_Anime struct {
+	Count           int                     "json:\"count\" graphql:\"count\""
+	MinutesWatched  int                     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	EpisodesWatched int                     "json:\"episodesWatched\" graphql:\"episodesWatched\""
+	MeanScore       float64                 "json:\"meanScore\" graphql:\"meanScore\""
+	Formats         []*UserFormatStats      "json:\"formats,omitempty\" graphql:\"formats\""
+	Genres          []*UserGenreStats       "json:\"genres,omitempty\" graphql:\"genres\""
+	Statuses        []*UserStatusStats      "json:\"statuses,omitempty\" graphql:\"statuses\""
+	Studios         []*UserStudioStats      "json:\"studios,omitempty\" graphql:\"studios\""
+	Scores          []*UserScoreStats       "json:\"scores,omitempty\" graphql:\"scores\""
+	StartYears      []*UserStartYearStats   "json:\"startYears,omitempty\" graphql:\"startYears\""
+	ReleaseYears    []*UserReleaseYearStats "json:\"releaseYears,omitempty\" graphql:\"releaseYears\""
+}
+
+func (t *ViewerStats_Viewer_Statistics_Anime) GetCount() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.Count
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetMinutesWatched() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.MinutesWatched
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetEpisodesWatched() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.EpisodesWatched
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetMeanScore() float64 {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.MeanScore
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetFormats() []*UserFormatStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.Formats
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetGenres() []*UserGenreStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.Genres
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetStatuses() []*UserStatusStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.Statuses
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetStudios() []*UserStudioStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.Studios
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetScores() []*UserScoreStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.Scores
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetStartYears() []*UserStartYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.StartYears
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetReleaseYears() []*UserReleaseYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.ReleaseYears
+}
+
+type ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio struct {
+	ID                int    "json:\"id\" graphql:\"id\""
+	Name              string "json:\"name\" graphql:\"name\""
+	IsAnimationStudio bool   "json:\"isAnimationStudio\" graphql:\"isAnimationStudio\""
+}
+
+func (t *ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio) GetID() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio{}
+	}
+	return t.ID
+}
+func (t *ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio) GetName() string {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio{}
+	}
+	return t.Name
+}
+func (t *ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio) GetIsAnimationStudio() bool {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio{}
+	}
+	return t.IsAnimationStudio
+}
+
+type ViewerStats_Viewer_Statistics_Manga struct {
+	Count        int                     "json:\"count\" graphql:\"count\""
+	ChaptersRead int                     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+	MeanScore    float64                 "json:\"meanScore\" graphql:\"meanScore\""
+	Formats      []*UserFormatStats      "json:\"formats,omitempty\" graphql:\"formats\""
+	Genres       []*UserGenreStats       "json:\"genres,omitempty\" graphql:\"genres\""
+	Statuses     []*UserStatusStats      "json:\"statuses,omitempty\" graphql:\"statuses\""
+	Studios      []*UserStudioStats      "json:\"studios,omitempty\" graphql:\"studios\""
+	Scores       []*UserScoreStats       "json:\"scores,omitempty\" graphql:\"scores\""
+	StartYears   []*UserStartYearStats   "json:\"startYears,omitempty\" graphql:\"startYears\""
+	ReleaseYears []*UserReleaseYearStats "json:\"releaseYears,omitempty\" graphql:\"releaseYears\""
+}
+
+func (t *ViewerStats_Viewer_Statistics_Manga) GetCount() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.Count
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetChaptersRead() int {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.ChaptersRead
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetMeanScore() float64 {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.MeanScore
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetFormats() []*UserFormatStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.Formats
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetGenres() []*UserGenreStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.Genres
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetStatuses() []*UserStatusStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.Statuses
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetStudios() []*UserStudioStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.Studios
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetScores() []*UserScoreStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.Scores
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetStartYears() []*UserStartYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.StartYears
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetReleaseYears() []*UserReleaseYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.ReleaseYears
+}
+
+type ViewerStats_Viewer_Statistics struct {
+	Anime *ViewerStats_Viewer_Statistics_Anime "json:\"anime,omitempty\" graphql:\"anime\""
+	Manga *ViewerStats_Viewer_Statistics_Manga "json:\"manga,omitempty\" graphql:\"manga\""
+}
+
+func (t *ViewerStats_Viewer_Statistics) GetAnime() *ViewerStats_Viewer_Statistics_Anime {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics{}
+	}
+	return t.Anime
+}
+func (t *ViewerStats_Viewer_Statistics) GetManga() *ViewerStats_Viewer_Statistics_Manga {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics{}
+	}
+	return t.Manga
+}
+
+type ViewerStats_Viewer struct {
+	Statistics *ViewerStats_Viewer_Statistics "json:\"statistics,omitempty\" graphql:\"statistics\""
+}
+
+func (t *ViewerStats_Viewer) GetStatistics() *ViewerStats_Viewer_Statistics {
+	if t == nil {
+		t = &ViewerStats_Viewer{}
+	}
+	return t.Statistics
+}
+
 type StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer struct {
 	ID        *string "json:\"id,omitempty\" graphql:\"id\""
 	Site      *string "json:\"site,omitempty\" graphql:\"site\""
@@ -6882,6 +7478,17 @@ func (t *ListRecentMedia) GetPage() *ListRecentMedia_Page {
 	return t.Page
 }
 
+type ViewerStats struct {
+	Viewer *ViewerStats_Viewer "json:\"Viewer,omitempty\" graphql:\"Viewer\""
+}
+
+func (t *ViewerStats) GetViewer() *ViewerStats_Viewer {
+	if t == nil {
+		t = &ViewerStats{}
+	}
+	return t.Viewer
+}
+
 type StudioDetails struct {
 	Studio *StudioDetails_Studio "json:\"Studio,omitempty\" graphql:\"Studio\""
 }
@@ -7090,6 +7697,7 @@ fragment baseManga on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	title {
 		userPreferred
 		romaji
@@ -7205,6 +7813,7 @@ fragment baseManga on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	title {
 		userPreferred
 		romaji
@@ -7319,6 +7928,7 @@ fragment baseManga on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	title {
 		userPreferred
 		romaji
@@ -7617,6 +8227,7 @@ fragment baseMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	trailer {
 		id
 		site
@@ -7970,6 +8581,7 @@ fragment baseMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
 	trailer {
 		id
 		site
@@ -8498,6 +9110,142 @@ func (c *Client) ListRecentMedia(ctx context.Context, page *int, perPage *int, a
 	return &res, nil
 }
 
+const ViewerStatsDocument = `query ViewerStats {
+	Viewer {
+		statistics {
+			anime {
+				count
+				minutesWatched
+				episodesWatched
+				meanScore
+				formats {
+					... UserFormatStats
+				}
+				genres {
+					... UserGenreStats
+				}
+				statuses {
+					... UserStatusStats
+				}
+				studios {
+					... UserStudioStats
+				}
+				scores {
+					... UserScoreStats
+				}
+				startYears {
+					... UserStartYearStats
+				}
+				releaseYears {
+					... UserReleaseYearStats
+				}
+			}
+			manga {
+				count
+				chaptersRead
+				meanScore
+				formats {
+					... UserFormatStats
+				}
+				genres {
+					... UserGenreStats
+				}
+				statuses {
+					... UserStatusStats
+				}
+				studios {
+					... UserStudioStats
+				}
+				scores {
+					... UserScoreStats
+				}
+				startYears {
+					... UserStartYearStats
+				}
+				releaseYears {
+					... UserReleaseYearStats
+				}
+			}
+		}
+	}
+}
+fragment UserFormatStats on UserFormatStatistic {
+	format
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserGenreStats on UserGenreStatistic {
+	genre
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserStatusStats on UserStatusStatistic {
+	status
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserStudioStats on UserStudioStatistic {
+	studio {
+		id
+		name
+		isAnimationStudio
+	}
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserScoreStats on UserScoreStatistic {
+	score
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserStartYearStats on UserStartYearStatistic {
+	startYear
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserReleaseYearStats on UserReleaseYearStatistic {
+	releaseYear
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+`
+
+func (c *Client) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
+	vars := map[string]any{}
+
+	var res ViewerStats
+	if err := c.Client.Post(ctx, "ViewerStats", ViewerStatsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const StudioDetailsDocument = `query StudioDetails ($id: Int) {
 	Studio(id: $id) {
 		id
@@ -8630,6 +9378,7 @@ var DocumentOperationNames = map[string]string{
 	CompleteMediaByIDDocument:            "CompleteMediaById",
 	ListMediaDocument:                    "ListMedia",
 	ListRecentMediaDocument:              "ListRecentMedia",
+	ViewerStatsDocument:                  "ViewerStats",
 	StudioDetailsDocument:                "StudioDetails",
 	GetViewerDocument:                    "GetViewer",
 }

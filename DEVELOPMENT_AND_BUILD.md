@@ -25,7 +25,9 @@ I recommend creating a dummy AniList account for testing purposes.
 
 ## Web
 
-1. Run the web interface:
+1. Comment the `distDir: "../web"` line in `next.config.js`
+
+2. Run the web interface:
 
 	```bash
 	# get to web directory
@@ -38,34 +40,35 @@ I recommend creating a dummy AniList account for testing purposes.
 	
 	Go to `http://127.0.0.1:43210` to access the web interface.
 
-Since in development mode, the web interface cannot be served by the server, it will run on a different port. This only impacts MyAnimeList OAuth.
+During development, the web interface is served by the Next.js development server instead of the Go server,
+leading to different ports.
 
 # Build
 
-## Server
+## 1. Web
 
-1. Build the server using the following command:
+1. Uncomment the `distDir: "../web"` line in `next.config.js`.
 
-	```bash
-	go build -o seanime main.go
-	```
-	
-	This will create a `seanime` binary in the root of the project.
-	
-	You can keep it there or move it to a more appropriate location.
-
-## Web
-
-1. Build the web interface using the following command:
+2. Build the web interface using the following command:
 
 	```bash
 	npm run build
 	```
 
-2. After the build process is complete, a new `out` directory will be created under the `seanime-web` folder.
-	- This is essentially what the server serves when you access the web interface in a normal setup.
-3. You now need to copy the contents of the `out` directory to a `web` directory in the root of the project or wherever
-   the built server binary is located.
+3. After the build process is complete, a new `web` directory will be created at the root of the project.
+This folder contains the static files that will be embedded into the binary.
+
+## 2. Server
+
+1. Build the server using the following command:
+
+	```bash
+	# windows 
+	go build -o seanime.exe main.go
+ 
+	# darwin, linux
+	go build -o seanime main.go
+	```
 
 # Overview
 

@@ -1,0 +1,126 @@
+query ViewerStats {
+  Viewer {
+    statistics {
+      anime {
+        count
+        minutesWatched
+        episodesWatched
+        meanScore
+        formats {
+          ...UserFormatStats
+        }
+        genres {
+          ...UserGenreStats
+        }
+        statuses {
+          ...UserStatusStats
+        }
+        studios {
+          ...UserStudioStats
+        }
+        scores {
+          ...UserScoreStats
+        }
+        startYears {
+          ...UserStartYearStats
+        }
+        releaseYears {
+          ...UserReleaseYearStats
+        }
+      }
+      manga {
+        count
+        chaptersRead
+        meanScore
+        formats {
+          ...UserFormatStats
+        }
+        genres {
+          ...UserGenreStats
+        }
+        statuses {
+          ...UserStatusStats
+        }
+        studios {
+          ...UserStudioStats
+        }
+        scores {
+          ...UserScoreStats
+        }
+        startYears {
+          ...UserStartYearStats
+        }
+        releaseYears {
+          ...UserReleaseYearStats
+        }
+      }
+    }
+  }
+}
+
+fragment UserFormatStats on UserFormatStatistic {
+  format
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserGenreStats on UserGenreStatistic {
+  genre
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserStatusStats on UserStatusStatistic {
+  status
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserScoreStats on UserScoreStatistic {
+  score
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserStudioStats on UserStudioStatistic {
+  studio {
+    id
+    name
+    isAnimationStudio
+  }
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserStartYearStats on UserStartYearStatistic {
+  startYear
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserReleaseYearStats on UserReleaseYearStatistic {
+  releaseYear
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}

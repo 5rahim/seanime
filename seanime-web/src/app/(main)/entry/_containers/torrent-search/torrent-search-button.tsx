@@ -21,7 +21,7 @@ export function TorrentSearchButton({ entry }: { entry: Anime_MediaEntry }) {
             <Button
                 className="w-full"
                 intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "gray-subtle") : "warning-subtle"}
-                size="lg"
+                size="md"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClass="text-2xl"
                 onClick={() => setter("download")}

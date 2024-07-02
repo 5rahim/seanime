@@ -93,7 +93,8 @@ type (
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
 		}
-		SelfUpdater *updater.SelfUpdater
+		SelfUpdater      *updater.SelfUpdater
+		TotalLibrarySize uint64 // Initialized in modules.go
 	}
 )
 
@@ -220,11 +221,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce
 		AutoDownloader:          nil, // Initialized in App.initModulesOnce
 		AutoScanner:             nil, // Initialized in App.initModulesOnce
+		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
+		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
-		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
-		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
 		WD:                      cfg.Data.WorkingDir,
 		previousVersion:         previousVersion,
 		OfflineHub:              offlineHub,

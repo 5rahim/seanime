@@ -71,6 +71,10 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 			name: "One Piece",
 			id:   "one-piece-100",
 		},
+		{
+			name: "The Apothecary Diaries",
+			id:   "the-apothecary-diaries-18578",
+		},
 	}
 
 	zoro := NewZoro(logger)
@@ -143,6 +147,15 @@ func TestZoro_FetchSources(t *testing.T) {
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
 			},
 			server: StreamSBServer,
+		},
+		{
+			name: "Apothecary Diaries",
+			episode: &EpisodeDetails{
+				ID:     "the-apothecary-diaries-18578$episode$122954$dub",
+				Number: 24,
+				URL:    "https://hianime.to/watch/the-apothecary-diaries-18578?ep=122954",
+			},
+			server: VidcloudServer,
 		},
 	}
 	zoro := NewZoro(logger)

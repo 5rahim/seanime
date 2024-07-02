@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+type MpvType string
+
 type (
 	// Repository provides a common interface to interact with media players
 	Repository struct {
@@ -22,6 +24,7 @@ type (
 		VLC                   *vlc2.VLC
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
+		MpvType               MpvType
 		WSEventManager        events.WSEventManagerInterface
 		completionThreshold   float64
 		mu                    sync.Mutex
@@ -37,6 +40,7 @@ type (
 		VLC            *vlc2.VLC
 		MpcHc          *mpchc2.MpcHc
 		Mpv            *mpv.Mpv
+		MpvType        string
 		WSEventManager events.WSEventManagerInterface
 	}
 
@@ -65,6 +69,7 @@ type (
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
+
 	return &Repository{
 		Logger:              opts.Logger,
 		Default:             opts.Default,
@@ -171,7 +176,7 @@ func (m *Repository) Stream(streamUrl string) error {
 	case "mpc-hc":
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 	case "mpv":
-		err = m.Mpv.OpenAndStream(streamUrl, "--no-cache", "--force-window")
+		err = m.Mpv.OpenAndPlay(streamUrl, "--no-cache", "--force-window")
 	}
 
 	if err != nil {
@@ -567,7 +572,6 @@ func (m *Repository) processStatus(player string, status interface{}) (*Playback
 			Duration:             int(st.Duration),
 			Filepath:             st.Filepath,
 		}
-
 		return ret, true
 	default:
 		return nil, false
@@ -605,12 +609,11 @@ func (m *Repository) processStreamStatus(player string, status interface{}) (*Pl
 			Duration:             int(st.Duration),
 			Filepath:             st.FilePath,
 		}
-
 		return ret, true
 	case "mpv":
 		// Process MPV status
 		st := status.(*mpv.Playback)
-		if st == nil || st.IsRunning == false {
+		if st == nil || st.Duration == 0 || st.IsRunning == false {
 			return nil, false
 		}
 		ret := &PlaybackStatus{
@@ -620,7 +623,6 @@ func (m *Repository) processStreamStatus(player string, status interface{}) (*Pl
 			Duration:             int(st.Duration),
 			Filepath:             st.Filepath,
 		}
-
 		return ret, true
 	default:
 		return nil, false

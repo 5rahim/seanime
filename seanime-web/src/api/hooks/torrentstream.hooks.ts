@@ -32,7 +32,7 @@ export function useGetTorrentstreamEpisodeCollection(id: number) {
     return useServerQuery<Torrentstream_EpisodeCollection>({
         endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.methods[0],
-        queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.key, id],
+        queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamEpisodeCollection.key, String(id)],
         enabled: true,
     })
 }

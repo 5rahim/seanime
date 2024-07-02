@@ -6,40 +6,10 @@ import (
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
-	"net/url"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 )
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Direct
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) ServeFiberDirectPlay(fiberCtx *fiber.Ctx, clientId string) error {
-
-	if !r.IsInitialized() {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
-		return errors.New("module not initialized")
-	}
-
-	// Get current media
-	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
-	if !found {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "no file has been loaded")
-		return errors.New("no file has been loaded")
-	}
-
-	_, err := os.Stat(mediaContainer.Filepath)
-	if err != nil {
-		return err
-	}
-
-	return fiberCtx.SendFile(mediaContainer.Filepath)
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Transcode
@@ -73,8 +43,8 @@ func (r *Repository) ServeFiberTranscodeStream(fiberCtx *fiber.Ctx, clientId str
 		//
 		// When the media container is not found but this route is called, something went wrong
 		//
-		r.logger.Error().Msg("mediastream: media container is nil, nothing has been preloaded")
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media preloaded")
+		//r.logger.Error().Msg("mediastream: media container is nil, nothing has been preloaded")
+		//r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "No media preloaded")
 		return errors.New("no media preloaded")
 	}
 
@@ -219,98 +189,6 @@ func (r *Repository) ShutdownTranscodeStream(clientId string) {
 
 	// Send event
 	r.wsEventManager.SendEvent(events.MediastreamShutdownStream, nil)
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// ServeFiberExtractedSubtitles serves the extracted subtitles
-func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
-
-	if !r.IsInitialized() {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
-		return errors.New("module not initialized")
-	}
-
-	if !r.TranscoderIsInitialized() {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Transcoder not initialized")
-		return errors.New("transcoder not initialized")
-	}
-
-	// Get the route parameters
-	params := fiberCtx.AllParams()
-	if len(params) == 0 {
-		return errors.New("no params")
-	}
-
-	// Get the parameter group
-	subFilePath := params["*1"]
-
-	// Get current media
-	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
-	if !found {
-		return errors.New("no file has been loaded")
-	}
-
-	retPath := videofile.GetFileSubsCacheDir(r.cacheDir, mediaContainer.Hash)
-
-	if retPath == "" {
-		return errors.New("could not find subtitles")
-	}
-
-	contentB, err := os.ReadFile(filepath.Join(retPath, subFilePath))
-	if err != nil {
-		return err
-	}
-
-	r.logger.Trace().Any("path", retPath).Msg("mediastream: Serving extracted subtitles")
-
-	return fiberCtx.SendString(string(contentB))
-}
-
-// ServeFiberExtractedAttachments serves the extracted attachments
-func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
-
-	if !r.IsInitialized() {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
-		return errors.New("module not initialized")
-	}
-
-	if !r.TranscoderIsInitialized() {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Transcoder not initialized")
-		return errors.New("transcoder not initialized")
-	}
-
-	// Get the route parameters
-	params := fiberCtx.AllParams()
-	if len(params) == 0 {
-		return errors.New("no params")
-	}
-
-	// Get the parameter group
-	subFilePath := params["*1"]
-
-	// Get current media
-	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
-	if !found {
-		return errors.New("no file has been loaded")
-	}
-
-	retPath := videofile.GetFileAttCacheDir(r.cacheDir, mediaContainer.Hash)
-
-	if retPath == "" {
-		return errors.New("could not find subtitles")
-	}
-
-	subFilePath, _ = url.QueryUnescape(subFilePath)
-
-	contentB, err := os.ReadFile(filepath.Join(retPath, subFilePath))
-	if err != nil {
-		return err
-	}
-
-	r.logger.Trace().Any("path", retPath).Msg("mediastream: Serving extracted subtitles")
-
-	return fiberCtx.SendString(string(contentB))
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

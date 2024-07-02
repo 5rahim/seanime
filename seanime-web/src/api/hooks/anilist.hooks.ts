@@ -12,6 +12,7 @@ import {
     AL_ListMedia,
     AL_ListRecentMedia,
     AL_MediaDetailsById_Media,
+    AL_Stats,
     AL_StudioDetails,
     AL_UpdateMediaListEntry,
     Nullish,
@@ -137,6 +138,15 @@ export function useGetAnilistStudioDetails(id: number) {
         endpoint: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistStudioDetails.key, String(id)],
+        enabled: true,
+    })
+}
+
+export function useGetAniListStats() {
+    return useServerQuery<AL_Stats>({
+        endpoint: API_ENDPOINTS.ANILIST.GetAniListStats.endpoint,
+        method: API_ENDPOINTS.ANILIST.GetAniListStats.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.GetAniListStats.key],
         enabled: true,
     })
 }

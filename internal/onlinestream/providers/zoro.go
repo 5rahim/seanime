@@ -146,7 +146,7 @@ func (z *Zoro) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
 				return
 			}
 			if subOrDub == SubAndDub {
-				subOrDub = "auto"
+				subOrDub = "both"
 			}
 			id = fmt.Sprintf("%s$%s", strings.Replace(hrefParts[2], "?ep=", "$episode$", 1), subOrDub)
 			epNumber, _ := strconv.Atoi(s.AttrOr("data-number", ""))
@@ -318,7 +318,7 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*E
 
 func (z *Zoro) findServerId(doc *goquery.Document, idx int, subOrDub SubOrDub) string {
 	var serverId string
-	doc.Find(fmt.Sprintf(".ps_-block.ps_-block-sub.servers-%s > .ps__-list .server-item", subOrDub)).Each(func(i int, s *goquery.Selection) {
+	doc.Find(fmt.Sprintf(".ps_-block.ps_-block-sub.servers-%s > .ps__-list > div", subOrDub)).Each(func(i int, s *goquery.Selection) {
 		_serverId := s.AttrOr("data-server-id", "")
 		if serverId == "" {
 			if _serverId == strconv.Itoa(idx) {

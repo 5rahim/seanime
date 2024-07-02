@@ -14,6 +14,26 @@ export function useMediastreamCurrentFile() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const __mediastream_jassubOffscreenRender = atomWithStorage<boolean>("sea-mediastream-jassub-offscreen-render", false)
+
+export function useMediastreamJassubOffscreenRender() {
+    const [jassubOffscreenRender, setJassubOffscreenRender] = useAtom(__mediastream_jassubOffscreenRender)
+
+    return {
+        jassubOffscreenRender,
+        setJassubOffscreenRender,
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const __mediastream_autoPlayAtom = atomWithStorage("sea-mediastream-autoplay", false)
+
+export const __mediastream_autoNextAtom = atomWithStorage("sea-mediastream-autonext", false)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Holds the list of media IDs that are to be transcoded on the current device
  */

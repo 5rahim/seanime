@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/anime"
+	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/comparison"
@@ -20,8 +21,6 @@ import (
 )
 
 const (
-	NyaaProvider        = "nyaa"
-	AnimeToshoProvider  = "animetosho"
 	ComparisonThreshold = 0.8
 )
 
@@ -65,7 +64,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		anilistCollection:       opts.AnilistCollection,
 		anizipCache:             opts.AnizipCache,
 		settings: &models.AutoDownloaderSettings{
-			Provider:              NyaaProvider, // Default provider, will be updated after the settings are fetched
+			Provider:              torrent.ProviderNyaa, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
 			Enabled:               false,
 			DownloadAutomatically: false,
@@ -195,7 +194,7 @@ func (ad *AutoDownloader) start() {
 
 func (ad *AutoDownloader) checkForNewEpisodes() {
 	ad.mu.Lock()
-	if ad == nil || !ad.settings.Enabled {
+	if ad == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
 		return
 	}
 	ad.mu.Unlock()
@@ -218,14 +217,14 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	// Create a LocalFileWrapper
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
-	if ad.settings.Provider == NyaaProvider {
+	if ad.settings.Provider == torrent.ProviderNyaa {
 		nyaaTorrents, err := ad.getCurrentTorrentsFromNyaa()
 		if err != nil {
 			ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from Nyaa")
 		} else {
 			torrents = nyaaTorrents
 		}
-	} else if ad.settings.Provider == AnimeToshoProvider {
+	} else if ad.settings.Provider == torrent.ProviderAnimeTosho {
 		toshoTorrents, err := ad.getCurrentTorrentsFromAnimeTosho()
 		if err != nil {
 			ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from AnimeTosho")

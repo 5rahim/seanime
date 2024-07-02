@@ -61,7 +61,7 @@ export function AdvancedSearchOptions() {
                     disabled={!!params.title && params.title.length > 0}
                 />
             </div>
-            <div className="flex flex-col md:flex-row xl:flex-col gap-4 items-end xl:items-start flex-wrap">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-1 gap-4 items-end xl:items-start">
                 <Combobox
                     multiple
                     leftAddon={<TbSwords />}

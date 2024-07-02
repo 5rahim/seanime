@@ -2,6 +2,7 @@ import { Anime_MediaEntry, Anime_MediaEntryEpisode } from "@/api/generated/types
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import {
@@ -9,18 +10,14 @@ import {
     __torrentSearch_drawerIsOpenAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import { IconButton } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Modal } from "@/components/ui/modal"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/react"
-import Image from "next/image"
 import React, { useMemo } from "react"
-import { AiFillWarning } from "react-icons/ai"
-import { MdInfo } from "react-icons/md"
 
 type TorrentStreamPageProps = {
     children?: React.ReactNode
@@ -37,11 +34,18 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
+
+    /**
+     * Get all episodes to watch
+     */
     const { data: episodeCollection, isLoading } = useGetTorrentstreamEpisodeCollection(entry.mediaId)
 
+    /**
+     * Organize episodes to watch
+     */
     const episodesToWatch = useMemo(() => {
         if (!episodeCollection?.episodes) return []
-        let ret = episodeCollection?.episodes
+        let ret = [...episodeCollection?.episodes]
         ret = ((!!entry.listData?.progress && !!entry.media?.episodes && entry.listData?.progress === entry.media?.episodes)
                 ? ret?.reverse()
                 : ret?.slice(entry.listData?.progress || 0)
@@ -53,7 +57,13 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
 
+    /**
+     * Handle start torrent stream
+     */
     const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
+
+    // Stores the episode that was clicked
+    const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
 
     /**
      * Handle episode click
@@ -62,20 +72,25 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      */
     const handleEpisodeClick = (episode: Anime_MediaEntryEpisode) => {
         if (isPending) return
-        if (serverStatus?.torrentstreamSettings?.autoSelect) {
-            if (episode.aniDBEpisode) {
-                handleAutoSelectTorrentStream({
-                    entry,
-                    episodeNumber: episode.episodeNumber,
-                    aniDBEpisode: episode.aniDBEpisode,
+
+        setTorrentStreamingSelectedEpisode(episode)
+
+        React.startTransition(() => {
+            if (serverStatus?.torrentstreamSettings?.autoSelect) {
+                if (episode.aniDBEpisode) {
+                    handleAutoSelectTorrentStream({
+                        entry,
+                        episodeNumber: episode.episodeNumber,
+                        aniDBEpisode: episode.aniDBEpisode,
+                    })
+                }
+            } else {
+                setTorrentSearchEpisode(episode.episodeNumber)
+                React.startTransition(() => {
+                    setTorrentDrawerIsOpen("select")
                 })
             }
-        } else {
-            setTorrentSearchEpisode(episode.episodeNumber)
-            React.startTransition(() => {
-                setTorrentDrawerIsOpen("select")
-            })
-        }
+        })
         // toast.info("Starting torrent stream...")
     }
 
@@ -131,52 +146,19 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                             handleEpisodeClick(episode)
                         }}
                         description={episode?.episodeMetadata?.overview}
+                        isFiller={episode?.episodeMetadata?.isFiller}
                         isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
                         className="flex-none w-full"
                         action={<>
-                            <Modal
-                                trigger={<IconButton
-                                    icon={<MdInfo />}
-                                    className="opacity-30 hover:opacity-100 transform-opacity"
-                                    intent="gray-basic"
-                                    size="xs"
-                                />}
+                            <MediaEpisodeInfoModal
                                 title={episode.displayTitle}
-                                contentClass="max-w-2xl"
-                                titleClass="text-xl"
-                            >
-
-                                {episode.episodeMetadata?.image && <div
-                                    className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
-                                >
-                                    <Image
-                                        src={episode.episodeMetadata?.image}
-                                        alt="banner"
-                                        fill
-                                        quality={80}
-                                        priority
-                                        sizes="20rem"
-                                        className="object-cover object-center opacity-30"
-                                    />
-                                    <div
-                                        className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
-                                    />
-                                </div>}
-
-                                <div className="space-y-4">
-                                    <p className="text-lg line-clamp-2 font-semibold">
-                                        {episode.episodeTitle?.replaceAll("`", "'")}
-                                        {episode.isInvalid && <AiFillWarning />}
-                                    </p>
-                                    <p className="text-[--muted]">
-                                        {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
-                                    </p>
-                                    <p className="text-gray-300">
-                                        {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
-                                    </p>
-                                </div>
-
-                            </Modal>
+                                image={episode.episodeMetadata?.image}
+                                episodeTitle={episode.episodeTitle}
+                                airDate={episode.episodeMetadata?.airDate}
+                                length={episode.episodeMetadata?.length}
+                                summary={episode.episodeMetadata?.summary}
+                                isInvalid={episode.isInvalid}
+                            />
                         </>}
                     />
                 ))}

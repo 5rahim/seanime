@@ -16,6 +16,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     libraryScreenCustomBannerOpacity: 100,
     libraryScreenCustomBackgroundImage: "",
     libraryScreenCustomBackgroundOpacity: 10,
+    disableLibraryScreenGenreSelector: false,
 }
 
 export const enum ThemeLibraryScreenBannerType {
@@ -47,6 +48,7 @@ export function useThemeSettings(): ThemeSettingsHook {
         libraryScreenCustomBannerOpacity: getThemeValue("libraryScreenCustomBannerOpacity", serverStatus?.themeSettings),
         libraryScreenCustomBackgroundImage: getThemeValue("libraryScreenCustomBackgroundImage", serverStatus?.themeSettings),
         libraryScreenCustomBackgroundOpacity: getThemeValue("libraryScreenCustomBackgroundOpacity", serverStatus?.themeSettings),
+        disableLibraryScreenGenreSelector: getThemeValue("disableLibraryScreenGenreSelector", serverStatus?.themeSettings),
 
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
     }

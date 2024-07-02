@@ -34,7 +34,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/api/v1/image-proxy",
 			"/api/v1/mediastream/transcode/",
 		},
-		Fields:   []string{"method", "error", "url"},
+		Fields:   []string{"method", "error", "url", "latency"},
 		Messages: []string{"api: Error", "api: Client error", "api: Success"},
 		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
 	})
@@ -137,6 +137,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Anilist.Post("/list-anime", makeHandler(app, HandleAnilistListAnime))
 
 	v1Anilist.Post("/list-recent-anime", makeHandler(app, HandleAnilistListRecentAiringAnime))
+
+	v1Anilist.Get("/stats", makeHandler(app, HandleGetAniListStats))
 
 	//
 	// MAL
@@ -266,6 +268,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Manga := v1.Group("/manga")
 	v1Manga.Post("/anilist/collection", makeHandler(app, HandleGetAnilistMangaCollection))
+	v1Manga.Get("/anilist/collection/raw", makeHandler(app, HandleGetRawAnilistMangaCollection))
+	v1Manga.Post("/anilist/collection/raw", makeHandler(app, HandleGetRawAnilistMangaCollection))
 	v1Manga.Post("/anilist/list", makeHandler(app, HandleAnilistListManga))
 	v1Manga.Get("/collection", makeHandler(app, HandleGetMangaCollection))
 	v1Manga.Get("/entry/:id", makeHandler(app, HandleGetMangaEntry))

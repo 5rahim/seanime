@@ -33,7 +33,7 @@ type (
 	// It is obtained by scraping the list of episodes.
 	EpisodeDetails struct {
 		Provider Provider `json:"provider"`
-		ID       string   `json:"id"`              // Episode slug
+		ID       string   `json:"id"`              // Episode slug, e.g "the-apothecary-diaries-18578"
 		Number   int      `json:"number"`          // Episode number
 		URL      string   `json:"url"`             // Watch URL
 		Title    string   `json:"title,omitempty"` // Episode title

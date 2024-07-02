@@ -12,7 +12,6 @@ require (
 	github.com/anacrolix/torrent v1.56.1
 	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/cli/browser v1.3.0
-	github.com/coding-socks/matroska v0.0.0-20240128221041-bf81c1081e90
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.14.1
@@ -21,11 +20,10 @@ require (
 	github.com/goccy/go-json v0.10.3
 	github.com/gocolly/colly v1.2.0
 	github.com/gofiber/contrib/websocket v1.3.1
-	github.com/gofiber/fiber/v2 v2.52.4
+	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
-	github.com/jannson/mpvipc v0.0.0-20240209020512-d8e3b16fdac3
 	github.com/likexian/doh-go v0.6.4
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.33.0
@@ -35,7 +33,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/xfrr/goffmpeg v1.0.0
-	golang.org/x/image v0.17.0
+	golang.org/x/image v0.18.0
 	golang.org/x/net v0.25.0
 	golang.org/x/term v0.20.0
 	golang.org/x/text v0.16.0
@@ -74,7 +72,6 @@ require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/charmbracelet/x/ansi v0.1.1 // indirect
-	github.com/coding-socks/ebml v0.0.0-20240128215338-adc0947e65d8 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/fasthttp/websocket v1.5.8 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect

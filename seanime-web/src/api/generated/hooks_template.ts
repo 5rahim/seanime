@@ -104,6 +104,15 @@
 //     })
 // }
 
+// export function useGetAniListStats() {
+//     return useServerQuery<AL_Stats>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetAniListStats.endpoint,
+//         method: API_ENDPOINTS.ANILIST.GetAniListStats.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAniListStats.key],
+//         enabled: true,
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // anime_collection
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,6 +635,26 @@
 //         method: API_ENDPOINTS.MANGA.GetAnilistMangaCollection.methods[0],
 //         queryKey: [API_ENDPOINTS.MANGA.GetAnilistMangaCollection.key],
 //         enabled: true,
+//     })
+// }
+
+// export function useGetRawAnilistMangaCollection() {
+//     return useServerQuery<AL_MangaCollection>({
+//         endpoint: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.methods[0],
+//         queryKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetRawAnilistMangaCollection() {
+//     return useServerMutation<AL_MangaCollection>({
+//         endpoint: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.methods[1],
+//         mutationKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key],
+//         onSuccess: async () => {
+// 
+//         },
 //     })
 // }
 

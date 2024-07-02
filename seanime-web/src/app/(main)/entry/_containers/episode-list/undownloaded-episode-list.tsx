@@ -1,5 +1,6 @@
 import { AL_BaseMedia, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import {
     __torrentSearch_drawerEpisodeAtom,
@@ -19,12 +20,19 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
     const setTorrentSearchIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
 
+    const { hasTorrentProvider } = useHasTorrentProvider()
+
+    const text = hasTorrentProvider ? (downloadInfo?.rewatch
+            ? "You have not downloaded the following:"
+            : "You have not watched nor downloaded the following:") :
+        "The following episodes are not in your library:"
+
     if (!episodes?.length) return null
 
     return (
         <div className="space-y-4">
             <p className={""}>
-                {downloadInfo?.rewatch ? "You have not downloaded the following:" : "You have not watched nor downloaded the following:"}
+                {text}
             </p>
             <EpisodeListGrid>
                 {episodes?.sort((a, b) => a.episodeNumber - b.episodeNumber).slice(0, 28).map((ep, idx) => {
@@ -39,7 +47,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                             title={episode.displayTitle}
                             episodeTitle={episode.episodeTitle}
                             action={<div className={""}>
-                                <div
+                                {hasTorrentProvider && <div
                                     onClick={() => {
                                         setTorrentSearchEpisode(episode.episodeNumber)
                                         startTransition(() => {
@@ -48,13 +56,15 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                                     }}
                                     className="inline-block text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
                                 >
-                                    <BiDownload/>
-                                </div>
+                                    <BiDownload />
+                                </div>}
                             </div>}
                         >
                             <div className="mt-1">
                                 <p className="flex gap-1 items-center text-sm text-[--muted]">
-                                    <BiCalendarAlt/> {episode.episodeMetadata?.airDate ? `Aired on ${new Date(episode.episodeMetadata?.airDate).toLocaleDateString()}` : "Aired"}
+                                    <BiCalendarAlt /> {episode.episodeMetadata?.airDate
+                                    ? `Aired on ${new Date(episode.episodeMetadata?.airDate).toLocaleDateString()}`
+                                    : "Aired"}
                                 </p>
                             </div>
                         </EpisodeGridItem>

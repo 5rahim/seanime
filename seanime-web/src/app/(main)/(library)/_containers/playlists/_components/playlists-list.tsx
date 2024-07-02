@@ -15,7 +15,7 @@ import Image from "next/image"
 import React from "react"
 import { BiEditAlt } from "react-icons/bi"
 import { FaCirclePlay } from "react-icons/fa6"
-import { PiMonitorPlayFill } from "react-icons/pi"
+import { MdOutlineVideoLibrary } from "react-icons/md"
 
 type PlaylistsListProps = {}
 
@@ -33,12 +33,12 @@ export function PlaylistsList(props: PlaylistsListProps) {
         setOpen(false)
     }, [])
 
-    if (isLoading) <LoadingSpinner />
+    if (isLoading) return <LoadingSpinner />
 
     if (!playlists?.length) {
         return (
             <div className="text-center text-[--muted] space-y-1">
-                <PiMonitorPlayFill className="mx-auto text-6xl text-[--muted]" />
+                <MdOutlineVideoLibrary className="mx-auto text-5xl text-[--muted]" />
                 <div>
                     No playlists
                 </div>

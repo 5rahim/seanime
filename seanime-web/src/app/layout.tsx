@@ -21,11 +21,12 @@ export default function RootLayout({ children }: {
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={inter.className} suppressHydrationWarning>
-                <ClientProviders>
-                    {children}
-                </ClientProviders>
-            </body>
+        <body className={inter.className} suppressHydrationWarning>
+        {/*{process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>}*/}
+        <ClientProviders>
+            {children}
+        </ClientProviders>
+        </body>
         </html>
     )
 }

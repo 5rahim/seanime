@@ -1,12 +1,12 @@
 import { Anime_MediaEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
-import {
-    useGetMediastreamSettings,
-    useMediastreamShutdownTranscodeStream,
-    usePreloadMediastreamMediaContainer,
-    useRequestMediastreamMediaContainer,
-} from "@/api/hooks/mediastream.hooks"
+import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import {
+    __mediastream_autoNextAtom,
+    __mediastream_autoPlayAtom,
+    useMediastreamCurrentFile,
+    useMediastreamJassubOffscreenRender,
+} from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { __DEV_SERVER_PORT } from "@/lib/server/config"
@@ -24,6 +24,7 @@ import {
     MediaTimeUpdateEventDetail,
 } from "@vidstack/react"
 import HLS, { LoadPolicy } from "hls.js"
+import { useAtomValue } from "jotai"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
@@ -43,7 +44,7 @@ const mediastream_getHlsConfig = () => {
     const loadPolicy: LoadPolicy = {
         default: {
             maxTimeToFirstByteMs: Number.POSITIVE_INFINITY,
-            maxLoadTimeMs: 60_000,
+            maxLoadTimeMs: 300_000,
             timeoutRetry: {
                 maxNumRetry: 2,
                 retryDelayMs: 0,
@@ -61,7 +62,9 @@ const mediastream_getHlsConfig = () => {
         abrEwmaDefaultEstimate: 35_000_000,
         abrEwmaDefaultEstimateMax: 50_000_000,
         // debug: true,
+        startLevel: 0, // Start at level 0
         lowLatencyMode: false,
+        initialLiveManifestSize: 0,
         fragLoadPolicy: {
             default: {
                 maxTimeToFirstByteMs: Number.POSITIVE_INFINITY,
@@ -119,7 +122,13 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const prevUrlRef = React.useRef<string | undefined>(undefined)
     const definedUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
+    const autoNext = useAtomValue(__mediastream_autoNextAtom)
+    const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode") // do not chance
+
+    // Refs
+    const previousCurrentTimeRef = React.useRef(0)
+    const previousIsPlayingRef = React.useRef(false)
 
     const [sessionId, setSessionId] = React.useState<string>(uuidv4())
 
@@ -137,7 +146,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     /**
      * Preload next file
      */
-    const { mutate: preloadMediaContainer } = usePreloadMediastreamMediaContainer()
+        // const { mutate: preloadMediaContainer } = usePreloadMediastreamMediaContainer()
     // const [preloadedFilePath, setPreloadedFilePath] = React.useState<string | undefined>(undefined)
 
 
@@ -146,13 +155,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     // Duration
     const [duration, setDuration] = React.useState<number>(0)
-
-    // useUpdateEffect(() => {
-    //     if (!filePath?.length) {
-    //         toast.error("No file path provided")
-    //         router.push("/")
-    //     }
-    // }, [filePath])
 
     React.useEffect(() => {
         if (isPending) {
@@ -185,7 +187,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * - Set URL and stream type when media container is available
      */
     React.useEffect(() => {
-
 
         /**
          * Check if codec is supported, if it is, switch to direct play
@@ -230,6 +231,12 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     }, [mediaContainer?.streamUrl, mediastreamSettings?.disableAutoSwitchToDirectPlay])
 
+    //////////////////////////////////////////////////////////////
+    // JASSUB
+    //////////////////////////////////////////////////////////////
+
+    const { jassubOffscreenRender } = useMediastreamJassubOffscreenRender()
+
     /**
      * Effect used to set LibASS renderer
      * Add subtitle renderer
@@ -243,7 +250,9 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
             const fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
                 ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host) + `/api/v1/mediastream/att/${name}`)
+                : window?.location?.host) + `/api/v1/mediastream/att/${name}`) || []
+
+            // Extracted fonts
             let availableFonts: Record<string, string> = {}
             let firstFont = ""
             if (!!fonts?.length) {
@@ -258,9 +267,20 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 }
             }
 
+            // Fallback font if no fonts are available
+            if (!firstFont) {
+                firstFont = "liberation sans"
+            }
+            if (Object.keys(availableFonts).length === 0) {
+                availableFonts = {
+                    "liberation sans": `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
+                        ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
+                        : window?.location?.host) + `/jassub/default.woff2`,
+                }
+            }
+
             logger("MEDIASTREAM").info("Available fonts:", availableFonts)
             logger("MEDIASTREAM").info("Fallback font:", firstFont)
-
 
             // @ts-expect-error
             const renderer = new LibASSTextRenderer(() => import("jassub"), {
@@ -268,7 +288,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 workerUrl: "/jassub/jassub-worker.js",
                 legacyWasmUrl: legacyWasmUrl,
                 // Both parameters needed for subs to work on iOS, ref: jellyfin-vue
-                offscreenRender: false,
+                offscreenRender: jassubOffscreenRender, // should be false for iOS
                 prescaleFactor: 0.8,
                 onDemandRender: false,
                 fonts: fonts,
@@ -283,8 +303,17 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 playerRef.current!.textRenderers.remove(renderer)
             }
         }
-    }, [playerRef.current, mediaContainer?.streamUrl, mediaContainer?.mediaInfo?.fonts])
+    }, [
+        playerRef.current,
+        mediaContainer?.streamUrl,
+        mediaContainer?.mediaInfo?.fonts,
+        jassubOffscreenRender,
+    ])
 
+    /**
+     * Changes the stream URL
+     * @param newUrl
+     */
     function changeUrl(newUrl: string | undefined) {
         logger("MEDIASTREAM").info("Changing URL", "newURL:", newUrl)
         if (prevUrlRef.current !== newUrl) {
@@ -327,8 +356,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
-    const previousCurrentTimeRef = React.useRef<number>(0)
-
     function onProviderSetup(provider: MediaProviderAdapter, nativeEvent: MediaProviderSetupEvent) {
         if (isHLSProvider(provider)) {
             if (url) {
@@ -336,11 +363,11 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 if (definedUrlRef.current === url && playbackErrored) {
                     if (previousCurrentTimeRef.current > 0) {
                         Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
-                        // setTimeout(() => {
-                        //     if (previousIsPlayingRef.current) {
-                        //         playerRef.current?.play()
-                        //     }
-                        // }, 500)
+                        setTimeout(() => {
+                            if (previousIsPlayingRef.current) {
+                                playerRef.current?.play()
+                            }
+                        }, 500)
                         previousCurrentTimeRef.current = 0
                         setPlaybackErrored(false)
                     }
@@ -353,7 +380,11 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                     logger("MEDIASTREAM").info("Loading source", url)
 
                     provider.instance?.on(HLS.Events.MANIFEST_PARSED, function (event, data) {
-                        logger("MEDIASTREAM").info("onManifestParsed", "attaching media")
+                        logger("MEDIASTREAM").info("onManifestParsed", data)
+                        // Check if the manifest is live or VOD
+                        data.levels.forEach((level) => {
+                            logger("MEDIASTREAM").info(`Level ${level.id} is live:`, level.details?.live)
+                        })
                     })
 
                     provider.instance?.on(HLS.Events.MEDIA_ATTACHED, (event) => {
@@ -365,7 +396,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                         // When the media is detached, stop the transcoder but only if there was no playback error
                         if (!playbackErrored) {
                             if (mediaContainer?.streamType === "transcode") {
-                                // DEVNOTE: Comment code below kills the transcoder AFTER changing episode due to delay
+                                // DEVNOTE: Code below kills the transcoder AFTER changing episode due to delay
                                 // shutdownTranscode()
                             }
                             changeUrl(undefined)
@@ -413,11 +444,45 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
-    const preloadedNextFileForRef = React.useRef<string | undefined>(undefined)
+    const preloadedNextFileForRef = React.useRef<string | undefined>(undefined) // unused
+
+    const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
+        logger("MEDIASTREAM").info("Can play event received", e)
+        preloadedNextFileForRef.current = undefined
+        setDuration(e.duration)
+
+        if (autoPlay) {
+            playerRef.current?.play()
+        }
+    }, [autoPlay])
+
+    const onEnded = React.useCallback((e: MediaEndedEvent) => {
+        if (autoNext) {
+            const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+            if (currentEpisodeIndex !== -1) {
+                const nextFile = episodes[currentEpisodeIndex + 1]
+                if (nextFile?.localFile?.path) {
+                    onPlayFile(nextFile.localFile.path)
+                }
+            }
+        }
+    }, [autoNext])
+
+    const onPlayFile = React.useCallback((filepath: string) => {
+        logger("MEDIASTREAM").info("Playing file", filepath)
+        previousCurrentTimeRef.current = 0
+        setFilePath(filepath)
+    }, [])
+
+    //////////////////////////////////////////////////////////////
+    // Progress
+    //////////////////////////////////////////////////////////////
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 
-    const episode = React.useMemo(() => episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath), [episodes, filePath])
+    const episode = React.useMemo(() => {
+        return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+    }, [episodes, filePath])
 
     const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
         // DEVNOTE: Disable preloading next file, it causes issues
@@ -440,22 +505,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 })
             }
         }
-    }, [duration, filePath, episodes, episode, progressItem])
-
-    const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
-        logger("MEDIASTREAM").info("Can play event received", e)
-        preloadedNextFileForRef.current = undefined
-        setDuration(e.duration)
-    }, [])
-
-    const onEnded = React.useCallback((e: MediaEndedEvent) => {
-
-    }, [])
-
-    const onPlayFile = React.useCallback((filepath: string) => {
-        logger("MEDIASTREAM").info("Playing file", filepath)
-        setFilePath(filepath)
-    }, [])
+    }, [duration, filePath, episode, progressItem])
 
     //////////////////////////////////////////////////////////////
     // Events

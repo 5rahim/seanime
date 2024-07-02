@@ -3,6 +3,7 @@ package autodownloader
 import (
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
+	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/seanime-parser"
 	"strconv"
 )
@@ -58,7 +59,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 			Seeders:    seedersInt,
 			magnet:     "", // Nyaa doesn't provide the magnet link in the RSS feed
 			ParsedData: parsedData,
-			Provider:   NyaaProvider,
+			Provider:   torrent.ProviderNyaa,
 		})
 	}
 
@@ -90,7 +91,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromAnimeTosho() ([]*NormalizedTorre
 			Seeders:    t.Seeders,
 			magnet:     t.MagnetUrl, // AnimeTosho doesn't seem to provide the magnet link for newer torrents
 			ParsedData: parsedData,
-			Provider:   AnimeToshoProvider,
+			Provider:   torrent.ProviderAnimeTosho,
 		})
 	}
 
@@ -105,13 +106,13 @@ func (t *NormalizedTorrent) GetMagnet() (string, bool) {
 	}
 
 	// Scrape the page to get the magnet link
-	if t.Provider == NyaaProvider {
+	if t.Provider == torrent.ProviderNyaa {
 		magnet, err := nyaa.TorrentMagnet(t.Link)
 		if err != nil {
 			return "", false
 		}
 		return magnet, true
-	} else if t.Provider == AnimeToshoProvider {
+	} else if t.Provider == torrent.ProviderAnimeTosho {
 		magnet, err := animetosho.TorrentMagnet(t.Link)
 		if err != nil {
 			return "", false

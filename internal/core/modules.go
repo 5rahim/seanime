@@ -2,6 +2,8 @@ package core
 
 import (
 	"context"
+	"github.com/cli/browser"
+	"github.com/dustin/go-humanize"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
@@ -20,8 +22,7 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/torrents/transmission"
 	"github.com/seanime-app/seanime/internal/torrentstream"
-
-	"github.com/cli/browser"
+	"github.com/seanime-app/seanime/internal/util"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -108,6 +109,10 @@ func (a *App) initModulesOnce() {
 		Logger:         a.Logger,
 		WSEventManager: a.WSEventManager,
 		FileCacher:     a.FileCacher,
+	})
+
+	a.Cleanups = append(a.Cleanups, func() {
+		a.MediastreamRepository.OnCleanup()
 	})
 
 	// Torrent stream
@@ -202,7 +207,7 @@ func (a *App) InitOrRefreshModules() {
 			Default:        settings.MediaPlayer.Default,
 			VLC:            a.MediaPlayer.VLC,
 			MpcHc:          a.MediaPlayer.MpcHc,
-			Mpv:            a.MediaPlayer.Mpv,
+			Mpv:            a.MediaPlayer.Mpv, // Socket
 			WSEventManager: a.WSEventManager,
 		})
 
@@ -297,7 +302,7 @@ func (a *App) InitOrRefreshModules() {
 // initLibraryWatcher will initialize the library watcher.
 //   - Used by AutoScanner
 func (a *App) initLibraryWatcher(path string) {
-	// Create a new matcher
+	// Create a new watcher
 	watcher, err := scanner.NewWatcher(&scanner.NewWatcherOptions{
 		Logger:         a.Logger,
 		WSEventManager: a.WSEventManager,
@@ -315,6 +320,11 @@ func (a *App) initLibraryWatcher(path string) {
 		a.Logger.Error().Err(err).Msg("app: Failed to watch library files")
 		return
 	}
+
+	dirSize, _ := util.DirSize(path)
+	a.TotalLibrarySize = dirSize
+
+	a.Logger.Info().Msgf("app: Library size: %s", humanize.Bytes(dirSize))
 
 	// Set the watcher
 	a.Watcher = watcher
@@ -355,10 +365,13 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 
 	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
 
+	// Cleanup cache
 	go func() {
 		if settings.TranscodeEnabled {
+			// If transcoding is enabled, trim files
 			_ = a.FileCacher.TrimMediastreamVideoFiles()
 		} else {
+			// If transcoding is disabled, clear all files
 			_ = a.FileCacher.ClearMediastreamVideoFiles()
 		}
 	}()

@@ -16,6 +16,7 @@ import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ANILIST_OAUTH_URL } from "@/lib/server/config"
+import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
 import Link from "next/link"
@@ -120,18 +121,12 @@ export function MainSidebar() {
                                     intent="alert-solid"
                                 >{missingEpisodeCount}</Badge> : undefined,
                             },
-                            {
-                                iconType: BiCollection,
-                                name: "My lists",
-                                href: "/anilist",
-                                isCurrent: pathname === "/anilist",
-                            },
                             ...[serverStatus?.settings?.library?.enableManga && {
                                 iconType: FaBookReader,
                                 name: "Manga",
                                 href: "/manga",
                                 isCurrent: pathname.startsWith("/manga"),
-                            }].filter(Boolean) as any,
+                            }],
                             {
                                 iconType: BiChart,
                                 name: "Discover",
@@ -139,6 +134,12 @@ export function MainSidebar() {
                                 isCurrent: pathname === "/discover",
                             },
                             {
+                                iconType: BiCollection,
+                                name: "AniList",
+                                href: "/anilist",
+                                isCurrent: pathname === "/anilist",
+                            },
+                            ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
                                 iconType: FaRssSquare,
                                 name: "Auto downloader",
                                 href: "/auto-downloader",
@@ -147,7 +148,7 @@ export function MainSidebar() {
                                     className="absolute right-0 top-0" size="sm"
                                     intent="alert-solid"
                                 >{autoDownloaderQueueCount}</Badge> : undefined,
-                            },
+                            }],
                             {
                                 iconType: BiDownload,
                                 name: "Torrent list",
@@ -169,7 +170,10 @@ export function MainSidebar() {
                             {
                                 iconType: FiSearch,
                                 name: "Search",
-                                onClick: () => setGlobalSearchIsOpen(true),
+                                onClick: () => {
+                                    ctx.setOpen(false)
+                                    setGlobalSearchIsOpen(true)
+                                },
                             },
                         ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}

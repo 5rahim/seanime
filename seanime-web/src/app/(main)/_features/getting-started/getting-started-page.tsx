@@ -11,6 +11,7 @@ import {
     DEFAULT_TORRENT_PROVIDER,
     getDefaultMpcSocket,
     gettingStartedSchema,
+    TORRENT_PROVIDER,
     useDefaultSettingsPaths,
 } from "@/lib/server/settings"
 import { useRouter } from "next/navigation"
@@ -271,8 +272,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 // label="Torrent Provider"
                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                 options={[
-                                    { label: "AnimeTosho (recommended)", value: "animetosho" },
-                                    { label: "Nyaa", value: "nyaa" },
+                                    { label: "AnimeTosho (recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
+                                    { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
                                 ]}
                             />
 

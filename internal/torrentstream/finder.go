@@ -54,7 +54,7 @@ searchLoop:
 				Media:          media,
 				AbsoluteOffset: lo.ToPtr(anizipMedia.GetOffset()),
 				Resolution:     lo.ToPtr(r.settings.MustGet().PreferredResolution),
-				Provider:       "animetosho",
+				Provider:       itorrent.ProviderAnimeTosho,
 				Best:           lo.ToPtr(false),
 			},
 			NyaaSearchCache:       r.nyaaSearchCache,

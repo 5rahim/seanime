@@ -1,7 +1,8 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
-import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
+import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import React from "react"
+
 
 type AnilistMediaEntryListProps = {
     list: AL_AnimeCollection_MediaListCollection_Lists | undefined
@@ -18,7 +19,7 @@ export function AnilistMediaEntryList(props: AnilistMediaEntryListProps) {
     } = props
 
     return (
-        <MediaCardGrid>
+        <MediaCardLazyGrid itemCount={list?.entries?.filter(Boolean)?.length || 0}>
             {list?.entries?.filter(Boolean)?.map((entry) => (
                 <MediaEntryCard
                     key={`${entry.media?.id}`}
@@ -39,6 +40,6 @@ export function AnilistMediaEntryList(props: AnilistMediaEntryListProps) {
                     type="anime"
                 />
             ))}
-        </MediaCardGrid>
+        </MediaCardLazyGrid>
     )
 }

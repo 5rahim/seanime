@@ -2,6 +2,7 @@ package fillermanager
 
 import (
 	"github.com/rs/zerolog"
+	lop "github.com/samber/lo/parallel"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/filler"
 	"github.com/seanime-app/seanime/internal/database/db"
@@ -189,10 +190,23 @@ func (fm *FillerManager) HydrateFillerData(e *anime.MediaEntry) {
 		return
 	}
 
-	for _, ep := range e.Episodes {
+	lop.ForEach(e.Episodes, func(ep *anime.MediaEntryEpisode, _ int) {
 		if ep == nil || ep.EpisodeMetadata == nil {
-			continue
+			return
 		}
 		ep.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(e.Media.ID, ep.EpisodeNumber)
+	})
+}
+
+func (fm *FillerManager) HydrateEpisodeFillerData(mId int, e *anime.MediaEntryEpisode) {
+	if fm == nil || e == nil {
+		return
 	}
+
+	// Check if the filler data has been fetched
+	if !fm.HasFillerFetched(mId) {
+		return
+	}
+
+	e.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(mId, e.EpisodeNumber)
 }

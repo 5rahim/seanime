@@ -68,8 +68,9 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 		return nil, errors.New("missing arguments")
 	}
 
-	if opts.Provider == "" {
-		opts.Provider = "animetosho"
+	// Default to AnimeTosho if the provider is not specified or is none
+	if opts.Provider == "" || opts.Provider == ProviderNone {
+		opts.Provider = ProviderAnimeTosho
 	}
 
 	retTorrents := make([]*AnimeTorrent, 0)

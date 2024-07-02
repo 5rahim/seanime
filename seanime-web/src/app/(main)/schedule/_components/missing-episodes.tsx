@@ -1,6 +1,7 @@
 "use client"
 import { Anime_MissingEpisodes } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_lib/handle-missing-episodes"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -19,6 +20,7 @@ export function MissingEpisodes({ isLoading, data }: {
     const router = useRouter()
 
     const { missingEpisodes, silencedEpisodes } = useHandleMissingEpisodes(data)
+    const { hasTorrentProvider } = useHasTorrentProvider()
 
     if (!missingEpisodes?.length && !silencedEpisodes?.length) return null
 
@@ -51,10 +53,14 @@ export function MissingEpisodes({ isLoading, data }: {
                                             topTitle={episode.basicMedia?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
-                                            actionIcon={<AiOutlineDownload className="opacity-50" />}
+                                            actionIcon={hasTorrentProvider ? <AiOutlineDownload className="opacity-50" /> : null}
                                             isInvalid={episode.isInvalid}
                                             onClick={() => {
-                                                router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                if (hasTorrentProvider) {
+                                                    router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                } else {
+                                                    router.push(`/entry?id=${episode.basicMedia?.id}`)
+                                                }
                                             }}
                                         />
                                     </CarouselItem>
@@ -85,11 +91,15 @@ export function MissingEpisodes({ isLoading, data }: {
                                                 topTitle={episode.basicMedia?.title?.userPreferred}
                                                 title={episode.displayTitle}
                                                 meta={episode.episodeMetadata?.airDate ?? undefined}
-                                                actionIcon={<AiOutlineDownload />}
+                                                actionIcon={hasTorrentProvider ? <AiOutlineDownload /> : null}
                                                 isInvalid={episode.isInvalid}
                                                 type="grid"
                                                 onClick={() => {
-                                                    router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                    if (hasTorrentProvider) {
+                                                        router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                    } else {
+                                                        router.push(`/entry?id=${episode.basicMedia?.id}`)
+                                                    }
                                                 }}
                                             />
                                         })}

@@ -509,6 +509,36 @@
     }
   },
   {
+    "name": "HandleGetAniListStats",
+    "trimmedName": "GetAniListStats",
+    "comments": [
+      "HandleGetAniListStats",
+      "",
+      "\t@summary returns the anilist stats.",
+      "\t@desc This returns the AniList stats for the user.",
+      "\t@route /api/v1/anilist/stats [GET]",
+      "\t@returns anilist.Stats",
+      ""
+    ],
+    "filepath": "internal/handlers/anilist.go",
+    "filename": "anilist.go",
+    "api": {
+      "summary": "returns the anilist stats.",
+      "descriptions": [
+        "This returns the AniList stats for the user."
+      ],
+      "endpoint": "/api/v1/anilist/stats",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "anilist.Stats",
+      "returnGoType": "anilist.Stats",
+      "returnTypescriptType": "AL_Stats"
+    }
+  },
+  {
     "name": "HandleGetLibraryCollection",
     "trimmedName": "GetLibraryCollection",
     "comments": [
@@ -2391,6 +2421,34 @@
           "descriptions": []
         }
       ],
+      "returns": "anilist.MangaCollection",
+      "returnGoType": "anilist.MangaCollection",
+      "returnTypescriptType": "AL_MangaCollection"
+    }
+  },
+  {
+    "name": "HandleGetRawAnilistMangaCollection",
+    "trimmedName": "GetRawAnilistMangaCollection",
+    "comments": [
+      "HandleGetRawAnilistMangaCollection",
+      "",
+      "\t@summary returns the user's AniList manga collection.",
+      "\t@route /api/v1/manga/anilist/collection/raw [GET,POST]",
+      "\t@returns anilist.MangaCollection",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the user's AniList manga collection.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/anilist/collection/raw",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
       "returns": "anilist.MangaCollection",
       "returnGoType": "anilist.MangaCollection",
       "returnTypescriptType": "AL_MangaCollection"

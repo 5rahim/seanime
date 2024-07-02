@@ -37,8 +37,19 @@ type (
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 		UnknownGroups        []*UnknownGroup          `json:"unknownGroups"`
+		Stats                *LibraryCollectionStats  `json:"stats"`
 	}
+
 	LibraryCollectionListType string
+
+	LibraryCollectionStats struct {
+		TotalEntries  int    `json:"totalEntries"`
+		TotalFiles    int    `json:"totalFiles"`
+		TotalShows    int    `json:"totalShows"`
+		TotalMovies   int    `json:"totalMovies"`
+		TotalSpecials int    `json:"totalSpecials"`
+		TotalSize     string `json:"totalSize"`
+	}
 
 	LibraryCollectionList struct {
 		Type    LibraryCollectionListType `json:"type"`
@@ -95,6 +106,8 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 		opts.LocalFiles,
 		aniLists,
 	)
+
+	lc.hydrateStats(opts.LocalFiles)
 
 	// Add Continue Watching list
 	lc.hydrateContinueWatchingList(
@@ -258,6 +271,36 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 	}
 
 	return
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
+	stats := &LibraryCollectionStats{
+		TotalFiles:    len(lfs),
+		TotalEntries:  0,
+		TotalShows:    0,
+		TotalMovies:   0,
+		TotalSpecials: 0,
+		TotalSize:     "",
+	}
+
+	for _, list := range lc.Lists {
+		for _, entry := range list.Entries {
+			stats.TotalEntries++
+			if entry.Media.Format != nil {
+				if *entry.Media.Format == anilist.MediaFormatMovie {
+					stats.TotalMovies++
+				} else if *entry.Media.Format == anilist.MediaFormatSpecial || *entry.Media.Format == anilist.MediaFormatOva {
+					stats.TotalSpecials++
+				} else {
+					stats.TotalShows++
+				}
+			}
+		}
+	}
+
+	lc.Stats = stats
 }
 
 //----------------------------------------------------------------------------------------------------------------------

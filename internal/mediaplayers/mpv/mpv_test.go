@@ -23,6 +23,11 @@ func TestMpv_OpenAndPlay(t *testing.T) {
 
 	sub := m.Subscribe("test")
 
+	go func() {
+		time.Sleep(2 * time.Second)
+		m.CloseAll()
+	}()
+
 	select {
 	case v, _ := <-sub.Done():
 		t.Logf("mpv exited, %+v", v)
@@ -101,6 +106,11 @@ func TestMpv_Multiple(t *testing.T) {
 	}
 
 	sub := m.Subscribe("test")
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		m.CloseAll()
+	}()
 
 	select {
 	case v, _ := <-sub.Done():

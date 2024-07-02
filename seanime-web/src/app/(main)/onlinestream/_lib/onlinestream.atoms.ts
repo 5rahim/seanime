@@ -6,6 +6,7 @@ export const __onlinestream_selectedProviderAtom = atomWithStorage<string>("sea-
 
 export const __onlinestream_selectedDubbedAtom = atom<boolean>(false)
 
+// Variable used for the episode source query
 export const __onlinestream_selectedEpisodeNumberAtom = atom<number | undefined>(undefined)
 
 export const __onlinestream_autoPlayAtom = atomWithStorage("sea-onlinestream-autoplay", false)
