@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.7.0
+
+- ✨ Improved anime library page
+  - New detailed view with stats, filters and sorting options
+- ✨ Revamped manga page
+  - Updated layout with dynamic header and genre filters
+  - Page now only shows current, paused and planned entries
+- ✨ Improved 'Schedule' page: New calendar view for upcoming episodes
+- ✨ Improved 'Discover' page: Support for manga
+- ✨ Improved 'AniList' page
+  - Updated layout with new filters, sorting options and support for manga lists
+  - New stats section for anime and manga
+- ✨ Global search now supports manga
+- ✨ Online streaming: Added support for dubs
+- ⚡️ 'None' option for torrent provider #85
+	- This option disables torrent-related UI elements and features
+- ⚡️ Torrent streaming: Added filler metadata
+- ⚡️ Ability to fetch metadata for shows that are not in the library
+- ⚡️ MPV: Added retry mechanism for connection errors
+- ⚡️ Perf: Virtualize media lists for better performance if there are many entries
+- ⚡️ Transcoding: Option to toggle JASSUB offscreen rendering
+- ⚡️ Online streaming: Refactored media player controls
+- ⚡️ Media streaming: Auto play and auto next #77
+- ⚡️ UI: Improved layout for media streaming & online streaming
+- ⚡️ UI: Added indicator for missing episodes on media cards
+- 🦺 Media streaming: Fixed direct play #82
+- 🦺 Media streaming: Fixed font files not loading properly
+- 🦺 Transcoding: Set default hardware accel device to auto on Windows
+- 🦺 Torrent streaming: Fixed manual selection not working with batches #86
+- 🦺 Online streaming: Fixed episode being changed when switching providers
+- 🦺 Playlists: Fixed list not updating when a playlist is started
+- 🦺 UI: Make global search bar clickable on mobile
+- 🦺 Online streaming: Fixed Zoro provider
+- 🦺 Fixed terminal errors from manga requests
+- ⬆️ Updated dependencies
+
 ## v1.6.0
 
 - 🚀 The web interface is now bundled with the binary
