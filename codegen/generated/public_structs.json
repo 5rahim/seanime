@@ -1418,6 +1418,134 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "UserStartYearStats",
+    "formattedName": "AL_UserStartYearStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "StartYear",
+        "jsonName": "startYear",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UserReleaseYearStats",
+    "formattedName": "AL_UserReleaseYearStats",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ReleaseYear",
+        "jsonName": "releaseYear",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MeanScore",
+        "jsonName": "meanScore",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Count",
+        "jsonName": "count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinutesWatched",
+        "jsonName": "minutesWatched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaIds",
+        "jsonName": "mediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChaptersRead",
+        "jsonName": "chaptersRead",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "BaseManga_Title",
     "formattedName": "AL_BaseManga_Title",
     "package": "anilist",
@@ -9882,6 +10010,26 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StartYears",
+        "jsonName": "startYears",
+        "goType": "[]UserStartYearStats",
+        "typescriptType": "Array\u003cAL_UserStartYearStats\u003e",
+        "usedStructName": "anilist.UserStartYearStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseYears",
+        "jsonName": "releaseYears",
+        "goType": "[]UserReleaseYearStats",
+        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
+        "usedStructName": "anilist.UserReleaseYearStats",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -10003,6 +10151,26 @@
         "goType": "[]UserScoreStats",
         "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
         "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartYears",
+        "jsonName": "startYears",
+        "goType": "[]UserStartYearStats",
+        "typescriptType": "Array\u003cAL_UserStartYearStats\u003e",
+        "usedStructName": "anilist.UserStartYearStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseYears",
+        "jsonName": "releaseYears",
+        "goType": "[]UserReleaseYearStats",
+        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
+        "usedStructName": "anilist.UserReleaseYearStats",
         "required": false,
         "public": true,
         "comments": []
@@ -22463,9 +22631,7 @@
         "usedStructName": "anilist.UserGenreStats",
         "required": false,
         "public": true,
-        "comments": [
-          " Key is the genre name"
-        ]
+        "comments": []
       },
       {
         "name": "Formats",
@@ -22475,9 +22641,7 @@
         "usedStructName": "anilist.UserFormatStats",
         "required": false,
         "public": true,
-        "comments": [
-          " Key is the format name"
-        ]
+        "comments": []
       },
       {
         "name": "Statuses",
@@ -22487,9 +22651,7 @@
         "usedStructName": "anilist.UserStatusStats",
         "required": false,
         "public": true,
-        "comments": [
-          " Key is the status name"
-        ]
+        "comments": []
       },
       {
         "name": "Studios",
@@ -22499,9 +22661,7 @@
         "usedStructName": "anilist.UserStudioStats",
         "required": false,
         "public": true,
-        "comments": [
-          " Key is the studio name"
-        ]
+        "comments": []
       },
       {
         "name": "Scores",
@@ -22509,6 +22669,26 @@
         "goType": "[]UserScoreStats",
         "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
         "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartYears",
+        "jsonName": "startYears",
+        "goType": "[]UserStartYearStats",
+        "typescriptType": "Array\u003cAL_UserStartYearStats\u003e",
+        "usedStructName": "anilist.UserStartYearStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseYears",
+        "jsonName": "releaseYears",
+        "goType": "[]UserReleaseYearStats",
+        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
+        "usedStructName": "anilist.UserReleaseYearStats",
         "required": false,
         "public": true,
         "comments": []
@@ -22558,9 +22738,7 @@
         "usedStructName": "anilist.UserGenreStats",
         "required": false,
         "public": true,
-        "comments": [
-          " Key is the genre name"
-        ]
+        "comments": []
       },
       {
         "name": "Statuses",
@@ -22570,9 +22748,7 @@
         "usedStructName": "anilist.UserStatusStats",
         "required": false,
         "public": true,
-        "comments": [
-          " Key is the status name"
-        ]
+        "comments": []
       },
       {
         "name": "Scores",
@@ -22580,6 +22756,26 @@
         "goType": "[]UserScoreStats",
         "typescriptType": "Array\u003cAL_UserScoreStats\u003e",
         "usedStructName": "anilist.UserScoreStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartYears",
+        "jsonName": "startYears",
+        "goType": "[]UserStartYearStats",
+        "typescriptType": "Array\u003cAL_UserStartYearStats\u003e",
+        "usedStructName": "anilist.UserStartYearStats",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReleaseYears",
+        "jsonName": "releaseYears",
+        "goType": "[]UserReleaseYearStats",
+        "typescriptType": "Array\u003cAL_UserReleaseYearStats\u003e",
+        "usedStructName": "anilist.UserReleaseYearStats",
         "required": false,
         "public": true,
         "comments": []

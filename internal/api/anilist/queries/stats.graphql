@@ -21,6 +21,12 @@ query ViewerStats {
         scores {
           ...UserScoreStats
         }
+        startYears {
+          ...UserStartYearStats
+        }
+        releaseYears {
+          ...UserReleaseYearStats
+        }
       }
       manga {
         count
@@ -40,6 +46,12 @@ query ViewerStats {
         }
         scores {
           ...UserScoreStats
+        }
+        startYears {
+          ...UserStartYearStats
+        }
+        releaseYears {
+          ...UserReleaseYearStats
         }
       }
     }
@@ -88,6 +100,24 @@ fragment UserStudioStats on UserStudioStatistic {
     name
     isAnimationStudio
   }
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserStartYearStats on UserStartYearStatistic {
+  startYear
+  meanScore
+  count
+  minutesWatched
+  mediaIds
+  chaptersRead
+}
+
+fragment UserReleaseYearStats on UserReleaseYearStatistic {
+  releaseYear
   meanScore
   count
   minutesWatched

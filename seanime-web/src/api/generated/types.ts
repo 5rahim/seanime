@@ -86,23 +86,13 @@ export type AL_AnimeStats = {
     minutesWatched: number
     episodesWatched: number
     meanScore: number
-    /**
-     * Key is the genre name
-     */
     genres?: Array<AL_UserGenreStats>
-    /**
-     * Key is the format name
-     */
     formats?: Array<AL_UserFormatStats>
-    /**
-     * Key is the status name
-     */
     statuses?: Array<AL_UserStatusStats>
-    /**
-     * Key is the studio name
-     */
     studios?: Array<AL_UserStudioStats>
     scores?: Array<AL_UserScoreStats>
+    startYears?: Array<AL_UserStartYearStats>
+    releaseYears?: Array<AL_UserReleaseYearStats>
 }
 
 /**
@@ -867,15 +857,11 @@ export type AL_MangaStats = {
     count: number
     chaptersRead: number
     meanScore: number
-    /**
-     * Key is the genre name
-     */
     genres?: Array<AL_UserGenreStats>
-    /**
-     * Key is the status name
-     */
     statuses?: Array<AL_UserStatusStats>
     scores?: Array<AL_UserScoreStats>
+    startYears?: Array<AL_UserStartYearStats>
+    releaseYears?: Array<AL_UserReleaseYearStats>
 }
 
 /**
@@ -1326,8 +1312,36 @@ export type AL_UserGenreStats = {
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_UserReleaseYearStats = {
+    releaseYear?: number
+    meanScore: number
+    count: number
+    minutesWatched: number
+    mediaIds?: Array<number>
+    chaptersRead: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_UserScoreStats = {
     score?: number
+    meanScore: number
+    count: number
+    minutesWatched: number
+    mediaIds?: Array<number>
+    chaptersRead: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_UserStartYearStats = {
+    startYear?: number
     meanScore: number
     count: number
     minutesWatched: number

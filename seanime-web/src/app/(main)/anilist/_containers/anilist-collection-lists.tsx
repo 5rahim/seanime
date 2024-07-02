@@ -1,6 +1,8 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
+import { useGetAniListStats } from "@/api/hooks/anilist.hooks"
 import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { AnilistStats } from "@/app/(main)/anilist/_containers/anilist-stats"
 import {
     __myLists_selectedTypeAtom,
     __myListsSearch_paramsAtom,
@@ -13,6 +15,7 @@ import {
     ADVANCED_SEARCH_SEASONS,
     ADVANCED_SEARCH_STATUS,
 } from "@/app/(main)/search/_lib/advanced-search-constants"
+import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
@@ -24,6 +27,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
 import { COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import { getYear } from "date-fns"
+import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useState } from "react"
@@ -60,6 +64,8 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
         customLists,
     } = useHandleUserAnilistLists(debouncedSearchInput)
 
+    const { data: stats, isLoading: statsLoading } = useGetAniListStats()
+
     const setParams = useSetAtom(__myListsSearch_paramsAtom)
 
     useMount(() => {
@@ -83,40 +89,79 @@ export function AnilistCollectionLists(props: AnilistCollectionListsProps) {
                     items={[
                         { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
                         { name: "Manga", isCurrent: pageType === "manga", onClick: () => setPageType("manga") },
+                        { name: "Stats", isCurrent: pageType === "stats", onClick: () => setPageType("stats") },
                     ]}
                 />
             </div>}
 
-            <SearchOptions customLists={customLists} />
 
-            <div className="py-6 space-y-6">
-                {(!!currentList?.entries?.length && ["-", "current"].includes(selectedIndex)) && <>
-                    <h2>Watching</h2>
-                    <AnilistMediaEntryList list={currentList} />
-                </>}
-                {(!!planningList?.entries?.length && ["-", "planning"].includes(selectedIndex)) && <>
-                    <h2>Planning</h2>
-                    <AnilistMediaEntryList list={planningList} />
-                </>}
-                {(!!pausedList?.entries?.length && ["-", "paused"].includes(selectedIndex)) && <>
-                    <h2>Paused</h2>
-                    <AnilistMediaEntryList list={pausedList} />
-                </>}
-                {(!!completedList?.entries?.length && ["-", "completed"].includes(selectedIndex)) && <>
-                    <h2>Completed</h2>
-                    <AnilistMediaEntryList list={completedList} />
-                </>}
-                {(!!droppedList?.entries?.length && ["-", "dropped"].includes(selectedIndex)) && <>
-                    <h2>Dropped</h2>
-                    <AnilistMediaEntryList list={droppedList} />
-                </>}
-                {customLists?.map(list => {
-                    return (!!list.entries?.length && ["-", list.name || "N/A"].includes(selectedIndex)) ? <div key={list.name} className="space-y-6">
-                        <h2>{list.name}</h2>
-                        <AnilistMediaEntryList list={list} />
-                    </div> : null
-                })}
-            </div>
+            <AnimatePresence mode="wait" initial={false}>
+                {pageType !== "stats" && <PageWrapper
+                    key="lists"
+                    className="space-y-6"
+                    {...{
+                        initial: { opacity: 0 },
+                        animate: { opacity: 1 },
+                        exit: { opacity: 0 },
+                        transition: {
+                            duration: 0.35,
+                        },
+                    }}
+                >
+                    <SearchOptions customLists={customLists} />
+
+                    <div className="py-6 space-y-6">
+                        {(!!currentList?.entries?.length && ["-", "current"].includes(selectedIndex)) && <>
+                            <h2>Watching <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
+                            <AnilistMediaEntryList list={currentList} />
+                        </>}
+                        {(!!planningList?.entries?.length && ["-", "planning"].includes(selectedIndex)) && <>
+                            <h2>Planning <span className="text-[--muted] font-medium ml-3">{planningList?.entries?.length}</span></h2>
+                            <AnilistMediaEntryList list={planningList} />
+                        </>}
+                        {(!!pausedList?.entries?.length && ["-", "paused"].includes(selectedIndex)) && <>
+                            <h2>Paused <span className="text-[--muted] font-medium ml-3">{pausedList?.entries?.length}</span></h2>
+                            <AnilistMediaEntryList list={pausedList} />
+                        </>}
+                        {(!!completedList?.entries?.length && ["-", "completed"].includes(selectedIndex)) && <>
+                            <h2>Completed <span className="text-[--muted] font-medium ml-3">{completedList?.entries?.length}</span></h2>
+                            <AnilistMediaEntryList list={completedList} />
+                        </>}
+                        {(!!droppedList?.entries?.length && ["-", "dropped"].includes(selectedIndex)) && <>
+                            <h2>Dropped <span className="text-[--muted] font-medium ml-3">{droppedList?.entries?.length}</span></h2>
+                            <AnilistMediaEntryList list={droppedList} />
+                        </>}
+                        {customLists?.map(list => {
+                            return (!!list.entries?.length && ["-", list.name || "N/A"].includes(selectedIndex)) ? <div
+                                key={list.name}
+                                className="space-y-6"
+                            >
+                                <h2>{list.name}</h2>
+                                <AnilistMediaEntryList list={list} />
+                            </div> : null
+                        })}
+                    </div>
+                </PageWrapper>}
+
+                {pageType === "stats" && <PageWrapper
+                    key="stats"
+                    className="space-y-6"
+                    {...{
+                        initial: { opacity: 0, y: 60 },
+                        animate: { opacity: 1, y: 0 },
+                        exit: { opacity: 0, scale: 0.99 },
+                        transition: {
+                            duration: 0.35,
+                        },
+                    }}
+                >
+                    <AnilistStats
+                        stats={stats}
+                        isLoading={statsLoading}
+                    />
+                </PageWrapper>}
+            </AnimatePresence>
+
         </AppLayoutStack>
     )
 }

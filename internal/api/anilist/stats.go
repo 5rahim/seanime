@@ -12,24 +12,28 @@ type (
 	}
 
 	AnimeStats struct {
-		Count           int                `json:"count"`
-		MinutesWatched  int                `json:"minutesWatched"`
-		EpisodesWatched int                `json:"episodesWatched"`
-		MeanScore       float64            `json:"meanScore"`
-		Genres          []*UserGenreStats  `json:"genres"`   // Key is the genre name
-		Formats         []*UserFormatStats `json:"formats"`  // Key is the format name
-		Statuses        []*UserStatusStats `json:"statuses"` // Key is the status name
-		Studios         []*UserStudioStats `json:"studios"`  // Key is the studio name
-		Scores          []*UserScoreStats  `json:"scores"`
+		Count           int                     `json:"count"`
+		MinutesWatched  int                     `json:"minutesWatched"`
+		EpisodesWatched int                     `json:"episodesWatched"`
+		MeanScore       float64                 `json:"meanScore"`
+		Genres          []*UserGenreStats       `json:"genres"`
+		Formats         []*UserFormatStats      `json:"formats"`
+		Statuses        []*UserStatusStats      `json:"statuses"`
+		Studios         []*UserStudioStats      `json:"studios"`
+		Scores          []*UserScoreStats       `json:"scores"`
+		StartYears      []*UserStartYearStats   `json:"startYears"`
+		ReleaseYears    []*UserReleaseYearStats `json:"releaseYears"`
 	}
 
 	MangaStats struct {
-		Count        int                `json:"count"`
-		ChaptersRead int                `json:"chaptersRead"`
-		MeanScore    float64            `json:"meanScore"`
-		Genres       []*UserGenreStats  `json:"genres"`   // Key is the genre name
-		Statuses     []*UserStatusStats `json:"statuses"` // Key is the status name
-		Scores       []*UserScoreStats  `json:"scores"`
+		Count        int                     `json:"count"`
+		ChaptersRead int                     `json:"chaptersRead"`
+		MeanScore    float64                 `json:"meanScore"`
+		Genres       []*UserGenreStats       `json:"genres"`
+		Statuses     []*UserStatusStats      `json:"statuses"`
+		Scores       []*UserScoreStats       `json:"scores"`
+		StartYears   []*UserStartYearStats   `json:"startYears"`
+		ReleaseYears []*UserReleaseYearStats `json:"releaseYears"`
 	}
 )
 
@@ -54,6 +58,8 @@ func GetStats(ctx context.Context, client ClientWrapperInterface) (ret *Stats, e
 			Statuses:        allStats.GetAnime().GetStatuses(),
 			Studios:         allStats.GetAnime().GetStudios(),
 			Scores:          allStats.GetAnime().GetScores(),
+			StartYears:      allStats.GetAnime().GetStartYears(),
+			ReleaseYears:    allStats.GetAnime().GetReleaseYears(),
 		},
 		MangaStats: &MangaStats{
 			Count:        allStats.GetManga().GetCount(),
@@ -62,6 +68,8 @@ func GetStats(ctx context.Context, client ClientWrapperInterface) (ret *Stats, e
 			Genres:       allStats.GetManga().GetGenres(),
 			Statuses:     allStats.GetManga().GetStatuses(),
 			Scores:       allStats.GetManga().GetScores(),
+			StartYears:   allStats.GetManga().GetStartYears(),
+			ReleaseYears: allStats.GetManga().GetReleaseYears(),
 		},
 	}
 

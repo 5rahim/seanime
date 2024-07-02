@@ -1027,6 +1027,98 @@ func (t *UserStudioStats) GetChaptersRead() int {
 	return t.ChaptersRead
 }
 
+type UserStartYearStats struct {
+	StartYear      *int    "json:\"startYear,omitempty\" graphql:\"startYear\""
+	MeanScore      float64 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int     "json:\"count\" graphql:\"count\""
+	MinutesWatched int     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserStartYearStats) GetStartYear() *int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.StartYear
+}
+func (t *UserStartYearStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserStartYearStats) GetCount() int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.Count
+}
+func (t *UserStartYearStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserStartYearStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserStartYearStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserStartYearStats{}
+	}
+	return t.ChaptersRead
+}
+
+type UserReleaseYearStats struct {
+	ReleaseYear    *int    "json:\"releaseYear,omitempty\" graphql:\"releaseYear\""
+	MeanScore      float64 "json:\"meanScore\" graphql:\"meanScore\""
+	Count          int     "json:\"count\" graphql:\"count\""
+	MinutesWatched int     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	MediaIds       []*int  "json:\"mediaIds\" graphql:\"mediaIds\""
+	ChaptersRead   int     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+}
+
+func (t *UserReleaseYearStats) GetReleaseYear() *int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.ReleaseYear
+}
+func (t *UserReleaseYearStats) GetMeanScore() float64 {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.MeanScore
+}
+func (t *UserReleaseYearStats) GetCount() int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.Count
+}
+func (t *UserReleaseYearStats) GetMinutesWatched() int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.MinutesWatched
+}
+func (t *UserReleaseYearStats) GetMediaIds() []*int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.MediaIds
+}
+func (t *UserReleaseYearStats) GetChaptersRead() int {
+	if t == nil {
+		t = &UserReleaseYearStats{}
+	}
+	return t.ChaptersRead
+}
+
 type BaseManga_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -6680,15 +6772,17 @@ func (t *ViewerStats_Viewer_Statistics_Anime_Studios_UserStudioStats_Studio) Get
 }
 
 type ViewerStats_Viewer_Statistics_Anime struct {
-	Count           int                "json:\"count\" graphql:\"count\""
-	MinutesWatched  int                "json:\"minutesWatched\" graphql:\"minutesWatched\""
-	EpisodesWatched int                "json:\"episodesWatched\" graphql:\"episodesWatched\""
-	MeanScore       float64            "json:\"meanScore\" graphql:\"meanScore\""
-	Formats         []*UserFormatStats "json:\"formats,omitempty\" graphql:\"formats\""
-	Genres          []*UserGenreStats  "json:\"genres,omitempty\" graphql:\"genres\""
-	Statuses        []*UserStatusStats "json:\"statuses,omitempty\" graphql:\"statuses\""
-	Studios         []*UserStudioStats "json:\"studios,omitempty\" graphql:\"studios\""
-	Scores          []*UserScoreStats  "json:\"scores,omitempty\" graphql:\"scores\""
+	Count           int                     "json:\"count\" graphql:\"count\""
+	MinutesWatched  int                     "json:\"minutesWatched\" graphql:\"minutesWatched\""
+	EpisodesWatched int                     "json:\"episodesWatched\" graphql:\"episodesWatched\""
+	MeanScore       float64                 "json:\"meanScore\" graphql:\"meanScore\""
+	Formats         []*UserFormatStats      "json:\"formats,omitempty\" graphql:\"formats\""
+	Genres          []*UserGenreStats       "json:\"genres,omitempty\" graphql:\"genres\""
+	Statuses        []*UserStatusStats      "json:\"statuses,omitempty\" graphql:\"statuses\""
+	Studios         []*UserStudioStats      "json:\"studios,omitempty\" graphql:\"studios\""
+	Scores          []*UserScoreStats       "json:\"scores,omitempty\" graphql:\"scores\""
+	StartYears      []*UserStartYearStats   "json:\"startYears,omitempty\" graphql:\"startYears\""
+	ReleaseYears    []*UserReleaseYearStats "json:\"releaseYears,omitempty\" graphql:\"releaseYears\""
 }
 
 func (t *ViewerStats_Viewer_Statistics_Anime) GetCount() int {
@@ -6745,6 +6839,18 @@ func (t *ViewerStats_Viewer_Statistics_Anime) GetScores() []*UserScoreStats {
 	}
 	return t.Scores
 }
+func (t *ViewerStats_Viewer_Statistics_Anime) GetStartYears() []*UserStartYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.StartYears
+}
+func (t *ViewerStats_Viewer_Statistics_Anime) GetReleaseYears() []*UserReleaseYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Anime{}
+	}
+	return t.ReleaseYears
+}
 
 type ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio struct {
 	ID                int    "json:\"id\" graphql:\"id\""
@@ -6772,14 +6878,16 @@ func (t *ViewerStats_Viewer_Statistics_Manga_Studios_UserStudioStats_Studio) Get
 }
 
 type ViewerStats_Viewer_Statistics_Manga struct {
-	Count        int                "json:\"count\" graphql:\"count\""
-	ChaptersRead int                "json:\"chaptersRead\" graphql:\"chaptersRead\""
-	MeanScore    float64            "json:\"meanScore\" graphql:\"meanScore\""
-	Formats      []*UserFormatStats "json:\"formats,omitempty\" graphql:\"formats\""
-	Genres       []*UserGenreStats  "json:\"genres,omitempty\" graphql:\"genres\""
-	Statuses     []*UserStatusStats "json:\"statuses,omitempty\" graphql:\"statuses\""
-	Studios      []*UserStudioStats "json:\"studios,omitempty\" graphql:\"studios\""
-	Scores       []*UserScoreStats  "json:\"scores,omitempty\" graphql:\"scores\""
+	Count        int                     "json:\"count\" graphql:\"count\""
+	ChaptersRead int                     "json:\"chaptersRead\" graphql:\"chaptersRead\""
+	MeanScore    float64                 "json:\"meanScore\" graphql:\"meanScore\""
+	Formats      []*UserFormatStats      "json:\"formats,omitempty\" graphql:\"formats\""
+	Genres       []*UserGenreStats       "json:\"genres,omitempty\" graphql:\"genres\""
+	Statuses     []*UserStatusStats      "json:\"statuses,omitempty\" graphql:\"statuses\""
+	Studios      []*UserStudioStats      "json:\"studios,omitempty\" graphql:\"studios\""
+	Scores       []*UserScoreStats       "json:\"scores,omitempty\" graphql:\"scores\""
+	StartYears   []*UserStartYearStats   "json:\"startYears,omitempty\" graphql:\"startYears\""
+	ReleaseYears []*UserReleaseYearStats "json:\"releaseYears,omitempty\" graphql:\"releaseYears\""
 }
 
 func (t *ViewerStats_Viewer_Statistics_Manga) GetCount() int {
@@ -6829,6 +6937,18 @@ func (t *ViewerStats_Viewer_Statistics_Manga) GetScores() []*UserScoreStats {
 		t = &ViewerStats_Viewer_Statistics_Manga{}
 	}
 	return t.Scores
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetStartYears() []*UserStartYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.StartYears
+}
+func (t *ViewerStats_Viewer_Statistics_Manga) GetReleaseYears() []*UserReleaseYearStats {
+	if t == nil {
+		t = &ViewerStats_Viewer_Statistics_Manga{}
+	}
+	return t.ReleaseYears
 }
 
 type ViewerStats_Viewer_Statistics struct {
@@ -9013,6 +9133,12 @@ const ViewerStatsDocument = `query ViewerStats {
 				scores {
 					... UserScoreStats
 				}
+				startYears {
+					... UserStartYearStats
+				}
+				releaseYears {
+					... UserReleaseYearStats
+				}
 			}
 			manga {
 				count
@@ -9032,6 +9158,12 @@ const ViewerStatsDocument = `query ViewerStats {
 				}
 				scores {
 					... UserScoreStats
+				}
+				startYears {
+					... UserStartYearStats
+				}
+				releaseYears {
+					... UserReleaseYearStats
 				}
 			}
 		}
@@ -9075,6 +9207,22 @@ fragment UserStudioStats on UserStudioStatistic {
 }
 fragment UserScoreStats on UserScoreStatistic {
 	score
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserStartYearStats on UserStartYearStatistic {
+	startYear
+	meanScore
+	count
+	minutesWatched
+	mediaIds
+	chaptersRead
+}
+fragment UserReleaseYearStats on UserReleaseYearStatistic {
+	releaseYear
 	meanScore
 	count
 	minutesWatched
