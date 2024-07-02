@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/mal"
-	"github.com/seanime-app/seanime/internal/core"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/manga/providers"
@@ -14,18 +12,9 @@ import (
 )
 
 var (
-	ErrMangaFeatureDisabled = errors.New("manga feature not enabled")
-	baseMangaCache          = result.NewCache[int, *anilist.BaseManga]()
-	mangaDetailsCache       = result.NewCache[int, *anilist.MangaDetailsById_Media]()
+	baseMangaCache    = result.NewCache[int, *anilist.BaseManga]()
+	mangaDetailsCache = result.NewCache[int, *anilist.MangaDetailsById_Media]()
 )
-
-func checkMangaFlag(a *core.App) error {
-	if !a.Settings.Library.EnableManga {
-		return ErrMangaFeatureDisabled
-	}
-
-	return nil
-}
 
 // HandleGetAnilistMangaCollection
 //
@@ -79,10 +68,6 @@ func HandleGetRawAnilistMangaCollection(c *RouteCtx) error {
 //	@returns manga.Collection
 func HandleGetMangaCollection(c *RouteCtx) error {
 
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
-
 	anilistCollection, err := c.App.GetMangaCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -107,10 +92,6 @@ func HandleGetMangaCollection(c *RouteCtx) error {
 //	@param id - int - true - "AniList manga media ID"
 //	@returns manga.Entry
 func HandleGetMangaEntry(c *RouteCtx) error {
-
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
 
 	id, err := c.Fiber.ParamsInt("id")
 	if err != nil {
@@ -149,10 +130,6 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 //	@returns anilist.MangaDetailsById_Media
 func HandleGetMangaEntryDetails(c *RouteCtx) error {
 
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
-
 	id, err := c.Fiber.ParamsInt("id")
 	if err != nil {
 		return c.RespondWithError(err)
@@ -184,10 +161,6 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 //	@returns bool
 func HandleEmptyMangaEntryCache(c *RouteCtx) error {
 
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
-
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
@@ -211,10 +184,6 @@ func HandleEmptyMangaEntryCache(c *RouteCtx) error {
 //	@route /api/v1/manga/chapters [POST]
 //	@returns manga.ChapterContainer
 func HandleGetMangaEntryChapters(c *RouteCtx) error {
-
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
 
 	type body struct {
 		MediaId  int                      `json:"mediaId"`
@@ -258,10 +227,6 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 //	@returns manga.PageContainer
 func HandleGetMangaEntryPages(c *RouteCtx) error {
 
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
-
 	type body struct {
 		MediaId    int                      `json:"mediaId"`
 		Provider   manga_providers.Provider `json:"provider"`
@@ -295,10 +260,6 @@ var (
 //	@route /api/v1/manga/anilist/list [POST]
 //	@returns anilist.ListManga
 func HandleAnilistListManga(c *RouteCtx) error {
-
-	if err := checkMangaFlag(c.App); err != nil {
-		return c.RespondWithError(err)
-	}
 
 	type body struct {
 		Page                *int                   `json:"page,omitempty"`
