@@ -77,13 +77,13 @@ How to install Seanime
 - **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
 - Create **playlists** to binge-watch seamlessly
 
-### 📱 Transcoding (Experimental)
+### 📱 Transcoding
 - Watch your downloaded episodes on any device with a web browser
 - On-the-fly transcoding with seeking support powered by **FFmpeg**
 - Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
 - Built-in player with subtitle support
 
-### 📽️ Torrent streaming (Experimental)
+### 📽️ Torrent streaming
 - Stream torrents directly to your media player without waiting for the download to complete
 - Automatic torrent selection with no input required - click and play
 - Auto-selection of single episodes from batches
