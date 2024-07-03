@@ -156,11 +156,11 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     {currentGroup.dir}
                 </div>
 
-                <ul className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 overflow-y-auto text-sm">
+                <ul className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 max-w-full overflow-x-auto overflow-y-auto text-sm">
                     {currentGroup.localFiles?.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
                         .map(lf => {
                             return <li key={lf.path} className="text-sm tracking-wide line-clamp-1">
-                                {lf.path}
+                                {lf.parsedInfo?.original || lf.path}
                             </li>
                         })}
                 </ul>
