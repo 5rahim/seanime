@@ -333,11 +333,21 @@ func (m *Mpv) CloseAll() {
 }
 
 func (m *Mpv) terminate() {
+	defer func() {
+		if r := recover(); r != nil {
+			m.Logger.Warn().Msgf("mpv: Termination panic")
+		}
+	}()
 	m.Logger.Trace().Msg("mpv: Terminating")
 	m.resetPlaybackStatus()
 	m.publishDone()
-	m.cancel()
-	cmdCancel()
+	if m.cancel != nil {
+		m.cancel()
+	}
+	if cmdCancel != nil {
+		cmdCancel()
+	}
+	m.Logger.Trace().Msg("mpv: Terminated")
 }
 
 func (m *Mpv) Subscribe(id string) *Subscriber {
