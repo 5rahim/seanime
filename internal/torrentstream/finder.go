@@ -295,9 +295,6 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 	}
 
 	analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
-
-	r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
-
 	// Check if analyzer found the episode
 	if !found {
 		r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", selectedTorrent.Info().Name)
@@ -307,6 +304,8 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 		}()
 		return nil, ErrNoEpisodeFound
 	}
+
+	r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
 
 	// Download the file and unselect the rest
 	for i, f := range selectedTorrent.Files() {
