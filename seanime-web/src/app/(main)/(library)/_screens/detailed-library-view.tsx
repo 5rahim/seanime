@@ -90,7 +90,7 @@ export function DetailedLibraryView(props: LibraryViewProps) {
             </div>
 
             <div>
-                <div className="grid grid-cols-4 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]">
+                <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 [&>div]:text-center [&>div>p]:text-[--muted]">
                     <div>
                         <h3>{stats?.totalSize}</h3>
                         <p>Library</p>
@@ -217,7 +217,7 @@ export function SearchOptions() {
                     ]}
                 />
             </div>
-            <div className="grid grid-cols-3 2xl:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4">
                 <Select
                     label="Sorting"
                     leftAddon={<FaSortAmountDown />}
