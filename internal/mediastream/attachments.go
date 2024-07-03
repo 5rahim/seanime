@@ -49,7 +49,7 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 		return err
 	}
 
-	r.logger.Trace().Any("path", retPath).Msg("mediastream: Serving extracted subtitles")
+	r.logger.Trace().Msgf("mediastream: Serving subtitles from %s", retPath)
 
 	return fiberCtx.SendString(string(contentB))
 }
@@ -95,7 +95,7 @@ func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
 		return err
 	}
 
-	r.logger.Trace().Any("path", retPath).Msg("mediastream: Serving extracted subtitles")
+	r.logger.Trace().Msgf("mediastream: Serving subtitles from %s", retPath)
 
 	return fiberCtx.SendString(string(contentB))
 }

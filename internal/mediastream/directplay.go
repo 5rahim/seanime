@@ -41,15 +41,17 @@ type VideoStream struct {
 func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string, clientId string) error {
 
 	// Check if the file is already open
-	videoStream, found := r.directPlayVideoStreamCache.Get(clientId)
-	if !found || videoStream.FilePath != filePath {
+	videoStream, found := r.directPlayVideoStreamCache.Get(filePath)
+	if !found {
 
-		// If a file was previously opened by the client, close it
-		if videoStream != nil {
-			go func(vs *VideoStream) {
-				_ = vs.File.Close()
-			}(videoStream)
-		}
+		// Close all open files
+		r.directPlayVideoStreamCache.Range(func(key string, value *VideoStream) bool {
+			_ = value.File.Close()
+			r.directPlayVideoStreamCache.Delete(key)
+			return true
+		})
+
+		r.logger.Trace().Msgf("mediastream: Opening file: %s", filePath)
 
 		// Open the video file
 		f, err := os.Open(filePath)
@@ -66,13 +68,15 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string, clientId strin
 			return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 		}
 
+		r.logger.Trace().Msgf("mediastream: Caching file information")
+
 		videoStream = &VideoStream{
 			FilePath: filePath,
 			FileSize: info.Size(),
 			File:     f,
 		}
 
-		r.directPlayVideoStreamCache.Set(clientId, videoStream)
+		r.directPlayVideoStreamCache.Set(filePath, videoStream)
 	}
 
 	// Default chunk size for partial content to 5MB
@@ -92,8 +96,9 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string, clientId strin
 		// Get the start range
 		start, err := strconv.ParseInt(ranges[0], 10, 64)
 		if err != nil || start >= videoStream.FileSize {
-			r.logger.Error().Err(err).Msg("mediastream: Error parsing start byte position or start out of range")
-			return ctx.Status(fiber.StatusRequestedRangeNotSatisfiable).SendString("Invalid Range Start")
+			start = videoStream.FileSize
+			//r.logger.Error().Err(err).Msg("mediastream: Error parsing start byte position or start out of range")
+			//return ctx.Status(fiber.StatusRequestedRangeNotSatisfiable).SendString("Invalid Range Start")
 		}
 
 		// Calculate the end range if not provided

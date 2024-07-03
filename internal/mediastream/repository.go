@@ -13,6 +13,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util/result"
 	"os"
 	"sync"
+	"time"
 )
 
 type (
@@ -52,6 +53,17 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		mediaInfoExtractor:         videofile.NewMediaInfoExtractor(opts.FileCacher, opts.Logger),
 	}
 	ret.playbackManager = NewPlaybackManager(ret)
+
+	go func() {
+		for {
+			time.Sleep(2 * time.Minute)
+			ret.directPlayVideoStreamCache.Range(func(key string, value *VideoStream) bool {
+				_ = value.File.Close()
+				ret.directPlayVideoStreamCache.Delete(key)
+				return true
+			})
+		}
+	}()
 
 	return ret
 }
