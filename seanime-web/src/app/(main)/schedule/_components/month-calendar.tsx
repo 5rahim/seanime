@@ -56,7 +56,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
             const upcomingMedia = media.filter((item) => !!item.nextAiringEpisode?.airingAt && isSameDay(new Date(item.nextAiringEpisode?.airingAt * 1000),
                 day)).map((item) => {
                 return {
-                    id: item.id,
+                    id: item.id + item.nextAiringEpisode?.episode!,
                     name: item.title?.userPreferred,
                     time: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "h:mm a"),
                     datetime: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
@@ -66,16 +66,16 @@ export function MonthCalendar(props: WeekCalendarProps) {
                 }
             })
 
-            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(new Date(item.episodeMetadata?.airDate),
+            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(item.episodeMetadata?.airDate,
                 day)).map((item) => {
                 return {
-                    id: item.basicMedia?.id,
+                    id: item.basicMedia?.id! + item.fileMetadata?.episode!,
                     name: item.basicMedia?.title?.userPreferred,
-                    time: format(new Date(item.basicMedia?.nextAiringEpisode?.airingAt! * 1000), "h:mm a"),
-                    datetime: format(new Date(item.basicMedia?.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
+                    time: "",
+                    datetime: format(new Date(item.episodeMetadata?.airDate!), "yyyy-MM-dd'T'HH:mm"),
                     href: `/entry?id=${item.basicMedia?.id}`,
                     image: item.basicMedia?.bannerImage ?? item.basicMedia?.coverImage?.extraLarge ?? item.basicMedia?.coverImage?.large ?? item.basicMedia?.coverImage?.medium,
-                    episode: item.basicMedia?.nextAiringEpisode?.episode || 1,
+                    episode: item.episodeNumber || 1,
                 }
             })
 
@@ -179,7 +179,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                                 </p>
                                                                 <time
                                                                     dateTime={event.datetime}
-                                                                    className="ml-3 hidden flex-none text-gray-500 group-hover:text-gray-200 xl:block"
+                                                                    className="ml-3 hidden flex-none text-[--muted] group-hover:text-gray-200 xl:block"
                                                                 >
                                                                     {event.time}
                                                                 </time>
