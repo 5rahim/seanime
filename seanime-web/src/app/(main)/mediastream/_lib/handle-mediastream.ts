@@ -457,6 +457,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     }, [autoPlay])
 
     const onEnded = React.useCallback((e: MediaEndedEvent) => {
+        logger("MEDIASTREAM").info("Media ended event received", e)
         if (autoNext) {
             const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
             if (currentEpisodeIndex !== -1) {
@@ -466,7 +467,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 }
             }
         }
-    }, [autoNext])
+    }, [autoNext, episodes, filePath])
 
     const onPlayFile = React.useCallback((filepath: string) => {
         logger("MEDIASTREAM").info("Playing file", filepath)

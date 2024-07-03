@@ -46,10 +46,9 @@ func (r *Repository) streamVideo(ctx *fiber.Ctx, filePath string, clientId strin
 
 		// If a file was previously opened by the client, close it
 		if videoStream != nil {
-			go func() {
-				_ = videoStream.File.Close()
-				r.directPlayVideoStreamCache.Delete(clientId)
-			}()
+			go func(vs *VideoStream) {
+				_ = vs.File.Close()
+			}(videoStream)
 		}
 
 		// Open the video file
