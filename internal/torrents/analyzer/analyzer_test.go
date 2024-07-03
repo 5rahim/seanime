@@ -9,7 +9,8 @@ import (
 	"testing"
 )
 
-func TestAnalyzerFile(t *testing.T) {
+// TestSelectFilesFromSeason tests the selection of the accurate season files from a list of files from all seasons.
+func TestSelectFilesFromSeason(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	logger := util.NewLogger()
@@ -17,9 +18,9 @@ func TestAnalyzerFile(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		filepaths       []string
-		mediaId         int
-		expectedIndices []int
+		mediaId         int      // The media ID of the season
+		filepaths       []string // All filepaths from all seasons
+		expectedIndices []int    // The indices of the selected files
 	}{
 		{
 			name: "Kakegurui xx",
@@ -53,6 +54,17 @@ func TestAnalyzerFile(t *testing.T) {
 			},
 			mediaId:         142838,
 			expectedIndices: []int{3, 4, 5},
+		},
+		{
+			name: "Mushoku Tensei: Jobless Reincarnation Season 2 Part 2",
+			filepaths: []string{
+				"[EMBER] Mushoku Tensei S2 - 13.mkv", // should be selected
+				"[EMBER] Mushoku Tensei S2 - 14.mkv", // should be selected
+				"[EMBER] Mushoku Tensei S2 - 15.mkv", // should be selected
+				"[EMBER] Mushoku Tensei S2 - 16.mkv", // should be selected
+			},
+			mediaId:         166873,
+			expectedIndices: []int{0, 1, 2, 3},
 		},
 	}
 
