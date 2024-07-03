@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.7.1
+
+- 🦺 Media streaming: Fixed direct play returning the same file for different episodes
+- 🦺 Torrent streaming: Fixed playing individual episode from batch torrents #93
+- 🦺 Torrent streaming: Fixed panic caused by torrent file not being found
+- 🦺 Fixed crash caused by terminating MPV programmatically / stopping torrent stream
+- 🦺 Fixed 'manga feature not enabled' error when opening the web interface #90
+- 🦺 Fixed manga list being named 'watching' instead of 'reading'
+- 🦺 Media streaming: Fixed 'file already closed' error with direct play
+- 🦺 Torrent streaming: Fixed persistent loading bar when torrent stream fails to start
+- 🦺 Schedule: Fixed calendar having inaccurate dates for aired episodes
+- 🦺 Media streaming: Fixed byte range request failing when video player requests end bytes first (direct play)
+- 🏗️ Media streaming: Refactored direct play file cache system
+- 🏗️ Scan summaries: Use preferred titles
+- 🏗️ Internal refactoring for code consistency
+
 ## v1.7.0
 
 - ✨ Improved anime library page
