@@ -2,6 +2,7 @@ package torrentstream
 
 const (
 	eventTorrentLoading        = "torrentstream-torrent-loading"
+	eventTorrentLoadingFailed  = "torrentstream-torrent-loading-failed"
 	eventTorrentLoadingStatus  = "torrentstream-torrent-loading-status"
 	eventTorrentLoaded         = "torrentstream-torrent-loaded"
 	eventTorrentStartedPlaying = "torrentstream-torrent-started-playing"

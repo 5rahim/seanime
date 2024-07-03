@@ -51,6 +51,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	case true:
 		torrentToStream, err = r.findBestTorrent(media, anizipMedia, anizipEpisode, episodeNumber)
 		if err != nil {
+			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
 		}
 	case false:
@@ -59,6 +60,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		}
 		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent.Link, media, anizipEpisode, episodeNumber)
 		if err != nil {
+			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
 		}
 	}
@@ -99,13 +101,13 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media, anizipMedia, anizipEpisode)
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
+			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			r.StopStream()
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 		}
 	}()
 
 	r.wsEventManager.SendEvent(eventTorrentLoaded, nil)
-
 	r.logger.Info().Msg("torrentstream: Stream started")
 
 	return nil

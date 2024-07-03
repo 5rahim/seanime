@@ -330,7 +330,7 @@ func (c *Client) addTorrentFromDownloadURL(url string) (*torrent.Torrent, error)
 		t.Drop()
 		return nil, errors.New("timeout waiting for torrent info")
 	}
-	c.repository.logger.Info().Msgf("torrentstream: Torrent added: %s", t.InfoHash().AsString())
+	c.repository.logger.Info().Msgf("torrentstream: Added torrent: %s", t.InfoHash().AsString())
 	return t, nil
 }
 
@@ -355,6 +355,7 @@ func (c *Client) FindTorrent(infoHash string) (*torrent.Torrent, error) {
 	torrents := c.torrentClient.MustGet().Torrents()
 	for _, t := range torrents {
 		if t.InfoHash().AsString() == infoHash {
+			c.repository.logger.Debug().Msgf("torrentstream: Found torrent: %s", infoHash)
 			return t, nil
 		}
 	}
@@ -366,10 +367,13 @@ func (c *Client) RemoveTorrent(infoHash string) error {
 		return errors.New("torrent client is not initialized")
 	}
 
+	c.repository.logger.Trace().Msgf("torrentstream: Removing torrent: %s", infoHash)
+
 	torrents := c.torrentClient.MustGet().Torrents()
 	for _, t := range torrents {
 		if t.InfoHash().AsString() == infoHash {
 			t.Drop()
+			c.repository.logger.Debug().Msgf("torrentstream: Removed torrent: %s", infoHash)
 			return nil
 		}
 	}
@@ -397,6 +401,8 @@ func (c *Client) dropTorrents() {
 			}
 		}
 	}
+
+	c.repository.logger.Debug().Msg("torrentstream: Dropped all torrents")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

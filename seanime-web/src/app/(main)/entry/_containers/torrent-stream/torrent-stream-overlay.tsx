@@ -15,6 +15,7 @@ import { BiDownArrow, BiGroup, BiStop, BiUpArrow } from "react-icons/bi"
 
 const enum TorrentStreamLoadingEvents {
     TorrentLoading = "torrentstream-torrent-loading",
+    TorrentLoadingFailed = "torrentstream-torrent-loading-failed",
     TorrentLoadingStatus = "torrentstream-torrent-loading-status",
     TorrentLoaded = "torrentstream-torrent-loaded",
     TorrentStartedPlaying = "torrentstream-torrent-started-playing",
@@ -48,6 +49,14 @@ export function TorrentStreamOverlay() {
         type: TorrentStreamLoadingEvents.TorrentLoading,
         onMessage: _ => {
             setLoadingState("SEARCHING_TORRENTS")
+            setStatus(null)
+            setMediaPlayerStartedPlaying(false)
+        },
+    })
+    useWebsocketMessageListener({
+        type: TorrentStreamLoadingEvents.TorrentLoadingFailed,
+        onMessage: _ => {
+            setLoadingState(null)
             setStatus(null)
             setMediaPlayerStartedPlaying(false)
         },
