@@ -129,8 +129,9 @@ func (c *Client) initializeClient() error {
 					}
 					c.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
 				}
-				c.currentTorrent = mo.None[*torrent.Torrent]()
-				c.currentTorrentStatus = TorrentStatus{}
+				c.currentTorrent = mo.None[*torrent.Torrent]()                  // Reset the current torrent
+				c.currentFile = mo.None[*torrent.File]()                        // Reset the current file
+				c.currentTorrentStatus = TorrentStatus{}                        // Reset the torrent status
 				c.repository.serverManager.stopServer()                         // Stop streaming server
 				c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
 				c.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
@@ -138,27 +139,36 @@ func (c *Client) initializeClient() error {
 
 			case status := <-c.mediaPlayerPlaybackStatusCh:
 				// DEVNOTE: When this is received, "default" case is executed right after
-				if status != nil && c.currentTorrent.IsPresent() && c.repository.playback.currentVideoDuration == 0 {
+				if status != nil && c.currentFile.IsPresent() && c.repository.playback.currentVideoDuration == 0 {
+					// If the stored video duration is 0 but the media player status shows a duration that is not 0
+					// we know that the video has been loaded and is playing
 					if c.repository.playback.currentVideoDuration == 0 && status.Duration > 0 {
 						// The media player has started playing the video
 						c.repository.logger.Debug().Msg("torrentstream: Media player started playing the video, sending event")
 						c.repository.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
+						// Update the stored video duration
 						c.repository.playback.currentVideoDuration = status.Duration
 					}
 				}
 			default:
-				if c.torrentClient.IsPresent() && c.currentTorrent.IsPresent() {
+				if c.torrentClient.IsPresent() && c.currentTorrent.IsPresent() && c.currentFile.IsPresent() {
 					c.mu.Lock()
 					t := c.currentTorrent.MustGet()
+					f := c.currentFile.MustGet()
+
+					// downloadProgress is the number of bytes downloaded
 					downloadProgress := t.BytesCompleted()
+					// Difference between the current download progress and the last download progress
 					progressDiff := downloadProgress - c.currentTorrentStatus.DownloadProgress
+					// Get the download speed based on the difference
 					downloadSpeed := ""
 					if progressDiff > 0 {
 						downloadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(progressDiff)))
 					}
-					size := humanize.Bytes(uint64(t.Info().TotalLength()))
+					size := humanize.Bytes(uint64(f.Length()))
 
 					bytesWrittenData := t.Stats().BytesWrittenData
+					// uploadProgress is the number of bytes uploaded
 					uploadProgress := (&bytesWrittenData).Int64() - c.currentTorrentStatus.UploadProgress
 					uploadSpeed := ""
 					if uploadProgress > 0 {
@@ -180,7 +190,7 @@ func (c *Client) initializeClient() error {
 						DownloadSpeed:      downloadSpeed,
 						UploadSpeed:        uploadSpeed,
 						DownloadProgress:   downloadProgress,
-						ProgressPercentage: c.getTorrentPercentage(c.currentTorrent),
+						ProgressPercentage: c.getTorrentPercentage(c.currentTorrent, c.currentFile),
 						Seeders:            t.Stats().ConnectedSeeders,
 					}
 					c.repository.wsEventManager.SendEvent(eventTorrentStatus, c.currentTorrentStatus)
@@ -391,22 +401,20 @@ func (c *Client) dropTorrents() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// getTorrentPercentage returns the percentage of the current torrent
+// getTorrentPercentage returns the percentage of the current torrent file
 // If no torrent is selected, it returns -1
-func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent]) float64 {
-	if t.IsAbsent() {
+func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent], f mo.Option[*torrent.File]) float64 {
+	if t.IsAbsent() || f.IsAbsent() {
 		return -1
 	}
 
-	info := t.MustGet().Info()
-
-	if info == nil {
+	if f.MustGet().Length() == 0 {
 		return 0
 	}
 
-	return float64(t.MustGet().BytesCompleted()) / float64(info.TotalLength()) * 100
+	return float64(t.MustGet().BytesCompleted()) / float64(f.MustGet().Length()) * 100
 }
 
 func (c *Client) readyToStream() bool {
-	return c.getTorrentPercentage(c.currentTorrent) > 5.
+	return c.getTorrentPercentage(c.currentTorrent, c.currentFile) > 5.
 }
