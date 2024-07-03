@@ -166,6 +166,7 @@ func (m *BasicMedia) GetTitleSafe() string {
 	}
 	return "N/A"
 }
+
 func (m *BasicMedia) GetRomajiTitleSafe() string {
 	if m.GetTitle().GetRomaji() != nil {
 		return *m.GetTitle().GetRomaji()
@@ -175,6 +176,7 @@ func (m *BasicMedia) GetRomajiTitleSafe() string {
 	}
 	return "N/A"
 }
+
 func (m *BasicMedia) GetPreferredTitle() string {
 	if m.Title.UserPreferred != nil {
 		return *m.GetTitle().GetUserPreferred()
