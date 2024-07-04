@@ -174,12 +174,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     {type === "anime" && <div className="py-1">
                         <Link
                             href={`/entry?id=${media.id}${(!!listData?.progress && (listData?.status !== "COMPLETED")) ? "&playNext=true" : ""}`}
+                            tabIndex={-1}
                         >
                             <Button
                                 leftIcon={<BiPlay className="text-2xl" />}
                                 intent="white"
                                 size="md"
                                 className="w-full text-md"
+                                tabIndex={-1}
                             >
                                 {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
                                     ? "Continue watching"
@@ -196,6 +198,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             intent="white"
                             size="md"
                             className="w-full text-md mt-2"
+                            tabIndex={-1}
                         >
                             Read
                         </Button>

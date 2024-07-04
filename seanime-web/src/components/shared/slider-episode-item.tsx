@@ -23,9 +23,11 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
             className={cn(
                 "rounded-md border overflow-hidden aspect-[4/2] relative flex items-end flex-none group/missed-episode-item cursor-pointer",
                 "user-select-none",
+                "focus-visible:ring-2 ring-[--brand]",
                 "w-full",
             )}
             onClick={() => onPlay?.({ path: episode.localFile?.path ?? "" })}
+            tabIndex={0}
             {...rest}
         >
             <div className="absolute w-full h-full overflow-hidden z-[1]">

@@ -86,7 +86,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 {actionIcon && actionIcon}
             </div>
             <div className="relative z-[3] w-full p-4 space-y-1">
-                <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{topTitle}</p>
+                <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{topTitle?.replaceAll("`", "'")}</p>
                 <div className="w-full justify-between flex items-center">
                     <p className="text-base md:text-xl lg:text-2xl font-semibold line-clamp-2">
                         <span>{title}{showTotalEpisodes ?

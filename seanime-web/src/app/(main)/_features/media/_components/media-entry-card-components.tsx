@@ -91,7 +91,6 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
                 "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
                 "hidden lg:block", // Hide on small screens
             )}
-            tabIndex={0}
             {...rest}
         >
             <div className="p-2 h-full w-full flex flex-col justify-between">
@@ -278,7 +277,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         <>
             <Link
                 href={link}
-                className="w-full relative"
+                className="w-full relative focus-visible:ring-2 ring-[--brand]"
             >
                 <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden select-none">
 
@@ -361,7 +360,7 @@ export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProp
     return (
         <div className="pt-2 space-y-2 flex flex-col justify-between h-full select-none">
             <div>
-                <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3">{title}</p>
+                <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-2">{title}</p>
             </div>
             {(!!season || !!year) && <div>
                 <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
@@ -475,16 +474,5 @@ export const MediaEntryCardHoverPopupBanner = ({
         </div>
     )
 
-    return <Link href={link}>{Content}</Link>
-    // if (!trailerEnabled) {
-    //     return <Link href={link}>{Content}</Link>
-    // } else {
-    //     return (
-    //         <TrailerModal
-    //             trailerId={trailerId}
-    //             trigger={Content}
-    //         />
-    //     )
-    // }
-
+    return <Link tabIndex={-1} href={link}>{Content}</Link>
 }
