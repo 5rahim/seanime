@@ -31,7 +31,7 @@ func (a *App) initLibraryWatcher(path string) {
 	dirSize, _ := util.DirSize(path)
 	a.TotalLibrarySize = dirSize
 
-	a.Logger.Info().Msgf("app: Library size: %s", humanize.Bytes(dirSize))
+	a.Logger.Info().Msgf("watcher: Library size: %s", humanize.Bytes(dirSize))
 
 	// Set the watcher
 	a.Watcher = watcher

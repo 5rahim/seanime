@@ -118,7 +118,7 @@ export function MediaEntryCardHoverPopupBody(props: MediaEntryCardHoverPopupBody
     return (
         <div
             className={cn(
-                "space-y-1",
+                "space-y-1 select-none",
                 className,
             )}
             {...rest}
@@ -178,7 +178,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
 
     return (
         <>
-            <div>
+            <div className="select-none">
                 <Link
                     href={link}
                     className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
@@ -280,7 +280,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                 href={link}
                 className="w-full relative"
             >
-                <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden">
+                <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden select-none">
 
                     {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                     <AnimeListItemBottomGradient />
@@ -359,18 +359,16 @@ export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProp
     } = props
 
     return (
-        <>
-            <div className="pt-2 space-y-2 flex flex-col justify-between h-full">
-                <div>
-                    <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3">{title}</p>
-                </div>
-                {(!!season || !!year) && <div>
-                    <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
-                        <BiCalendarAlt />{capitalize(season ?? "")} {year}
-                    </p>
-                </div>}
+        <div className="pt-2 space-y-2 flex flex-col justify-between h-full select-none">
+            <div>
+                <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-3">{title}</p>
             </div>
-        </>
+            {(!!season || !!year) && <div>
+                <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
+                    <BiCalendarAlt />{capitalize(season ?? "")} {year}
+                </p>
+            </div>}
+        </div>
     )
 }
 

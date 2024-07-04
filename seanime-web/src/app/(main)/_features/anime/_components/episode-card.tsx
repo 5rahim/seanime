@@ -52,7 +52,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
             ref={mRef}
             className={cn(
                 "rounded-md border overflow-hidden aspect-[4/2] relative flex items-end flex-none group/episode-card cursor-pointer",
-                "user-select-none",
+                "select-none",
                 type === "carousel" && "w-full",
                 type === "grid" && "w-72 lg:w-[26rem]",
                 className,
