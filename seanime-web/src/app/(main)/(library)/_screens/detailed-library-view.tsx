@@ -138,7 +138,7 @@ const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCol
 
     return (
         <React.Fragment key={list.type}>
-            <h2>{getLibraryCollectionTitle(list.type)}</h2>
+            <h2>{getLibraryCollectionTitle(list.type)} <span className="text-[--muted] font-medium ml-3">{list?.entries?.length ?? 0}</span></h2>
             <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
