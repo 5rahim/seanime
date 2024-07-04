@@ -29,6 +29,10 @@ func (r *Repository) ServeFiberDirectPlay(ctx *fiber.Ctx, clientId string) error
 		return errors.New("no file has been loaded")
 	}
 
+	if mediaContainer.MediaInfo.Extension == "mp4" || mediaContainer.MediaInfo.Extension == "avi" {
+		return ctx.SendFile(mediaContainer.Filepath)
+	}
+
 	return r.streamVideo(ctx, mediaContainer.Filepath, clientId)
 }
 

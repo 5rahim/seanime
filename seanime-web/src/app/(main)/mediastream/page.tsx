@@ -37,7 +37,7 @@ import { CaptionsFileFormat } from "media-captions"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useMemo } from "react"
+import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import "@vidstack/react/player/styles/base.css"
 import { BiInfoCircle } from "react-icons/bi"
@@ -52,15 +52,15 @@ export default function Page() {
     const playerRef = React.useRef<MediaPlayerInstance>(null)
     const { filePath } = useMediastreamCurrentFile()
 
-    const mainEpisodes = useMemo(() => {
+    const mainEpisodes = React.useMemo(() => {
         return mediaEntry?.episodes?.filter(ep => ep.type === "main") ?? []
     }, [mediaEntry?.episodes])
 
-    const specialEpisodes = useMemo(() => {
+    const specialEpisodes = React.useMemo(() => {
         return mediaEntry?.episodes?.filter(ep => ep.type === "special") ?? []
     }, [mediaEntry?.episodes])
 
-    const ncEpisodes = useMemo(() => {
+    const ncEpisodes = React.useMemo(() => {
         return mediaEntry?.episodes?.filter(ep => ep.type === "nc") ?? []
     }, [mediaEntry?.episodes])
 
@@ -72,7 +72,6 @@ export default function Page() {
         url,
         isError,
         isMediaContainerLoading,
-        streamType,
         mediaContainer,
         subtitles,
         subtitleEndpointUri,
@@ -307,7 +306,8 @@ export default function Page() {
                                     crossOrigin
                                     src={mediaContainer?.streamType === "direct" ? {
                                         src: url,
-                                        type: "video/webm",
+                                        type: mediaContainer?.mediaInfo?.extension === "mp4" ? "video/mp4" :
+                                            mediaContainer?.mediaInfo?.extension === "avi" ? "video/x-msvideo" : "video/webm",
                                     } : url}
                                     aspectRatio="16/9"
                                     poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image || mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
