@@ -3,9 +3,9 @@ package scanner
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,13 +13,9 @@ import (
 )
 
 func TestMediaTreeAnalysis(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-	allMedia := animeCollection.GetAllMedia()
 
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewBaseMediaRelationTree()
@@ -36,24 +32,30 @@ func TestMediaTreeAnalysis(t *testing.T) {
 			absoluteEpisodeNumber:         23,
 			expectedRelativeEpisodeNumber: 12,
 		},
+		// DEVNOTE: This fails because Anizip doesn't include the absolute episode number
+		{
+			name:                          "Oshi no Ko Season 2",
+			mediaId:                       150672, // 86 - Eighty Six Part 2
+			absoluteEpisodeNumber:         12,
+			expectedRelativeEpisodeNumber: 1,
+		},
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, found := lo.Find(allMedia, func(m *anilist.BaseMedia) bool {
-				return m.ID == tt.mediaId
-			})
-			if !found || media == nil {
+			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			if err != nil {
 				t.Fatal("expected media, got not found")
 			}
+			media := mediaF.GetMedia()
 
 			// +---------------------+
 			// |     MediaTree       |
 			// +---------------------+
 
-			err := media.FetchMediaTree(
+			err = media.FetchMediaTree(
 				anilist.FetchMediaTreeAll,
 				anilistClientWrapper,
 				anilistRateLimiter,
