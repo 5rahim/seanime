@@ -3,6 +3,7 @@ package filesystem
 import (
 	"errors"
 	"fmt"
+	"github.com/seanime-app/seanime/internal/util"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -42,7 +43,7 @@ func GetMediaFilePathsFromDir(dirPath string) ([]string, error) {
 
 		ext := strings.ToLower(filepath.Ext(path))
 
-		if !d.IsDir() && (ext == ".mkv" || ext == ".mp4") {
+		if !d.IsDir() && util.IsValidVideoExtension(ext) {
 			filePaths = append(filePaths, path)
 		}
 		return nil
@@ -111,7 +112,7 @@ func GetMediaFilePathsFromDirS(oDirPath string) ([]string, error) {
 			}
 
 			ext := strings.ToLower(filepath.Ext(path))
-			if ext == ".mkv" || ext == ".mp4" {
+			if util.IsValidVideoExtension(ext) {
 				filePaths = append(filePaths, path)
 			}
 			return nil

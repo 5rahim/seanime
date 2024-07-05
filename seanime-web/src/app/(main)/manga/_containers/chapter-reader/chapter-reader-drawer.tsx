@@ -27,7 +27,6 @@ import {
 } from "@/app/(main)/manga/_lib/manga-chapter-reader.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button, IconButton } from "@/components/ui/button"
-import { Card, CardFooter, CardHeader } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -248,28 +247,21 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
             <div
                 className={cn(
-                    "fixed top-2 left-2 z-[6] opacity-0 transition-opacity hidden duration-500",
-                    (shouldUpdateProgress && isLastPage && !pageContainerLoading && !pageContainerError) && "block opacity-100",
+                    "fixed top-0 left-0 justify-center w-full z-[6] opacity-0 transition-opacity hidden duration-500",
+                    (shouldUpdateProgress && isLastPage && !pageContainerLoading && !pageContainerError) && "flex opacity-100",
                 )}
                 tabIndex={-1}
             >
-                <Card className="max-w-[800px]">
-                    <CardHeader>
-                        Update progress to {chapterIdToNumbersMap.get(currentChapter?.chapterId || "")} / {entry?.media?.chapters || "-"}
-                    </CardHeader>
-                    <CardFooter>
-                        <Button
-                            onClick={handleUpdateProgress}
-                            className="w-full"
-                            size="sm"
-                            intent="success"
-                            loading={isUpdatingProgress}
-                            disabled={isUpdatingProgress}
-                        >
-                            Confirm
-                        </Button>
-                    </CardFooter>
-                </Card>
+                <Button
+                    onClick={handleUpdateProgress}
+                    className="rounded-tl-none rounded-tr-none"
+                    size="md"
+                    intent="success"
+                    loading={isUpdatingProgress}
+                    disabled={isUpdatingProgress}
+                >
+                    Update progress ({chapterIdToNumbersMap.get(currentChapter?.chapterId || "")} / {entry?.media?.chapters || "-"})
+                </Button>
             </div>
 
             {/*Exit fullscreen button*/}

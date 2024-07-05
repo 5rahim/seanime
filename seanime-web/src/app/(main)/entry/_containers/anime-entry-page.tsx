@@ -29,7 +29,7 @@ export function AnimeEntryPage() {
     React.useEffect(() => {
         if (!mediaId) {
             router.push("/")
-        } else if ((!mediaEntryLoading && !mediaEntry)) {
+        } else if (!mediaEntryLoading && !mediaEntry) {
             router.push("/")
         }
     }, [mediaEntry, mediaEntryLoading])
