@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	tempReleaseDir = "seanime_tmp"
+	tempReleaseDir = "seanime_new_release"
 	backupDirName  = "backup_restore_if_failed"
 )
 
@@ -78,50 +78,19 @@ func (su *SelfUpdater) StartSelfUpdate(fallbackDestination string) {
 	close(su.breakLoopCh)
 }
 
-// recover will attempt to recover the application from a failed update AFTER renaming the executable
+// recover will just print a message and attempt to download the latest release
 func (su *SelfUpdater) recover(assetUrl string) {
 
 	if su.originalExePath.IsAbsent() {
 		return
 	}
 
-	exeDir := filepath.Dir(su.originalExePath.MustGet())
-
-	// Remove all files that do not have the .old extension
-	entries, err := os.ReadDir(exeDir)
-	if err != nil {
-		su.logger.Error().Err(err).Msg("selfupdate: Failed to recover, please manually update application")
-		return
-	}
-
-	for _, entry := range entries {
-		//if entry.Name() == tempReleaseDir {
-		//	_ = os.RemoveAll(filepath.Join(exeDir, entry.Name()))
-		//	continue
-		//}
-
-		if entry.Name() == backupDirName {
-			continue
-		}
-
-		if !strings.HasSuffix(entry.Name(), ".old") {
-			_ = os.RemoveAll(filepath.Join(exeDir, entry.Name()))
-			continue
-		}
-
-		// Trim the .old extension
-		if strings.HasSuffix(entry.Name(), ".old") {
-			newName := strings.TrimSuffix(entry.Name(), ".old")
-			_ = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, newName))
-		}
-	}
-
 	if su.fallbackDest != "" {
 		su.logger.Info().Str("dest", su.fallbackDest).Msg("selfupdate: Attempting to download the latest release")
-		_, err = su.updater.DownloadLatestRelease(assetUrl, su.fallbackDest)
+		_, _ = su.updater.DownloadLatestRelease(assetUrl, su.fallbackDest)
 	}
 
-	su.logger.Info().Msg("selfupdate: Recovered")
+	su.logger.Error().Msg("selfupdate: Failed to update, please restore the backup")
 }
 
 func getExePath() string {
@@ -145,8 +114,22 @@ func (su *SelfUpdater) Run() error {
 
 	exeDir := filepath.Dir(exePath) // /path/to
 
-	// Get the new assets
+	var files []string
 
+	switch runtime.GOOS {
+	case "windows":
+		files = []string{
+			"seanime.exe",
+			"LICENSE",
+		}
+	default:
+		files = []string{
+			"seanime",
+			"LICENSE",
+		}
+	}
+
+	// Get the new assets
 	su.logger.Info().Msg("selfupdate: Fetching latest release info")
 
 	// Get the latest release
@@ -168,96 +151,51 @@ func (su *SelfUpdater) Run() error {
 
 	su.logger.Info().Msg("selfupdate: Downloading latest release")
 
-	// Download the asset
-	// The asset will be downloaded to exeDir/seanime_tmp
+	// Download the asset to exeDir/seanime_tmp
 	newReleaseDir, err := su.updater.DownloadLatestReleaseN(asset.BrowserDownloadUrl, exeDir, tempReleaseDir)
 	if err != nil {
 		su.logger.Error().Err(err).Msg("selfupdate: Failed to download latest release")
 		return err
 	}
 
-	// Rename the executable
-	//newExePath := filepath.Join(exeDir, su.tmpExecutableName) // /path/to/seanime.exe.old
-	//err = os.Rename(exePath, newExePath)
-	//if err != nil {
-	//	return err
-	//}
-
 	// DEVNOTE: Past this point, the application will be broken
 	// Use "recover" to attempt to recover the application
 
-	// Get the contents of the directory
-	// - web -> to rename
-	// - LICENSE -> to rename
-	// - seanime.exe -> to rename
-
 	su.logger.Info().Msg("selfupdate: Creating backup")
-
-	entries, err := os.ReadDir(exeDir)
-	if err != nil {
-		su.recover(asset.BrowserDownloadUrl)
-		su.logger.Error().Err(err).Msg("selfupdate: Failed to read directory")
-		return err
-	}
 
 	// Delete the backup directory if it exists
 	_ = os.RemoveAll(filepath.Join(exeDir, backupDirName))
 	// Create the backup directory
 	backupDir := filepath.Join(exeDir, backupDirName)
 	_ = os.MkdirAll(backupDir, 0755)
+
 	// Backup the current assets
-	for _, entry := range entries {
-		if entry.Name() == tempReleaseDir || entry.Name() == backupDirName {
-			continue
-		}
-		if !entry.IsDir() {
-			_ = copyFile(filepath.Join(exeDir, entry.Name()), filepath.Join(backupDir, entry.Name()))
-		}
-		if entry.IsDir() {
-			_ = copyDir(filepath.Join(exeDir, entry.Name()), filepath.Join(backupDir, entry.Name()))
-		}
+	// Copy the files to the backup directory
+	// seanime.exe + /backup_restore_if_failed/seanime.exe
+	// LICENSE + /backup_restore_if_failed/LICENSE
+	for _, file := range files {
+		_ = copyFile(filepath.Join(exeDir, file), filepath.Join(backupDir, file))
 	}
 
 	su.logger.Info().Msg("selfupdate: Renaming assets")
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	renamingFailed := false
 	failedEntryNames := make([]string, 0)
 
-	for _, entry := range entries {
-		su.logger.Info().Str("entry", entry.Name()).Msg("selfupdate: Found entry")
-
-		// Do not rename the new release directory
-		if entry.Name() == tempReleaseDir || entry.Name() == backupDirName {
-			continue
-		}
-
-		// Rename the contents
-		// - LICENSE -> LICENSE.old
-		// This will fail on Windows due to some files inside the directory being in use, this can happen for many reasons
-		err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
-		if err != nil {
+	// Rename the current assets
+	// seanime.exe -> seanime.exe.old
+	// LICENSE -> LICENSE.old
+	for _, file := range files {
+		err = os.Rename(filepath.Join(exeDir, file), filepath.Join(exeDir, file+".old"))
+		// If the renaming failed, attempt to recover ONLY if the file is the binary
+		if err != nil && (file == "seanime" || file == "seanime.exe") {
 			renamingFailed = true
-			failedEntryNames = append(failedEntryNames, entry.Name())
+			failedEntryNames = append(failedEntryNames, file)
 			//su.recover()
 			su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
 			//return err
 		}
-
-		// TESTONLY: Simulate a failed rename
-		//var err error
-		//if entry.Name() == "web" {
-		//	err = fmt.Errorf("Access is denied")
-		//} else {
-		//	err = os.Rename(filepath.Join(exeDir, entry.Name()), filepath.Join(exeDir, entry.Name()+".old"))
-		//}
-		//if err != nil {
-		//	renamingFailed = true
-		//	failedEntryNames = append(failedEntryNames, entry.Name())
-		//	su.logger.Error().Err(err).Msg("selfupdate: Failed to rename entry")
-		//	su.recover(asset.BrowserDownloadUrl)
-		//	return err
-		//}
 	}
 
 	if renamingFailed {
@@ -307,18 +245,12 @@ func (su *SelfUpdater) Run() error {
 	}
 
 	// Remove .old files (will fail on Windows for executable)
-	entries, err = os.ReadDir(exeDir)
-	if err != nil {
-		su.logger.Warn().Err(err).Msg("selfupdate: Failed to read directory")
-		os.Exit(0)
-		return nil
-	}
-	for _, entry := range entries {
-		if strings.HasSuffix(entry.Name(), ".old") {
-			_ = os.RemoveAll(filepath.Join(exeDir, entry.Name()))
-		}
+	// Remove seanime.exe.old and LICENSE.old
+	for _, file := range files {
+		_ = os.RemoveAll(filepath.Join(exeDir, file+".old"))
 	}
 
+	// Remove the backup directory
 	_ = os.RemoveAll(backupDir)
 
 	os.Exit(0)

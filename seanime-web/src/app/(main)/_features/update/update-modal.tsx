@@ -3,7 +3,6 @@ import { Updater_Release } from "@/api/generated/types"
 import { useDownloadRelease } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate, useInstallLatestUpdate } from "@/api/hooks/releases.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -137,7 +136,7 @@ export function UpdateModal(props: UpdateModalProps) {
                                 Update now
                             </Button>}
                             contentClass="max-w-xl"
-                            title={<span>Update Seanime <BetaBadge /></span>}
+                            title={<span>Update Seanime</span>}
                         >
                             <div className="space-y-4">
                                 <p>
