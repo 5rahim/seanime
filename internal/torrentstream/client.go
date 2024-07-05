@@ -418,7 +418,7 @@ func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent], f mo.Option
 		return 0
 	}
 
-	return float64(t.MustGet().BytesCompleted()) / float64(f.MustGet().Length()) * 100
+	return float64(f.MustGet().BytesCompleted()) / float64(f.MustGet().Length()) * 100
 }
 
 func (c *Client) readyToStream() bool {
