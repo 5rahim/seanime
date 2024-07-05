@@ -134,7 +134,7 @@ export default function Page() {
 
     /** Scroll to selected episode element when the episode list changes (on mount) **/
     const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         if (episodeListContainerRef.current) {
             React.startTransition(() => {
                 const element = document.getElementById(`episode-${episodeNumber}`)
@@ -299,6 +299,7 @@ export default function Page() {
                             {isError ?
                                 <LuffyError title="Playback Error" /> :
                                 (!!url && !isMediaContainerLoading) ? <MediaPlayer
+                                    key={mediaContainer?.filePath || ""}
                                     streamType="on-demand" // force VOD
                                     playsInline
                                     ref={playerRef}
@@ -310,7 +311,8 @@ export default function Page() {
                                             mediaContainer?.mediaInfo?.extension === "avi" ? "video/x-msvideo" : "video/webm",
                                     } : url}
                                     aspectRatio="16/9"
-                                    poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image || mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
+                                    // poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image ||
+                                    // mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
                                     onTimeUpdate={e => {

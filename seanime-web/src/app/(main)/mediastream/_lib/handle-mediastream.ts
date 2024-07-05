@@ -315,18 +315,18 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * @param newUrl
      */
     function changeUrl(newUrl: string | undefined) {
-        logger("MEDIASTREAM").info("Changing URL", "newURL:", newUrl)
+        logger("MEDIASTREAM").info("[changeUrl] called,", "request url:", newUrl)
         if (prevUrlRef.current !== newUrl) {
             logger("MEDIASTREAM").info("Resetting playback error status")
             setPlaybackErrored(false)
         }
         setUrl(prevUrl => {
             if (prevUrl === newUrl) {
-                logger("MEDIASTREAM").info("URL has not changed")
+                logger("MEDIASTREAM").info("[changeUrl] URL has not changed")
                 return prevUrl
             }
             prevUrlRef.current = prevUrl
-            logger("MEDIASTREAM").info("URL changed")
+            logger("MEDIASTREAM").info("[changeUrl] URL updated")
             return newUrl
         })
         if (newUrl) {
@@ -335,24 +335,18 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     }
 
     //////////////////////////////////////////////////////////////
-    // Video player
+    // Media player
     //////////////////////////////////////////////////////////////
 
-    function onProviderChange(
-        provider: MediaProviderAdapter | null,
-        nativeEvent: MediaProviderChangeEvent,
-    ) {
-        logger("MEDIASTREAM").info("Provider changed", provider, nativeEvent)
-        if (isHLSProvider(provider)) {
+    function onProviderChange(provider: MediaProviderAdapter | null, nativeEvent: MediaProviderChangeEvent) {
+        if (isHLSProvider(provider) && mediaContainer?.streamType === "transcode") {
+            logger("MEDIASTREAM").info("[onProviderChange] Provider changed to HLS")
             provider.library = HLS
-            if (mediaContainer?.streamType === "transcode") {
-                provider.config = {
-                    // xhrSetup: async (xhr) => {
-                    //     xhr.setRequestHeader("X-Seanime-Mediastream-Client-Id", cId)
-                    // },
-                    ...mediastream_getHlsConfig(),
-                }
+            provider.config = {
+                ...mediastream_getHlsConfig(),
             }
+        } else {
+            logger("MEDIASTREAM").info("[onProviderChange] Provider changed to native")
         }
     }
 
@@ -360,24 +354,10 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (isHLSProvider(provider)) {
             if (url) {
 
-                if (definedUrlRef.current === url && playbackErrored) {
-                    if (previousCurrentTimeRef.current > 0) {
-                        Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
-                        setTimeout(() => {
-                            if (previousIsPlayingRef.current) {
-                                playerRef.current?.play()
-                            }
-                        }, 500)
-                        previousCurrentTimeRef.current = 0
-                        setPlaybackErrored(false)
-                    }
-                }
-
                 if (HLS.isSupported() && url.endsWith(".m3u8")) {
 
-                    logger("MEDIASTREAM").info("HLS Provider setup")
-
-                    logger("MEDIASTREAM").info("Loading source", url)
+                    logger("MEDIASTREAM").info("[onProviderSetup] HLS Provider setup")
+                    logger("MEDIASTREAM").info("[onProviderSetup] Loading source", url)
 
                     provider.instance?.on(HLS.Events.MANIFEST_PARSED, function (event, data) {
                         logger("MEDIASTREAM").info("onManifestParsed", data)
@@ -437,27 +417,27 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                     provider.video.src = url
                 }
             } else {
-                logger("MEDIASTREAM").error("Provider setup - no URL")
+                logger("MEDIASTREAM").error("[onProviderSetup] Provider setup - no URL")
             }
         } else {
-            logger("MEDIASTREAM").info("Provider setup - not HLS")
+            logger("MEDIASTREAM").info("[onProviderSetup] Provider setup - not HLS")
         }
     }
 
     const preloadedNextFileForRef = React.useRef<string | undefined>(undefined) // unused
 
-    const onCanPlay = React.useCallback((e: MediaCanPlayDetail) => {
-        logger("MEDIASTREAM").info("Can play event received", e)
+    const onCanPlay = (e: MediaCanPlayDetail) => {
+        logger("MEDIASTREAM").info("[onCanPlay] called", e)
         preloadedNextFileForRef.current = undefined
         setDuration(e.duration)
 
         if (autoPlay) {
             playerRef.current?.play()
         }
-    }, [autoPlay])
+    }
 
-    const onEnded = React.useCallback((e: MediaEndedEvent) => {
-        logger("MEDIASTREAM").info("Media ended event received", e)
+    const onEnded = (e: MediaEndedEvent) => {
+        logger("MEDIASTREAM").info("[onEnded] called", e)
         if (autoNext) {
             const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
             if (currentEpisodeIndex !== -1) {
@@ -467,13 +447,14 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 }
             }
         }
-    }, [autoNext, episodes, filePath])
+    }
 
-    const onPlayFile = React.useCallback((filepath: string) => {
+    const onPlayFile = (filepath: string) => {
         logger("MEDIASTREAM").info("Playing file", filepath)
+        playerRef.current?.destroy()
         previousCurrentTimeRef.current = 0
         setFilePath(filepath)
-    }, [])
+    }
 
     //////////////////////////////////////////////////////////////
     // Progress
@@ -552,13 +533,12 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         onPlayFile,
         filePath,
         disabledAutoSwitchToDirectPlay: mediastreamSettings?.disableAutoSwitchToDirectPlay,
-
         setStreamType: (type: Mediastream_StreamType) => {
+            logger("MEDIASTREAM").info("[setStreamType] Setting stream type", type)
             setStreamType(type)
             playerRef.current?.destroy()
             changeUrl(undefined)
         },
-
         onTimeUpdate,
         onCanPlay,
         onEnded,
