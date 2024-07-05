@@ -242,7 +242,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * Add subtitle renderer
      */
     React.useEffect(() => {
-        if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts) {
+        if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts?.length) {
             const legacyWasmUrl = process.env.NODE_ENV === "development"
                 ? "/jassub/jassub-worker.wasm.js" : getAssetUrl("/jassub/jassub-worker.wasm.js")
 
@@ -555,6 +555,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
         setStreamType: (type: Mediastream_StreamType) => {
             setStreamType(type)
+            playerRef.current?.destroy()
             changeUrl(undefined)
         },
 

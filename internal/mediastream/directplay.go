@@ -16,6 +16,7 @@ import (
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) ServeFiberDirectPlay(ctx *fiber.Ctx, clientId string) error {
+	ctx.Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	if !r.IsInitialized() {
 		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
