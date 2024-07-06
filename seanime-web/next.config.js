@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: "export",
-    distDir: "../web",
+    distDir: "out",
     reactStrictMode: false,
     images: {
         unoptimized: true,

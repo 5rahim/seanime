@@ -8,6 +8,8 @@ seanime-web/.env.mobile
 testdata/
 
 Dockerfile
+Dockerfile.dev
+dev.dockerfile
 .dockerignore
 
 _docker-compose.yml

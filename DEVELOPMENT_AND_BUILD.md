@@ -12,22 +12,21 @@ I recommend creating a dummy AniList account for testing purposes.
 ## Server
 
 1. Choose a data directory for testing. This is where the server will store all its data.
-
-2. Run this command to start the server:
+2. Create a dummy `web` folder if you want to develop the web interface too or build the web interface first and move the contents to the `web` directory at the root of the project.
+Either way, a `web` directory should be present at the root of the project.
+3. Run this command to start the server:
 	```bash
 	go run main.go --datadir="path/to/datadir"
 	```
 	I recommend passing the `--datadir` flag to specify a test data directory. This will prevent the server from writing to your actual data directory.
 
-3. Change the port in the `config.toml` file to `43000` to avoid conflicts with the release version. And change the host to `0.0.0.0` to allow connections from other devices.
+4. Change the port in the `config.toml` file to `43000` to avoid conflicts with the release version. And change the host to `0.0.0.0` to allow connections from other devices.
 
-4. The server will start on `http://127.0.0.1:43000`.
+5. The server will start on `http://127.0.0.1:43000`.
 
 ## Web
 
-1. Comment the `distDir: "../web"` line in `next.config.js`
-
-2. Run the web interface:
+1. Run the web interface:
 
 	```bash
 	# get to web directory
@@ -47,16 +46,16 @@ leading to different ports.
 
 ## 1. Web
 
-1. Uncomment the `distDir: "../web"` line in `next.config.js`.
-
-2. Build the web interface using the following command:
+1. Build the web interface using the following command:
 
 	```bash
 	npm run build
 	```
 
-3. After the build process is complete, a new `web` directory will be created at the root of the project.
-This folder contains the static files that will be embedded into the binary.
+2. After the build process is complete, a new `out` directory will be created inside `seanime-web`.
+
+3. Move the contents of the `out` directory to a new `web` directory at the root of the project.
+
 
 ## 2. Server
 
@@ -69,6 +68,8 @@ This folder contains the static files that will be embedded into the binary.
 	# darwin, linux
 	go build -o seanime main.go
 	```
+ 
+Note that the web interface should be built first before building the server.
 
 # Overview
 

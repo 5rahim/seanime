@@ -26,17 +26,18 @@ jobs:
         with:
           node-version: '18'
 
-      # outputs in "../web"
+      # outputs in "seanime-web/out/"
       - name: Install dependencies and build Next.js app
         run: |
           cd seanime-web/
           npm install
           npm run build
+      # Archive the output to be used in the next job
       - name: Archive web folder
         uses: actions/upload-artifact@v2
         with:
           name: web
-          path: web # output dir of the build
+          path: seanime-web/out # output dir of the build
 
   create-release-draft:
     runs-on: ubuntu-latest
