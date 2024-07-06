@@ -3,9 +3,9 @@ package transmission
 import (
 	"context"
 	"errors"
+	"github.com/seanime-app/seanime/internal/util"
 	"os/exec"
 	"runtime"
-	"strings"
 	"time"
 )
 
@@ -37,23 +37,19 @@ func (c *Transmission) getExecutablePath() string {
 	}
 }
 
-func (c *Transmission) isRunning(executable string) bool {
-	cmd := exec.Command("tasklist")
-	output, err := cmd.Output()
-	if err != nil {
-		return false
-	}
-
-	return strings.Contains(string(output), executable)
-}
-
 func (c *Transmission) Start() error {
-	name := c.getExecutableName()
-	exe := c.getExecutablePath()
-	if c.isRunning(name) {
+
+	// If the path is empty, do not check if Transmission is running
+	if c.Path == "" {
 		return nil
 	}
 
+	name := c.getExecutableName()
+	if util.ProgramIsRunning(name) {
+		return nil
+	}
+
+	exe := c.getExecutablePath()
 	cmd := exec.Command(exe)
 	err := cmd.Start()
 	if err != nil {
@@ -68,6 +64,11 @@ func (c *Transmission) Start() error {
 func (c *Transmission) CheckStart() bool {
 	if c == nil {
 		return false
+	}
+
+	// If the path is empty, assume it's running
+	if c.Path == "" {
+		return true
 	}
 
 	_, _, _, err := c.Client.RPCVersion(context.Background())

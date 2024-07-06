@@ -1,7 +1,30 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+	"os/exec"
+	"runtime"
+	"strings"
+)
 
 func GetMemAddrStr(v interface{}) string {
 	return fmt.Sprintf("%p", v)
+}
+
+func ProgramIsRunning(name string) bool {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("tasklist")
+	case "linux":
+		cmd = exec.Command("pgrep", name)
+	case "darwin":
+		cmd = exec.Command("pgrep", name)
+	default:
+		return false
+	}
+
+	output, _ := cmd.Output()
+
+	return strings.Contains(string(output), name)
 }

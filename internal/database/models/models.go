@@ -53,19 +53,6 @@ type AnilistSettings struct {
 	BlurAdultContent   bool `gorm:"column:blur_adult_content" json:"blurAdultContent"`
 }
 
-type MediaPlayerSettings struct {
-	Default     string `gorm:"column:default_player" json:"defaultPlayer"` // "vlc" or "mpc-hc"
-	Host        string `gorm:"column:player_host" json:"host"`
-	VlcUsername string `gorm:"column:vlc_username" json:"vlcUsername"`
-	VlcPassword string `gorm:"column:vlc_password" json:"vlcPassword"`
-	VlcPort     int    `gorm:"column:vlc_port" json:"vlcPort"`
-	VlcPath     string `gorm:"column:vlc_path" json:"vlcPath"`
-	MpcPort     int    `gorm:"column:mpc_port" json:"mpcPort"`
-	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
-	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
-	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
-}
-
 type LibrarySettings struct {
 	LibraryPath              string `gorm:"column:library_path" json:"libraryPath"`
 	AutoUpdateProgress       bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
@@ -80,6 +67,20 @@ type LibrarySettings struct {
 	OpenWebURLOnStart        bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
 	RefreshLibraryOnStart    bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
 }
+
+type MediaPlayerSettings struct {
+	Default     string `gorm:"column:default_player" json:"defaultPlayer"` // "vlc" or "mpc-hc"
+	Host        string `gorm:"column:player_host" json:"host"`
+	VlcUsername string `gorm:"column:vlc_username" json:"vlcUsername"`
+	VlcPassword string `gorm:"column:vlc_password" json:"vlcPassword"`
+	VlcPort     int    `gorm:"column:vlc_port" json:"vlcPort"`
+	VlcPath     string `gorm:"column:vlc_path" json:"vlcPath"`
+	MpcPort     int    `gorm:"column:mpc_port" json:"mpcPort"`
+	MpcPath     string `gorm:"column:mpc_path" json:"mpcPath"`
+	MpvSocket   string `gorm:"column:mpv_socket" json:"mpvSocket"`
+	MpvPath     string `gorm:"column:mpv_path" json:"mpvPath"`
+}
+
 type TorrentSettings struct {
 	Default              string `gorm:"column:default_torrent_client" json:"defaultTorrentClient"`
 	QBittorrentPath      string `gorm:"column:qbittorrent_path" json:"qbittorrentPath"`

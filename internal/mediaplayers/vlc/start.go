@@ -2,9 +2,9 @@ package vlc
 
 import (
 	"errors"
+	"github.com/seanime-app/seanime/internal/util"
 	"os/exec"
 	"runtime"
-	"strings"
 	"time"
 )
 
@@ -39,36 +39,21 @@ func (vlc *VLC) getExecutablePath() string {
 	}
 }
 
-func (vlc *VLC) isRunning(executable string) bool {
-	cmd := exec.Command("tasklist")
-	output, err := cmd.Output()
-	if err != nil {
-		return false
-	}
-
-	// TODO
-	//var cmd *exec.Cmd
-	//switch runtime.GOOS {
-	//case "windows":
-	//	cmd = exec.Command("tasklist")
-	//case "linux":
-	//	cmd = exec.Command("pgrep", executable)
-	//case "darwin":
-	//	cmd = exec.Command("pgrep", executable)
-	//default:
-	//	return false
-	//}
-
-	return strings.Contains(string(output), executable)
-}
-
 func (vlc *VLC) Start() error {
-	name := vlc.getExecutableName()
-	exe := vlc.getExecutablePath()
-	if vlc.isRunning(name) {
+
+	// If the path is empty, do not check if VLC is running
+	if vlc.Path == "" {
 		return nil
 	}
 
+	// Check if VLC is already running
+	name := vlc.getExecutableName()
+	if util.ProgramIsRunning(name) {
+		return nil
+	}
+
+	// Start VLC
+	exe := vlc.getExecutablePath()
 	cmd := exec.Command(exe)
 	err := cmd.Start()
 	if err != nil {

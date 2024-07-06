@@ -124,7 +124,11 @@ func (m *Repository) Play(path string) error {
 		}
 		err = m.VLC.AddAndPlay(path)
 		if err != nil {
-			return errors.New("could not open and play video, verify your settings")
+			if m.VLC.Path != "" {
+				return errors.New("could not open and play video, verify your settings")
+			} else {
+				return errors.New("could not open and play video, make sure VLC is running or specify the application path in your settings")
+			}
 		}
 		return nil
 	case "mpc-hc":

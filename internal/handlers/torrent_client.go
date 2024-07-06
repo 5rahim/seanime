@@ -112,7 +112,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	// try to start torrent client if it's not running
 	ok := c.App.TorrentClientRepository.Start()
 	if !ok {
-		return c.RespondWithError(errors.New("could not start torrent client, verify your settings"))
+		return c.RespondWithError(errors.New("could not contact torrent client, verify your settings or make sure it's running"))
 	}
 
 	// get magnets

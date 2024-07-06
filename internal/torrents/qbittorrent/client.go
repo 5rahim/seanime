@@ -19,45 +19,47 @@ import (
 )
 
 type Client struct {
-	baseURL  string
-	logger   *zerolog.Logger
-	client   *http.Client
-	Username string
-	Password string
-	Port     int
-	Host     string
-	Path     string
-
-	Application qbittorrent_application.Client
-	Log         qbittorrent_log.Client
-	RSS         qbittorrent_rss.Client
-	Search      qbittorrent_search.Client
-	Sync        qbittorrent_sync.Client
-	Torrent     qbittorrent_torrent.Client
-	Transfer    qbittorrent_transfer.Client
+	baseURL          string
+	logger           *zerolog.Logger
+	client           *http.Client
+	Username         string
+	Password         string
+	Port             int
+	Host             string
+	Path             string
+	DisableBinaryUse bool
+	Application      qbittorrent_application.Client
+	Log              qbittorrent_log.Client
+	RSS              qbittorrent_rss.Client
+	Search           qbittorrent_search.Client
+	Sync             qbittorrent_sync.Client
+	Torrent          qbittorrent_torrent.Client
+	Transfer         qbittorrent_transfer.Client
 }
 
 type NewClientOptions struct {
-	Logger   *zerolog.Logger
-	Username string
-	Password string
-	Port     int
-	Host     string
-	Path     string
+	Logger           *zerolog.Logger
+	Username         string
+	Password         string
+	Port             int
+	Host             string
+	Path             string
+	DisableBinaryUse bool
 }
 
 func NewClient(opts *NewClientOptions) *Client {
 	baseURL := fmt.Sprintf("http://%s:%d/api/v2", opts.Host, opts.Port)
 	client := &http.Client{}
 	return &Client{
-		baseURL:  baseURL,
-		logger:   opts.Logger,
-		client:   client,
-		Username: opts.Username,
-		Password: opts.Password,
-		Port:     opts.Port,
-		Path:     opts.Path,
-		Host:     opts.Host,
+		baseURL:          baseURL,
+		logger:           opts.Logger,
+		client:           client,
+		Username:         opts.Username,
+		Password:         opts.Password,
+		Port:             opts.Port,
+		Path:             opts.Path,
+		DisableBinaryUse: opts.DisableBinaryUse,
+		Host:             opts.Host,
 		Application: qbittorrent_application.Client{
 			BaseUrl: baseURL + "/app",
 			Client:  client,

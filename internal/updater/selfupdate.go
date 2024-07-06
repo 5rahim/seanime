@@ -90,7 +90,7 @@ func (su *SelfUpdater) recover(assetUrl string) {
 		_, _ = su.updater.DownloadLatestRelease(assetUrl, su.fallbackDest)
 	}
 
-	su.logger.Error().Msg("selfupdate: Failed to update, please restore the backup")
+	su.logger.Error().Msg("selfupdate: Failed to install update. Update downloaded to 'seanime_new_release'")
 }
 
 func getExePath() string {
@@ -174,6 +174,7 @@ func (su *SelfUpdater) Run() error {
 	// seanime.exe + /backup_restore_if_failed/seanime.exe
 	// LICENSE + /backup_restore_if_failed/LICENSE
 	for _, file := range files {
+		// We don't check for errors here because we don't want to stop the update process if LICENSE is not found for example
 		_ = copyFile(filepath.Join(exeDir, file), filepath.Join(backupDir, file))
 	}
 
@@ -188,7 +189,7 @@ func (su *SelfUpdater) Run() error {
 	// LICENSE -> LICENSE.old
 	for _, file := range files {
 		err = os.Rename(filepath.Join(exeDir, file), filepath.Join(exeDir, file+".old"))
-		// If the renaming failed, attempt to recover ONLY if the file is the binary
+		// We care about the error ONLY if the file is the executable
 		if err != nil && (file == "seanime" || file == "seanime.exe") {
 			renamingFailed = true
 			failedEntryNames = append(failedEntryNames, file)
@@ -200,9 +201,10 @@ func (su *SelfUpdater) Run() error {
 
 	if renamingFailed {
 		fmt.Println("---------------------------------")
-		fmt.Println("Please close your browser and the file explorer, a second attempt will be made in 30 seconds")
+		fmt.Println("A second attempt will be made in 30 seconds")
 		fmt.Println("---------------------------------")
 		time.Sleep(30 * time.Second)
+		// Here `failedEntryNames` should only contain NECESSARY files that failed to rename
 		for _, entry := range failedEntryNames {
 			err = os.Rename(filepath.Join(exeDir, entry), filepath.Join(exeDir, entry+".old"))
 			if err != nil {
