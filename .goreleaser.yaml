@@ -57,28 +57,3 @@ release:
     ---
     [Open an issue](https://github.com/5rahim/seanime/issues/new/choose)
     Compare: https://github.com/5rahim/seanime/compare/{{ .PreviousTag }}...{{ .Tag }}
-
-dockers:
-  - image_templates:
-      - "5rahim/seanime:{{ .Tag }}-amd64"
-    goarch: amd64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/amd64"
-    skip_push: false
-    use: buildx
-    dockerfile: goreleaser.dockerfile
-  - image_templates:
-      - "5rahim/seanime:{{ .Tag }}-arm64"
-    goarch: arm64
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64"
-    skip_push: false
-    use: buildx
-    dockerfile: goreleaser.dockerfile
-docker_manifests:
-  - name_template: '5rahim/seanime:latest'
-    image_templates:
-      - '5rahim/seanime:{{ .Tag }}-amd64'
-      - '5rahim/seanime:{{ .Tag }}-arm64'
