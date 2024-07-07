@@ -31,7 +31,7 @@ func New(options *NewTransmissionOptions) (*Transmission, error) {
 	}
 	_url, err := url.Parse(fmt.Sprintf("http://%s:%s@%s:%d/transmission/rpc",
 		options.Username,
-		options.Password,
+		url.QueryEscape(options.Password),
 		options.Host,
 		options.Port,
 	))
