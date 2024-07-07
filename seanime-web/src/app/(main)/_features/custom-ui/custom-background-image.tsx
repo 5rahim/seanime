@@ -16,6 +16,8 @@ export function CustomBackgroundImage(props: CustomBackgroundImageProps) {
 
     const ts = useThemeSettings()
 
+    console.log(`url(${getAssetUrl(ts.libraryScreenCustomBackgroundImage)})`)
+
     return (
         <>
             {!!ts.libraryScreenCustomBackgroundImage && (
