@@ -6,6 +6,8 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
+	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/sourcegraph/conc/pool"
 	"strings"
 )
@@ -156,6 +158,27 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 			return c.RespondWithError(err)
 		}
 	}
+
+	// Add the media to the collection (if it wasn't already)
+	go func() {
+		util.HandlePanicInModuleThen("handlers/HandleTorrentClientDownload", func() {})
+		if b.Media != nil {
+			// Check if the media is already in the collection
+			animeCollection, err := c.App.GetAnimeCollection(false)
+			if err != nil {
+				return
+			}
+			_, found := animeCollection.FindMedia(b.Media.ID)
+			if found {
+				return
+			}
+			// Add the media to the collection
+			err = c.App.AnilistClientWrapper.AddMediaToPlanning([]int{b.Media.ID}, limiter.NewAnilistLimiter(), c.App.Logger)
+			if err != nil {
+				c.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
+			}
+		}
+	}()
 
 	return c.RespondWithData(true)
 
