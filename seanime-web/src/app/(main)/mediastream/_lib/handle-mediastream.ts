@@ -451,7 +451,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     const onPlayFile = (filepath: string) => {
         logger("MEDIASTREAM").info("Playing file", filepath)
-        playerRef.current?.destroy()
+        playerRef.current?.destroy?.()
         previousCurrentTimeRef.current = 0
         setFilePath(filepath)
     }
@@ -536,7 +536,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         setStreamType: (type: Mediastream_StreamType) => {
             logger("MEDIASTREAM").info("[setStreamType] Setting stream type", type)
             setStreamType(type)
-            playerRef.current?.destroy()
+            playerRef.current?.destroy?.()
             changeUrl(undefined)
         },
         onTimeUpdate,
