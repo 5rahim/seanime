@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Scanner: Support more file extensions
 - ⚡️ Removed third-party app startup check if the application path is not set
 - 🦺 Auto update: Fixed update deleting unrelated files in the same directory
-- 🦺 Media streaming: Fixed direct play using wrong content type
-- 🦺 Torrent streaming: Fixed inaccurate file download percentage for batches
+- 🦺 Media streaming: Fixed direct play using wrong content type #94
+- 🦺 Torrent streaming: Fixed inaccurate file download percentage for batches #96
 
 ## v1.7.1
 
