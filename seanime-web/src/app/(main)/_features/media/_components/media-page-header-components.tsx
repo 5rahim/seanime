@@ -196,6 +196,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
 type MediaPageHeaderEntryDetailsProps = {
     children?: React.ReactNode
     coverImage?: string
+    color?: string
     title?: string
     englishTitle?: string
     romajiTitle?: string
@@ -224,6 +225,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
         progressTotal,
         status,
         description,
+        color,
 
         listData,
         media,
@@ -239,7 +241,9 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
             <div className="flex gap-8">
 
                 {!!coverImage && <div
-                    className="flex-none aspect-[6/8] max-w-[200px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden lg:block"
+                    className={cn(
+                        "flex-none aspect-[6/8] max-w-[200px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden lg:block",
+                    )}
                 >
                     <Image
                         src={coverImage}

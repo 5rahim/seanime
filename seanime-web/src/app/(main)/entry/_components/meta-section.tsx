@@ -48,6 +48,7 @@ export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaD
                 <MediaPageHeaderEntryDetails
                     coverImage={entry.media?.coverImage?.extraLarge || entry.media?.coverImage?.large}
                     title={entry.media?.title?.userPreferred}
+                    color={entry.media?.coverImage?.color}
                     englishTitle={entry.media?.title?.english}
                     romajiTitle={entry.media?.title?.romaji}
                     startDate={entry.media?.startDate}

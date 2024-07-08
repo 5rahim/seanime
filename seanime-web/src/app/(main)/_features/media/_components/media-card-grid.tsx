@@ -54,12 +54,6 @@ export function MediaCardLazyGrid({
         </LuffyError>
     }
 
-    // return (
-    //     <MediaCardGrid {...rest}>
-    //         {children}
-    //     </MediaCardGrid>
-    // )
-
     if (itemCount <= 48) {
         return (
             <MediaCardGrid {...rest}>

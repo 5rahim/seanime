@@ -35,6 +35,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                     romajiTitle={entry.media?.title?.romaji}
                     startDate={entry.media?.startDate}
                     season={entry.media?.season}
+                    color={entry.media?.coverImage?.color}
                     progressTotal={entry.media?.chapters}
                     status={entry.media?.status}
                     description={entry.media?.description}

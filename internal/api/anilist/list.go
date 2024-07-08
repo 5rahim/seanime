@@ -328,54 +328,54 @@ const ListMediaQuery = `query ListMedia(
       }
     }
     fragment baseMedia on Media {
-        id
-  idMal
-  siteUrl
-  status(version: 2)
-  season
-  type
-  format
-  bannerImage
-  episodes
-  synonyms
-  isAdult
-  countryOfOrigin
-  meanScore
-  description
-  genres
-  duration
-  trailer {
-    id
-    site
-    thumbnail
-  }
-  title {
-    userPreferred
-    romaji
-    english
-    native
-  }
-  coverImage {
-    extraLarge
-    large
-    medium
-    color
-  }
-  startDate {
-    year
-    month
-    day
-  }
-  endDate {
-    year
-    month
-    day
-  }
-  nextAiringEpisode {
-    airingAt
-    timeUntilAiring
-    episode
-  }
+		id
+		idMal
+		siteUrl
+		status(version: 2)
+		season
+		type
+		format
+		bannerImage
+		episodes
+		synonyms
+		isAdult
+		countryOfOrigin
+		meanScore
+		description
+		genres
+		duration
+		trailer {
+			id
+			site
+			thumbnail
+		}
+		title {
+			userPreferred
+			romaji
+			english
+			native
+		}
+		coverImage {
+			extraLarge
+			large
+			medium
+			color
+		}
+		startDate {
+			year
+			month
+			day
+		}
+		endDate {
+			year
+			month
+			day
+		}
+		nextAiringEpisode {
+			airingAt
+			timeUntilAiring
+			episode
+		}
     }`
 
 const ListMangaQuery = `query ListManga(
@@ -405,54 +405,54 @@ const ListMangaQuery = `query ListManga(
 	  }
     }
     fragment baseMedia on Media {
-  id
-  idMal
-  siteUrl
-  status(version: 2)
-  season
-  type
-  format
-  bannerImage
-  episodes
-  synonyms
-  isAdult
-  countryOfOrigin
-  meanScore
-  description
-  genres
-  duration
-  trailer {
-    id
-    site
-    thumbnail
-  }
-  title {
-    userPreferred
-    romaji
-    english
-    native
-  }
-  coverImage {
-    extraLarge
-    large
-    medium
-    color
-  }
-  startDate {
-    year
-    month
-    day
-  }
-  endDate {
-    year
-    month
-    day
-  }
-  nextAiringEpisode {
-    airingAt
-    timeUntilAiring
-    episode
-  }
+		id
+		idMal
+		siteUrl
+		status(version: 2)
+		season
+		type
+		format
+		bannerImage
+		episodes
+		synonyms
+		isAdult
+		countryOfOrigin
+		meanScore
+		description
+		genres
+		duration
+		trailer {
+			id
+			site
+			thumbnail
+		}
+		title {
+			userPreferred
+			romaji
+			english
+			native
+		}
+		coverImage {
+			extraLarge
+			large
+			medium
+			color
+		}
+		startDate {
+			year
+			month
+			day
+		}
+		endDate {
+			year
+			month
+			day
+		}
+		nextAiringEpisode {
+			airingAt
+			timeUntilAiring
+			episode
+		}
 }`
 
 const ListRecentAiringMediaQuery = `
@@ -478,53 +478,53 @@ const ListRecentAiringMediaQuery = `
         }
     }
     fragment baseMedia on Media {
-        id
-  idMal
-  siteUrl
-  status(version: 2)
-  season
-  type
-  format
-  bannerImage
-  episodes
-  synonyms
-  isAdult
-  countryOfOrigin
-  meanScore
-  description
-  genres
-  duration
-  trailer {
-    id
-    site
-    thumbnail
-  }
-  title {
-    userPreferred
-    romaji
-    english
-    native
-  }
-  coverImage {
-    extraLarge
-    large
-    medium
-    color
-  }
-  startDate {
-    year
-    month
-    day
-  }
-  endDate {
-    year
-    month
-    day
-  }
-  nextAiringEpisode {
-    airingAt
-    timeUntilAiring
-    episode
-  }
+		id
+		idMal
+		siteUrl
+		status(version: 2)
+		season
+		type
+		format
+		bannerImage
+		episodes
+		synonyms
+		isAdult
+		countryOfOrigin
+		meanScore
+		description
+		genres
+		duration
+		trailer {
+			id
+			site
+			thumbnail
+		}
+		title {
+			userPreferred
+			romaji
+			english
+			native
+		}
+		coverImage {
+			extraLarge
+			large
+			medium
+			color
+		}
+		startDate {
+			year
+			month
+			day
+		}
+		endDate {
+			year
+			month
+			day
+		}
+		nextAiringEpisode {
+			airingAt
+			timeUntilAiring
+			episode
+		}
     }
   `
