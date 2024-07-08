@@ -190,7 +190,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                     Episode {event.episode}
                                                 </Tooltip>
                                             ))}
-                                            {day.events.length > 2 && <li className="text-gray-500">+ {day.events.length - 2} more</li>}
+                                            {day.events.length > 2 && <li className="text-[--muted]">+ {day.events.length - 2} more</li>}
                                         </ol>
                                     )}
                                 </div>
