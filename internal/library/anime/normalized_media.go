@@ -6,16 +6,16 @@ import (
 )
 
 type NormalizedMedia struct {
-	*anilist.BasicMedia
+	*anilist.BaseMedia
 }
 
 type NormalizedMediaCache struct {
 	*result.Cache[int, *NormalizedMedia]
 }
 
-func NewNormalizedMedia(m *anilist.BasicMedia) *NormalizedMedia {
+func NewNormalizedMedia(m *anilist.BaseMedia) *NormalizedMedia {
 	return &NormalizedMedia{
-		BasicMedia: m,
+		BaseMedia: m,
 	}
 }
 

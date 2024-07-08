@@ -73,7 +73,7 @@ export function useHandleDetailedLibraryCollection() {
         if (!data?.continueWatchingList) return []
 
         if (!serverStatus?.settings?.anilist?.enableAdultContent || serverStatus?.settings?.anilist?.blurAdultContent) {
-            return data.continueWatchingList.filter(entry => entry.basicMedia?.isAdult === false)
+            return data.continueWatchingList.filter(entry => entry.baseMedia?.isAdult === false)
         }
 
         return data.continueWatchingList

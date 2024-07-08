@@ -765,7 +765,7 @@
       "\t@desc This is used by the \"Resolve unmatched media\" feature to suggest media entries for the local files in the given directory.",
       "\t@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.",
       "\t@route /api/v1/library/anime-entry/suggestions [POST]",
-      "\t@returns []anilist.BasicMedia",
+      "\t@returns []anilist.BaseMedia",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -792,9 +792,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]anilist.BasicMedia",
-      "returnGoType": "anilist.BasicMedia",
-      "returnTypescriptType": "Array\u003cAL_BasicMedia\u003e"
+      "returns": "[]anilist.BaseMedia",
+      "returnGoType": "anilist.BaseMedia",
+      "returnTypescriptType": "Array\u003cAL_BaseMedia\u003e"
     }
   },
   {

@@ -16,7 +16,7 @@ type (
 	// The user can request metadata to be fetched from TVDB as well, which will be done and stored in the cache.
 	MediaWrapper struct {
 		anizipMedia *anizip.Media
-		baseMedia   *anilist.BasicMedia // TODO should be basicMedia
+		baseMedia   *anilist.BaseMedia
 		fileCacher  *filecache.Cacher
 		logger      *zerolog.Logger
 
@@ -44,7 +44,7 @@ type (
 
 // NewMediaWrapper creates a new media wrapper.
 // Anizip Media can be nil.
-func (p *Provider) NewMediaWrapper(media *anilist.BasicMedia, anizipMedia *anizip.Media) *MediaWrapper {
+func (p *Provider) NewMediaWrapper(media *anilist.BaseMedia, anizipMedia *anizip.Media) *MediaWrapper {
 	mw := &MediaWrapper{
 		anizipMedia:  anizipMedia,
 		baseMedia:    media,

@@ -69,12 +69,12 @@ export function MonthCalendar(props: WeekCalendarProps) {
             const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(item.episodeMetadata?.airDate,
                 day)).map((item) => {
                 return {
-                    id: item.basicMedia?.id! + item.fileMetadata?.episode!,
-                    name: item.basicMedia?.title?.userPreferred,
+                    id: item.baseMedia?.id! + item.fileMetadata?.episode!,
+                    name: item.baseMedia?.title?.userPreferred,
                     time: "",
                     datetime: format(new Date(item.episodeMetadata?.airDate!), "yyyy-MM-dd'T'HH:mm"),
-                    href: `/entry?id=${item.basicMedia?.id}`,
-                    image: item.basicMedia?.bannerImage ?? item.basicMedia?.coverImage?.extraLarge ?? item.basicMedia?.coverImage?.large ?? item.basicMedia?.coverImage?.medium,
+                    href: `/entry?id=${item.baseMedia?.id}`,
+                    image: item.baseMedia?.bannerImage ?? item.baseMedia?.coverImage?.extraLarge ?? item.baseMedia?.coverImage?.large ?? item.baseMedia?.coverImage?.medium,
                     episode: item.episodeNumber || 1,
                 }
             })

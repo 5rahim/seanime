@@ -202,8 +202,8 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 var (
-	entriesMalCache               = result.NewCache[string, []*mal.SearchResultAnime]()
-	entriesAnilistBasicMediaCache = result.NewCache[int, *anilist.BasicMedia]()
+	entriesMalCache              = result.NewCache[string, []*mal.SearchResultAnime]()
+	entriesAnilistBaseMediaCache = result.NewCache[int, *anilist.BaseMedia]()
 )
 
 // HandleFetchAnimeEntrySuggestions
@@ -212,7 +212,7 @@ var (
 //	@desc This is used by the "Resolve unmatched media" feature to suggest media entries for the local files in the given directory.
 //	@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.
 //	@route /api/v1/library/anime-entry/suggestions [POST]
-//	@returns []anilist.BasicMedia
+//	@returns []anilist.BaseMedia
 func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	type body struct {
@@ -263,7 +263,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 	if len(malSuggestions) == 0 {
-		return c.RespondWithData([]*anilist.BasicMedia{})
+		return c.RespondWithData([]*anilist.BaseMedia{})
 	}
 
 	dice := metrics.NewSorensenDice()
@@ -300,28 +300,28 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 	malSuggestions = _malSuggestions
 
 	anilistRateLimit := limiter.NewAnilistLimiter()
-	p2 := pool.NewWithResults[*anilist.BasicMedia]()
+	p2 := pool.NewWithResults[*anilist.BaseMedia]()
 	for _, s := range malSuggestions {
-		p2.Go(func() *anilist.BasicMedia {
+		p2.Go(func() *anilist.BaseMedia {
 			anilistRateLimit.Wait()
 			// Check if the media has already been fetched
-			media, found := entriesAnilistBasicMediaCache.Get(s.ID)
+			media, found := entriesAnilistBaseMediaCache.Get(s.ID)
 			if found {
 				return media
 			}
 			// Otherwise, fetch the media
-			mediaRes, err := c.App.AnilistClientWrapper.BasicMediaByMalID(context.Background(), &s.ID)
+			mediaRes, err := c.App.AnilistClientWrapper.BaseMediaByMalID(context.Background(), &s.ID)
 			if err != nil {
 				return nil
 			}
 			media = mediaRes.GetMedia()
 			// Cache the media
-			entriesAnilistBasicMediaCache.Set(s.ID, media)
+			entriesAnilistBaseMediaCache.Set(s.ID, media)
 			return media
 		})
 	}
 	anilistMedia := p2.Wait()
-	anilistMedia = lo.Filter(anilistMedia, func(item *anilist.BasicMedia, _ int) bool {
+	anilistMedia = lo.Filter(anilistMedia, func(item *anilist.BaseMedia, _ int) bool {
 		return item != nil
 	})
 
@@ -394,7 +394,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	// Create a slice of normalized media
 	normalizedMedia := []*anime.NormalizedMedia{
-		anime.NewNormalizedMedia(mediaRes.GetMedia().ToBasicMedia()),
+		anime.NewNormalizedMedia(mediaRes.GetMedia()),
 	}
 
 	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)

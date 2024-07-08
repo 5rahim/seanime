@@ -28,7 +28,7 @@ func NewCompleteMediaRelationTree() *CompleteMediaRelationTree {
 	return &CompleteMediaRelationTree{result.NewResultMap[int, *CompleteMedia]()}
 }
 
-func (m *BasicMedia) FetchMediaTree(rel FetchMediaTreeRelation, acw ClientWrapperInterface, rl *limiter.Limiter, tree *CompleteMediaRelationTree, cache *CompleteMediaCache) error {
+func (m *BaseMedia) FetchMediaTree(rel FetchMediaTreeRelation, acw ClientWrapperInterface, rl *limiter.Limiter, tree *CompleteMediaRelationTree, cache *CompleteMediaCache) error {
 	rl.Wait()
 	res, err := acw.CompleteMediaByID(context.Background(), &m.ID)
 	if err != nil {

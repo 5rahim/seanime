@@ -254,7 +254,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         score={listData?.score}
                     />
                 </div>
-                {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.basicMedia?.id === media.id)) && (
+                {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseMedia?.id === media.id)) && (
                     <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
                         <Badge
                             className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-br-none"

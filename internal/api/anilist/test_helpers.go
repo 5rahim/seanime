@@ -33,21 +33,21 @@ func NewMockClientWrapper() *MockClientWrapper {
 	}
 }
 
-func (c *MockClientWrapper) BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error) {
-	file, err := os.Open(test_utils.GetTestDataPath("BasicMediaByMalID"))
+func (c *MockClientWrapper) BaseMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByMalID, error) {
+	file, err := os.Open(test_utils.GetTestDataPath("BaseMediaByMalID"))
 	defer file.Close()
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BasicMediaByMalID]: %d", *id)
-			ret, err := c.realClientWrapper.BasicMediaByMalID(context.Background(), id)
+			c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BaseMediaByMalID]: %d", *id)
+			ret, err := c.realClientWrapper.BaseMediaByMalID(context.Background(), id)
 			if err != nil {
 				return nil, err
 			}
-			data, err := json.Marshal([]*BasicMediaByMalID{ret})
+			data, err := json.Marshal([]*BaseMediaByMalID{ret})
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = os.WriteFile(test_utils.GetTestDataPath("BasicMediaByMalID"), data, 0644)
+			err = os.WriteFile(test_utils.GetTestDataPath("BaseMediaByMalID"), data, 0644)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -55,12 +55,12 @@ func (c *MockClientWrapper) BasicMediaByMalID(ctx context.Context, id *int, inte
 		}
 	}
 
-	var media []*BasicMediaByMalID
+	var media []*BaseMediaByMalID
 	err = json.NewDecoder(file).Decode(&media)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var ret *BasicMediaByMalID
+	var ret *BaseMediaByMalID
 	for _, m := range media {
 		if m.GetMedia().ID == *id {
 			ret = m
@@ -69,8 +69,8 @@ func (c *MockClientWrapper) BasicMediaByMalID(ctx context.Context, id *int, inte
 	}
 
 	if ret == nil {
-		c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BasicMediaByMalID]: %d", *id)
-		ret, err := c.realClientWrapper.BasicMediaByMalID(context.Background(), id)
+		c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BaseMediaByMalID]: %d", *id)
+		ret, err := c.realClientWrapper.BaseMediaByMalID(context.Background(), id)
 		if err != nil {
 			return nil, err
 		}
@@ -79,70 +79,14 @@ func (c *MockClientWrapper) BasicMediaByMalID(ctx context.Context, id *int, inte
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = os.WriteFile(test_utils.GetTestDataPath("BasicMediaByMalID"), data, 0644)
+		err = os.WriteFile(test_utils.GetTestDataPath("BaseMediaByMalID"), data, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
 		return ret, nil
 	}
 
-	c.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [BasicMediaByMalID]: %d", *id)
-	return ret, nil
-}
-func (c *MockClientWrapper) BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error) {
-	file, err := os.Open(test_utils.GetTestDataPath("BasicMediaByID"))
-	defer file.Close()
-	if err != nil {
-		if os.IsNotExist(err) {
-			c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BasicMediaByID]: %d", *id)
-			ret, err := c.realClientWrapper.BasicMediaByID(context.Background(), id)
-			if err != nil {
-				return nil, err
-			}
-			data, err := json.Marshal([]*BasicMediaByID{ret})
-			if err != nil {
-				log.Fatal(err)
-			}
-			err = os.WriteFile(test_utils.GetTestDataPath("BasicMediaByID"), data, 0644)
-			if err != nil {
-				log.Fatal(err)
-			}
-			return ret, nil
-		}
-	}
-
-	var media []*BasicMediaByID
-	err = json.NewDecoder(file).Decode(&media)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var ret *BasicMediaByID
-	for _, m := range media {
-		if m.GetMedia().ID == *id {
-			ret = m
-			break
-		}
-	}
-
-	if ret == nil {
-		c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BasicMediaByID]: %d", *id)
-		ret, err := c.realClientWrapper.BasicMediaByID(context.Background(), id)
-		if err != nil {
-			return nil, err
-		}
-		media = append(media, ret)
-		data, err := json.Marshal(media)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = os.WriteFile(test_utils.GetTestDataPath("BasicMediaByID"), data, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return ret, nil
-	}
-
-	c.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [BasicMediaByID]: %d", *id)
+	c.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [BaseMediaByMalID]: %d", *id)
 	return ret, nil
 }
 

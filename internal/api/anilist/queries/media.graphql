@@ -74,14 +74,8 @@ query SearchAnimeShortMedia($page: Int, $perPage: Int, $sort: [MediaSort], $sear
   }
 }
 
-query BasicMediaByMalId ($id: Int) {
+query BaseMediaByMalId ($id: Int) {
   Media(idMal: $id, type: ANIME) {
-    ...baseMedia
-  }
-}
-
-query BasicMediaById ($id: Int) {
-  Media(id: $id, type: ANIME) {
     ...baseMedia
   }
 }

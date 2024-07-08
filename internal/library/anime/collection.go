@@ -68,9 +68,9 @@ type (
 
 	// UnmatchedGroup holds the data for a group of unmatched local files.
 	UnmatchedGroup struct {
-		Dir         string                `json:"dir"`
-		LocalFiles  []*LocalFile          `json:"localFiles"`
-		Suggestions []*anilist.BasicMedia `json:"suggestions"`
+		Dir         string               `json:"dir"`
+		LocalFiles  []*LocalFile         `json:"localFiles"`
+		Suggestions []*anilist.BaseMedia `json:"suggestions"`
 	}
 	// UnknownGroup holds the data for a group of local files whose media is not in the user's AniList.
 	// The client will use this data to suggest media to the user, so they can add it to their AniList.
@@ -407,7 +407,7 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 		groups = append(groups, &UnmatchedGroup{
 			Dir:         key,
 			LocalFiles:  value,
-			Suggestions: make([]*anilist.BasicMedia, 0),
+			Suggestions: make([]*anilist.BaseMedia, 0),
 		})
 	}
 

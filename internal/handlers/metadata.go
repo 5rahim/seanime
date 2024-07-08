@@ -26,7 +26,7 @@ func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaF, err := c.App.AnilistClientWrapper.BasicMediaByID(context.Background(), &b.MediaId)
+	mediaF, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -66,7 +66,7 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaF, err := c.App.AnilistClientWrapper.BasicMediaByID(context.Background(), &b.MediaId)
+	mediaF, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

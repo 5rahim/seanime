@@ -227,7 +227,7 @@ When you pass a username, let's say your dummy account's, using `test_utils.Conf
 the mock client will fetch it using a real request and store it in `test/testdata/AnimeCollection.json` and return it. This file will be used for subsequent calls.
 (This is just to avoid making too many requests to the AniList API).
 
-Same goes for `anilistClientWrapper.GetBaseMediaById`, `anilistClientWrapper.GetBasicMediaById` and `anilistClientWrapper.GetBasicMediaByMalId`.
+Same goes for `anilistClientWrapper.GetBaseMediaById`
 
 ### Testing third-party apps
 

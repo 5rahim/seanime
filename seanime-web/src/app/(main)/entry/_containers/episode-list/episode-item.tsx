@@ -106,7 +106,7 @@ function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
-    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.basicMedia?.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseMedia?.id)
 
     return (
         <Modal
