@@ -20,12 +20,14 @@ type EpisodeGridItemProps = {
     isSelected?: boolean
     unoptimizedImage?: boolean
     isInvalid?: boolean
-    imageClassName?: string
-    imageContainerClassName?: string
     className?: string
     disabled?: boolean
     actionIcon?: React.ReactElement | null
     isFiller?: boolean
+    length?: string | number | null
+    imageClassName?: string
+    imageContainerClassName?: string
+    episodeTitleClassName?: string
 }
 
 export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
@@ -49,31 +51,29 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         className,
         disabled,
         isFiller,
+        length,
         actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-70 text-4xl" /> : undefined,
+        episodeTitleClassName,
         ...rest
     } = props
 
     return <>
         <div
             className={cn(
-                "bg-[--background] hover:bg-[var(--hover-from-background-color)] max-w-full",
-                "border p-3 pr-12 rounded-lg relative transition group/episode-list-item",
+                "max-w-full",
+                "p-2 pr-12 rounded-lg relative transition group/episode-list-item select-none",
                 {
-                    // "opacity-50": isWatched && !isSelected,
-                    "border-zinc-500 bg-gray-900 hover:bg-gray-900": isSelected,
+                    "border-zinc-500 bg-gray-900 hover:bg-gray-900 border": isSelected,
                     "border-red-700": isInvalid,
                     "border-yellow-900": isFiller,
-                    // "opacity-50 pointer-events-none": disabled,
-                    // "opacity-50": isWatched && !isSelected,
                 }, className,
             )}
             {...rest}
         >
-            {/*{isCompleted && <div className="absolute top-1 left-1 w-full h-1 bg-brand rounded-full"/>}*/}
 
             {isFiller && (
                 <Badge
-                    className="font-semibold absolute top-0 left-0 z-[5] text-white bg-yellow-900 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
+                    className="font-semibold absolute top-0 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
                     intent="gray"
                     size="lg"
                 >Filler</Badge>
@@ -86,12 +86,13 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
             >
                 <div
                     className={cn(
-                        "h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden cursor-pointer",
+                        "w-36 lg:w-40 h-28 flex-none rounded-md object-cover object-center relative overflow-hidden cursor-pointer",
                         "group/ep-item-img-container",
                         imageContainerClassName,
                     )}
                     onClick={onClick}
                 >
+                    <div className="bg-[--background] absolute z-[0] rounded-md w-full h-full"></div>
                     {!!onClick && <div
                         className={cn(
                             "absolute inset-0 bg-gray-950 bg-opacity-60 z-[1] flex items-center justify-center",
@@ -107,7 +108,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         quality={60}
                         placeholder={imageShimmer(700, 475)}
                         sizes="10rem"
-                        className={cn("object-cover object-center transition", {
+                        className={cn("object-cover object-center transition select-none", {
                             "opacity-25 group-hover/episode-list-item:opacity-100": isWatched,
                         }, imageClassName)}
                         data-src={image}
@@ -130,14 +131,23 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     /> Unidentified</p>}
                     {isInvalid && <p className="flex gap-2 text-red-200 text-sm items-center">No metadata found</p>}
 
-                    <h4
+                    <p
                         className={cn(
-                            "font-medium transition line-clamp-2",
+                            !episodeTitle && "text-lg font-semibold",
+                            !!episodeTitle && "transition line-clamp-2 text-base text-[--muted]",
                             // { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched },
                         )}
-                    >{title?.replaceAll("`", "'")}</h4>
+                    >
+                        <span className="font-medium text-white">{title?.replaceAll("`", "'")}</span>{(!!episodeTitle && !!length) &&
+                        <span className="ml-4">{length}m</span>}
+                    </p>
 
-                    {!!episodeTitle && <p className={cn("text-sm lg:text-md text-gray-300 line-clamp-2")}>{episodeTitle?.replaceAll("`", "'")}</p>}
+                    {!!episodeTitle &&
+                        <p
+                            className={cn("text-md font-semibold lg:text-lg text-gray-300 line-clamp-2",
+                                episodeTitleClassName)}
+                        >{episodeTitle?.replaceAll("`", "'")}</p>}
+
 
                     {!!fileName && <p className="text-sm text-[--muted] line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`", "'")}</p>}

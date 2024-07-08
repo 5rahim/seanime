@@ -463,7 +463,6 @@ export default function Page() {
                                             isSelected={episode.number === currentEpisodeNumber}
                                             disabled={episodeLoading}
                                             isWatched={progress ? episode.number <= progress : undefined}
-                                            imageContainerClassName="w-20 h-20"
                                             className="flex-none w-full"
                                             action={<>
                                                 <MediaEpisodeInfoModal

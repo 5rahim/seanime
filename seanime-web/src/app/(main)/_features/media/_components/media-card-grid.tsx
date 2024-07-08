@@ -1,7 +1,12 @@
 import { LuffyError } from "@/components/shared/luffy-error"
+import { cn } from "@/components/ui/core/styling"
 import { mergeRefs } from "@/components/ui/core/utils"
 import { useInView } from "framer-motion"
 import React from "react"
+
+const gridClass = cn(
+    "grid grid-cols-2 min-[768px]:grid-cols-3 min-[1080px]:grid-cols-4 min-[1320px]:grid-cols-5 min-[1750px]:grid-cols-6 min-[1850px]:grid-cols-7 min-[2000px]:grid-cols-8 gap-4",
+)
 
 type MediaCardGridProps = {
     children?: React.ReactNode
@@ -23,7 +28,7 @@ export function MediaCardGrid(props: MediaCardGridProps) {
     return (
         <>
             <div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
+                className={cn(gridClass)}
                 {...rest}
             >
                 {children}
@@ -107,7 +112,7 @@ export function MediaCardLazyGridRenderer({
     return (
         <div {...rest}>
             <div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 min-[2000px]:grid-cols-8 gap-4"
+                className={cn(gridClass)}
             >
                 {visibleChildren.map((child, index) => (
                     <MediaCardLazyGridItem

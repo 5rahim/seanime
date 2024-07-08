@@ -156,11 +156,12 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
             image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
             topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
             title={episode.displayTitle}
-            meta={episode.episodeMetadata?.airDate ?? undefined}
+            // meta={episode.episodeMetadata?.airDate ?? undefined}
             isInvalid={episode.isInvalid}
             progressTotal={episode.basicMedia?.episodes}
             progressNumber={episode.progressNumber}
             episodeNumber={episode.episodeNumber}
+            length={episode.episodeMetadata?.length}
             onMouseEnter={() => {
                 React.startTransition(() => {
                     setHeaderImage(episode.basicMedia?.bannerImage || episode.episodeMetadata?.image || null)

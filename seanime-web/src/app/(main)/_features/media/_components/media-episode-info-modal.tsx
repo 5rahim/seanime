@@ -1,6 +1,7 @@
 import { Nullish } from "@/api/generated/types"
 import { IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
+import { Separator } from "@/components/ui/separator"
 import Image from "next/image"
 import React from "react"
 import { AiFillWarning } from "react-icons/ai"
@@ -14,6 +15,7 @@ type MediaEpisodeInfoModalProps = {
     length?: Nullish<number | string>
     summary?: Nullish<string>
     isInvalid?: Nullish<boolean>
+    filename?: Nullish<string>
 }
 
 export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
@@ -26,6 +28,7 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
         length,
         summary,
         isInvalid,
+        filename,
         ...rest
     } = props
 
@@ -71,6 +74,13 @@ export function MediaEpisodeInfoModal(props: MediaEpisodeInfoModalProps) {
                     <p className="text-gray-300">
                         {summary?.replaceAll("`", "'") || "No summary"}
                     </p>
+
+                    {filename && <>
+                        <Separator />
+                        <p className="text-[--muted] line-clamp-2">
+                            {filename}
+                        </p>
+                    </>}
                 </div>
 
             </Modal>

@@ -113,6 +113,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                             progressTotal={episode.basicMedia?.episodes}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
+                                            length={episode.episodeMetadata?.length}
                                             onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
                                         />
                                     </CarouselItem>

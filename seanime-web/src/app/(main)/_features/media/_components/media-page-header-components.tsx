@@ -96,7 +96,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         size,
                         flavor: ts.libraryScreenCustomBackgroundImage ? "absolute" : "fixed",
                     }),
-                    !ts.libraryScreenCustomBackgroundImage && y > 100 && "opacity-10",
+                    !ts.libraryScreenCustomBackgroundImage && y > 100 && "opacity-5",
                 )}
             >
                 <div

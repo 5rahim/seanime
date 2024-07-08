@@ -279,7 +279,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                 href={link}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
             >
-                <div className="aspect-[6/7] flex-none rounded-md border object-cover object-center relative overflow-hidden select-none">
+                <div className="aspect-[6/8] border flex-none rounded-md object-cover object-center relative overflow-hidden select-none">
 
                     {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                     <AnimeListItemBottomGradient />

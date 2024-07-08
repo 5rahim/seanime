@@ -1,6 +1,5 @@
 import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
-import { EpisodeListGridProvider } from "@/app/(main)/entry/_components/episode-list-grid"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -73,9 +72,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
-                            <EpisodeListGridProvider container="expanded">
-                                <EpisodeSection entry={mediaEntry} details={mediaDetails} />
-                            </EpisodeListGridProvider>
+                            <EpisodeSection entry={mediaEntry} details={mediaDetails} />
                         </PageWrapper>}
 
                         {isTorrentStreamingView && <PageWrapper
@@ -89,9 +86,8 @@ export function AnimeEntryPage() {
                                     duration: 0.35,
                                 },
                             }}
-                        > <EpisodeListGridProvider container="expanded">
+                        >
                             <TorrentStreamPage entry={mediaEntry} />
-                        </EpisodeListGridProvider>
                         </PageWrapper>}
 
                     </AnimatePresence>

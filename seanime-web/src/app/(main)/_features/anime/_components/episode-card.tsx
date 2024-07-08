@@ -20,6 +20,7 @@ type EpisodeCardProps = {
     progressTotal?: number
     mRef?: React.RefObject<HTMLDivElement>
     hasDiscrepancy?: boolean
+    length?: string | number | null
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -41,6 +42,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         progressTotal,
         progressNumber,
         hasDiscrepancy,
+        length,
         ...rest
     } = props
 
@@ -93,7 +95,9 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                             : ``}</span>
                     </p>
-                    {(meta) && <p className="text-[--muted] text-sm md:text-base">{meta}</p>}
+                    {(!!meta || !!length) && <p className="text-[--muted] text-sm md:text-base">
+                        {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
+                    </p>}
                 </div>
                 {isInvalid && <p className="text-red-300">No metadata found</p>}
             </div>
