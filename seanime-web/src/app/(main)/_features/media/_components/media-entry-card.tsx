@@ -243,15 +243,15 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
-                <div className="absolute z-[10] right-1 bottom-1">
-                    <MediaEntryScoreBadge
-                        score={listData?.score}
-                    />
-                </div>
                 <div className="absolute z-[10] left-1 bottom-1">
                     <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
+                    />
+                </div>
+                <div className="absolute z-[10] right-1 bottom-1">
+                    <MediaEntryScoreBadge
+                        score={listData?.score}
                     />
                 </div>
                 {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.basicMedia?.id === media.id)) && (

@@ -13,6 +13,7 @@ import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { cn, defineStyleAnatomy } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { getScoreColor } from "@/lib/helpers/score"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { cva, VariantProps } from "class-variance-authority"
 import { motion } from "framer-motion"
@@ -326,16 +327,9 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
     episodes: Nullish<number>,
 }) {
 
-    const scoreColor = score ? (
-        score < 50 ? "bg-red-500" :
-            score < 70 ? "bg-gray-500" :
-                score < 85 ? "bg-green-500" :
-                    "bg-brand-500 text-white"
-    ) : ""
-
     return (
         <>
-            {!!score && <Badge leftIcon={<BiStar />} size="xl" intent="primary-solid" className={scoreColor}>
+            {!!score && <Badge leftIcon={<BiStar />} size="xl" intent="unstyled" className={getScoreColor(score, "user")}>
                 {score / 10}
             </Badge>}
             <Badge
