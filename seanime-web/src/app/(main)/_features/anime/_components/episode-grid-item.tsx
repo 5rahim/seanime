@@ -2,6 +2,7 @@ import { AL_BaseMedia } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
@@ -57,23 +58,26 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         ...rest
     } = props
 
+    const ts = useThemeSettings()
+
     return <>
         <div
             className={cn(
                 "max-w-full",
-                "p-2 pr-12 rounded-lg relative transition group/episode-list-item select-none",
-                {
-                    "border-zinc-500 bg-gray-900 hover:bg-gray-900 border": isSelected,
-                    "border-red-700": isInvalid,
-                    "border-yellow-900": isFiller,
-                }, className,
+                "rounded-lg relative transition group/episode-list-item select-none",
+                !!ts.libraryScreenCustomBackgroundImage && ts.libraryScreenCustomBackgroundOpacity > 5 ? "bg-[--background] p-3" : "py-3",
+                "pr-12",
+                className,
             )}
             {...rest}
         >
 
             {isFiller && (
                 <Badge
-                    className="font-semibold absolute top-0 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
+                    className={cn(
+                        "font-semibold absolute top-3 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none",
+                        !!ts.libraryScreenCustomBackgroundImage && ts.libraryScreenCustomBackgroundOpacity > 5 && "top-3  left-3",
+                    )}
                     intent="gray"
                     size="lg"
                 >Filler</Badge>
@@ -88,6 +92,13 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     className={cn(
                         "w-36 lg:w-40 h-28 flex-none rounded-md object-cover object-center relative overflow-hidden cursor-pointer",
                         "group/ep-item-img-container",
+
+                        {
+                            "border-2 border-red-700": isInvalid,
+                            "border-2 border-yellow-900": isFiller,
+                            "border-2 border-[--brand]": isSelected,
+                        },
+
                         imageContainerClassName,
                     )}
                     onClick={onClick}
@@ -138,7 +149,13 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                             // { "opacity-50 group-hover/episode-list-item:opacity-100": isWatched },
                         )}
                     >
-                        <span className="font-medium text-white">{title?.replaceAll("`", "'")}</span>{(!!episodeTitle && !!length) &&
+                        <span
+                            className={cn(
+                                "font-medium text-white",
+                                isSelected && "text-[--brand]",
+                            )}
+                        >
+                            {title?.replaceAll("`", "'")}</span>{(!!episodeTitle && !!length) &&
                         <span className="ml-4">{length}m</span>}
                     </p>
 

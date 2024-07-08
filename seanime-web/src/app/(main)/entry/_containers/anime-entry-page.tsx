@@ -6,6 +6,7 @@ import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-sear
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -100,6 +101,12 @@ export function AnimeEntryPage() {
 }
 
 function LoadingDisplay() {
+    const ts = useThemeSettings()
+
+    if (!!ts.libraryScreenCustomBackgroundImage) {
+        return null
+    }
+
     return (
         <div className="__header h-[30rem]">
             <div

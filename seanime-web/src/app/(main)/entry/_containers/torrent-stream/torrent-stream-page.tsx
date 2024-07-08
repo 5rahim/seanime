@@ -147,6 +147,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                         }}
                         description={episode?.episodeMetadata?.overview}
                         isFiller={episode?.episodeMetadata?.isFiller}
+                        length={episode?.episodeMetadata?.length}
                         isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
                         className="flex-none w-full"
                         action={<>
