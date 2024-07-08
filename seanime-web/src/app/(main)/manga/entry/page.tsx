@@ -1,11 +1,11 @@
 "use client"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
+import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
 import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
 import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 
@@ -31,7 +31,7 @@ export default function Page() {
         }
     }, [mangaEntry, mangaEntryLoading])
 
-    if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <LoadingDisplay />
+    if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <MediaEntryPageLoadingDisplay />
 
     return (
         <div>
@@ -75,24 +75,6 @@ export default function Page() {
 
 
                 </PageWrapper>
-            </div>
-        </div>
-    )
-}
-
-function LoadingDisplay() {
-    return (
-        <div className="__header h-[30rem]">
-            <div
-                className="h-[30rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
-            >
-                <div
-                    className="w-full absolute z-[1] top-0 h-[15rem] bg-gradient-to-b from-[--background] to-transparent via"
-                />
-                <Skeleton className="h-full absolute w-full" />
-                <div
-                    className="w-full absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-transparent to-transparent"
-                />
             </div>
         </div>
     )
