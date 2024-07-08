@@ -29,6 +29,7 @@ type (
 		// Injected dependencies
 		anizipCache                     *anizip.Cache
 		baseMediaCache                  *anilist.BaseMediaCache
+		completeMediaCache              *anilist.CompleteMediaCache
 		animeCollection                 *anilist.AnimeCollection
 		anilistClientWrapper            anilist.ClientWrapperInterface
 		wsEventManager                  events.WSEventManagerInterface
@@ -49,6 +50,7 @@ type (
 		Logger                *zerolog.Logger
 		AnizipCache           *anizip.Cache
 		BaseMediaCache        *anilist.BaseMediaCache
+		CompleteMediaCache    *anilist.CompleteMediaCache
 		AnimeCollection       *anilist.AnimeCollection
 		AnilistClientWrapper  anilist.ClientWrapperInterface
 		NyaaSearchCache       *nyaa.SearchCache
@@ -65,6 +67,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                opts.Logger,
 		anizipCache:           opts.AnizipCache,
 		baseMediaCache:        opts.BaseMediaCache,
+		completeMediaCache:    opts.CompleteMediaCache,
 		animeCollection:       opts.AnimeCollection,
 		anilistClientWrapper:  opts.AnilistClientWrapper,
 		nyaaSearchCache:       opts.NyaaSearchCache,

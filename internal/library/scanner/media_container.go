@@ -12,7 +12,7 @@ import (
 
 type (
 	MediaContainerOptions struct {
-		AllMedia   []*anilist.BaseMedia
+		AllMedia   []*anilist.CompleteMedia
 		ScanLogger *ScanLogger
 	}
 
@@ -22,7 +22,7 @@ type (
 		engTitles       []*string
 		romTitles       []*string
 		synonyms        []*string
-		allMedia        []*anilist.BaseMedia
+		allMedia        []*anilist.CompleteMedia
 	}
 )
 

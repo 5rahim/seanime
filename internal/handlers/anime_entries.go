@@ -351,7 +351,12 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	animeCollection, err := c.App.GetAnimeCollection(false)
+	acc, err := c.App.GetAccount()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	animeCollectionWithRelations, err := c.App.AnilistClientWrapper.AnimeCollectionWithRelations(context.Background(), &acc.Username)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -402,7 +407,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	fh := scanner.FileHydrator{
 		LocalFiles:           selectedLfs,
-		BaseMediaCache:       anilist.NewBaseMediaCache(),
+		CompleteMediaCache:   anilist.NewCompleteMediaCache(),
 		AnizipCache:          anizip.NewCache(),
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		AnilistRateLimiter:   limiter.NewAnilistLimiter(),
@@ -416,7 +421,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	fh.HydrateMetadata()
 
 	// Hydrate the summary logger before merging files
-	fh.ScanSummaryLogger.HydrateData(selectedLfs, normalizedMedia, animeCollection)
+	fh.ScanSummaryLogger.HydrateData(selectedLfs, normalizedMedia, animeCollectionWithRelations)
 
 	// Save the scan summary
 	go func() {

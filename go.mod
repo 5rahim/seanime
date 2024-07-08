@@ -6,7 +6,7 @@ require (
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.8.1
-	github.com/Yamashou/gqlgenc v0.23.1
+	github.com/Yamashou/gqlgenc v0.23.2
 	github.com/adrg/strutil v0.3.1
 	github.com/anacrolix/sync v0.5.1
 	github.com/anacrolix/torrent v1.56.1

@@ -16,7 +16,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
-	baseMediaCache := anilist.NewBaseMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	dir := "E:/Anime"
@@ -79,7 +79,7 @@ func TestNewMediaFetcher(t *testing.T) {
 				Username:               test_utils.ConfigData.Provider.AnilistUsername,
 				AnilistClientWrapper:   anilistClientWrapper,
 				LocalFiles:             lfs,
-				BaseMediaCache:         baseMediaCache,
+				CompleteMediaCache:     completeMediaCache,
 				AnizipCache:            anizipCache,
 				Logger:                 util.NewLogger(),
 				AnilistRateLimiter:     anilistRateLimiter,
@@ -109,7 +109,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
-	baseMediaCache := anilist.NewBaseMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	dir := "E:/Anime"
@@ -159,7 +159,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 				Username:             "-",
 				AnilistClientWrapper: anilistClientWrapper,
 				LocalFiles:           lfs,
-				BaseMediaCache:       baseMediaCache,
+				CompleteMediaCache:   completeMediaCache,
 				AnizipCache:          anizipCache,
 				Logger:               util.NewLogger(),
 				AnilistRateLimiter:   anilistRateLimiter,
@@ -188,7 +188,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
-	baseMediaCache := anilist.NewBaseMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	tests := []struct {
@@ -236,7 +236,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 			media, ok := FetchMediaFromLocalFiles(
 				anilistClientWrapper,
 				lfs,
-				baseMediaCache,
+				completeMediaCache,
 				anizipCache,
 				anilistRateLimiter,
 				scanLogger,
@@ -245,7 +245,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 				t.Fatal("could not fetch media from local files")
 			}
 
-			ids := lo.Map(media, func(k *anilist.BaseMedia, _ int) int {
+			ids := lo.Map(media, func(k *anilist.CompleteMedia, _ int) int {
 				return k.ID
 			})
 

@@ -37,6 +37,31 @@ func (ac *AnimeCollection) GetListEntryFromMediaId(id int) (*MediaListEntry, boo
 	return entry, true
 }
 
+func (ac *AnimeCollectionWithRelations) GetListEntryFromMediaId(id int) (*AnimeCollectionWithRelations_MediaListCollection_Lists_Entries, bool) {
+
+	if ac == nil || ac.MediaListCollection == nil {
+		return nil, false
+	}
+
+	var entry *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries
+	for _, l := range ac.MediaListCollection.Lists {
+		if l.Entries == nil || len(l.Entries) == 0 {
+			continue
+		}
+		for _, e := range l.Entries {
+			if e.Media.ID == id {
+				entry = e
+				break
+			}
+		}
+	}
+	if entry == nil {
+		return nil, false
+	}
+
+	return entry, true
+}
+
 func (ac *AnimeCollection) GetAllMedia() []*BaseMedia {
 
 	var ret []*BaseMedia

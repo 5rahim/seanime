@@ -21,12 +21,13 @@ type GithubGraphQLClient interface {
 	MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error)
 	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
+	AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
 	BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error)
 	BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error)
 	BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error)
-	MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error)
 	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
+	MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error)
 	ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error)
 	ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error)
 	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
@@ -345,6 +346,8 @@ type BasicMedia struct {
 	CountryOfOrigin   *string                       "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
 	MeanScore         *int                          "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description       *string                       "json:\"description,omitempty\" graphql:\"description\""
+	Genres            []*string                     "json:\"genres,omitempty\" graphql:\"genres\""
+	Duration          *int                          "json:\"duration,omitempty\" graphql:\"duration\""
 	Trailer           *BasicMedia_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *BasicMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BasicMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
@@ -437,6 +440,18 @@ func (t *BasicMedia) GetDescription() *string {
 	}
 	return t.Description
 }
+func (t *BasicMedia) GetGenres() []*string {
+	if t == nil {
+		t = &BasicMedia{}
+	}
+	return t.Genres
+}
+func (t *BasicMedia) GetDuration() *int {
+	if t == nil {
+		t = &BasicMedia{}
+	}
+	return t.Duration
+}
 func (t *BasicMedia) GetTrailer() *BasicMedia_Trailer {
 	if t == nil {
 		t = &BasicMedia{}
@@ -490,13 +505,13 @@ type BaseMedia struct {
 	MeanScore         *int                         "json:\"meanScore,omitempty\" graphql:\"meanScore\""
 	Description       *string                      "json:\"description,omitempty\" graphql:\"description\""
 	Genres            []*string                    "json:\"genres,omitempty\" graphql:\"genres\""
+	Duration          *int                         "json:\"duration,omitempty\" graphql:\"duration\""
 	Trailer           *BaseMedia_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *BaseMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *BaseMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate         *BaseMedia_StartDate         "json:\"startDate,omitempty\" graphql:\"startDate\""
 	EndDate           *BaseMedia_EndDate           "json:\"endDate,omitempty\" graphql:\"endDate\""
 	NextAiringEpisode *BaseMedia_NextAiringEpisode "json:\"nextAiringEpisode,omitempty\" graphql:\"nextAiringEpisode\""
-	Relations         *BaseMedia_Relations         "json:\"relations,omitempty\" graphql:\"relations\""
 }
 
 func (t *BaseMedia) GetID() int {
@@ -589,6 +604,12 @@ func (t *BaseMedia) GetGenres() []*string {
 	}
 	return t.Genres
 }
+func (t *BaseMedia) GetDuration() *int {
+	if t == nil {
+		t = &BaseMedia{}
+	}
+	return t.Duration
+}
 func (t *BaseMedia) GetTrailer() *BaseMedia_Trailer {
 	if t == nil {
 		t = &BaseMedia{}
@@ -625,12 +646,6 @@ func (t *BaseMedia) GetNextAiringEpisode() *BaseMedia_NextAiringEpisode {
 	}
 	return t.NextAiringEpisode
 }
-func (t *BaseMedia) GetRelations() *BaseMedia_Relations {
-	if t == nil {
-		t = &BaseMedia{}
-	}
-	return t.Relations
-}
 
 type CompleteMedia struct {
 	ID                int                              "json:\"id\" graphql:\"id\""
@@ -645,11 +660,11 @@ type CompleteMedia struct {
 	Synonyms          []*string                        "json:\"synonyms,omitempty\" graphql:\"synonyms\""
 	IsAdult           *bool                            "json:\"isAdult,omitempty\" graphql:\"isAdult\""
 	CountryOfOrigin   *string                          "json:\"countryOfOrigin,omitempty\" graphql:\"countryOfOrigin\""
-	Duration          *int                             "json:\"duration,omitempty\" graphql:\"duration\""
-	Genres            []*string                        "json:\"genres,omitempty\" graphql:\"genres\""
-	AverageScore      *int                             "json:\"averageScore,omitempty\" graphql:\"averageScore\""
-	Popularity        *int                             "json:\"popularity,omitempty\" graphql:\"popularity\""
 	MeanScore         *int                             "json:\"meanScore,omitempty\" graphql:\"meanScore\""
+	Description       *string                          "json:\"description,omitempty\" graphql:\"description\""
+	Genres            []*string                        "json:\"genres,omitempty\" graphql:\"genres\""
+	Duration          *int                             "json:\"duration,omitempty\" graphql:\"duration\""
+	Trailer           *CompleteMedia_Trailer           "json:\"trailer,omitempty\" graphql:\"trailer\""
 	Title             *CompleteMedia_Title             "json:\"title,omitempty\" graphql:\"title\""
 	CoverImage        *CompleteMedia_CoverImage        "json:\"coverImage,omitempty\" graphql:\"coverImage\""
 	StartDate         *CompleteMedia_StartDate         "json:\"startDate,omitempty\" graphql:\"startDate\""
@@ -730,11 +745,17 @@ func (t *CompleteMedia) GetCountryOfOrigin() *string {
 	}
 	return t.CountryOfOrigin
 }
-func (t *CompleteMedia) GetDuration() *int {
+func (t *CompleteMedia) GetMeanScore() *int {
 	if t == nil {
 		t = &CompleteMedia{}
 	}
-	return t.Duration
+	return t.MeanScore
+}
+func (t *CompleteMedia) GetDescription() *string {
+	if t == nil {
+		t = &CompleteMedia{}
+	}
+	return t.Description
 }
 func (t *CompleteMedia) GetGenres() []*string {
 	if t == nil {
@@ -742,23 +763,17 @@ func (t *CompleteMedia) GetGenres() []*string {
 	}
 	return t.Genres
 }
-func (t *CompleteMedia) GetAverageScore() *int {
+func (t *CompleteMedia) GetDuration() *int {
 	if t == nil {
 		t = &CompleteMedia{}
 	}
-	return t.AverageScore
+	return t.Duration
 }
-func (t *CompleteMedia) GetPopularity() *int {
+func (t *CompleteMedia) GetTrailer() *CompleteMedia_Trailer {
 	if t == nil {
 		t = &CompleteMedia{}
 	}
-	return t.Popularity
-}
-func (t *CompleteMedia) GetMeanScore() *int {
-	if t == nil {
-		t = &CompleteMedia{}
-	}
-	return t.MeanScore
+	return t.Trailer
 }
 func (t *CompleteMedia) GetTitle() *CompleteMedia_Title {
 	if t == nil {
@@ -1818,197 +1833,29 @@ func (t *BaseMedia_NextAiringEpisode) GetEpisode() int {
 	return t.Episode
 }
 
-type BaseMedia_Relations_Edges_Node_BasicMedia_Trailer struct {
+type CompleteMedia_Trailer struct {
 	ID        *string "json:\"id,omitempty\" graphql:\"id\""
 	Site      *string "json:\"site,omitempty\" graphql:\"site\""
 	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
 }
 
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
+func (t *CompleteMedia_Trailer) GetID() *string {
 	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+		t = &CompleteMedia_Trailer{}
 	}
 	return t.ID
 }
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
+func (t *CompleteMedia_Trailer) GetSite() *string {
 	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+		t = &CompleteMedia_Trailer{}
 	}
 	return t.Site
 }
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
+func (t *CompleteMedia_Trailer) GetThumbnail() *string {
 	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+		t = &CompleteMedia_Trailer{}
 	}
 	return t.Thumbnail
-}
-
-type BaseMedia_Relations_Edges_Node_BasicMedia_Title struct {
-	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
-	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
-	English       *string "json:\"english,omitempty\" graphql:\"english\""
-	Native        *string "json:\"native,omitempty\" graphql:\"native\""
-}
-
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.UserPreferred
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.Romaji
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.English
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.Native
-}
-
-type BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage struct {
-	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
-	Large      *string "json:\"large,omitempty\" graphql:\"large\""
-	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
-	Color      *string "json:\"color,omitempty\" graphql:\"color\""
-}
-
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.ExtraLarge
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Large
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Medium
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Color
-}
-
-type BaseMedia_Relations_Edges_Node_BasicMedia_StartDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Year
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Month
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Day
-}
-
-type BaseMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Year
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Month
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Day
-}
-
-type BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
-	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
-	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
-	Episode         int "json:\"episode\" graphql:\"episode\""
-}
-
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.AiringAt
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.TimeUntilAiring
-}
-func (t *BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.Episode
-}
-
-type BaseMedia_Relations_Edges struct {
-	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
-	Node         *BasicMedia    "json:\"node,omitempty\" graphql:\"node\""
-}
-
-func (t *BaseMedia_Relations_Edges) GetRelationType() *MediaRelation {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges{}
-	}
-	return t.RelationType
-}
-func (t *BaseMedia_Relations_Edges) GetNode() *BasicMedia {
-	if t == nil {
-		t = &BaseMedia_Relations_Edges{}
-	}
-	return t.Node
-}
-
-type BaseMedia_Relations struct {
-	Edges []*BaseMedia_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
-}
-
-func (t *BaseMedia_Relations) GetEdges() []*BaseMedia_Relations_Edges {
-	if t == nil {
-		t = &BaseMedia_Relations{}
-	}
-	return t.Edges
 }
 
 type CompleteMedia_Title struct {
@@ -4158,199 +4005,6 @@ func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_NextA
 	return t.Episode
 }
 
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer struct {
-	ID        *string "json:\"id,omitempty\" graphql:\"id\""
-	Site      *string "json:\"site,omitempty\" graphql:\"site\""
-	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
-	}
-	return t.ID
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
-	}
-	return t.Site
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
-	}
-	return t.Thumbnail
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title struct {
-	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
-	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
-	English       *string "json:\"english,omitempty\" graphql:\"english\""
-	Native        *string "json:\"native,omitempty\" graphql:\"native\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.UserPreferred
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.Romaji
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.English
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.Native
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage struct {
-	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
-	Large      *string "json:\"large,omitempty\" graphql:\"large\""
-	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
-	Color      *string "json:\"color,omitempty\" graphql:\"color\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.ExtraLarge
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Large
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Medium
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Color
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Year
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Month
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Day
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Year
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Month
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Day
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
-	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
-	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
-	Episode         int "json:\"episode\" graphql:\"episode\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.AiringAt
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.TimeUntilAiring
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.Episode
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges struct {
-	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
-	Node         *BasicMedia    "json:\"node,omitempty\" graphql:\"node\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges) GetRelationType() *MediaRelation {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges{}
-	}
-	return t.RelationType
-}
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges) GetNode() *BasicMedia {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges{}
-	}
-	return t.Node
-}
-
-type AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations struct {
-	Edges []*AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
-}
-
-func (t *AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations) GetEdges() []*AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges {
-	if t == nil {
-		t = &AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations{}
-	}
-	return t.Edges
-}
-
 type AnimeCollection_MediaListCollection_Lists_Entries struct {
 	ID          int                                                            "json:\"id\" graphql:\"id\""
 	Score       *float64                                                       "json:\"score,omitempty\" graphql:\"score\""
@@ -4464,6 +4118,530 @@ type AnimeCollection_MediaListCollection struct {
 func (t *AnimeCollection_MediaListCollection) GetLists() []*AnimeCollection_MediaListCollection_Lists {
 	if t == nil {
 		t = &AnimeCollection_MediaListCollection{}
+	}
+	return t.Lists
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt{}
+	}
+	return t.Year
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt{}
+	}
+	return t.Month
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt{}
+	}
+	return t.Day
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt{}
+	}
+	return t.Year
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt{}
+	}
+	return t.Month
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt{}
+	}
+	return t.Day
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer{}
+	}
+	return t.Thumbnail
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title) GetRomaji() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title{}
+	}
+	return t.Romaji
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title) GetEnglish() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title{}
+	}
+	return t.English
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title) GetNative() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title{}
+	}
+	return t.Native
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage{}
+	}
+	return t.Large
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage{}
+	}
+	return t.Color
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate{}
+	}
+	return t.Year
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate{}
+	}
+	return t.Month
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate{}
+	}
+	return t.Day
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode) GetEpisode() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode{}
+	}
+	return t.Episode
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.Thumbnail
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.Romaji
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.English
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.Native
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Large
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Color
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Year
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Month
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.AiringAt
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.Episode
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges struct {
+	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
+	Node         *BasicMedia    "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges) GetRelationType() *MediaRelation {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges{}
+	}
+	return t.RelationType
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges) GetNode() *BasicMedia {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges{}
+	}
+	return t.Node
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations struct {
+	Edges []*AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations) GetEdges() []*AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations{}
+	}
+	return t.Edges
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists_Entries struct {
+	ID          int                                                                         "json:\"id\" graphql:\"id\""
+	Score       *float64                                                                    "json:\"score,omitempty\" graphql:\"score\""
+	Progress    *int                                                                        "json:\"progress,omitempty\" graphql:\"progress\""
+	Status      *MediaListStatus                                                            "json:\"status,omitempty\" graphql:\"status\""
+	Notes       *string                                                                     "json:\"notes,omitempty\" graphql:\"notes\""
+	Repeat      *int                                                                        "json:\"repeat,omitempty\" graphql:\"repeat\""
+	Private     *bool                                                                       "json:\"private,omitempty\" graphql:\"private\""
+	StartedAt   *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt   "json:\"startedAt,omitempty\" graphql:\"startedAt\""
+	CompletedAt *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt "json:\"completedAt,omitempty\" graphql:\"completedAt\""
+	Media       *CompleteMedia                                                              "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetID() int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.ID
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetScore() *float64 {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Score
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetProgress() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Progress
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetStatus() *MediaListStatus {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Status
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetNotes() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Notes
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetRepeat() *int {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Repeat
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetPrivate() *bool {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Private
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetStartedAt() *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.StartedAt
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetCompletedAt() *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.CompletedAt
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists_Entries) GetMedia() *CompleteMedia {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{}
+	}
+	return t.Media
+}
+
+type AnimeCollectionWithRelations_MediaListCollection_Lists struct {
+	Status       *MediaListStatus                                                  "json:\"status,omitempty\" graphql:\"status\""
+	Name         *string                                                           "json:\"name,omitempty\" graphql:\"name\""
+	IsCustomList *bool                                                             "json:\"isCustomList,omitempty\" graphql:\"isCustomList\""
+	Entries      []*AnimeCollectionWithRelations_MediaListCollection_Lists_Entries "json:\"entries,omitempty\" graphql:\"entries\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists) GetStatus() *MediaListStatus {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists{}
+	}
+	return t.Status
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists) GetName() *string {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists{}
+	}
+	return t.Name
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists) GetIsCustomList() *bool {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists{}
+	}
+	return t.IsCustomList
+}
+func (t *AnimeCollectionWithRelations_MediaListCollection_Lists) GetEntries() []*AnimeCollectionWithRelations_MediaListCollection_Lists_Entries {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection_Lists{}
+	}
+	return t.Entries
+}
+
+type AnimeCollectionWithRelations_MediaListCollection struct {
+	Lists []*AnimeCollectionWithRelations_MediaListCollection_Lists "json:\"lists,omitempty\" graphql:\"lists\""
+}
+
+func (t *AnimeCollectionWithRelations_MediaListCollection) GetLists() []*AnimeCollectionWithRelations_MediaListCollection_Lists {
+	if t == nil {
+		t = &AnimeCollectionWithRelations_MediaListCollection{}
 	}
 	return t.Lists
 }
@@ -5153,195 +5331,359 @@ func (t *BaseMediaById_Media_BaseMedia_NextAiringEpisode) GetEpisode() int {
 	return t.Episode
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer struct {
+type CompleteMediaById_Media_CompleteMedia_Trailer struct {
 	ID        *string "json:\"id,omitempty\" graphql:\"id\""
 	Site      *string "json:\"site,omitempty\" graphql:\"site\""
 	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Trailer) GetID() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+		t = &CompleteMediaById_Media_CompleteMedia_Trailer{}
 	}
 	return t.ID
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Trailer) GetSite() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+		t = &CompleteMediaById_Media_CompleteMedia_Trailer{}
 	}
 	return t.Site
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Trailer) GetThumbnail() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+		t = &CompleteMediaById_Media_CompleteMedia_Trailer{}
 	}
 	return t.Thumbnail
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title struct {
+type CompleteMediaById_Media_CompleteMedia_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
 	English       *string "json:\"english,omitempty\" graphql:\"english\""
 	Native        *string "json:\"native,omitempty\" graphql:\"native\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Title) GetUserPreferred() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
+		t = &CompleteMediaById_Media_CompleteMedia_Title{}
 	}
 	return t.UserPreferred
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Title) GetRomaji() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
+		t = &CompleteMediaById_Media_CompleteMedia_Title{}
 	}
 	return t.Romaji
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Title) GetEnglish() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
+		t = &CompleteMediaById_Media_CompleteMedia_Title{}
 	}
 	return t.English
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_Title) GetNative() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title{}
+		t = &CompleteMediaById_Media_CompleteMedia_Title{}
 	}
 	return t.Native
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage struct {
+type CompleteMediaById_Media_CompleteMedia_CoverImage struct {
 	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
 	Large      *string "json:\"large,omitempty\" graphql:\"large\""
 	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
 	Color      *string "json:\"color,omitempty\" graphql:\"color\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetExtraLarge() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
 	}
 	return t.ExtraLarge
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetLarge() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
 	}
 	return t.Large
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetMedium() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
 	}
 	return t.Medium
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
+func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetColor() *string {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
 	}
 	return t.Color
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate struct {
+type CompleteMediaById_Media_CompleteMedia_StartDate struct {
 	Year  *int "json:\"year,omitempty\" graphql:\"year\""
 	Month *int "json:\"month,omitempty\" graphql:\"month\""
 	Day   *int "json:\"day,omitempty\" graphql:\"day\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
+func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetYear() *int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+		t = &CompleteMediaById_Media_CompleteMedia_StartDate{}
 	}
 	return t.Year
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
+func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetMonth() *int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+		t = &CompleteMediaById_Media_CompleteMedia_StartDate{}
 	}
 	return t.Month
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
+func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetDay() *int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+		t = &CompleteMediaById_Media_CompleteMedia_StartDate{}
 	}
 	return t.Day
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+type CompleteMediaById_Media_CompleteMedia_EndDate struct {
 	Year  *int "json:\"year,omitempty\" graphql:\"year\""
 	Month *int "json:\"month,omitempty\" graphql:\"month\""
 	Day   *int "json:\"day,omitempty\" graphql:\"day\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetYear() *int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
 	}
 	return t.Year
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetMonth() *int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
 	}
 	return t.Month
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetDay() *int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
 	}
 	return t.Day
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
+type CompleteMediaById_Media_CompleteMedia_NextAiringEpisode struct {
 	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
 	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
 	Episode         int "json:\"episode\" graphql:\"episode\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
+func (t *CompleteMediaById_Media_CompleteMedia_NextAiringEpisode) GetAiringAt() int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+		t = &CompleteMediaById_Media_CompleteMedia_NextAiringEpisode{}
 	}
 	return t.AiringAt
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
+func (t *CompleteMediaById_Media_CompleteMedia_NextAiringEpisode) GetTimeUntilAiring() int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+		t = &CompleteMediaById_Media_CompleteMedia_NextAiringEpisode{}
 	}
 	return t.TimeUntilAiring
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
+func (t *CompleteMediaById_Media_CompleteMedia_NextAiringEpisode) GetEpisode() int {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+		t = &CompleteMediaById_Media_CompleteMedia_NextAiringEpisode{}
 	}
 	return t.Episode
 }
 
-type BaseMediaById_Media_BaseMedia_Relations_Edges struct {
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.Thumbnail
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.Romaji
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.English
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.Native
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Large
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Color
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Year
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Month
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.AiringAt
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
+	if t == nil {
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.Episode
+}
+
+type CompleteMediaById_Media_CompleteMedia_Relations_Edges struct {
 	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
 	Node         *BasicMedia    "json:\"node,omitempty\" graphql:\"node\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges) GetRelationType() *MediaRelation {
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges) GetRelationType() *MediaRelation {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges{}
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges{}
 	}
 	return t.RelationType
 }
-func (t *BaseMediaById_Media_BaseMedia_Relations_Edges) GetNode() *BasicMedia {
+func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges) GetNode() *BasicMedia {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations_Edges{}
+		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges{}
 	}
 	return t.Node
 }
 
-type BaseMediaById_Media_BaseMedia_Relations struct {
-	Edges []*BaseMediaById_Media_BaseMedia_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+type CompleteMediaById_Media_CompleteMedia_Relations struct {
+	Edges []*CompleteMediaById_Media_CompleteMedia_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
 }
 
-func (t *BaseMediaById_Media_BaseMedia_Relations) GetEdges() []*BaseMediaById_Media_BaseMedia_Relations_Edges {
+func (t *CompleteMediaById_Media_CompleteMedia_Relations) GetEdges() []*CompleteMediaById_Media_CompleteMedia_Relations_Edges {
 	if t == nil {
-		t = &BaseMediaById_Media_BaseMedia_Relations{}
+		t = &CompleteMediaById_Media_CompleteMedia_Relations{}
 	}
 	return t.Edges
 }
@@ -5824,6 +6166,199 @@ func (t *MediaDetailsById_Media_Recommendations) GetEdges() []*MediaDetailsById_
 	return t.Edges
 }
 
+type MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.ID
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.Site
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Trailer{}
+	}
+	return t.Thumbnail
+}
+
+type MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.Romaji
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.English
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_Title{}
+	}
+	return t.Native
+}
+
+type MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Large
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_CoverImage{}
+	}
+	return t.Color
+}
+
+type MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Year
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Month
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_StartDate{}
+	}
+	return t.Day
+}
+
+type MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Year
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Month
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_EndDate{}
+	}
+	return t.Day
+}
+
+type MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.AiringAt
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
+	}
+	return t.Episode
+}
+
+type MediaDetailsById_Media_Relations_Edges struct {
+	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
+	Node         *BasicMedia    "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *MediaDetailsById_Media_Relations_Edges) GetRelationType() *MediaRelation {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges{}
+	}
+	return t.RelationType
+}
+func (t *MediaDetailsById_Media_Relations_Edges) GetNode() *BasicMedia {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations_Edges{}
+	}
+	return t.Node
+}
+
+type MediaDetailsById_Media_Relations struct {
+	Edges []*MediaDetailsById_Media_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *MediaDetailsById_Media_Relations) GetEdges() []*MediaDetailsById_Media_Relations_Edges {
+	if t == nil {
+		t = &MediaDetailsById_Media_Relations{}
+	}
+	return t.Edges
+}
+
 type MediaDetailsById_Media struct {
 	SiteURL         *string                                 "json:\"siteUrl,omitempty\" graphql:\"siteUrl\""
 	ID              int                                     "json:\"id\" graphql:\"id\""
@@ -5840,6 +6375,7 @@ type MediaDetailsById_Media struct {
 	Staff           *MediaDetailsById_Media_Staff           "json:\"staff,omitempty\" graphql:\"staff\""
 	Rankings        []*MediaDetailsById_Media_Rankings      "json:\"rankings,omitempty\" graphql:\"rankings\""
 	Recommendations *MediaDetailsById_Media_Recommendations "json:\"recommendations,omitempty\" graphql:\"recommendations\""
+	Relations       *MediaDetailsById_Media_Relations       "json:\"relations,omitempty\" graphql:\"relations\""
 }
 
 func (t *MediaDetailsById_Media) GetSiteURL() *string {
@@ -5932,337 +6468,11 @@ func (t *MediaDetailsById_Media) GetRecommendations() *MediaDetailsById_Media_Re
 	}
 	return t.Recommendations
 }
-
-type CompleteMediaById_Media_CompleteMedia_Title struct {
-	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
-	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
-	English       *string "json:\"english,omitempty\" graphql:\"english\""
-	Native        *string "json:\"native,omitempty\" graphql:\"native\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Title) GetUserPreferred() *string {
+func (t *MediaDetailsById_Media) GetRelations() *MediaDetailsById_Media_Relations {
 	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Title{}
+		t = &MediaDetailsById_Media{}
 	}
-	return t.UserPreferred
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Title) GetRomaji() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Title{}
-	}
-	return t.Romaji
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Title) GetEnglish() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Title{}
-	}
-	return t.English
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Title) GetNative() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Title{}
-	}
-	return t.Native
-}
-
-type CompleteMediaById_Media_CompleteMedia_CoverImage struct {
-	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
-	Large      *string "json:\"large,omitempty\" graphql:\"large\""
-	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
-	Color      *string "json:\"color,omitempty\" graphql:\"color\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetExtraLarge() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
-	}
-	return t.ExtraLarge
-}
-func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetLarge() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
-	}
-	return t.Large
-}
-func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetMedium() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
-	}
-	return t.Medium
-}
-func (t *CompleteMediaById_Media_CompleteMedia_CoverImage) GetColor() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_CoverImage{}
-	}
-	return t.Color
-}
-
-type CompleteMediaById_Media_CompleteMedia_StartDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetYear() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_StartDate{}
-	}
-	return t.Year
-}
-func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetMonth() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_StartDate{}
-	}
-	return t.Month
-}
-func (t *CompleteMediaById_Media_CompleteMedia_StartDate) GetDay() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_StartDate{}
-	}
-	return t.Day
-}
-
-type CompleteMediaById_Media_CompleteMedia_EndDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetYear() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
-	}
-	return t.Year
-}
-func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetMonth() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
-	}
-	return t.Month
-}
-func (t *CompleteMediaById_Media_CompleteMedia_EndDate) GetDay() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_EndDate{}
-	}
-	return t.Day
-}
-
-type CompleteMediaById_Media_CompleteMedia_NextAiringEpisode struct {
-	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
-	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
-	Episode         int "json:\"episode\" graphql:\"episode\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_NextAiringEpisode) GetAiringAt() int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_NextAiringEpisode{}
-	}
-	return t.AiringAt
-}
-func (t *CompleteMediaById_Media_CompleteMedia_NextAiringEpisode) GetTimeUntilAiring() int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_NextAiringEpisode{}
-	}
-	return t.TimeUntilAiring
-}
-func (t *CompleteMediaById_Media_CompleteMedia_NextAiringEpisode) GetEpisode() int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_NextAiringEpisode{}
-	}
-	return t.Episode
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer struct {
-	ID        *string "json:\"id,omitempty\" graphql:\"id\""
-	Site      *string "json:\"site,omitempty\" graphql:\"site\""
-	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetID() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
-	}
-	return t.ID
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetSite() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
-	}
-	return t.Site
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer) GetThumbnail() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer{}
-	}
-	return t.Thumbnail
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title struct {
-	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
-	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
-	English       *string "json:\"english,omitempty\" graphql:\"english\""
-	Native        *string "json:\"native,omitempty\" graphql:\"native\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetUserPreferred() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.UserPreferred
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetRomaji() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.Romaji
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetEnglish() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.English
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title) GetNative() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title{}
-	}
-	return t.Native
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage struct {
-	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
-	Large      *string "json:\"large,omitempty\" graphql:\"large\""
-	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
-	Color      *string "json:\"color,omitempty\" graphql:\"color\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetExtraLarge() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.ExtraLarge
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetLarge() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Large
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetMedium() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Medium
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage) GetColor() *string {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage{}
-	}
-	return t.Color
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetYear() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Year
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetMonth() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Month
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate) GetDay() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate{}
-	}
-	return t.Day
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetYear() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Year
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetMonth() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Month
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate) GetDay() *int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate{}
-	}
-	return t.Day
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode struct {
-	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
-	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
-	Episode         int "json:\"episode\" graphql:\"episode\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetAiringAt() int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.AiringAt
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetTimeUntilAiring() int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.TimeUntilAiring
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode) GetEpisode() int {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode{}
-	}
-	return t.Episode
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations_Edges struct {
-	RelationType *MediaRelation "json:\"relationType,omitempty\" graphql:\"relationType\""
-	Node         *BasicMedia    "json:\"node,omitempty\" graphql:\"node\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges) GetRelationType() *MediaRelation {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges{}
-	}
-	return t.RelationType
-}
-func (t *CompleteMediaById_Media_CompleteMedia_Relations_Edges) GetNode() *BasicMedia {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations_Edges{}
-	}
-	return t.Node
-}
-
-type CompleteMediaById_Media_CompleteMedia_Relations struct {
-	Edges []*CompleteMediaById_Media_CompleteMedia_Relations_Edges "json:\"edges,omitempty\" graphql:\"edges\""
-}
-
-func (t *CompleteMediaById_Media_CompleteMedia_Relations) GetEdges() []*CompleteMediaById_Media_CompleteMedia_Relations_Edges {
-	if t == nil {
-		t = &CompleteMediaById_Media_CompleteMedia_Relations{}
-	}
-	return t.Edges
+	return t.Relations
 }
 
 type ListMedia_Page_PageInfo struct {
@@ -7390,6 +7600,17 @@ func (t *AnimeCollection) GetMediaListCollection() *AnimeCollection_MediaListCol
 	return t.MediaListCollection
 }
 
+type AnimeCollectionWithRelations struct {
+	MediaListCollection *AnimeCollectionWithRelations_MediaListCollection "json:\"MediaListCollection,omitempty\" graphql:\"MediaListCollection\""
+}
+
+func (t *AnimeCollectionWithRelations) GetMediaListCollection() *AnimeCollectionWithRelations_MediaListCollection {
+	if t == nil {
+		t = &AnimeCollectionWithRelations{}
+	}
+	return t.MediaListCollection
+}
+
 type SearchAnimeShortMedia struct {
 	Page *SearchAnimeShortMedia_Page "json:\"Page,omitempty\" graphql:\"Page\""
 }
@@ -7434,17 +7655,6 @@ func (t *BaseMediaByID) GetMedia() *BaseMedia {
 	return t.Media
 }
 
-type MediaDetailsByID struct {
-	Media *MediaDetailsById_Media "json:\"Media,omitempty\" graphql:\"Media\""
-}
-
-func (t *MediaDetailsByID) GetMedia() *MediaDetailsById_Media {
-	if t == nil {
-		t = &MediaDetailsByID{}
-	}
-	return t.Media
-}
-
 type CompleteMediaByID struct {
 	Media *CompleteMedia "json:\"Media,omitempty\" graphql:\"Media\""
 }
@@ -7452,6 +7662,17 @@ type CompleteMediaByID struct {
 func (t *CompleteMediaByID) GetMedia() *CompleteMedia {
 	if t == nil {
 		t = &CompleteMediaByID{}
+	}
+	return t.Media
+}
+
+type MediaDetailsByID struct {
+	Media *MediaDetailsById_Media "json:\"Media,omitempty\" graphql:\"Media\""
+}
+
+func (t *MediaDetailsByID) GetMedia() *MediaDetailsById_Media {
+	if t == nil {
+		t = &MediaDetailsByID{}
 	}
 	return t.Media
 }
@@ -8228,6 +8449,107 @@ fragment baseMedia on Media {
 	meanScore
 	description
 	genres
+	duration
+	trailer {
+		id
+		site
+		thumbnail
+	}
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
+	nextAiringEpisode {
+		airingAt
+		timeUntilAiring
+		episode
+	}
+}
+`
+
+func (c *Client) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+	vars := map[string]any{
+		"userName": userName,
+	}
+
+	var res AnimeCollection
+	if err := c.Client.Post(ctx, "AnimeCollection", AnimeCollectionDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const AnimeCollectionWithRelationsDocument = `query AnimeCollectionWithRelations ($userName: String) {
+	MediaListCollection(userName: $userName, type: ANIME) {
+		lists {
+			status
+			name
+			isCustomList
+			entries {
+				id
+				score(format: POINT_100)
+				progress
+				status
+				notes
+				repeat
+				private
+				startedAt {
+					year
+					month
+					day
+				}
+				completedAt {
+					year
+					month
+					day
+				}
+				media {
+					... completeMedia
+				}
+			}
+		}
+	}
+}
+fragment completeMedia on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	episodes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8284,6 +8606,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8319,13 +8643,13 @@ fragment basicMedia on Media {
 }
 `
 
-func (c *Client) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+func (c *Client) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
 	vars := map[string]any{
 		"userName": userName,
 	}
 
-	var res AnimeCollection
-	if err := c.Client.Post(ctx, "AnimeCollection", AnimeCollectionDocument, &res, vars, interceptors...); err != nil {
+	var res AnimeCollectionWithRelations
+	if err := c.Client.Post(ctx, "AnimeCollectionWithRelations", AnimeCollectionWithRelationsDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -8361,6 +8685,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8437,6 +8763,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8509,6 +8837,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8582,6 +8912,81 @@ fragment baseMedia on Media {
 	meanScore
 	description
 	genres
+	duration
+	trailer {
+		id
+		site
+		thumbnail
+	}
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
+	nextAiringEpisode {
+		airingAt
+		timeUntilAiring
+		episode
+	}
+}
+`
+
+func (c *Client) BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error) {
+	vars := map[string]any{
+		"id": id,
+	}
+
+	var res BaseMediaByID
+	if err := c.Client.Post(ctx, "BaseMediaById", BaseMediaByIDDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CompleteMediaByIDDocument = `query CompleteMediaById ($id: Int) {
+	Media(id: $id, type: ANIME) {
+		... completeMedia
+	}
+}
+fragment completeMedia on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	episodes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8638,6 +9043,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8673,13 +9080,13 @@ fragment basicMedia on Media {
 }
 `
 
-func (c *Client) BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error) {
+func (c *Client) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
 	vars := map[string]any{
 		"id": id,
 	}
 
-	var res BaseMediaByID
-	if err := c.Client.Post(ctx, "BaseMediaById", BaseMediaByIDDocument, &res, vars, interceptors...); err != nil {
+	var res CompleteMediaByID
+	if err := c.Client.Post(ctx, "CompleteMediaById", CompleteMediaByIDDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -8783,82 +9190,12 @@ const MediaDetailsByIDDocument = `query MediaDetailsById ($id: Int) {
 				}
 			}
 		}
-	}
-}
-`
-
-func (c *Client) MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error) {
-	vars := map[string]any{
-		"id": id,
-	}
-
-	var res MediaDetailsByID
-	if err := c.Client.Post(ctx, "MediaDetailsById", MediaDetailsByIDDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const CompleteMediaByIDDocument = `query CompleteMediaById ($id: Int) {
-	Media(id: $id, type: ANIME) {
-		... completeMedia
-	}
-}
-fragment completeMedia on Media {
-	id
-	idMal
-	siteUrl
-	status(version: 2)
-	season
-	type
-	format
-	bannerImage
-	episodes
-	synonyms
-	isAdult
-	countryOfOrigin
-	duration
-	genres
-	averageScore
-	popularity
-	meanScore
-	title {
-		userPreferred
-		romaji
-		english
-		native
-	}
-	coverImage {
-		extraLarge
-		large
-		medium
-		color
-	}
-	startDate {
-		year
-		month
-		day
-	}
-	endDate {
-		year
-		month
-		day
-	}
-	nextAiringEpisode {
-		airingAt
-		timeUntilAiring
-		episode
-	}
-	relations {
-		edges {
-			relationType(version: 2)
-			node {
-				... basicMedia
+		relations {
+			edges {
+				relationType(version: 2)
+				node {
+					... basicMedia
+				}
 			}
 		}
 	}
@@ -8878,6 +9215,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -8913,13 +9252,13 @@ fragment basicMedia on Media {
 }
 `
 
-func (c *Client) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
+func (c *Client) MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error) {
 	vars := map[string]any{
 		"id": id,
 	}
 
-	var res CompleteMediaByID
-	if err := c.Client.Post(ctx, "CompleteMediaById", CompleteMediaByIDDocument, &res, vars, interceptors...); err != nil {
+	var res MediaDetailsByID
+	if err := c.Client.Post(ctx, "MediaDetailsById", MediaDetailsByIDDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -8959,6 +9298,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -9055,6 +9396,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -9273,6 +9616,8 @@ fragment basicMedia on Media {
 	countryOfOrigin
 	meanScore
 	description
+	genres
+	duration
 	trailer {
 		id
 		site
@@ -9370,12 +9715,13 @@ var DocumentOperationNames = map[string]string{
 	MangaDetailsByIDDocument:             "MangaDetailsById",
 	ListMangaDocument:                    "ListManga",
 	AnimeCollectionDocument:              "AnimeCollection",
+	AnimeCollectionWithRelationsDocument: "AnimeCollectionWithRelations",
 	SearchAnimeShortMediaDocument:        "SearchAnimeShortMedia",
 	BasicMediaByMalIDDocument:            "BasicMediaByMalId",
 	BasicMediaByIDDocument:               "BasicMediaById",
 	BaseMediaByIDDocument:                "BaseMediaById",
-	MediaDetailsByIDDocument:             "MediaDetailsById",
 	CompleteMediaByIDDocument:            "CompleteMediaById",
+	MediaDetailsByIDDocument:             "MediaDetailsById",
 	ListMediaDocument:                    "ListMedia",
 	ListRecentMediaDocument:              "ListRecentMedia",
 	ViewerStatsDocument:                  "ViewerStats",

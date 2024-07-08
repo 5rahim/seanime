@@ -98,7 +98,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		// Start the stream
 		//
 		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media, anizipMedia, anizipEpisode)
+		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseMedia(), anizipMedia, anizipEpisode)
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
@@ -148,17 +148,13 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMediaInfo(mediaId int) (media *anilist.BaseMedia, anizipMedia *anizip.Media, err error) {
+func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteMedia, anizipMedia *anizip.Media, err error) {
 	// Get the media
 	var found bool
-	media, found = r.baseMediaCache.Get(mediaId)
-	if !found {
-		media, found = r.animeCollection.FindMedia(mediaId)
-	}
+	media, found = r.completeMediaCache.Get(mediaId)
 	if !found {
 		// Fetch the media
-		var mediaF *anilist.BaseMediaByID
-		mediaF, err = r.anilistClientWrapper.BaseMediaByID(context.Background(), &mediaId)
+		mediaF, err := r.anilistClientWrapper.CompleteMediaByID(context.Background(), &mediaId)
 		if err != nil {
 			return nil, nil, fmt.Errorf("torrentstream: failed to fetch media: %w", err)
 		}

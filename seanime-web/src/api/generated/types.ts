@@ -210,13 +210,13 @@ export type AL_BaseMedia = {
     meanScore?: number
     description?: string
     genres?: Array<string>
+    duration?: number
     trailer?: AL_BaseMedia_Trailer
     title?: AL_BaseMedia_Title
     coverImage?: AL_BaseMedia_CoverImage
     startDate?: AL_BaseMedia_StartDate
     endDate?: AL_BaseMedia_EndDate
     nextAiringEpisode?: AL_BaseMedia_NextAiringEpisode
-    relations?: AL_BaseMedia_Relations
 }
 
 /**
@@ -251,25 +251,6 @@ export type AL_BaseMedia_NextAiringEpisode = {
     airingAt: number
     timeUntilAiring: number
     episode: number
-}
-
-/**
- * - Filepath: internal/api/anilist/client_gen.go
- * - Filename: client_gen.go
- * - Package: anilist
- */
-export type AL_BaseMedia_Relations = {
-    edges?: Array<AL_BaseMedia_Relations_Edges>
-}
-
-/**
- * - Filepath: internal/api/anilist/client_gen.go
- * - Filename: client_gen.go
- * - Package: anilist
- */
-export type AL_BaseMedia_Relations_Edges = {
-    relationType?: AL_MediaRelation
-    node?: AL_BasicMedia
 }
 
 /**
@@ -399,6 +380,8 @@ export type AL_BasicMedia = {
     countryOfOrigin?: string
     meanScore?: number
     description?: string
+    genres?: Array<string>
+    duration?: number
     trailer?: AL_BasicMedia_Trailer
     title?: AL_BasicMedia_Title
     coverImage?: AL_BasicMedia_CoverImage
@@ -885,6 +868,7 @@ export type AL_MediaDetailsById_Media = {
     staff?: AL_MediaDetailsById_Media_Staff
     rankings?: Array<AL_MediaDetailsById_Media_Rankings>
     recommendations?: AL_MediaDetailsById_Media_Recommendations
+    relations?: AL_MediaDetailsById_Media_Relations
 }
 
 /**
@@ -1008,6 +992,25 @@ export type AL_MediaDetailsById_Media_Recommendations_Edges_Node_MediaRecommenda
     id?: string
     site?: string
     thumbnail?: string
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Relations = {
+    edges?: Array<AL_MediaDetailsById_Media_Relations_Edges>
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MediaDetailsById_Media_Relations_Edges = {
+    relationType?: AL_MediaRelation
+    node?: AL_BasicMedia
 }
 
 /**

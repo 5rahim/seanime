@@ -23,7 +23,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	// Get the media info, this is cached
-	media, anizipMedia, err := r.getMediaInfo(mId)
+	completeMedia, anizipMedia, err := r.getMediaInfo(mId)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		AnizipMedia:      anizipMedia,
 		Progress:         lo.ToPtr(0), // Progress is 0 because we want the entire list
 		Status:           lo.ToPtr(anilist.MediaListStatusCurrent),
-		Media:            media,
+		Media:            completeMedia.ToBaseMedia(),
 		MetadataProvider: r.metadataProvider,
 	})
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	if info == nil || info.EpisodesToDownload == nil {
-		r.logger.Error().Msg("torrentstream: could not get media entry info")
+		r.logger.Error().Msg("torrentstream: could not get media entry info, episodes to download is nil")
 		return nil, fmt.Errorf("could not get media entry info")
 	}
 

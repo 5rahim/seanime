@@ -18,7 +18,7 @@ type (
 	// i.e. torrent files instead of local files.
 	Analyzer struct {
 		files                []*File
-		media                *anilist.BaseMedia
+		media                *anilist.CompleteMedia
 		anilistClientWrapper anilist.ClientWrapperInterface
 		logger               *zerolog.Logger
 	}
@@ -27,7 +27,7 @@ type (
 	Analysis struct {
 		files         []*File // Hydrated after scanFiles is called
 		selectedFiles []*File // Hydrated after findCorrespondingFiles is called
-		media         *anilist.BaseMedia
+		media         *anilist.CompleteMedia
 	}
 
 	// File represents a torrent file and contains its metadata.
@@ -41,8 +41,8 @@ type (
 type (
 	NewAnalyzerOptions struct {
 		Logger               *zerolog.Logger
-		Filepaths            []string           // Filepath of the torrent files
-		Media                *anilist.BaseMedia // The media to compare the files with
+		Filepaths            []string               // Filepath of the torrent files
+		Media                *anilist.CompleteMedia // The media to compare the files with
 		AnilistClientWrapper anilist.ClientWrapperInterface
 	}
 )
@@ -186,7 +186,7 @@ func (f *File) GetIndex() int {
 // scanFiles scans the files and matches them with the media.
 func (a *Analyzer) scanFiles() error {
 
-	baseMediaCache := anilist.NewBaseMediaCache()
+	baseMediaCache := anilist.NewCompleteMediaCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -196,7 +196,7 @@ func (a *Analyzer) scanFiles() error {
 	// |   MediaContainer    |
 	// +---------------------+
 
-	tree := anilist.NewBaseMediaRelationTree()
+	tree := anilist.NewCompleteMediaRelationTree()
 	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.anilistClientWrapper, anilistRateLimiter, tree, baseMediaCache); err != nil {
 		return err
 	}
@@ -212,10 +212,10 @@ func (a *Analyzer) scanFiles() error {
 	// +---------------------+
 
 	matcher := &scanner.Matcher{
-		LocalFiles:     lfs,
-		MediaContainer: mc,
-		BaseMediaCache: baseMediaCache,
-		Logger:         util.NewLogger(),
+		LocalFiles:         lfs,
+		MediaContainer:     mc,
+		CompleteMediaCache: baseMediaCache,
+		Logger:             util.NewLogger(),
 	}
 
 	err := matcher.MatchLocalFilesWithMedia()
@@ -230,7 +230,7 @@ func (a *Analyzer) scanFiles() error {
 	fh := &scanner.FileHydrator{
 		LocalFiles:           lfs,
 		AllMedia:             mc.NormalizedMedia,
-		BaseMediaCache:       baseMediaCache,
+		CompleteMediaCache:   baseMediaCache,
 		AnizipCache:          anizipCache,
 		AnilistClientWrapper: a.anilistClientWrapper,
 		AnilistRateLimiter:   anilistRateLimiter,

@@ -81,7 +81,7 @@ func TestSmartSelect(t *testing.T) {
 			}
 
 			// get media
-			media, err := anilist.GetBaseMediaById(anilistClientWrapper, tt.mediaId)
+			completeMedia, err := anilist.GetCompleteMediaById(anilistClientWrapper, tt.mediaId)
 			if err != nil {
 				t.Fatalf("error getting media: %s", err.Error())
 			}
@@ -91,7 +91,7 @@ func TestSmartSelect(t *testing.T) {
 			err = repo.SmartSelect(&SmartSelectParams{
 				Url:                  tt.url,
 				EpisodeNumbers:       tt.selectedEpisodes,
-				Media:                media,
+				Media:                completeMedia,
 				AnilistClientWrapper: anilistClientWrapper,
 				Destination:          destination,
 				ShouldAddTorrent:     true,

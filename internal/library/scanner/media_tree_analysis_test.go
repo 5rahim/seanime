@@ -18,7 +18,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	tree := anilist.NewBaseMediaRelationTree()
+	tree := anilist.NewCompleteMediaRelationTree()
 
 	tests := []struct {
 		name                          string
@@ -102,7 +102,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	tree := anilist.NewBaseMediaRelationTree()
+	tree := anilist.NewCompleteMediaRelationTree()
 
 	tests := []struct {
 		name    string

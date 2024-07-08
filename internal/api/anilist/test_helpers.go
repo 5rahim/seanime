@@ -417,8 +417,12 @@ func (c *MockClientWrapper) StudioDetails(ctx context.Context, id *int, intercep
 	c.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
 	return c.realClientWrapper.StudioDetails(ctx, id, interceptors...)
 }
-
 func (c *MockClientWrapper) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
 	c.logger.Debug().Msg("anilist: Fetching stats")
 	return c.realClientWrapper.ViewerStats(ctx, interceptors...)
+}
+
+func (c *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
+	c.logger.Debug().Msg("anilist: Fetching anime collection with relations")
+	return c.realClientWrapper.AnimeCollectionWithRelations(ctx, userName, interceptors...)
 }

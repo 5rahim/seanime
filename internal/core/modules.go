@@ -160,6 +160,7 @@ func (a *App) initModulesOnce() {
 		Logger:                a.Logger,
 		AnizipCache:           a.AnizipCache,
 		BaseMediaCache:        anilist.NewBaseMediaCache(),
+		CompleteMediaCache:    anilist.NewCompleteMediaCache(),
 		NyaaSearchCache:       a.NyaaSearchCache,
 		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
 		MetadataProvider:      a.MetadataProvider,

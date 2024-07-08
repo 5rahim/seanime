@@ -44,7 +44,7 @@ func TestBaseMedia_FetchMediaTree_BaseMedia(t *testing.T) {
 
 				media := mediaF.GetMedia()
 
-				tree := NewBaseMediaRelationTree()
+				tree := NewCompleteMediaRelationTree()
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,
@@ -105,7 +105,7 @@ func TestBasicMedia_FetchMediaTree_BasicMedia(t *testing.T) {
 
 				media := mediaF.GetMedia()
 
-				tree := NewBaseMediaRelationTree()
+				tree := NewCompleteMediaRelationTree()
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,

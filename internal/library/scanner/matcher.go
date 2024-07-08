@@ -17,12 +17,12 @@ import (
 )
 
 type Matcher struct {
-	LocalFiles        []*anime.LocalFile
-	MediaContainer    *MediaContainer
-	BaseMediaCache    *anilist.BaseMediaCache
-	Logger            *zerolog.Logger
-	ScanLogger        *ScanLogger
-	ScanSummaryLogger *summary.ScanSummaryLogger // optional
+	LocalFiles         []*anime.LocalFile
+	MediaContainer     *MediaContainer
+	CompleteMediaCache *anilist.CompleteMediaCache
+	Logger             *zerolog.Logger
+	ScanLogger         *ScanLogger
+	ScanSummaryLogger  *summary.ScanSummaryLogger // optional
 }
 
 var (

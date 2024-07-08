@@ -33,7 +33,7 @@ type (
 		Logs            []*ScanSummaryLog
 		LocalFiles      []*anime.LocalFile
 		AllMedia        []*anime.NormalizedMedia
-		AnimeCollection *anilist.AnimeCollection
+		AnimeCollection *anilist.AnimeCollectionWithRelations
 	}
 
 	ScanSummaryLog struct { // Holds a log entry. The log entry will then be used to generate a ScanSummary.
@@ -72,7 +72,7 @@ func NewScanSummaryLogger() *ScanSummaryLogger {
 }
 
 // HydrateData will hydrate the data needed to generate the summary.
-func (l *ScanSummaryLogger) HydrateData(lfs []*anime.LocalFile, media []*anime.NormalizedMedia, animeCollection *anilist.AnimeCollection) {
+func (l *ScanSummaryLogger) HydrateData(lfs []*anime.LocalFile, media []*anime.NormalizedMedia, animeCollection *anilist.AnimeCollectionWithRelations) {
 	l.LocalFiles = lfs
 	l.AllMedia = media
 	l.AnimeCollection = animeCollection
