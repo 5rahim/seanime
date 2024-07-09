@@ -134,6 +134,11 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	completeMedia, err := anilist.GetCompleteMediaById(c.App.AnilistClientWrapper, b.Media.ID)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
 	if b.SmartSelect.Enabled {
 		if len(b.Urls) > 1 {
 			return c.RespondWithError(errors.New("smart select is not supported for multiple torrents"))
@@ -143,7 +148,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelectParams{
 			Url:                  b.Urls[0],
 			EpisodeNumbers:       b.SmartSelect.MissingEpisodeNumbers,
-			Media:                b.Media,
+			Media:                completeMedia,
 			Destination:          b.Destination,
 			AnilistClientWrapper: c.App.AnilistClientWrapper,
 			ShouldAddTorrent:     true,

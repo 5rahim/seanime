@@ -29,6 +29,7 @@ export const BadgeAnatomy = defineStyleAnatomy({
                 "gray-solid": "text-white bg-gray-500",
                 "zinc-solid": "text-white bg-zinc-500",
                 "white-solid": "text-gray-900 bg-white",
+                "unstyled": "border text-gray-300",
             },
             size: {
                 sm: "h-[1.2rem] px-1.5 text-xs",

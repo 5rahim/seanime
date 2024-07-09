@@ -13,7 +13,7 @@ type (
 	SmartSelectParams struct {
 		Url                  string
 		EpisodeNumbers       []int
-		Media                *anilist.BaseMedia
+		Media                *anilist.CompleteMedia
 		Destination          string
 		ShouldAddTorrent     bool
 		AnilistClientWrapper anilist.ClientWrapperInterface

@@ -34,6 +34,7 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
                 <MediaPageHeaderEntryDetails
                     coverImage={offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)
                         || offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)}
+                    color={entry.media?.coverImage?.color}
                     title={entry.media?.title?.userPreferred}
                     englishTitle={entry.media?.title?.english}
                     romajiTitle={entry.media?.title?.romaji}

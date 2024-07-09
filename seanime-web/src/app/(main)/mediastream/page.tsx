@@ -416,9 +416,9 @@ export default function Page() {
                                 <EpisodeGridItem
                                     key={episode.localFile?.path || ""}
                                     id={`episode-${String(episode.episodeNumber)}`}
-                                    media={episode?.basicMedia as any}
-                                    title={episode?.displayTitle || episode?.basicMedia?.title?.userPreferred || ""}
-                                    image={episode?.episodeMetadata?.image || episode?.basicMedia?.coverImage?.large}
+                                    media={episode?.baseMedia as any}
+                                    title={episode?.displayTitle || episode?.baseMedia?.title?.userPreferred || ""}
+                                    image={episode?.episodeMetadata?.image || episode?.baseMedia?.coverImage?.large}
                                     episodeTitle={episode?.episodeTitle}
                                     fileName={episode?.localFile?.parsedInfo?.original}
                                     onClick={() => {
@@ -432,7 +432,7 @@ export default function Page() {
                                     isWatched={!!currentProgress && currentProgress >= episode?.progressNumber}
                                     isFiller={episode.episodeMetadata?.isFiller}
                                     isSelected={episode.localFile?.path === filePath}
-                                    imageContainerClassName="w-20 h-20"
+                                    length={episode.episodeMetadata?.length}
                                     className="flex-none w-full"
                                     action={<>
                                         <MediaEpisodeInfoModal
@@ -443,6 +443,7 @@ export default function Page() {
                                             length={episode.episodeMetadata?.length}
                                             summary={episode.episodeMetadata?.summary}
                                             isInvalid={episode.isInvalid}
+                                            filename={episode.localFile?.parsedInfo?.original}
                                         />
                                     </>}
                                 />

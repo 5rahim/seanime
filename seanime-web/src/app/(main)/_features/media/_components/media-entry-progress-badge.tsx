@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/components/ui/core/styling"
 import React from "react"
 
 type MediaEntryProgressBadgeProps = {
@@ -12,8 +13,12 @@ export const MediaEntryProgressBadge = (props: MediaEntryProgressBadgeProps) => 
     if (!progress) return null
 
     return (
-        <Badge size="lg" className="rounded-md px-1.5">
-            {progress}{!!progressTotal ? `/${progressTotal}` : ""}
+        <Badge size="lg" className="rounded-md px-1.5 gap-0">
+            {progress}{!!progressTotal && <span
+            className={cn(
+                progress != progressTotal && "text-[--muted]",
+            )}
+        >/{progressTotal}</span>}
         </Badge>
     )
 }

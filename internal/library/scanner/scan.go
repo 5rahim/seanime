@@ -34,7 +34,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	defer util.HandlePanicWithError(&err)
 
-	baseMediaCache := anilist.NewBaseMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anizipCache := anizip.NewCache()
 
 	// Create a new Anilist rate limiter
@@ -144,7 +144,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		Username:             scn.Username,
 		AnilistClientWrapper: scn.AnilistClientWrapper,
 		LocalFiles:           localFiles,
-		BaseMediaCache:       baseMediaCache,
+		CompleteMediaCache:   completeMediaCache,
 		AnizipCache:          anizipCache,
 		Logger:               scn.Logger,
 		AnilistRateLimiter:   anilistRateLimiter,
@@ -177,12 +177,12 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	// Create a new matcher
 	matcher := &Matcher{
-		LocalFiles:        localFiles,
-		MediaContainer:    mc,
-		BaseMediaCache:    baseMediaCache,
-		Logger:            scn.Logger,
-		ScanLogger:        scn.ScanLogger,
-		ScanSummaryLogger: scn.ScanSummaryLogger,
+		LocalFiles:         localFiles,
+		MediaContainer:     mc,
+		CompleteMediaCache: completeMediaCache,
+		Logger:             scn.Logger,
+		ScanLogger:         scn.ScanLogger,
+		ScanSummaryLogger:  scn.ScanSummaryLogger,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)
@@ -211,7 +211,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		LocalFiles:           localFiles,
 		AnizipCache:          anizipCache,
 		AnilistClientWrapper: scn.AnilistClientWrapper,
-		BaseMediaCache:       baseMediaCache,
+		CompleteMediaCache:   completeMediaCache,
 		AnilistRateLimiter:   anilistRateLimiter,
 		Logger:               scn.Logger,
 		ScanLogger:           scn.ScanLogger,
@@ -239,7 +239,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Verifying file integrity...")
 
 	// Hydrate the summary logger before merging files
-	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnimeCollection)
+	scn.ScanSummaryLogger.HydrateData(localFiles, mc.NormalizedMedia, mf.AnimeCollectionWithRelations)
 
 	// +---------------------+
 	// |    Merge files      |

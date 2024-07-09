@@ -55,7 +55,7 @@ export function DiscoverPastSeason() {
             {/*<CarouselMasks />*/}
             <CarouselDotButtons />
             <CarouselContent className="px-6" ref={ref}>
-                {!!data ? data?.Page?.media?.filter(Boolean).map(media => {
+                {!!data ? data?.Page?.media?.filter(Boolean)?.sort((a, b) => b.meanScore! - a.meanScore!).map(media => {
                     return (
                         <MediaEntryCard
                             key={media.id}

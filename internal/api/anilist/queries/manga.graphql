@@ -109,6 +109,14 @@ query MangaDetailsById ($id: Int) {
         }
       }
     }
+    relations {
+      edges {
+        relationType(version: 2)
+        node {
+          ...baseMedia
+        }
+      }
+    }
   }
 }
 
@@ -134,7 +142,7 @@ query ListManga(
       lastPage
     },
     media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
-      ...basicManga
+      ...baseMedia
     }
   }
 }
@@ -156,55 +164,6 @@ fragment baseManga on Media {
   meanScore
   description
   genres
-  title {
-    userPreferred
-    romaji
-    english
-    native
-  }
-  coverImage {
-    extraLarge
-    large
-    medium
-    color
-  }
-  startDate {
-    year
-    month
-    day
-  }
-  endDate {
-    year
-    month
-    day
-  }
-  relations {
-    edges {
-      relationType(version: 2)
-      node {
-        ...basicManga
-      }
-    }
-  }
-}
-
-
-fragment basicManga on Media {
-  id
-  idMal
-  siteUrl
-  status(version: 2)
-  season
-  type
-  format
-  bannerImage
-  chapters
-  volumes
-  synonyms
-  isAdult
-  countryOfOrigin
-  meanScore
-  description
   title {
     userPreferred
     romaji

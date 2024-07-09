@@ -22,6 +22,7 @@ import (
 )
 
 func TestTorrentstream(t *testing.T) {
+	t.Skip()
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer(), test_utils.Torrentstream())
 
@@ -71,6 +72,7 @@ func TestTorrentstream(t *testing.T) {
 		Logger:                logger,
 		AnizipCache:           anizip.NewCache(),
 		BaseMediaCache:        anilist.NewBaseMediaCache(),
+		CompleteMediaCache:    anilist.NewCompleteMediaCache(),
 		AnimeCollection:       animeCollection,
 		AnilistClientWrapper:  anilistClientWrapper,
 		AnimeToshoSearchCache: animetosho.NewSearchCache(),

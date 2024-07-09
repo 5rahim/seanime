@@ -105,14 +105,15 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                     >
                                         <EpisodeCard
                                             key={episode.localFile?.path || ""}
-                                            image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
-                                            topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
+                                            image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
+                                            topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
                                             isInvalid={episode.isInvalid}
-                                            progressTotal={episode.basicMedia?.episodes}
+                                            progressTotal={episode.baseMedia?.episodes}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
+                                            length={episode.episodeMetadata?.length}
                                             onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
                                         />
                                     </CarouselItem>

@@ -18,7 +18,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	tree := anilist.NewBaseMediaRelationTree()
+	tree := anilist.NewCompleteMediaRelationTree()
 
 	tests := []struct {
 		name                          string
@@ -32,7 +32,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 			absoluteEpisodeNumber:         23,
 			expectedRelativeEpisodeNumber: 12,
 		},
-		// DEVNOTE: This fails because Anizip doesn't include the absolute episode number
+		// DEVNOTE: This fails because Anizip doesn't include the absolute episode number - edit: no longer fails
 		{
 			name:                          "Oshi no Ko Season 2",
 			mediaId:                       150672, // 86 - Eighty Six Part 2
@@ -60,7 +60,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 				anilistClientWrapper,
 				anilistRateLimiter,
 				tree,
-				anilist.NewBaseMediaCache(),
+				anilist.NewCompleteMediaCache(),
 			)
 
 			if err != nil {
@@ -102,7 +102,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	tree := anilist.NewBaseMediaRelationTree()
+	tree := anilist.NewCompleteMediaRelationTree()
 
 	tests := []struct {
 		name    string
@@ -132,7 +132,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 				anilistClientWrapper,
 				anilistRateLimiter,
 				tree,
-				anilist.NewBaseMediaCache(),
+				anilist.NewCompleteMediaCache(),
 			)
 
 			if err != nil {

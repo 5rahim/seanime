@@ -20,6 +20,7 @@ type EpisodeCardProps = {
     progressTotal?: number
     mRef?: React.RefObject<HTMLDivElement>
     hasDiscrepancy?: boolean
+    length?: string | number | null
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -41,6 +42,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         progressTotal,
         progressNumber,
         hasDiscrepancy,
+        length,
         ...rest
     } = props
 
@@ -88,12 +90,14 @@ export function EpisodeCard(props: EpisodeCardProps) {
             <div className="relative z-[3] w-full p-4 space-y-1">
                 <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{topTitle?.replaceAll("`", "'")}</p>
                 <div className="w-full justify-between flex items-center">
-                    <p className="text-base md:text-xl lg:text-2xl font-semibold line-clamp-2">
+                    <p className="text-base md:text-xl lg:text-2xl font-semibold line-clamp-1">
                         <span>{title}{showTotalEpisodes ?
                             <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                             : ``}</span>
                     </p>
-                    {(meta) && <p className="text-[--muted] text-sm md:text-base">{meta}</p>}
+                    {(!!meta || !!length) && <p className="text-[--muted] text-sm md:text-base line-clamp-2 text-right">
+                        {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
+                    </p>}
                 </div>
                 {isInvalid && <p className="text-red-300">No metadata found</p>}
             </div>

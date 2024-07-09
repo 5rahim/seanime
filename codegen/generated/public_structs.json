@@ -243,405 +243,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Relations",
-        "jsonName": "relations",
-        "goType": "BaseManga_Relations",
-        "typescriptType": "AL_BaseManga_Relations",
-        "usedStructName": "anilist.BaseManga_Relations",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicManga",
-    "formattedName": "AL_BasicManga",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IDMal",
-        "jsonName": "idMal",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SiteURL",
-        "jsonName": "siteUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaStatus",
-        "typescriptType": "AL_MediaStatus",
-        "usedStructName": "anilist.MediaStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Season",
-        "jsonName": "season",
-        "goType": "MediaSeason",
-        "typescriptType": "AL_MediaSeason",
-        "usedStructName": "anilist.MediaSeason",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "MediaType",
-        "typescriptType": "AL_MediaType",
-        "usedStructName": "anilist.MediaType",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Format",
-        "jsonName": "format",
-        "goType": "MediaFormat",
-        "typescriptType": "AL_MediaFormat",
-        "usedStructName": "anilist.MediaFormat",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImage",
-        "jsonName": "bannerImage",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Chapters",
-        "jsonName": "chapters",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Volumes",
-        "jsonName": "volumes",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Synonyms",
-        "jsonName": "synonyms",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsAdult",
-        "jsonName": "isAdult",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CountryOfOrigin",
-        "jsonName": "countryOfOrigin",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "BasicManga_Title",
-        "typescriptType": "AL_BasicManga_Title",
-        "usedStructName": "anilist.BasicManga_Title",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CoverImage",
-        "jsonName": "coverImage",
-        "goType": "BasicManga_CoverImage",
-        "typescriptType": "AL_BasicManga_CoverImage",
-        "usedStructName": "anilist.BasicManga_CoverImage",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartDate",
-        "jsonName": "startDate",
-        "goType": "BasicManga_StartDate",
-        "typescriptType": "AL_BasicManga_StartDate",
-        "usedStructName": "anilist.BasicManga_StartDate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EndDate",
-        "jsonName": "endDate",
-        "goType": "BasicManga_EndDate",
-        "typescriptType": "AL_BasicManga_EndDate",
-        "usedStructName": "anilist.BasicManga_EndDate",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia",
-    "formattedName": "AL_BasicMedia",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IDMal",
-        "jsonName": "idMal",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SiteURL",
-        "jsonName": "siteUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "MediaStatus",
-        "typescriptType": "AL_MediaStatus",
-        "usedStructName": "anilist.MediaStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Season",
-        "jsonName": "season",
-        "goType": "MediaSeason",
-        "typescriptType": "AL_MediaSeason",
-        "usedStructName": "anilist.MediaSeason",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "MediaType",
-        "typescriptType": "AL_MediaType",
-        "usedStructName": "anilist.MediaType",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Format",
-        "jsonName": "format",
-        "goType": "MediaFormat",
-        "typescriptType": "AL_MediaFormat",
-        "usedStructName": "anilist.MediaFormat",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImage",
-        "jsonName": "bannerImage",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Synonyms",
-        "jsonName": "synonyms",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsAdult",
-        "jsonName": "isAdult",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CountryOfOrigin",
-        "jsonName": "countryOfOrigin",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Trailer",
-        "jsonName": "trailer",
-        "goType": "BasicMedia_Trailer",
-        "typescriptType": "AL_BasicMedia_Trailer",
-        "usedStructName": "anilist.BasicMedia_Trailer",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "BasicMedia_Title",
-        "typescriptType": "AL_BasicMedia_Title",
-        "usedStructName": "anilist.BasicMedia_Title",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CoverImage",
-        "jsonName": "coverImage",
-        "goType": "BasicMedia_CoverImage",
-        "typescriptType": "AL_BasicMedia_CoverImage",
-        "usedStructName": "anilist.BasicMedia_CoverImage",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartDate",
-        "jsonName": "startDate",
-        "goType": "BasicMedia_StartDate",
-        "typescriptType": "AL_BasicMedia_StartDate",
-        "usedStructName": "anilist.BasicMedia_StartDate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EndDate",
-        "jsonName": "endDate",
-        "goType": "BasicMedia_EndDate",
-        "typescriptType": "AL_BasicMedia_EndDate",
-        "usedStructName": "anilist.BasicMedia_EndDate",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextAiringEpisode",
-        "jsonName": "nextAiringEpisode",
-        "goType": "BasicMedia_NextAiringEpisode",
-        "typescriptType": "AL_BasicMedia_NextAiringEpisode",
-        "usedStructName": "anilist.BasicMedia_NextAiringEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -793,6 +394,15 @@
         "comments": []
       },
       {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Trailer",
         "jsonName": "trailer",
         "goType": "BaseMedia_Trailer",
@@ -848,16 +458,6 @@
         "goType": "BaseMedia_NextAiringEpisode",
         "typescriptType": "AL_BaseMedia_NextAiringEpisode",
         "usedStructName": "anilist.BaseMedia_NextAiringEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Relations",
-        "jsonName": "relations",
-        "goType": "BaseMedia_Relations",
-        "typescriptType": "AL_BaseMedia_Relations",
-        "usedStructName": "anilist.BaseMedia_Relations",
         "required": false,
         "public": true,
         "comments": []
@@ -985,10 +585,19 @@
         "comments": []
       },
       {
-        "name": "Duration",
-        "jsonName": "duration",
+        "name": "MeanScore",
+        "jsonName": "meanScore",
         "goType": "int",
         "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -1003,8 +612,8 @@
         "comments": []
       },
       {
-        "name": "AverageScore",
-        "jsonName": "averageScore",
+        "name": "Duration",
+        "jsonName": "duration",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -1012,19 +621,11 @@
         "comments": []
       },
       {
-        "name": "Popularity",
-        "jsonName": "popularity",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MeanScore",
-        "jsonName": "meanScore",
-        "goType": "int",
-        "typescriptType": "number",
+        "name": "Trailer",
+        "jsonName": "trailer",
+        "goType": "CompleteMedia_Trailer",
+        "typescriptType": "AL_CompleteMedia_Trailer",
+        "usedStructName": "anilist.CompleteMedia_Trailer",
         "required": false,
         "public": true,
         "comments": []
@@ -1712,628 +1313,6 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "formattedName": "AL_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "formattedName": "AL_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "formattedName": "AL_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "formattedName": "AL_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseManga_Relations_Edges",
-    "formattedName": "AL_BaseManga_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicManga",
-        "typescriptType": "AL_BasicManga",
-        "usedStructName": "anilist.BasicManga",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseManga_Relations",
-    "formattedName": "AL_BaseManga_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]BaseManga_Relations_Edges",
-        "typescriptType": "Array\u003cAL_BaseManga_Relations_Edges\u003e",
-        "usedStructName": "anilist.BaseManga_Relations_Edges",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicManga_Title",
-    "formattedName": "AL_BasicManga_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicManga_CoverImage",
-    "formattedName": "AL_BasicManga_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicManga_StartDate",
-    "formattedName": "AL_BasicManga_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicManga_EndDate",
-    "formattedName": "AL_BasicManga_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia_Trailer",
-    "formattedName": "AL_BasicMedia_Trailer",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Site",
-        "jsonName": "site",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Thumbnail",
-        "jsonName": "thumbnail",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia_Title",
-    "formattedName": "AL_BasicMedia_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia_CoverImage",
-    "formattedName": "AL_BasicMedia_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia_StartDate",
-    "formattedName": "AL_BasicMedia_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia_EndDate",
-    "formattedName": "AL_BasicMedia_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_BasicMedia_NextAiringEpisode",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "AiringAt",
-        "jsonName": "airingAt",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
     "name": "BaseMedia_Trailer",
     "formattedName": "AL_BaseMedia_Trailer",
     "package": "anilist",
@@ -2574,8 +1553,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "formattedName": "AL_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer",
+    "name": "CompleteMedia_Trailer",
+    "formattedName": "AL_CompleteMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -2601,259 +1580,6 @@
         "jsonName": "thumbnail",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges_Node_BasicMedia_Title",
-    "formattedName": "AL_BaseMedia_Relations_Edges_Node_BasicMedia_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "formattedName": "AL_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "formattedName": "AL_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "formattedName": "AL_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "AiringAt",
-        "jsonName": "airingAt",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations_Edges",
-    "formattedName": "AL_BaseMedia_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMedia_Relations",
-    "formattedName": "AL_BaseMedia_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]BaseMedia_Relations_Edges",
-        "typescriptType": "Array\u003cAL_BaseMedia_Relations_Edges\u003e",
-        "usedStructName": "anilist.BaseMedia_Relations_Edges",
         "required": false,
         "public": true,
         "comments": []
@@ -3067,8 +1793,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer",
+    "name": "CompleteMedia_Relations_Edges_Node_BaseMedia_Trailer",
+    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BaseMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -3104,8 +1830,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "CompleteMedia_Relations_Edges_Node_BasicMedia_Title",
-    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BasicMedia_Title",
+    "name": "CompleteMedia_Relations_Edges_Node_BaseMedia_Title",
+    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BaseMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -3150,8 +1876,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage",
+    "name": "CompleteMedia_Relations_Edges_Node_BaseMedia_CoverImage",
+    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BaseMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -3196,8 +1922,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate",
+    "name": "CompleteMedia_Relations_Edges_Node_BaseMedia_StartDate",
+    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BaseMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -3233,8 +1959,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate",
+    "name": "CompleteMedia_Relations_Edges_Node_BaseMedia_EndDate",
+    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BaseMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -3270,8 +1996,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
+    "name": "CompleteMedia_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_CompleteMedia_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -3324,9 +2050,9 @@
       {
         "name": "Node",
         "jsonName": "node",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -3729,222 +2455,6 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges",
-    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicManga",
-        "typescriptType": "AL_BasicManga",
-        "usedStructName": "anilist.BasicManga",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations",
-    "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges",
-        "typescriptType": "Array\u003cAL_MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges\u003e",
-        "usedStructName": "anilist.MangaCollection_MediaListCollection_Lists_Entries_Media_BaseManga_Relations_Edges",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
     "name": "MangaCollection_MediaListCollection_Lists_Entries",
     "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries",
     "package": "anilist",
@@ -4302,222 +2812,6 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "SearchBaseManga_Page_Media_BaseManga_Relations_Edges",
-    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicManga",
-        "typescriptType": "AL_BasicManga",
-        "usedStructName": "anilist.BasicManga",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "SearchBaseManga_Page_Media_BaseManga_Relations",
-    "formattedName": "AL_SearchBaseManga_Page_Media_BaseManga_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]SearchBaseManga_Page_Media_BaseManga_Relations_Edges",
-        "typescriptType": "Array\u003cAL_SearchBaseManga_Page_Media_BaseManga_Relations_Edges\u003e",
-        "usedStructName": "anilist.SearchBaseManga_Page_Media_BaseManga_Relations_Edges",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
     "name": "SearchBaseManga_Page",
     "formattedName": "AL_SearchBaseManga_Page",
     "package": "anilist",
@@ -4704,222 +2998,6 @@
         "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "formattedName": "AL_BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "formattedName": "AL_BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "formattedName": "AL_BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "formattedName": "AL_BaseMangaById_Media_BaseManga_Relations_Edges_Node_BasicManga_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMangaById_Media_BaseManga_Relations_Edges",
-    "formattedName": "AL_BaseMangaById_Media_BaseManga_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicManga",
-        "typescriptType": "AL_BasicManga",
-        "usedStructName": "anilist.BasicManga",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BaseMangaById_Media_BaseManga_Relations",
-    "formattedName": "AL_BaseMangaById_Media_BaseManga_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]BaseMangaById_Media_BaseManga_Relations_Edges",
-        "typescriptType": "Array\u003cAL_BaseMangaById_Media_BaseManga_Relations_Edges\u003e",
-        "usedStructName": "anilist.BaseMangaById_Media_BaseManga_Relations_Edges",
         "required": false,
         "public": true,
         "comments": []
@@ -5421,6 +3499,296 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_Trailer",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_Title",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_Title",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_CoverImage",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_CoverImage",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "extraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_StartDate",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_StartDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_EndDate",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_EndDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations_Edges",
+    "formattedName": "AL_MangaDetailsById_Media_Relations_Edges",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Node",
+        "jsonName": "node",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Relations",
+    "formattedName": "AL_MangaDetailsById_Media_Relations",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Edges",
+        "jsonName": "edges",
+        "goType": "[]MangaDetailsById_Media_Relations_Edges",
+        "typescriptType": "Array\u003cAL_MangaDetailsById_Media_Relations_Edges\u003e",
+        "usedStructName": "anilist.MangaDetailsById_Media_Relations_Edges",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "MangaDetailsById_Media",
     "formattedName": "AL_MangaDetailsById_Media",
     "package": "anilist",
@@ -5477,6 +3845,16 @@
         "goType": "MangaDetailsById_Media_Recommendations",
         "typescriptType": "AL_MangaDetailsById_Media_Recommendations",
         "usedStructName": "anilist.MangaDetailsById_Media_Recommendations",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Relations",
+        "jsonName": "relations",
+        "goType": "MangaDetailsById_Media_Relations",
+        "typescriptType": "AL_MangaDetailsById_Media_Relations",
+        "usedStructName": "anilist.MangaDetailsById_Media_Relations",
         "required": false,
         "public": true,
         "comments": []
@@ -5542,8 +3920,45 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListManga_Page_Media_BasicManga_Title",
-    "formattedName": "AL_ListManga_Page_Media_BasicManga_Title",
+    "name": "ListManga_Page_Media_BaseMedia_Trailer",
+    "formattedName": "AL_ListManga_Page_Media_BaseMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ListManga_Page_Media_BaseMedia_Title",
+    "formattedName": "AL_ListManga_Page_Media_BaseMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -5588,8 +4003,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListManga_Page_Media_BasicManga_CoverImage",
-    "formattedName": "AL_ListManga_Page_Media_BasicManga_CoverImage",
+    "name": "ListManga_Page_Media_BaseMedia_CoverImage",
+    "formattedName": "AL_ListManga_Page_Media_BaseMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -5634,8 +4049,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListManga_Page_Media_BasicManga_StartDate",
-    "formattedName": "AL_ListManga_Page_Media_BasicManga_StartDate",
+    "name": "ListManga_Page_Media_BaseMedia_StartDate",
+    "formattedName": "AL_ListManga_Page_Media_BaseMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -5671,8 +4086,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListManga_Page_Media_BasicManga_EndDate",
-    "formattedName": "AL_ListManga_Page_Media_BasicManga_EndDate",
+    "name": "ListManga_Page_Media_BaseMedia_EndDate",
+    "formattedName": "AL_ListManga_Page_Media_BaseMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -5699,6 +4114,43 @@
         "goType": "int",
         "typescriptType": "number",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "ListManga_Page_Media_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_ListManga_Page_Media_BaseMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -5725,9 +4177,9 @@
       {
         "name": "Media",
         "jsonName": "media",
-        "goType": "[]BasicManga",
-        "typescriptType": "Array\u003cAL_BasicManga\u003e",
-        "usedStructName": "anilist.BasicManga",
+        "goType": "[]BaseMedia",
+        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -6052,296 +4504,6 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Site",
-        "jsonName": "site",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Thumbnail",
-        "jsonName": "thumbnail",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "AiringAt",
-        "jsonName": "airingAt",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations",
-    "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges",
-        "typescriptType": "Array\u003cAL_AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges\u003e",
-        "usedStructName": "anilist.AnimeCollection_MediaListCollection_Lists_Entries_Media_BaseMedia_Relations_Edges",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
     "name": "AnimeCollection_MediaListCollection_Lists_Entries",
     "formattedName": "AL_AnimeCollection_MediaListCollection_Lists_Entries",
     "package": "anilist",
@@ -6514,15 +4676,33 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_PageInfo",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_PageInfo",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt",
     "package": "anilist",
     "fields": [
       {
-        "name": "HasNextPage",
-        "jsonName": "hasNextPage",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -6533,8 +4713,45 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_Media_BasicMedia_Trailer",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BasicMedia_Trailer",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -6570,8 +4787,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_Media_BasicMedia_Title",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BasicMedia_Title",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -6616,8 +4833,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_Media_BasicMedia_CoverImage",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BasicMedia_CoverImage",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -6662,8 +4879,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_Media_BasicMedia_StartDate",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BasicMedia_StartDate",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -6699,8 +4916,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BasicMedia_EndDate",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -6736,8 +4953,729 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "SearchAnimeShortMedia_Page_Media_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BasicMedia_NextAiringEpisode",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Trailer",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Title",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Title",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_CoverImage",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_CoverImage",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "extraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_StartDate",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_StartDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_EndDate",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_EndDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Node",
+        "jsonName": "node",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Edges",
+        "jsonName": "edges",
+        "goType": "[]AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges",
+        "typescriptType": "Array\u003cAL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges\u003e",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_Media_CompleteMedia_Relations_Edges",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Notes",
+        "jsonName": "notes",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Repeat",
+        "jsonName": "repeat",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Private",
+        "jsonName": "private",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartedAt",
+        "jsonName": "startedAt",
+        "goType": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt",
+        "typescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "typescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "CompleteMedia",
+        "typescriptType": "AL_CompleteMedia",
+        "usedStructName": "anilist.CompleteMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection_Lists",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection_Lists",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsCustomList",
+        "jsonName": "isCustomList",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Entries",
+        "jsonName": "entries",
+        "goType": "[]AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+        "typescriptType": "Array\u003cAL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries\u003e",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists_Entries",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations_MediaListCollection",
+    "formattedName": "AL_AnimeCollectionWithRelations_MediaListCollection",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Lists",
+        "jsonName": "lists",
+        "goType": "[]AnimeCollectionWithRelations_MediaListCollection_Lists",
+        "typescriptType": "Array\u003cAL_AnimeCollectionWithRelations_MediaListCollection_Lists\u003e",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection_Lists",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_PageInfo",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_PageInfo",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "HasNextPage",
+        "jsonName": "hasNextPage",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_Media_BaseMedia_Title",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BaseMedia_Title",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "extraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -6790,9 +5728,9 @@
       {
         "name": "Media",
         "jsonName": "media",
-        "goType": "[]BasicMedia",
-        "typescriptType": "Array\u003cAL_BasicMedia\u003e",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "[]BaseMedia",
+        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -6803,8 +5741,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalId_Media_BasicMedia_Trailer",
-    "formattedName": "AL_BasicMediaByMalId_Media_BasicMedia_Trailer",
+    "name": "BaseMediaByMalId_Media_BaseMedia_Trailer",
+    "formattedName": "AL_BaseMediaByMalId_Media_BaseMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -6840,8 +5778,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalId_Media_BasicMedia_Title",
-    "formattedName": "AL_BasicMediaByMalId_Media_BasicMedia_Title",
+    "name": "BaseMediaByMalId_Media_BaseMedia_Title",
+    "formattedName": "AL_BaseMediaByMalId_Media_BaseMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -6886,8 +5824,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalId_Media_BasicMedia_CoverImage",
-    "formattedName": "AL_BasicMediaByMalId_Media_BasicMedia_CoverImage",
+    "name": "BaseMediaByMalId_Media_BaseMedia_CoverImage",
+    "formattedName": "AL_BaseMediaByMalId_Media_BaseMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -6932,8 +5870,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalId_Media_BasicMedia_StartDate",
-    "formattedName": "AL_BasicMediaByMalId_Media_BasicMedia_StartDate",
+    "name": "BaseMediaByMalId_Media_BaseMedia_StartDate",
+    "formattedName": "AL_BaseMediaByMalId_Media_BaseMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -6969,8 +5907,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalId_Media_BasicMedia_EndDate",
-    "formattedName": "AL_BasicMediaByMalId_Media_BasicMedia_EndDate",
+    "name": "BaseMediaByMalId_Media_BaseMedia_EndDate",
+    "formattedName": "AL_BaseMediaByMalId_Media_BaseMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -7006,248 +5944,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalId_Media_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_BasicMediaByMalId_Media_BasicMedia_NextAiringEpisode",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "AiringAt",
-        "jsonName": "airingAt",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaById_Media_BasicMedia_Trailer",
-    "formattedName": "AL_BasicMediaById_Media_BasicMedia_Trailer",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Site",
-        "jsonName": "site",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Thumbnail",
-        "jsonName": "thumbnail",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaById_Media_BasicMedia_Title",
-    "formattedName": "AL_BasicMediaById_Media_BasicMedia_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaById_Media_BasicMedia_CoverImage",
-    "formattedName": "AL_BasicMediaById_Media_BasicMedia_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaById_Media_BasicMedia_StartDate",
-    "formattedName": "AL_BasicMediaById_Media_BasicMedia_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaById_Media_BasicMedia_EndDate",
-    "formattedName": "AL_BasicMediaById_Media_BasicMedia_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaById_Media_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_BasicMediaById_Media_BasicMedia_NextAiringEpisode",
+    "name": "BaseMediaByMalId_Media_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_BaseMediaByMalId_Media_BaseMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -7523,8 +6221,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Trailer",
+    "name": "CompleteMediaById_Media_CompleteMedia_Trailer",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -7560,8 +6258,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_Title",
+    "name": "CompleteMediaById_Media_CompleteMedia_Title",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -7606,8 +6304,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_CoverImage",
+    "name": "CompleteMediaById_Media_CompleteMedia_CoverImage",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -7652,8 +6350,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_StartDate",
+    "name": "CompleteMediaById_Media_CompleteMedia_StartDate",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -7689,8 +6387,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_EndDate",
+    "name": "CompleteMediaById_Media_CompleteMedia_EndDate",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -7726,8 +6424,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
+    "name": "CompleteMediaById_Media_CompleteMedia_NextAiringEpisode",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -7763,8 +6461,248 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations_Edges",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations_Edges",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Trailer",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Title",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_Title",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_CoverImage",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_CoverImage",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "extraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_StartDate",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_StartDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_EndDate",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_EndDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges",
     "package": "anilist",
     "fields": [
       {
@@ -7780,9 +6718,9 @@
       {
         "name": "Node",
         "jsonName": "node",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -7793,16 +6731,16 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BaseMediaById_Media_BaseMedia_Relations",
-    "formattedName": "AL_BaseMediaById_Media_BaseMedia_Relations",
+    "name": "CompleteMediaById_Media_CompleteMedia_Relations",
+    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations",
     "package": "anilist",
     "fields": [
       {
         "name": "Edges",
         "jsonName": "edges",
-        "goType": "[]BaseMediaById_Media_BaseMedia_Relations_Edges",
-        "typescriptType": "Array\u003cAL_BaseMediaById_Media_BaseMedia_Relations_Edges\u003e",
-        "usedStructName": "anilist.BaseMediaById_Media_BaseMedia_Relations_Edges",
+        "goType": "[]CompleteMediaById_Media_CompleteMedia_Relations_Edges",
+        "typescriptType": "Array\u003cAL_CompleteMediaById_Media_CompleteMedia_Relations_Edges\u003e",
+        "usedStructName": "anilist.CompleteMediaById_Media_CompleteMedia_Relations_Edges",
         "required": false,
         "public": true,
         "comments": []
@@ -8533,6 +7471,296 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_Trailer",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_Trailer",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Site",
+        "jsonName": "site",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Thumbnail",
+        "jsonName": "thumbnail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_Title",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_Title",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "UserPreferred",
+        "jsonName": "userPreferred",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Romaji",
+        "jsonName": "romaji",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "English",
+        "jsonName": "english",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_CoverImage",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_CoverImage",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ExtraLarge",
+        "jsonName": "extraLarge",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Color",
+        "jsonName": "color",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_StartDate",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_StartDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_EndDate",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_EndDate",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges_Node_BaseMedia_NextAiringEpisode",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "AiringAt",
+        "jsonName": "airingAt",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUntilAiring",
+        "jsonName": "timeUntilAiring",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations_Edges",
+    "formattedName": "AL_MediaDetailsById_Media_Relations_Edges",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "RelationType",
+        "jsonName": "relationType",
+        "goType": "MediaRelation",
+        "typescriptType": "AL_MediaRelation",
+        "usedStructName": "anilist.MediaRelation",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Node",
+        "jsonName": "node",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsById_Media_Relations",
+    "formattedName": "AL_MediaDetailsById_Media_Relations",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Edges",
+        "jsonName": "edges",
+        "goType": "[]MediaDetailsById_Media_Relations_Edges",
+        "typescriptType": "Array\u003cAL_MediaDetailsById_Media_Relations_Edges\u003e",
+        "usedStructName": "anilist.MediaDetailsById_Media_Relations_Edges",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "MediaDetailsById_Media",
     "formattedName": "AL_MediaDetailsById_Media",
     "package": "anilist",
@@ -8678,496 +7906,13 @@
         "required": false,
         "public": true,
         "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Title",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
       },
       {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_CoverImage",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_StartDate",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_EndDate",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_NextAiringEpisode",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_NextAiringEpisode",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "AiringAt",
-        "jsonName": "airingAt",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Trailer",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Site",
-        "jsonName": "site",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Thumbnail",
-        "jsonName": "thumbnail",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_Title",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "UserPreferred",
-        "jsonName": "userPreferred",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Romaji",
-        "jsonName": "romaji",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "English",
-        "jsonName": "english",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Native",
-        "jsonName": "native",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_CoverImage",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "ExtraLarge",
-        "jsonName": "extraLarge",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Large",
-        "jsonName": "large",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Medium",
-        "jsonName": "medium",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Color",
-        "jsonName": "color",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_StartDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_EndDate",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Year",
-        "jsonName": "year",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Month",
-        "jsonName": "month",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Day",
-        "jsonName": "day",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges_Node_BasicMedia_NextAiringEpisode",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "AiringAt",
-        "jsonName": "airingAt",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TimeUntilAiring",
-        "jsonName": "timeUntilAiring",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations_Edges",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations_Edges",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "RelationType",
-        "jsonName": "relationType",
-        "goType": "MediaRelation",
-        "typescriptType": "AL_MediaRelation",
-        "usedStructName": "anilist.MediaRelation",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Node",
-        "jsonName": "node",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "CompleteMediaById_Media_CompleteMedia_Relations",
-    "formattedName": "AL_CompleteMediaById_Media_CompleteMedia_Relations",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Edges",
-        "jsonName": "edges",
-        "goType": "[]CompleteMediaById_Media_CompleteMedia_Relations_Edges",
-        "typescriptType": "Array\u003cAL_CompleteMediaById_Media_CompleteMedia_Relations_Edges\u003e",
-        "usedStructName": "anilist.CompleteMediaById_Media_CompleteMedia_Relations_Edges",
+        "name": "Relations",
+        "jsonName": "relations",
+        "goType": "MediaDetailsById_Media_Relations",
+        "typescriptType": "AL_MediaDetailsById_Media_Relations",
+        "usedStructName": "anilist.MediaDetailsById_Media_Relations",
         "required": false,
         "public": true,
         "comments": []
@@ -9233,8 +7978,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListMedia_Page_Media_BasicMedia_Trailer",
-    "formattedName": "AL_ListMedia_Page_Media_BasicMedia_Trailer",
+    "name": "ListMedia_Page_Media_BaseMedia_Trailer",
+    "formattedName": "AL_ListMedia_Page_Media_BaseMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -9270,8 +8015,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListMedia_Page_Media_BasicMedia_Title",
-    "formattedName": "AL_ListMedia_Page_Media_BasicMedia_Title",
+    "name": "ListMedia_Page_Media_BaseMedia_Title",
+    "formattedName": "AL_ListMedia_Page_Media_BaseMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -9316,8 +8061,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListMedia_Page_Media_BasicMedia_CoverImage",
-    "formattedName": "AL_ListMedia_Page_Media_BasicMedia_CoverImage",
+    "name": "ListMedia_Page_Media_BaseMedia_CoverImage",
+    "formattedName": "AL_ListMedia_Page_Media_BaseMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -9362,8 +8107,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListMedia_Page_Media_BasicMedia_StartDate",
-    "formattedName": "AL_ListMedia_Page_Media_BasicMedia_StartDate",
+    "name": "ListMedia_Page_Media_BaseMedia_StartDate",
+    "formattedName": "AL_ListMedia_Page_Media_BaseMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -9399,8 +8144,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListMedia_Page_Media_BasicMedia_EndDate",
-    "formattedName": "AL_ListMedia_Page_Media_BasicMedia_EndDate",
+    "name": "ListMedia_Page_Media_BaseMedia_EndDate",
+    "formattedName": "AL_ListMedia_Page_Media_BaseMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -9436,8 +8181,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListMedia_Page_Media_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_ListMedia_Page_Media_BasicMedia_NextAiringEpisode",
+    "name": "ListMedia_Page_Media_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_ListMedia_Page_Media_BaseMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -9490,9 +8235,9 @@
       {
         "name": "Media",
         "jsonName": "media",
-        "goType": "[]BasicMedia",
-        "typescriptType": "Array\u003cAL_BasicMedia\u003e",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "[]BaseMedia",
+        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -9558,8 +8303,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_Trailer",
-    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_Trailer",
+    "name": "ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_Trailer",
+    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -9595,8 +8340,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_Title",
-    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_Title",
+    "name": "ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_Title",
+    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -9641,8 +8386,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_CoverImage",
-    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_CoverImage",
+    "name": "ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_CoverImage",
+    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -9687,8 +8432,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_StartDate",
-    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_StartDate",
+    "name": "ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_StartDate",
+    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -9724,8 +8469,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate",
-    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_EndDate",
+    "name": "ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_EndDate",
+    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -9761,8 +8506,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BasicMedia_NextAiringEpisode",
+    "name": "ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_ListRecentMedia_Page_AiringSchedules_Media_BaseMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -9841,9 +8586,9 @@
       {
         "name": "Media",
         "jsonName": "media",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -10231,8 +8976,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer",
-    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_Trailer",
+    "name": "StudioDetails_Studio_Media_Nodes_BaseMedia_Trailer",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseMedia_Trailer",
     "package": "anilist",
     "fields": [
       {
@@ -10268,8 +9013,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_Title",
-    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_Title",
+    "name": "StudioDetails_Studio_Media_Nodes_BaseMedia_Title",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseMedia_Title",
     "package": "anilist",
     "fields": [
       {
@@ -10314,8 +9059,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage",
-    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_CoverImage",
+    "name": "StudioDetails_Studio_Media_Nodes_BaseMedia_CoverImage",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseMedia_CoverImage",
     "package": "anilist",
     "fields": [
       {
@@ -10360,8 +9105,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate",
-    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_StartDate",
+    "name": "StudioDetails_Studio_Media_Nodes_BaseMedia_StartDate",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseMedia_StartDate",
     "package": "anilist",
     "fields": [
       {
@@ -10397,8 +9142,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate",
-    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_EndDate",
+    "name": "StudioDetails_Studio_Media_Nodes_BaseMedia_EndDate",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseMedia_EndDate",
     "package": "anilist",
     "fields": [
       {
@@ -10434,8 +9179,8 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode",
-    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BasicMedia_NextAiringEpisode",
+    "name": "StudioDetails_Studio_Media_Nodes_BaseMedia_NextAiringEpisode",
+    "formattedName": "AL_StudioDetails_Studio_Media_Nodes_BaseMedia_NextAiringEpisode",
     "package": "anilist",
     "fields": [
       {
@@ -10478,9 +9223,9 @@
       {
         "name": "Nodes",
         "jsonName": "nodes",
-        "goType": "[]BasicMedia",
-        "typescriptType": "Array\u003cAL_BasicMedia\u003e",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "[]BaseMedia",
+        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -10880,6 +9625,26 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "AnimeCollectionWithRelations",
+    "formattedName": "AL_AnimeCollectionWithRelations",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "MediaListCollection",
+        "jsonName": "MediaListCollection",
+        "goType": "AnimeCollectionWithRelations_MediaListCollection",
+        "typescriptType": "AL_AnimeCollectionWithRelations_MediaListCollection",
+        "usedStructName": "anilist.AnimeCollectionWithRelations_MediaListCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "SearchAnimeShortMedia",
     "formattedName": "AL_SearchAnimeShortMedia",
     "package": "anilist",
@@ -10900,36 +9665,16 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "BasicMediaByMalID",
-    "formattedName": "AL_BasicMediaByMalID",
+    "name": "BaseMediaByMalID",
+    "formattedName": "AL_BaseMediaByMalID",
     "package": "anilist",
     "fields": [
       {
         "name": "Media",
         "jsonName": "Media",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
-    "name": "BasicMediaByID",
-    "formattedName": "AL_BasicMediaByID",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -10960,26 +9705,6 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
-    "name": "MediaDetailsByID",
-    "formattedName": "AL_MediaDetailsByID",
-    "package": "anilist",
-    "fields": [
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "MediaDetailsById_Media",
-        "typescriptType": "AL_MediaDetailsById_Media",
-        "usedStructName": "anilist.MediaDetailsById_Media",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/anilist/client_gen.go",
-    "filename": "client_gen.go",
     "name": "CompleteMediaByID",
     "formattedName": "AL_CompleteMediaByID",
     "package": "anilist",
@@ -10990,6 +9715,26 @@
         "goType": "CompleteMedia",
         "typescriptType": "AL_CompleteMedia",
         "usedStructName": "anilist.CompleteMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MediaDetailsByID",
+    "formattedName": "AL_MediaDetailsByID",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "MediaDetailsById_Media",
+        "typescriptType": "AL_MediaDetailsById_Media",
+        "usedStructName": "anilist.MediaDetailsById_Media",
         "required": false,
         "public": true,
         "comments": []
@@ -11192,10 +9937,22 @@
     ]
   },
   {
+    "filepath": "../internal/api/anilist/media.go",
+    "filename": "media.go",
+    "name": "CompleteMediaCache",
+    "formattedName": "AL_CompleteMediaCache",
+    "package": "anilist",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      ""
+    ]
+  },
+  {
     "filepath": "../internal/api/anilist/media_tree.go",
     "filename": "media_tree.go",
-    "name": "BaseMediaRelationTree",
-    "formattedName": "AL_BaseMediaRelationTree",
+    "name": "CompleteMediaRelationTree",
+    "formattedName": "AL_CompleteMediaRelationTree",
     "package": "anilist",
     "fields": [],
     "comments": [],
@@ -24666,14 +23423,12 @@
       {
         "name": "baseMedia",
         "jsonName": "baseMedia",
-        "goType": "anilist.BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "anilist.BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": false,
-        "comments": [
-          " TODO should be basicMedia"
-        ]
+        "comments": []
       },
       {
         "name": "fileCacher",
@@ -25815,6 +24570,16 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "moduleMu",
+        "jsonName": "moduleMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -26413,108 +25178,6 @@
   {
     "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
-    "name": "MediaPlayerSettings",
-    "formattedName": "Models_MediaPlayerSettings",
-    "package": "models",
-    "fields": [
-      {
-        "name": "Default",
-        "jsonName": "defaultPlayer",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " \"vlc\" or \"mpc-hc\""
-        ]
-      },
-      {
-        "name": "Host",
-        "jsonName": "host",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VlcUsername",
-        "jsonName": "vlcUsername",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VlcPassword",
-        "jsonName": "vlcPassword",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VlcPort",
-        "jsonName": "vlcPort",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VlcPath",
-        "jsonName": "vlcPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MpcPort",
-        "jsonName": "mpcPort",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MpcPath",
-        "jsonName": "mpcPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MpvSocket",
-        "jsonName": "mpvSocket",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MpvPath",
-        "jsonName": "mpvPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/database/models/models.go",
-    "filename": "models.go",
     "name": "LibrarySettings",
     "formattedName": "Models_LibrarySettings",
     "package": "models",
@@ -26623,6 +25286,108 @@
         "jsonName": "refreshLibraryOnStart",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "MediaPlayerSettings",
+    "formattedName": "Models_MediaPlayerSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Default",
+        "jsonName": "defaultPlayer",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"vlc\" or \"mpc-hc\""
+        ]
+      },
+      {
+        "name": "Host",
+        "jsonName": "host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VlcUsername",
+        "jsonName": "vlcUsername",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VlcPassword",
+        "jsonName": "vlcPassword",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VlcPort",
+        "jsonName": "vlcPort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VlcPath",
+        "jsonName": "vlcPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpcPort",
+        "jsonName": "mpcPort",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpcPath",
+        "jsonName": "mpcPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpvSocket",
+        "jsonName": "mpvSocket",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpvPath",
+        "jsonName": "mpvPath",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -29262,9 +28027,9 @@
       {
         "name": "Suggestions",
         "jsonName": "suggestions",
-        "goType": "[]anilist.BasicMedia",
-        "typescriptType": "Array\u003cAL_BasicMedia\u003e",
-        "usedStructName": "anilist.BasicMedia",
+        "goType": "[]anilist.BaseMedia",
+        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -29508,11 +28273,11 @@
         ]
       },
       {
-        "name": "BasicMedia",
-        "jsonName": "basicMedia",
-        "goType": "anilist.BasicMedia",
-        "typescriptType": "AL_BasicMedia",
-        "usedStructName": "anilist.BasicMedia",
+        "name": "BaseMedia",
+        "jsonName": "baseMedia",
+        "goType": "anilist.BaseMedia",
+        "typescriptType": "AL_BaseMedia",
+        "usedStructName": "anilist.BaseMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -30810,7 +29575,7 @@
     "fields": [],
     "comments": [],
     "embeddedStructNames": [
-      "anilist.BasicMedia"
+      "anilist.BaseMedia"
     ]
   },
   {
@@ -32212,11 +30977,11 @@
         ]
       },
       {
-        "name": "BaseMediaCache",
-        "jsonName": "BaseMediaCache",
-        "goType": "anilist.BaseMediaCache",
-        "typescriptType": "AL_BaseMediaCache",
-        "usedStructName": "anilist.BaseMediaCache",
+        "name": "CompleteMediaCache",
+        "jsonName": "CompleteMediaCache",
+        "goType": "anilist.CompleteMediaCache",
+        "typescriptType": "AL_CompleteMediaCache",
+        "usedStructName": "anilist.CompleteMediaCache",
         "required": false,
         "public": true,
         "comments": []
@@ -32330,11 +31095,11 @@
         "comments": []
       },
       {
-        "name": "BaseMediaCache",
-        "jsonName": "BaseMediaCache",
-        "goType": "anilist.BaseMediaCache",
-        "typescriptType": "AL_BaseMediaCache",
-        "usedStructName": "anilist.BaseMediaCache",
+        "name": "CompleteMediaCache",
+        "jsonName": "CompleteMediaCache",
+        "goType": "anilist.CompleteMediaCache",
+        "typescriptType": "AL_CompleteMediaCache",
+        "usedStructName": "anilist.CompleteMediaCache",
         "required": false,
         "public": true,
         "comments": []
@@ -32384,9 +31149,9 @@
       {
         "name": "AllMedia",
         "jsonName": "AllMedia",
-        "goType": "[]anilist.BaseMedia",
-        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "[]anilist.CompleteMedia",
+        "typescriptType": "Array\u003cAL_CompleteMedia\u003e",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -32461,9 +31226,9 @@
       {
         "name": "allMedia",
         "jsonName": "allMedia",
-        "goType": "[]anilist.BaseMedia",
-        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "[]anilist.CompleteMedia",
+        "typescriptType": "Array\u003cAL_CompleteMedia\u003e",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": false,
         "comments": []
@@ -32481,9 +31246,9 @@
       {
         "name": "AllMedia",
         "jsonName": "AllMedia",
-        "goType": "[]anilist.BaseMedia",
-        "typescriptType": "Array\u003cAL_BaseMedia\u003e",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "[]anilist.CompleteMedia",
+        "typescriptType": "Array\u003cAL_CompleteMedia\u003e",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -32509,11 +31274,11 @@
         ]
       },
       {
-        "name": "AnimeCollection",
-        "jsonName": "AnimeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
+        "name": "AnimeCollectionWithRelations",
+        "jsonName": "AnimeCollectionWithRelations",
+        "goType": "anilist.AnimeCollectionWithRelations",
+        "typescriptType": "AL_AnimeCollectionWithRelations",
+        "usedStructName": "anilist.AnimeCollectionWithRelations",
         "required": false,
         "public": true,
         "comments": []
@@ -32579,11 +31344,11 @@
         "comments": []
       },
       {
-        "name": "BaseMediaCache",
-        "jsonName": "BaseMediaCache",
-        "goType": "anilist.BaseMediaCache",
-        "typescriptType": "AL_BaseMediaCache",
-        "usedStructName": "anilist.BaseMediaCache",
+        "name": "CompleteMediaCache",
+        "jsonName": "CompleteMediaCache",
+        "goType": "anilist.CompleteMediaCache",
+        "typescriptType": "AL_CompleteMediaCache",
+        "usedStructName": "anilist.CompleteMediaCache",
         "required": false,
         "public": true,
         "comments": []
@@ -32650,9 +31415,9 @@
       {
         "name": "tree",
         "jsonName": "tree",
-        "goType": "anilist.BaseMediaRelationTree",
-        "typescriptType": "AL_BaseMediaRelationTree",
-        "usedStructName": "anilist.BaseMediaRelationTree",
+        "goType": "anilist.CompleteMediaRelationTree",
+        "typescriptType": "AL_CompleteMediaRelationTree",
+        "usedStructName": "anilist.CompleteMediaRelationTree",
         "required": false,
         "public": false,
         "comments": []
@@ -32710,9 +31475,9 @@
       {
         "name": "media",
         "jsonName": "media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "anilist.CompleteMedia",
+        "typescriptType": "AL_CompleteMedia",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": false,
         "comments": []
@@ -33076,9 +31841,9 @@
       {
         "name": "AnimeCollection",
         "jsonName": "AnimeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
+        "goType": "anilist.AnimeCollectionWithRelations",
+        "typescriptType": "AL_AnimeCollectionWithRelations",
+        "usedStructName": "anilist.AnimeCollectionWithRelations",
         "required": false,
         "public": true,
         "comments": []
@@ -40414,8 +39179,8 @@
         "comments": []
       },
       {
-        "name": "RefreshAnimeCollections",
-        "jsonName": "RefreshAnimeCollections",
+        "name": "RefreshAnilistCollectionsFunc",
+        "jsonName": "RefreshAnilistCollectionsFunc",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -40530,8 +39295,8 @@
         "comments": []
       },
       {
-        "name": "RefreshAnimeCollections",
-        "jsonName": "RefreshAnimeCollections",
+        "name": "RefreshAnimeCollectionsFunc",
+        "jsonName": "RefreshAnimeCollectionsFunc",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -42310,9 +41075,9 @@
       {
         "name": "media",
         "jsonName": "media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "anilist.CompleteMedia",
+        "typescriptType": "AL_CompleteMedia",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": false,
         "comments": []
@@ -42374,9 +41139,9 @@
       {
         "name": "media",
         "jsonName": "media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "anilist.CompleteMedia",
+        "typescriptType": "AL_CompleteMedia",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": false,
         "comments": []
@@ -42453,9 +41218,9 @@
       {
         "name": "Media",
         "jsonName": "Media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "anilist.CompleteMedia",
+        "typescriptType": "AL_CompleteMedia",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": true,
         "comments": [
@@ -43363,6 +42128,15 @@
         "comments": []
       },
       {
+        "name": "DisableBinaryUse",
+        "jsonName": "DisableBinaryUse",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Application",
         "jsonName": "Application",
         "goType": "qbittorrent_application.Client",
@@ -43493,6 +42267,15 @@
         "jsonName": "Path",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableBinaryUse",
+        "jsonName": "DisableBinaryUse",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -47878,9 +46661,9 @@
       {
         "name": "Media",
         "jsonName": "Media",
-        "goType": "anilist.BaseMedia",
-        "typescriptType": "AL_BaseMedia",
-        "usedStructName": "anilist.BaseMedia",
+        "goType": "anilist.CompleteMedia",
+        "typescriptType": "AL_CompleteMedia",
+        "usedStructName": "anilist.CompleteMedia",
         "required": false,
         "public": true,
         "comments": []
@@ -48495,6 +47278,16 @@
         "comments": []
       },
       {
+        "name": "completeMediaCache",
+        "jsonName": "completeMediaCache",
+        "goType": "anilist.CompleteMediaCache",
+        "typescriptType": "AL_CompleteMediaCache",
+        "usedStructName": "anilist.CompleteMediaCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "animeCollection",
         "jsonName": "animeCollection",
         "goType": "anilist.AnimeCollection",
@@ -48642,6 +47435,16 @@
         "goType": "anilist.BaseMediaCache",
         "typescriptType": "AL_BaseMediaCache",
         "usedStructName": "anilist.BaseMediaCache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompleteMediaCache",
+        "jsonName": "CompleteMediaCache",
+        "goType": "anilist.CompleteMediaCache",
+        "typescriptType": "AL_CompleteMediaCache",
+        "usedStructName": "anilist.CompleteMediaCache",
         "required": false,
         "public": true,
         "comments": []

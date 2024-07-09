@@ -43,6 +43,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                 fileName={episode.localFile?.name}
                 isWatched={episode.progressNumber > 0 && isWatched}
                 isFiller={episode.episodeMetadata?.isFiller}
+                length={episode.episodeMetadata?.length}
                 action={<>
                     <IconButton
                         icon={episode.localFile?.locked ? <VscVerified /> : <BiLockOpenAlt />}
@@ -83,15 +84,12 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                     </DropdownMenu>
 
                     {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.aniDBId &&
-                        <EpisodeItemInfoModalButton />}
+                        <EpisodeItemInfoModalButton episode={episode} />}
                 </>}
             />
             <MetadataModal
                 episode={episode}
             />
-            {episode.episodeMetadata?.aniDBId && <EpisodeItemInfoModal
-                episode={episode}
-            />}
         </EpisodeItemIsolation.Provider>
     )
 
@@ -108,7 +106,7 @@ function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
-    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.basicMedia?.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseMedia?.id)
 
     return (
         <Modal
@@ -173,81 +171,67 @@ function MetadataModalButton() {
     return <DropdownMenuItem onClick={() => setIsOpen(true)}>Update metadata</DropdownMenuItem>
 }
 
-function EpisodeItemInfoModalButton() {
-    const [, setIsOpen] = EpisodeItemIsolation.useAtom(__episodeItem_infoModalIsOpenAtom)
-    return <IconButton
-        icon={<MdInfo />}
-        className="opacity-30 hover:opacity-100 transform-opacity"
-        intent="gray-basic"
-        size="xs"
-        onClick={() => setIsOpen(true)}
-    />
-}
+function EpisodeItemInfoModalButton({ episode }: { episode: Anime_MediaEntryEpisode }) {
+    return <Modal
+        title={episode.displayTitle}
+        contentClass="max-w-2xl"
+        titleClass="text-xl"
+        trigger={<IconButton
+            icon={<MdInfo />}
+            className="opacity-30 hover:opacity-100 transform-opacity"
+            intent="gray-basic"
+            size="xs"
+        />}
+    >
 
-function EpisodeItemInfoModal(props: { episode: Anime_MediaEntryEpisode, }) {
+        {episode.episodeMetadata?.image && <div
+            className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
+        >
+            <Image
+                src={episode.episodeMetadata?.image}
+                alt="banner"
+                fill
+                quality={80}
+                priority
+                sizes="20rem"
+                className="object-cover object-center opacity-30"
+            />
+            <div
+                className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
+            />
+        </div>}
 
-    const {
-        episode,
-    } = props
+        <div className="space-y-4">
+            <p className="text-lg line-clamp-2 font-semibold">
+                {episode.episodeTitle?.replaceAll("`", "'")}
+                {episode.isInvalid && <AiFillWarning />}
+            </p>
+            <p className="text-[--muted]">
+                {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
+            </p>
+            <p className="text-gray-300">
+                {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
+            </p>
+            {
+                (!!episode.episodeMetadata?.aniDBId) && <>
+                    <Separator />
+                    <div className="w-full flex justify-between">
+                        <p>AniDB Episode: {episode.fileMetadata?.aniDBEpisode}</p>
+                        <a
+                            href={"https://anidb.net/episode/" + episode.episodeMetadata?.aniDBId + "#layout-footer"}
+                            target="_blank"
+                            className="text-brand-200"
+                        >Open on AniDB
+                        </a>
+                    </div>
+                </>
+            }
 
-    const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__episodeItem_infoModalIsOpenAtom)
+            <Separator />
+            <p className="text-[--muted] line-clamp-2">
+                {episode.localFile?.parsedInfo?.original}
+            </p>
+        </div>
 
-    return (
-        <>
-            <Modal
-                open={isOpen}
-                onOpenChange={() => setIsOpen(false)}
-                title={episode.displayTitle}
-                contentClass="max-w-2xl"
-                titleClass="text-xl"
-            >
-
-                {episode.episodeMetadata?.image && <div
-                    className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
-                >
-                    <Image
-                        src={episode.episodeMetadata?.image}
-                        alt="banner"
-                        fill
-                        quality={80}
-                        priority
-                        sizes="20rem"
-                        className="object-cover object-center opacity-30"
-                    />
-                    <div
-                        className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
-                    />
-                </div>}
-
-                <div className="space-y-4">
-                    <p className="text-lg line-clamp-2 font-semibold">
-                        {episode.episodeTitle?.replaceAll("`", "'")}
-                        {episode.isInvalid && <AiFillWarning />}
-                    </p>
-                    <p className="text-[--muted]">
-                        {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
-                    </p>
-                    <p className="text-gray-300">
-                        {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
-                    </p>
-                    {
-                        (!!episode.episodeMetadata?.aniDBId) && <>
-                            <Separator />
-                            <div className="w-full flex justify-between">
-                                <p>AniDB Episode: {episode.fileMetadata?.aniDBEpisode}</p>
-                                <a
-                                    href={"https://anidb.net/episode/" + episode.episodeMetadata?.aniDBId + "#layout-footer"}
-                                    target="_blank"
-                                    className="text-brand-200"
-                                >Open on AniDB
-                                </a>
-                            </div>
-                        </>
-                    }
-                </div>
-
-            </Modal>
-        </>
-    )
-
+    </Modal>
 }

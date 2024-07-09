@@ -31,7 +31,7 @@ func HandleTestDump(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	baseMediaCache := anilist.NewBaseMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anizipCache := anizip.NewCache()
 
 	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
@@ -39,7 +39,7 @@ func HandleTestDump(c *RouteCtx) error {
 		Username:             body.Username,
 		AnilistClientWrapper: c.App.AnilistClientWrapper,
 		LocalFiles:           localFiles,
-		BaseMediaCache:       baseMediaCache,
+		CompleteMediaCache:   completeMediaCache,
 		AnizipCache:          anizipCache,
 		Logger:               c.App.Logger,
 	})

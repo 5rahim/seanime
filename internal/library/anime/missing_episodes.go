@@ -97,15 +97,15 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		return eps[i].GetEpisodeNumber() < eps[j].GetEpisodeNumber()
 	})
 	sort.Slice(eps, func(i, j int) bool {
-		return eps[i].BasicMedia.ID < eps[j].BasicMedia.ID
+		return eps[i].BaseMedia.ID < eps[j].BaseMedia.ID
 	})
 
 	missing.Episodes = lo.Filter(eps, func(item *MediaEntryEpisode, _ int) bool {
-		return !lo.Contains(opts.SilencedMediaIds, item.BasicMedia.ID)
+		return !lo.Contains(opts.SilencedMediaIds, item.BaseMedia.ID)
 	})
 
 	missing.SilencedEpisodes = lo.Filter(eps, func(item *MediaEntryEpisode, _ int) bool {
-		return lo.Contains(opts.SilencedMediaIds, item.BasicMedia.ID)
+		return lo.Contains(opts.SilencedMediaIds, item.BaseMedia.ID)
 	})
 
 	return missing

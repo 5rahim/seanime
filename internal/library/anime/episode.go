@@ -24,7 +24,7 @@ type (
 		FileMetadata          *LocalFileMetadata         `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
 		IsInvalid             bool                       `json:"isInvalid"`               // No AniDB data
 		MetadataIssue         string                     `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
-		BasicMedia            *anilist.BasicMedia        `json:"basicMedia,omitempty"`
+		BaseMedia             *anilist.BaseMedia         `json:"baseMedia,omitempty"`
 	}
 
 	// MediaEntryEpisodeMetadata represents the metadata of a MediaEntryEpisode.
@@ -73,7 +73,7 @@ type (
 // `LocalFile` is optional.
 func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
-	entryEp.BasicMedia = opts.Media.ToBasicMedia()
+	entryEp.BaseMedia = opts.Media
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
 
@@ -266,7 +266,7 @@ func NewEpisodeMetadata(
 	epInt, err := strconv.Atoi(episode.Episode)
 
 	if err == nil {
-		mw := metadataProvider.NewMediaWrapper(media.ToBasicMedia(), anizipMedia)
+		mw := metadataProvider.NewMediaWrapper(media, anizipMedia)
 		epMetadata := mw.GetEpisodeMetadata(epInt)
 		md.AniDBId = epMetadata.AniDBId
 		md.Image = epMetadata.Image
@@ -287,7 +287,7 @@ func NewEpisodeMetadata(
 // NewSimpleMediaEntryEpisode creates a MediaEntryEpisode without AniDB metadata.
 func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
-	entryEp.BasicMedia = opts.Media.ToBasicMedia()
+	entryEp.BaseMedia = opts.Media
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
 	entryEp.EpisodeMetadata = new(MediaEntryEpisodeMetadata)

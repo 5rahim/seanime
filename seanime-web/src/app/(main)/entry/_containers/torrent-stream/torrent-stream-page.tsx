@@ -116,12 +116,12 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                         >
                             <EpisodeCard
                                 key={episode.localFile?.path || ""}
-                                image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
-                                topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
+                                image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
+                                topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
                                 title={episode.displayTitle}
                                 meta={episode.episodeMetadata?.airDate ?? undefined}
                                 isInvalid={episode.isInvalid}
-                                progressTotal={episode.basicMedia?.episodes}
+                                progressTotal={episode.baseMedia?.episodes}
                                 progressNumber={episode.progressNumber}
                                 episodeNumber={episode.episodeNumber}
                                 hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
@@ -138,15 +138,16 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 {episodeCollection?.episodes?.map(episode => (
                     <EpisodeGridItem
                         key={episode.episodeNumber + episode.displayTitle}
-                        media={episode?.basicMedia as any}
-                        title={episode?.displayTitle || episode?.basicMedia?.title?.userPreferred || ""}
-                        image={episode?.episodeMetadata?.image || episode?.basicMedia?.coverImage?.large}
+                        media={episode?.baseMedia as any}
+                        title={episode?.displayTitle || episode?.baseMedia?.title?.userPreferred || ""}
+                        image={episode?.episodeMetadata?.image || episode?.baseMedia?.coverImage?.large}
                         episodeTitle={episode?.episodeTitle}
                         onClick={() => {
                             handleEpisodeClick(episode)
                         }}
                         description={episode?.episodeMetadata?.overview}
                         isFiller={episode?.episodeMetadata?.isFiller}
+                        length={episode?.episodeMetadata?.length}
                         isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
                         className="flex-none w-full"
                         action={<>

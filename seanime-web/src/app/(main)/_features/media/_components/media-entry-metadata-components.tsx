@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { Tooltip } from "@/components/ui/tooltip"
+import { getScoreColor } from "@/lib/helpers/score"
 import capitalize from "lodash/capitalize"
 import React from "react"
 import { AiFillStar, AiOutlineHeart, AiOutlineStar } from "react-icons/ai"
@@ -66,17 +67,17 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                     >Show audience score</Tooltip>
                     <DisclosureContent>
                         <Badge
-                            className=""
+                            intent="unstyled"
                             size="lg"
-                            intent={meanScore >= 70 ? meanScore >= 82 ? "primary" : "success" : "gray"}
+                            className={getScoreColor(meanScore, "audience")}
                             leftIcon={<BiHeart />}
                         >{meanScore / 10}</Badge>
                     </DisclosureContent>
                 </DisclosureItem>
             </Disclosure> : <Badge
-                className=""
+                intent="unstyled"
                 size="lg"
-                intent={meanScore >= 70 ? meanScore >= 82 ? "primary" : "success" : "gray"}
+                className={getScoreColor(meanScore, "audience")}
                 leftIcon={<BiHeart />}
             >{meanScore / 10}</Badge>}
         </>

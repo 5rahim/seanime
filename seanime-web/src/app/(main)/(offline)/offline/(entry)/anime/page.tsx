@@ -8,6 +8,7 @@ import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeItemIsolation } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
@@ -130,14 +131,15 @@ function EpisodeLists(props: EpisodeListsProps) {
                                 >
                                     <EpisodeCard
                                         key={episode.localFile?.path || ""}
-                                        image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
-                                        topTitle={episode.episodeTitle || episode?.basicMedia?.title?.userPreferred}
+                                        image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
+                                        topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
                                         title={episode.displayTitle}
                                         meta={episode.episodeMetadata?.airDate ?? undefined}
                                         isInvalid={episode.isInvalid}
-                                        progressTotal={episode.basicMedia?.episodes}
+                                        progressTotal={episode.baseMedia?.episodes}
                                         progressNumber={episode.progressNumber}
                                         episodeNumber={episode.episodeNumber}
+                                        length={episode.episodeMetadata?.length}
                                         onClick={() => playVideo({ path: episode.localFile?.path ?? "" })}
                                     />
                                 </CarouselItem>
@@ -149,7 +151,7 @@ function EpisodeLists(props: EpisodeListsProps) {
 
             <div className="space-y-10 pb-10">
                 <h2>Episodes</h2>
-                <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 min-[2000px]:grid-cols-4">
+                <EpisodeListGrid>
                     {mainEpisodes.map(episode => (
                         <EpisodeItem
                             key={episode.localFile?.path || ""}
@@ -159,11 +161,11 @@ function EpisodeLists(props: EpisodeListsProps) {
                             onPlay={playVideo}
                         />
                     ))}
-                </div>
+                </EpisodeListGrid>
 
                 {specialEpisodes.length > 0 && <>
                     <h2>Specials</h2>
-                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 min-[2000px]:grid-cols-4">
+                    <EpisodeListGrid>
                         {specialEpisodes.map(episode => (
                             <EpisodeItem
                                 key={episode.localFile?.path || ""}
@@ -172,12 +174,12 @@ function EpisodeLists(props: EpisodeListsProps) {
                                 onPlay={playVideo}
                             />
                         ))}
-                    </div>
+                    </EpisodeListGrid>
                 </>}
 
                 {ncEpisodes.length > 0 && <>
                     <h2>Others</h2>
-                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 min-[2000px]:grid-cols-4">
+                    <EpisodeListGrid>
                         {ncEpisodes.map(episode => (
                             <EpisodeItem
                                 key={episode.localFile?.path || ""}
@@ -186,7 +188,7 @@ function EpisodeLists(props: EpisodeListsProps) {
                                 onPlay={playVideo}
                             />
                         ))}
-                    </div>
+                    </EpisodeListGrid>
                 </>}
 
             </div>
@@ -213,6 +215,7 @@ const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                 fileName={episode.localFile?.name}
                 isWatched={episode.progressNumber > 0 && isWatched}
                 isFiller={episode.episodeMetadata?.isFiller}
+                length={episode.episodeMetadata?.length}
                 action={<>
                     <Modal
                         trigger={<IconButton

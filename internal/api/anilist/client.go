@@ -25,9 +25,9 @@ type ClientWrapperInterface interface {
 	UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
+	AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error)
 	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
-	BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error)
-	BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error)
+	BaseMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByMalID, error)
 	BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error)
 	MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error)
 	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
@@ -134,15 +134,15 @@ func (cw *ClientWrapper) AnimeCollection(ctx context.Context, userName *string, 
 	cw.logger.Debug().Str("username", *userName).Msg("anilist: Fetching anime collection")
 	return cw.Client.AnimeCollection(ctx, userName, interceptors...)
 }
+func (cw *ClientWrapper) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
+	cw.logger.Debug().Str("username", *userName).Msg("anilist: Fetching anime collection with relations")
+	return cw.Client.AnimeCollectionWithRelations(ctx, userName, interceptors...)
+}
 func (cw *ClientWrapper) SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error) {
 	return cw.Client.SearchAnimeShortMedia(ctx, page, perPage, sort, search, status, interceptors...)
 }
-func (cw *ClientWrapper) BasicMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByMalID, error) {
-	return cw.Client.BasicMediaByMalID(ctx, id, interceptors...)
-}
-func (cw *ClientWrapper) BasicMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BasicMediaByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime")
-	return cw.Client.BasicMediaByID(ctx, id, interceptors...)
+func (cw *ClientWrapper) BaseMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByMalID, error) {
+	return cw.Client.BaseMediaByMalID(ctx, id, interceptors...)
 }
 func (cw *ClientWrapper) BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error) {
 	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime")

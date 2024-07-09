@@ -184,7 +184,7 @@
 // }
 
 // export function useFetchAnimeEntrySuggestions() {
-//     return useServerMutation<Array<AL_BasicMedia>, FetchAnimeEntrySuggestions_Variables>({
+//     return useServerMutation<Array<AL_BaseMedia>, FetchAnimeEntrySuggestions_Variables>({
 //         endpoint: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.endpoint,
 //         method: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.key],

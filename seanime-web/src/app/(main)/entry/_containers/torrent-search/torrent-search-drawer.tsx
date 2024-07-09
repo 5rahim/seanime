@@ -64,19 +64,20 @@ function EpisodeList({ episodes }: { episodes: Anime_MediaEntryDownloadEpisode[]
             <h4>Missing episodes:</h4>
             <p>Episode numbers: {episodes.slice(0, 5).map(n => n.episodeNumber).join(", ")}{episodes.length > 5 ? ", ..." : ""}</p>
             <HorizontalDraggableScroll>
-                {episodes.filter(Boolean).map(item => {
+                {episodes.filter(Boolean).slice(0, 10).map(item => {
                     return (
                         <EpisodeGridItem
                             key={item.episode + item.aniDBEpisode}
-                            media={item.episode?.basicMedia as any}
-                            title={item.episode?.displayTitle || item.episode?.basicMedia?.title?.userPreferred || ""}
-                            image={item.episode?.episodeMetadata?.image || item.episode?.basicMedia?.coverImage?.large}
+                            media={item.episode?.baseMedia as any}
+                            title={item.episode?.displayTitle || item.episode?.baseMedia?.title?.userPreferred || ""}
+                            image={item.episode?.episodeMetadata?.image || item.episode?.baseMedia?.coverImage?.large}
                             episodeTitle={item?.episode?.episodeTitle}
                             description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber
                                 ? `(Episode ${item?.episode?.absoluteEpisodeNumber})`
                                 : undefined}
-                            imageContainerClassName="w-20 h-20"
-                            className="flex-none w-80"
+                            imageContainerClassName="size-20 lg:size-20"
+                            className="flex-none w-72"
+                            episodeTitleClassName="text-sm lg:text-sm line-clamp-1"
                         />
                     )
                 })}

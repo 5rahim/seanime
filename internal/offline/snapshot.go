@@ -111,10 +111,10 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		}
 
 		mediaEpisodes := _mediaEntry.Episodes
-		// Note: We don't need the BasicMedia in each episode for the snapshot
+		// Note: We don't need the BaseMedia in each episode for the snapshot
 		// it's a waste of space
 		for _, episode := range mediaEpisodes {
-			episode.BasicMedia = nil
+			episode.BaseMedia = nil
 		}
 
 		// Create the AnimeEntry

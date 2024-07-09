@@ -22,7 +22,7 @@ import (
 type FileHydrator struct {
 	LocalFiles           []*anime.LocalFile       // Local files to hydrate
 	AllMedia             []*anime.NormalizedMedia // All media used to hydrate local files
-	BaseMediaCache       *anilist.BaseMediaCache
+	CompleteMediaCache   *anilist.CompleteMediaCache
 	AnizipCache          *anizip.Cache
 	AnilistClientWrapper anilist.ClientWrapperInterface
 	AnilistRateLimiter   *limiter.Limiter
@@ -92,7 +92,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	}
 
 	// Tree contains media relations
-	tree := anilist.NewBaseMediaRelationTree()
+	tree := anilist.NewCompleteMediaRelationTree()
 	// Tree analysis used for episode normalization
 	var mediaTreeAnalysis *MediaTreeAnalysis
 	treeFetched := false
@@ -263,7 +263,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				mediaTreeFetchStart := time.Now()
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
-				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClientWrapper, fh.AnilistRateLimiter, tree, fh.BaseMediaCache); err == nil {
+				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClientWrapper, fh.AnilistRateLimiter, tree, fh.CompleteMediaCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
 					mta, _ := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,

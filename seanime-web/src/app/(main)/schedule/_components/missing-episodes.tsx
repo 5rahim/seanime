@@ -44,22 +44,22 @@ export function MissingEpisodes({ isLoading, data }: {
                             <CarouselContent>
                                 {!isLoading && missingEpisodes?.map(episode => {
                                     return <CarouselItem
-                                        key={episode?.basicMedia?.id + episode.displayTitle}
+                                        key={episode?.baseMedia?.id + episode.displayTitle}
                                         className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                                     >
                                         <EpisodeCard
-                                            key={episode.displayTitle + episode.basicMedia?.id}
-                                            image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
-                                            topTitle={episode.basicMedia?.title?.userPreferred}
+                                            key={episode.displayTitle + episode.baseMedia?.id}
+                                            image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
+                                            topTitle={episode.baseMedia?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
                                             actionIcon={hasTorrentProvider ? <AiOutlineDownload className="opacity-50" /> : null}
                                             isInvalid={episode.isInvalid}
                                             onClick={() => {
                                                 if (hasTorrentProvider) {
-                                                    router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                    router.push(`/entry?id=${episode.baseMedia?.id}&download=${episode.episodeNumber}`)
                                                 } else {
-                                                    router.push(`/entry?id=${episode.basicMedia?.id}`)
+                                                    router.push(`/entry?id=${episode.baseMedia?.id}`)
                                                 }
                                             }}
                                         />
@@ -86,9 +86,9 @@ export function MissingEpisodes({ isLoading, data }: {
                                     <HorizontalDraggableScroll>
                                         {!isLoading && silencedEpisodes?.map(episode => {
                                             return <EpisodeCard
-                                                key={episode.displayTitle + episode.basicMedia?.id}
-                                                image={episode.episodeMetadata?.image || episode.basicMedia?.bannerImage || episode.basicMedia?.coverImage?.extraLarge}
-                                                topTitle={episode.basicMedia?.title?.userPreferred}
+                                                key={episode.displayTitle + episode.baseMedia?.id}
+                                                image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
+                                                topTitle={episode.baseMedia?.title?.userPreferred}
                                                 title={episode.displayTitle}
                                                 meta={episode.episodeMetadata?.airDate ?? undefined}
                                                 actionIcon={hasTorrentProvider ? <AiOutlineDownload /> : null}
@@ -96,9 +96,9 @@ export function MissingEpisodes({ isLoading, data }: {
                                                 type="grid"
                                                 onClick={() => {
                                                     if (hasTorrentProvider) {
-                                                        router.push(`/entry?id=${episode.basicMedia?.id}&download=${episode.episodeNumber}`)
+                                                        router.push(`/entry?id=${episode.baseMedia?.id}&download=${episode.episodeNumber}`)
                                                     } else {
-                                                        router.push(`/entry?id=${episode.basicMedia?.id}`)
+                                                        router.push(`/entry?id=${episode.baseMedia?.id}`)
                                                     }
                                                 }}
                                             />

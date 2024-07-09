@@ -12,7 +12,7 @@ import (
 
 type (
 	MediaContainerOptions struct {
-		AllMedia   []*anilist.BaseMedia
+		AllMedia   []*anilist.CompleteMedia
 		ScanLogger *ScanLogger
 	}
 
@@ -22,7 +22,7 @@ type (
 		engTitles       []*string
 		romTitles       []*string
 		synonyms        []*string
-		allMedia        []*anilist.BaseMedia
+		allMedia        []*anilist.CompleteMedia
 	}
 )
 
@@ -40,7 +40,7 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	normalizedMediaMap := make(map[int]*anime.NormalizedMedia)
 
 	for _, m := range opts.AllMedia {
-		normalizedMediaMap[m.ID] = anime.NewNormalizedMedia(m.ToBasicMedia())
+		normalizedMediaMap[m.ID] = anime.NewNormalizedMedia(m.ToBaseMedia())
 		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
 			for _, edgeM := range m.Relations.Edges {
 				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {
