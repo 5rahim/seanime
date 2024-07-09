@@ -153,6 +153,7 @@ func (cw *ClientWrapper) MediaDetailsByID(ctx context.Context, id *int, intercep
 	return cw.Client.MediaDetailsByID(ctx, id, interceptors...)
 }
 func (cw *ClientWrapper) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
+	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching complete media")
 	return cw.Client.CompleteMediaByID(ctx, id, interceptors...)
 }
 func (cw *ClientWrapper) ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error) {

@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
   - Start-up time is reduced
   - Editing list entries has lower latency
   - Fetching larger AniList collections is now up to 5 times faster
-- ⚡️ UI: Updated components
+- 💄 UI: Updated components
   - Larger media cards
   - Updated episode grid items
   - Use AniList color gradients for scores
@@ -19,7 +19,6 @@ All notable changes to this project will be documented in this file.
 
 ## v1.7.2
 
-- Reminder to place the executable in a dedicated folder before updating
 - ⚡️ Scanner: Support more file extensions
 - ⚡️ Removed third-party app startup check if the application path is not set
 - 🦺 Auto update: Fixed update deleting unrelated files in the same directory
