@@ -12,6 +12,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -224,11 +225,15 @@ func (c *Client) GetStreamingUrl() string {
 		return ""
 	}
 
+	if c.currentFile.IsAbsent() {
+		return ""
+	}
+
 	settings := c.repository.settings.MustGet()
 	if settings.StreamingServerHost == "0.0.0.0" {
-		return fmt.Sprintf("http://127.0.0.1:%d/stream", settings.StreamingServerPort)
+		return fmt.Sprintf("http://127.0.0.1:%d/stream/%s", settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
 	}
-	return fmt.Sprintf("http://%s:%d/stream", settings.StreamingServerHost, settings.StreamingServerPort)
+	return fmt.Sprintf("http://%s:%d/stream/%s", settings.StreamingServerHost, settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
 }
 
 func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {

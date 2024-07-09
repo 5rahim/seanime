@@ -52,7 +52,7 @@ func newServerManager(repository *Repository) *serverManager {
 
 	dnsResolve()
 
-	http.HandleFunc("/stream", ret.serve)
+	http.HandleFunc("/stream/", ret.serve)
 
 	http.HandleFunc("/ping", func(w http.ResponseWriter, _r *http.Request) {
 		w.Write([]byte("pong"))
