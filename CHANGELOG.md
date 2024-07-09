@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.7.3
+
+- ⚡️ Perf: Optimized queries
+  - Start-up time is reduced
+  - Editing list entries has lower latency
+  - Fetching larger AniList collections is now up to 5 times faster
+- ⚡️ UI: Updated components
+  - Larger media cards
+  - Updated episode grid items
+  - Use AniList color gradients for scores
+  - Improved consistency across components
+- ⚡️ Automatically add new media to AniList collection when downloading first episode
+- 🦺 Transmission: Escape special characters in password 
+- 🦺 UI: Escape parentheses in image filenames
+
 ## v1.7.2
 
 - Reminder to place the executable in a dedicated folder before updating
