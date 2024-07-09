@@ -8,14 +8,14 @@ export function getScoreColor(score: number, kind: "audience" | "user"): string 
             "text-red-200",
         )
     }
-    if (score < 50) { // 30-49
-        return cn(
-            kind === "audience" && "bg-orange-500 bg-opacity-20",
-            kind === "user" && "bg-orange-800 bg-opacity-90",
-            "text-orange-200",
-        )
-    }
-    if (score < 60) { // 50-59
+    // if (score < 50) { // 30-49
+    //     return cn(
+    //         kind === "audience" && "bg-orange-500 bg-opacity-20",
+    //         kind === "user" && "bg-orange-800 bg-opacity-90",
+    //         "text-orange-200",
+    //     )
+    // }
+    if (score < 60) { // 30-59
         return cn(
             kind === "audience" && "bg-amber-500 bg-opacity-20",
             kind === "user" && "bg-amber-800 bg-opacity-90",
