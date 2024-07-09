@@ -46,9 +46,10 @@ func TestNewMissingEpisodes(t *testing.T) {
 					{metadataEpisode: 5, metadataAniDbEpisode: "5", metadataType: LocalFileTypeMain},
 				}),
 			),
-			mediaAiredEpisodes:      10,
-			currentProgress:         4,
-			expectedMissingEpisodes: 5,
+			mediaAiredEpisodes: 10,
+			currentProgress:    4,
+			//expectedMissingEpisodes: 5,
+			expectedMissingEpisodes: 1, // DEVNOTE: Now the value is 1 at most because everything else is aggregated
 		},
 	}
 

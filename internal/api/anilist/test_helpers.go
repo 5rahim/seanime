@@ -215,6 +215,71 @@ func (c *MockClientWrapper) AnimeCollection(ctx context.Context, userName *strin
 
 }
 
+func (c *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
+
+	if userName == nil {
+		file, err := os.Open(test_utils.GetDataPath("BoilerplateAnimeCollectionWithRelations"))
+		defer file.Close()
+
+		var ret *AnimeCollectionWithRelations
+		err = json.NewDecoder(file).Decode(&ret)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.logger.Trace().Msgf("MockClientWrapper: Using [BoilerplateAnimeCollectionWithRelations]")
+		return ret, nil
+	}
+
+	file, err := os.Open(test_utils.GetTestDataPath("AnimeCollectionWithRelations"))
+	defer file.Close()
+	if err != nil {
+		if os.IsNotExist(err) {
+			c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [AnimeCollectionWithRelations]: %s", *userName)
+			ret, err := c.realClientWrapper.AnimeCollectionWithRelations(context.Background(), userName)
+			if err != nil {
+				return nil, err
+			}
+			data, err := json.Marshal(ret)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = os.WriteFile(test_utils.GetTestDataPath("AnimeCollectionWithRelations"), data, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+			return ret, nil
+		}
+	}
+
+	var ret *AnimeCollectionWithRelations
+	err = json.NewDecoder(file).Decode(&ret)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if ret == nil {
+		c.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [AnimeCollectionWithRelations]: %s", *userName)
+		ret, err := c.realClientWrapper.AnimeCollectionWithRelations(context.Background(), userName)
+		if err != nil {
+			return nil, err
+		}
+		data, err := json.Marshal(ret)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = os.WriteFile(test_utils.GetTestDataPath("AnimeCollectionWithRelations"), data, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return ret, nil
+	}
+
+	c.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [AnimeCollectionWithRelations]: %s", *userName)
+	return ret, nil
+
+}
+
 type TestModifyAnimeCollectionEntryInput struct {
 	Status            *MediaListStatus
 	Progress          *int
@@ -307,7 +372,8 @@ out:
 //
 
 func (c *MockClientWrapper) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, logger *zerolog.Logger) error {
-	panic("not implemented")
+	c.logger.Debug().Msg("anilist: Adding media to planning [MockClientWrapper]")
+	return nil
 }
 func (c *MockClientWrapper) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, totalEpisodes *int) error {
 	panic("not implemented")
@@ -331,7 +397,7 @@ func (c *MockClientWrapper) MediaDetailsByID(ctx context.Context, id *int, inter
 	panic("not implemented")
 }
 func (c *MockClientWrapper) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
-	panic("not implemented")
+	return c.realClientWrapper.CompleteMediaByID(ctx, id, interceptors...)
 }
 func (c *MockClientWrapper) ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error) {
 	return c.realClientWrapper.ListMedia(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, interceptors...)
@@ -364,9 +430,4 @@ func (c *MockClientWrapper) StudioDetails(ctx context.Context, id *int, intercep
 func (c *MockClientWrapper) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
 	c.logger.Debug().Msg("anilist: Fetching stats")
 	return c.realClientWrapper.ViewerStats(ctx, interceptors...)
-}
-
-func (c *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
-	c.logger.Debug().Msg("anilist: Fetching anime collection with relations")
-	return c.realClientWrapper.AnimeCollectionWithRelations(ctx, userName, interceptors...)
 }

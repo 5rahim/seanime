@@ -186,7 +186,7 @@ func (f *File) GetIndex() int {
 // scanFiles scans the files and matches them with the media.
 func (a *Analyzer) scanFiles() error {
 
-	baseMediaCache := anilist.NewCompleteMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -197,7 +197,7 @@ func (a *Analyzer) scanFiles() error {
 	// +---------------------+
 
 	tree := anilist.NewCompleteMediaRelationTree()
-	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.anilistClientWrapper, anilistRateLimiter, tree, baseMediaCache); err != nil {
+	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.anilistClientWrapper, anilistRateLimiter, tree, completeMediaCache); err != nil {
 		return err
 	}
 
@@ -214,7 +214,7 @@ func (a *Analyzer) scanFiles() error {
 	matcher := &scanner.Matcher{
 		LocalFiles:         lfs,
 		MediaContainer:     mc,
-		CompleteMediaCache: baseMediaCache,
+		CompleteMediaCache: completeMediaCache,
 		Logger:             util.NewLogger(),
 	}
 
@@ -230,7 +230,7 @@ func (a *Analyzer) scanFiles() error {
 	fh := &scanner.FileHydrator{
 		LocalFiles:           lfs,
 		AllMedia:             mc.NormalizedMedia,
-		CompleteMediaCache:   baseMediaCache,
+		CompleteMediaCache:   completeMediaCache,
 		AnizipCache:          anizipCache,
 		AnilistClientWrapper: a.anilistClientWrapper,
 		AnilistRateLimiter:   anilistRateLimiter,

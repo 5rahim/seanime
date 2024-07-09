@@ -12,13 +12,13 @@ import (
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
-	baseMediaCache := anilist.NewBaseMediaCache()
+	completeMediaCache := anilist.NewCompleteMediaCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollectionWithRelations(context.Background(), nil)
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
 	}
@@ -79,11 +79,11 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			// +---------------------+
 
 			matcher := &Matcher{
-				LocalFiles:     lfs,
-				MediaContainer: mc,
-				BaseMediaCache: nil,
-				Logger:         util.NewLogger(),
-				ScanLogger:     scanLogger,
+				LocalFiles:         lfs,
+				MediaContainer:     mc,
+				CompleteMediaCache: nil,
+				Logger:             util.NewLogger(),
+				ScanLogger:         scanLogger,
 			}
 
 			err = matcher.MatchLocalFilesWithMedia()
@@ -98,7 +98,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			fh := &FileHydrator{
 				LocalFiles:           lfs,
 				AllMedia:             mc.NormalizedMedia,
-				BaseMediaCache:       baseMediaCache,
+				CompleteMediaCache:   completeMediaCache,
 				AnizipCache:          anizipCache,
 				AnilistClientWrapper: anilistClientWrapper,
 				AnilistRateLimiter:   anilistRateLimiter,

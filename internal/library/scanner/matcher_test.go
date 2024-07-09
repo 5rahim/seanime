@@ -15,7 +15,7 @@ import (
 func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistClientWrapper.AnimeCollectionWithRelations(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -75,11 +75,11 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 			// +---------------------+
 
 			matcher := &Matcher{
-				LocalFiles:     lfs,
-				MediaContainer: mc,
-				BaseMediaCache: nil,
-				Logger:         util.NewLogger(),
-				ScanLogger:     scanLogger,
+				LocalFiles:         lfs,
+				MediaContainer:     mc,
+				CompleteMediaCache: nil,
+				Logger:             util.NewLogger(),
+				ScanLogger:         scanLogger,
 			}
 
 			err = matcher.MatchLocalFilesWithMedia()

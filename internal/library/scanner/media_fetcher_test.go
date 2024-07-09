@@ -13,6 +13,7 @@ import (
 )
 
 func TestNewMediaFetcher(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anizipCache := anizip.NewCache()
