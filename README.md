@@ -136,7 +136,7 @@ Development and testing might require additional configuration.
 
 # Screenshots
 
-<img src="docs/images/2/rec_scanning-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/2/rec_scanning-01-cropped.gif" alt="preview" width="100%"/>
 
 <img src="docs/images/2/anime_entry-watching--squashed.jpg" alt="preview" width="100%"/>
 <img src="docs/images/2/rec_anime_entry-download-01.gif" alt="preview" width="100%"/>
