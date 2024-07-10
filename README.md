@@ -165,6 +165,37 @@ Development and testing might require additional configuration.
 <img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="250px"/>
 </p>
 
+### Online streaming
+
+<img src="docs/images/2/online_streaming-01--squashed.jpg" alt="preview" width="100%"/>
+
+<details>
+<summary>View more</summary>
+
+### Discover
+
+### Detailed library view
+
+<img src="docs/images/2/my_library_detailed_view-01--squashed.jpg" alt="preview" width="100%"/>
+
+### Discover
+
+<img src="docs/images/2/discover-01--squashed.jpg" alt="preview" width="100%"/>
+
+### AniList integration
+
+<img src="docs/images/2/anilist-01--squashed.jpg" alt="preview" width="100%"/>
+
+### Schedule
+
+<img src="docs/images/2/schedule-01--squashed.jpg" alt="preview" width="100%"/>
+
+### UI customization
+
+<img src="docs/images/2/ui_customization-01--squashed.jpg" alt="preview" width="100%"/>
+
+</details>
+
 ## Disclaimer
 
 - Seanime relies exclusively on the content stored by individual users on their personal devices. 
