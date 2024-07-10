@@ -165,14 +165,16 @@ Development and testing might require additional configuration.
 <img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="250px"/>
 </p>
 
+### Schedule
+
+<img src="docs/images/2/schedule-01--squashed.jpg" alt="preview" width="100%"/>
+
+<details>
+<summary><b>View more</b></summary>
+
 ### Online streaming
 
 <img src="docs/images/2/online_streaming-01--squashed.jpg" alt="preview" width="100%"/>
-
-<details>
-<summary>View more</summary>
-
-### Discover
 
 ### Detailed library view
 
@@ -185,10 +187,6 @@ Development and testing might require additional configuration.
 ### AniList integration
 
 <img src="docs/images/2/anilist-01--squashed.jpg" alt="preview" width="100%"/>
-
-### Schedule
-
-<img src="docs/images/2/schedule-01--squashed.jpg" alt="preview" width="100%"/>
 
 ### UI customization
 
