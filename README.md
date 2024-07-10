@@ -15,12 +15,12 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/v1/showcase.png" alt="preview" width="100%"/>
+<img src="docs/images/2/showcase.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
-<img src="docs/images/v1/rec_play.gif" alt="preview" width="49%"/>
-<img src="docs/images/v1/seanime-manga1.gif" alt="preview" width="48.75%"/>
+<img src="docs/images/2/rec_anime-01.gif" alt="preview" width="49%"/>
+<img src="docs/images/2/rec_manga-01.gif" alt="preview" width="48.75%"/>
 </p>
 
 <p align="center">
@@ -136,17 +136,20 @@ Development and testing might require additional configuration.
 
 # Screenshots
 
-<img src="docs/images/v1/rec_scan.gif" alt="preview" width="100%"/>
+<img src="docs/images/2/rec_scanning-01.gif" alt="preview" width="100%"/>
 
-<img src="docs/images/v1/playback.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/rec_torrent-search.gif" alt="preview" width="100%"/>
-<img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
+<img src="docs/images/2/anime_entry-watching--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/2/rec_anime_entry-download-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/2/manga-02--squashed.jpg" alt="preview" width="100%"/>
 <details>
 <summary>View more</summary>
-<img src="docs/images/v1/torrentstream_02.png" alt="preview" width="100%"/>
-<img src="docs/images/v1/mediastream.png" alt="preview" width="100%"/>
+<img src="docs/images/2/rec_torrent_streaming-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
+<img src="docs/images/2/media_streaming-01--squashed.jpg" alt="preview" width="100%"/>
+<p align="center">
+<img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="250px"/>
+</p>
 
-<img src="docs/images/v1/manga-entry-2_02.png" alt="preview" width="100%"/>
 
 </details>
 
