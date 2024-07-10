@@ -77,11 +77,12 @@ How to install Seanime
 - **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
 - Create **playlists** to binge-watch seamlessly
 
-### 📱 Transcoding
+### 📱 Media streaming / Transcoding
 - Watch your downloaded episodes on any device with a web browser
 - On-the-fly transcoding with seeking support powered by **FFmpeg**
 - Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
 - Built-in player with subtitle support
+- Direct play support
 
 ### 📽️ Torrent streaming
 - Stream torrents directly to your media player without waiting for the download to complete
@@ -136,22 +137,33 @@ Development and testing might require additional configuration.
 
 # Screenshots
 
+### Scanning
+
 <img src="docs/images/2/rec_scanning-01-cropped.gif" alt="preview" width="100%"/>
 
+### Progress tracking
+
 <img src="docs/images/2/anime_entry-watching--squashed.jpg" alt="preview" width="100%"/>
+
+### Downloading
+
 <img src="docs/images/2/rec_anime_entry-download-01.gif" alt="preview" width="100%"/>
-<img src="docs/images/2/manga-02--squashed.jpg" alt="preview" width="100%"/>
-<details>
-<summary>View more</summary>
-<img src="docs/images/2/rec_torrent_streaming-01.gif" alt="preview" width="100%"/>
+
+### Manga
+
+<img src="docs/images/2/manga-03--squashed.jpg" alt="preview" width="100%"/>
 <img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
+
+### Torrent streaming
+
+<img src="docs/images/2/rec_torrent_streaming-01.gif" alt="preview" width="100%"/>
+
+### Media streaming / Transcoding
+
 <img src="docs/images/2/media_streaming-01--squashed.jpg" alt="preview" width="100%"/>
 <p align="center">
 <img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="250px"/>
 </p>
-
-
-</details>
 
 ## Disclaimer
 
