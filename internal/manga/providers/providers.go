@@ -8,6 +8,7 @@ const (
 	ComickProvider    Provider = "comick"
 	MangapillProvider Provider = "mangapill"
 	ManganatoProvider Provider = "manganato"
+	MangafireProvider Provider = "mangafire"
 )
 
 var (
