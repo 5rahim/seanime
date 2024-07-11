@@ -46,7 +46,7 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 		// 1. Build a query string
 		qTitles := "("
 		for _, title := range allTitles {
-			qTitles += fmt.Sprintf("%s | ", *title)
+			qTitles += fmt.Sprintf("%s | ", sanitizeTitle(*title))
 		}
 		qTitles = qTitles[:len(qTitles)-3] + ")"
 
@@ -193,8 +193,8 @@ func (opts *BuildSearchQueryOptions) buildEpisodes() string {
 
 func (opts *BuildSearchQueryOptions) buildTitles() string {
 
-	romTitle := opts.Media.GetRomajiTitleSafe()
-	engTitle := opts.Media.GetTitleSafe()
+	romTitle := sanitizeTitle(opts.Media.GetRomajiTitleSafe())
+	engTitle := sanitizeTitle(opts.Media.GetTitleSafe())
 
 	season := 0
 
@@ -206,7 +206,7 @@ func (opts *BuildSearchQueryOptions) buildTitles() string {
 			season = s
 		}
 		if cTitle != "" { // add "cleaned" titles
-			titles = append(titles, cTitle)
+			titles = append(titles, sanitizeTitle(cTitle))
 		}
 	}
 

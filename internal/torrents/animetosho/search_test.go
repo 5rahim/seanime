@@ -64,6 +64,14 @@ func TestSmartSearch(t *testing.T) {
 			absoluteOffset: 0,
 			resolution:     "1080",
 		},
+		{
+			name:           "Tokubetsu-hen Hibike! Euphonium: Ensemble",
+			mId:            150429,
+			batch:          false,
+			episodeNumber:  1,
+			absoluteOffset: 0,
+			resolution:     "1080",
+		},
 	}
 
 	for _, test := range tests {

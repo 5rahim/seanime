@@ -5,12 +5,15 @@ import (
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/seanime-app/seanime/internal/util/comparison"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
 )
+
+// DEVNOTE: Shelved due to WAF captcha
 
 type (
 	Mangafire struct {
@@ -46,7 +49,7 @@ func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
 	uri := fmt.Sprintf("%s/filter?keyword=%s%s&sort=recently_updated", mf.Url, url.QueryEscape(opts.Query), yearStr)
 
 	c := colly.NewCollector(
-		colly.UserAgent(mf.UserAgent),
+		colly.UserAgent(util.GetRandomUserAgent()),
 	)
 
 	c.WithTransport(mf.Client.Transport)
@@ -60,7 +63,7 @@ func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	c.OnHTML("main div.container div.original div.unit", func(e *colly.HTMLElement) {
 		id := e.ChildAttr("a", "href")
-		if len(toVisit) >= 5 || id == "" {
+		if len(toVisit) >= 15 || id == "" {
 			return
 		}
 		title := ""
@@ -79,6 +82,11 @@ func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
 		if obj.Title != "" && obj.ID != "" {
 			toVisit = append(toVisit, obj)
 		}
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		mf.logger.Debug().Str("uri", r.Request.URL.String()).Msg("mangafire: Visiting")
+		fmt.Println(string(r.Body))
 	})
 
 	err := c.Visit(uri)
@@ -141,6 +149,18 @@ func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
 				mf.logger.Error().Err(err).Str("id", tv.ID).Msg("mangafire: Failed to visit manga page")
 				return
 			}
+
+			// Comparison
+			compTitles := []*string{&result.Title}
+			for _, syn := range result.Synonyms {
+				if !util.IsMostlyLatinString(syn) {
+					continue
+				}
+				compTitles = append(compTitles, &syn)
+			}
+			compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, compTitles)
+
+			result.SearchRating = compRes.Rating
 
 			results = append(results, result)
 		}(v)

@@ -26,17 +26,19 @@ func NewSearchCache() *SearchCache {
 	return &SearchCache{result.NewCache[string, []*Torrent]()}
 }
 
+// GetLatest returns all the latest torrents currently visible on the site
 func GetLatest() (torrents []*Torrent, err error) {
 	query := "?qx=1&q=&filter[0][t]=nyaa_class&order="
 	return fetchTorrents(query)
 }
 
+// Search searches for torrents
 func Search(show string) (torrents []*Torrent, err error) {
-	format := "?qx=1&q=%s&filter[0][t]=nyaa_class&order="
-	query := fmt.Sprintf(format, url.QueryEscape(show))
+	query := fmt.Sprintf("?qx=1&q=%s&filter[0][t]=nyaa_class&order=", url.QueryEscape(sanitizeTitle(show)))
 	return fetchTorrents(query)
 }
 
+// formatCommonQuery adds special query filters
 func formatCommonQuery(quality string) string {
 	quality = strings.TrimSuffix(quality, "p")
 	if quality == "1080" {
@@ -52,22 +54,30 @@ func formatCommonQuery(quality string) string {
 	}
 }
 
+// SearchByAID searches for torrents by Anime ID
 func SearchByAID(aid int, quality string) (torrents []*Torrent, err error) {
 	q := url.QueryEscape(formatCommonQuery(quality))
 	query := fmt.Sprintf(`?qx=1&order=size-d&aid=%d&q=%s`, aid, q)
 	return fetchTorrents(query)
 }
 
+// SearchByAIDLikelyBatch searches for torrents by Anime ID
 func SearchByAIDLikelyBatch(aid int, quality string) (torrents []*Torrent, err error) {
 	q := url.QueryEscape(formatCommonQuery(quality))
 	query := fmt.Sprintf(`?qx=1&order=size-d&aid=%d&q=%s`, aid, q)
 	return fetchTorrents(query)
 }
 
+// SearchByEID searches for torrents by Episode ID
 func SearchByEID(eid int, quality string) (torrents []*Torrent, err error) {
 	q := url.QueryEscape(formatCommonQuery(quality))
 	query := fmt.Sprintf(`?qx=1&eid=%d&q=%s`, eid, q)
 	return fetchTorrents(query)
+}
+
+// sanitizeTitle removes characters that impact the search query
+func sanitizeTitle(t string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(t, "!", ""), ":", ""), "[", ""), "]", "")
 }
 
 func fetchTorrents(query string) (torrents []*Torrent, err error) {

@@ -120,6 +120,7 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 			altTitles[j] = title.Title
 		}
 
+		// DEVNOTE: We don't compare to alt titles because ComicK's synonyms aren't good
 		compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, []*string{&result.Title})
 
 		results = append(results, &SearchResult{
