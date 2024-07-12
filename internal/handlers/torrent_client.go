@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/util"
@@ -182,6 +183,8 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 			if err != nil {
 				c.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
 			}
+			ac, _ := c.App.RefreshAnimeCollection()
+			c.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, ac)
 		}
 	}()
 
