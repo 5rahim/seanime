@@ -6,6 +6,7 @@ import React from "react"
 
 type AnilistMediaEntryListProps = {
     list: AL_AnimeCollection_MediaListCollection_Lists | undefined
+    type: "anime" | "manga"
 }
 
 /**
@@ -15,6 +16,7 @@ export function AnilistMediaEntryList(props: AnilistMediaEntryListProps) {
 
     const {
         list,
+        type,
         ...rest
     } = props
 
@@ -37,7 +39,7 @@ export function AnilistMediaEntryList(props: AnilistMediaEntryListProps) {
                     showLibraryBadge
                     media={entry.media!}
                     showListDataButton
-                    type="anime"
+                    type={type}
                 />
             ))}
         </MediaCardLazyGrid>

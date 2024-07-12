@@ -43,12 +43,7 @@ import { useMount } from "react-use"
 const selectedIndexAtom = atom("-")
 const watchListSearchInputAtom = atom<string>("")
 
-type AnimeCollectionListsProps = {}
-
-export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
-
-    const {} = props
-
+export function AnilistCollectionLists() {
     const serverStatus = useServerStatus()
     const [pageType, setPageType] = useAtom(__myLists_selectedTypeAtom)
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
@@ -117,23 +112,23 @@ export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
                     <div className="py-6 space-y-6">
                         {(!!currentList?.entries?.length && ["-", "current"].includes(selectedIndex)) && <>
                             <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={currentList} />
+                            <AnilistMediaEntryList type={pageType} list={currentList} />
                         </>}
                         {(!!planningList?.entries?.length && ["-", "planning"].includes(selectedIndex)) && <>
                             <h2>Planning <span className="text-[--muted] font-medium ml-3">{planningList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={planningList} />
+                            <AnilistMediaEntryList type={pageType} list={planningList} />
                         </>}
                         {(!!pausedList?.entries?.length && ["-", "paused"].includes(selectedIndex)) && <>
                             <h2>Paused <span className="text-[--muted] font-medium ml-3">{pausedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={pausedList} />
+                            <AnilistMediaEntryList type={pageType} list={pausedList} />
                         </>}
                         {(!!completedList?.entries?.length && ["-", "completed"].includes(selectedIndex)) && <>
                             <h2>Completed <span className="text-[--muted] font-medium ml-3">{completedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={completedList} />
+                            <AnilistMediaEntryList type={pageType} list={completedList} />
                         </>}
                         {(!!droppedList?.entries?.length && ["-", "dropped"].includes(selectedIndex)) && <>
                             <h2>Dropped <span className="text-[--muted] font-medium ml-3">{droppedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={droppedList} />
+                            <AnilistMediaEntryList type={pageType} list={droppedList} />
                         </>}
                         {customLists?.map(list => {
                             return (!!list.entries?.length && ["-", list.name || "N/A"].includes(selectedIndex)) ? <div
@@ -141,7 +136,7 @@ export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
                                 className="space-y-6"
                             >
                                 <h2>{list.name}</h2>
-                                <AnilistMediaEntryList list={list} />
+                                <AnilistMediaEntryList type={pageType} list={list} />
                             </div> : null
                         })}
                     </div>
