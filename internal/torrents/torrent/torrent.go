@@ -91,6 +91,7 @@ func NewAnimeTorrentFromAnimeTosho(torrent *animetosho.Torrent) *AnimeTorrent {
 		DownloadUrl:   torrent.TorrentUrl,
 		InfoHash:      torrent.InfoHash,
 		Provider:      ProviderAnimeTosho,
+		IsBatch:       torrent.NumFiles > 1,
 	}
 
 	hydrateMetadata(t, metadata)
@@ -159,11 +160,11 @@ func hydrateMetadata(t *AnimeTorrent, metadata *seanime_parser.Metadata) {
 		return
 	}
 
-	isBatch := false
+	isBatchByGuess := false
 	episode := -1
 
 	if len(metadata.EpisodeNumber) > 1 || comparison.ValueContainsBatchKeywords(t.Name) {
-		isBatch = true
+		isBatchByGuess = true
 	}
 	if len(metadata.EpisodeNumber) == 1 {
 		episode, _ = util.StringToInt(metadata.EpisodeNumber[0])
@@ -171,7 +172,12 @@ func hydrateMetadata(t *AnimeTorrent, metadata *seanime_parser.Metadata) {
 
 	t.Resolution = metadata.VideoResolution
 	t.ReleaseGroup = metadata.ReleaseGroup
-	t.IsBatch = isBatch
+
+	// Only change batch status if it wasn't already 'true'
+	if t.IsBatch == false && isBatchByGuess {
+		t.IsBatch = true
+	}
+
 	t.EpisodeNumber = episode
 
 	return

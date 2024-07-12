@@ -187,9 +187,9 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 					return nil, err
 				}
 
+				// This condition ensures that we only filter for batches if the show isn't a movie or single-episode.
+				// i.e. force bypass the batch filter for movies and single episodes
 				if !opts.Media.IsMovieOrSingleEpisode() {
-					// Retain only torrents with multiple files (batch)
-					// for movies or single episodes, we can still return non-batch torrents
 					batchTorrents := lo.Filter(animetoshoTorrents, func(t *animetosho.Torrent, _ int) bool {
 						return t.NumFiles > 1
 					})
@@ -369,6 +369,10 @@ func createTorrentPreview(
 		if torrent.EpisodeNumber >= 0 && torrent.EpisodeNumber > media.GetCurrentEpisodeCount() {
 			torrent.EpisodeNumber = torrent.EpisodeNumber - absoluteOffset
 		}
+	}
+
+	if torrent.IsBatch {
+		torrent.EpisodeNumber = -2
 	}
 
 	if *media.GetFormat() == anilist.MediaFormatMovie {
