@@ -60,6 +60,16 @@ func TestSmartTest(t *testing.T) {
 			resolution:     "1080",
 			provider:       "animetosho",
 		},
+		{
+			smartSearch:    true,
+			query:          "",
+			episodeNumber:  1,
+			batch:          true,
+			mediaId:        1915, // Magical Girl Lyrical Nanoha StrikerS
+			absoluteOffset: 0,
+			resolution:     "",
+			provider:       "animetosho",
+		},
 	}
 
 	for _, tt := range tests {
