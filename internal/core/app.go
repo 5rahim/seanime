@@ -4,7 +4,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/listsync"
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/database/db"
@@ -49,7 +48,6 @@ type (
 		AnimeToshoSearchCache   *animetosho.SearchCache
 		FillerManager           *fillermanager.FillerManager
 		WSEventManager          *events.WSEventManager
-		ListSyncCache           *listsync.Cache
 		AutoDownloader          *autodownloader.AutoDownloader
 		MediaPlayer             struct {
 			VLC   *vlc.VLC
@@ -184,7 +182,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		NyaaSearchCache:         nyaa.NewSearchCache(),
 		AnimeToshoSearchCache:   animetosho.NewSearchCache(),
 		WSEventManager:          wsEventManager,
-		ListSyncCache:           listsync.NewCache(),
 		Logger:                  logger,
 		Version:                 constants.Version,
 		Updater:                 updater.New(constants.Version, logger),

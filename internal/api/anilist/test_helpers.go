@@ -375,58 +375,68 @@ func (c *MockClientWrapper) AddMediaToPlanning(mIds []int, rateLimiter *limiter.
 	c.logger.Debug().Msg("anilist: Adding media to planning [MockClientWrapper]")
 	return nil
 }
+
 func (c *MockClientWrapper) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, totalEpisodes *int) error {
 	panic("not implemented")
 }
-func (c *MockClientWrapper) UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error) {
-	panic("not implemented")
-}
+
 func (c *MockClientWrapper) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
 	panic("not implemented")
 }
+
 func (c *MockClientWrapper) UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error) {
 	panic("not implemented")
 }
+
 func (c *MockClientWrapper) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
 	panic("not implemented")
 }
-func (c *MockClientWrapper) SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error) {
-	panic("not implemented")
-}
+
 func (c *MockClientWrapper) MediaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MediaDetailsByID, error) {
 	panic("not implemented")
 }
+
 func (c *MockClientWrapper) CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error) {
 	return c.realClientWrapper.CompleteMediaByID(ctx, id, interceptors...)
 }
+
 func (c *MockClientWrapper) ListMedia(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*ListMedia, error) {
 	return c.realClientWrapper.ListMedia(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, interceptors...)
 }
+
 func (c *MockClientWrapper) ListRecentMedia(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentMedia, error) {
 	panic("not implemented")
 }
+
 func (c *MockClientWrapper) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
 	panic("not implemented")
 }
+
 func (c *MockClientWrapper) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
 	return c.realClientWrapper.MangaCollection(ctx, userName, interceptors...)
 }
+
 func (c *MockClientWrapper) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
 	return c.realClientWrapper.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
 }
+
 func (c *MockClientWrapper) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
 	return c.realClientWrapper.BaseMangaByID(ctx, id, interceptors...)
 }
+
 func (c *MockClientWrapper) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
 	return c.realClientWrapper.MangaDetailsByID(ctx, id, interceptors...)
 }
+
 func (c *MockClientWrapper) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
 	return c.realClientWrapper.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
 }
+
 func (c *MockClientWrapper) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
 	c.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
 	return c.realClientWrapper.StudioDetails(ctx, id, interceptors...)
 }
+
 func (c *MockClientWrapper) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
 	c.logger.Debug().Msg("anilist: Fetching stats")
 	return c.realClientWrapper.ViewerStats(ctx, interceptors...)

@@ -62,18 +62,6 @@ query AnimeCollectionWithRelations ($userName: String) {
   }
 }
 
-
-query SearchAnimeShortMedia($page: Int, $perPage: Int, $sort: [MediaSort], $search: String, $status: [MediaStatus]){
-  Page(page: $page, perPage: $perPage){
-    pageInfo{
-      hasNextPage
-    },
-    media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: false, format_not: MUSIC){
-      ...baseMedia
-    }
-  }
-}
-
 query BaseMediaByMalId ($id: Int) {
   Media(idMal: $id, type: ANIME) {
     ...baseMedia

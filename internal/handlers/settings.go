@@ -153,58 +153,6 @@ func HandleSaveSettings(c *RouteCtx) error {
 	return c.RespondWithData(status)
 }
 
-// HandleSaveListSyncSettings
-//
-//	@summary updates the list sync settings
-//	@desc This will update the ListSync settings and clear the ListSync cache.
-//	@route /api/v1/settings/list-sync [PATCH]
-//	@returns bool
-func HandleSaveListSyncSettings(c *RouteCtx) error {
-
-	type body struct {
-		Automatic bool   `json:"automatic"`
-		Origin    string `json:"origin"`
-	}
-
-	var b body
-
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	prevSettings, err := c.App.Database.GetSettings()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	_, err = c.App.Database.UpsertSettings(&models.Settings{
-		BaseModel: models.BaseModel{
-			ID:        1,
-			UpdatedAt: time.Now(),
-		},
-		Library:        prevSettings.Library,
-		MediaPlayer:    prevSettings.MediaPlayer,
-		Torrent:        prevSettings.Torrent,
-		Anilist:        prevSettings.Anilist,
-		AutoDownloader: prevSettings.AutoDownloader,
-		Discord:        prevSettings.Discord,
-		ListSync: &models.ListSyncSettings{
-			Automatic: b.Automatic,
-			Origin:    b.Origin,
-		},
-	})
-
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	c.App.ListSyncCache.Delete(0)
-
-	// DEVNOTE: Refetch server status from client
-
-	return c.RespondWithData(true)
-}
-
 // HandleSaveAutoDownloaderSettings
 //
 //	@summary updates the auto-downloader settings.

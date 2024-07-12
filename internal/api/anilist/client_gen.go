@@ -10,7 +10,6 @@ import (
 )
 
 type GithubGraphQLClient interface {
-	UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	UpdateMediaListEntryStatus(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, scoreRaw *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryStatus, error)
@@ -22,7 +21,6 @@ type GithubGraphQLClient interface {
 	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error)
 	AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error)
-	SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error)
 	BaseMediaByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByMalID, error)
 	BaseMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMediaByID, error)
 	CompleteMediaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteMediaByID, error)
@@ -1489,17 +1487,6 @@ func (t *UserStudioStats_Studio) GetIsAnimationStudio() bool {
 		t = &UserStudioStats_Studio{}
 	}
 	return t.IsAnimationStudio
-}
-
-type UpdateEntry_SaveMediaListEntry struct {
-	ID int "json:\"id\" graphql:\"id\""
-}
-
-func (t *UpdateEntry_SaveMediaListEntry) GetID() int {
-	if t == nil {
-		t = &UpdateEntry_SaveMediaListEntry{}
-	}
-	return t.ID
 }
 
 type UpdateMediaListEntry_SaveMediaListEntry struct {
@@ -3741,199 +3728,6 @@ func (t *AnimeCollectionWithRelations_MediaListCollection) GetLists() []*AnimeCo
 		t = &AnimeCollectionWithRelations_MediaListCollection{}
 	}
 	return t.Lists
-}
-
-type SearchAnimeShortMedia_Page_PageInfo struct {
-	HasNextPage *bool "json:\"hasNextPage,omitempty\" graphql:\"hasNextPage\""
-}
-
-func (t *SearchAnimeShortMedia_Page_PageInfo) GetHasNextPage() *bool {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_PageInfo{}
-	}
-	return t.HasNextPage
-}
-
-type SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer struct {
-	ID        *string "json:\"id,omitempty\" graphql:\"id\""
-	Site      *string "json:\"site,omitempty\" graphql:\"site\""
-	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
-}
-
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer) GetID() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer{}
-	}
-	return t.ID
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer) GetSite() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer{}
-	}
-	return t.Site
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer) GetThumbnail() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Trailer{}
-	}
-	return t.Thumbnail
-}
-
-type SearchAnimeShortMedia_Page_Media_BaseMedia_Title struct {
-	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
-	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
-	English       *string "json:\"english,omitempty\" graphql:\"english\""
-	Native        *string "json:\"native,omitempty\" graphql:\"native\""
-}
-
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Title) GetUserPreferred() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Title{}
-	}
-	return t.UserPreferred
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Title) GetRomaji() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Title{}
-	}
-	return t.Romaji
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Title) GetEnglish() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Title{}
-	}
-	return t.English
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_Title) GetNative() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_Title{}
-	}
-	return t.Native
-}
-
-type SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage struct {
-	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
-	Large      *string "json:\"large,omitempty\" graphql:\"large\""
-	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
-	Color      *string "json:\"color,omitempty\" graphql:\"color\""
-}
-
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage) GetExtraLarge() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage{}
-	}
-	return t.ExtraLarge
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage) GetLarge() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage{}
-	}
-	return t.Large
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage) GetMedium() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage{}
-	}
-	return t.Medium
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage) GetColor() *string {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_CoverImage{}
-	}
-	return t.Color
-}
-
-type SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate) GetYear() *int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate{}
-	}
-	return t.Year
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate) GetMonth() *int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate{}
-	}
-	return t.Month
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate) GetDay() *int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_StartDate{}
-	}
-	return t.Day
-}
-
-type SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate struct {
-	Year  *int "json:\"year,omitempty\" graphql:\"year\""
-	Month *int "json:\"month,omitempty\" graphql:\"month\""
-	Day   *int "json:\"day,omitempty\" graphql:\"day\""
-}
-
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate) GetYear() *int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate{}
-	}
-	return t.Year
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate) GetMonth() *int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate{}
-	}
-	return t.Month
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate) GetDay() *int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_EndDate{}
-	}
-	return t.Day
-}
-
-type SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode struct {
-	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
-	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
-	Episode         int "json:\"episode\" graphql:\"episode\""
-}
-
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode) GetAiringAt() int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode{}
-	}
-	return t.AiringAt
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode) GetTimeUntilAiring() int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode{}
-	}
-	return t.TimeUntilAiring
-}
-func (t *SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode) GetEpisode() int {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page_Media_BaseMedia_NextAiringEpisode{}
-	}
-	return t.Episode
-}
-
-type SearchAnimeShortMedia_Page struct {
-	PageInfo *SearchAnimeShortMedia_Page_PageInfo "json:\"pageInfo,omitempty\" graphql:\"pageInfo\""
-	Media    []*BaseMedia                         "json:\"media,omitempty\" graphql:\"media\""
-}
-
-func (t *SearchAnimeShortMedia_Page) GetPageInfo() *SearchAnimeShortMedia_Page_PageInfo {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page{}
-	}
-	return t.PageInfo
-}
-func (t *SearchAnimeShortMedia_Page) GetMedia() []*BaseMedia {
-	if t == nil {
-		t = &SearchAnimeShortMedia_Page{}
-	}
-	return t.Media
 }
 
 type BaseMediaByMalId_Media_BaseMedia_Trailer struct {
@@ -6412,17 +6206,6 @@ func (t *GetViewer_Viewer) GetOptions() *GetViewer_Viewer_Options {
 	return t.Options
 }
 
-type UpdateEntry struct {
-	SaveMediaListEntry *UpdateEntry_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
-}
-
-func (t *UpdateEntry) GetSaveMediaListEntry() *UpdateEntry_SaveMediaListEntry {
-	if t == nil {
-		t = &UpdateEntry{}
-	}
-	return t.SaveMediaListEntry
-}
-
 type UpdateMediaListEntry struct {
 	SaveMediaListEntry *UpdateMediaListEntry_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
 }
@@ -6544,17 +6327,6 @@ func (t *AnimeCollectionWithRelations) GetMediaListCollection() *AnimeCollection
 	return t.MediaListCollection
 }
 
-type SearchAnimeShortMedia struct {
-	Page *SearchAnimeShortMedia_Page "json:\"Page,omitempty\" graphql:\"Page\""
-}
-
-func (t *SearchAnimeShortMedia) GetPage() *SearchAnimeShortMedia_Page {
-	if t == nil {
-		t = &SearchAnimeShortMedia{}
-	}
-	return t.Page
-}
-
 type BaseMediaByMalID struct {
 	Media *BaseMedia "json:\"Media,omitempty\" graphql:\"Media\""
 }
@@ -6652,39 +6424,6 @@ func (t *GetViewer) GetViewer() *GetViewer_Viewer {
 		t = &GetViewer{}
 	}
 	return t.Viewer
-}
-
-const UpdateEntryDocument = `mutation UpdateEntry ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int, $repeat: Int, $private: Boolean, $notes: String, $hiddenFromStatusLists: Boolean, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput) {
-	SaveMediaListEntry(mediaId: $mediaId, status: $status, score: $score, progress: $progress, repeat: $repeat, private: $private, notes: $notes, hiddenFromStatusLists: $hiddenFromStatusLists, startedAt: $startedAt, completedAt: $completedAt) {
-		id
-	}
-}
-`
-
-func (c *Client) UpdateEntry(ctx context.Context, mediaID *int, status *MediaListStatus, score *float64, progress *int, repeat *int, private *bool, notes *string, hiddenFromStatusLists *bool, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateEntry, error) {
-	vars := map[string]any{
-		"mediaId":               mediaID,
-		"status":                status,
-		"score":                 score,
-		"progress":              progress,
-		"repeat":                repeat,
-		"private":               private,
-		"notes":                 notes,
-		"hiddenFromStatusLists": hiddenFromStatusLists,
-		"startedAt":             startedAt,
-		"completedAt":           completedAt,
-	}
-
-	var res UpdateEntry
-	if err := c.Client.Post(ctx, "UpdateEntry", UpdateEntryDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
 }
 
 const UpdateMediaListEntryDocument = `mutation UpdateMediaListEntry ($mediaId: Int, $status: MediaListStatus, $scoreRaw: Int, $progress: Int, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput) {
@@ -7500,89 +7239,6 @@ func (c *Client) AnimeCollectionWithRelations(ctx context.Context, userName *str
 
 	var res AnimeCollectionWithRelations
 	if err := c.Client.Post(ctx, "AnimeCollectionWithRelations", AnimeCollectionWithRelationsDocument, &res, vars, interceptors...); err != nil {
-		if c.Client.ParseDataWhenErrors {
-			return &res, err
-		}
-
-		return nil, err
-	}
-
-	return &res, nil
-}
-
-const SearchAnimeShortMediaDocument = `query SearchAnimeShortMedia ($page: Int, $perPage: Int, $sort: [MediaSort], $search: String, $status: [MediaStatus]) {
-	Page(page: $page, perPage: $perPage) {
-		pageInfo {
-			hasNextPage
-		}
-		media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: false, format_not: MUSIC) {
-			... baseMedia
-		}
-	}
-}
-fragment baseMedia on Media {
-	id
-	idMal
-	siteUrl
-	status(version: 2)
-	season
-	type
-	format
-	bannerImage
-	episodes
-	synonyms
-	isAdult
-	countryOfOrigin
-	meanScore
-	description
-	genres
-	duration
-	trailer {
-		id
-		site
-		thumbnail
-	}
-	title {
-		userPreferred
-		romaji
-		english
-		native
-	}
-	coverImage {
-		extraLarge
-		large
-		medium
-		color
-	}
-	startDate {
-		year
-		month
-		day
-	}
-	endDate {
-		year
-		month
-		day
-	}
-	nextAiringEpisode {
-		airingAt
-		timeUntilAiring
-		episode
-	}
-}
-`
-
-func (c *Client) SearchAnimeShortMedia(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchAnimeShortMedia, error) {
-	vars := map[string]any{
-		"page":    page,
-		"perPage": perPage,
-		"sort":    sort,
-		"search":  search,
-		"status":  status,
-	}
-
-	var res SearchAnimeShortMedia
-	if err := c.Client.Post(ctx, "SearchAnimeShortMedia", SearchAnimeShortMediaDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -8480,7 +8136,6 @@ func (c *Client) GetViewer(ctx context.Context, interceptors ...clientv2.Request
 }
 
 var DocumentOperationNames = map[string]string{
-	UpdateEntryDocument:                  "UpdateEntry",
 	UpdateMediaListEntryDocument:         "UpdateMediaListEntry",
 	UpdateMediaListEntryProgressDocument: "UpdateMediaListEntryProgress",
 	UpdateMediaListEntryStatusDocument:   "UpdateMediaListEntryStatus",
@@ -8492,7 +8147,6 @@ var DocumentOperationNames = map[string]string{
 	ListMangaDocument:                    "ListManga",
 	AnimeCollectionDocument:              "AnimeCollection",
 	AnimeCollectionWithRelationsDocument: "AnimeCollectionWithRelations",
-	SearchAnimeShortMediaDocument:        "SearchAnimeShortMedia",
 	BaseMediaByMalIDDocument:             "BaseMediaByMalId",
 	BaseMediaByIDDocument:                "BaseMediaById",
 	CompleteMediaByIDDocument:            "CompleteMediaById",
