@@ -85,6 +85,9 @@ func fetchTorrents(query string) (torrents []*Torrent, err error) {
 	//format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&filter[0][v]=trusted"
 	//format := "%s?only_tor=1&q=%s&filter[0][t]=nyaa_class&order="
 	furl := JsonFeedUrl + query
+
+	fmt.Println(furl)
+
 	resp, err := http.Get(furl)
 	if err != nil {
 		return nil, err

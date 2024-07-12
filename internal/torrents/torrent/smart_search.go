@@ -176,61 +176,61 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 			animetoshoTorrents := make([]*animetosho.Torrent, 0)
 			var err error
 
-			// Search by EID
-			if anizipMedia != nil && !*opts.Batch {
+			switch *opts.Batch {
+			case true: // Batches
 
-				opts.Logger.Debug().Int("eid", anizipMedia.Mappings.AnidbID).Msg("smartsearch: Searching by EID (AnimeTosho)")
+				opts.Logger.Debug().Int("aid", anizipMedia.Mappings.AnidbID).Msg("smartsearch: Searching batches by Anime ID (AnimeTosho)")
 
-				episode, foundEp := anizipMedia.FindEpisode(strconv.Itoa(*opts.EpisodeNumber))
+				animetoshoTorrents, err = animetosho.SearchByAID(anizipMedia.Mappings.AnidbID, *opts.Resolution)
 
-				if foundEp && episode.AnidbEid > 0 {
-					animetoshoTorrents, err = animetosho.SearchByEID(episode.AnidbEid, *opts.Resolution)
-					episodesFoundByID = true
+				if err != nil {
+					return nil, err
 				}
 
-			}
+				if !opts.Media.IsMovieOrSingleEpisode() {
+					// Retain only torrents with multiple files (batch)
+					// for movies or single episodes, we can still return non-batch torrents
+					batchTorrents := lo.Filter(animetoshoTorrents, func(t *animetosho.Torrent, _ int) bool {
+						return t.NumFiles > 1
+					})
+					if len(batchTorrents) > 0 {
+						animetoshoTorrents = batchTorrents
+						episodesFoundByID = true
+					}
+				}
 
-			// Could not find by EID, search by query
-			if err != nil || len(animetoshoTorrents) == 0 {
+			case false: // Single episodes
 
-				opts.Logger.Debug().Str("query", *opts.Query).Msg("smartsearch: Searching by query (AnimeTosho)")
+				// Search by EID
+				if anizipMedia != nil {
 
-				animetoshoTorrents, err = animetosho.SearchQuery(&animetosho.BuildSearchQueryOptions{
-					Media:          opts.Media,
-					Batch:          opts.Batch,
-					EpisodeNumber:  opts.EpisodeNumber,
-					Resolution:     opts.Resolution,
-					AbsoluteOffset: opts.AbsoluteOffset,
-					Title:          opts.Query,
-					Cache:          opts.AnimeToshoSearchCache,
-					Logger:         opts.Logger,
-				})
+					opts.Logger.Debug().Int("eid", anizipMedia.Mappings.AnidbID).Msg("smartsearch: Searching by Episode ID (AnimeTosho)")
 
-				// If we still have no torrents, and the user wants to batch search, we will search by AID
-				if anizipMedia != nil && *opts.Batch && (err != nil || len(animetoshoTorrents) == 0) {
+					episode, foundEp := anizipMedia.FindEpisode(strconv.Itoa(*opts.EpisodeNumber))
 
-					opts.Logger.Debug().Int("aid", anizipMedia.Mappings.AnidbID).Msg("smartsearch: Searching by AID (AnimeTosho)")
-
-					animetoshoTorrents, err = animetosho.SearchByAIDLikelyBatch(anizipMedia.Mappings.AnidbID, *opts.Resolution)
-					// Filter if found
-					if err == nil && len(animetoshoTorrents) > 0 {
-						newAT := make([]*animetosho.Torrent, 0)
-						for _, t := range animetoshoTorrents {
-							m := seanime_parser.Parse(t.Title)
-							if len(m.EpisodeNumber) < 2 && !comparison.ValueContainsBatchKeywords(t.Title) {
-								continue
-							}
-							newAT = append(newAT, t)
-						}
-						animetoshoTorrents = newAT
+					if foundEp && episode.AnidbEid > 0 {
+						animetoshoTorrents, err = animetosho.SearchByEID(episode.AnidbEid, *opts.Resolution)
 						episodesFoundByID = true
 					}
 
 				}
-			}
 
-			if err != nil {
-				return nil, err
+				// Keep going if we didn't find the episode
+				// Search by query/titles
+				if len(animetoshoTorrents) == 0 {
+
+					animetoshoTorrents, err = animetosho.SearchQuery(&animetosho.BuildSearchQueryOptions{
+						Media:          opts.Media,
+						Batch:          opts.Batch, // will be false
+						EpisodeNumber:  opts.EpisodeNumber,
+						Resolution:     opts.Resolution,
+						AbsoluteOffset: opts.AbsoluteOffset,
+						Title:          opts.Query,
+						Cache:          opts.AnimeToshoSearchCache,
+						Logger:         opts.Logger,
+					})
+
+				}
 			}
 
 			for _, torrent := range animetoshoTorrents {
@@ -238,6 +238,8 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 			}
 
 		} else {
+
+			opts.Logger.Debug().Str("query", *opts.Query).Msg("smartsearch: Searching by query -- no smart search (AnimeTosho)")
 
 			res, err := animetosho.Search(*opts.Query)
 			if err != nil {

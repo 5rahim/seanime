@@ -32,7 +32,7 @@ type (
 	FilterEpisodeMediaInfo struct {
 		Year           *int
 		Month          *int
-		TotalEp        int // form anizip
+		TotalEp        int // from anizip
 		AbsoluteOffset int // from anizip
 	}
 )
