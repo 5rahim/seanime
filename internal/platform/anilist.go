@@ -13,13 +13,13 @@ import (
 
 type (
 	AnilistPlatform struct {
-		logger               *zerolog.Logger
-		username             mo.Option[string]
-		anilistClientWrapper anilist.AnilistClient
-		animeCollection      mo.Option[*anilist.AnimeCollection]
-		rawAnimeCollection   mo.Option[*anilist.AnimeCollection]
-		mangaCollection      mo.Option[*anilist.MangaCollection]
-		rawMangaCollection   mo.Option[*anilist.MangaCollection]
+		logger             *zerolog.Logger
+		username           mo.Option[string]
+		anilistClient      anilist.AnilistClient
+		animeCollection    mo.Option[*anilist.AnimeCollection]
+		rawAnimeCollection mo.Option[*anilist.AnimeCollection]
+		mangaCollection    mo.Option[*anilist.MangaCollection]
+		rawMangaCollection mo.Option[*anilist.MangaCollection]
 	}
 )
 
@@ -36,12 +36,12 @@ func (ap *AnilistPlatform) SetUsername(username string) {
 
 func (ap *AnilistPlatform) SetAnilistClientWrapper(client anilist.AnilistClient) {
 	// Set the AnilistClientWrapper for the AnilistPlatform
-	ap.anilistClientWrapper = client
+	ap.anilistClient = client
 }
 
 func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry")
-	_, err := ap.anilistClientWrapper.UpdateMediaListEntry(context.Background(), &mediaID, status, scoreRaw, progress, startedAt, completedAt)
+	_, err := ap.anilistClient.UpdateMediaListEntry(context.Background(), &mediaID, status, scoreRaw, progress, startedAt, completedAt)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalE
 		progress = totalEp
 	}
 
-	_, err := ap.anilistClientWrapper.UpdateMediaListEntryProgress(
+	_, err := ap.anilistClient.UpdateMediaListEntryProgress(
 		context.Background(),
 		&mediaID,
 		&progress,
@@ -80,7 +80,7 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalE
 
 func (ap *AnilistPlatform) DeleteEntry(mediaID int) error {
 	ap.logger.Trace().Msg("anilist platform: Deleting entry")
-	_, err := ap.anilistClientWrapper.DeleteEntry(context.Background(), &mediaID)
+	_, err := ap.anilistClient.DeleteEntry(context.Background(), &mediaID)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (ap *AnilistPlatform) DeleteEntry(mediaID int) error {
 
 func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime")
-	ret, err := ap.anilistClientWrapper.BaseAnimeByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.BaseAnimeByID(context.Background(), &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 
 func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime by MAL ID")
-	ret, err := ap.anilistClientWrapper.BaseAnimeByMalID(context.Background(), &malID)
+	ret, err := ap.anilistClient.BaseAnimeByMalID(context.Background(), &malID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error
 
 func (ap *AnilistPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime details")
-	ret, err := ap.anilistClientWrapper.AnimeDetailsByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.AnimeDetailsByID(context.Background(), &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (ap *AnilistPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsBy
 
 func (ap *AnilistPlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime with relations")
-	ret, err := ap.anilistClientWrapper.CompleteAnimeByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.CompleteAnimeByID(context.Background(), &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (ap *AnilistPlatform) GetAnimeWithRelations(mediaID int) (*anilist.Complete
 
 func (ap *AnilistPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching manga")
-	ret, err := ap.anilistClientWrapper.BaseMangaByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.BaseMangaByID(context.Background(), &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (ap *AnilistPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 
 func (ap *AnilistPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching manga details")
-	ret, err := ap.anilistClientWrapper.MangaDetailsByID(context.Background(), &mediaID)
+	ret, err := ap.anilistClient.MangaDetailsByID(context.Background(), &mediaID)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, e
 func (ap *AnilistPlatform) refreshAnimeCollection() error {
 
 	// Else, get the collection from Anilist
-	collection, err := ap.anilistClientWrapper.AnimeCollection(context.Background(), ap.username.ToPointer())
+	collection, err := ap.anilistClient.AnimeCollection(context.Background(), ap.username.ToPointer())
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (ap *AnilistPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeColl
 		return nil, nil
 	}
 
-	ret, err := ap.anilistClientWrapper.AnimeCollectionWithRelations(context.Background(), ap.username.ToPointer())
+	ret, err := ap.anilistClient.AnimeCollectionWithRelations(context.Background(), ap.username.ToPointer())
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, e
 
 func (ap *AnilistPlatform) refreshMangaCollection() error {
 
-	collection, err := ap.anilistClientWrapper.MangaCollection(context.Background(), ap.username.ToPointer())
+	collection, err := ap.anilistClient.MangaCollection(context.Background(), ap.username.ToPointer())
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func (ap *AnilistPlatform) AddMediaToCollection(mIds []int) error {
 		go func(id int) {
 			rateLimiter.Wait()
 			defer wg.Done()
-			_, err := ap.anilistClientWrapper.UpdateMediaListEntry(
+			_, err := ap.anilistClient.UpdateMediaListEntry(
 				context.Background(),
 				&id,
 				lo.ToPtr(anilist.MediaListStatusPlanning),
@@ -330,7 +330,7 @@ func (ap *AnilistPlatform) AddMediaToCollection(mIds []int) error {
 
 func (ap *AnilistPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching studio details")
-	ret, err := ap.anilistClientWrapper.StudioDetails(context.Background(), &studioID)
+	ret, err := ap.anilistClient.StudioDetails(context.Background(), &studioID)
 	if err != nil {
 		return nil, err
 	}
@@ -338,5 +338,5 @@ func (ap *AnilistPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetail
 }
 
 func (ap *AnilistPlatform) GetAnilistClient() anilist.AnilistClient {
-	return ap.anilistClientWrapper
+	return ap.anilistClient
 }

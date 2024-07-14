@@ -14,7 +14,7 @@ import (
 func TestSmartSearch(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name           string
@@ -78,7 +78,7 @@ func TestSmartSearch(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClient.BaseAnimeByID(context.Background(), &test.mId)
 
 			if assert.NoError(t, err) {
 
@@ -109,7 +109,7 @@ func TestSmartSearch(t *testing.T) {
 func TestSearchByAID(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -153,7 +153,7 @@ func TestSearchByAID(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClient.BaseAnimeByID(context.Background(), &test.mId)
 			media := mediaRes.GetMedia()
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", media.ID)
 			if err != nil {
@@ -181,7 +181,7 @@ func TestSearchByAID(t *testing.T) {
 func TestSearchByEID(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -201,7 +201,7 @@ func TestSearchByEID(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClient.BaseAnimeByID(context.Background(), &test.mId)
 			media := mediaRes.GetMedia()
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", media.ID)
 			if err != nil {

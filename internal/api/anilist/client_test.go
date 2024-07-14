@@ -13,7 +13,7 @@ import (
 func TestGetBaseAnimeById(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := TestGetMockAnilistClientWrapper()
+	anilistClient := TestGetMockAnilistClient()
 
 	tests := []struct {
 		name    string
@@ -27,7 +27,7 @@ func TestGetBaseAnimeById(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
+			res, err := anilistClient.BaseAnimeByID(context.Background(), &tt.mediaId)
 			assert.NoError(t, err)
 			assert.NotNil(t, res)
 		})

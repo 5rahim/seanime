@@ -12,7 +12,7 @@ import (
 func TestBaseAnime_FetchMediaTree_BaseAnime(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := TestGetMockAnilistClientWrapper()
+	anilistClient := TestGetMockAnilistClient()
 	lim := limiter.NewAnilistLimiter()
 	completeAnimeCache := NewCompleteAnimeCache()
 
@@ -38,7 +38,7 @@ func TestBaseAnime_FetchMediaTree_BaseAnime(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.CompleteAnimeByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClient.CompleteAnimeByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
@@ -48,7 +48,7 @@ func TestBaseAnime_FetchMediaTree_BaseAnime(t *testing.T) {
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,
-					anilistClientWrapper,
+					anilistClient,
 					lim,
 					tree,
 					completeAnimeCache,

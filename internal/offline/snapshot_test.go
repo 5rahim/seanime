@@ -26,8 +26,8 @@ func getHub(t *testing.T) *Hub {
 		t.Fatal(err)
 	}
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
 
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
 		Logger:     logger,

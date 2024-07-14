@@ -36,8 +36,8 @@ func TestTorrentstream(t *testing.T) {
 		t.Fatal(err)
 	}
 	wsEventManager := events.NewMockWSEventManager(logger)
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)

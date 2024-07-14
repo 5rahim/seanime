@@ -13,7 +13,7 @@ import (
 func TestSeaDex(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name    string
@@ -28,7 +28,7 @@ func TestSeaDex(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.mediaId)
 			if assert.NoErrorf(t, err, "error getting media: %v", tt.mediaId) {
 
 				media := mediaF.GetMedia()

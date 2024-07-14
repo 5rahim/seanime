@@ -11,9 +11,9 @@ import (
 func TestAddMediaToPlanning(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.AnilistMutation())
 
-	anilistClientWrapper := TestGetMockAnilistClientWrapper()
+	anilistClient := TestGetMockAnilistClient()
 
-	err := anilistClientWrapper.AddMediaToPlanning(
+	err := anilistClient.AddMediaToPlanning(
 		[]int{131586},
 		limiter.NewAnilistLimiter(),
 		util.NewLogger(),

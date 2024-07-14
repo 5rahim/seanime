@@ -17,7 +17,7 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 
 	tempDir := t.TempDir()
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	//fileCacher, _ := filecache.NewCacher(filepath.Join(test_utils.ConfigData.Path.DataDir, "cache"))
 	fileCacher, _ := filecache.NewCacher(filepath.Join(tempDir, "cache"))
@@ -81,7 +81,7 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatalf("couldn't get media: %s", err)
 			}

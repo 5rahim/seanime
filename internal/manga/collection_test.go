@@ -12,10 +12,10 @@ func TestNewCollection(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, nil)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, nil)
 
-	mangaCollection, err := anilistClientWrapper.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	mangaCollection, err := anilistClient.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatalf("Failed to get manga collection: %v", err)
 	}

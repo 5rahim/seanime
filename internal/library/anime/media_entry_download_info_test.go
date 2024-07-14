@@ -15,8 +15,8 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 
 	metadataProvider := metadata.TestGetMockProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

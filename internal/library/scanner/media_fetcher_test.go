@@ -16,8 +16,8 @@ import (
 func TestNewMediaFetcher(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -109,8 +109,8 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -188,8 +188,8 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()

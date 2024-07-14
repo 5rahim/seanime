@@ -19,9 +19,9 @@ func TestGenerateBoilerplateAnimeCollection(t *testing.T) {
 	t.Skip("This test is not meant to be run")
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := TestGetMockAnilistClientWrapper()
+	anilistClient := TestGetMockAnilistClient()
 
-	ac, err := anilistClientWrapper.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	ac, err := anilistClient.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 
 	if assert.NoError(t, err) {
 

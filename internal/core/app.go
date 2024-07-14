@@ -138,7 +138,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	anilistToken := database.GetAnilistToken()
 
 	// Anilist Client Wrapper
-	anilistCW := anilist.NewClientWrapper(anilistToken)
+	anilistCW := anilist.NewAnilistClient(anilistToken)
 
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)

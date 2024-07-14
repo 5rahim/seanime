@@ -23,8 +23,8 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 		t.Fatalf("error while creating database, %v", err)
 	}
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		return nil, nil, nil, err
@@ -39,5 +39,5 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 			// Do nothing
 		},
 		IsOffline: false,
-	}), anilistClientWrapper, animeCollection, nil
+	}), anilistClient, animeCollection, nil
 }

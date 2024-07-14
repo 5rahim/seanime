@@ -13,9 +13,9 @@ import (
 
 func TestScanLogger(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollectionWithRelations(context.Background(), nil)
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	anilistClient := anilist.TestGetMockAnilistClient()
+	animeCollection, err := anilistClient.AnimeCollectionWithRelations(context.Background(), nil)
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	if err != nil {
 		t.Fatal(err.Error())
 	}

@@ -4,6 +4,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/platform"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -51,7 +53,8 @@ func TestNsfwSearch(t *testing.T) {
 func TestBuildSearchQuery(t *testing.T) {
 
 	anilistLimiter := limiter.NewAnilistLimiter()
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
 	tests := []struct {
 		name           string
@@ -79,7 +82,7 @@ func TestBuildSearchQuery(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, err := anilist.GetBaseAnimeById(anilistClientWrapper, tt.mediaId)
+			media, err := anilistPlatform.GetAnime(tt.mediaId)
 
 			if assert.NoError(t, err) &&
 				assert.NotNil(t, media) {

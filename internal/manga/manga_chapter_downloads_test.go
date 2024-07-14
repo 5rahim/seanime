@@ -15,9 +15,9 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
-	mangaCollection, err := anilistClientWrapper.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	mangaCollection, err := anilistClient.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatal(err)
 	}

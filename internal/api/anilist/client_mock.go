@@ -13,32 +13,32 @@ import (
 
 // This file contains helper functions for testing the anilist package
 
-func TestGetMockAnilistClientWrapper() AnilistClient {
-	return NewMockClientWrapper()
+func TestGetMockAnilistClient() AnilistClient {
+	return NewMockAnilistClient()
 }
 
-// MockClientWrapper is a mock implementation of the AnilistClient, used for tests.
+// MockAnilistClientImpl is a mock implementation of the AnilistClient, used for tests.
 // It uses the real implementation of the AnilistClient to make requests then populates a cache with the results.
 // This is to avoid making repeated requests to the AniList API during tests but still have realistic data.
-type MockClientWrapper struct {
-	realClientWrapper AnilistClient
+type MockAnilistClientImpl struct {
+	realAnilistClient AnilistClient
 	logger            *zerolog.Logger
 }
 
-func NewMockClientWrapper() *MockClientWrapper {
-	return &MockClientWrapper{
-		realClientWrapper: NewClientWrapper(test_utils.ConfigData.Provider.AnilistJwt),
+func NewMockAnilistClient() *MockAnilistClientImpl {
+	return &MockAnilistClientImpl{
+		realAnilistClient: NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt),
 		logger:            util.NewLogger(),
 	}
 }
 
-func (cw *MockClientWrapper) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {
+func (ac *MockAnilistClientImpl) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {
 	file, err := os.Open(test_utils.GetTestDataPath("BaseAnimeByMalID"))
 	defer file.Close()
 	if err != nil {
 		if os.IsNotExist(err) {
-			cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BaseAnimeByMalID]: %d", *id)
-			ret, err := cw.realClientWrapper.BaseAnimeByMalID(context.Background(), id)
+			ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [BaseAnimeByMalID]: %d", *id)
+			ret, err := ac.realAnilistClient.BaseAnimeByMalID(context.Background(), id)
 			if err != nil {
 				return nil, err
 			}
@@ -68,8 +68,8 @@ func (cw *MockClientWrapper) BaseAnimeByMalID(ctx context.Context, id *int, inte
 	}
 
 	if ret == nil {
-		cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BaseAnimeByMalID]: %d", *id)
-		ret, err := cw.realClientWrapper.BaseAnimeByMalID(context.Background(), id)
+		ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [BaseAnimeByMalID]: %d", *id)
+		ret, err := ac.realAnilistClient.BaseAnimeByMalID(context.Background(), id)
 		if err != nil {
 			return nil, err
 		}
@@ -85,17 +85,17 @@ func (cw *MockClientWrapper) BaseAnimeByMalID(ctx context.Context, id *int, inte
 		return ret, nil
 	}
 
-	cw.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [BaseAnimeByMalID]: %d", *id)
+	ac.logger.Trace().Msgf("MockAnilistClientImpl: CACHE HIT [BaseAnimeByMalID]: %d", *id)
 	return ret, nil
 }
 
-func (cw *MockClientWrapper) BaseAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByID, error) {
+func (ac *MockAnilistClientImpl) BaseAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByID, error) {
 	file, err := os.Open(test_utils.GetTestDataPath("BaseAnimeByID"))
 	defer file.Close()
 	if err != nil {
 		if os.IsNotExist(err) {
-			cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BaseAnimeByID]: %d", *id)
-			baseAnime, err := cw.realClientWrapper.BaseAnimeByID(context.Background(), id)
+			ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [BaseAnimeByID]: %d", *id)
+			baseAnime, err := ac.realAnilistClient.BaseAnimeByID(context.Background(), id)
 			if err != nil {
 				return nil, err
 			}
@@ -125,8 +125,8 @@ func (cw *MockClientWrapper) BaseAnimeByID(ctx context.Context, id *int, interce
 	}
 
 	if baseAnime == nil {
-		cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [BaseAnimeByID]: %d", *id)
-		baseAnime, err := cw.realClientWrapper.BaseAnimeByID(context.Background(), id)
+		ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [BaseAnimeByID]: %d", *id)
+		baseAnime, err := ac.realAnilistClient.BaseAnimeByID(context.Background(), id)
 		if err != nil {
 			return nil, err
 		}
@@ -142,14 +142,14 @@ func (cw *MockClientWrapper) BaseAnimeByID(ctx context.Context, id *int, interce
 		return baseAnime, nil
 	}
 
-	cw.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [BaseAnimeByID]: %d", *id)
+	ac.logger.Trace().Msgf("MockAnilistClientImpl: CACHE HIT [BaseAnimeByID]: %d", *id)
 	return baseAnime, nil
 }
 
 // AnimeCollection
 //   - Set userName to nil to use the boilerplate AnimeCollection
 //   - Set userName to a specific username to fetch and cache
-func (cw *MockClientWrapper) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+func (ac *MockAnilistClientImpl) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
 
 	if userName == nil {
 		file, err := os.Open(test_utils.GetDataPath("BoilerplateAnimeCollection"))
@@ -161,7 +161,7 @@ func (cw *MockClientWrapper) AnimeCollection(ctx context.Context, userName *stri
 			log.Fatal(err)
 		}
 
-		cw.logger.Trace().Msgf("MockClientWrapper: Using [BoilerplateAnimeCollection]")
+		ac.logger.Trace().Msgf("MockAnilistClientImpl: Using [BoilerplateAnimeCollection]")
 		return ret, nil
 	}
 
@@ -169,8 +169,8 @@ func (cw *MockClientWrapper) AnimeCollection(ctx context.Context, userName *stri
 	defer file.Close()
 	if err != nil {
 		if os.IsNotExist(err) {
-			cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [AnimeCollection]: %s", *userName)
-			ret, err := cw.realClientWrapper.AnimeCollection(context.Background(), userName)
+			ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [AnimeCollection]: %s", *userName)
+			ret, err := ac.realAnilistClient.AnimeCollection(context.Background(), userName)
 			if err != nil {
 				return nil, err
 			}
@@ -193,8 +193,8 @@ func (cw *MockClientWrapper) AnimeCollection(ctx context.Context, userName *stri
 	}
 
 	if ret == nil {
-		cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [AnimeCollection]: %s", *userName)
-		ret, err := cw.realClientWrapper.AnimeCollection(context.Background(), userName)
+		ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [AnimeCollection]: %s", *userName)
+		ret, err := ac.realAnilistClient.AnimeCollection(context.Background(), userName)
 		if err != nil {
 			return nil, err
 		}
@@ -209,12 +209,12 @@ func (cw *MockClientWrapper) AnimeCollection(ctx context.Context, userName *stri
 		return ret, nil
 	}
 
-	cw.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [AnimeCollection]: %s", *userName)
+	ac.logger.Trace().Msgf("MockAnilistClientImpl: CACHE HIT [AnimeCollection]: %s", *userName)
 	return ret, nil
 
 }
 
-func (cw *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
+func (ac *MockAnilistClientImpl) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
 
 	if userName == nil {
 		file, err := os.Open(test_utils.GetDataPath("BoilerplateAnimeCollectionWithRelations"))
@@ -226,7 +226,7 @@ func (cw *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, u
 			log.Fatal(err)
 		}
 
-		cw.logger.Trace().Msgf("MockClientWrapper: Using [BoilerplateAnimeCollectionWithRelations]")
+		ac.logger.Trace().Msgf("MockAnilistClientImpl: Using [BoilerplateAnimeCollectionWithRelations]")
 		return ret, nil
 	}
 
@@ -234,8 +234,8 @@ func (cw *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, u
 	defer file.Close()
 	if err != nil {
 		if os.IsNotExist(err) {
-			cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [AnimeCollectionWithRelations]: %s", *userName)
-			ret, err := cw.realClientWrapper.AnimeCollectionWithRelations(context.Background(), userName)
+			ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [AnimeCollectionWithRelations]: %s", *userName)
+			ret, err := ac.realAnilistClient.AnimeCollectionWithRelations(context.Background(), userName)
 			if err != nil {
 				return nil, err
 			}
@@ -258,8 +258,8 @@ func (cw *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, u
 	}
 
 	if ret == nil {
-		cw.logger.Warn().Msgf("MockClientWrapper: CACHE MISS [AnimeCollectionWithRelations]: %s", *userName)
-		ret, err := cw.realClientWrapper.AnimeCollectionWithRelations(context.Background(), userName)
+		ac.logger.Warn().Msgf("MockAnilistClientImpl: CACHE MISS [AnimeCollectionWithRelations]: %s", *userName)
+		ret, err := ac.realAnilistClient.AnimeCollectionWithRelations(context.Background(), userName)
 		if err != nil {
 			return nil, err
 		}
@@ -274,7 +274,7 @@ func (cw *MockClientWrapper) AnimeCollectionWithRelations(ctx context.Context, u
 		return ret, nil
 	}
 
-	cw.logger.Trace().Msgf("MockClientWrapper: CACHE HIT [AnimeCollectionWithRelations]: %s", *userName)
+	ac.logger.Trace().Msgf("MockAnilistClientImpl: CACHE HIT [AnimeCollectionWithRelations]: %s", *userName)
 	return ret, nil
 
 }
@@ -370,77 +370,77 @@ out:
 // WILL NOT IMPLEMENT
 //
 
-func (cw *MockClientWrapper) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
-	cw.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry")
+func (ac *MockAnilistClientImpl) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
+	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry")
 	return &UpdateMediaListEntry{}, nil
 }
 
-func (cw *MockClientWrapper) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
-	cw.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry progress")
+func (ac *MockAnilistClientImpl) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
+	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry progress")
 	return &UpdateMediaListEntryProgress{}, nil
 }
 
-func (cw *MockClientWrapper) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
-	cw.logger.Debug().Int("entryId", *mediaListEntryID).Msg("anilist: Deleting media list entry")
+func (ac *MockAnilistClientImpl) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
+	ac.logger.Debug().Int("entryId", *mediaListEntryID).Msg("anilist: Deleting media list entry")
 	return &DeleteEntry{}, nil
 }
 
-func (cw *MockClientWrapper) AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime details")
-	return cw.realClientWrapper.AnimeDetailsByID(ctx, id, interceptors...)
+func (ac *MockAnilistClientImpl) AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime details")
+	return ac.realAnilistClient.AnimeDetailsByID(ctx, id, interceptors...)
 }
 
-func (cw *MockClientWrapper) CompleteAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteAnimeByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching complete media")
-	return cw.realClientWrapper.CompleteAnimeByID(ctx, id, interceptors...)
+func (ac *MockAnilistClientImpl) CompleteAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteAnimeByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching complete media")
+	return ac.realAnilistClient.CompleteAnimeByID(ctx, id, interceptors...)
 }
 
-func (cw *MockClientWrapper) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error) {
-	cw.logger.Debug().Msg("anilist: Fetching media list")
-	return cw.realClientWrapper.ListAnime(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
+func (ac *MockAnilistClientImpl) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error) {
+	ac.logger.Debug().Msg("anilist: Fetching media list")
+	return ac.realAnilistClient.ListAnime(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
 }
 
-func (cw *MockClientWrapper) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
-	cw.logger.Debug().Msg("anilist: Fetching recent media list")
-	return cw.realClientWrapper.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, interceptors...)
+func (ac *MockAnilistClientImpl) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
+	ac.logger.Debug().Msg("anilist: Fetching recent media list")
+	return ac.realAnilistClient.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, interceptors...)
 }
 
-func (cw *MockClientWrapper) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
-	cw.logger.Debug().Msg("anilist: Fetching viewer")
-	return cw.realClientWrapper.GetViewer(ctx, interceptors...)
+func (ac *MockAnilistClientImpl) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
+	ac.logger.Debug().Msg("anilist: Fetching viewer")
+	return ac.realAnilistClient.GetViewer(ctx, interceptors...)
 }
 
-func (cw *MockClientWrapper) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
-	cw.logger.Debug().Msg("anilist: Fetching manga collection")
-	return cw.realClientWrapper.MangaCollection(ctx, userName, interceptors...)
+func (ac *MockAnilistClientImpl) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
+	ac.logger.Debug().Msg("anilist: Fetching manga collection")
+	return ac.realAnilistClient.MangaCollection(ctx, userName, interceptors...)
 }
 
-func (cw *MockClientWrapper) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
-	cw.logger.Debug().Msg("anilist: Searching manga")
-	return cw.realClientWrapper.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
+func (ac *MockAnilistClientImpl) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
+	ac.logger.Debug().Msg("anilist: Searching manga")
+	return ac.realAnilistClient.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
 }
 
-func (cw *MockClientWrapper) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga")
-	return cw.realClientWrapper.BaseMangaByID(ctx, id, interceptors...)
+func (ac *MockAnilistClientImpl) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga")
+	return ac.realAnilistClient.BaseMangaByID(ctx, id, interceptors...)
 }
 
-func (cw *MockClientWrapper) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga details")
-	return cw.realClientWrapper.MangaDetailsByID(ctx, id, interceptors...)
+func (ac *MockAnilistClientImpl) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga details")
+	return ac.realAnilistClient.MangaDetailsByID(ctx, id, interceptors...)
 }
 
-func (cw *MockClientWrapper) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
-	cw.logger.Debug().Msg("anilist: Fetching manga list")
-	return cw.realClientWrapper.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
+func (ac *MockAnilistClientImpl) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+	ac.logger.Debug().Msg("anilist: Fetching manga list")
+	return ac.realAnilistClient.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
 }
 
-func (cw *MockClientWrapper) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
-	cw.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
-	return cw.realClientWrapper.StudioDetails(ctx, id, interceptors...)
+func (ac *MockAnilistClientImpl) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
+	ac.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
+	return ac.realAnilistClient.StudioDetails(ctx, id, interceptors...)
 }
 
-func (cw *MockClientWrapper) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
-	cw.logger.Debug().Msg("anilist: Fetching stats")
-	return cw.realClientWrapper.ViewerStats(ctx, interceptors...)
+func (ac *MockAnilistClientImpl) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
+	ac.logger.Debug().Msg("anilist: Fetching stats")
+	return ac.realAnilistClient.ViewerStats(ctx, interceptors...)
 }

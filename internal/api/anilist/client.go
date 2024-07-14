@@ -10,11 +10,9 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"io"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -41,17 +39,17 @@ type AnilistClient interface {
 }
 
 type (
-	// ClientWrapper is a wrapper around the AniList API client.
-	ClientWrapper struct {
+	// AnilistClientImpl is a wrapper around the AniList API client.
+	AnilistClientImpl struct {
 		Client *Client
 		logger *zerolog.Logger
 	}
 )
 
-// NewClientWrapper creates a new ClientWrapper with the given token.
+// NewAnilistClient creates a new AnilistClientImpl with the given token.
 // The token is used for authorization when making requests to the AniList API.
-func NewClientWrapper(token string) *ClientWrapper {
-	cw := &ClientWrapper{
+func NewAnilistClient(token string) *AnilistClientImpl {
+	ac := &AnilistClientImpl{
 		Client: &Client{
 			Client: clientv2.NewClient(http.DefaultClient, "https://graphql.anilist.co", nil,
 				func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}, next clientv2.RequestInterceptorFunc) error {
@@ -66,150 +64,109 @@ func NewClientWrapper(token string) *ClientWrapper {
 		logger: util.NewLogger(),
 	}
 
-	cw.Client.Client.CustomDo = cw.customDoFunc
+	ac.Client.Client.CustomDo = ac.customDoFunc
 
-	return cw
+	return ac
 }
 
-func (cw *ClientWrapper) AddMediaToPlanning(mIds []int, rateLimiter *limiter.Limiter, logger *zerolog.Logger) error {
-	if len(mIds) == 0 {
-		logger.Debug().Msg("anilist: No media added to planning list")
-		return nil
-	}
-	if rateLimiter == nil {
-		return errors.New("anilist: no rate limiter provided")
-	}
-
-	status := MediaListStatusPlanning
-
-	scoreRaw := 0
-	progress := 0
-
-	wg := sync.WaitGroup{}
-	for _, _id := range mIds {
-		wg.Add(1)
-		go func(id int) {
-			rateLimiter.Wait()
-			defer wg.Done()
-			_, err := cw.Client.UpdateMediaListEntry(
-				context.Background(),
-				&id,
-				&status,
-				&scoreRaw,
-				&progress,
-				nil,
-				nil,
-			)
-			if err != nil {
-				logger.Error().Msg("anilist: An error occurred while adding media to planning list: " + err.Error())
-			}
-		}(_id)
-	}
-	wg.Wait()
-
-	logger.Debug().Any("count", len(mIds)).Msg("anilist: Media added to planning list")
-
-	return nil
+func (ac *AnilistClientImpl) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
+	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry")
+	return ac.Client.UpdateMediaListEntry(ctx, mediaID, status, scoreRaw, progress, startedAt, completedAt, interceptors...)
 }
 
-func (cw *ClientWrapper) UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error) {
-	cw.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry")
-	return cw.Client.UpdateMediaListEntry(ctx, mediaID, status, scoreRaw, progress, startedAt, completedAt, interceptors...)
+func (ac *AnilistClientImpl) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
+	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry progress")
+	return ac.Client.UpdateMediaListEntryProgress(ctx, mediaID, progress, status, interceptors...)
 }
 
-func (cw *ClientWrapper) UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error) {
-	cw.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry progress")
-	return cw.Client.UpdateMediaListEntryProgress(ctx, mediaID, progress, status, interceptors...)
+func (ac *AnilistClientImpl) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
+	ac.logger.Debug().Int("entryId", *mediaListEntryID).Msg("anilist: Deleting media list entry")
+	return ac.Client.DeleteEntry(ctx, mediaListEntryID, interceptors...)
 }
 
-func (cw *ClientWrapper) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
-	cw.logger.Debug().Int("entryId", *mediaListEntryID).Msg("anilist: Deleting media list entry")
-	return cw.Client.DeleteEntry(ctx, mediaListEntryID, interceptors...)
+func (ac *AnilistClientImpl) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
+	ac.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection")
+	return ac.Client.AnimeCollection(ctx, userName, interceptors...)
 }
 
-func (cw *ClientWrapper) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
-	cw.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection")
-	return cw.Client.AnimeCollection(ctx, userName, interceptors...)
+func (ac *AnilistClientImpl) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
+	ac.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection with relations")
+	return ac.Client.AnimeCollectionWithRelations(ctx, userName, interceptors...)
 }
 
-func (cw *ClientWrapper) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
-	cw.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection with relations")
-	return cw.Client.AnimeCollectionWithRelations(ctx, userName, interceptors...)
+func (ac *AnilistClientImpl) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {
+	return ac.Client.BaseAnimeByMalID(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error) {
-	return cw.Client.BaseAnimeByMalID(ctx, id, interceptors...)
+func (ac *AnilistClientImpl) BaseAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime")
+	return ac.Client.BaseAnimeByID(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) BaseAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime")
-	return cw.Client.BaseAnimeByID(ctx, id, interceptors...)
+func (ac *AnilistClientImpl) AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime details")
+	return ac.Client.AnimeDetailsByID(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching anime details")
-	return cw.Client.AnimeDetailsByID(ctx, id, interceptors...)
+func (ac *AnilistClientImpl) CompleteAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteAnimeByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching complete media")
+	return ac.Client.CompleteAnimeByID(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) CompleteAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteAnimeByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching complete media")
-	return cw.Client.CompleteAnimeByID(ctx, id, interceptors...)
+func (ac *AnilistClientImpl) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error) {
+	ac.logger.Debug().Msg("anilist: Fetching media list")
+	return ac.Client.ListAnime(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
 }
 
-func (cw *ClientWrapper) ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error) {
-	cw.logger.Debug().Msg("anilist: Fetching media list")
-	return cw.Client.ListAnime(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
+func (ac *AnilistClientImpl) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
+	ac.logger.Debug().Msg("anilist: Fetching recent media list")
+	return ac.Client.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, interceptors...)
 }
 
-func (cw *ClientWrapper) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
-	cw.logger.Debug().Msg("anilist: Fetching recent media list")
-	return cw.Client.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, interceptors...)
+func (ac *AnilistClientImpl) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
+	ac.logger.Debug().Msg("anilist: Fetching viewer")
+	return ac.Client.GetViewer(ctx, interceptors...)
 }
 
-func (cw *ClientWrapper) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
-	cw.logger.Debug().Msg("anilist: Fetching viewer")
-	return cw.Client.GetViewer(ctx, interceptors...)
+func (ac *AnilistClientImpl) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
+	ac.logger.Debug().Msg("anilist: Fetching manga collection")
+	return ac.Client.MangaCollection(ctx, userName, interceptors...)
 }
 
-func (cw *ClientWrapper) MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error) {
-	cw.logger.Debug().Msg("anilist: Fetching manga collection")
-	return cw.Client.MangaCollection(ctx, userName, interceptors...)
+func (ac *AnilistClientImpl) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
+	ac.logger.Debug().Msg("anilist: Searching manga")
+	return ac.Client.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
 }
 
-func (cw *ClientWrapper) SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error) {
-	cw.logger.Debug().Msg("anilist: Searching manga")
-	return cw.Client.SearchBaseManga(ctx, page, perPage, sort, search, status, interceptors...)
+func (ac *AnilistClientImpl) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga")
+	return ac.Client.BaseMangaByID(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga")
-	return cw.Client.BaseMangaByID(ctx, id, interceptors...)
+func (ac *AnilistClientImpl) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
+	ac.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga details")
+	return ac.Client.MangaDetailsByID(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error) {
-	cw.logger.Debug().Int("mediaId", *id).Msg("anilist: Fetching manga details")
-	return cw.Client.MangaDetailsByID(ctx, id, interceptors...)
+func (ac *AnilistClientImpl) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+	ac.logger.Debug().Msg("anilist: Fetching manga list")
+	return ac.Client.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
 }
 
-func (cw *ClientWrapper) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
-	cw.logger.Debug().Msg("anilist: Fetching manga list")
-	return cw.Client.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
+func (ac *AnilistClientImpl) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
+	ac.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
+	return ac.Client.StudioDetails(ctx, id, interceptors...)
 }
 
-func (cw *ClientWrapper) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {
-	cw.logger.Debug().Int("studioId", *id).Msg("anilist: Fetching studio details")
-	return cw.Client.StudioDetails(ctx, id, interceptors...)
-}
-
-func (cw *ClientWrapper) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
-	cw.logger.Debug().Msg("anilist: Fetching stats")
-	return cw.Client.ViewerStats(ctx, interceptors...)
+func (ac *AnilistClientImpl) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
+	ac.logger.Debug().Msg("anilist: Fetching stats")
+	return ac.Client.ViewerStats(ctx, interceptors...)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // customDoFunc is a custom request interceptor function that handles rate limiting and retries.
-func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) (err error) {
+func (ac *AnilistClientImpl) customDoFunc(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) (err error) {
 	var rlRemainingStr string
 
 	reqTime := time.Now()
@@ -217,12 +174,12 @@ func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gq
 		timeSince := time.Since(reqTime)
 		formattedDur := timeSince.Truncate(time.Millisecond).String()
 		if err != nil {
-			cw.logger.Error().Str("duration", formattedDur).Str("rlr", rlRemainingStr).Err(err).Msg("anilist: Failed Request")
+			ac.logger.Error().Str("duration", formattedDur).Str("rlr", rlRemainingStr).Err(err).Msg("anilist: Failed Request")
 		} else {
 			if timeSince > 900*time.Millisecond {
-				cw.logger.Warn().Str("rtt", formattedDur).Str("rlr", rlRemainingStr).Msg("anilist: Successful Request (slow)")
+				ac.logger.Warn().Str("rtt", formattedDur).Str("rlr", rlRemainingStr).Msg("anilist: Successful Request (slow)")
 			} else {
-				cw.logger.Info().Str("rtt", formattedDur).Str("rlr", rlRemainingStr).Msg("anilist: Successful Request")
+				ac.logger.Info().Str("rtt", formattedDur).Str("rlr", rlRemainingStr).Msg("anilist: Successful Request")
 			}
 		}
 	}()
@@ -260,7 +217,7 @@ func (cw *ClientWrapper) customDoFunc(ctx context.Context, req *http.Request, gq
 		// If we have a rate limit, sleep for the time
 		rlRetryAfter, err := strconv.Atoi(rlRetryAfterStr)
 		if err == nil {
-			cw.logger.Warn().Msgf("anilist: Rate limited, retrying in %d seconds", rlRetryAfter+1)
+			ac.logger.Warn().Msgf("anilist: Rate limited, retrying in %d seconds", rlRetryAfter+1)
 			select {
 			case <-time.After(time.Duration(rlRetryAfter+1) * time.Second):
 				continue

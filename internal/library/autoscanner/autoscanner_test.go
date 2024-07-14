@@ -16,8 +16,8 @@ func TestAutoScanner(t *testing.T) {
 	doneCh := make(chan struct{})
 
 	logger := util.NewLogger()
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
 
 	as := New(&NewAutoScannerOptions{
 		Database:       nil,

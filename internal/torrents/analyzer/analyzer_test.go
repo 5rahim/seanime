@@ -14,8 +14,8 @@ func TestSelectFilesFromSeason(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	logger := util.NewLogger()
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
 
 	tests := []struct {
 		name            string

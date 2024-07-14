@@ -28,7 +28,7 @@ func (a *App) GetAccount() (*models.Account, error) {
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
 // This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClientWrapper = anilist.NewClientWrapper(token)
+	a.AnilistClientWrapper = anilist.NewAnilistClient(token)
 	a.AnilistPlatform.SetAnilistClientWrapper(a.AnilistClientWrapper) // Update Anilist Client Wrapper in Platform
 }
 

@@ -13,7 +13,7 @@ import (
 func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -31,7 +31,7 @@ func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}
@@ -171,7 +171,7 @@ func TestTVDB_FetchSeasons(t *testing.T) {
 func TestTVDB_fetchEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -217,7 +217,7 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}
@@ -292,7 +292,7 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -338,7 +338,7 @@ func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}

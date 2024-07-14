@@ -24,14 +24,14 @@ var mediaId = 153518
 func TestPlaylists(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer())
 
-	playbackManager, anilistClientWrapper, animeCollection, err := getPlaybackManager(t)
+	playbackManager, anilistClient, animeCollection, err := getPlaybackManager(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	repo := getRepo()
 
-	playbackManager.SetAnilistClientWrapper(anilistClientWrapper)
+	playbackManager.SetAnilistClientWrapper(anilistClient)
 	playbackManager.SetAnimeCollection(animeCollection)
 	playbackManager.SetMediaPlayerRepository(repo)
 

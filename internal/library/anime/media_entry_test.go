@@ -69,8 +69,8 @@ func TestNewMediaEntry(t *testing.T) {
 		},
 	}
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)
