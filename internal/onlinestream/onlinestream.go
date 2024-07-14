@@ -1,13 +1,13 @@
 package onlinestream
 
 import (
-	"context"
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/onlinestream/providers"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"strconv"
 	"strings"
@@ -21,8 +21,8 @@ type (
 		zoro                  *onlinestream_providers.Zoro
 		fileCacher            *filecache.Cacher
 		anizipCache           *anizip.Cache
-		anilistClientWrapper  anilist.ClientWrapperInterface
-		anilistBaseMediaCache *anilist.BaseMediaCache
+		platform              platform.Platform
+		anilistBaseAnimeCache *anilist.BaseAnimeCache
 	}
 )
 
@@ -53,7 +53,7 @@ type (
 
 	EpisodeListResponse struct {
 		Episodes []*Episode         `json:"episodes"`
-		Media    *anilist.BaseMedia `json:"media"`
+		Media    *anilist.BaseAnime `json:"media"`
 	}
 
 	Subtitle struct {
@@ -64,10 +64,10 @@ type (
 
 type (
 	NewOnlineStreamOptions struct {
-		Logger               *zerolog.Logger
-		FileCacher           *filecache.Cacher
-		AnizipCache          *anizip.Cache
-		AnilistClientWrapper anilist.ClientWrapperInterface
+		Logger      *zerolog.Logger
+		FileCacher  *filecache.Cacher
+		AnizipCache *anizip.Cache
+		Platform    platform.Platform
 	}
 )
 
@@ -78,8 +78,8 @@ func New(opts *NewOnlineStreamOptions) *OnlineStream {
 		fileCacher:            opts.FileCacher,
 		gogo:                  onlinestream_providers.NewGogoanime(opts.Logger),
 		zoro:                  onlinestream_providers.NewZoro(opts.Logger),
-		anilistBaseMediaCache: anilist.NewBaseMediaCache(),
-		anilistClientWrapper:  opts.AnilistClientWrapper,
+		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
+		platform:              opts.Platform,
 	}
 }
 
@@ -103,13 +103,12 @@ func (os *OnlineStream) getFcEpisodeListBucket(provider onlinestream_providers.P
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (os *OnlineStream) getMedia(mId int) (*anilist.BaseMedia, error) {
-	media, err := os.anilistBaseMediaCache.GetOrSet(mId, func() (*anilist.BaseMedia, error) {
-		mediaF, err := os.anilistClientWrapper.BaseMediaByID(context.Background(), &mId)
+func (os *OnlineStream) getMedia(mId int) (*anilist.BaseAnime, error) {
+	media, err := os.anilistBaseAnimeCache.GetOrSet(mId, func() (*anilist.BaseAnime, error) {
+		media, err := os.platform.GetAnime(mId)
 		if err != nil {
 			return nil, err
 		}
-		media := mediaF.GetMedia()
 		return media, nil
 	})
 	if err != nil {
@@ -118,7 +117,7 @@ func (os *OnlineStream) getMedia(mId int) (*anilist.BaseMedia, error) {
 	return media, nil
 }
 
-func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseMedia, error) {
+func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseAnime, error) {
 	return os.getMedia(mId)
 }
 
@@ -129,7 +128,7 @@ func (os *OnlineStream) EmptyCache(mediaId int) error {
 	return nil
 }
 
-func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseMedia, dubbed bool) ([]*Episode, error) {
+func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseAnime, dubbed bool) ([]*Episode, error) {
 
 	mId := media.GetID()
 

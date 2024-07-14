@@ -24,7 +24,7 @@ type (
 		FileMetadata          *LocalFileMetadata         `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
 		IsInvalid             bool                       `json:"isInvalid"`               // No AniDB data
 		MetadataIssue         string                     `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
-		BaseMedia             *anilist.BaseMedia         `json:"baseMedia,omitempty"`
+		BaseAnime             *anilist.BaseAnime         `json:"baseAnime,omitempty"`
 	}
 
 	// MediaEntryEpisodeMetadata represents the metadata of a MediaEntryEpisode.
@@ -45,7 +45,7 @@ type (
 	NewMediaEntryEpisodeOptions struct {
 		LocalFile            *LocalFile
 		AnizipMedia          *anizip.Media // optional
-		Media                *anilist.BaseMedia
+		Media                *anilist.BaseAnime
 		OptionalAniDBEpisode string
 		// ProgressOffset will offset the ProgressNumber for a specific MAIN file
 		// This is used when there is a discrepancy between AniList and AniDB
@@ -59,7 +59,7 @@ type (
 	// Unlike NewMediaEntryEpisodeOptions, this struct does not require AniZip data. It is used to list episodes without AniDB metadata.
 	NewSimpleMediaEntryEpisodeOptions struct {
 		LocalFile    *LocalFile
-		Media        *anilist.BaseMedia
+		Media        *anilist.BaseAnime
 		IsDownloaded bool
 	}
 )
@@ -73,7 +73,7 @@ type (
 // `LocalFile` is optional.
 func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
-	entryEp.BaseMedia = opts.Media
+	entryEp.BaseAnime = opts.Media
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
 
@@ -253,7 +253,7 @@ func NewMediaEntryEpisode(opts *NewMediaEntryEpisodeOptions) *MediaEntryEpisode 
 func NewEpisodeMetadata(
 	anizipMedia *anizip.Media,
 	episode *anizip.Episode,
-	media *anilist.BaseMedia,
+	media *anilist.BaseAnime,
 	metadataProvider *metadata.Provider,
 ) *MediaEntryEpisodeMetadata {
 	md := new(MediaEntryEpisodeMetadata)
@@ -287,7 +287,7 @@ func NewEpisodeMetadata(
 // NewSimpleMediaEntryEpisode creates a MediaEntryEpisode without AniDB metadata.
 func NewSimpleMediaEntryEpisode(opts *NewSimpleMediaEntryEpisodeOptions) *MediaEntryEpisode {
 	entryEp := new(MediaEntryEpisode)
-	entryEp.BaseMedia = opts.Media
+	entryEp.BaseAnime = opts.Media
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
 	entryEp.EpisodeMetadata = new(MediaEntryEpisodeMetadata)

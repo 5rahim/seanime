@@ -1,5 +1,5 @@
 "use client"
-import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -16,7 +16,7 @@ import React, { useMemo } from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 
 
-export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media | undefined }) {
+export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_AnimeDetailsById_Media | undefined }) {
     const { entry, details } = props
     const media = entry.media
 
@@ -105,12 +105,12 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                     >
                                         <EpisodeCard
                                             key={episode.localFile?.path || ""}
-                                            image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
-                                            topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
+                                            image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+                                            topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                             title={episode.displayTitle}
                                             meta={episode.episodeMetadata?.airDate ?? undefined}
                                             isInvalid={episode.isInvalid}
-                                            progressTotal={episode.baseMedia?.episodes}
+                                            progressTotal={episode.baseAnime?.episodes}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
                                             length={episode.episodeMetadata?.length}

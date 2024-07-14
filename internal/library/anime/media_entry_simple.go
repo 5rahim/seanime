@@ -3,6 +3,7 @@ package anime
 import (
 	"errors"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
 )
@@ -10,7 +11,7 @@ import (
 type (
 	SimpleMediaEntry struct {
 		MediaId               int                    `json:"mediaId"`
-		Media                 *anilist.BaseMedia     `json:"media"`
+		Media                 *anilist.BaseAnime     `json:"media"`
 		MediaEntryListData    *MediaEntryListData    `json:"listData"`
 		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"`
 		Episodes              []*MediaEntryEpisode   `json:"episodes"`
@@ -28,17 +29,17 @@ type (
 	}
 
 	NewSimpleMediaEntryOptions struct {
-		MediaId              int
-		LocalFiles           []*LocalFile // All local files
-		AnimeCollection      *anilist.AnimeCollection
-		AnilistClientWrapper anilist.ClientWrapperInterface
+		MediaId         int
+		LocalFiles      []*LocalFile // All local files
+		AnimeCollection *anilist.AnimeCollection
+		Platform        platform.Platform
 	}
 )
 
 func NewSimpleMediaEntry(opts *NewSimpleMediaEntryOptions) (*SimpleMediaEntry, error) {
 
 	if opts.AnimeCollection == nil ||
-		opts.AnilistClientWrapper == nil {
+		opts.Platform == nil {
 		return nil, errors.New("missing arguments when creating simple media entry")
 	}
 	// Create new MediaEntry
@@ -59,7 +60,7 @@ func NewSimpleMediaEntry(opts *NewSimpleMediaEntryOptions) (*SimpleMediaEntry, e
 		anilistEntry = &anilist.MediaListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClientWrapper, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.Platform.GetAnime(opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}

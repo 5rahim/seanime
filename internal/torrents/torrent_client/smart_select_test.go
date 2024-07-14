@@ -2,8 +2,10 @@ package torrent_client
 
 import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -15,6 +17,7 @@ func TestSmartSelect(t *testing.T) {
 	destination := t.TempDir()
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
 
 	// get repo
 
@@ -81,7 +84,7 @@ func TestSmartSelect(t *testing.T) {
 			}
 
 			// get media
-			completeMedia, err := anilist.GetCompleteMediaById(anilistClientWrapper, tt.mediaId)
+			completeAnime, err := anilistPlatform.GetAnimeWithRelations(tt.mediaId)
 			if err != nil {
 				t.Fatalf("error getting media: %s", err.Error())
 			}
@@ -89,12 +92,12 @@ func TestSmartSelect(t *testing.T) {
 			hash, err := torrent.ScrapeHash(tt.url)
 
 			err = repo.SmartSelect(&SmartSelectParams{
-				Url:                  tt.url,
-				EpisodeNumbers:       tt.selectedEpisodes,
-				Media:                completeMedia,
-				AnilistClientWrapper: anilistClientWrapper,
-				Destination:          destination,
-				ShouldAddTorrent:     true,
+				Url:              tt.url,
+				EpisodeNumbers:   tt.selectedEpisodes,
+				Media:            completeAnime,
+				Platform:         anilistPlatform,
+				Destination:      destination,
+				ShouldAddTorrent: true,
 			})
 			// Remove torrent
 			defer repo.RemoveTorrents([]string{hash})

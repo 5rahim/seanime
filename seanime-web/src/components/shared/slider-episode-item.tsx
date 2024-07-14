@@ -58,9 +58,9 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
                 <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{episode.episodeTitle?.replaceAll("`", "'")}</p>
                 <div className="w-full justify-between flex items-center">
                     <p className="text-base md:text-xl lg:text-2xl font-semibold line-clamp-2">
-                        <span>{episode.displayTitle} {!!episode.baseMedia?.episodes &&
-                            (episode.baseMedia.episodes != 1 &&
-                                <span className="opacity-40">/{` `}{episode.baseMedia.episodes - offset}</span>)}
+                        <span>{episode.displayTitle} {!!episode.baseAnime?.episodes &&
+                            (episode.baseAnime.episodes != 1 &&
+                                <span className="opacity-40">/{` `}{episode.baseAnime.episodes - offset}</span>)}
                         </span>
                     </p>
                     <div className="flex flex-1"></div>

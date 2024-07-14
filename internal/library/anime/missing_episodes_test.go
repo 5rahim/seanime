@@ -61,7 +61,7 @@ func TestNewMissingEpisodes(t *testing.T) {
 			anilist.TestModifyAnimeCollectionEntry(animeCollection, tt.mediaId, anilist.TestModifyAnimeCollectionEntryInput{
 				Progress:      lo.ToPtr(tt.currentProgress), // Mock progress
 				AiredEpisodes: lo.ToPtr(tt.mediaAiredEpisodes),
-				NextAiringEpisode: &anilist.BaseMedia_NextAiringEpisode{
+				NextAiringEpisode: &anilist.BaseAnime_NextAiringEpisode{
 					Episode: tt.mediaAiredEpisodes + 1,
 				},
 			})

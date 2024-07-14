@@ -1,4 +1,4 @@
-import { AL_BaseManga, AL_BaseMedia, Anime_MediaEntryLibraryData, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, Anime_MediaEntryLibraryData, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import {
@@ -41,7 +41,7 @@ type MediaEntryCardBaseProps = {
 
 type MediaEntryCardProps<T extends "anime" | "manga"> = {
     type: T
-    media: T extends "anime" ? AL_BaseMedia : T extends "manga" ? AL_BaseManga : never
+    media: T extends "anime" ? AL_BaseAnime : T extends "manga" ? AL_BaseManga : never
     // Anime-only
     listData?: T extends "anime" ? Anime_MediaEntryListData : T extends "manga" ? Manga_EntryListData : never
     showLibraryBadge?: T extends "anime" ? boolean : never
@@ -76,7 +76,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const showProgressBar = React.useMemo(() => {
         return !!listData?.progress
-        && type === "anime" ? !!(media as AL_BaseMedia)?.episodes : !!(media as AL_BaseManga)?.chapters
+        && type === "anime" ? !!(media as AL_BaseAnime)?.episodes : !!(media as AL_BaseManga)?.chapters
             && listData?.status !== "COMPLETED"
     }, [listData?.progress, media, listData?.status])
 
@@ -84,7 +84,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const link = type === "anime" ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
 
-    const progressTotal = type === "anime" ? (media as AL_BaseMedia)?.episodes : (media as AL_BaseManga)?.chapters
+    const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
 
     // React.useEffect(() => {
     //     console.log("rendered", media.title?.userPreferred)
@@ -168,7 +168,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     />
 
                     {type === "anime" && (
-                        <MediaEntryCardNextAiring nextAiring={(media as AL_BaseMedia).nextAiringEpisode} />
+                        <MediaEntryCardNextAiring nextAiring={(media as AL_BaseAnime).nextAiringEpisode} />
                     )}
 
                     {type === "anime" && <div className="py-1">
@@ -254,7 +254,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         score={listData?.score}
                     />
                 </div>
-                {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseMedia?.id === media.id)) && (
+                {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseAnime?.id === media.id)) && (
                     <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
                         <Badge
                             className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-br-none"

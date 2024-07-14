@@ -37,7 +37,7 @@ type (
 	}
 )
 
-func GetStats(ctx context.Context, client ClientWrapperInterface) (ret *Stats, err error) {
+func GetStats(ctx context.Context, client AnilistClient) (ret *Stats, err error) {
 	defer util.HandlePanicInModuleWithError("api/anilist/GetStats", &err)
 
 	resp, err := client.ViewerStats(ctx)

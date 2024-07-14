@@ -1,12 +1,13 @@
 package anime
 
 import (
-	"context"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/test_utils"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -17,8 +18,9 @@ func TestNewLibraryCollection(t *testing.T) {
 	metadataProvider := metadata.TestGetMockProvider(t)
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
 
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 
 	if assert.NoError(t, err) {
 
@@ -75,11 +77,11 @@ func TestNewLibraryCollection(t *testing.T) {
 		)...)
 
 		libraryCollection, err := NewLibraryCollection(&NewLibraryCollectionOptions{
-			AnimeCollection:      animeCollection,
-			LocalFiles:           lfs,
-			AnizipCache:          anizip.NewCache(),
-			AnilistClientWrapper: anilistClientWrapper,
-			MetadataProvider:     metadataProvider,
+			AnimeCollection:  animeCollection,
+			LocalFiles:       lfs,
+			AnizipCache:      anizip.NewCache(),
+			Platform:         anilistPlatform,
+			MetadataProvider: metadataProvider,
 		})
 
 		if assert.NoError(t, err) {

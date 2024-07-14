@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -14,7 +14,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 
 type WeekCalendarProps = {
     children?: React.ReactNode
-    media: AL_BaseMedia[]
+    media: AL_BaseAnime[]
     missingEpisodes: Anime_MediaEntryEpisode[]
 }
 
@@ -69,12 +69,12 @@ export function MonthCalendar(props: WeekCalendarProps) {
             const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(item.episodeMetadata?.airDate,
                 day)).map((item) => {
                 return {
-                    id: item.baseMedia?.id! + item.fileMetadata?.episode!,
-                    name: item.baseMedia?.title?.userPreferred,
+                    id: item.baseAnime?.id! + item.fileMetadata?.episode!,
+                    name: item.baseAnime?.title?.userPreferred,
                     time: "",
                     datetime: format(new Date(item.episodeMetadata?.airDate!), "yyyy-MM-dd'T'HH:mm"),
-                    href: `/entry?id=${item.baseMedia?.id}`,
-                    image: item.baseMedia?.bannerImage ?? item.baseMedia?.coverImage?.extraLarge ?? item.baseMedia?.coverImage?.large ?? item.baseMedia?.coverImage?.medium,
+                    href: `/entry?id=${item.baseAnime?.id}`,
+                    image: item.baseAnime?.bannerImage ?? item.baseAnime?.coverImage?.extraLarge ?? item.baseAnime?.coverImage?.large ?? item.baseAnime?.coverImage?.medium,
                     episode: item.episodeNumber || 1,
                 }
             })

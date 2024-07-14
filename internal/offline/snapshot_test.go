@@ -6,6 +6,7 @@ import (
 	db2 "github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
@@ -26,6 +27,7 @@ func getHub(t *testing.T) *Hub {
 	}
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
 
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
 		Logger:     logger,
@@ -43,16 +45,16 @@ func getHub(t *testing.T) *Hub {
 	})
 
 	offlineHub := NewHub(&NewHubOptions{
-		AnilistClientWrapper: anilistClientWrapper,
-		WSEventManager:       events.NewMockWSEventManager(logger),
-		MetadataProvider:     metadataProvider,
-		MangaRepository:      mangaRepository,
-		Db:                   db,
-		FileCacher:           fileCacher,
-		Logger:               logger,
-		OfflineDir:           filepath.Join(test_utils.ConfigData.Path.DataDir, "offline"),
-		AssetDir:             filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets"),
-		IsOffline:            false,
+		Platform:         anilistPlatform,
+		WSEventManager:   events.NewMockWSEventManager(logger),
+		MetadataProvider: metadataProvider,
+		MangaRepository:  mangaRepository,
+		Database:         db,
+		FileCacher:       fileCacher,
+		Logger:           logger,
+		OfflineDir:       filepath.Join(test_utils.ConfigData.Path.DataDir, "offline"),
+		AssetDir:         filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets"),
+		IsOffline:        false,
 	})
 
 	return offlineHub

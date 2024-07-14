@@ -41,7 +41,7 @@ type (
 	AnimeEntry struct {
 		MediaId          int                        `json:"mediaId"`
 		ListData         *ListData                  `json:"listData"`
-		Media            *anilist.BaseMedia         `json:"media"`
+		Media            *anilist.BaseAnime         `json:"media"`
 		Episodes         []*anime.MediaEntryEpisode `json:"episodes"`
 		DownloadedAssets bool                       `json:"downloadedAssets"`
 	}

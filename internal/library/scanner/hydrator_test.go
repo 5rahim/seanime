@@ -1,10 +1,10 @@
 package scanner
 
 import (
-	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/library/anime"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"testing"
@@ -12,13 +12,14 @@ import (
 
 func TestFileHydrator_HydrateMetadata(t *testing.T) {
 
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollectionWithRelations(context.Background(), nil)
+	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
 	}
@@ -81,7 +82,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			matcher := &Matcher{
 				LocalFiles:         lfs,
 				MediaContainer:     mc,
-				CompleteMediaCache: nil,
+				CompleteAnimeCache: nil,
 				Logger:             util.NewLogger(),
 				ScanLogger:         scanLogger,
 			}
@@ -96,14 +97,14 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 			// +---------------------+
 
 			fh := &FileHydrator{
-				LocalFiles:           lfs,
-				AllMedia:             mc.NormalizedMedia,
-				CompleteMediaCache:   completeMediaCache,
-				AnizipCache:          anizipCache,
-				AnilistClientWrapper: anilistClientWrapper,
-				AnilistRateLimiter:   anilistRateLimiter,
-				Logger:               logger,
-				ScanLogger:           scanLogger,
+				LocalFiles:         lfs,
+				AllMedia:           mc.NormalizedMedia,
+				CompleteAnimeCache: completeAnimeCache,
+				AnizipCache:        anizipCache,
+				Platform:           anilistPlatform,
+				AnilistRateLimiter: anilistRateLimiter,
+				Logger:             logger,
+				ScanLogger:         scanLogger,
 			}
 
 			fh.HydrateMetadata()

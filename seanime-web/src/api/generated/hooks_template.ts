@@ -43,7 +43,7 @@
 // }
 
 // export function useEditAnilistListEntry() {
-//     return useServerMutation<AL_UpdateMediaListEntry, EditAnilistListEntry_Variables>({
+//     return useServerMutation<true, EditAnilistListEntry_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.EditAnilistListEntry.endpoint,
 //         method: API_ENDPOINTS.ANILIST.EditAnilistListEntry.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.EditAnilistListEntry.key],
@@ -53,11 +53,11 @@
 //     })
 // }
 
-// export function useGetAnilistMediaDetails(id: number) {
-//     return useServerQuery<AL_MediaDetailsById_Media>({
-//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.endpoint.replace("{id}", String(id)),
-//         method: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.methods[0],
-//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.key],
+// export function useGetAnilistAnimeDetails(id: number) {
+//     return useServerQuery<AL_AnimeDetailsById_Media>({
+//         endpoint: API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.key],
 //         enabled: true,
 //     })
 // }
@@ -72,7 +72,7 @@
 // }
 
 // export function useDeleteAnilistListEntry() {
-//     return useServerMutation<AL_DeleteEntry, DeleteAnilistListEntry_Variables>({
+//     return useServerMutation<boolean, DeleteAnilistListEntry_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.endpoint,
 //         method: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.key],
@@ -83,7 +83,7 @@
 // }
 
 // export function useAnilistListAnime() {
-//     return useServerMutation<AL_ListMedia, AnilistListAnime_Variables>({
+//     return useServerMutation<AL_ListAnime, AnilistListAnime_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.AnilistListAnime.endpoint,
 //         method: API_ENDPOINTS.ANILIST.AnilistListAnime.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.AnilistListAnime.key],
@@ -94,7 +94,7 @@
 // }
 
 // export function useAnilistListRecentAiringAnime() {
-//     return useServerMutation<AL_ListRecentMedia, AnilistListRecentAiringAnime_Variables>({
+//     return useServerMutation<AL_ListRecentAnime, AnilistListRecentAiringAnime_Variables>({
 //         endpoint: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.endpoint,
 //         method: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.key],
@@ -184,7 +184,7 @@
 // }
 
 // export function useFetchAnimeEntrySuggestions() {
-//     return useServerMutation<Array<AL_BaseMedia>, FetchAnimeEntrySuggestions_Variables>({
+//     return useServerMutation<Array<AL_BaseAnime>, FetchAnimeEntrySuggestions_Variables>({
 //         endpoint: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.endpoint,
 //         method: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.methods[0],
 //         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.key],
@@ -490,41 +490,6 @@
 //         endpoint: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.endpoint,
 //         method: API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.FILECACHE.ClearFileCacheMediastreamVideoFiles.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// list_sync
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// export function useDeleteListSyncCache() {
-//     return useServerMutation<boolean>({
-//         endpoint: API_ENDPOINTS.LIST_SYNC.DeleteListSyncCache.endpoint,
-//         method: API_ENDPOINTS.LIST_SYNC.DeleteListSyncCache.methods[0],
-//         mutationKey: [API_ENDPOINTS.LIST_SYNC.DeleteListSyncCache.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useGetListSyncAnimeDiffs() {
-//     return useServerQuery<Array<ListSync_AnimeDiff>>({
-//         endpoint: API_ENDPOINTS.LIST_SYNC.GetListSyncAnimeDiffs.endpoint,
-//         method: API_ENDPOINTS.LIST_SYNC.GetListSyncAnimeDiffs.methods[0],
-//         queryKey: [API_ENDPOINTS.LIST_SYNC.GetListSyncAnimeDiffs.key],
-//         enabled: true,
-//     })
-// }
-
-// export function useSyncAnime() {
-//     return useServerMutation<Array<ListSync_AnimeDiff>, SyncAnime_Variables>({
-//         endpoint: API_ENDPOINTS.LIST_SYNC.SyncAnime.endpoint,
-//         method: API_ENDPOINTS.LIST_SYNC.SyncAnime.methods[0],
-//         mutationKey: [API_ENDPOINTS.LIST_SYNC.SyncAnime.key],
 //         onSuccess: async () => {
 // 
 //         },
@@ -1283,17 +1248,6 @@
 //         endpoint: API_ENDPOINTS.SETTINGS.SaveSettings.endpoint,
 //         method: API_ENDPOINTS.SETTINGS.SaveSettings.methods[0],
 //         mutationKey: [API_ENDPOINTS.SETTINGS.SaveSettings.key],
-//         onSuccess: async () => {
-// 
-//         },
-//     })
-// }
-
-// export function useSaveListSyncSettings() {
-//     return useServerMutation<boolean, SaveListSyncSettings_Variables>({
-//         endpoint: API_ENDPOINTS.SETTINGS.SaveListSyncSettings.endpoint,
-//         method: API_ENDPOINTS.SETTINGS.SaveListSyncSettings.methods[0],
-//         mutationKey: [API_ENDPOINTS.SETTINGS.SaveListSyncSettings.key],
 //         onSuccess: async () => {
 // 
 //         },

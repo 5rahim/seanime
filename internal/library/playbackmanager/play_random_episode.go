@@ -13,6 +13,11 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 		return err
 	}
 
+	animeCollection, err := pm.platform.GetAnimeCollection(false)
+	if err != nil {
+		return err
+	}
+
 	//
 	// Retrieve random episode
 	//
@@ -37,7 +42,7 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 	continueLfs := make([]*anime.LocalFile, 0)
 	otherLfs := make([]*anime.LocalFile, 0)
 	for _, e := range lfEntries {
-		anilistEntry, ok := pm.animeCollection.GetListEntryFromMediaId(e.GetMediaId())
+		anilistEntry, ok := animeCollection.GetListEntryFromMediaId(e.GetMediaId())
 		if !ok {
 			continue
 		}

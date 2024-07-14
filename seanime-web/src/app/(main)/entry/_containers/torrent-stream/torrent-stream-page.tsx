@@ -116,12 +116,12 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                         >
                             <EpisodeCard
                                 key={episode.localFile?.path || ""}
-                                image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
-                                topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
+                                image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+                                topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                 title={episode.displayTitle}
                                 meta={episode.episodeMetadata?.airDate ?? undefined}
                                 isInvalid={episode.isInvalid}
-                                progressTotal={episode.baseMedia?.episodes}
+                                progressTotal={episode.baseAnime?.episodes}
                                 progressNumber={episode.progressNumber}
                                 episodeNumber={episode.episodeNumber}
                                 hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
@@ -138,9 +138,9 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 {episodeCollection?.episodes?.map(episode => (
                     <EpisodeGridItem
                         key={episode.episodeNumber + episode.displayTitle}
-                        media={episode?.baseMedia as any}
-                        title={episode?.displayTitle || episode?.baseMedia?.title?.userPreferred || ""}
-                        image={episode?.episodeMetadata?.image || episode?.baseMedia?.coverImage?.large}
+                        media={episode?.baseAnime as any}
+                        title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
+                        image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
                         episodeTitle={episode?.episodeTitle}
                         onClick={() => {
                             handleEpisodeClick(episode)

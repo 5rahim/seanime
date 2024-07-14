@@ -18,7 +18,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	tree := anilist.NewCompleteMediaRelationTree()
+	tree := anilist.NewCompleteAnimeRelationTree()
 
 	tests := []struct {
 		name                          string
@@ -45,7 +45,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatal("expected media, got not found")
 			}
@@ -60,7 +60,7 @@ func TestMediaTreeAnalysis(t *testing.T) {
 				anilistClientWrapper,
 				anilistRateLimiter,
 				tree,
-				anilist.NewCompleteMediaCache(),
+				anilist.NewCompleteAnimeCache(),
 			)
 
 			if err != nil {
@@ -102,7 +102,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
-	tree := anilist.NewCompleteMediaRelationTree()
+	tree := anilist.NewCompleteAnimeRelationTree()
 
 	tests := []struct {
 		name    string
@@ -118,7 +118,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			media, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatal("expected media, got error:", err.Error())
 			}
@@ -132,7 +132,7 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 				anilistClientWrapper,
 				anilistRateLimiter,
 				tree,
-				anilist.NewCompleteMediaCache(),
+				anilist.NewCompleteAnimeCache(),
 			)
 
 			if err != nil {

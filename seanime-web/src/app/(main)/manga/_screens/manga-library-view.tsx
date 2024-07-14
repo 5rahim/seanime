@@ -148,7 +148,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     const headerManga = useAtomValue(__mangaLibraryHeaderMangaAtom)
 
     React.useEffect(() => {
-        if (list.type === "current") {
+        if (list.type === "CURRENT") {
             if (currentHeaderImage === null && list.entries?.[0]?.media?.bannerImage) {
                 setCurrentHeaderImage(list.entries?.[0]?.media?.bannerImage)
             }
@@ -157,9 +157,9 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
 
     return (
         <React.Fragment key={list.type}>
-            <h2>{list.type === "current" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
+            <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
 
-            {(list.type === "current" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&
+            {(list.type === "CURRENT" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&
                 <TextGenerateEffect
                     words={headerManga?.title?.userPreferred || ""}
                     className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
@@ -171,7 +171,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
                     return <div
                         key={entry.media?.id}
                         onMouseEnter={() => {
-                            if (list.type === "current" && entry.media?.bannerImage) {
+                            if (list.type === "CURRENT" && entry.media?.bannerImage) {
                                 React.startTransition(() => {
                                     setCurrentHeaderImage(entry.media?.bannerImage!)
                                 })

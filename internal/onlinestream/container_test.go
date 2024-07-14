@@ -81,7 +81,7 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatalf("couldn't get media: %s", err)
 			}

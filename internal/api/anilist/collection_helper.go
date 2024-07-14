@@ -37,9 +37,9 @@ func (ac *AnimeCollection) GetListEntryFromMediaId(id int) (*MediaListEntry, boo
 	return entry, true
 }
 
-func (ac *AnimeCollection) GetAllMedia() []*BaseMedia {
+func (ac *AnimeCollection) GetAllMedia() []*BaseAnime {
 
-	var ret []*BaseMedia
+	var ret []*BaseAnime
 	addedId := make(map[int]bool)
 	for _, l := range ac.MediaListCollection.Lists {
 		if l.Entries == nil || len(l.Entries) == 0 {
@@ -55,7 +55,7 @@ func (ac *AnimeCollection) GetAllMedia() []*BaseMedia {
 	return ret
 }
 
-func (ac *AnimeCollection) FindMedia(mediaId int) (*BaseMedia, bool) {
+func (ac *AnimeCollection) FindMedia(mediaId int) (*BaseAnime, bool) {
 	for _, l := range ac.MediaListCollection.Lists {
 		if l.Entries == nil || len(l.Entries) == 0 {
 			continue
@@ -94,9 +94,9 @@ func (ac *AnimeCollectionWithRelations) GetListEntryFromMediaId(id int) (*AnimeC
 	return entry, true
 }
 
-func (ac *AnimeCollectionWithRelations) GetAllMedia() []*CompleteMedia {
+func (ac *AnimeCollectionWithRelations) GetAllMedia() []*CompleteAnime {
 
-	var ret []*CompleteMedia
+	var ret []*CompleteAnime
 	addedId := make(map[int]bool)
 	for _, l := range ac.MediaListCollection.Lists {
 		if l.Entries == nil || len(l.Entries) == 0 {
@@ -112,7 +112,7 @@ func (ac *AnimeCollectionWithRelations) GetAllMedia() []*CompleteMedia {
 	return ret
 }
 
-func (ac *AnimeCollectionWithRelations) FindMedia(mediaId int) (*CompleteMedia, bool) {
+func (ac *AnimeCollectionWithRelations) FindMedia(mediaId int) (*CompleteAnime, bool) {
 	for _, l := range ac.MediaListCollection.Lists {
 		if l.Entries == nil || len(l.Entries) == 0 {
 			continue

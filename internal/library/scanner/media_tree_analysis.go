@@ -12,7 +12,7 @@ import (
 
 type (
 	MediaTreeAnalysisOptions struct {
-		tree        *anilist.CompleteMediaRelationTree
+		tree        *anilist.CompleteAnimeRelationTree
 		anizipCache *anizip.Cache
 		rateLimiter *limiter.Limiter
 	}
@@ -22,7 +22,7 @@ type (
 	}
 
 	MediaTreeAnalysisBranch struct {
-		media       *anilist.CompleteMedia
+		media       *anilist.CompleteAnime
 		anizipMedia *anizip.Media
 		// The second absolute episode number of the first episode
 		// Sometimes, the metadata provider may have a 'true' absolute episode number and a 'part' absolute episode number
@@ -40,8 +40,8 @@ type (
 // The min and max absolute episode numbers are used to get the relative episode number from an absolute episode number.
 func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, error) {
 
-	relations := make([]*anilist.CompleteMedia, 0)
-	opts.tree.Range(func(key int, value *anilist.CompleteMedia) bool {
+	relations := make([]*anilist.CompleteAnime, 0)
+	opts.tree.Range(func(key int, value *anilist.CompleteAnime) bool {
 		relations = append(relations, value)
 		return true
 	})

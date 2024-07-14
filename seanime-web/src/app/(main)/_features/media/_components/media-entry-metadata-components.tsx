@@ -1,4 +1,4 @@
-import { AL_MangaDetailsById_Media_Rankings, AL_MediaDetailsById_Media_Rankings } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media_Rankings, AL_MangaDetailsById_Media_Rankings } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
@@ -85,7 +85,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
 }
 
 type MediaEntryRankingsProps = {
-    rankings?: AL_MediaDetailsById_Media_Rankings[] | AL_MangaDetailsById_Media_Rankings[]
+    rankings?: AL_AnimeDetailsById_Media_Rankings[] | AL_MangaDetailsById_Media_Rankings[]
 }
 
 export function MediaEntryRankings(props: MediaEntryRankingsProps) {

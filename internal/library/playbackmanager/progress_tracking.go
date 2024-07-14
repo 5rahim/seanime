@@ -67,7 +67,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 					Msg("playback manager: Playback started")
 
 				// ------- Playlist ------- //
-				go pm.playlistHub.onVideoStart(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), pm.animeCollection, _ps)
+				go pm.playlistHub.onVideoStart(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
 
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
@@ -451,10 +451,9 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 	}
 
 	// Update the progress on AniList
-	err = pm.anilistClientWrapper.UpdateMediaListEntryProgress(
-		context.Background(),
-		&mediaId,
-		&epNum,
+	err = pm.platform.UpdateEntryProgress(
+		mediaId,
+		epNum,
 		&totalEpisodes,
 	)
 	if err != nil {

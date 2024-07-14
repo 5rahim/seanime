@@ -2,7 +2,7 @@ import capitalize from "lodash/capitalize"
 
 export function getLibraryCollectionTitle(type: string) {
     switch (type) {
-        case "current":
+        case "CURRENT":
             return "Currently watching"
         default:
             return capitalize(type)
@@ -11,7 +11,7 @@ export function getLibraryCollectionTitle(type: string) {
 
 export function getMangaCollectionTitle(type: string) {
     switch (type) {
-        case "current":
+        case "CURRENT":
             return "Currently reading"
         default:
             return capitalize(type)

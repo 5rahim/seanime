@@ -78,7 +78,7 @@ func TestSmartSearch(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.BaseMediaByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &test.mId)
 
 			if assert.NoError(t, err) {
 
@@ -153,7 +153,7 @@ func TestSearchByAID(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.BaseMediaByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &test.mId)
 			media := mediaRes.GetMedia()
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", media.ID)
 			if err != nil {
@@ -201,7 +201,7 @@ func TestSearchByEID(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
-			mediaRes, err := anilistClientWrapper.BaseMediaByID(context.Background(), &test.mId)
+			mediaRes, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &test.mId)
 			media := mediaRes.GetMedia()
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", media.ID)
 			if err != nil {

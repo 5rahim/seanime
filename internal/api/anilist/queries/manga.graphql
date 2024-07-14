@@ -113,7 +113,7 @@ query MangaDetailsById ($id: Int) {
       edges {
         relationType(version: 2)
         node {
-          ...baseMedia
+          ...baseManga
         }
       }
     }
@@ -142,7 +142,7 @@ query ListManga(
       lastPage
     },
     media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
-      ...baseMedia
+      ...baseManga
     }
   }
 }

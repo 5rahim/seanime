@@ -38,7 +38,7 @@ export function LibraryHeader({ list }: { list: Anime_MediaEntryEpisode[] }) {
         const t = setTimeout(() => {
             if (image != actualImage) {
                 setActualImage(image)
-                setHeaderEpisode(list.find(ep => ep.baseMedia?.bannerImage === image || ep.episodeMetadata?.image === image) || null)
+                setHeaderEpisode(list.find(ep => ep.baseAnime?.bannerImage === image || ep.episodeMetadata?.image === image) || null)
             }
         }, 600)
 
@@ -50,7 +50,7 @@ export function LibraryHeader({ list }: { list: Anime_MediaEntryEpisode[] }) {
     useEffect(() => {
         if (actualImage) {
             setPrevImage(actualImage)
-            setHeaderEpisode(list.find(ep => ep.baseMedia?.bannerImage === actualImage || ep.episodeMetadata?.image === actualImage) || null)
+            setHeaderEpisode(list.find(ep => ep.baseAnime?.bannerImage === actualImage || ep.episodeMetadata?.image === actualImage) || null)
         }
     }, [actualImage])
 

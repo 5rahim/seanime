@@ -8,10 +8,10 @@ import {
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     AL_AnimeCollection,
+    AL_AnimeDetailsById_Media,
     AL_DeleteEntry,
-    AL_ListMedia,
-    AL_ListRecentMedia,
-    AL_MediaDetailsById_Media,
+    AL_ListAnime,
+    AL_ListRecentAnime,
     AL_Stats,
     AL_StudioDetails,
     AL_UpdateMediaListEntry,
@@ -81,11 +81,11 @@ export function useEditAnilistListEntry(id: Nullish<string | number>, type: "ani
     })
 }
 
-export function useGetAnilistMediaDetails(id: Nullish<number | string>) {
-    return useServerQuery<AL_MediaDetailsById_Media>({
-        endpoint: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.endpoint.replace("{id}", String(id)),
-        method: API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.methods[0],
-        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistMediaDetails.key, String(id)],
+export function useGetAnilistAnimeDetails(id: Nullish<number | string>) {
+    return useServerQuery<AL_AnimeDetailsById_Media>({
+        endpoint: API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.endpoint.replace("{id}", String(id)),
+        method: API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.key, String(id)],
         enabled: true,
     })
 }
@@ -115,7 +115,7 @@ export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "a
 }
 
 export function useAnilistListAnime(variables: AnilistListAnime_Variables, enabled: boolean) {
-    return useServerQuery<AL_ListMedia, AnilistListAnime_Variables>({
+    return useServerQuery<AL_ListAnime, AnilistListAnime_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.AnilistListAnime.endpoint,
         method: API_ENDPOINTS.ANILIST.AnilistListAnime.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.AnilistListAnime.key, variables],
@@ -125,7 +125,7 @@ export function useAnilistListAnime(variables: AnilistListAnime_Variables, enabl
 }
 
 export function useAnilistListRecentAiringAnime(variables: AnilistListRecentAiringAnime_Variables) {
-    return useServerQuery<AL_ListRecentMedia, AnilistListRecentAiringAnime_Variables>({
+    return useServerQuery<AL_ListRecentAnime, AnilistListRecentAiringAnime_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.endpoint,
         method: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.key],

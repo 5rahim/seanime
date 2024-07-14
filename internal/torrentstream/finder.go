@@ -25,7 +25,7 @@ type (
 	}
 )
 
-func (r *Repository) findBestTorrent(media *anilist.CompleteMedia, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
+func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
 
 	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
 
@@ -51,7 +51,7 @@ searchLoop:
 				Query:          lo.ToPtr(""),
 				EpisodeNumber:  &episodeNumber,
 				Batch:          &searchBatch,
-				Media:          media.ToBaseMedia(),
+				Media:          media.ToBaseAnime(),
 				AbsoluteOffset: lo.ToPtr(anizipMedia.GetOffset()),
 				Resolution:     lo.ToPtr(r.settings.MustGet().PreferredResolution),
 				Provider:       itorrent.ProviderAnimeTosho,
@@ -169,10 +169,10 @@ searchLoop:
 
 		// Create a new Torrent Analyzer
 		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-			Logger:               r.logger,
-			Filepaths:            filepaths,
-			Media:                media,
-			AnilistClientWrapper: r.anilistClientWrapper,
+			Logger:    r.logger,
+			Filepaths: filepaths,
+			Media:     media,
+			Platform:  r.platform,
 		})
 
 		r.logger.Debug().Msgf("torrentstream: Analyzing torrent %s", searchT.Link)
@@ -235,7 +235,7 @@ searchLoop:
 }
 
 // findBestTorrentFromManualSelection is like findBestTorrent but no need to search for the best torrent first
-func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, media *anilist.CompleteMedia, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
+func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, media *anilist.CompleteAnime, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
 
 	r.logger.Debug().Msgf("torrentstream: Analyzing torrent from %s for %s", torrentLink, media.GetTitleSafe())
 
@@ -277,10 +277,10 @@ func (r *Repository) findBestTorrentFromManualSelection(torrentLink string, medi
 
 	// Create a new Torrent Analyzer
 	analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-		Logger:               r.logger,
-		Filepaths:            filepaths,
-		Media:                media,
-		AnilistClientWrapper: r.anilistClientWrapper,
+		Logger:    r.logger,
+		Filepaths: filepaths,
+		Media:     media,
+		Platform:  r.platform,
 	})
 
 	// Analyze torrent files

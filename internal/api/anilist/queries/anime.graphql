@@ -23,7 +23,7 @@ query AnimeCollection ($userName: String) {
           day
         }
         media {
-          ...baseMedia
+          ...baseAnime
         }
       }
     }
@@ -55,33 +55,33 @@ query AnimeCollectionWithRelations ($userName: String) {
           day
         }
         media {
-          ...completeMedia
+          ...completeAnime
         }
       }
     }
   }
 }
 
-query BaseMediaByMalId ($id: Int) {
+query BaseAnimeByMalId ($id: Int) {
   Media(idMal: $id, type: ANIME) {
-    ...baseMedia
+    ...baseAnime
   }
 }
 
-query BaseMediaById ($id: Int) {
+query BaseAnimeById ($id: Int) {
   Media(id: $id, type: ANIME) {
-    ...baseMedia
+    ...baseAnime
   }
 }
 
-query CompleteMediaById ($id: Int) {
+query CompleteAnimeById ($id: Int) {
   Media(id: $id, type: ANIME) {
-    ...completeMedia
+    ...completeAnime
   }
 }
 
 # For view (will be cached)
-query MediaDetailsById ($id: Int) {
+query AnimeDetailsById ($id: Int) {
   Media(id: $id, type: ANIME) {
     siteUrl
     id
@@ -178,50 +178,74 @@ query MediaDetailsById ($id: Int) {
       edges {
         relationType(version: 2)
         node {
-          ...baseMedia
+          ...baseAnime
         }
       }
     }
   }
 }
 
-query ListMedia($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $season: MediaSeason, $seasonYear: Int, $format: MediaFormat){
-  Page(page: $page, perPage: $perPage){
-    pageInfo{
+query ListAnime(
+  $page: Int
+  $search: String
+  $perPage: Int
+  $sort: [MediaSort]
+  $status: [MediaStatus]
+  $genres: [String]
+  $averageScore_greater: Int
+  $season: MediaSeason
+  $seasonYear: Int
+  $format: MediaFormat
+  $isAdult: Boolean
+) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
       hasNextPage
       total
       perPage
       currentPage
       lastPage
-    },
-    media(type: ANIME, search: $search, sort: $sort, status_in: $status, isAdult: false, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, season: $season, seasonYear: $seasonYear, format_not: MUSIC){
-      ...baseMedia
+    }
+    media(
+      type: ANIME
+      search: $search
+      sort: $sort
+      status_in: $status
+      isAdult: $isAdult
+      format: $format
+      genre_in: $genres
+      averageScore_greater: $averageScore_greater
+      season: $season
+      seasonYear: $seasonYear
+      format_not: MUSIC
+    ) {
+      ...baseAnime
     }
   }
 }
 
-query ListRecentMedia($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
-  Page(page: $page, perPage: $perPage){
-    pageInfo{
+query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
       hasNextPage
       total
       perPage
       currentPage
       lastPage
-    },
-    airingSchedules(notYetAired: false, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser){
+    }
+    airingSchedules(notYetAired: false, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
       id
       airingAt
       episode
       timeUntilAiring
       media {
-        ...baseMedia
+        ... baseAnime
       }
     }
   }
 }
 
-fragment baseMedia on Media {
+fragment baseAnime on Media {
   id
   idMal
   siteUrl
@@ -272,7 +296,7 @@ fragment baseMedia on Media {
   }
 }
 
-fragment completeMedia on Media {
+fragment completeAnime on Media {
   id
   idMal
   siteUrl
@@ -325,7 +349,7 @@ fragment completeMedia on Media {
     edges {
       relationType(version: 2)
       node {
-        ...baseMedia
+        ...baseAnime
       }
     }
   }

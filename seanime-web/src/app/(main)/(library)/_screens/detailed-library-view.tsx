@@ -209,11 +209,11 @@ export function SearchOptions() {
                     triggerClass="px-4 py-1"
                     items={[
                         { name: "All", isCurrent: selectedIndex === "-", onClick: () => setSelectedIndex("-") },
-                        { name: "Watching", isCurrent: selectedIndex === "current", onClick: () => setSelectedIndex("current") },
-                        { name: "Planning", isCurrent: selectedIndex === "planned", onClick: () => setSelectedIndex("planned") },
-                        { name: "Paused", isCurrent: selectedIndex === "paused", onClick: () => setSelectedIndex("paused") },
-                        { name: "Completed", isCurrent: selectedIndex === "completed", onClick: () => setSelectedIndex("completed") },
-                        { name: "Dropped", isCurrent: selectedIndex === "dropped", onClick: () => setSelectedIndex("dropped") },
+                        { name: "Watching", isCurrent: selectedIndex === "CURRENT", onClick: () => setSelectedIndex("CURRENT") },
+                        { name: "Planning", isCurrent: selectedIndex === "PLANNING", onClick: () => setSelectedIndex("PLANNING") },
+                        { name: "Paused", isCurrent: selectedIndex === "PAUSED", onClick: () => setSelectedIndex("PAUSED") },
+                        { name: "Completed", isCurrent: selectedIndex === "COMPLETED", onClick: () => setSelectedIndex("COMPLETED") },
+                        { name: "Dropped", isCurrent: selectedIndex === "DROPPED", onClick: () => setSelectedIndex("DROPPED") },
                     ]}
                 />
             </div>

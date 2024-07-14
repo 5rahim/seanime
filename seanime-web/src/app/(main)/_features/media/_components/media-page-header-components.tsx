@@ -1,6 +1,6 @@
 import {
+    AL_BaseAnime,
     AL_BaseManga,
-    AL_BaseMedia,
     AL_MediaStatus,
     Anime_MediaEntryListData,
     Manga_EntryListData,
@@ -207,7 +207,7 @@ type MediaPageHeaderEntryDetailsProps = {
     description?: string
 
     listData?: Anime_MediaEntryListData | Manga_EntryListData | Offline_ListData
-    media: AL_BaseMedia | AL_BaseManga
+    media: AL_BaseAnime | AL_BaseManga
     type: "anime" | "manga"
     offlineAnilistMediaEntryModal?: React.ReactNode
 }

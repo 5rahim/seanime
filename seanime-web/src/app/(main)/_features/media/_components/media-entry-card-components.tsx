@@ -1,4 +1,4 @@
-import { AL_BaseMedia_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
+import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
 import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
@@ -198,7 +198,7 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type MediaEntryCardNextAiringProps = {
-    nextAiring: AL_BaseMedia_NextAiringEpisode | undefined
+    nextAiring: AL_BaseAnime_NextAiringEpisode | undefined
 }
 
 export function MediaEntryCardNextAiring(props: MediaEntryCardNextAiringProps) {

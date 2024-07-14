@@ -1,7 +1,6 @@
 package offline
 
 import (
-	"context"
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
@@ -49,12 +48,12 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	//
 	// Collections
 	//
-	animeCollection, err := h.anilistClientWrapper.AnimeCollection(context.Background(), &user.Viewer.Name)
+	animeCollection, err := h.platform.GetAnimeCollection(false)
 	if err != nil {
 		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get Anilist anime collection")
 		return err
 	}
-	mangaCollection, err := h.anilistClientWrapper.MangaCollection(context.Background(), &user.Viewer.Name)
+	mangaCollection, err := h.platform.GetMangaCollection(false)
 	if err != nil {
 		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get Anilist manga collection")
 		return err
@@ -98,12 +97,12 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
 		rateLimiter.Wait()
 		_mediaEntry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
-			MediaId:              lfEntry.GetMediaId(),
-			LocalFiles:           lfs,
-			AnizipCache:          anizipCache,
-			AnimeCollection:      animeCollection,
-			AnilistClientWrapper: h.anilistClientWrapper,
-			MetadataProvider:     h.metadataProvider,
+			MediaId:          lfEntry.GetMediaId(),
+			LocalFiles:       lfs,
+			AnizipCache:      anizipCache,
+			AnimeCollection:  animeCollection,
+			Platform:         h.platform,
+			MetadataProvider: h.metadataProvider,
 		})
 		if err != nil {
 			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to create media entry for anime %d", lfEntry.GetMediaId())
@@ -111,10 +110,10 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		}
 
 		mediaEpisodes := _mediaEntry.Episodes
-		// Note: We don't need the BaseMedia in each episode for the snapshot
+		// Note: We don't need the BaseAnime in each episode for the snapshot
 		// it's a waste of space
 		for _, episode := range mediaEpisodes {
-			episode.BaseMedia = nil
+			episode.BaseAnime = nil
 		}
 
 		// Create the AnimeEntry

@@ -1,12 +1,13 @@
 package anime
 
 import (
-	"context"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/test_utils"
+	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -69,7 +70,8 @@ func TestNewMediaEntry(t *testing.T) {
 	}
 
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, util.NewLogger())
+	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,12 +87,12 @@ func TestNewMediaEntry(t *testing.T) {
 			})
 
 			entry, err := NewMediaEntry(&NewMediaEntryOptions{
-				MediaId:              tt.mediaId,
-				LocalFiles:           tt.localFiles,
-				AnizipCache:          aniZipCache,
-				AnimeCollection:      animeCollection,
-				AnilistClientWrapper: anilistClientWrapper,
-				MetadataProvider:     metadataProvider,
+				MediaId:          tt.mediaId,
+				LocalFiles:       tt.localFiles,
+				AnizipCache:      aniZipCache,
+				AnimeCollection:  animeCollection,
+				Platform:         anilistPlatform,
+				MetadataProvider: metadataProvider,
 			})
 
 			if assert.NoErrorf(t, err, "Failed to get mock data") {

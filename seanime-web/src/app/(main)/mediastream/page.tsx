@@ -416,9 +416,9 @@ export default function Page() {
                                 <EpisodeGridItem
                                     key={episode.localFile?.path || ""}
                                     id={`episode-${String(episode.episodeNumber)}`}
-                                    media={episode?.baseMedia as any}
-                                    title={episode?.displayTitle || episode?.baseMedia?.title?.userPreferred || ""}
-                                    image={episode?.episodeMetadata?.image || episode?.baseMedia?.coverImage?.large}
+                                    media={episode?.baseAnime as any}
+                                    title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
+                                    image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
                                     episodeTitle={episode?.episodeTitle}
                                     fileName={episode?.localFile?.parsedInfo?.original}
                                     onClick={() => {

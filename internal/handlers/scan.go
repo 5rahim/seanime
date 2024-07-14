@@ -35,17 +35,6 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// +---------------------+
-	// |      Account        |
-	// +---------------------+
-
-	// Get the user's account
-	// If the account is not defined, return an error
-	acc, err := c.App.GetAccount()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
 	// Get the latest local files
 	existingLfs, _, err := c.App.Database.GetLocalFiles()
 	if err != nil {
@@ -67,17 +56,16 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:              libraryPath,
-		Username:             acc.Username,
-		Enhanced:             b.Enhanced,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		Logger:               c.App.Logger,
-		WSEventManager:       c.App.WSEventManager,
-		ExistingLocalFiles:   existingLfs,
-		SkipLockedFiles:      b.SkipLockedFiles,
-		SkipIgnoredFiles:     b.SkipIgnoredFiles,
-		ScanSummaryLogger:    scanSummaryLogger,
-		ScanLogger:           scanLogger,
+		DirPath:            libraryPath,
+		Enhanced:           b.Enhanced,
+		Platform:           c.App.AnilistPlatform,
+		Logger:             c.App.Logger,
+		WSEventManager:     c.App.WSEventManager,
+		ExistingLocalFiles: existingLfs,
+		SkipLockedFiles:    b.SkipLockedFiles,
+		SkipIgnoredFiles:   b.SkipIgnoredFiles,
+		ScanSummaryLogger:  scanSummaryLogger,
+		ScanLogger:         scanLogger,
 	}
 
 	// Scan the library

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/platform"
 	torrent_analyzer "github.com/seanime-app/seanime/internal/torrents/analyzer"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"time"
@@ -11,12 +12,12 @@ import (
 
 type (
 	SmartSelectParams struct {
-		Url                  string
-		EpisodeNumbers       []int
-		Media                *anilist.CompleteMedia
-		Destination          string
-		ShouldAddTorrent     bool
-		AnilistClientWrapper anilist.ClientWrapperInterface
+		Url              string
+		EpisodeNumbers   []int
+		Media            *anilist.CompleteAnime
+		Destination      string
+		ShouldAddTorrent bool
+		Platform         platform.Platform
 	}
 )
 
@@ -24,7 +25,7 @@ type (
 // If the torrent has not been added yet, set SmartSelect.ShouldAddTorrent to true.
 // The torrent will NOT be removed if the selection fails.
 func (r *Repository) SmartSelect(p *SmartSelectParams) error {
-	if p.Media == nil || p.AnilistClientWrapper == nil {
+	if p.Media == nil || p.Platform == nil {
 		r.logger.Error().Msg("torrent client: media or anilist client wrapper is nil (smart select)")
 		return errors.New("media or anilist client wrapper is nil")
 	}
@@ -76,10 +77,10 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 
 	// AnalyzeTorrentFiles the torrent files
 	analyzer := torrent_analyzer.NewAnalyzer(&torrent_analyzer.NewAnalyzerOptions{
-		Logger:               r.logger,
-		Filepaths:            filepaths,
-		Media:                p.Media,
-		AnilistClientWrapper: p.AnilistClientWrapper,
+		Logger:    r.logger,
+		Filepaths: filepaths,
+		Media:     p.Media,
+		Platform:  p.Platform,
 	})
 
 	r.logger.Debug().Msg("torrent client: analyzing torrent files (smart select)")

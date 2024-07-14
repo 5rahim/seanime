@@ -1,7 +1,6 @@
 package torrentstream
 
 import (
-	"context"
 	"fmt"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
@@ -98,7 +97,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		// Start the stream
 		//
 		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseMedia(), anizipMedia, anizipEpisode)
+		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseAnime(), anizipMedia, anizipEpisode)
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
@@ -148,17 +147,16 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteMedia, anizipMedia *anizip.Media, err error) {
+func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, anizipMedia *anizip.Media, err error) {
 	// Get the media
 	var found bool
-	media, found = r.completeMediaCache.Get(mediaId)
+	media, found = r.completeAnimeCache.Get(mediaId)
 	if !found {
 		// Fetch the media
-		mediaF, err := r.anilistClientWrapper.CompleteMediaByID(context.Background(), &mediaId)
+		media, err = r.platform.GetAnimeWithRelations(mediaId)
 		if err != nil {
 			return nil, nil, fmt.Errorf("torrentstream: failed to fetch media: %w", err)
 		}
-		media = mediaF.GetMedia()
 	}
 
 	// Get the media

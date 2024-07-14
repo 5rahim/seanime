@@ -68,9 +68,9 @@ function EpisodeList({ episodes }: { episodes: Anime_MediaEntryDownloadEpisode[]
                     return (
                         <EpisodeGridItem
                             key={item.episode + item.aniDBEpisode}
-                            media={item.episode?.baseMedia as any}
-                            title={item.episode?.displayTitle || item.episode?.baseMedia?.title?.userPreferred || ""}
-                            image={item.episode?.episodeMetadata?.image || item.episode?.baseMedia?.coverImage?.large}
+                            media={item.episode?.baseAnime as any}
+                            title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
+                            image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large}
                             episodeTitle={item?.episode?.episodeTitle}
                             description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber
                                 ? `(Episode ${item?.episode?.absoluteEpisodeNumber})`

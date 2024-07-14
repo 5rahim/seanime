@@ -5,7 +5,7 @@ import (
 	"github.com/seanime-app/seanime/internal/util/comparison"
 )
 
-func (m *BaseMedia) GetTitleSafe() string {
+func (m *BaseAnime) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
 		return *m.GetTitle().GetEnglish()
 	}
@@ -14,7 +14,7 @@ func (m *BaseMedia) GetTitleSafe() string {
 	}
 	return "N/A"
 }
-func (m *BaseMedia) GetRomajiTitleSafe() string {
+func (m *BaseAnime) GetRomajiTitleSafe() string {
 	if m.GetTitle().GetRomaji() != nil {
 		return *m.GetTitle().GetRomaji()
 	}
@@ -24,14 +24,14 @@ func (m *BaseMedia) GetRomajiTitleSafe() string {
 	return "N/A"
 }
 
-func (m *BaseMedia) GetPreferredTitle() string {
+func (m *BaseAnime) GetPreferredTitle() string {
 	if m.GetTitle().GetUserPreferred() != nil {
 		return *m.GetTitle().GetUserPreferred()
 	}
 	return m.GetTitleSafe()
 }
 
-func (m *BaseMedia) GetCoverImageSafe() string {
+func (m *BaseAnime) GetCoverImageSafe() string {
 	if m.GetCoverImage().GetExtraLarge() != nil {
 		return *m.GetCoverImage().GetExtraLarge()
 	}
@@ -44,14 +44,14 @@ func (m *BaseMedia) GetCoverImageSafe() string {
 	return ""
 }
 
-func (m *BaseMedia) GetBannerImageSafe() string {
+func (m *BaseAnime) GetBannerImageSafe() string {
 	if m.GetBannerImage() != nil {
 		return *m.GetBannerImage()
 	}
 	return m.GetCoverImageSafe()
 }
 
-func (m *BaseMedia) IsMovieOrSingleEpisode() bool {
+func (m *BaseAnime) IsMovieOrSingleEpisode() bool {
 	if m == nil {
 		return false
 	}
@@ -61,7 +61,7 @@ func (m *BaseMedia) IsMovieOrSingleEpisode() bool {
 	return false
 }
 
-func (m *BaseMedia) IsMovie() bool {
+func (m *BaseAnime) IsMovie() bool {
 	if m == nil {
 		return false
 	}
@@ -72,7 +72,7 @@ func (m *BaseMedia) IsMovie() bool {
 	return *m.Format == MediaFormatMovie
 }
 
-func (m *BaseMedia) IsFinished() bool {
+func (m *BaseAnime) IsFinished() bool {
 	if m == nil {
 		return false
 	}
@@ -83,7 +83,7 @@ func (m *BaseMedia) IsFinished() bool {
 	return *m.Status == MediaStatusFinished
 }
 
-func (m *BaseMedia) GetAllTitles() []*string {
+func (m *BaseAnime) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasRomajiTitle() {
 		titles = append(titles, m.Title.Romaji)
@@ -97,7 +97,7 @@ func (m *BaseMedia) GetAllTitles() []*string {
 	return titles
 }
 
-func (m *BaseMedia) GetAllTitlesDeref() []string {
+func (m *BaseAnime) GetAllTitlesDeref() []string {
 	titles := make([]string, 0)
 	if m.HasRomajiTitle() {
 		titles = append(titles, *m.Title.Romaji)
@@ -116,7 +116,7 @@ func (m *BaseMedia) GetAllTitlesDeref() []string {
 
 // GetCurrentEpisodeCount returns the current episode number for that media and -1 if it doesn't have one.
 // i.e. -1 is returned if the media has no episodes AND the next airing episode is not set.
-func (m *BaseMedia) GetCurrentEpisodeCount() int {
+func (m *BaseAnime) GetCurrentEpisodeCount() int {
 	ceil := -1
 	if m.Episodes != nil {
 		ceil = *m.Episodes
@@ -130,7 +130,7 @@ func (m *BaseMedia) GetCurrentEpisodeCount() int {
 }
 
 // GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
-func (m *BaseMedia) GetTotalEpisodeCount() int {
+func (m *BaseAnime) GetTotalEpisodeCount() int {
 	ceil := -1
 	if m.Episodes != nil {
 		ceil = *m.Episodes
@@ -140,7 +140,7 @@ func (m *BaseMedia) GetTotalEpisodeCount() int {
 
 // GetPossibleSeasonNumber returns the possible season number for that media and -1 if it doesn't have one.
 // It looks at the synonyms and returns the highest season number found.
-func (m *BaseMedia) GetPossibleSeasonNumber() int {
+func (m *BaseAnime) GetPossibleSeasonNumber() int {
 	if m == nil || m.Synonyms == nil || len(m.Synonyms) == 0 {
 		return -1
 	}
@@ -155,15 +155,15 @@ func (m *BaseMedia) GetPossibleSeasonNumber() int {
 	return lo.Max(seasons)
 }
 
-func (m *BaseMedia) HasEnglishTitle() bool {
+func (m *BaseAnime) HasEnglishTitle() bool {
 	return m.Title.English != nil
 }
 
-func (m *BaseMedia) HasRomajiTitle() bool {
+func (m *BaseAnime) HasRomajiTitle() bool {
 	return m.Title.Romaji != nil
 }
 
-func (m *BaseMedia) HasSynonyms() bool {
+func (m *BaseAnime) HasSynonyms() bool {
 	return m.Synonyms != nil
 }
 
@@ -171,7 +171,7 @@ func (m *BaseMedia) HasSynonyms() bool {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (m *CompleteMedia) GetTitleSafe() string {
+func (m *CompleteAnime) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
 		return *m.GetTitle().GetEnglish()
 	}
@@ -180,7 +180,7 @@ func (m *CompleteMedia) GetTitleSafe() string {
 	}
 	return "N/A"
 }
-func (m *CompleteMedia) GetRomajiTitleSafe() string {
+func (m *CompleteAnime) GetRomajiTitleSafe() string {
 	if m.GetTitle().GetRomaji() != nil {
 		return *m.GetTitle().GetRomaji()
 	}
@@ -190,14 +190,14 @@ func (m *CompleteMedia) GetRomajiTitleSafe() string {
 	return "N/A"
 }
 
-func (m *CompleteMedia) GetPreferredTitle() string {
+func (m *CompleteAnime) GetPreferredTitle() string {
 	if m.GetTitle().GetUserPreferred() != nil {
 		return *m.GetTitle().GetUserPreferred()
 	}
 	return m.GetTitleSafe()
 }
 
-func (m *CompleteMedia) GetCoverImageSafe() string {
+func (m *CompleteAnime) GetCoverImageSafe() string {
 	if m.GetCoverImage().GetExtraLarge() != nil {
 		return *m.GetCoverImage().GetExtraLarge()
 	}
@@ -210,14 +210,14 @@ func (m *CompleteMedia) GetCoverImageSafe() string {
 	return ""
 }
 
-func (m *CompleteMedia) GetBannerImageSafe() string {
+func (m *CompleteAnime) GetBannerImageSafe() string {
 	if m.GetBannerImage() != nil {
 		return *m.GetBannerImage()
 	}
 	return m.GetCoverImageSafe()
 }
 
-func (m *CompleteMedia) IsMovieOrSingleEpisode() bool {
+func (m *CompleteAnime) IsMovieOrSingleEpisode() bool {
 	if m == nil {
 		return false
 	}
@@ -227,7 +227,7 @@ func (m *CompleteMedia) IsMovieOrSingleEpisode() bool {
 	return false
 }
 
-func (m *CompleteMedia) IsMovie() bool {
+func (m *CompleteAnime) IsMovie() bool {
 	if m == nil {
 		return false
 	}
@@ -238,7 +238,7 @@ func (m *CompleteMedia) IsMovie() bool {
 	return *m.Format == MediaFormatMovie
 }
 
-func (m *CompleteMedia) IsFinished() bool {
+func (m *CompleteAnime) IsFinished() bool {
 	if m == nil {
 		return false
 	}
@@ -249,7 +249,7 @@ func (m *CompleteMedia) IsFinished() bool {
 	return *m.Status == MediaStatusFinished
 }
 
-func (m *CompleteMedia) GetAllTitles() []*string {
+func (m *CompleteAnime) GetAllTitles() []*string {
 	titles := make([]*string, 0)
 	if m.HasRomajiTitle() {
 		titles = append(titles, m.Title.Romaji)
@@ -263,7 +263,7 @@ func (m *CompleteMedia) GetAllTitles() []*string {
 	return titles
 }
 
-func (m *CompleteMedia) GetAllTitlesDeref() []string {
+func (m *CompleteAnime) GetAllTitlesDeref() []string {
 	titles := make([]string, 0)
 	if m.HasRomajiTitle() {
 		titles = append(titles, *m.Title.Romaji)
@@ -282,7 +282,7 @@ func (m *CompleteMedia) GetAllTitlesDeref() []string {
 
 // GetCurrentEpisodeCount returns the current episode number for that media and -1 if it doesn't have one.
 // i.e. -1 is returned if the media has no episodes AND the next airing episode is not set.
-func (m *CompleteMedia) GetCurrentEpisodeCount() int {
+func (m *CompleteAnime) GetCurrentEpisodeCount() int {
 	ceil := -1
 	if m.Episodes != nil {
 		ceil = *m.Episodes
@@ -296,7 +296,7 @@ func (m *CompleteMedia) GetCurrentEpisodeCount() int {
 }
 
 // GetTotalEpisodeCount returns the total episode number for that media and -1 if it doesn't have one
-func (m *CompleteMedia) GetTotalEpisodeCount() int {
+func (m *CompleteAnime) GetTotalEpisodeCount() int {
 	ceil := -1
 	if m.Episodes != nil {
 		ceil = *m.Episodes
@@ -306,7 +306,7 @@ func (m *CompleteMedia) GetTotalEpisodeCount() int {
 
 // GetPossibleSeasonNumber returns the possible season number for that media and -1 if it doesn't have one.
 // It looks at the synonyms and returns the highest season number found.
-func (m *CompleteMedia) GetPossibleSeasonNumber() int {
+func (m *CompleteAnime) GetPossibleSeasonNumber() int {
 	if m == nil || m.Synonyms == nil || len(m.Synonyms) == 0 {
 		return -1
 	}
@@ -321,15 +321,15 @@ func (m *CompleteMedia) GetPossibleSeasonNumber() int {
 	return lo.Max(seasons)
 }
 
-func (m *CompleteMedia) HasEnglishTitle() bool {
+func (m *CompleteAnime) HasEnglishTitle() bool {
 	return m.Title.English != nil
 }
 
-func (m *CompleteMedia) HasRomajiTitle() bool {
+func (m *CompleteAnime) HasRomajiTitle() bool {
 	return m.Title.Romaji != nil
 }
 
-func (m *CompleteMedia) HasSynonyms() bool {
+func (m *CompleteAnime) HasSynonyms() bool {
 	return m.Synonyms != nil
 }
 
@@ -338,7 +338,7 @@ func (m *CompleteMedia) HasSynonyms() bool {
 var EdgeNarrowFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort}
 var EdgeBroaderFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort, MediaFormatOna, MediaFormatOva, MediaFormatMovie, MediaFormatSpecial}
 
-func (m *CompleteMedia) FindEdge(relation string, formats []MediaFormat) (*BaseMedia, bool) {
+func (m *CompleteAnime) FindEdge(relation string, formats []MediaFormat) (*BaseAnime, bool) {
 	if m.GetRelations() == nil {
 		return nil, false
 	}
@@ -359,7 +359,7 @@ func (m *CompleteMedia) FindEdge(relation string, formats []MediaFormat) (*BaseM
 	return nil, false
 }
 
-func (e *CompleteMedia_Relations_Edges) IsBroadRelationFormat() bool {
+func (e *CompleteAnime_Relations_Edges) IsBroadRelationFormat() bool {
 	if e.GetNode() == nil {
 		return false
 	}
@@ -373,7 +373,7 @@ func (e *CompleteMedia_Relations_Edges) IsBroadRelationFormat() bool {
 	}
 	return false
 }
-func (e *CompleteMedia_Relations_Edges) IsNarrowRelationFormat() bool {
+func (e *CompleteAnime_Relations_Edges) IsNarrowRelationFormat() bool {
 	if e.GetNode() == nil {
 		return false
 	}
@@ -390,48 +390,48 @@ func (e *CompleteMedia_Relations_Edges) IsNarrowRelationFormat() bool {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (m *CompleteMedia) ToBaseMedia() *BaseMedia {
+func (m *CompleteAnime) ToBaseAnime() *BaseAnime {
 	if m == nil {
 		return nil
 	}
 
-	var trailer *BaseMedia_Trailer
+	var trailer *BaseAnime_Trailer
 	if m.GetTrailer() != nil {
-		trailer = &BaseMedia_Trailer{
+		trailer = &BaseAnime_Trailer{
 			ID:        m.GetTrailer().GetID(),
 			Site:      m.GetTrailer().GetSite(),
 			Thumbnail: m.GetTrailer().GetThumbnail(),
 		}
 	}
 
-	var nextAiringEpisode *BaseMedia_NextAiringEpisode
+	var nextAiringEpisode *BaseAnime_NextAiringEpisode
 	if m.GetNextAiringEpisode() != nil {
-		nextAiringEpisode = &BaseMedia_NextAiringEpisode{
+		nextAiringEpisode = &BaseAnime_NextAiringEpisode{
 			AiringAt:        m.GetNextAiringEpisode().GetAiringAt(),
 			TimeUntilAiring: m.GetNextAiringEpisode().GetTimeUntilAiring(),
 			Episode:         m.GetNextAiringEpisode().GetEpisode(),
 		}
 	}
 
-	var startDate *BaseMedia_StartDate
+	var startDate *BaseAnime_StartDate
 	if m.GetStartDate() != nil {
-		startDate = &BaseMedia_StartDate{
+		startDate = &BaseAnime_StartDate{
 			Year:  m.GetStartDate().GetYear(),
 			Month: m.GetStartDate().GetMonth(),
 			Day:   m.GetStartDate().GetDay(),
 		}
 	}
 
-	var endDate *BaseMedia_EndDate
+	var endDate *BaseAnime_EndDate
 	if m.GetEndDate() != nil {
-		endDate = &BaseMedia_EndDate{
+		endDate = &BaseAnime_EndDate{
 			Year:  m.GetEndDate().GetYear(),
 			Month: m.GetEndDate().GetMonth(),
 			Day:   m.GetEndDate().GetDay(),
 		}
 	}
 
-	return &BaseMedia{
+	return &BaseAnime{
 		ID:              m.GetID(),
 		IDMal:           m.GetIDMal(),
 		SiteURL:         m.GetSiteURL(),
@@ -449,13 +449,13 @@ func (m *CompleteMedia) ToBaseMedia() *BaseMedia {
 		Description:     m.GetDescription(),
 		MeanScore:       m.GetMeanScore(),
 		Trailer:         trailer,
-		Title: &BaseMedia_Title{
+		Title: &BaseAnime_Title{
 			UserPreferred: m.GetTitle().GetUserPreferred(),
 			Romaji:        m.GetTitle().GetRomaji(),
 			English:       m.GetTitle().GetEnglish(),
 			Native:        m.GetTitle().GetNative(),
 		},
-		CoverImage: &BaseMedia_CoverImage{
+		CoverImage: &BaseAnime_CoverImage{
 			ExtraLarge: m.GetCoverImage().GetExtraLarge(),
 			Large:      m.GetCoverImage().GetLarge(),
 			Medium:     m.GetCoverImage().GetMedium(),

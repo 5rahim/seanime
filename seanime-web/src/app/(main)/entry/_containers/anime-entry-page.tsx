@@ -1,4 +1,4 @@
-import { useGetAnilistMediaDetails } from "@/api/hooks/anilist.hooks"
+import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
@@ -20,29 +20,29 @@ export function AnimeEntryPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
-    const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
-    const { data: mediaDetails, isLoading: mediaDetailsLoading } = useGetAnilistMediaDetails(mediaId)
+    const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
+    const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
 
     const [isTorrentStreamingView, setIsTorrentStreamingView] = useAtom(__anime_torrentStreamingViewActiveAtom)
 
     React.useEffect(() => {
         if (!mediaId) {
             router.push("/")
-        } else if (!mediaEntryLoading && !mediaEntry) {
+        } else if (!animeEntryLoading && !animeEntry) {
             router.push("/")
         }
-    }, [mediaEntry, mediaEntryLoading])
+    }, [animeEntry, animeEntryLoading])
 
     useUnmount(() => {
         setIsTorrentStreamingView(false)
     })
 
-    if (mediaEntryLoading || mediaDetailsLoading) return <MediaEntryPageLoadingDisplay />
-    if (!mediaEntry) return null
+    if (animeEntryLoading || animeDetailsLoading) return <MediaEntryPageLoadingDisplay />
+    if (!animeEntry) return null
 
     return (
         <div>
-            <MetaSection entry={mediaEntry} details={mediaDetails} />
+            <MetaSection entry={animeEntry} details={animeDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">
                 <PageWrapper
@@ -72,7 +72,7 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
-                            <EpisodeSection entry={mediaEntry} details={mediaDetails} />
+                            <EpisodeSection entry={animeEntry} details={animeDetails} />
                         </PageWrapper>}
 
                         {isTorrentStreamingView && <PageWrapper
@@ -87,14 +87,14 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
-                            <TorrentStreamPage entry={mediaEntry} />
+                            <TorrentStreamPage entry={animeEntry} />
                         </PageWrapper>}
 
                     </AnimatePresence>
                 </PageWrapper>
             </div>
 
-            <TorrentSearchDrawer entry={mediaEntry} />
+            <TorrentSearchDrawer entry={animeEntry} />
         </div>
     )
 }

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/mal"
 	"github.com/seanime-app/seanime/internal/events"
@@ -74,8 +73,8 @@ func HandleGetMangaCollection(c *RouteCtx) error {
 	}
 
 	collection, err := manga.NewCollection(&manga.NewCollectionOptions{
-		MangaCollection:      animeCollection,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
+		MangaCollection: animeCollection,
+		Platform:        c.App.AnilistPlatform,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -104,11 +103,11 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 	}
 
 	entry, err := manga.NewEntry(&manga.NewEntryOptions{
-		MediaId:              id,
-		Logger:               c.App.Logger,
-		FileCacher:           c.App.FileCacher,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		MangaCollection:      animeCollection,
+		MediaId:         id,
+		Logger:          c.App.Logger,
+		FileCacher:      c.App.FileCacher,
+		Platform:        c.App.AnilistPlatform,
+		MangaCollection: animeCollection,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -139,14 +138,14 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 		return c.RespondWithData(detailsMedia)
 	}
 
-	details, err := c.App.AnilistClientWrapper.MangaDetailsByID(context.Background(), &id)
+	details, err := c.App.AnilistPlatform.GetMangaDetails(id)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	mangaDetailsCache.SetT(id, details.GetMedia(), time.Hour)
+	mangaDetailsCache.SetT(id, details, time.Hour)
 
-	return c.RespondWithData(details.GetMedia())
+	return c.RespondWithData(details)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,11 +197,12 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 	var titles []*string
 	baseManga, found := baseMangaCache.Get(b.MediaId)
 	if !found {
-		mangaF, err := c.App.AnilistClientWrapper.BaseMangaByID(context.Background(), &b.MediaId)
+		var err error
+		baseManga, err = c.App.AnilistPlatform.GetManga(b.MediaId)
 		if err != nil {
 			return c.RespondWithError(err)
 		}
-		titles = mangaF.GetMedia().GetAllTitles()
+		titles = baseManga.GetAllTitles()
 	} else {
 		titles = baseManga.GetAllTitles()
 	}
@@ -289,7 +289,7 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		isAdult = *p.IsAdult && c.App.Settings.Anilist.EnableAdultContent
 	}
 
-	cacheKey := anilist.ListMediaCacheKey(
+	cacheKey := anilist.ListAnimeCacheKey(
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -353,10 +353,9 @@ func HandleUpdateMangaProgress(c *RouteCtx) error {
 	}
 
 	// Update the progress on AniList
-	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
-		context.Background(),
-		&b.MediaId,
-		&b.ChapterNumber,
+	err := c.App.AnilistPlatform.UpdateEntryProgress(
+		b.MediaId,
+		b.ChapterNumber,
 		&b.TotalChapters,
 	)
 	if err != nil {

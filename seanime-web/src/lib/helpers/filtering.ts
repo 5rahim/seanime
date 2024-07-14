@@ -1,7 +1,7 @@
 import {
     AL_AnimeCollection_MediaListCollection_Lists_Entries,
+    AL_BaseAnime,
     AL_BaseManga,
-    AL_BaseMedia,
     AL_MangaCollection_MediaListCollection_Lists_Entries,
     AL_MediaFormat,
     AL_MediaSeason,
@@ -65,7 +65,7 @@ function getParamValue<T extends any>(value: T | ""): any {
 }
 
 
-export function filterEntriesByTitle<T extends { media?: AL_BaseMedia | AL_BaseManga }[] | null | undefined>(arr: T, input: string): T {
+export function filterEntriesByTitle<T extends { media?: AL_BaseAnime | AL_BaseManga }[] | null | undefined>(arr: T, input: string): T {
     // @ts-expect-error
     if (!arr) return []
     if (arr.length > 0 && input.length > 0) {

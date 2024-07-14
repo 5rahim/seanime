@@ -16,7 +16,7 @@ type (
 	// The user can request metadata to be fetched from TVDB as well, which will be done and stored in the cache.
 	MediaWrapper struct {
 		anizipMedia *anizip.Media
-		baseMedia   *anilist.BaseMedia
+		baseAnime   *anilist.BaseAnime
 		fileCacher  *filecache.Cacher
 		logger      *zerolog.Logger
 
@@ -44,10 +44,10 @@ type (
 
 // NewMediaWrapper creates a new media wrapper.
 // Anizip Media can be nil.
-func (p *Provider) NewMediaWrapper(media *anilist.BaseMedia, anizipMedia *anizip.Media) *MediaWrapper {
+func (p *Provider) NewMediaWrapper(media *anilist.BaseAnime, anizipMedia *anizip.Media) *MediaWrapper {
 	mw := &MediaWrapper{
 		anizipMedia:  anizipMedia,
-		baseMedia:    media,
+		baseAnime:    media,
 		fileCacher:   p.fileCacher,
 		logger:       p.logger,
 		tvdbEpisodes: make([]*tvdb.Episode, 0),
@@ -70,7 +70,7 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 	hasTVDBMetadata := mw.tvdbEpisodes != nil && len(mw.tvdbEpisodes) > 0
 
 	if !hasAnizipMetadata {
-		meta.Image = mw.baseMedia.GetBannerImageSafe()
+		meta.Image = mw.baseAnime.GetBannerImageSafe()
 	}
 
 	anizipEpisode, found := mw.anizipMedia.FindEpisode(strconv.Itoa(epNum))
@@ -96,7 +96,7 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 			meta.Image = anizipEpisode.Image
 		} else {
 			// If AniZip image is not set, use the base media image
-			meta.Image = mw.baseMedia.GetBannerImageSafe()
+			meta.Image = mw.baseAnime.GetBannerImageSafe()
 		}
 	}
 

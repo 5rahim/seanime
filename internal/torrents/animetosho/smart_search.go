@@ -18,7 +18,7 @@ import (
 type (
 	BuildSearchQueryOptions struct {
 		Title          *string
-		Media          *anilist.BaseMedia
+		Media          *anilist.BaseAnime
 		Batch          *bool
 		EpisodeNumber  *int
 		AbsoluteOffset *int
@@ -301,7 +301,7 @@ func zeropad(v interface{}) string {
 	}
 }
 
-func getBatchGroup(m *anilist.BaseMedia) string {
+func getBatchGroup(m *anilist.BaseAnime) string {
 	buff := bytes.NewBufferString("")
 	buff.WriteString("(")
 	// e.g. 01-12

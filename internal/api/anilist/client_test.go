@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestGetBaseMediaById(t *testing.T) {
+func TestGetBaseAnimeById(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClientWrapper := TestGetMockAnilistClientWrapper()
@@ -27,14 +27,14 @@ func TestGetBaseMediaById(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			res, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
 			assert.NoError(t, err)
 			assert.NotNil(t, res)
 		})
 	}
 }
 
-func TestListMedia(t *testing.T) {
+func TestListAnime(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	tests := []struct {
@@ -70,7 +70,7 @@ func TestListMedia(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			cacheKey := ListMediaCacheKey(
+			cacheKey := ListAnimeCacheKey(
 				tt.Page,
 				tt.Search,
 				tt.PerPage,
@@ -86,7 +86,7 @@ func TestListMedia(t *testing.T) {
 
 			t.Log(cacheKey)
 
-			res, err := ListMediaM(
+			res, err := ListAnimeM(
 				tt.Page,
 				tt.Search,
 				tt.PerPage,

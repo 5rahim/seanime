@@ -1,4 +1,4 @@
-import { AL_BaseMedia } from "@/api/generated/types"
+import { AL_BaseAnime } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import Image from "next/image"
@@ -6,7 +6,7 @@ import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
 type EpisodeListItemProps = {
-    media: AL_BaseMedia,
+    media: AL_BaseAnime,
     children?: React.ReactNode
     action?: React.ReactNode
     image?: string | null

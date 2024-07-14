@@ -5,30 +5,30 @@ import (
 	"github.com/seanime-app/seanime/internal/util/result"
 )
 
-type BaseMediaCache struct {
-	*result.Cache[int, *BaseMedia]
+type BaseAnimeCache struct {
+	*result.Cache[int, *BaseAnime]
 }
 
-// NewBaseMediaCache returns a new result.Cache[int, *BaseMedia].
+// NewBaseAnimeCache returns a new result.Cache[int, *BaseAnime].
 // It is used to temporarily store the results of FetchMediaTree calls.
-func NewBaseMediaCache() *BaseMediaCache {
-	return &BaseMediaCache{result.NewCache[int, *BaseMedia]()}
+func NewBaseAnimeCache() *BaseAnimeCache {
+	return &BaseAnimeCache{result.NewCache[int, *BaseAnime]()}
 }
 
-type CompleteMediaCache struct {
-	*result.Cache[int, *CompleteMedia]
+type CompleteAnimeCache struct {
+	*result.Cache[int, *CompleteAnime]
 }
 
-// NewCompleteMediaCache returns a new result.Cache[int, *CompleteMedia].
+// NewCompleteAnimeCache returns a new result.Cache[int, *CompleteAnime].
 // It is used to temporarily store the results of FetchMediaTree calls.
-func NewCompleteMediaCache() *CompleteMediaCache {
-	return &CompleteMediaCache{result.NewCache[int, *CompleteMedia]()}
+func NewCompleteAnimeCache() *CompleteAnimeCache {
+	return &CompleteAnimeCache{result.NewCache[int, *CompleteAnime]()}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func GetBaseMediaById(acw ClientWrapperInterface, id int) (*BaseMedia, error) {
-	res, err := acw.BaseMediaByID(context.Background(), &id)
+func GetBaseAnimeById(acw AnilistClient, id int) (*BaseAnime, error) {
+	res, err := acw.BaseAnimeByID(context.Background(), &id)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +36,8 @@ func GetBaseMediaById(acw ClientWrapperInterface, id int) (*BaseMedia, error) {
 	return res.GetMedia(), nil
 }
 
-func GetCompleteMediaById(acw ClientWrapperInterface, id int) (*CompleteMedia, error) {
-	res, err := acw.CompleteMediaByID(context.Background(), &id)
+func GetCompleteAnimeById(acw AnilistClient, id int) (*CompleteAnime, error) {
+	res, err := acw.CompleteAnimeByID(context.Background(), &id)
 	if err != nil {
 		return nil, err
 	}
@@ -45,14 +45,14 @@ func GetCompleteMediaById(acw ClientWrapperInterface, id int) (*CompleteMedia, e
 	return res.GetMedia(), nil
 }
 
-func GetBaseMediaByIdC(anilistClient *Client, id int, cache *BaseMediaCache) (*BaseMedia, error) {
+func GetBaseAnimeByIdC(anilistClient *Client, id int, cache *BaseAnimeCache) (*BaseAnime, error) {
 
 	cacheV, ok := cache.Get(id)
 	if ok {
 		return cacheV, nil
 	}
 
-	res, err := anilistClient.BaseMediaByID(context.Background(), &id)
+	res, err := anilistClient.BaseAnimeByID(context.Background(), &id)
 	if err != nil {
 		return nil, err
 	}

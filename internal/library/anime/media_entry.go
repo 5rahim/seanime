@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/sourcegraph/conc/pool"
 	"sort"
 )
@@ -15,7 +16,7 @@ type (
 	// It is the primary data structure used by the frontend.
 	MediaEntry struct {
 		MediaId                int                     `json:"mediaId"`
-		Media                  *anilist.BaseMedia      `json:"media"`
+		Media                  *anilist.BaseAnime      `json:"media"`
 		MediaEntryListData     *MediaEntryListData     `json:"listData"`
 		MediaEntryLibraryData  *MediaEntryLibraryData  `json:"libraryData"`
 		MediaEntryDownloadInfo *MediaEntryDownloadInfo `json:"downloadInfo,omitempty"`
@@ -39,12 +40,12 @@ type (
 type (
 	// NewMediaEntryOptions is a constructor for MediaEntry.
 	NewMediaEntryOptions struct {
-		MediaId              int
-		LocalFiles           []*LocalFile // All local files
-		AnizipCache          *anizip.Cache
-		AnimeCollection      *anilist.AnimeCollection
-		AnilistClientWrapper anilist.ClientWrapperInterface
-		MetadataProvider     *metadata.Provider
+		MediaId          int
+		LocalFiles       []*LocalFile // All local files
+		AnizipCache      *anizip.Cache
+		AnimeCollection  *anilist.AnimeCollection
+		Platform         platform.Platform
+		MetadataProvider *metadata.Provider
 	}
 )
 
@@ -64,7 +65,7 @@ type (
 func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 	if opts.AnimeCollection == nil ||
-		opts.AnilistClientWrapper == nil {
+		opts.Platform == nil {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
 
@@ -86,7 +87,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 		anilistEntry = &anilist.MediaListEntry{}
 
 		// Fetch the media
-		fetchedMedia, err := anilist.GetBaseMediaById(opts.AnilistClientWrapper, opts.MediaId) // DEVNOTE: Maybe cache it?
+		fetchedMedia, err := opts.Platform.GetAnime(opts.MediaId) // DEVNOTE: Maybe cache it?
 		if err != nil {
 			return nil, err
 		}
@@ -126,10 +127,10 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 
 		// If AniZip data is not found, we will still create the MediaEntry without it
 		simpleMediaEntry, err := NewSimpleMediaEntry(&NewSimpleMediaEntryOptions{
-			MediaId:              opts.MediaId,
-			LocalFiles:           opts.LocalFiles,
-			AnimeCollection:      opts.AnimeCollection,
-			AnilistClientWrapper: opts.AnilistClientWrapper,
+			MediaId:         opts.MediaId,
+			LocalFiles:      opts.LocalFiles,
+			AnimeCollection: opts.AnimeCollection,
+			Platform:        opts.Platform,
 		})
 		if err != nil {
 			return nil, err
@@ -267,7 +268,7 @@ func (e *MediaEntry) hydrateEntryEpisodeData(
 //   - Anizip has "S1"
 func detectDiscrepancy(
 	mediaLfs []*LocalFile, // Media's local files
-	media *anilist.BaseMedia,
+	media *anilist.BaseAnime,
 	anizipData *anizip.Media,
 ) (possibleSpecialInclusion bool, hasDiscrepancy bool) {
 

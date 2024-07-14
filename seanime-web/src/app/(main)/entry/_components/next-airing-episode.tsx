@@ -1,9 +1,9 @@
-import { AL_BaseMedia } from "@/api/generated/types"
+import { AL_BaseAnime } from "@/api/generated/types"
 import { Badge } from "@/components/ui/badge"
 import { addSeconds, format, formatDistanceToNow } from "date-fns"
 import React from "react"
 
-export function NextAiringEpisode(props: { media: AL_BaseMedia }) {
+export function NextAiringEpisode(props: { media: AL_BaseAnime }) {
     const distance = formatDistanceToNow(addSeconds(new Date(), props.media.nextAiringEpisode?.timeUntilAiring || 0), { addSuffix: true })
     const day = format(addSeconds(new Date(), props.media.nextAiringEpisode?.timeUntilAiring || 0), "EEEE")
     return <>

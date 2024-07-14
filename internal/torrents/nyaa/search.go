@@ -36,7 +36,7 @@ type (
 
 	BuildSearchQueryOptions struct {
 		Title          *string
-		Media          *anilist.BaseMedia
+		Media          *anilist.BaseAnime
 		Batch          *bool
 		EpisodeNumber  *int
 		AbsoluteOffset *int

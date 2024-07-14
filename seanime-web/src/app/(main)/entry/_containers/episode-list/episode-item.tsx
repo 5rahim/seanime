@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_LocalFileType, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_LocalFileType, Anime_MediaEntryEpisode } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { IconButton } from "@/components/ui/button"
@@ -24,7 +24,7 @@ export const __episodeItem_infoModalIsOpenAtom = atom(false)
 
 export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
     episode: Anime_MediaEntryEpisode,
-    media: AL_BaseMedia,
+    media: AL_BaseAnime,
     onPlay?: ({ path, mediaId }: { path: string, mediaId: number }) => void,
     isWatched?: boolean
 }) => {
@@ -106,7 +106,7 @@ function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
-    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseMedia?.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseAnime?.id)
 
     return (
         <Modal

@@ -11,6 +11,7 @@ import (
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/playbackmanager"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/util"
@@ -28,10 +29,9 @@ type (
 
 		// Injected dependencies
 		anizipCache                     *anizip.Cache
-		baseMediaCache                  *anilist.BaseMediaCache
-		completeMediaCache              *anilist.CompleteMediaCache
-		animeCollection                 *anilist.AnimeCollection
-		anilistClientWrapper            anilist.ClientWrapperInterface
+		baseAnimeCache                  *anilist.BaseAnimeCache
+		completeAnimeCache              *anilist.CompleteAnimeCache
+		platform                        platform.Platform
 		wsEventManager                  events.WSEventManagerInterface
 		nyaaSearchCache                 *nyaa.SearchCache
 		animetoshoSearchCache           *animetosho.SearchCache
@@ -49,10 +49,9 @@ type (
 	NewRepositoryOptions struct {
 		Logger                *zerolog.Logger
 		AnizipCache           *anizip.Cache
-		BaseMediaCache        *anilist.BaseMediaCache
-		CompleteMediaCache    *anilist.CompleteMediaCache
-		AnimeCollection       *anilist.AnimeCollection
-		AnilistClientWrapper  anilist.ClientWrapperInterface
+		BaseAnimeCache        *anilist.BaseAnimeCache
+		CompleteAnimeCache    *anilist.CompleteAnimeCache
+		Platform              platform.Platform
 		NyaaSearchCache       *nyaa.SearchCache
 		AnimeToshoSearchCache *animetosho.SearchCache
 		MetadataProvider      *metadata.Provider
@@ -66,10 +65,9 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
 		logger:                opts.Logger,
 		anizipCache:           opts.AnizipCache,
-		baseMediaCache:        opts.BaseMediaCache,
-		completeMediaCache:    opts.CompleteMediaCache,
-		animeCollection:       opts.AnimeCollection,
-		anilistClientWrapper:  opts.AnilistClientWrapper,
+		baseAnimeCache:        opts.BaseAnimeCache,
+		completeAnimeCache:    opts.CompleteAnimeCache,
+		platform:              opts.Platform,
 		nyaaSearchCache:       opts.NyaaSearchCache,
 		animetoshoSearchCache: opts.AnimeToshoSearchCache,
 		metadataProvider:      opts.MetadataProvider,
@@ -101,12 +99,6 @@ func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
 func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer.Repository) {
 	r.mediaPlayerRepository = mediaPlayerRepository
 	r.listenToMediaPlayerEvents()
-}
-
-// SetAnimeCollection sets the anime collection in the repository.
-// This should be called after the anime collection has been refreshed.
-func (r *Repository) SetAnimeCollection(ac *anilist.AnimeCollection) {
-	r.animeCollection = ac
 }
 
 // InitModules sets the settings for the torrentstream module.

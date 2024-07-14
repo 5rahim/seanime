@@ -1,9 +1,9 @@
 package manga
 
 import (
-	"context"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 )
 
@@ -27,11 +27,11 @@ type (
 type (
 	// NewEntryOptions is the options for creating a new manga entry.
 	NewEntryOptions struct {
-		MediaId              int
-		Logger               *zerolog.Logger
-		FileCacher           *filecache.Cacher
-		MangaCollection      *anilist.MangaCollection
-		AnilistClientWrapper anilist.ClientWrapperInterface
+		MediaId         int
+		Logger          *zerolog.Logger
+		FileCacher      *filecache.Cacher
+		MangaCollection *anilist.MangaCollection
+		Platform        platform.Platform
 	}
 )
 
@@ -45,11 +45,11 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 
 	// If the entry is not found, we fetch the manga from the Anilist API.
 	if !found {
-		mediaF, err := opts.AnilistClientWrapper.BaseMangaByID(context.Background(), &opts.MediaId)
+		media, err := opts.Platform.GetManga(opts.MediaId)
 		if err != nil {
 			return nil, err
 		}
-		entry.Media = mediaF.GetMedia()
+		entry.Media = media
 	} else {
 		// If the entry is found, we use the entry from the collection.
 		entry.Media = anilistEntry.GetMedia()

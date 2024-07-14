@@ -33,16 +33,16 @@ func (a *App) initModulesOnce() {
 
 	// Will exit if offline mode is enabled and no snapshots are found
 	a.OfflineHub = offline.NewHub(&offline.NewHubOptions{
-		AnilistClientWrapper: a.AnilistClientWrapper,
-		MetadataProvider:     a.MetadataProvider,
-		MangaRepository:      a.MangaRepository,
-		WSEventManager:       a.WSEventManager,
-		Database:             a.Database,
-		FileCacher:           a.FileCacher,
-		Logger:               a.Logger,
-		OfflineDir:           a.Config.Offline.Dir,
-		AssetDir:             a.Config.Offline.AssetDir,
-		IsOffline:            a.Config.Server.Offline,
+		Platform:         a.AnilistPlatform,
+		MetadataProvider: a.MetadataProvider,
+		MangaRepository:  a.MangaRepository,
+		WSEventManager:   a.WSEventManager,
+		Database:         a.Database,
+		FileCacher:       a.FileCacher,
+		Logger:           a.Logger,
+		OfflineDir:       a.Config.Offline.Dir,
+		AssetDir:         a.Config.Offline.AssetDir,
+		IsOffline:        a.Config.Server.Offline,
 		RefreshAnimeCollectionsFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 			_, _ = a.RefreshMangaCollection()
@@ -74,14 +74,13 @@ func (a *App) initModulesOnce() {
 
 	// Playback Manager
 	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		Logger:               a.Logger,
-		WSEventManager:       a.WSEventManager,
-		AnilistClientWrapper: a.AnilistClientWrapper,
-		Database:             a.Database,
-		AnimeCollection:      nil, // Will be set and refreshed in app.RefreshAnimeCollection
-		DiscordPresence:      a.DiscordPresence,
-		IsOffline:            a.IsOffline(),
-		OfflineHub:           a.OfflineHub,
+		Logger:          a.Logger,
+		WSEventManager:  a.WSEventManager,
+		Platform:        a.AnilistPlatform,
+		Database:        a.Database,
+		DiscordPresence: a.DiscordPresence,
+		IsOffline:       a.IsOffline(),
+		OfflineHub:      a.OfflineHub,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 		},
@@ -94,7 +93,6 @@ func (a *App) initModulesOnce() {
 	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
 		Logger:                  a.Logger,
 		TorrentClientRepository: a.TorrentClientRepository,
-		AnimeCollection:         nil, // Will be set and refreshed in app.RefreshAnimeCollection
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		AnizipCache:             a.AnizipCache,
@@ -110,12 +108,12 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
-		Database:             a.Database,
-		Enabled:              false, // Will be set in InitOrRefreshModules
-		AutoDownloader:       a.AutoDownloader,
-		AnilistClientWrapper: a.AnilistClientWrapper,
-		Logger:               a.Logger,
-		WSEventManager:       a.WSEventManager,
+		Database:       a.Database,
+		Enabled:        false, // Will be set in InitOrRefreshModules
+		AutoDownloader: a.AutoDownloader,
+		Platform:       a.AnilistPlatform,
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
 	})
 
 	// This is run in a goroutine
@@ -159,15 +157,14 @@ func (a *App) initModulesOnce() {
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
 		Logger:                a.Logger,
 		AnizipCache:           a.AnizipCache,
-		BaseMediaCache:        anilist.NewBaseMediaCache(),
-		CompleteMediaCache:    anilist.NewCompleteMediaCache(),
+		BaseAnimeCache:        anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache:    anilist.NewCompleteAnimeCache(),
 		NyaaSearchCache:       a.NyaaSearchCache,
 		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
 		MetadataProvider:      a.MetadataProvider,
-		AnilistClientWrapper:  a.AnilistClientWrapper,
+		Platform:              a.AnilistPlatform,
 		PlaybackManager:       a.PlaybackManager,
 		WSEventManager:        a.WSEventManager,
-		AnimeCollection:       nil, // Will be set in app.RefreshAnimeCollection
 	})
 
 }
@@ -414,6 +411,8 @@ func (a *App) InitOrRefreshAnilistData() {
 	if acc.Token == "" || acc.Username == "" {
 		return
 	}
+
+	a.AnilistPlatform.SetUsername(acc.Username)
 
 	// Set account
 	a.account = acc

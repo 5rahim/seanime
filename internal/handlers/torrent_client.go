@@ -8,7 +8,6 @@ import (
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
 	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/sourcegraph/conc/pool"
 	"strings"
 )
@@ -104,7 +103,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 			Enabled               bool  `json:"enabled"`
 			MissingEpisodeNumbers []int `json:"missingEpisodeNumbers"`
 		} `json:"smartSelect"`
-		Media *anilist.BaseMedia `json:"media"`
+		Media *anilist.BaseAnime `json:"media"`
 	}
 
 	var b body
@@ -135,7 +134,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	completeMedia, err := anilist.GetCompleteMediaById(c.App.AnilistClientWrapper, b.Media.ID)
+	completeAnime, err := c.App.AnilistPlatform.GetAnimeWithRelations(b.Media.ID)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -147,12 +146,12 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 		// smart select
 		err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelectParams{
-			Url:                  b.Urls[0],
-			EpisodeNumbers:       b.SmartSelect.MissingEpisodeNumbers,
-			Media:                completeMedia,
-			Destination:          b.Destination,
-			AnilistClientWrapper: c.App.AnilistClientWrapper,
-			ShouldAddTorrent:     true,
+			Url:              b.Urls[0],
+			EpisodeNumbers:   b.SmartSelect.MissingEpisodeNumbers,
+			Media:            completeAnime,
+			Destination:      b.Destination,
+			Platform:         c.App.AnilistPlatform,
+			ShouldAddTorrent: true,
 		})
 		if err != nil {
 			return c.RespondWithError(err)
@@ -179,7 +178,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 				return
 			}
 			// Add the media to the collection
-			err = c.App.AnilistClientWrapper.AddMediaToPlanning([]int{b.Media.ID}, limiter.NewAnilistLimiter(), c.App.Logger)
+			err = c.App.AnilistPlatform.AddMediaToCollection([]int{b.Media.ID})
 			if err != nil {
 				c.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
 			}

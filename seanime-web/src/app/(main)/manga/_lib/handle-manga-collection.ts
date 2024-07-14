@@ -53,11 +53,11 @@ export function useHandleMangaCollection() {
         if (!data || !data.lists) return data
         return {
             lists: [
-                data.lists.find(n => n.type === "current"),
-                data.lists.find(n => n.type === "paused"),
-                data.lists.find(n => n.type === "planned"),
-                // data.lists.find(n => n.type === "completed"), // DO NOT SHOW THIS LIST IN MANGA VIEW
-                // data.lists.find(n => n.type === "dropped"), // DO NOT SHOW THIS LIST IN MANGA VIEW
+                data.lists.find(n => n.type === "CURRENT"),
+                data.lists.find(n => n.type === "PAUSED"),
+                data.lists.find(n => n.type === "PLANNING"),
+                // data.lists.find(n => n.type === "COMPLETED"), // DO NOT SHOW THIS LIST IN MANGA VIEW
+                // data.lists.find(n => n.type === "DROPPED"), // DO NOT SHOW THIS LIST IN MANGA VIEW
             ].filter(Boolean),
         } as Manga_Collection
     }, [data])
@@ -76,11 +76,11 @@ export function useHandleMangaCollection() {
         })
         return {
             lists: [
-                _lists.find(n => n.type === "current"),
-                _lists.find(n => n.type === "paused"),
-                _lists.find(n => n.type === "planned"),
-                // data.lists.find(n => n.type === "completed"), // DO NOT SHOW THIS LIST IN MANGA VIEW
-                // data.lists.find(n => n.type === "dropped"), // DO NOT SHOW THIS LIST IN MANGA VIEW
+                _lists.find(n => n.type === "CURRENT"),
+                _lists.find(n => n.type === "PAUSED"),
+                _lists.find(n => n.type === "PLANNING"),
+                // data.lists.find(n => n.type === "COMPLETED"), // DO NOT SHOW THIS LIST IN MANGA VIEW
+                // data.lists.find(n => n.type === "DROPPED"), // DO NOT SHOW THIS LIST IN MANGA VIEW
             ].filter(Boolean),
         } as Manga_Collection
     }, [data, params])

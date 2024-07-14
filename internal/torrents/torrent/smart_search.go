@@ -28,7 +28,7 @@ type (
 		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
-		Media          *anilist.BaseMedia `json:"media"`
+		Media          *anilist.BaseAnime `json:"media"`
 		AbsoluteOffset *int               `json:"absoluteOffset"`
 		Resolution     *string            `json:"resolution"`
 		Best           *bool              `json:"best"`
@@ -305,7 +305,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 // createTorrentPreview creates a Preview from a torrent.
 // It also uses the AniZip cache and the media to create the preview.
 func createTorrentPreview(
-	media *anilist.BaseMedia,
+	media *anilist.BaseAnime,
 	metadataProvider *metadata.Provider,
 	anizipCache *anizip.Cache,
 	torrent *AnimeTorrent,

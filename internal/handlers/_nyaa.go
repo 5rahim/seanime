@@ -44,7 +44,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
-		Media          *anilist.BaseMedia `json:"media"`
+		Media          *anilist.BaseAnime `json:"media"`
 		AbsoluteOffset *int               `json:"absoluteOffset"`
 		Resolution     *string            `json:"resolution"`
 	}
@@ -184,7 +184,7 @@ func HandleNyaaSearch(c *RouteCtx) error {
 // It also uses the AniZip cache and the media to create the preview.
 func createTorrentPreview(
 	metadataProvider *metadata.Provider,
-	media *anilist.BaseMedia,
+	media *anilist.BaseAnime,
 	anizipCache *anizip.Cache,
 	torrent *nyaa.DetailedTorrent,
 	absoluteOffset int,

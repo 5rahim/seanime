@@ -5,16 +5,9 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/sourcegraph/conc/pool"
 	"slices"
-)
-
-const (
-	CollectionEntryCurrent   CollectionStatusType = "current"
-	CollectionEntryPlanned   CollectionStatusType = "planned"
-	CollectionEntryCompleted CollectionStatusType = "completed"
-	CollectionEntryPaused    CollectionStatusType = "paused"
-	CollectionEntryDropped   CollectionStatusType = "dropped"
 )
 
 type (
@@ -25,7 +18,7 @@ type (
 	}
 
 	CollectionList struct {
-		Type    CollectionStatusType    `json:"type"`
+		Type    anilist.MediaListStatus `json:"type"`
 		Status  anilist.MediaListStatus `json:"status"`
 		Entries []*CollectionEntry      `json:"entries"`
 	}
@@ -39,8 +32,8 @@ type (
 
 type (
 	NewCollectionOptions struct {
-		MangaCollection      *anilist.MangaCollection
-		AnilistClientWrapper anilist.ClientWrapperInterface
+		MangaCollection *anilist.MangaCollection
+		Platform        platform.Platform
 	}
 )
 
@@ -49,8 +42,8 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 	if opts.MangaCollection == nil {
 		return nil, nil
 	}
-	if opts.AnilistClientWrapper == nil {
-		return nil, fmt.Errorf("AnilistClientWrapper is nil")
+	if opts.Platform == nil {
+		return nil, fmt.Errorf("platform is nil")
 	}
 
 	aniLists := opts.MangaCollection.GetMediaListCollection().GetLists()
@@ -129,21 +122,10 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 	return coll, nil
 }
 
-func getCollectionEntryFromListStatus(st anilist.MediaListStatus) CollectionStatusType {
-	switch st {
-	case anilist.MediaListStatusCurrent:
-		return CollectionEntryCurrent
-	case anilist.MediaListStatusRepeating:
-		return CollectionEntryCurrent
-	case anilist.MediaListStatusPlanning:
-		return CollectionEntryPlanned
-	case anilist.MediaListStatusCompleted:
-		return CollectionEntryCompleted
-	case anilist.MediaListStatusPaused:
-		return CollectionEntryPaused
-	case anilist.MediaListStatusDropped:
-		return CollectionEntryDropped
-	default:
-		return CollectionEntryCurrent
+func getCollectionEntryFromListStatus(st anilist.MediaListStatus) anilist.MediaListStatus {
+	if st == anilist.MediaListStatusRepeating {
+		return anilist.MediaListStatusCurrent
 	}
+
+	return st
 }

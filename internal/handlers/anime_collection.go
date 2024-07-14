@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/dustin/go-humanize"
 	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 )
 
 //var libraryCollectionMap = result.NewResultMap[string, *anime.LibraryCollection]()
@@ -33,11 +32,11 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 	}
 
 	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
-		AnimeCollection:      animeCollection,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		AnizipCache:          c.App.AnizipCache,
-		LocalFiles:           lfs,
-		MetadataProvider:     c.App.MetadataProvider,
+		AnimeCollection:  animeCollection,
+		Platform:         c.App.AnilistPlatform,
+		AnizipCache:      c.App.AnizipCache,
+		LocalFiles:       lfs,
+		MetadataProvider: c.App.MetadataProvider,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -68,7 +67,7 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 	}
 
 	// Add non-added media entries to AniList collection
-	if err := c.App.AnilistClientWrapper.AddMediaToPlanning(b.MediaIds, limiter.NewAnilistLimiter(), c.App.Logger); err != nil {
+	if err := c.App.AnilistPlatform.AddMediaToCollection(b.MediaIds); err != nil {
 		return c.RespondWithError(errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
 	}
 

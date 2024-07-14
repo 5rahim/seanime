@@ -31,7 +31,7 @@ func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}
@@ -217,7 +217,7 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}
@@ -338,7 +338,7 @@ func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}

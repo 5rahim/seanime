@@ -24,6 +24,7 @@ import (
 	"github.com/seanime-app/seanime/internal/mediastream"
 	"github.com/seanime-app/seanime/internal/offline"
 	"github.com/seanime-app/seanime/internal/onlinestream"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/torrents/animetosho"
 	"github.com/seanime-app/seanime/internal/torrents/nyaa"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
@@ -43,7 +44,8 @@ type (
 		TorrentClientRepository *torrent_client.Repository
 		Watcher                 *scanner.Watcher
 		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClientWrapper    anilist.ClientWrapperInterface
+		AnilistClientWrapper    anilist.AnilistClient
+		AnilistPlatform         platform.Platform
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
 		FillerManager           *fillermanager.FillerManager
@@ -129,8 +131,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		}
 	}
 
-	database.TrimLocalFileEntries()
-	database.TrimScanSummaryEntries()
+	database.TrimLocalFileEntries()   // ran in goroutine
+	database.TrimScanSummaryEntries() // ran in goroutine
 
 	// Get token from stored account or return empty string
 	anilistToken := database.GetAnilistToken()
@@ -140,6 +142,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
+
+	// Anilist Platform
+	anilistPlatform := platform.NewAnilistPlatform(anilistCW, logger)
 
 	// AniZip Cache
 	anizipCache := anizip.NewCache()
@@ -152,10 +157,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Online Stream
 	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{
-		Logger:               logger,
-		FileCacher:           fileCacher,
-		AnizipCache:          anizipCache,
-		AnilistClientWrapper: anilistCW,
+		Logger:      logger,
+		FileCacher:  fileCacher,
+		AnizipCache: anizipCache,
+		Platform:    anilistPlatform,
 	})
 
 	// Metadata Provider
@@ -178,6 +183,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Config:                  cfg,
 		Database:                database,
 		AnilistClientWrapper:    anilistCW,
+		AnilistPlatform:         anilistPlatform,
 		AnizipCache:             anizipCache,
 		NyaaSearchCache:         nyaa.NewSearchCache(),
 		AnimeToshoSearchCache:   animetosho.NewSearchCache(),

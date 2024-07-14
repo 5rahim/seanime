@@ -13,6 +13,7 @@ import (
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"github.com/seanime-app/seanime/internal/offline"
+	"github.com/seanime-app/seanime/internal/platform"
 	"sync"
 )
 
@@ -36,8 +37,7 @@ type (
 		discordPresence            *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
-		anilistClientWrapper       anilist.ClientWrapperInterface
-		animeCollection            *anilist.AnimeCollection
+		platform                   platform.Platform
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
 		eventMu                    sync.Mutex
@@ -62,7 +62,7 @@ type (
 		// we will just not track the progress in that case
 		currentStreamEpisodeCollection mo.Option[*anime.MediaEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
 		currentStreamEpisode           mo.Option[*anime.MediaEntryEpisode]           // The current episode being streamed
-		currentStreamMedia             mo.Option[*anilist.BaseMedia]                 // The current media being streamed
+		currentStreamMedia             mo.Option[*anilist.BaseAnime]                 // The current media being streamed
 		currentStreamAnizipMedia       mo.Option[*anizip.Media]                      // The current anizip media being streamed
 		currentStreamAnizipEpisode     mo.Option[*anizip.Episode]                    // The current anizip episode being streamed
 
@@ -90,8 +90,7 @@ type (
 	NewPlaybackManagerOptions struct {
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
-		AnilistClientWrapper       anilist.ClientWrapperInterface
-		AnimeCollection            *anilist.AnimeCollection
+		Platform                   platform.Platform
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
@@ -101,32 +100,22 @@ type (
 )
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
-	return &PlaybackManager{
+	pm := &PlaybackManager{
 		Logger:                     opts.Logger,
 		Database:                   opts.Database,
 		discordPresence:            opts.DiscordPresence,
 		wsEventManager:             opts.WSEventManager,
-		anilistClientWrapper:       opts.AnilistClientWrapper,
-		animeCollection:            opts.AnimeCollection,
+		platform:                   opts.Platform,
 		refreshAnimeCollectionFunc: opts.RefreshAnimeCollectionFunc,
-		playlistHub:                newPlaylistHub(opts.Logger, opts.WSEventManager),
 		mu:                         sync.Mutex{},
 		historyMap:                 make(map[string]PlaybackState),
 		isOffline:                  opts.IsOffline,
 		offlineHub:                 opts.OfflineHub,
 	}
-}
 
-func (pm *PlaybackManager) SetAnilistClientWrapper(anilistClientWrapper anilist.ClientWrapperInterface) {
-	pm.anilistClientWrapper = anilistClientWrapper
-}
+	pm.playlistHub = newPlaylistHub(pm)
 
-func (pm *PlaybackManager) SetAnimeCollection(animeCollection *anilist.AnimeCollection) {
-	go func() {
-		pm.mu.Lock()
-		defer pm.mu.Unlock()
-		pm.animeCollection = animeCollection
-	}()
+	return pm
 }
 
 func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.MediaEntryEpisode) {
@@ -216,7 +205,7 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	return nil
 }
 
-func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *anilist.BaseMedia, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode) error {
+func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *anilist.BaseAnime, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode) error {
 	pm.playlistHub.reset()
 	if pm.isOffline {
 		return errors.New("cannot stream when offline")
@@ -276,13 +265,13 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.animeCollection == nil {
-		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-		if !found {
-			return errors.New("could not retrieve anime collection")
-		}
-		pm.animeCollection = snapshot.Collections.AnimeCollection
-	}
+	//if pm.isOffline && pm.animeCollection == nil {
+	//	snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
+	//	if !found {
+	//		return errors.New("could not retrieve anime collection")
+	//	}
+	//	pm.animeCollection = snapshot.Collections.AnimeCollection
+	//}
 
 	// Play the first video in the playlist
 	firstVidPath := playlist.LocalFiles[0].Path
@@ -356,13 +345,13 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 func (pm *PlaybackManager) checkOrLoadOfflineAnimeCollection() error {
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.animeCollection == nil {
-		pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
-		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-		if !found {
-			return errors.New("could not retrieve anime collection")
-		}
-		pm.animeCollection = snapshot.Collections.AnimeCollection
-	}
+	//if pm.isOffline && pm.animeCollection == nil {
+	//	pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
+	//	snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
+	//	if !found {
+	//		return errors.New("could not retrieve anime collection")
+	//	}
+	//	pm.animeCollection = snapshot.Collections.AnimeCollection
+	//}
 	return nil
 }

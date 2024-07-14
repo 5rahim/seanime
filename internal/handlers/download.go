@@ -16,13 +16,13 @@ import (
 //
 //	@summary downloads torrent files to the destination folder
 //	@route /api/v1/download-torrent-file [POST]
-//	@returns boolean
+//	@returns bool
 func HandleDownloadTorrentFile(c *RouteCtx) error {
 
 	type body struct {
 		DownloadUrls []string           `json:"download_urls"`
 		Destination  string             `json:"destination"`
-		Media        *anilist.BaseMedia `json:"media"`
+		Media        *anilist.BaseAnime `json:"media"`
 	}
 
 	var b body

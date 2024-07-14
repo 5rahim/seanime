@@ -34,7 +34,7 @@ type (
 		// Media's local files
 		LocalFiles       []*LocalFile
 		AnizipMedia      *anizip.Media
-		Media            *anilist.BaseMedia
+		Media            *anilist.BaseAnime
 		Progress         *int
 		Status           *anilist.MediaListStatus
 		MetadataProvider *metadata.Provider

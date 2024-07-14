@@ -3,6 +3,7 @@ package autoscanner
 import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/events"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
 	"testing"
@@ -16,15 +17,16 @@ func TestAutoScanner(t *testing.T) {
 
 	logger := util.NewLogger()
 	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClientWrapper, logger)
 
 	as := New(&NewAutoScannerOptions{
-		Database:             nil,
-		Enabled:              false,
-		AutoDownloader:       nil,
-		AnilistClientWrapper: anilistClientWrapper,
-		Logger:               logger,
-		WSEventManager:       events.NewMockWSEventManager(logger),
-		WaitTime:             5 * time.Second, // Set to 5 seconds for testing
+		Database:       nil,
+		Enabled:        false,
+		AutoDownloader: nil,
+		Platform:       anilistPlatform,
+		Logger:         logger,
+		WSEventManager: events.NewMockWSEventManager(logger),
+		WaitTime:       5 * time.Second, // Set to 5 seconds for testing
 	})
 
 	go as.SetEnabled(true)

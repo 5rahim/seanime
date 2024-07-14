@@ -20,7 +20,7 @@ func HandleSearchTorrent(c *RouteCtx) error {
 		Query          *string            `json:"query"`
 		EpisodeNumber  *int               `json:"episodeNumber"`
 		Batch          *bool              `json:"batch"`
-		Media          *anilist.BaseMedia `json:"media"`
+		Media          *anilist.BaseAnime `json:"media"`
 		AbsoluteOffset *int               `json:"absoluteOffset"`
 		Resolution     *string            `json:"resolution"`
 		Best           *bool              `json:"best"`

@@ -8,7 +8,7 @@ import {
     UpdateAnimeEntryProgress_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { AL_BaseMedia, Anime_LocalFile, Anime_MediaEntry, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_LocalFile, Anime_MediaEntry, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -47,7 +47,7 @@ export function useOpenAnimeEntryInExplorer() {
 }
 
 export function useFetchAnimeEntrySuggestions() {
-    return useServerMutation<Array<AL_BaseMedia>, FetchAnimeEntrySuggestions_Variables>({
+    return useServerMutation<Array<AL_BaseAnime>, FetchAnimeEntrySuggestions_Variables>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.endpoint,
         method: API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.methods[0],
         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.FetchAnimeEntrySuggestions.key],

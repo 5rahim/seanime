@@ -1,4 +1,4 @@
-import { AL_BaseMedia } from "@/api/generated/types"
+import { AL_BaseAnime } from "@/api/generated/types"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { Button } from "@/components/ui/button"
@@ -138,17 +138,17 @@ export function DiscoverPageHeader() {
                                 </div>
                                 <div className="flex-auto space-y-1 z-[1] text-center">
                                     <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
-                                    {!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode &&
+                                    {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode &&
                                         <div className="flex items-center justify-center max-w-md gap-4">
-                                            {!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode?.airingAt &&
+                                            {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
                                                 <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
                                                     <RiSignalTowerLine /> Releasing now
                                                 </p>}
-                                            {(!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode || !!(randomTrending as AL_BaseMedia).episodes) && (
+                                            {(!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (
                                                 <p className="text-lg font-semibold">
-                                                    {!!(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode ?
-                                                        <span>{(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode} episodes</span> :
-                                                        <span>{(randomTrending as AL_BaseMedia).episodes} episodes</span>}
+                                                    {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
+                                                        <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode} episodes</span> :
+                                                        <span>{(randomTrending as AL_BaseAnime).episodes} episodes</span>}
                                                 </p>
                                             )}
                                         </div>}

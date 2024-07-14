@@ -47,8 +47,8 @@ export const API_ENDPOINTS = {
          *  Route returns more details about an AniList anime entry.
          *  This fetches more fields omitted from the base queries.
          */
-        GetAnilistMediaDetails: {
-            key: "ANILIST-get-anilist-media-details",
+        GetAnilistAnimeDetails: {
+            key: "ANILIST-get-anilist-anime-details",
             methods: ["GET"],
             endpoint: "/api/v1/anilist/media-details/{id}",
         },
@@ -445,33 +445,6 @@ export const API_ENDPOINTS = {
             key: "FILECACHE-clear-file-cache-mediastream-video-files",
             methods: ["DELETE"],
             endpoint: "/api/v1/filecache/mediastream/videofiles",
-        },
-    },
-    LIST_SYNC: {
-        /**
-         *  @description
-         *  Route deletes the list sync cache.
-         *  This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.
-         */
-        DeleteListSyncCache: {
-            key: "LIST-SYNC-delete-list-sync-cache",
-            methods: ["POST"],
-            endpoint: "/api/v1/list-sync/cache",
-        },
-        /**
-         *  @description
-         *  Route returns the anime diffs from the list sync instance.
-         *  If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes
-         */
-        GetListSyncAnimeDiffs: {
-            key: "LIST-SYNC-get-list-sync-anime-diffs",
-            methods: ["GET"],
-            endpoint: "/api/v1/list-sync/anime-diffs",
-        },
-        SyncAnime: {
-            key: "LIST-SYNC-sync-anime",
-            methods: ["POST"],
-            endpoint: "/api/v1/list-sync/anime",
         },
     },
     LOCALFILES: {
@@ -1107,16 +1080,6 @@ export const API_ENDPOINTS = {
             key: "SETTINGS-save-settings",
             methods: ["PATCH"],
             endpoint: "/api/v1/settings",
-        },
-        /**
-         *  @description
-         *  Route updates the list sync settings
-         *  This will update the ListSync settings and clear the ListSync cache.
-         */
-        SaveListSyncSettings: {
-            key: "SETTINGS-save-list-sync-settings",
-            methods: ["PATCH"],
-            endpoint: "/api/v1/settings/list-sync",
         },
         SaveAutoDownloaderSettings: {
             key: "SETTINGS-save-auto-downloader-settings",

@@ -77,7 +77,7 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 			matcher := &Matcher{
 				LocalFiles:         lfs,
 				MediaContainer:     mc,
-				CompleteMediaCache: nil,
+				CompleteAnimeCache: nil,
 				Logger:             util.NewLogger(),
 				ScanLogger:         scanLogger,
 			}

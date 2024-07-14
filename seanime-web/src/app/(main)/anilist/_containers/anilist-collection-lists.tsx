@@ -110,23 +110,23 @@ export function AnilistCollectionLists() {
                     <SearchOptions customLists={customLists} />
 
                     <div className="py-6 space-y-6">
-                        {(!!currentList?.entries?.length && ["-", "current"].includes(selectedIndex)) && <>
+                        {(!!currentList?.entries?.length && ["-", "CURRENT"].includes(selectedIndex)) && <>
                             <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
                             <AnilistMediaEntryList type={pageType} list={currentList} />
                         </>}
-                        {(!!planningList?.entries?.length && ["-", "planning"].includes(selectedIndex)) && <>
+                        {(!!planningList?.entries?.length && ["-", "PLANNING"].includes(selectedIndex)) && <>
                             <h2>Planning <span className="text-[--muted] font-medium ml-3">{planningList?.entries?.length}</span></h2>
                             <AnilistMediaEntryList type={pageType} list={planningList} />
                         </>}
-                        {(!!pausedList?.entries?.length && ["-", "paused"].includes(selectedIndex)) && <>
+                        {(!!pausedList?.entries?.length && ["-", "PAUSED"].includes(selectedIndex)) && <>
                             <h2>Paused <span className="text-[--muted] font-medium ml-3">{pausedList?.entries?.length}</span></h2>
                             <AnilistMediaEntryList type={pageType} list={pausedList} />
                         </>}
-                        {(!!completedList?.entries?.length && ["-", "completed"].includes(selectedIndex)) && <>
+                        {(!!completedList?.entries?.length && ["-", "COMPLETED"].includes(selectedIndex)) && <>
                             <h2>Completed <span className="text-[--muted] font-medium ml-3">{completedList?.entries?.length}</span></h2>
                             <AnilistMediaEntryList type={pageType} list={completedList} />
                         </>}
-                        {(!!droppedList?.entries?.length && ["-", "dropped"].includes(selectedIndex)) && <>
+                        {(!!droppedList?.entries?.length && ["-", "DROPPED"].includes(selectedIndex)) && <>
                             <h2>Dropped <span className="text-[--muted] font-medium ml-3">{droppedList?.entries?.length}</span></h2>
                             <AnilistMediaEntryList type={pageType} list={droppedList} />
                         </>}
@@ -213,11 +213,11 @@ export function SearchOptions({
                     fieldClass="lg:w-[200px]"
                     options={[
                         { value: "-", label: "All lists" },
-                        { value: "current", label: "Watching" },
-                        { value: "planning", label: "Planning" },
-                        { value: "paused", label: "Paused" },
-                        { value: "completed", label: "Completed" },
-                        { value: "dropped", label: "Dropped" },
+                        { value: "CURRENT", label: "Watching" },
+                        { value: "PLANNING", label: "Planning" },
+                        { value: "PAUSED", label: "Paused" },
+                        { value: "COMPLETED", label: "Completed" },
+                        { value: "DROPPED", label: "Dropped" },
                         ...(customLists || []).map(list => ({ value: list.name || "N/A", label: list.name || "N/A" })),
                     ]}
                     value={selectedIndex || "-"}

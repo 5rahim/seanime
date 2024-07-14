@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -21,7 +21,7 @@ const isOpenAtom = atom(false)
 
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     onToggleTorrent: (t: Torrent_AnimeTorrent) => void,
-    media: AL_BaseMedia,
+    media: AL_BaseAnime,
     entry: Anime_MediaEntry
 }) {
 

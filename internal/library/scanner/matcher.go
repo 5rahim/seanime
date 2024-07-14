@@ -19,7 +19,7 @@ import (
 type Matcher struct {
 	LocalFiles         []*anime.LocalFile
 	MediaContainer     *MediaContainer
-	CompleteMediaCache *anilist.CompleteMediaCache
+	CompleteAnimeCache *anilist.CompleteAnimeCache
 	Logger             *zerolog.Logger
 	ScanLogger         *ScanLogger
 	ScanSummaryLogger  *summary.ScanSummaryLogger // optional
@@ -29,7 +29,7 @@ var (
 	ErrNoLocalFiles = errors.New("[matcher] no local files")
 )
 
-// MatchLocalFilesWithMedia will match each anime.LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
+// MatchLocalFilesWithMedia will match each anime.LocalFile with a specific anilist.BaseAnime and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	start := time.Now()

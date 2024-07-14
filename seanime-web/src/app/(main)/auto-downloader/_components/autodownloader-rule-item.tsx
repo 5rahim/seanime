@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_AutoDownloaderRule } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AutoDownloaderRule } from "@/api/generated/types"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -10,7 +10,7 @@ import { FaSquareRss } from "react-icons/fa6"
 
 export type AutoDownloaderRuleItemProps = {
     rule: Anime_AutoDownloaderRule
-    userMedia: AL_BaseMedia[] | undefined
+    userMedia: AL_BaseAnime[] | undefined
 }
 
 export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {

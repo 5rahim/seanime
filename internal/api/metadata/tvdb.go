@@ -38,7 +38,7 @@ func (mw *MediaWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
 }
 
 func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
-	key := mw.baseMedia.GetID()
+	key := mw.baseAnime.GetID()
 
 	// Get TVDB ID
 	var tvdbId int
@@ -54,7 +54,7 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 		return nil, errors.New("metadata: could not find tvdb id")
 	}
 
-	bucket := filecache.NewBucket(fmt.Sprintf("tvdb_episodes_%d", mw.baseMedia.GetID()), time.Hour*24*7*365)
+	bucket := filecache.NewBucket(fmt.Sprintf("tvdb_episodes_%d", mw.baseAnime.GetID()), time.Hour*24*7*365)
 
 	// Find episodes in cache
 	var episodes []*tvdb.Episode
@@ -72,8 +72,8 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 		})
 
 		episodes, err = tv.FetchSeriesEpisodes(tvdbId, tvdb.FilterEpisodeMediaInfo{
-			Year:           mw.baseMedia.GetStartDate().GetYear(),
-			Month:          mw.baseMedia.GetStartDate().GetMonth(),
+			Year:           mw.baseAnime.GetStartDate().GetYear(),
+			Month:          mw.baseAnime.GetStartDate().GetMonth(),
 			TotalEp:        mw.anizipMedia.GetMainEpisodeCount(),
 			AbsoluteOffset: mw.anizipMedia.GetOffset(),
 		})

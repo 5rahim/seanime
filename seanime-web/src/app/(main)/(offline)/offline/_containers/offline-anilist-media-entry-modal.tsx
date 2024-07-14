@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseManga, AL_BaseMedia, AL_MediaListStatus, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
@@ -18,7 +18,7 @@ type Props = {
     children?: React.ReactNode
     listData: Offline_ListData | undefined
     assetMap: Offline_AssetMapImageMap | undefined
-    media: AL_BaseMedia | AL_BaseManga
+    media: AL_BaseAnime | AL_BaseManga
     hideButton?: boolean
     type: "anime" | "manga"
 }

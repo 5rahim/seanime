@@ -1,4 +1,4 @@
-import { AL_BaseManga, AL_BaseMedia } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga } from "@/api/generated/types"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -10,7 +10,7 @@ import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import React, { useEffect, useState } from "react"
 
-export const __discover_randomTrendingAtom = atom<AL_BaseMedia | AL_BaseManga | undefined>(undefined)
+export const __discover_randomTrendingAtom = atom<AL_BaseAnime | AL_BaseManga | undefined>(undefined)
 export const __discover_headerIsTransitioningAtom = atom(false)
 
 export function DiscoverTrending() {

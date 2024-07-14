@@ -6,7 +6,7 @@ import "github.com/seanime-app/seanime/internal/discordrpc/presence"
 //
 //	@summary sets manga activity for discord rich presence.
 //	@route /api/v1/discord/presence/manga [POST]
-//	@returns boolean
+//	@returns bool
 func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 
 	type body struct {
@@ -34,7 +34,7 @@ func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 //
 //	@summary cancels the current discord rich presence activity.
 //	@route /api/v1/discord/presence/cancel [POST]
-//	@returns boolean
+//	@returns bool
 func HandleCancelDiscordActivity(c *RouteCtx) error {
 	c.App.DiscordPresence.Close()
 	return c.RespondWithData(true)

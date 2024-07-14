@@ -75,7 +75,7 @@
       "\t@desc This is used to edit an entry on AniList.",
       "\t@desc The \"type\" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.",
       "\t@desc The client should refetch collection-dependent queries after this mutation.",
-      "\t@returns anilist.UpdateMediaListEntry",
+      "\t@returns true",
       "\t@route /api/v1/anilist/list-entry [POST]",
       ""
     ],
@@ -158,21 +158,21 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.UpdateMediaListEntry",
-      "returnGoType": "anilist.UpdateMediaListEntry",
-      "returnTypescriptType": "AL_UpdateMediaListEntry"
+      "returns": "true",
+      "returnGoType": "true",
+      "returnTypescriptType": "true"
     }
   },
   {
-    "name": "HandleGetAnilistMediaDetails",
-    "trimmedName": "GetAnilistMediaDetails",
+    "name": "HandleGetAnilistAnimeDetails",
+    "trimmedName": "GetAnilistAnimeDetails",
     "comments": [
-      "HandleGetAnilistMediaDetails",
+      "HandleGetAnilistAnimeDetails",
       "",
       "\t@summary returns more details about an AniList anime entry.",
       "\t@desc This fetches more fields omitted from the base queries.",
       "\t@param id - int - true - \"The AniList anime ID\"",
-      "\t@returns anilist.MediaDetailsById_Media",
+      "\t@returns anilist.AnimeDetailsById_Media",
       "\t@route /api/v1/anilist/media-details/{id} [GET]",
       ""
     ],
@@ -201,9 +201,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "anilist.MediaDetailsById_Media",
-      "returnGoType": "anilist.MediaDetailsById_Media",
-      "returnTypescriptType": "AL_MediaDetailsById_Media"
+      "returns": "anilist.AnimeDetailsById_Media",
+      "returnGoType": "anilist.AnimeDetailsById_Media",
+      "returnTypescriptType": "AL_AnimeDetailsById_Media"
     }
   },
   {
@@ -260,7 +260,7 @@
       "\t@desc The \"type\" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.",
       "\t@desc The client should refetch collection-dependent queries after this mutation.",
       "\t@route /api/v1/anilist/list-entry [DELETE]",
-      "\t@returns anilist.DeleteEntry",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -297,9 +297,9 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.DeleteEntry",
-      "returnGoType": "anilist.DeleteEntry",
-      "returnTypescriptType": "AL_DeleteEntry"
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -311,7 +311,7 @@
       "\t@summary returns a list of anime based on the search parameters.",
       "\t@desc This is used by the \"Discover\" and \"Advanced Search\".",
       "\t@route /api/v1/anilist/list-anime [POST]",
-      "\t@returns anilist.ListMedia",
+      "\t@returns anilist.ListAnime",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -427,9 +427,9 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.ListMedia",
-      "returnGoType": "anilist.ListMedia",
-      "returnTypescriptType": "AL_ListMedia"
+      "returns": "anilist.ListAnime",
+      "returnGoType": "anilist.ListAnime",
+      "returnTypescriptType": "AL_ListAnime"
     }
   },
   {
@@ -441,7 +441,7 @@
       "\t@summary returns a list of recently aired anime.",
       "\t@desc This is used by the \"Schedule\" page to display recently aired anime.",
       "\t@route /api/v1/anilist/list-recent-anime [POST]",
-      "\t@returns anilist.ListRecentMedia",
+      "\t@returns anilist.ListRecentAnime",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -503,9 +503,9 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.ListRecentMedia",
-      "returnGoType": "anilist.ListRecentMedia",
-      "returnTypescriptType": "AL_ListRecentMedia"
+      "returns": "anilist.ListRecentAnime",
+      "returnGoType": "anilist.ListRecentAnime",
+      "returnTypescriptType": "AL_ListRecentAnime"
     }
   },
   {
@@ -723,7 +723,7 @@
       "\t@desc This finds a common directory for all media entry local files and opens it in the file explorer.",
       "\t@desc Returns 'true' whether the operation was successful or not, errors are ignored.",
       "\t@route /api/v1/library/anime-entry/open-in-explorer [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -750,8 +750,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -765,7 +765,7 @@
       "\t@desc This is used by the \"Resolve unmatched media\" feature to suggest media entries for the local files in the given directory.",
       "\t@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.",
       "\t@route /api/v1/library/anime-entry/suggestions [POST]",
-      "\t@returns []anilist.BaseMedia",
+      "\t@returns []anilist.BaseAnime",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -792,9 +792,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]anilist.BaseMedia",
-      "returnGoType": "anilist.BaseMedia",
-      "returnTypescriptType": "Array\u003cAL_BaseMedia\u003e"
+      "returns": "[]anilist.BaseAnime",
+      "returnGoType": "anilist.BaseAnime",
+      "returnTypescriptType": "Array\u003cAL_BaseAnime\u003e"
     }
   },
   {
@@ -973,7 +973,7 @@
       "\t@desc The response is not used in the frontend, the client should just refetch the entire media entry data.",
       "\t@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.",
       "\t@route /api/v1/library/anime-entry/update-progress [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -1028,8 +1028,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1552,7 +1552,7 @@
       "",
       "\t@summary sets manga activity for discord rich presence.",
       "\t@route /api/v1/discord/presence/manga [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/discord.go",
@@ -1594,8 +1594,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1607,7 +1607,7 @@
       "",
       "\t@summary cancels the current discord rich presence activity.",
       "\t@route /api/v1/discord/presence/cancel [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/discord.go",
@@ -1621,8 +1621,8 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1661,7 +1661,7 @@
       "",
       "\t@summary downloads torrent files to the destination folder",
       "\t@route /api/v1/download-torrent-file [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/download.go",
@@ -1696,15 +1696,15 @@
         {
           "name": "Media",
           "jsonName": "media",
-          "goType": "anilist.BaseMedia",
-          "usedStructType": "anilist.BaseMedia",
-          "typescriptType": "AL_BaseMedia",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
           "required": false,
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1933,103 +1933,6 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleDeleteListSyncCache",
-    "trimmedName": "DeleteListSyncCache",
-    "comments": [
-      "HandleDeleteListSyncCache",
-      "",
-      "\t@summary deletes the list sync cache.",
-      "\t@desc This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.",
-      "\t@route /api/v1/list-sync/cache [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/list_sync.go",
-    "filename": "list_sync.go",
-    "api": {
-      "summary": "deletes the list sync cache.",
-      "descriptions": [
-        "This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request."
-      ],
-      "endpoint": "/api/v1/list-sync/cache",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleGetListSyncAnimeDiffs",
-    "trimmedName": "GetListSyncAnimeDiffs",
-    "comments": [
-      "HandleGetListSyncAnimeDiffs",
-      "",
-      "\t@summary returns the anime diffs from the list sync instance.",
-      "\t@desc If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes",
-      "\t@route /api/v1/list-sync/anime-diffs [GET]",
-      "\t@returns []listsync.AnimeDiff",
-      ""
-    ],
-    "filepath": "internal/handlers/list_sync.go",
-    "filename": "list_sync.go",
-    "api": {
-      "summary": "returns the anime diffs from the list sync instance.",
-      "descriptions": [
-        "If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes"
-      ],
-      "endpoint": "/api/v1/list-sync/anime-diffs",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "[]listsync.AnimeDiff",
-      "returnGoType": "listsync.AnimeDiff",
-      "returnTypescriptType": "Array\u003cListSync_AnimeDiff\u003e"
-    }
-  },
-  {
-    "name": "HandleSyncAnime",
-    "trimmedName": "SyncAnime",
-    "comments": [
-      "HandleSyncAnime",
-      "",
-      "\t@summary syncs the anime based on the provided diff kind",
-      "\t@route /api/v1/list-sync/anime [POST]",
-      "\t@returns []listsync.AnimeDiff",
-      ""
-    ],
-    "filepath": "internal/handlers/list_sync.go",
-    "filename": "list_sync.go",
-    "api": {
-      "summary": "syncs the anime based on the provided diff kind",
-      "descriptions": [],
-      "endpoint": "/api/v1/list-sync/anime",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Kind",
-          "jsonName": "kind",
-          "goType": "listsync.AnimeDiffKind",
-          "usedStructType": "listsync.AnimeDiffKind",
-          "typescriptType": "ListSync_AnimeDiffKind",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "[]listsync.AnimeDiff",
-      "returnGoType": "listsync.AnimeDiff",
-      "returnTypescriptType": "Array\u003cListSync_AnimeDiff\u003e"
     }
   },
   {
@@ -5011,55 +4914,6 @@
     }
   },
   {
-    "name": "HandleSaveListSyncSettings",
-    "trimmedName": "SaveListSyncSettings",
-    "comments": [
-      "HandleSaveListSyncSettings",
-      "",
-      "\t@summary updates the list sync settings",
-      "\t@desc This will update the ListSync settings and clear the ListSync cache.",
-      "\t@route /api/v1/settings/list-sync [PATCH]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/settings.go",
-    "filename": "settings.go",
-    "api": {
-      "summary": "updates the list sync settings",
-      "descriptions": [
-        "This will update the ListSync settings and clear the ListSync cache."
-      ],
-      "endpoint": "/api/v1/settings/list-sync",
-      "methods": [
-        "PATCH"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Automatic",
-          "jsonName": "automatic",
-          "goType": "bool",
-          "usedStructType": "",
-          "typescriptType": "boolean",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Origin",
-          "jsonName": "origin",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
     "name": "HandleSaveAutoDownloaderSettings",
     "trimmedName": "SaveAutoDownloaderSettings",
     "comments": [
@@ -5385,9 +5239,9 @@
         {
           "name": "Media",
           "jsonName": "media",
-          "goType": "anilist.BaseMedia",
-          "usedStructType": "anilist.BaseMedia",
-          "typescriptType": "AL_BaseMedia",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
           "required": false,
           "descriptions": []
         }
@@ -5525,9 +5379,9 @@
         {
           "name": "Media",
           "jsonName": "media",
-          "goType": "anilist.BaseMedia",
-          "usedStructType": "anilist.BaseMedia",
-          "typescriptType": "AL_BaseMedia",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
           "required": false,
           "descriptions": []
         },

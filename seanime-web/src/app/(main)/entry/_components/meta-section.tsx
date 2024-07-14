@@ -1,5 +1,5 @@
 "use client"
-import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
 import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { AnimeEntryStudio } from "@/app/(main)/_features/media/_components/anime-entry-studio"
@@ -29,7 +29,7 @@ import React from "react"
 import { BiChevronDown } from "react-icons/bi"
 
 
-export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media | undefined }) {
+export function MetaSection(props: { entry: Anime_MediaEntry, details: AL_AnimeDetailsById_Media | undefined }) {
 
     const { entry, details } = props
 

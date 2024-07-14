@@ -75,7 +75,7 @@ func TestSmartTest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.query, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.BaseAnimeByID(context.Background(), &tt.mediaId)
 			if err != nil {
 				t.Fatalf("could not fetch media id %d", tt.mediaId)
 			}

@@ -79,7 +79,7 @@ func TestBuildSearchQuery(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			media, err := anilist.GetBaseMediaById(anilistClientWrapper, tt.mediaId)
+			media, err := anilist.GetBaseAnimeById(anilistClientWrapper, tt.mediaId)
 
 			if assert.NoError(t, err) &&
 				assert.NotNil(t, media) {

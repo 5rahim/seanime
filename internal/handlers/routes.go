@@ -120,7 +120,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Anilist.Get("/collection/raw", makeHandler(app, HandleGetRawAnimeCollection))
 	v1Anilist.Post("/collection/raw", makeHandler(app, HandleGetRawAnimeCollection))
 
-	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
+	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistAnimeDetails))
 
 	v1Anilist.Get("/studio-details/:id", makeHandler(app, HandleGetAnilistStudioDetails))
 

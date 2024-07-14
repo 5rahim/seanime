@@ -52,7 +52,7 @@ func getPartGroup(part int) string {
 	return partBuff.String()
 }
 
-func getBatchGroup(m *anilist.BaseMedia) string {
+func getBatchGroup(m *anilist.BaseAnime) string {
 	buff := bytes.NewBufferString("")
 	buff.WriteString("(")
 	// e.g. 01-12

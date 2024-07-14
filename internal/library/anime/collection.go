@@ -6,19 +6,12 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/metadata"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
 	"slices"
 	"sort"
-)
-
-const (
-	LibraryCollectionEntryCurrent   LibraryCollectionListType = "current"
-	LibraryCollectionEntryPlanned   LibraryCollectionListType = "planned"
-	LibraryCollectionEntryCompleted LibraryCollectionListType = "completed"
-	LibraryCollectionEntryPaused    LibraryCollectionListType = "paused"
-	LibraryCollectionEntryDropped   LibraryCollectionListType = "dropped"
 )
 
 type (
@@ -52,7 +45,7 @@ type (
 	}
 
 	LibraryCollectionList struct {
-		Type    LibraryCollectionListType `json:"type"`
+		Type    anilist.MediaListStatus   `json:"type"`
 		Status  anilist.MediaListStatus   `json:"status"`
 		Entries []*LibraryCollectionEntry `json:"entries"`
 	}
@@ -60,7 +53,7 @@ type (
 	// LibraryCollectionEntry holds the data for a single entry in a LibraryCollectionList.
 	// It is a slimmed down version of MediaEntry. It holds the media, media id, library data, and list data.
 	LibraryCollectionEntry struct {
-		Media                 *anilist.BaseMedia     `json:"media"`
+		Media                 *anilist.BaseAnime     `json:"media"`
 		MediaId               int                    `json:"mediaId"`
 		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"` // Library data
 		MediaEntryListData    *MediaEntryListData    `json:"listData"`    // AniList list data
@@ -70,7 +63,7 @@ type (
 	UnmatchedGroup struct {
 		Dir         string               `json:"dir"`
 		LocalFiles  []*LocalFile         `json:"localFiles"`
-		Suggestions []*anilist.BaseMedia `json:"suggestions"`
+		Suggestions []*anilist.BaseAnime `json:"suggestions"`
 	}
 	// UnknownGroup holds the data for a group of local files whose media is not in the user's AniList.
 	// The client will use this data to suggest media to the user, so they can add it to their AniList.
@@ -83,11 +76,11 @@ type (
 type (
 	// NewLibraryCollectionOptions is a struct that holds the data needed for creating a new LibraryCollection.
 	NewLibraryCollectionOptions struct {
-		AnimeCollection      *anilist.AnimeCollection
-		LocalFiles           []*LocalFile
-		AnizipCache          *anizip.Cache
-		AnilistClientWrapper anilist.ClientWrapperInterface
-		MetadataProvider     *metadata.Provider
+		AnimeCollection  *anilist.AnimeCollection
+		LocalFiles       []*LocalFile
+		AnizipCache      *anizip.Cache
+		Platform         platform.Platform
+		MetadataProvider *metadata.Provider
 	}
 )
 
@@ -114,7 +107,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 		opts.LocalFiles,
 		opts.AnimeCollection,
 		opts.AnizipCache,
-		opts.AnilistClientWrapper,
+		opts.Platform,
 		opts.MetadataProvider,
 	)
 
@@ -235,7 +228,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 			currentList.Entries = append(currentList.Entries, repeatingList.Entries...)
 		} else if len(repeatingList.Entries) > 0 {
 			newCurrentList := repeatingList
-			newCurrentList.Type = LibraryCollectionEntryCurrent
+			newCurrentList.Type = anilist.MediaListStatusCurrent
 			lists = append(lists, newCurrentList)
 		}
 		// Remove repeating from lists
@@ -311,7 +304,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
-	anilistClientWrapper anilist.ClientWrapperInterface,
+	platform platform.Platform,
 	metadataProvider *metadata.Provider,
 ) {
 
@@ -336,12 +329,12 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	for _, mId := range mIds {
 		mEntryPool.Go(func() *MediaEntry {
 			me, _ := NewMediaEntry(&NewMediaEntryOptions{
-				MediaId:              mId,
-				LocalFiles:           localFiles,
-				AnimeCollection:      animeCollection,
-				AnizipCache:          anizipCache,
-				AnilistClientWrapper: anilistClientWrapper,
-				MetadataProvider:     metadataProvider,
+				MediaId:          mId,
+				LocalFiles:       localFiles,
+				AnimeCollection:  animeCollection,
+				AnizipCache:      anizipCache,
+				Platform:         platform,
+				MetadataProvider: metadataProvider,
 			})
 			return me
 		})
@@ -407,7 +400,7 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 		groups = append(groups, &UnmatchedGroup{
 			Dir:         key,
 			LocalFiles:  value,
-			Suggestions: make([]*anilist.BaseMedia, 0),
+			Suggestions: make([]*anilist.BaseAnime, 0),
 		})
 	}
 
@@ -420,21 +413,10 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 //----------------------------------------------------------------------------------------------------------------------
 
 // getLibraryCollectionEntryFromListStatus maps anilist.MediaListStatus to LibraryCollectionListType.
-func getLibraryCollectionEntryFromListStatus(st anilist.MediaListStatus) LibraryCollectionListType {
-	switch st {
-	case anilist.MediaListStatusCurrent:
-		return LibraryCollectionEntryCurrent
-	case anilist.MediaListStatusRepeating:
-		return LibraryCollectionEntryCurrent
-	case anilist.MediaListStatusPlanning:
-		return LibraryCollectionEntryPlanned
-	case anilist.MediaListStatusCompleted:
-		return LibraryCollectionEntryCompleted
-	case anilist.MediaListStatusPaused:
-		return LibraryCollectionEntryPaused
-	case anilist.MediaListStatusDropped:
-		return LibraryCollectionEntryDropped
-	default:
-		return LibraryCollectionEntryCurrent
+func getLibraryCollectionEntryFromListStatus(st anilist.MediaListStatus) anilist.MediaListStatus {
+	if st == anilist.MediaListStatusRepeating {
+		return anilist.MediaListStatusCurrent
 	}
+
+	return st
 }

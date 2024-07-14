@@ -9,12 +9,12 @@ import (
 	"testing"
 )
 
-func TestBaseMedia_FetchMediaTree_BaseMedia(t *testing.T) {
+func TestBaseAnime_FetchMediaTree_BaseAnime(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClientWrapper := TestGetMockAnilistClientWrapper()
 	lim := limiter.NewAnilistLimiter()
-	completeMediaCache := NewCompleteMediaCache()
+	completeAnimeCache := NewCompleteAnimeCache()
 
 	tests := []struct {
 		name    string
@@ -38,20 +38,20 @@ func TestBaseMedia_FetchMediaTree_BaseMedia(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.CompleteMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClientWrapper.CompleteAnimeByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
 				media := mediaF.GetMedia()
 
-				tree := NewCompleteMediaRelationTree()
+				tree := NewCompleteAnimeRelationTree()
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,
 					anilistClientWrapper,
 					lim,
 					tree,
-					completeMediaCache,
+					completeAnimeCache,
 				)
 
 				if assert.NoError(t, err) {

@@ -12,7 +12,7 @@ import (
 
 type (
 	MediaContainerOptions struct {
-		AllMedia   []*anilist.CompleteMedia
+		AllMedia   []*anilist.CompleteAnime
 		ScanLogger *ScanLogger
 	}
 
@@ -22,13 +22,13 @@ type (
 		engTitles       []*string
 		romTitles       []*string
 		synonyms        []*string
-		allMedia        []*anilist.CompleteMedia
+		allMedia        []*anilist.CompleteAnime
 	}
 )
 
-// NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseMedia (used by Matcher).
+// NewMediaContainer will create a list of all English titles, Romaji titles, and synonyms from all anilist.BaseAnime (used by Matcher).
 //
-// The list will include all anilist.BaseMedia and their relations (prequels, sequels, spin-offs, etc...) as NormalizedMedia.
+// The list will include all anilist.BaseAnime and their relations (prequels, sequels, spin-offs, etc...) as NormalizedMedia.
 //
 // It also provides helper functions to get a NormalizedMedia from a title or synonym (used by FileHydrator).
 func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
@@ -40,7 +40,7 @@ func NewMediaContainer(opts *MediaContainerOptions) *MediaContainer {
 	normalizedMediaMap := make(map[int]*anime.NormalizedMedia)
 
 	for _, m := range opts.AllMedia {
-		normalizedMediaMap[m.ID] = anime.NewNormalizedMedia(m.ToBaseMedia())
+		normalizedMediaMap[m.ID] = anime.NewNormalizedMedia(m.ToBaseAnime())
 		if m.Relations != nil && m.Relations.Edges != nil && len(m.Relations.Edges) > 0 {
 			for _, edgeM := range m.Relations.Edges {
 				if edgeM.Node == nil || edgeM.Node.Format == nil || edgeM.RelationType == nil {

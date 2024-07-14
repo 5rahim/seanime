@@ -1,7 +1,6 @@
 package offline
 
 import (
-	"context"
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/api/anilist"
@@ -9,6 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/manga"
+	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
 	"github.com/seanime-app/seanime/internal/util/image_downloader"
@@ -32,18 +32,18 @@ type HubInterface interface {
 type (
 	// Hub is a struct that holds all the offline modules.
 	Hub struct {
-		anilistClientWrapper anilist.ClientWrapperInterface // Used to fetch anime and manga data from AniList
-		metadataProvider     *metadata.Provider             // Provides metadata for anime and manga entries
-		wsEventManager       events.WSEventManagerInterface
-		mangaRepository      *manga.Repository
-		db                   *db.Database
-		offlineDb            *database // Stores snapshots
-		fileCacher           *filecache.Cacher
-		logger               *zerolog.Logger
-		assetsHandler        *assetsHandler // Handles downloading metadata assets
-		offlineDir           string         // Contains database
-		assetDir             string         // Contains assets
-		isOffline            bool           // User enabled offline mode
+		platform         platform.Platform  // Used to fetch anime and manga data from AniList
+		metadataProvider *metadata.Provider // Provides metadata for anime and manga entries
+		wsEventManager   events.WSEventManagerInterface
+		mangaRepository  *manga.Repository
+		db               *db.Database
+		offlineDb        *database // Stores snapshots
+		fileCacher       *filecache.Cacher
+		logger           *zerolog.Logger
+		assetsHandler    *assetsHandler // Handles downloading metadata assets
+		offlineDir       string         // Contains database
+		assetDir         string         // Contains assets
+		isOffline        bool           // User enabled offline mode
 
 		mu              sync.Mutex
 		currentSnapshot *Snapshot
@@ -54,7 +54,7 @@ type (
 
 type (
 	NewHubOptions struct {
-		AnilistClientWrapper        anilist.ClientWrapperInterface
+		Platform                    platform.Platform
 		WSEventManager              events.WSEventManagerInterface
 		MetadataProvider            *metadata.Provider
 		MangaRepository             *manga.Repository
@@ -91,7 +91,7 @@ func NewHub(opts *NewHubOptions) *Hub {
 	imgDownloader := image_downloader.NewImageDownloader(opts.AssetDir, opts.Logger)
 
 	return &Hub{
-		anilistClientWrapper:          opts.AnilistClientWrapper,
+		platform:                      opts.Platform,
 		wsEventManager:                opts.WSEventManager,
 		metadataProvider:              opts.MetadataProvider,
 		mangaRepository:               opts.MangaRepository,
@@ -434,9 +434,8 @@ func (h *Hub) SyncListData() error {
 			}
 		}
 
-		_, errI = h.anilistClientWrapper.UpdateMediaListEntry(
-			context.Background(),
-			&se.MediaId,
+		errI = h.platform.UpdateEntry(
+			se.MediaId,
 			&listData.Status,
 			&listData.Score,
 			&listData.Progress,
