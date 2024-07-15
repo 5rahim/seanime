@@ -12,7 +12,6 @@ import React from "react"
 import { FaBookReader } from "react-icons/fa"
 import { FiSettings } from "react-icons/fi"
 import { IoLibrary } from "react-icons/io5"
-import { LuLayoutDashboard } from "react-icons/lu"
 
 
 export function OfflineSidebar() {
@@ -83,12 +82,6 @@ export function OfflineSidebar() {
                             onMouseLeave={handleUnexpandedSidebar}
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
-                                {
-                                    iconType: LuLayoutDashboard,
-                                    name: "UI Settings",
-                                    href: "/settings/ui",
-                                    isCurrent: pathname.includes("/settings/ui"),
-                                },
                                 {
                                     iconType: FiSettings,
                                     name: "Settings",
