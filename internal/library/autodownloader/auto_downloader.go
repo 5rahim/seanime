@@ -658,7 +658,7 @@ func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*ani
 		return nil, false
 	}
 
-	listEntry, found := animeCollection.GetListEntryFromMediaId(rule.MediaId)
+	listEntry, found := animeCollection.GetListEntryFromAnimeId(rule.MediaId)
 	if !found {
 		return nil, false
 	}

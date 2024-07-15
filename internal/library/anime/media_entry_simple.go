@@ -51,7 +51,7 @@ func NewSimpleMediaEntry(opts *NewSimpleMediaEntryOptions) (*SimpleMediaEntry, e
 	// +---------------------+
 
 	// Get the Anilist List entry
-	anilistEntry, found := opts.AnimeCollection.GetListEntryFromMediaId(opts.MediaId)
+	anilistEntry, found := opts.AnimeCollection.GetListEntryFromAnimeId(opts.MediaId)
 
 	// Set the media
 	// If the Anilist List entry does not exist, fetch the media from AniList

@@ -69,8 +69,9 @@ type (
 
 		playlistHub *playlistHub // The playlist hub
 
-		isOffline  bool
-		offlineHub offline.HubInterface
+		isOffline       bool
+		offlineHub      offline.HubInterface
+		animeCollection mo.Option[*anilist.AnimeCollection]
 	}
 
 	PlaybackStateType string
@@ -112,6 +113,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		historyMap:                 make(map[string]PlaybackState),
 		isOffline:                  opts.IsOffline,
 		offlineHub:                 opts.OfflineHub,
+		animeCollection:            mo.None[*anilist.AnimeCollection](),
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)
@@ -127,6 +129,10 @@ func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.MediaEntryEpis
 	pm.currentStreamEpisodeCollection = mo.Some(&anime.MediaEntryEpisodeCollection{
 		Episodes: ec,
 	})
+}
+
+func (pm *PlaybackManager) SetAnimeCollection(ac *anilist.AnimeCollection) {
+	pm.animeCollection = mo.Some(ac)
 }
 
 // PlayNextEpisode plays the next episode of the media that has been watched
@@ -192,7 +198,7 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
 	pm.playlistHub.reset()
-	if err := pm.checkOrLoadOfflineAnimeCollection(); err != nil {
+	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
 	}
 
@@ -266,13 +272,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	//if pm.isOffline && pm.animeCollection == nil {
-	//	snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-	//	if !found {
-	//		return errors.New("could not retrieve anime collection")
-	//	}
-	//	pm.animeCollection = snapshot.Collections.AnimeCollection
-	//}
+	_ = pm.checkOrLoadAnimeCollection()
 
 	// Play the first video in the playlist
 	firstVidPath := playlist.LocalFiles[0].Path
@@ -343,16 +343,23 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (pm *PlaybackManager) checkOrLoadOfflineAnimeCollection() error {
+func (pm *PlaybackManager) checkOrLoadAnimeCollection() error {
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	//if pm.isOffline && pm.animeCollection == nil {
-	//	pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
-	//	snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-	//	if !found {
-	//		return errors.New("could not retrieve anime collection")
-	//	}
-	//	pm.animeCollection = snapshot.Collections.AnimeCollection
-	//}
+	if pm.isOffline && pm.animeCollection.IsAbsent() {
+		pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
+		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
+		if !found {
+			return errors.New("could not retrieve anime collection")
+		}
+		pm.animeCollection = mo.Some(snapshot.Collections.AnimeCollection)
+	} else if pm.animeCollection.IsAbsent() {
+		// If the anime collection is not present, we retrieve it from the platform
+		collection, err := pm.platform.GetAnimeCollection(false)
+		if err != nil {
+			return err
+		}
+		pm.animeCollection = mo.Some(collection)
+	}
 	return nil
 }

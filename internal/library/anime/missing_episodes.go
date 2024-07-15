@@ -38,7 +38,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 	p := pool.NewWithResults[[]*MediaEntryDownloadEpisode]()
 	for mId, lfs := range groupedLfs {
 		p.Go(func() []*MediaEntryDownloadEpisode {
-			entry, found := opts.AnimeCollection.GetListEntryFromMediaId(mId)
+			entry, found := opts.AnimeCollection.GetListEntryFromAnimeId(mId)
 			if !found {
 				return nil
 			}

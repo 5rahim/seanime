@@ -19,7 +19,7 @@ func TestMatcher_MatchLocalFileWithMedia(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	allMedia := animeCollection.GetAllMedia()
+	allMedia := animeCollection.GetAllAnime()
 
 	dir := "E:/Anime"
 

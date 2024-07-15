@@ -65,6 +65,8 @@ type (
 	}
 )
 
+// DEVNOTE: Each chapter ID is a unique string provided by Mangadex
+
 func NewMangadex(logger *zerolog.Logger) *Mangadex {
 	c := &http.Client{
 		Timeout: 60 * time.Second,

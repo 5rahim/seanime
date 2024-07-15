@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"context"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/library/anime"
@@ -14,12 +13,12 @@ import (
 func TestScanLogger(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	animeCollection, err := anilistClient.AnimeCollectionWithRelations(context.Background(), nil)
 	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	allMedia := animeCollection.GetAllMedia()
+	allMedia := animeCollection.GetAllAnime()
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anizipCache := anizip.NewCache()

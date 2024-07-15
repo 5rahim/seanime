@@ -97,7 +97,7 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			anilistEntry, _ := animeCollection.GetListEntryFromMediaId(tt.mediaId)
+			anilistEntry, _ := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
 
 			info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
 				LocalFiles:       tt.localFiles,

@@ -105,7 +105,7 @@ func HandlePopulateFillerData(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	media, found := animeCollection.FindMedia(b.MediaId)
+	media, found := animeCollection.FindAnime(b.MediaId)
 	if !found {
 		// Fetch media
 		media, err = c.App.AnilistPlatform.GetAnime(b.MediaId)

@@ -215,6 +215,7 @@ export function ProgressTracking() {
                         Progress updated
                     </p>
                 )}
+
                 {(
                     !!state?.completionPercentage
                     && state?.completionPercentage > 0.7
@@ -230,6 +231,7 @@ export function ProgressTracking() {
                         Update progress now
                     </Button>
                 </div>}
+
                 {(
                     !!state?.completionPercentage
                     && state?.completionPercentage > 0.7

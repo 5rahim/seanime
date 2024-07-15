@@ -75,6 +75,8 @@ const (
 // getFcProviderBucket returns a bucket for the provider and mediaId.
 //
 //	e.g., manga_comick_chapters_123, manga_mangasee_pages_456
+//
+// Note: Each bucket contains only 1 key-value pair.
 func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, mediaId int, bucketType bucketType) filecache.Bucket {
 	return filecache.NewBucket("manga_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }

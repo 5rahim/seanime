@@ -45,7 +45,16 @@ func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection,
 
 // RefreshAnimeCollection queries Anilist for the user's collection
 func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
-	return a.AnilistPlatform.RefreshAnimeCollection()
+	ret, err := a.AnilistPlatform.RefreshAnimeCollection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Save the collection to PlaybackManager
+	a.PlaybackManager.SetAnimeCollection(ret)
+
+	return ret, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

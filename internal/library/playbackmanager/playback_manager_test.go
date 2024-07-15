@@ -8,10 +8,11 @@ import (
 	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/seanime-app/seanime/internal/util"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
-func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, error) {
+func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilist.AnimeCollection, error) {
 
 	logger := util.NewLogger()
 
@@ -25,6 +26,8 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, error) 
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	require.NoError(t, err)
 
 	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		Logger:         logger,
@@ -35,5 +38,5 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, error) 
 			// Do nothing
 		},
 		IsOffline: false,
-	}), nil
+	}), animeCollection, nil
 }

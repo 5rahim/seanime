@@ -55,6 +55,10 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 	}
 }
 
+// DEVNOTE: The ID returned by the Search function is the slug of the manga
+// DEVNOTE: Each chapter has an ID in the format: {slug}${chapter_number} -- e.g. Jujutsu-Kaisen$0001
+// This ID is split by the $ character to reconstruct the chapter URL for subsequent requests
+
 func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	m.logger.Debug().Str("query", opts.Query).Msg("mangasee: Searching manga")

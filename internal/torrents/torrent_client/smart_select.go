@@ -26,7 +26,7 @@ type (
 // The torrent will NOT be removed if the selection fails.
 func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 	if p.Media == nil || p.Platform == nil {
-		r.logger.Error().Msg("torrent client: media or anilist client wrapper is nil (smart select)")
+		r.logger.Error().Msg("torrent client: media or platform is nil (smart select)")
 		return errors.New("media or anilist client wrapper is nil")
 	}
 

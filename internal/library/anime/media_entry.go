@@ -78,7 +78,7 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 	// +---------------------+
 
 	// Get the Anilist List entry
-	anilistEntry, found := opts.AnimeCollection.GetListEntryFromMediaId(opts.MediaId)
+	anilistEntry, found := opts.AnimeCollection.GetListEntryFromAnimeId(opts.MediaId)
 
 	// Set the media
 	// If the Anilist List entry does not exist, fetch the media from AniList
@@ -160,8 +160,8 @@ func NewMediaEntry(opts *NewMediaEntryOptions) (*MediaEntry, error) {
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
 			Status:      anilistEntry.Status,
-			StartedAt:   anilist.ToEntryDate(anilistEntry.StartedAt),
-			CompletedAt: anilist.ToEntryDate(anilistEntry.CompletedAt),
+			StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),
+			CompletedAt: anilist.FuzzyDateToString(anilistEntry.CompletedAt),
 		}
 	}
 

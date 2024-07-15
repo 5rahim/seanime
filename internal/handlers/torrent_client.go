@@ -174,7 +174,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 			if err != nil {
 				return
 			}
-			_, found := animeCollection.FindMedia(b.Media.ID)
+			_, found := animeCollection.FindAnime(b.Media.ID)
 			if found {
 				return
 			}

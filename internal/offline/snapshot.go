@@ -84,7 +84,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		}
 
 		// Get the media
-		listEntry, ok := animeCollection.GetListEntryFromMediaId(lfEntry.GetMediaId())
+		listEntry, ok := animeCollection.GetListEntryFromAnimeId(lfEntry.GetMediaId())
 		if !ok {
 			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to get Anilist media %d", lfEntry.GetMediaId())
 			return err
@@ -124,8 +124,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 				Score:       int(*listEntry.GetScore()),
 				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
-				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
-				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
+				StartedAt:   anilist.FuzzyDateToString(listEntry.StartedAt),
+				CompletedAt: anilist.FuzzyDateToString(listEntry.CompletedAt),
 			},
 			Media:    listEntry.GetMedia(),
 			Episodes: mediaEpisodes,
@@ -187,8 +187,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 				Score:       int(*listEntry.GetScore()),
 				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
-				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
-				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
+				StartedAt:   anilist.FuzzyDateToString(listEntry.StartedAt),
+				CompletedAt: anilist.FuzzyDateToString(listEntry.CompletedAt),
 			},
 			Media:             listEntry.GetMedia(),
 			ChapterContainers: eContainers,

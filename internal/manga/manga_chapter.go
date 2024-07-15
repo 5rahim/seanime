@@ -28,7 +28,7 @@ var (
 
 type (
 	// ChapterContainer is used to display the list of chapters from a provider in the client.
-	// It is cached in the file cache.
+	// It is cached in a unique file cache bucket with a key of the format: {provider}${mediaId}
 	ChapterContainer struct {
 		MediaId  int                               `json:"mediaId"`
 		Provider string                            `json:"provider"`
@@ -36,7 +36,7 @@ type (
 	}
 
 	// PageContainer is used to display the list of pages from a chapter in the client.
-	// It is cached in the file cache.
+	// It is cached in the file cache bucket with a key of the format: {provider}${mediaId}${chapterId}
 	PageContainer struct {
 		MediaId        int                            `json:"mediaId"`
 		Provider       string                         `json:"provider"`
@@ -357,7 +357,7 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 			}
 
 			mu.Lock()
-			// DEVNOTE: Index by page number
+			// DEVNOTE: Index by page index
 			pageDimensions[page.Index] = &PageDimension{
 				Width:  width,
 				Height: height,

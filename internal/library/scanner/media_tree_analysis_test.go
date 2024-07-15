@@ -32,7 +32,6 @@ func TestMediaTreeAnalysis(t *testing.T) {
 			absoluteEpisodeNumber:         23,
 			expectedRelativeEpisodeNumber: 12,
 		},
-		// DEVNOTE: This fails because Anizip doesn't include the absolute episode number - edit: no longer fails
 		{
 			name:                          "Oshi no Ko Season 2",
 			mediaId:                       150672, // 86 - Eighty Six Part 2

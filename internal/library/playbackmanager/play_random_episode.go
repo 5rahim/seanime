@@ -10,7 +10,7 @@ import (
 // StartRandomVideo starts a random video from the collection.
 func (pm *PlaybackManager) StartRandomVideo() error {
 	pm.playlistHub.reset()
-	if err := pm.checkOrLoadOfflineAnimeCollection(); err != nil {
+	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
 	}
 
@@ -43,7 +43,7 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 	continueLfs := make([]*anime.LocalFile, 0)
 	otherLfs := make([]*anime.LocalFile, 0)
 	for _, e := range lfEntries {
-		anilistEntry, ok := animeCollection.GetListEntryFromMediaId(e.GetMediaId())
+		anilistEntry, ok := animeCollection.GetListEntryFromAnimeId(e.GetMediaId())
 		if !ok {
 			continue
 		}

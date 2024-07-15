@@ -390,7 +390,9 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 		pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
 	}
 
-	pm.refreshAnimeCollectionFunc()
+	if !pm.isOffline {
+		pm.refreshAnimeCollectionFunc()
+	}
 
 	pm.eventMu.Unlock()
 	return nil

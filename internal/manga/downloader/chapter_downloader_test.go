@@ -22,9 +22,7 @@ func TestQueue(t *testing.T) {
 		t.Fatalf("Failed to create database: %v", err)
 	}
 
-	t.Log(tempDir)
-
-	downloadDir := "./test"
+	downloadDir := t.TempDir()
 
 	downloader := NewDownloader(&NewDownloaderOptions{
 		Logger:         logger,

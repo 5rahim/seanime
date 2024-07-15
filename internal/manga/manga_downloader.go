@@ -115,13 +115,21 @@ func (d *Downloader) Start() {
 // and invokes the chapter_downloader.Downloader 'Download' method to add the chapter to the download queue.
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
+	// Find chapter container in the file cache
+	// e.g. comick$1234 from bucket 'manga_comick_chapters_1234'
+	// Note: Each bucket contains only 1 key-value pair.
 	chapterKey := fmt.Sprintf("%s$%d", opts.Provider, opts.MediaId)
 	chapterBucket := d.repository.getFcProviderBucket(opts.Provider, opts.MediaId, bucketTypeChapter)
 	var chapterContainer *ChapterContainer
+	// Get the only key-value pair in the bucket
 	if found, _ := d.repository.fileCacher.Get(chapterBucket, chapterKey, &chapterContainer); !found {
+		// If the chapter container is not found, return an error
+		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
 		return errors.New("chapters not found")
 	}
 
+	// Find the chapter in the chapter container
+	// e.g. Wind-Breaker$0062
 	chapter, ok := chapterContainer.GetChapter(opts.ChapterId)
 	if !ok {
 		return errors.New("chapter not found")
@@ -182,7 +190,6 @@ func (d *Downloader) DeleteChapters(ids []chapter_downloader.DownloadID) (err er
 }
 
 func (d *Downloader) GetMediaDownloads(mediaId int, cached bool) (MediaDownloadData, error) {
-
 	if !cached {
 		d.refreshMediaMap()
 	}

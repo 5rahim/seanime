@@ -1,8 +1,6 @@
 package platform
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 )
 
@@ -28,18 +26,4 @@ type Platform interface {
 	GetAnilistClient() anilist.AnilistClient
 	RefreshAnimeCollection() (*anilist.AnimeCollection, error)
 	RefreshMangaCollection() (*anilist.MangaCollection, error)
-}
-
-func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) Platform {
-	ap := &AnilistPlatform{
-		anilistClient:      anilistClient,
-		logger:             logger,
-		username:           mo.None[string](),
-		animeCollection:    mo.None[*anilist.AnimeCollection](),
-		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
-		mangaCollection:    mo.None[*anilist.MangaCollection](),
-		rawMangaCollection: mo.None[*anilist.MangaCollection](),
-	}
-
-	return ap
 }

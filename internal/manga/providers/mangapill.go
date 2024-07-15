@@ -36,6 +36,10 @@ func NewMangapill(logger *zerolog.Logger) *Mangapill {
 	}
 }
 
+// DEVNOTE: Unique ID
+// Each chapter ID has this format: {number}${slug} -- e.g. 6502-10004000$gokurakugai-chapter-4
+// The chapter ID is split by the $ character to reconstruct the chapter URL for subsequent requests
+
 func (mp *Mangapill) Search(opts SearchOptions) (ret []*SearchResult, err error) {
 	ret = make([]*SearchResult, 0)
 

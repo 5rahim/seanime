@@ -6,7 +6,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"sync"
 	"time"
@@ -14,16 +13,31 @@ import (
 
 type (
 	AnilistPlatform struct {
-		logger             *zerolog.Logger
-		username           mo.Option[string]
-		anilistClient      anilist.AnilistClient
-		animeCollection    mo.Option[*anilist.AnimeCollection]
-		rawAnimeCollection mo.Option[*anilist.AnimeCollection]
-		mangaCollection    mo.Option[*anilist.MangaCollection]
-		rawMangaCollection mo.Option[*anilist.MangaCollection]
-		db                 *db.Database
+		logger               *zerolog.Logger
+		username             mo.Option[string]
+		anilistClient        anilist.AnilistClient
+		animeCollection      mo.Option[*anilist.AnimeCollection]
+		rawAnimeCollection   mo.Option[*anilist.AnimeCollection]
+		mangaCollection      mo.Option[*anilist.MangaCollection]
+		rawMangaCollection   mo.Option[*anilist.MangaCollection]
+		isOffline            bool
+		localPlatformEnabled bool
 	}
 )
+
+func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) Platform {
+	ap := &AnilistPlatform{
+		anilistClient:      anilistClient,
+		logger:             logger,
+		username:           mo.None[string](),
+		animeCollection:    mo.None[*anilist.AnimeCollection](),
+		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
+		mangaCollection:    mo.None[*anilist.MangaCollection](),
+		rawMangaCollection: mo.None[*anilist.MangaCollection](),
+	}
+
+	return ap
+}
 
 func (ap *AnilistPlatform) SetUsername(username string) {
 	// Set the username for the AnilistPlatform
@@ -144,10 +158,7 @@ func (ap *AnilistPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsBy
 }
 
 func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching anime collection")
-
 	if !bypassCache && ap.animeCollection.IsPresent() {
-		ap.logger.Trace().Msg("anilist platform: Returning anime collection from cache")
 		return ap.animeCollection.MustGet(), nil
 	}
 
@@ -160,10 +171,7 @@ func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeC
 }
 
 func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching raw anime collection")
-
 	if !bypassCache && ap.rawAnimeCollection.IsPresent() {
-		ap.logger.Trace().Msg("anilist platform: Returning raw anime collection from cache")
 		return ap.rawAnimeCollection.MustGet(), nil
 	}
 

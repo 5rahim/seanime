@@ -73,6 +73,8 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 	}
 }
 
+// DEVNOTE: Each chapter ID is a unique string provided by ComicK
+
 func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	c.logger.Debug().Str("query", opts.Query).Msg("comick: Searching manga")

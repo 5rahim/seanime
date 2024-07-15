@@ -214,7 +214,7 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 			return c.RespondWithError(err)
 		}
 
-		listEntry, found := animeCollection.GetListEntryFromMediaId(*p.MediaId)
+		listEntry, found := animeCollection.GetListEntryFromAnimeId(*p.MediaId)
 		if !found {
 			return c.RespondWithError(errors.New("list entry not found"))
 		}

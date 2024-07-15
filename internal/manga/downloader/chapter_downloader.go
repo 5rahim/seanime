@@ -27,7 +27,7 @@ var (
 )
 
 // 📁 cache/manga
-// └── 📁 {provider}_{mediaId}_{chapterId}_[{chapterNumber}]      <- Downloader generates
+// └── 📁 {provider}_{mediaId}_{chapterId}_{chapterNumber}      <- Downloader generates
 //     ├── 📄 registry.json						                <- Contains Registry
 //     ├── 📄 1.jpg
 //     ├── 📄 2.jpg
@@ -209,7 +209,7 @@ func (cd *Downloader) run(queueInfo *QueueInfo) {
 // It also creates a Registry file that contains information about each image.
 //
 //	e.g.,
-//	📁 {provider}_{mediaId}_{chapterId}_[{chapterNumber}]
+//	📁 {provider}_{mediaId}_{chapterId}_{chapterNumber}
 //	   ├── 📄 registry.json
 //	   ├── 📄 1.jpg
 //	   ├── 📄 2.jpg

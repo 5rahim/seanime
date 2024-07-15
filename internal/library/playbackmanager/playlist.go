@@ -126,9 +126,7 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf
 
 	h.nextLocalFile, _ = h.findNextFile()
 
-	animeCollection, err := h.playbackManager.platform.GetAnimeCollection(false)
-	if err != nil {
-		h.logger.Error().Err(err).Msg("playlist hub: Failed to get anime collection")
+	if h.playbackManager.animeCollection.IsAbsent() {
 		return
 	}
 
@@ -139,7 +137,7 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf
 		MediaImage: currListEntry.GetMedia().GetCoverImageSafe(),
 	}
 	if h.nextLocalFile != nil {
-		lfe, found := animeCollection.GetListEntryFromMediaId(h.nextLocalFile.MediaId)
+		lfe, found := h.playbackManager.animeCollection.MustGet().GetListEntryFromAnimeId(h.nextLocalFile.MediaId)
 		if found {
 			playlistState.Next = &PlaylistStateItem{
 				Name:       fmt.Sprintf("%s - Episode %d", lfe.GetMedia().GetPreferredTitle(), h.nextLocalFile.GetEpisodeNumber()),

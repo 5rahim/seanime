@@ -24,7 +24,7 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 		t.Fatal("expected result, got error:", err.Error())
 	}
 
-	allMedia := animeCollection.GetAllMedia()
+	allMedia := animeCollection.GetAllAnime()
 
 	tests := []struct {
 		name            string

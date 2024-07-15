@@ -275,7 +275,7 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 		TotalShows:    0,
 		TotalMovies:   0,
 		TotalSpecials: 0,
-		TotalSize:     "",
+		TotalSize:     "", // Will be set by the route handler
 	}
 
 	for _, list := range lc.Lists {
