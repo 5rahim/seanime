@@ -98,7 +98,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
     return (
         <>
             <div className="hidden lg:flex lg:h-full lg:flex-col rounded-md border">
-                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none border-b">
+                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none border-b bg-gray-950">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
