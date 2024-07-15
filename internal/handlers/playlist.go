@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	}
 
 	// Get the local files
-	dbLfs, _, err := c.App.Database.GetLocalFiles()
+	dbLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -48,7 +49,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	playlist.SetLocalFiles(lfs)
 
 	// Save the playlist
-	if err := c.App.Database.SavePlaylist(playlist); err != nil {
+	if err := db_bridge.SavePlaylist(c.App.Database, playlist); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -62,7 +63,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 //	@returns []anime.Playlist
 func HandleGetPlaylists(c *RouteCtx) error {
 
-	playlists, err := c.App.Database.GetPlaylists()
+	playlists, err := db_bridge.GetPlaylists(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -92,7 +93,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	}
 
 	// Get the local files
-	dbLfs, _, err := c.App.Database.GetLocalFiles()
+	dbLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -115,7 +116,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	playlist.SetLocalFiles(lfs)
 
 	// Save the playlist
-	if err := c.App.Database.UpdatePlaylist(playlist); err != nil {
+	if err := db_bridge.UpdatePlaylist(c.App.Database, playlist); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -139,7 +140,7 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 
 	}
 
-	if err := c.App.Database.DeletePlaylist(b.DbId); err != nil {
+	if err := db_bridge.DeletePlaylist(c.App.Database, b.DbId); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -155,7 +156,7 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 //	@returns []anime.LocalFile
 func HandleGetPlaylistEpisodes(c *RouteCtx) error {
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

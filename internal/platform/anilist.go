@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/util/limiter"
 	"sync"
 	"time"
@@ -20,6 +21,7 @@ type (
 		rawAnimeCollection mo.Option[*anilist.AnimeCollection]
 		mangaCollection    mo.Option[*anilist.MangaCollection]
 		rawMangaCollection mo.Option[*anilist.MangaCollection]
+		db                 *db.Database
 	}
 )
 
@@ -34,8 +36,8 @@ func (ap *AnilistPlatform) SetUsername(username string) {
 	return
 }
 
-func (ap *AnilistPlatform) SetAnilistClientWrapper(client anilist.AnilistClient) {
-	// Set the AnilistClientWrapper for the AnilistPlatform
+func (ap *AnilistPlatform) SetAnilistClient(client anilist.AnilistClient) {
+	// Set the AnilistClient for the AnilistPlatform
 	ap.anilistClient = client
 }
 
@@ -183,6 +185,9 @@ func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, e
 }
 
 func (ap *AnilistPlatform) refreshAnimeCollection() error {
+	if ap.username.IsAbsent() {
+		return nil
+	}
 
 	// Else, get the collection from Anilist
 	collection, err := ap.anilistClient.AnimeCollection(context.Background(), ap.username.ToPointer())
@@ -267,6 +272,9 @@ func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, e
 }
 
 func (ap *AnilistPlatform) refreshMangaCollection() error {
+	if ap.username.IsAbsent() {
+		return nil
+	}
 
 	collection, err := ap.anilistClient.MangaCollection(context.Background(), ap.username.ToPointer())
 	if err != nil {

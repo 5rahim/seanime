@@ -13,11 +13,11 @@ func (db *Database) UpsertSettings(settings *models.Settings) (*models.Settings,
 	}).Create(settings).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("db: Failed to save settings in the database")
+		db.Logger.Error().Err(err).Msg("db: Failed to save settings in the database")
 		return nil, err
 	}
 
-	db.logger.Debug().Msg("db: Settings saved")
+	db.Logger.Debug().Msg("db: Settings saved")
 	return settings, nil
 
 }
@@ -60,11 +60,11 @@ func (db *Database) UpsertMediastreamSettings(settings *models.MediastreamSettin
 	}).Create(settings).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("db: Failed to save media streaming settings in the database")
+		db.Logger.Error().Err(err).Msg("db: Failed to save media streaming settings in the database")
 		return nil, err
 	}
 
-	db.logger.Debug().Msg("db: Media streaming settings saved")
+	db.Logger.Debug().Msg("db: Media streaming settings saved")
 	return settings, nil
 
 }
@@ -89,11 +89,11 @@ func (db *Database) UpsertTorrentstreamSettings(settings *models.TorrentstreamSe
 	}).Create(settings).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("db: Failed to save torrent streaming settings in the database")
+		db.Logger.Error().Err(err).Msg("db: Failed to save torrent streaming settings in the database")
 		return nil, err
 	}
 
-	db.logger.Debug().Msg("db: Torrent streaming settings saved")
+	db.Logger.Debug().Msg("db: Torrent streaming settings saved")
 	return settings, nil
 }
 

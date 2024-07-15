@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/seanime-app/seanime/internal/api/anilist"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
@@ -217,7 +218,7 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	}
 
 	// Get rule from database
-	rule, err := c.App.Database.GetAutoDownloaderRule(b.RuleId)
+	rule, err := db_bridge.GetAutoDownloaderRule(c.App.Database, b.RuleId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

@@ -1,5 +1,7 @@
 package handlers
 
+import "github.com/seanime-app/seanime/internal/database/db_bridge"
+
 // HandlePlaybackPlayVideo
 //
 //	@summary plays the video with the given path using the default media player.
@@ -97,7 +99,7 @@ func HandlePlaybackStartPlaylist(c *RouteCtx) error {
 	}
 
 	// Get playlist
-	playlist, err := c.App.Database.GetPlaylist(b.DbId)
+	playlist, err := db_bridge.GetPlaylist(c.App.Database, b.DbId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

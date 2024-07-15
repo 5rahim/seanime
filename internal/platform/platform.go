@@ -8,7 +8,7 @@ import (
 
 type Platform interface {
 	SetUsername(username string)
-	SetAnilistClientWrapper(client anilist.AnilistClient)
+	SetAnilistClient(client anilist.AnilistClient)
 	UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error
 	UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error
 	DeleteEntry(mediaID int) error

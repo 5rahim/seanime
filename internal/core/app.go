@@ -7,6 +7,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/metadata"
 	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
@@ -44,7 +45,7 @@ type (
 		TorrentClientRepository *torrent_client.Repository
 		Watcher                 *scanner.Watcher
 		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClientWrapper    anilist.AnilistClient
+		AnilistClient           anilist.AnilistClient
 		AnilistPlatform         platform.Platform
 		NyaaSearchCache         *nyaa.SearchCache
 		AnimeToshoSearchCache   *animetosho.SearchCache
@@ -124,8 +125,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Add default local file entries if there are none
-	if _, _, err = database.GetLocalFiles(); err != nil {
-		_, err = database.InsertLocalFiles(make([]*anime.LocalFile, 0))
+	if _, _, err = db_bridge.GetLocalFiles(database); err != nil {
+		_, err = db_bridge.InsertLocalFiles(database, make([]*anime.LocalFile, 0))
 		if err != nil {
 			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
 		}
@@ -182,7 +183,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app := &App{
 		Config:                  cfg,
 		Database:                database,
-		AnilistClientWrapper:    anilistCW,
+		AnilistClient:           anilistCW,
 		AnilistPlatform:         anilistPlatform,
 		AnizipCache:             anizipCache,
 		NyaaSearchCache:         nyaa.NewSearchCache(),

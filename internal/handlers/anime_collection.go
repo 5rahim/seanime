@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/dustin/go-humanize"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/library/anime"
 )
 
@@ -26,7 +27,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

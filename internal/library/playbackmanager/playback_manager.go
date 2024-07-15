@@ -8,6 +8,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/anime"
@@ -329,7 +330,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 	// Delete playlist in goroutine
 	go func() {
-		err := pm.Database.DeletePlaylist(playlist.DbId)
+		err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
 		if err != nil {
 			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
 			return

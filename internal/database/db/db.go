@@ -6,7 +6,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/anime"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"log"
@@ -16,11 +15,13 @@ import (
 )
 
 type Database struct {
-	gormdb             *gorm.DB
-	logger             *zerolog.Logger
-	currLocalFilesDbId uint
-	currLocalFiles     mo.Option[[]*anime.LocalFile]
-	currMediaFillers   mo.Option[map[int]*MediaFillerItem]
+	gormdb           *gorm.DB
+	Logger           *zerolog.Logger
+	CurrMediaFillers mo.Option[map[int]*MediaFillerItem]
+}
+
+func (db *Database) Gorm() *gorm.DB {
+	return db.gormdb
 }
 
 func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
@@ -61,9 +62,8 @@ func NewDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, 
 
 	return &Database{
 		gormdb:           db,
-		logger:           logger,
-		currLocalFiles:   mo.None[[]*anime.LocalFile](),
-		currMediaFillers: mo.None[map[int]*MediaFillerItem](),
+		Logger:           logger,
+		CurrMediaFillers: mo.None[map[int]*MediaFillerItem](),
 	}, nil
 }
 

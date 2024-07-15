@@ -6,6 +6,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/anime"
@@ -196,14 +197,14 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	torrents := make([]*NormalizedTorrent, 0)
 
 	// Get rules from the database
-	rules, err := ad.database.GetAutoDownloaderRules()
+	rules, err := db_bridge.GetAutoDownloaderRules(ad.database)
 	if err != nil {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch rules from the database")
 		return
 	}
 
 	// Get local files from the database
-	lfs, _, err := ad.database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(ad.database)
 	if err != nil {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch local files from the database")
 		return

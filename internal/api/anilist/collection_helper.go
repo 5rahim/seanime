@@ -13,7 +13,6 @@ type (
 )
 
 func (ac *AnimeCollection) GetListEntryFromMediaId(id int) (*MediaListEntry, bool) {
-
 	if ac == nil || ac.MediaListCollection == nil {
 		return nil, false
 	}
@@ -38,6 +37,9 @@ func (ac *AnimeCollection) GetListEntryFromMediaId(id int) (*MediaListEntry, boo
 }
 
 func (ac *AnimeCollection) GetAllMedia() []*BaseAnime {
+	if ac == nil {
+		return make([]*BaseAnime, 0)
+	}
 
 	var ret []*BaseAnime
 	addedId := make(map[int]bool)
@@ -56,6 +58,10 @@ func (ac *AnimeCollection) GetAllMedia() []*BaseAnime {
 }
 
 func (ac *AnimeCollection) FindMedia(mediaId int) (*BaseAnime, bool) {
+	if ac == nil {
+		return nil, false
+	}
+
 	for _, l := range ac.MediaListCollection.Lists {
 		if l.Entries == nil || len(l.Entries) == 0 {
 			continue

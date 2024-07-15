@@ -28,8 +28,8 @@ func (a *App) GetAccount() (*models.Account, error) {
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
 // This function should be called when a user logs in
 func (a *App) UpdateAnilistClientToken(token string) {
-	a.AnilistClientWrapper = anilist.NewAnilistClient(token)
-	a.AnilistPlatform.SetAnilistClientWrapper(a.AnilistClientWrapper) // Update Anilist Client Wrapper in Platform
+	a.AnilistClient = anilist.NewAnilistClient(token)
+	a.AnilistPlatform.SetAnilistClient(a.AnilistClient) // Update Anilist Client Wrapper in Platform
 }
 
 // GetAnimeCollection returns the user's Anilist collection if it in the cache, otherwise it queries Anilist for the user's collection.

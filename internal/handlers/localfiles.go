@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/samber/lo"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/filesystem"
 	"github.com/sourcegraph/conc/pool"
@@ -17,7 +18,7 @@ import (
 //	@returns []anime.LocalFile
 func HandleGetLocalFiles(c *RouteCtx) error {
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -47,7 +48,7 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -68,7 +69,7 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -102,7 +103,7 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -119,7 +120,7 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 	lf.MediaId = b.MediaId
 
 	// Save the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -148,7 +149,7 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -175,7 +176,7 @@ func HandleDeleteLocalFiles(c *RouteCtx) error {
 	})
 
 	// Save the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, newLfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, newLfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

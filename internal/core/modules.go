@@ -412,6 +412,7 @@ func (a *App) InitOrRefreshAnilistData() {
 		return
 	}
 
+	// Set username to Anilist platform
 	a.AnilistPlatform.SetUsername(acc.Username)
 
 	// Set account

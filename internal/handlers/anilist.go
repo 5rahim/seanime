@@ -403,7 +403,7 @@ func HandleGetAniListStats(c *RouteCtx) error {
 
 	ret, err := anilist.GetStats(
 		c.Fiber.Context(),
-		c.App.AnilistClientWrapper,
+		c.App.AnilistClient,
 	)
 	if err != nil {
 		return c.RespondWithError(err)

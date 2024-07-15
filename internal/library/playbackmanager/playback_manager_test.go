@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist.AnilistClient, *anilist.AnimeCollection, error) {
+func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, error) {
 
 	logger := util.NewLogger()
 
@@ -25,10 +25,6 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
-	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
-	if err != nil {
-		return nil, nil, nil, err
-	}
 
 	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		Logger:         logger,
@@ -39,5 +35,5 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, anilist
 			// Do nothing
 		},
 		IsOffline: false,
-	}), anilistClient, animeCollection, nil
+	}), nil
 }

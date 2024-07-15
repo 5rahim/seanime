@@ -24,15 +24,13 @@ var mediaId = 153518
 func TestPlaylists(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer())
 
-	playbackManager, anilistClient, animeCollection, err := getPlaybackManager(t)
+	playbackManager, err := getPlaybackManager(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	repo := getRepo()
 
-	playbackManager.SetAnilistClientWrapper(anilistClient)
-	playbackManager.SetAnimeCollection(animeCollection)
 	playbackManager.SetMediaPlayerRepository(repo)
 
 	// Test the playlist hub

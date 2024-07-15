@@ -9,6 +9,7 @@ import (
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
 	"github.com/seanime-app/seanime/internal/api/mal"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/library/scanner"
@@ -43,7 +44,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -94,7 +95,7 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -129,7 +130,7 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -159,7 +160,7 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -226,7 +227,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 	b.Dir = strings.ToLower(b.Dir)
 
 	// Retrieve local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -355,7 +356,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	}
 
 	// Retrieve local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -418,7 +419,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	// Save the scan summary
 	go func() {
-		err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+		err = db_bridge.InsertScanSummary(c.App.Database, scanSummaryLogger.GenerateSummary())
 	}()
 
 	// Remove select local files from the database slice, we will add them (hydrated) later
@@ -434,7 +435,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	lfs = append(lfs, selectedLfs...)
 
 	// Update the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -464,7 +465,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

@@ -24,11 +24,11 @@ func (db *Database) UpsertTheme(settings *models.Theme) (*models.Theme, error) {
 	}).Create(settings).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("db: Failed to save theme in the database")
+		db.Logger.Error().Err(err).Msg("db: Failed to save theme in the database")
 		return nil, err
 	}
 
-	db.logger.Debug().Msg("db: Theme saved")
+	db.Logger.Debug().Msg("db: Theme saved")
 	return settings, nil
 
 }

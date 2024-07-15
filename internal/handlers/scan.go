@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/library/scanner"
 	"github.com/seanime-app/seanime/internal/library/summary"
 )
@@ -36,7 +37,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	}
 
 	// Get the latest local files
-	existingLfs, _, err := c.App.Database.GetLocalFiles()
+	existingLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -79,13 +80,13 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	}
 
 	// Insert the local files
-	lfs, err := c.App.Database.InsertLocalFiles(allLfs)
+	lfs, err := db_bridge.InsertLocalFiles(c.App.Database, allLfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Save the scan summary
-	err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+	err = db_bridge.InsertScanSummary(c.App.Database, scanSummaryLogger.GenerateSummary())
 
 	go c.App.AutoDownloader.CleanUpDownloadedItems()
 

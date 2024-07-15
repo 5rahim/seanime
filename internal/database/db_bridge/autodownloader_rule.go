@@ -1,14 +1,15 @@
-package db
+package db_bridge
 
 import (
 	"github.com/goccy/go-json"
+	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/library/anime"
 )
 
-func (db *Database) GetAutoDownloaderRules() ([]*anime.AutoDownloaderRule, error) {
+func GetAutoDownloaderRules(db *db.Database) ([]*anime.AutoDownloaderRule, error) {
 	var res []*models.AutoDownloaderRule
-	err := db.gormdb.Find(&res).Error
+	err := db.Gorm().Find(&res).Error
 	if err != nil {
 		return nil, err
 	}
@@ -28,9 +29,9 @@ func (db *Database) GetAutoDownloaderRules() ([]*anime.AutoDownloaderRule, error
 	return rules, nil
 }
 
-func (db *Database) GetAutoDownloaderRule(id uint) (*anime.AutoDownloaderRule, error) {
+func GetAutoDownloaderRule(db *db.Database, id uint) (*anime.AutoDownloaderRule, error) {
 	var res models.AutoDownloaderRule
-	err := db.gormdb.First(&res, id).Error
+	err := db.Gorm().First(&res, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func (db *Database) GetAutoDownloaderRule(id uint) (*anime.AutoDownloaderRule, e
 	return &sm, nil
 }
 
-func (db *Database) InsertAutoDownloaderRule(sm *anime.AutoDownloaderRule) error {
+func InsertAutoDownloaderRule(db *db.Database, sm *anime.AutoDownloaderRule) error {
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {
@@ -54,16 +55,16 @@ func (db *Database) InsertAutoDownloaderRule(sm *anime.AutoDownloaderRule) error
 	}
 
 	// Save the data
-	return db.gormdb.Create(&models.AutoDownloaderRule{
+	return db.Gorm().Create(&models.AutoDownloaderRule{
 		Value: bytes,
 	}).Error
 }
 
-func (db *Database) DeleteAutoDownloaderRule(id uint) error {
-	return db.gormdb.Delete(&models.AutoDownloaderRule{}, id).Error
+func DeleteAutoDownloaderRule(db *db.Database, id uint) error {
+	return db.Gorm().Delete(&models.AutoDownloaderRule{}, id).Error
 }
 
-func (db *Database) UpdateAutoDownloaderRule(id uint, sm *anime.AutoDownloaderRule) error {
+func UpdateAutoDownloaderRule(db *db.Database, id uint, sm *anime.AutoDownloaderRule) error {
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {
@@ -71,5 +72,5 @@ func (db *Database) UpdateAutoDownloaderRule(id uint, sm *anime.AutoDownloaderRu
 	}
 
 	// Save the data
-	return db.gormdb.Model(&models.AutoDownloaderRule{}).Where("id = ?", id).Update("value", bytes).Error
+	return db.Gorm().Model(&models.AutoDownloaderRule{}).Where("id = ?", id).Update("value", bytes).Error
 }

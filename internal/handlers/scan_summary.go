@@ -1,5 +1,7 @@
 package handlers
 
+import "github.com/seanime-app/seanime/internal/database/db_bridge"
+
 // HandleGetScanSummaries
 //
 //	@summary returns the latest scan summaries.
@@ -7,7 +9,7 @@ package handlers
 //	@returns []db.ScanSummaryItem
 func HandleGetScanSummaries(c *RouteCtx) error {
 
-	sm, err := c.App.Database.GetScanSummaries()
+	sm, err := db_bridge.GetScanSummaries(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

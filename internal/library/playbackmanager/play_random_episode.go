@@ -3,6 +3,7 @@ package playbackmanager
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/library/anime"
 )
 
@@ -23,7 +24,7 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 	//
 
 	// Get lfs
-	lfs, _, err := pm.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(pm.Database)
 	if err != nil {
 		return fmt.Errorf("error getting local files: %s", err.Error())
 	}

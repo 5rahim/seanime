@@ -13,7 +13,7 @@ func (db *Database) UpsertAccount(acc *models.Account) (*models.Account, error) 
 	}).Create(acc).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("Failed to save account in the database")
+		db.Logger.Error().Err(err).Msg("Failed to save account in the database")
 		return nil, err
 	}
 	return acc, nil

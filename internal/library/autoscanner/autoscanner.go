@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/seanime-app/seanime/internal/database/db"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/events"
 	"github.com/seanime-app/seanime/internal/library/autodownloader"
 	"github.com/seanime-app/seanime/internal/library/scanner"
@@ -185,7 +186,7 @@ func (as *AutoScanner) scan() {
 	}
 
 	// Get existing local files
-	existingLfs, _, err := as.db.GetLocalFiles()
+	existingLfs, _, err := db_bridge.GetLocalFiles(as.db)
 	if err != nil {
 		as.logger.Error().Err(err).Msg("autoscanner: failed to get existing local files")
 		return
@@ -218,14 +219,14 @@ func (as *AutoScanner) scan() {
 		as.logger.Trace().Msg("autoscanner: Updating local files")
 
 		// Insert the local files
-		_, err = as.db.InsertLocalFiles(allLfs)
+		_, err = db_bridge.InsertLocalFiles(as.db, allLfs)
 		if err != nil {
 			as.logger.Error().Err(err).Msg("failed to insert local files")
 			return
 		}
 
 		// Save the scan summary
-		err = as.db.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+		err = db_bridge.InsertScanSummary(as.db, scanSummaryLogger.GenerateSummary())
 		if err != nil {
 			as.logger.Error().Err(err).Msg("failed to insert scan summary")
 		}

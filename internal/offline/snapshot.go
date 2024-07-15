@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/seanime-app/seanime/internal/api/anilist"
 	"github.com/seanime-app/seanime/internal/api/anizip"
+	"github.com/seanime-app/seanime/internal/database/db_bridge"
 	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/seanime-app/seanime/internal/manga"
 	"github.com/seanime-app/seanime/internal/util/limiter"
@@ -26,7 +27,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	h.logger.Debug().Msg("offline hub: Creating snapshot")
 
 	// Get local files
-	lfs, _, err := h.db.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(h.db)
 	if err != nil {
 		return err
 	}
