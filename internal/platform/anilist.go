@@ -42,7 +42,7 @@ func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Log
 func (ap *AnilistPlatform) SetUsername(username string) {
 	// Set the username for the AnilistPlatform
 	if username == "" {
-		ap.username = mo.None[string]()
+		ap.username = mo.Some[string]("")
 		return
 	}
 

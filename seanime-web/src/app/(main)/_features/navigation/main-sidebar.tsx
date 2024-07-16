@@ -22,12 +22,12 @@ import { useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChart, BiCollection, BiDownload, BiLogOut } from "react-icons/bi"
+import { BiCalendarAlt, BiChart, BiDownload, BiLogOut } from "react-icons/bi"
 import { FaBookReader, FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { IoCloudOffline, IoLibrary } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
-import { SiMyanimelist } from "react-icons/si"
+import { SiAnilist, SiMyanimelist } from "react-icons/si"
 
 /**
  * @description
@@ -134,7 +134,7 @@ export function MainSidebar() {
                                 isCurrent: pathname === "/discover",
                             },
                             {
-                                iconType: BiCollection,
+                                iconType: SiAnilist,
                                 name: "AniList",
                                 href: "/anilist",
                                 isCurrent: pathname === "/anilist",

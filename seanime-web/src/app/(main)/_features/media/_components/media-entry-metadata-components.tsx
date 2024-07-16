@@ -2,6 +2,7 @@ import { AL_AnimeDetailsById_Media_Rankings, AL_MangaDetailsById_Media_Rankings 
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
@@ -35,12 +36,14 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
 
 type MediaEntryAudienceScoreProps = {
     meanScore?: number | null
+    badgeClass?: string
 }
 
 export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
 
     const {
         meanScore,
+        badgeClass,
         ...rest
     } = props
 
@@ -69,7 +72,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                         <Badge
                             intent="unstyled"
                             size="lg"
-                            className={getScoreColor(meanScore, "audience")}
+                            className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
                             leftIcon={<BiHeart />}
                         >{meanScore / 10}</Badge>
                     </DisclosureContent>
@@ -77,7 +80,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
             </Disclosure> : <Badge
                 intent="unstyled"
                 size="lg"
-                className={getScoreColor(meanScore, "audience")}
+                className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
                 leftIcon={<BiHeart />}
             >{meanScore / 10}</Badge>}
         </>

@@ -38,7 +38,7 @@ type (
 	//
 	//	e.g., downloadDir/comick_1234_abc_13/
 	//	      downloadDir/comick_1234_def_13.5/
-	// -> map[1234]["comick"] = [{"abc", "13"}, {"def", "13.5"}]
+	// -> { 1234: { "comick": [ { "chapterId": "abc", "chapterNumber": "13" }, { "chapterId": "def", "chapterNumber": "13.5" } ] } }
 	MediaMap map[int]ProviderDownloadMap
 
 	// ProviderDownloadMap is used to store all downloaded chapters for a specific media and provider.
