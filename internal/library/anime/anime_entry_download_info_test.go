@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestNewMediaEntryDownloadInfo(t *testing.T) {
+func TestNewAnimeEntryDownloadInfo(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	metadataProvider := metadata.TestGetMockProvider(t)
@@ -99,7 +99,7 @@ func TestNewMediaEntryDownloadInfo(t *testing.T) {
 
 			anilistEntry, _ := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
 
-			info, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
+			info, err := NewAnimeEntryDownloadInfo(&NewAnimeEntryDownloadInfoOptions{
 				LocalFiles:       tt.localFiles,
 				AnizipMedia:      anizipData,
 				Progress:         &tt.currentProgress,

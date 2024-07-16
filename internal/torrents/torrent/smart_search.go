@@ -42,9 +42,9 @@ type (
 		Logger                *zerolog.Logger
 		MetadataProvider      *metadata.Provider
 	}
-	// Preview is used to preview a torrent à la anime.MediaEntryEpisode.
+	// Preview is used to preview a torrent à la anime.AnimeEntryEpisode.
 	Preview struct {
-		Episode *anime.MediaEntryEpisode `json:"episode"` // nil if batch
+		Episode *anime.AnimeEntryEpisode `json:"episode"` // nil if batch
 		Torrent *AnimeTorrent            `json:"torrent"`
 	}
 	// SearchData is the struct returned by NewSmartSearch
@@ -318,7 +318,7 @@ func createTorrentPreview(
 	anizipMedia, _ := anizipCache.Get(anizip.GetCacheKey("anilist", media.ID)) // can be nil
 
 	if isBestRelease && anizipMedia != nil {
-		ep := anime.NewMediaEntryEpisode(&anime.NewMediaEntryEpisodeOptions{
+		ep := anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
 			LocalFile:            nil,
 			OptionalAniDBEpisode: strconv.Itoa(torrent.EpisodeNumber),
 			AnizipMedia:          anizipMedia,
@@ -385,7 +385,7 @@ func createTorrentPreview(
 
 	// If the torrent is a batch, we don't need to set the episode
 	if torrent.EpisodeNumber != -2 {
-		ret.Episode = anime.NewMediaEntryEpisode(&anime.NewMediaEntryEpisodeOptions{
+		ret.Episode = anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
 			LocalFile:            nil,
 			OptionalAniDBEpisode: strconv.Itoa(torrent.EpisodeNumber),
 			AnizipMedia:          anizipMedia,

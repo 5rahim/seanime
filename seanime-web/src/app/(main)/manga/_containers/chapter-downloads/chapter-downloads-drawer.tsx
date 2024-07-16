@@ -2,7 +2,7 @@
 import { Manga_Collection } from "@/api/generated/types"
 import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
 import { useGetMangaDownloadsList } from "@/api/hooks/manga_download.hooks"
-import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 
 import { useHandleMangaChapterDownloadQueue } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -262,7 +262,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                     .map(item => {
                                         const nb = Object.values(item.downloadData).flatMap(n => n).length
                                         return <div key={item.media?.id!} className="col-span-1">
-                                            <MediaEntryCard
+                                            <AnimeEntryCard
                                                 media={item.media!}
                                                 type="manga"
                                                 overlay={<Badge

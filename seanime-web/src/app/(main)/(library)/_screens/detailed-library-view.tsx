@@ -1,4 +1,4 @@
-import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode, Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import {
     __library_debouncedSearchInputAtom,
     __library_paramsAtom,
@@ -9,7 +9,7 @@ import {
 } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
-import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
@@ -44,7 +44,7 @@ import { RiSignalTowerLine } from "react-icons/ri"
 
 type LibraryViewProps = {
     collectionList: Anime_LibraryCollectionList[]
-    continueWatchingList: Anime_MediaEntryEpisode[]
+    continueWatchingList: Anime_AnimeEntryEpisode[]
     isLoading: boolean
     hasScanned: boolean
 }
@@ -150,7 +150,7 @@ const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCol
 
 const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
     return (
-        <MediaEntryCard
+        <AnimeEntryCard
             media={entry.media!}
             listData={entry.listData}
             libraryData={entry.libraryData}

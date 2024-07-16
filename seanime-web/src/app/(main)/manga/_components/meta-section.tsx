@@ -1,9 +1,9 @@
 "use client"
 import { AL_MangaDetailsById_Media, Manga_Entry } from "@/api/generated/types"
 import {
-    MediaEntryAudienceScore,
-    MediaEntryGenresList,
-    MediaEntryRankings,
+    AnimeEntryAudienceScore,
+    AnimeEntryGenresList,
+    AnimeEntryRankings,
 } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {
     MediaPageHeader,
@@ -46,12 +46,12 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
 
 
                 <div className="flex gap-2 items-center">
-                    <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
+                    <AnimeEntryAudienceScore meanScore={entry.media?.meanScore} />
                 </div>
 
-                <MediaEntryGenresList genres={details?.genres} />
+                <AnimeEntryGenresList genres={details?.genres} />
 
-                <MediaEntryRankings rankings={details?.rankings} />
+                <AnimeEntryRankings rankings={details?.rankings} />
 
 
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">

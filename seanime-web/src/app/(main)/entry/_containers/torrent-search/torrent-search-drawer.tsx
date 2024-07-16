@@ -1,4 +1,4 @@
-import { Anime_MediaEntry, Anime_MediaEntryDownloadEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_AnimeEntryDownloadEpisode } from "@/api/generated/types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { Drawer } from "@/components/ui/drawer"
@@ -14,7 +14,7 @@ export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefi
 
 export type TorrentSearchType = "select" | "download"
 
-export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
+export function TorrentSearchDrawer(props: { entry: Anime_AnimeEntry }) {
 
     const { entry } = props
 
@@ -55,7 +55,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_MediaEntry }) {
 
 }
 
-function EpisodeList({ episodes }: { episodes: Anime_MediaEntryDownloadEpisode[] | undefined }) {
+function EpisodeList({ episodes }: { episodes: Anime_AnimeEntryDownloadEpisode[] | undefined }) {
 
     if (!episodes || !episodes.length) return null
 

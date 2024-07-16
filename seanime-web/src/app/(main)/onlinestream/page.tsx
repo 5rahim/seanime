@@ -56,7 +56,7 @@ export default function Page() {
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const urlEpNumber = searchParams.get("episode")
-    const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
+    const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
 
     const ref = React.useRef<MediaPlayerInstance>(null)
 
@@ -64,12 +64,12 @@ export default function Page() {
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
     const [progressItem, setProgressItem] = useAtom(progressItemAtom)
 
-    const [currentProgress, setCurrentProgress] = React.useState(mediaEntry?.listData?.progress ?? 0)
+    const [currentProgress, setCurrentProgress] = React.useState(animeEntry?.listData?.progress ?? 0)
 
     const progress = React.useMemo(() => {
-        setCurrentProgress(mediaEntry?.listData?.progress ?? 0)
-        return mediaEntry?.listData?.progress ?? 0
-    }, [mediaEntry?.listData?.progress])
+        setCurrentProgress(animeEntry?.listData?.progress ?? 0)
+        return animeEntry?.listData?.progress ?? 0
+    }, [animeEntry?.listData?.progress])
 
     const {
         episodes,
@@ -115,7 +115,7 @@ export default function Page() {
         if (!!media && firstRenderRef.current) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
-            const progress = mediaEntry?.listData?.progress ?? 0
+            const progress = animeEntry?.listData?.progress ?? 0
             const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
             handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
             firstRenderRef.current = false
@@ -227,7 +227,7 @@ export default function Page() {
 
     const checkTimeRef = React.useRef<number>(0)
 
-    if (!loadPage || !media || mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
+    if (!loadPage || !media || animeEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>

@@ -35,7 +35,7 @@ import (
 //	@desc This includes episodes and metadata (if any), AniList list data, download info...
 //	@route /api/v1/library/anime-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
-//	@returns anime.MediaEntry
+//	@returns anime.AnimeEntry
 func HandleGetAnimeEntry(c *RouteCtx) error {
 
 	mId, err := c.Fiber.ParamsInt("id")
@@ -56,7 +56,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 	}
 
 	// Create a new media entry
-	entry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
+	entry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
 		MediaId:          mId,
 		LocalFiles:       lfs,
 		AnizipCache:      c.App.AnizipCache,
@@ -499,7 +499,7 @@ func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("invalid id"))
 	}
 
-	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
+	animeEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.RespondWithData(false)
@@ -508,7 +508,7 @@ func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
 		}
 	}
 
-	return c.RespondWithData(mediaEntry)
+	return c.RespondWithData(animeEntry)
 }
 
 // HandleToggleAnimeEntrySilenceStatus
@@ -528,7 +528,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
+	animeEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = c.App.Database.InsertSilencedMediaEntry(uint(b.MediaId))
@@ -541,7 +541,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 		}
 	}
 
-	err = c.App.Database.DeleteSilencedMediaEntry(mediaEntry.ID)
+	err = c.App.Database.DeleteSilencedMediaEntry(animeEntry.ID)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

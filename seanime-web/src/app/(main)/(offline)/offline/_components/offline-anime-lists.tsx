@@ -2,7 +2,7 @@ import { Offline_AnimeEntry } from "@/api/generated/types"
 import { LibraryHeader } from "@/app/(main)/(library)/_components/library-header"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { OfflineMediaEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
+import { OfflineAnimeEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
@@ -19,7 +19,7 @@ export function OfflineAnimeLists() {
                 {entries?.map(entry => {
                     if (!entry) return null
 
-                    return <OfflineMediaEntryCard
+                    return <OfflineAnimeEntryCard
                         key={entry.mediaId}
                         media={entry.media!}
                         listData={entry.listData}

@@ -1,6 +1,6 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { useGetAniListStats } from "@/api/hooks/anilist.hooks"
-import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
+import { AnilistAnimeEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AnilistStats } from "@/app/(main)/anilist/_containers/anilist-stats"
 import {
@@ -112,23 +112,23 @@ export function AnilistCollectionLists() {
                     <div className="py-6 space-y-6">
                         {(!!currentList?.entries?.length && ["-", "CURRENT"].includes(selectedIndex)) && <>
                             <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList type={pageType} list={currentList} />
+                            <AnilistAnimeEntryList type={pageType} list={currentList} />
                         </>}
                         {(!!planningList?.entries?.length && ["-", "PLANNING"].includes(selectedIndex)) && <>
                             <h2>Planning <span className="text-[--muted] font-medium ml-3">{planningList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList type={pageType} list={planningList} />
+                            <AnilistAnimeEntryList type={pageType} list={planningList} />
                         </>}
                         {(!!pausedList?.entries?.length && ["-", "PAUSED"].includes(selectedIndex)) && <>
                             <h2>Paused <span className="text-[--muted] font-medium ml-3">{pausedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList type={pageType} list={pausedList} />
+                            <AnilistAnimeEntryList type={pageType} list={pausedList} />
                         </>}
                         {(!!completedList?.entries?.length && ["-", "COMPLETED"].includes(selectedIndex)) && <>
                             <h2>Completed <span className="text-[--muted] font-medium ml-3">{completedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList type={pageType} list={completedList} />
+                            <AnilistAnimeEntryList type={pageType} list={completedList} />
                         </>}
                         {(!!droppedList?.entries?.length && ["-", "DROPPED"].includes(selectedIndex)) && <>
                             <h2>Dropped <span className="text-[--muted] font-medium ml-3">{droppedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList type={pageType} list={droppedList} />
+                            <AnilistAnimeEntryList type={pageType} list={droppedList} />
                         </>}
                         {customLists?.map(list => {
                             return (!!list.entries?.length && ["-", list.name || "N/A"].includes(selectedIndex)) ? <div
@@ -136,7 +136,7 @@ export function AnilistCollectionLists() {
                                 className="space-y-6"
                             >
                                 <h2>{list.name}</h2>
-                                <AnilistMediaEntryList type={pageType} list={list} />
+                                <AnilistAnimeEntryList type={pageType} list={list} />
                             </div> : null
                         })}
                     </div>

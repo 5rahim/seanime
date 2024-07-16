@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { useGetOfflineSnapshot } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { groupBy } from "lodash"
@@ -61,7 +61,7 @@ export function useHandleOfflineSnapshot() {
                     },
                 } as AL_BaseAnime,
             }
-        })?.filter(Boolean) || [] as Anime_MediaEntryEpisode[]
+        })?.filter(Boolean) || [] as Anime_AnimeEntryEpisode[]
     }, [snapshot?.entries?.animeEntries])
 
     return {

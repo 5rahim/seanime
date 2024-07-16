@@ -1,8 +1,8 @@
 "use client"
 import { AL_BaseAnime, AL_BaseManga, Offline_AnimeEntry, Offline_AssetMapImageMap, Offline_MangaEntry } from "@/api/generated/types"
-import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
+import { OfflineAnilistAnimeEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
-import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
+import { AnimeEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {
     MediaPageHeader,
     MediaPageHeaderDetailsContainer,
@@ -46,7 +46,7 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
                     listData={entry.listData}
                     media={entry.media}
                     type={type}
-                    offlineAnilistMediaEntryModal={<OfflineAnilistMediaEntryModal
+                    offlineAnilistAnimeEntryModal={<OfflineAnilistAnimeEntryModal
                         media={entry.media}
                         assetMap={assetMap}
                         type={type}
@@ -56,7 +56,7 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
 
                 <div className="flex gap-2 items-center">
-                    <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
+                    <AnimeEntryAudienceScore meanScore={entry.media?.meanScore} />
                 </div>
             </MediaPageHeaderDetailsContainer>
         </MediaPageHeader>

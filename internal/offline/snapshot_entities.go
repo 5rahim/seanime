@@ -42,7 +42,7 @@ type (
 		MediaId          int                        `json:"mediaId"`
 		ListData         *ListData                  `json:"listData"`
 		Media            *anilist.BaseAnime         `json:"media"`
-		Episodes         []*anime.MediaEntryEpisode `json:"episodes"`
+		Episodes         []*anime.AnimeEntryEpisode `json:"episodes"`
 		DownloadedAssets bool                       `json:"downloadedAssets"`
 	}
 

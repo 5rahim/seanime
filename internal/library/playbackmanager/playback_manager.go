@@ -61,8 +61,8 @@ type (
 		// + Stream playback
 		// DEVOTE: currentStreamEpisodeCollection and currentStreamEpisode can be absent when the user is streaming a video,
 		// we will just not track the progress in that case
-		currentStreamEpisodeCollection mo.Option[*anime.MediaEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
-		currentStreamEpisode           mo.Option[*anime.MediaEntryEpisode]           // The current episode being streamed
+		currentStreamEpisodeCollection mo.Option[*anime.AnimeEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
+		currentStreamEpisode           mo.Option[*anime.AnimeEntryEpisode]           // The current episode being streamed
 		currentStreamMedia             mo.Option[*anilist.BaseAnime]                 // The current media being streamed
 		currentStreamAnizipMedia       mo.Option[*anizip.Media]                      // The current anizip media being streamed
 		currentStreamAnizipEpisode     mo.Option[*anizip.Episode]                    // The current anizip episode being streamed
@@ -121,12 +121,12 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	return pm
 }
 
-func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.MediaEntryEpisode) {
+func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.AnimeEntryEpisode) {
 	// DEVNOTE: This is called from the torrentstream repository instance
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	pm.currentStreamEpisodeCollection = mo.Some(&anime.MediaEntryEpisodeCollection{
+	pm.currentStreamEpisodeCollection = mo.Some(&anime.AnimeEntryEpisodeCollection{
 		Episodes: ec,
 	})
 }

@@ -1,4 +1,4 @@
-import { Anime_MediaEntry, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
@@ -21,7 +21,7 @@ import React, { useMemo } from "react"
 
 type TorrentStreamPageProps = {
     children?: React.ReactNode
-    entry: Anime_MediaEntry
+    entry: Anime_AnimeEntry
 }
 
 export function TorrentStreamPage(props: TorrentStreamPageProps) {
@@ -70,7 +70,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      * - If auto-select is enabled, send the streaming request
      * - If auto-select is disabled, open the torrent drawer
      */
-    const handleEpisodeClick = (episode: Anime_MediaEntryEpisode) => {
+    const handleEpisodeClick = (episode: Anime_AnimeEntryEpisode) => {
         if (isPending) return
 
         setTorrentStreamingSelectedEpisode(episode)

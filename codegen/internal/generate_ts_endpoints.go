@@ -219,7 +219,7 @@ func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir
 				typeF.WriteString(fmt.Sprintf(" * Route %s\n", strings.TrimSpace(route.Api.Summary)))
 			}
 			typeF.WriteString(" */\n")
-			typeF.WriteString(fmt.Sprintf("export type %s_Variables = {\n", strings.TrimPrefix(route.Name, "Handle"))) // export type EditMediaEntry_Variables = {
+			typeF.WriteString(fmt.Sprintf("export type %s_Variables = {\n", strings.TrimPrefix(route.Name, "Handle"))) // export type EditAnimeEntry_Variables = {
 
 			addedBodyFields := false
 			for _, param := range route.Api.BodyFields {

@@ -17,9 +17,9 @@ import (
 )
 
 type (
-	// TorrentPreview is used to preview a torrent à la anime.MediaEntryEpisode.
+	// TorrentPreview is used to preview a torrent à la anime.AnimeEntryEpisode.
 	TorrentPreview struct {
-		Episode       *anime.MediaEntryEpisode `json:"episode"`                 // nil if batch
+		Episode       *anime.AnimeEntryEpisode `json:"episode"`                 // nil if batch
 		EpisodeNumber *int                     `json:"episodeNumber,omitempty"` // nil if batch
 		IsBatch       bool                     `json:"isBatch"`
 		Resolution    string                   `json:"resolution"`
@@ -235,7 +235,7 @@ func createTorrentPreview(
 
 	// If the torrent is a batch, we don't need to set the episode
 	if episodeNumber != -2 {
-		ret.Episode = anime.NewMediaEntryEpisode(&anime.NewMediaEntryEpisodeOptions{
+		ret.Episode = anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
 			LocalFile:            nil,
 			OptionalAniDBEpisode: strconv.Itoa(episodeNumber),
 			AnizipMedia:          anizipMedia,

@@ -26197,9 +26197,9 @@
       {
         "name": "Episode",
         "jsonName": "episode",
-        "goType": "anime.MediaEntryEpisode",
-        "typescriptType": "Anime_MediaEntryEpisode",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "anime.AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": [
@@ -26793,9 +26793,9 @@
       {
         "name": "ContinueWatchingList",
         "jsonName": "continueWatchingList",
-        "goType": "[]MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -27008,11 +27008,11 @@
         "comments": []
       },
       {
-        "name": "MediaEntryLibraryData",
+        "name": "AnimeEntryLibraryData",
         "jsonName": "libraryData",
-        "goType": "MediaEntryLibraryData",
-        "typescriptType": "Anime_MediaEntryLibraryData",
-        "usedStructName": "anime.MediaEntryLibraryData",
+        "goType": "AnimeEntryLibraryData",
+        "typescriptType": "Anime_AnimeEntryLibraryData",
+        "usedStructName": "anime.AnimeEntryLibraryData",
         "required": false,
         "public": true,
         "comments": [
@@ -27020,11 +27020,11 @@
         ]
       },
       {
-        "name": "MediaEntryListData",
+        "name": "AnimeEntryListData",
         "jsonName": "listData",
-        "goType": "MediaEntryListData",
-        "typescriptType": "Anime_MediaEntryListData",
-        "usedStructName": "anime.MediaEntryListData",
+        "goType": "AnimeEntryListData",
+        "typescriptType": "Anime_AnimeEntryListData",
+        "usedStructName": "anime.AnimeEntryListData",
         "required": false,
         "public": true,
         "comments": [
@@ -27165,8 +27165,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "MediaEntryEpisode",
-    "formattedName": "Anime_MediaEntryEpisode",
+    "name": "AnimeEntryEpisode",
+    "formattedName": "Anime_AnimeEntryEpisode",
     "package": "anime",
     "fields": [
       {
@@ -27265,9 +27265,9 @@
       {
         "name": "EpisodeMetadata",
         "jsonName": "episodeMetadata",
-        "goType": "MediaEntryEpisodeMetadata",
-        "typescriptType": "Anime_MediaEntryEpisodeMetadata",
-        "usedStructName": "anime.MediaEntryEpisodeMetadata",
+        "goType": "AnimeEntryEpisodeMetadata",
+        "typescriptType": "Anime_AnimeEntryEpisodeMetadata",
+        "usedStructName": "anime.AnimeEntryEpisodeMetadata",
         "required": false,
         "public": true,
         "comments": [
@@ -27324,8 +27324,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "MediaEntryEpisodeMetadata",
-    "formattedName": "Anime_MediaEntryEpisodeMetadata",
+    "name": "AnimeEntryEpisodeMetadata",
+    "formattedName": "Anime_AnimeEntryEpisodeMetadata",
     "package": "anime",
     "fields": [
       {
@@ -27397,8 +27397,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "NewMediaEntryEpisodeOptions",
-    "formattedName": "Anime_NewMediaEntryEpisodeOptions",
+    "name": "NewAnimeEntryEpisodeOptions",
+    "formattedName": "Anime_NewAnimeEntryEpisodeOptions",
     "package": "anime",
     "fields": [
       {
@@ -27478,8 +27478,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "NewSimpleMediaEntryEpisodeOptions",
-    "formattedName": "Anime_NewSimpleMediaEntryEpisodeOptions",
+    "name": "NewSimpleAnimeEntryEpisodeOptions",
+    "formattedName": "Anime_NewSimpleAnimeEntryEpisodeOptions",
     "package": "anime",
     "fields": [
       {
@@ -27517,16 +27517,16 @@
   {
     "filepath": "../internal/library/anime/episode_collection.go",
     "filename": "episode_collection.go",
-    "name": "MediaEntryEpisodeCollection",
-    "formattedName": "Anime_MediaEntryEpisodeCollection",
+    "name": "AnimeEntryEpisodeCollection",
+    "formattedName": "Anime_AnimeEntryEpisodeCollection",
     "package": "anime",
     "fields": [
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -27858,8 +27858,8 @@
   {
     "filepath": "../internal/library/anime/media_entry.go",
     "filename": "media_entry.go",
-    "name": "MediaEntry",
-    "formattedName": "Anime_MediaEntry",
+    "name": "AnimeEntry",
+    "formattedName": "Anime_AnimeEntry",
     "package": "anime",
     "fields": [
       {
@@ -27882,31 +27882,31 @@
         "comments": []
       },
       {
-        "name": "MediaEntryListData",
+        "name": "AnimeEntryListData",
         "jsonName": "listData",
-        "goType": "MediaEntryListData",
-        "typescriptType": "Anime_MediaEntryListData",
-        "usedStructName": "anime.MediaEntryListData",
+        "goType": "AnimeEntryListData",
+        "typescriptType": "Anime_AnimeEntryListData",
+        "usedStructName": "anime.AnimeEntryListData",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "MediaEntryLibraryData",
+        "name": "AnimeEntryLibraryData",
         "jsonName": "libraryData",
-        "goType": "MediaEntryLibraryData",
-        "typescriptType": "Anime_MediaEntryLibraryData",
-        "usedStructName": "anime.MediaEntryLibraryData",
+        "goType": "AnimeEntryLibraryData",
+        "typescriptType": "Anime_AnimeEntryLibraryData",
+        "usedStructName": "anime.AnimeEntryLibraryData",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "MediaEntryDownloadInfo",
+        "name": "AnimeEntryDownloadInfo",
         "jsonName": "downloadInfo",
-        "goType": "MediaEntryDownloadInfo",
-        "typescriptType": "Anime_MediaEntryDownloadInfo",
-        "usedStructName": "anime.MediaEntryDownloadInfo",
+        "goType": "AnimeEntryDownloadInfo",
+        "typescriptType": "Anime_AnimeEntryDownloadInfo",
+        "usedStructName": "anime.AnimeEntryDownloadInfo",
         "required": false,
         "public": true,
         "comments": []
@@ -27914,9 +27914,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -27924,9 +27924,9 @@
       {
         "name": "NextEpisode",
         "jsonName": "nextEpisode",
-        "goType": "MediaEntryEpisode",
-        "typescriptType": "Anime_MediaEntryEpisode",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -27965,8 +27965,8 @@
   {
     "filepath": "../internal/library/anime/media_entry.go",
     "filename": "media_entry.go",
-    "name": "MediaEntryListData",
-    "formattedName": "Anime_MediaEntryListData",
+    "name": "AnimeEntryListData",
+    "formattedName": "Anime_AnimeEntryListData",
     "package": "anime",
     "fields": [
       {
@@ -28021,8 +28021,8 @@
   {
     "filepath": "../internal/library/anime/media_entry.go",
     "filename": "media_entry.go",
-    "name": "NewMediaEntryOptions",
-    "formattedName": "Anime_NewMediaEntryOptions",
+    "name": "NewAnimeEntryOptions",
+    "formattedName": "Anime_NewAnimeEntryOptions",
     "package": "anime",
     "fields": [
       {
@@ -28092,16 +28092,16 @@
   {
     "filepath": "../internal/library/anime/media_entry_download_info.go",
     "filename": "media_entry_download_info.go",
-    "name": "MediaEntryDownloadInfo",
-    "formattedName": "Anime_MediaEntryDownloadInfo",
+    "name": "AnimeEntryDownloadInfo",
+    "formattedName": "Anime_AnimeEntryDownloadInfo",
     "package": "anime",
     "fields": [
       {
         "name": "EpisodesToDownload",
         "jsonName": "episodesToDownload",
-        "goType": "[]MediaEntryDownloadEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryDownloadEpisode\u003e",
-        "usedStructName": "anime.MediaEntryDownloadEpisode",
+        "goType": "[]AnimeEntryDownloadEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryDownloadEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryDownloadEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -28157,8 +28157,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_download_info.go",
     "filename": "media_entry_download_info.go",
-    "name": "MediaEntryDownloadEpisode",
-    "formattedName": "Anime_MediaEntryDownloadEpisode",
+    "name": "AnimeEntryDownloadEpisode",
+    "formattedName": "Anime_AnimeEntryDownloadEpisode",
     "package": "anime",
     "fields": [
       {
@@ -28182,9 +28182,9 @@
       {
         "name": "Episode",
         "jsonName": "episode",
-        "goType": "MediaEntryEpisode",
-        "typescriptType": "Anime_MediaEntryEpisode",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -28195,8 +28195,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_download_info.go",
     "filename": "media_entry_download_info.go",
-    "name": "NewMediaEntryDownloadInfoOptions",
-    "formattedName": "Anime_NewMediaEntryDownloadInfoOptions",
+    "name": "NewAnimeEntryDownloadInfoOptions",
+    "formattedName": "Anime_NewAnimeEntryDownloadInfoOptions",
     "package": "anime",
     "fields": [
       {
@@ -28264,8 +28264,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_library_data.go",
     "filename": "media_entry_library_data.go",
-    "name": "MediaEntryLibraryData",
-    "formattedName": "Anime_MediaEntryLibraryData",
+    "name": "AnimeEntryLibraryData",
+    "formattedName": "Anime_AnimeEntryLibraryData",
     "package": "anime",
     "fields": [
       {
@@ -28292,8 +28292,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_library_data.go",
     "filename": "media_entry_library_data.go",
-    "name": "NewMediaEntryLibraryDataOptions",
-    "formattedName": "Anime_NewMediaEntryLibraryDataOptions",
+    "name": "NewAnimeEntryLibraryDataOptions",
+    "formattedName": "Anime_NewAnimeEntryLibraryDataOptions",
     "package": "anime",
     "fields": [
       {
@@ -28321,8 +28321,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_simple.go",
     "filename": "media_entry_simple.go",
-    "name": "SimpleMediaEntry",
-    "formattedName": "Anime_SimpleMediaEntry",
+    "name": "SimpleAnimeEntry",
+    "formattedName": "Anime_SimpleAnimeEntry",
     "package": "anime",
     "fields": [
       {
@@ -28345,21 +28345,21 @@
         "comments": []
       },
       {
-        "name": "MediaEntryListData",
+        "name": "AnimeEntryListData",
         "jsonName": "listData",
-        "goType": "MediaEntryListData",
-        "typescriptType": "Anime_MediaEntryListData",
-        "usedStructName": "anime.MediaEntryListData",
+        "goType": "AnimeEntryListData",
+        "typescriptType": "Anime_AnimeEntryListData",
+        "usedStructName": "anime.AnimeEntryListData",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "MediaEntryLibraryData",
+        "name": "AnimeEntryLibraryData",
         "jsonName": "libraryData",
-        "goType": "MediaEntryLibraryData",
-        "typescriptType": "Anime_MediaEntryLibraryData",
-        "usedStructName": "anime.MediaEntryLibraryData",
+        "goType": "AnimeEntryLibraryData",
+        "typescriptType": "Anime_AnimeEntryLibraryData",
+        "usedStructName": "anime.AnimeEntryLibraryData",
         "required": false,
         "public": true,
         "comments": []
@@ -28367,9 +28367,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -28377,9 +28377,9 @@
       {
         "name": "NextEpisode",
         "jsonName": "nextEpisode",
-        "goType": "MediaEntryEpisode",
-        "typescriptType": "Anime_MediaEntryEpisode",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -28409,8 +28409,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_simple.go",
     "filename": "media_entry_simple.go",
-    "name": "SimpleMediaEntryListData",
-    "formattedName": "Anime_SimpleMediaEntryListData",
+    "name": "SimpleAnimeEntryListData",
+    "formattedName": "Anime_SimpleAnimeEntryListData",
     "package": "anime",
     "fields": [
       {
@@ -28465,8 +28465,8 @@
   {
     "filepath": "../internal/library/anime/media_entry_simple.go",
     "filename": "media_entry_simple.go",
-    "name": "NewSimpleMediaEntryOptions",
-    "formattedName": "Anime_NewSimpleMediaEntryOptions",
+    "name": "NewSimpleAnimeEntryOptions",
+    "formattedName": "Anime_NewSimpleAnimeEntryOptions",
     "package": "anime",
     "fields": [
       {
@@ -28523,9 +28523,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -28533,9 +28533,9 @@
       {
         "name": "SilencedEpisodes",
         "jsonName": "silencedEpisodes",
-        "goType": "[]MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -38425,8 +38425,8 @@
   {
     "filepath": "../internal/offline/models.go",
     "filename": "models.go",
-    "name": "SnapshotMediaEntry",
-    "formattedName": "Offline_SnapshotMediaEntry",
+    "name": "SnapshotAnimeEntry",
+    "formattedName": "Offline_SnapshotAnimeEntry",
     "package": "offline",
     "fields": [
       {
@@ -38681,9 +38681,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]anime.MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]anime.AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []
@@ -45469,9 +45469,9 @@
       {
         "name": "Episode",
         "jsonName": "episode",
-        "goType": "anime.MediaEntryEpisode",
-        "typescriptType": "Anime_MediaEntryEpisode",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "anime.AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": [
@@ -46332,9 +46332,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]anime.MediaEntryEpisode",
-        "typescriptType": "Array\u003cAnime_MediaEntryEpisode\u003e",
-        "usedStructName": "anime.MediaEntryEpisode",
+        "goType": "[]anime.AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
         "required": false,
         "public": true,
         "comments": []

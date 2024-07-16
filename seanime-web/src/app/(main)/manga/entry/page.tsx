@@ -1,6 +1,6 @@
 "use client"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
-import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { AnimeEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
 import { ChapterList } from "@/app/(main)/manga/_containers/chapter-list/chapter-list"
@@ -31,7 +31,7 @@ export default function Page() {
         }
     }, [mangaEntry, mangaEntryLoading])
 
-    if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <MediaEntryPageLoadingDisplay />
+    if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <AnimeEntryPageLoadingDisplay />
 
     return (
         <div>

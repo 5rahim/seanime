@@ -1,4 +1,4 @@
-import { Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_AnimeEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import {
     __torrentstream__loadingStateAtom,
@@ -10,12 +10,12 @@ import React from "react"
 
 type ManualTorrentStreamSelectionProps = {
     torrent: Torrent_AnimeTorrent
-    entry: Anime_MediaEntry
+    entry: Anime_AnimeEntry
     episodeNumber: number
     aniDBEpisode: string
 }
 type AutoSelectTorrentStreamProps = {
-    entry: Anime_MediaEntry
+    entry: Anime_AnimeEntry
     episodeNumber: number
     aniDBEpisode: string
 }

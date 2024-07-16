@@ -97,7 +97,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		h.logger.Debug().Msgf("offline hub: Creating media entry snapshot for media %d", lfEntry.GetMediaId())
 
 		rateLimiter.Wait()
-		_mediaEntry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
+		_mediaEntry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
 			MediaId:          lfEntry.GetMediaId(),
 			LocalFiles:       lfs,
 			AnizipCache:      anizipCache,

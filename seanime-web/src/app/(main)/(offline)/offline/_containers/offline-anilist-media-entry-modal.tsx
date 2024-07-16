@@ -31,7 +31,7 @@ const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
     endDate: presets.datePicker.nullish(),
 }))
 
-export const OfflineAnilistMediaEntryModal: React.FC<Props> = (props) => {
+export const OfflineAnilistAnimeEntryModal: React.FC<Props> = (props) => {
 
     const { children, media, listData, hideButton, assetMap, type = "anime", ...rest } = props
 

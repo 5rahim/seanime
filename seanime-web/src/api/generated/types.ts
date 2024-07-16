@@ -1229,7 +1229,7 @@ export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
  * - Package: anime
  */
 export type Anime_LibraryCollection = {
-    continueWatchingList?: Array<Anime_MediaEntryEpisode>
+    continueWatchingList?: Array<Anime_AnimeEntryEpisode>
     lists?: Array<Anime_LibraryCollectionList>
     unmatchedLocalFiles?: Array<Anime_LocalFile>
     unmatchedGroups?: Array<Anime_UnmatchedGroup>
@@ -1249,11 +1249,11 @@ export type Anime_LibraryCollectionEntry = {
     /**
      * Library data
      */
-    libraryData?: Anime_MediaEntryLibraryData
+    libraryData?: Anime_AnimeEntryLibraryData
     /**
      * AniList list data
      */
-    listData?: Anime_MediaEntryListData
+    listData?: Anime_AnimeEntryListData
 }
 
 /**
@@ -1342,14 +1342,14 @@ export type Anime_LocalFileType = "main" | "special" | "nc"
  * - Filename: media_entry.go
  * - Package: anime
  */
-export type Anime_MediaEntry = {
+export type Anime_AnimeEntry = {
     mediaId: number
     media?: AL_BaseAnime
-    listData?: Anime_MediaEntryListData
-    libraryData?: Anime_MediaEntryLibraryData
-    downloadInfo?: Anime_MediaEntryDownloadInfo
-    episodes?: Array<Anime_MediaEntryEpisode>
-    nextEpisode?: Anime_MediaEntryEpisode
+    listData?: Anime_AnimeEntryListData
+    libraryData?: Anime_AnimeEntryLibraryData
+    downloadInfo?: Anime_AnimeEntryDownloadInfo
+    episodes?: Array<Anime_AnimeEntryEpisode>
+    nextEpisode?: Anime_AnimeEntryEpisode
     localFiles?: Array<Anime_LocalFile>
     aniDBId: number
     currentEpisodeCount: number
@@ -1360,10 +1360,10 @@ export type Anime_MediaEntry = {
  * - Filename: media_entry_download_info.go
  * - Package: anime
  */
-export type Anime_MediaEntryDownloadEpisode = {
+export type Anime_AnimeEntryDownloadEpisode = {
     episodeNumber: number
     aniDBEpisode: string
-    episode?: Anime_MediaEntryEpisode
+    episode?: Anime_AnimeEntryEpisode
 }
 
 /**
@@ -1371,8 +1371,8 @@ export type Anime_MediaEntryDownloadEpisode = {
  * - Filename: media_entry_download_info.go
  * - Package: anime
  */
-export type Anime_MediaEntryDownloadInfo = {
-    episodesToDownload?: Array<Anime_MediaEntryDownloadEpisode>
+export type Anime_AnimeEntryDownloadInfo = {
+    episodesToDownload?: Array<Anime_AnimeEntryDownloadEpisode>
     canBatch: boolean
     batchAll: boolean
     hasInaccurateSchedule: boolean
@@ -1385,7 +1385,7 @@ export type Anime_MediaEntryDownloadInfo = {
  * - Filename: episode.go
  * - Package: anime
  */
-export type Anime_MediaEntryEpisode = {
+export type Anime_AnimeEntryEpisode = {
     type: Anime_LocalFileType
     /**
      * e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
@@ -1413,7 +1413,7 @@ export type Anime_MediaEntryEpisode = {
     /**
      * (image, airDate, length, summary, overview)
      */
-    episodeMetadata?: Anime_MediaEntryEpisodeMetadata
+    episodeMetadata?: Anime_AnimeEntryEpisodeMetadata
     /**
      * (episode, aniDBEpisode, type...)
      */
@@ -1434,7 +1434,7 @@ export type Anime_MediaEntryEpisode = {
  * - Filename: episode.go
  * - Package: anime
  */
-export type Anime_MediaEntryEpisodeMetadata = {
+export type Anime_AnimeEntryEpisodeMetadata = {
     aniDBId?: number
     image?: string
     airDate?: string
@@ -1449,7 +1449,7 @@ export type Anime_MediaEntryEpisodeMetadata = {
  * - Filename: media_entry_library_data.go
  * - Package: anime
  */
-export type Anime_MediaEntryLibraryData = {
+export type Anime_AnimeEntryLibraryData = {
     allFilesLocked: boolean
     sharedPath: string
 }
@@ -1459,7 +1459,7 @@ export type Anime_MediaEntryLibraryData = {
  * - Filename: media_entry.go
  * - Package: anime
  */
-export type Anime_MediaEntryListData = {
+export type Anime_AnimeEntryListData = {
     progress?: number
     score?: number
     status?: AL_MediaListStatus
@@ -1473,8 +1473,8 @@ export type Anime_MediaEntryListData = {
  * - Package: anime
  */
 export type Anime_MissingEpisodes = {
-    episodes?: Array<Anime_MediaEntryEpisode>
-    silencedEpisodes?: Array<Anime_MediaEntryEpisode>
+    episodes?: Array<Anime_AnimeEntryEpisode>
+    silencedEpisodes?: Array<Anime_AnimeEntryEpisode>
 }
 
 /**
@@ -2121,7 +2121,7 @@ export type Offline_AnimeEntry = {
     mediaId: number
     listData?: Offline_ListData
     media?: AL_BaseAnime
-    episodes?: Array<Anime_MediaEntryEpisode>
+    episodes?: Array<Anime_AnimeEntryEpisode>
     downloadedAssets: boolean
 }
 
@@ -2367,7 +2367,7 @@ export type Torrent_Preview = {
     /**
      * nil if batch
      */
-    episode?: Anime_MediaEntryEpisode
+    episode?: Anime_AnimeEntryEpisode
     torrent?: Torrent_AnimeTorrent
 }
 
@@ -2426,7 +2426,7 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
  * - Package: torrentstream
  */
 export type Torrentstream_EpisodeCollection = {
-    episodes?: Array<Anime_MediaEntryEpisode>
+    episodes?: Array<Anime_AnimeEntryEpisode>
 }
 
 /**

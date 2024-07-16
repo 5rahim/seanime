@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -15,7 +15,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 type WeekCalendarProps = {
     children?: React.ReactNode
     media: AL_BaseAnime[]
-    missingEpisodes: Anime_MediaEntryEpisode[]
+    missingEpisodes: Anime_AnimeEntryEpisode[]
 }
 
 export function MonthCalendar(props: WeekCalendarProps) {

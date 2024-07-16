@@ -1,6 +1,6 @@
 "use client"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
-import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { AnimeEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { LibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { useHandleMangaCollection } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { MangaLibraryView } from "@/app/(main)/manga/_screens/manga-library-view"
@@ -19,7 +19,7 @@ export default function Page() {
 
     const ts = useThemeSettings()
 
-    if (!mangaCollection || mangaCollectionLoading) return <MediaEntryPageLoadingDisplay />
+    if (!mangaCollection || mangaCollectionLoading) return <AnimeEntryPageLoadingDisplay />
 
     return (
         <div>

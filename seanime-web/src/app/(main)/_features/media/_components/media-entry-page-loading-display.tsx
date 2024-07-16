@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
-export function MediaEntryPageLoadingDisplay() {
+export function AnimeEntryPageLoadingDisplay() {
     const ts = useThemeSettings()
 
     if (!!ts.libraryScreenCustomBackgroundImage) {

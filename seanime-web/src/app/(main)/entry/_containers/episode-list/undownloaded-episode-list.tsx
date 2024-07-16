@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntryDownloadInfo } from "@/api/generated/types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
@@ -11,7 +11,7 @@ import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"
 
 export function UndownloadedEpisodeList({ downloadInfo, media }: {
-    downloadInfo: Anime_MediaEntryDownloadInfo | undefined,
+    downloadInfo: Anime_AnimeEntryDownloadInfo | undefined,
     media: AL_BaseAnime
 }) {
 

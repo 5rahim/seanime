@@ -1,4 +1,4 @@
-import { Anime_MediaEntry, Anime_MediaEntryDownloadInfo } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_AnimeEntryDownloadInfo } from "@/api/generated/types"
 import { useSearchNsfwTorrent, useSearchTorrent } from "@/api/hooks/torrent_search.hooks"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { __torrentSearch_drawerEpisodeAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -9,8 +9,8 @@ import React, { startTransition } from "react"
 type TorrentSearchHookProps = {
     hasEpisodesToDownload: boolean
     shouldLookForBatches: boolean
-    downloadInfo: Anime_MediaEntryDownloadInfo | undefined
-    entry: Anime_MediaEntry | undefined
+    downloadInfo: Anime_AnimeEntryDownloadInfo | undefined
+    entry: Anime_AnimeEntry | undefined
     isAdult: boolean
     type: TorrentSearchType
 }

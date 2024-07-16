@@ -12,9 +12,9 @@ import (
 )
 
 type (
-	// MediaEntryDownloadInfo is instantiated by the MediaEntry
-	MediaEntryDownloadInfo struct {
-		EpisodesToDownload    []*MediaEntryDownloadEpisode `json:"episodesToDownload"`
+	// AnimeEntryDownloadInfo is instantiated by the AnimeEntry
+	AnimeEntryDownloadInfo struct {
+		EpisodesToDownload    []*AnimeEntryDownloadEpisode `json:"episodesToDownload"`
 		CanBatch              bool                         `json:"canBatch"`
 		BatchAll              bool                         `json:"batchAll"`
 		HasInaccurateSchedule bool                         `json:"hasInaccurateSchedule"`
@@ -22,15 +22,15 @@ type (
 		AbsoluteOffset        int                          `json:"absoluteOffset"`
 	}
 
-	MediaEntryDownloadEpisode struct {
+	AnimeEntryDownloadEpisode struct {
 		EpisodeNumber int                `json:"episodeNumber"`
 		AniDBEpisode  string             `json:"aniDBEpisode"`
-		Episode       *MediaEntryEpisode `json:"episode"`
+		Episode       *AnimeEntryEpisode `json:"episode"`
 	}
 )
 
 type (
-	NewMediaEntryDownloadInfoOptions struct {
+	NewAnimeEntryDownloadInfoOptions struct {
 		// Media's local files
 		LocalFiles       []*LocalFile
 		AnizipMedia      *anizip.Media
@@ -41,11 +41,11 @@ type (
 	}
 )
 
-// NewMediaEntryDownloadInfo creates a new MediaEntryDownloadInfo
-func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEntryDownloadInfo, error) {
+// NewAnimeEntryDownloadInfo creates a new AnimeEntryDownloadInfo
+func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEntryDownloadInfo, error) {
 
 	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
-		return &MediaEntryDownloadInfo{}, nil
+		return &AnimeEntryDownloadInfo{}, nil
 	}
 	if opts.AnizipMedia == nil {
 		return nil, errors.New("could not get anizip media")
@@ -183,17 +183,17 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 
 	// DEVNOTE: The EntryEpisode generated has inaccurate progress numbers since not local files are passed in
 
-	p := pool.NewWithResults[*MediaEntryDownloadEpisode]()
+	p := pool.NewWithResults[*AnimeEntryDownloadEpisode]()
 	for _, ep := range toDownloadSlice {
-		p.Go(func() *MediaEntryDownloadEpisode {
-			str := new(MediaEntryDownloadEpisode)
+		p.Go(func() *AnimeEntryDownloadEpisode {
+			str := new(AnimeEntryDownloadEpisode)
 			str.EpisodeNumber = ep
 			str.AniDBEpisode = strconv.Itoa(ep)
 			if ep == -1 {
 				str.EpisodeNumber = 0
 				str.AniDBEpisode = "S1"
 			}
-			str.Episode = NewMediaEntryEpisode(&NewMediaEntryEpisodeOptions{
+			str.Episode = NewAnimeEntryEpisode(&NewAnimeEntryEpisodeOptions{
 				LocalFile:            nil,
 				OptionalAniDBEpisode: str.AniDBEpisode,
 				AnizipMedia:          opts.AnizipMedia,
@@ -222,7 +222,7 @@ func NewMediaEntryDownloadInfo(opts *NewMediaEntryDownloadInfoOptions) (*MediaEn
 		rewatch = true
 	}
 
-	return &MediaEntryDownloadInfo{
+	return &AnimeEntryDownloadInfo{
 		EpisodesToDownload:    episodesToDownload,
 		CanBatch:              canBatch,
 		BatchAll:              batchAll,

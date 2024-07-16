@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_AnimeEntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { Button, IconButton } from "@/components/ui/button"
@@ -14,9 +14,9 @@ import { AiFillEdit } from "react-icons/ai"
 import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
 import { useToggle } from "react-use"
 
-type AnilistMediaEntryModalProps = {
+type AnilistAnimeEntryModalProps = {
     children?: React.ReactNode
-    listData?: Anime_MediaEntryListData | Manga_EntryListData
+    listData?: Anime_AnimeEntryListData | Manga_EntryListData
     media?: AL_BaseAnime | AL_BaseManga
     hideButton?: boolean
     type?: "anime" | "manga"
@@ -31,7 +31,7 @@ export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
 }))
 
 
-export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (props) => {
+export const AnilistAnimeEntryModal: React.FC<AnilistAnimeEntryModalProps> = (props) => {
     const [open, toggle] = useToggle(false)
 
     const { children, media, listData, hideButton, type = "anime", ...rest } = props

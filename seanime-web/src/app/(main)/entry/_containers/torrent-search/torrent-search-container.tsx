@@ -1,4 +1,4 @@
-import { Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_AnimeEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
@@ -21,7 +21,7 @@ import React, { startTransition } from "react"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
 
-export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchType, entry: Anime_MediaEntry }) {
+export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchType, entry: Anime_AnimeEntry }) {
     const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
 

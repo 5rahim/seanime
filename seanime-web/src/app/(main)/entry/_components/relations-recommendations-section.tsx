@@ -1,6 +1,6 @@
-import { AL_AnimeDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
-import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -8,7 +8,7 @@ import capitalize from "lodash/capitalize"
 import React from "react"
 
 type RelationsRecommendationsSectionProps = {
-    entry: Anime_MediaEntry | undefined
+    entry: Anime_AnimeEntry | undefined
     details: AL_AnimeDetailsById_Media | undefined
 }
 
@@ -46,7 +46,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                     <h2>Relations</h2>
                     <MediaCardGrid>
                         {!!sourceManga && <div className="col-span-1">
-                            <MediaEntryCard
+                            <AnimeEntryCard
                                 media={sourceManga!}
                                 overlay={<Badge
                                     className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -57,7 +57,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                             /></div>}
                         {relations.slice(0, 4).map(edge => {
                             return <div key={edge.node?.id} className="col-span-1">
-                                <MediaEntryCard
+                                <AnimeEntryCard
                                     media={edge.node!}
                                     overlay={<Badge
                                         className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
@@ -80,7 +80,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
                 <MediaCardGrid>
                     {recommendations.map(media => {
                         return <div key={media.id} className="col-span-1">
-                            <MediaEntryCard
+                            <AnimeEntryCard
                                 media={media!}
                                 showLibraryBadge
                                 showTrailer

@@ -1,4 +1,4 @@
-import { Anime_MediaEntry } from "@/api/generated/types"
+import { Anime_AnimeEntry } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __anime_torrentStreamingViewActiveAtom } from "@/app/(main)/entry/_containers/anime-entry-page"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { PiMonitorPlayDuotone } from "react-icons/pi"
 
 type TorrentStreamButtonProps = {
     children?: React.ReactNode
-    entry: Anime_MediaEntry
+    entry: Anime_AnimeEntry
 }
 
 export function TorrentStreamButton(props: TorrentStreamButtonProps) {

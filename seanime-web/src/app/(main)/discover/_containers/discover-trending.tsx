@@ -1,6 +1,6 @@
 import { AL_BaseAnime, AL_BaseManga } from "@/api/generated/types"
-import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
-import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
+import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { AnimeEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
 import { __discover_trendingGenresAtom, useDiscoverTrendingAnime } from "@/app/(main)/discover/_lib/handle-discover-queries"
@@ -74,7 +74,7 @@ export function DiscoverTrending() {
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
 
-                        <MediaEntryCard
+                        <AnimeEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -83,7 +83,7 @@ export function DiscoverTrending() {
                             type="anime"
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <AnimeEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )

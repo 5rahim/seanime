@@ -1,4 +1,4 @@
-import { Anime_MediaEntry } from "@/api/generated/types"
+import { Anime_AnimeEntry } from "@/api/generated/types"
 import { useEmptyTVDBEpisodes, usePopulateFillerData, usePopulateTVDBEpisodes, useRemoveFillerData } from "@/api/hooks/metadata.hooks"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -9,7 +9,7 @@ import React from "react"
 import { IoReloadCircle, IoSearchCircle } from "react-icons/io5"
 
 type AnimeEntryMetadataManagerProps = {
-    entry: Anime_MediaEntry
+    entry: Anime_AnimeEntry
 }
 
 export const __metadataManager_isOpenAtom = atom(false)

@@ -12,9 +12,9 @@ import (
 	"testing"
 )
 
-// TestNewMediaEntry tests /library/entry endpoint.
+// TestNewAnimeEntry tests /library/entry endpoint.
 // /!\ MAKE SURE TO HAVE THE MEDIA ADDED TO YOUR LIST TEST ACCOUNT LISTS
-func TestNewMediaEntry(t *testing.T) {
+func TestNewAnimeEntry(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	metadataProvider := metadata.TestGetMockProvider(t)
@@ -86,7 +86,7 @@ func TestNewMediaEntry(t *testing.T) {
 				Progress: lo.ToPtr(tt.currentProgress), // Mock progress
 			})
 
-			entry, err := NewMediaEntry(&NewMediaEntryOptions{
+			entry, err := NewAnimeEntry(&NewAnimeEntryOptions{
 				MediaId:          tt.mediaId,
 				LocalFiles:       tt.localFiles,
 				AnizipCache:      aniZipCache,

@@ -1,6 +1,6 @@
 import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
-import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { AnimeEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -37,7 +37,7 @@ export function AnimeEntryPage() {
         setIsTorrentStreamingView(false)
     })
 
-    if (animeEntryLoading || animeDetailsLoading) return <MediaEntryPageLoadingDisplay />
+    if (animeEntryLoading || animeDetailsLoading) return <AnimeEntryPageLoadingDisplay />
     if (!animeEntry) return null
 
     return (

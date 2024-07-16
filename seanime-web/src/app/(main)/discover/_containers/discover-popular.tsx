@@ -1,5 +1,5 @@
-import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
-import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
+import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { AnimeEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { useDiscoverPastSeasonAnime, useDiscoverPopularAnime } from "@/app/(main)/discover/_lib/handle-discover-queries"
 import { Carousel, CarouselContent, CarouselDotButtons } from "@/components/ui/carousel"
 import React from "react"
@@ -23,7 +23,7 @@ export function DiscoverPopular() {
             <CarouselContent className="px-6" ref={ref}>
                 {!!data ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-                        <MediaEntryCard
+                        <AnimeEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -32,7 +32,7 @@ export function DiscoverPopular() {
                             type="anime"
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <AnimeEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )
@@ -57,7 +57,7 @@ export function DiscoverPastSeason() {
             <CarouselContent className="px-6" ref={ref}>
                 {!!data ? data?.Page?.media?.filter(Boolean)?.sort((a, b) => b.meanScore! - a.meanScore!).map(media => {
                     return (
-                        <MediaEntryCard
+                        <AnimeEntryCard
                             key={media.id}
                             media={media}
                             showLibraryBadge
@@ -66,7 +66,7 @@ export function DiscoverPastSeason() {
                             type="anime"
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <AnimeEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )

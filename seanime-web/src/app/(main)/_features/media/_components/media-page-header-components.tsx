@@ -2,12 +2,12 @@ import {
     AL_BaseAnime,
     AL_BaseManga,
     AL_MediaStatus,
-    Anime_MediaEntryListData,
+    Anime_AnimeEntryListData,
     Manga_EntryListData,
     Nullish,
     Offline_ListData,
 } from "@/api/generated/types"
-import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { AnilistAnimeEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
@@ -206,10 +206,10 @@ type MediaPageHeaderEntryDetailsProps = {
     status?: AL_MediaStatus
     description?: string
 
-    listData?: Anime_MediaEntryListData | Manga_EntryListData | Offline_ListData
+    listData?: Anime_AnimeEntryListData | Manga_EntryListData | Offline_ListData
     media: AL_BaseAnime | AL_BaseManga
     type: "anime" | "manga"
-    offlineAnilistMediaEntryModal?: React.ReactNode
+    offlineAnilistAnimeEntryModal?: React.ReactNode
 }
 
 export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsProps) {
@@ -230,7 +230,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
         listData,
         media,
         type,
-        offlineAnilistMediaEntryModal,
+        offlineAnilistAnimeEntryModal,
         ...rest
     } = props
 
@@ -300,8 +300,8 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         />
 
                         {!serverStatus?.isOffline ?
-                            <AnilistMediaEntryModal listData={listData} media={media} type={type} /> :
-                            offlineAnilistMediaEntryModal}
+                            <AnilistAnimeEntryModal listData={listData} media={media} type={type} /> :
+                            offlineAnilistAnimeEntryModal}
 
                         <p className="text-base md:text-lg">{capitalize(listData?.status === "CURRENT"
                             ? type === "anime" ? "watching" : "reading"

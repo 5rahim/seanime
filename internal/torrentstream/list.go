@@ -11,11 +11,11 @@ import (
 
 type (
 	EpisodeCollection struct {
-		Episodes []*anime.MediaEntryEpisode `json:"episodes"`
+		Episodes []*anime.AnimeEntryEpisode `json:"episodes"`
 	}
 )
 
-// NewEpisodeCollection creates a new episode collection by leveraging anime.MediaEntryDownloadInfo.
+// NewEpisodeCollection creates a new episode collection by leveraging anime.AnimeEntryDownloadInfo.
 // It stores the EpisodeCollection in the repository instance for the lifetime of the repository.
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
 	if err = r.FailIfNoSettings(); err != nil {
@@ -29,14 +29,14 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	ec = &EpisodeCollection{
-		Episodes: make([]*anime.MediaEntryEpisode, 0),
+		Episodes: make([]*anime.AnimeEntryEpisode, 0),
 	}
 
 	// +---------------------+
 	// |    Download Info    |
 	// +---------------------+
 
-	info, err := anime.NewMediaEntryDownloadInfo(&anime.NewMediaEntryDownloadInfoOptions{
+	info, err := anime.NewAnimeEntryDownloadInfo(&anime.NewAnimeEntryDownloadInfoOptions{
 		LocalFiles:       nil,
 		AnizipMedia:      anizipMedia,
 		Progress:         lo.ToPtr(0), // Progress is 0 because we want the entire list
@@ -59,11 +59,11 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		return nil, fmt.Errorf("no episodes found")
 	}
 
-	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.MediaEntryDownloadEpisode, i int) *anime.MediaEntryEpisode {
+	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.AnimeEntryDownloadEpisode, i int) *anime.AnimeEntryEpisode {
 		return episode.Episode
 	})
 
-	slices.SortStableFunc(ec.Episodes, func(i, j *anime.MediaEntryEpisode) int {
+	slices.SortStableFunc(ec.Episodes, func(i, j *anime.AnimeEntryEpisode) int {
 		return cmp.Compare(i.EpisodeNumber, j.EpisodeNumber)
 	})
 

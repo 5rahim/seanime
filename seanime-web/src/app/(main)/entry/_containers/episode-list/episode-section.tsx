@@ -1,5 +1,5 @@
 "use client"
-import { AL_AnimeDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -16,7 +16,7 @@ import React, { useMemo } from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 
 
-export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_AnimeDetailsById_Media | undefined }) {
+export function EpisodeSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeDetailsById_Media | undefined }) {
     const { entry, details } = props
     const media = entry.media
 

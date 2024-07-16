@@ -169,7 +169,7 @@ type SilencedMediaEntry struct {
 
 type Theme struct {
 	BaseModel
-	AnimeEntryScreenLayout     string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"`
+	AnimeEntryScreenLayout     string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"` // DEPRECATED
 	SmallerEpisodeCarouselSize bool   `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
 	ExpandSidebarOnHover       bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
 	EnableColorSettings        bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`

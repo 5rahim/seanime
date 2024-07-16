@@ -1,5 +1,5 @@
 "use client"
-import { Anime_MediaEntry } from "@/api/generated/types"
+import { Anime_AnimeEntry } from "@/api/generated/types"
 import { useAnimeEntryBulkAction, useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -18,7 +18,7 @@ import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 import { toast } from "sonner"
 
-export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_MediaEntry }) {
+export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
 
     const serverStatus = useServerStatus()
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)

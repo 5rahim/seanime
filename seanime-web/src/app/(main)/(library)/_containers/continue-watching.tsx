@@ -1,5 +1,5 @@
 "use client"
-import { Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
@@ -12,10 +12,10 @@ import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useDeferredValue, useEffect } from "react"
 
-export const __libraryHeaderEpisodeAtom = atom<Anime_MediaEntryEpisode | null>(null)
+export const __libraryHeaderEpisodeAtom = atom<Anime_AnimeEntryEpisode | null>(null)
 
 export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
-    episodes: Anime_MediaEntryEpisode[],
+    episodes: Anime_AnimeEntryEpisode[],
     isLoading: boolean
     linkTemplate?: string
 }) {
@@ -127,7 +127,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
 }
 
 const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
-    episode: Anime_MediaEntryEpisode,
+    episode: Anime_AnimeEntryEpisode,
     mRef: React.RefObject<any>,
     overrideLink?: string
 }) => {

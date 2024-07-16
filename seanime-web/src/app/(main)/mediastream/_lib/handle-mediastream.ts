@@ -1,4 +1,4 @@
-import { Anime_MediaEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import {
@@ -102,7 +102,7 @@ export const __mediastream_currentProgressAtom = atom(0)
 
 type HandleMediastreamProps = {
     playerRef: React.RefObject<MediaPlayerInstance>
-    episodes: Anime_MediaEntryEpisode[]
+    episodes: Anime_AnimeEntryEpisode[]
 }
 
 export function useHandleMediastream(props: HandleMediastreamProps) {

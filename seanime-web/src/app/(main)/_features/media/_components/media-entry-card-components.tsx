@@ -15,12 +15,12 @@ import { BiCalendarAlt } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { RiSignalTowerLine } from "react-icons/ri"
 
-type MediaEntryCardContainerProps = {
+type AnimeEntryCardContainerProps = {
     children?: React.ReactNode
     mRef?: React.RefObject<HTMLDivElement>
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
+export function AnimeEntryCardContainer(props: AnimeEntryCardContainerProps) {
 
     const {
         children,
@@ -45,11 +45,11 @@ export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardOverlayProps = {
+type AnimeEntryCardOverlayProps = {
     overlay?: React.ReactNode
 }
 
-export function MediaEntryCardOverlay(props: MediaEntryCardOverlayProps) {
+export function AnimeEntryCardOverlay(props: AnimeEntryCardOverlayProps) {
 
     const {
         overlay,
@@ -67,11 +67,11 @@ export function MediaEntryCardOverlay(props: MediaEntryCardOverlayProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardHoverPopupProps = {
+type AnimeEntryCardHoverPopupProps = {
     children?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
+export function AnimeEntryCardHoverPopup(props: AnimeEntryCardHoverPopupProps) {
 
     const {
         children,
@@ -102,11 +102,11 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardHoverPopupBodyProps = {
+type AnimeEntryCardHoverPopupBodyProps = {
     children?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function MediaEntryCardHoverPopupBody(props: MediaEntryCardHoverPopupBodyProps) {
+export function AnimeEntryCardHoverPopupBody(props: AnimeEntryCardHoverPopupBodyProps) {
 
     const {
         children,
@@ -129,11 +129,11 @@ export function MediaEntryCardHoverPopupBody(props: MediaEntryCardHoverPopupBody
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardHoverPopupFooterProps = {
+type AnimeEntryCardHoverPopupFooterProps = {
     children?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFooterProps) {
+export function AnimeEntryCardHoverPopupFooter(props: AnimeEntryCardHoverPopupFooterProps) {
 
     const {
         children,
@@ -156,7 +156,7 @@ export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFo
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardHoverPopupTitleSectionProps = {
+type AnimeEntryCardHoverPopupTitleSectionProps = {
     link: string
     title: string
     season?: string
@@ -164,7 +164,7 @@ type MediaEntryCardHoverPopupTitleSectionProps = {
     format?: string
 }
 
-export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverPopupTitleSectionProps) {
+export function AnimeEntryCardHoverPopupTitleSection(props: AnimeEntryCardHoverPopupTitleSectionProps) {
 
     const {
         link,
@@ -197,11 +197,11 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardNextAiringProps = {
+type AnimeEntryCardNextAiringProps = {
     nextAiring: AL_BaseAnime_NextAiringEpisode | undefined
 }
 
-export function MediaEntryCardNextAiring(props: MediaEntryCardNextAiringProps) {
+export function AnimeEntryCardNextAiring(props: AnimeEntryCardNextAiringProps) {
 
     const {
         nextAiring,
@@ -233,7 +233,7 @@ export function MediaEntryCardNextAiring(props: MediaEntryCardNextAiringProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardBodyProps = {
+type AnimeEntryCardBodyProps = {
     link: string
     type: "anime" | "manga"
     title: string
@@ -251,7 +251,7 @@ type MediaEntryCardBodyProps = {
     blurAdultContent?: boolean
 }
 
-export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
+export function AnimeEntryCardBody(props: AnimeEntryCardBodyProps) {
 
     const {
         link,
@@ -340,14 +340,14 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MediaEntryCardTitleSectionProps = {
+type AnimeEntryCardTitleSectionProps = {
     title: string
     season?: string
     year?: number
     format?: string
 }
 
-export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProps) {
+export function AnimeEntryCardTitleSection(props: AnimeEntryCardTitleSectionProps) {
 
     const {
         title,
@@ -373,9 +373,9 @@ export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProp
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const __mediaEntryCard_hoveredPopupId = atom<number | undefined>(undefined)
+export const __animeEntryCard_hoveredPopupId = atom<number | undefined>(undefined)
 
-export const MediaEntryCardHoverPopupBanner = ({
+export const AnimeEntryCardHoverPopupBanner = ({
     trailerId,
     showProgressBar,
     mediaId,
@@ -406,7 +406,7 @@ export const MediaEntryCardHoverPopupBanner = ({
 }) => {
 
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
-    const [actionPopupHoverId] = useAtom(__mediaEntryCard_hoveredPopupId)
+    const [actionPopupHoverId] = useAtom(__animeEntryCard_hoveredPopupId)
     const actionPopupHover = actionPopupHoverId === mediaId
     const [trailerEnabled, setTrailerEnabled] = React.useState(!!trailerId && !disableAnimeCardTrailers && showTrailer)
 

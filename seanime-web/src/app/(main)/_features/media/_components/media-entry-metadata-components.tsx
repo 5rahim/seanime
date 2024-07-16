@@ -11,11 +11,11 @@ import React from "react"
 import { AiFillStar, AiOutlineHeart, AiOutlineStar } from "react-icons/ai"
 import { BiHeart, BiHide } from "react-icons/bi"
 
-type MediaEntryGenresListProps = {
+type AnimeEntryGenresListProps = {
     genres?: Array<string | null> | null | undefined
 }
 
-export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
+export function AnimeEntryGenresList(props: AnimeEntryGenresListProps) {
 
     const {
         genres,
@@ -34,12 +34,12 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     )
 }
 
-type MediaEntryAudienceScoreProps = {
+type AnimeEntryAudienceScoreProps = {
     meanScore?: number | null
     badgeClass?: string
 }
 
-export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
+export function AnimeEntryAudienceScore(props: AnimeEntryAudienceScoreProps) {
 
     const {
         meanScore,
@@ -87,11 +87,11 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
     )
 }
 
-type MediaEntryRankingsProps = {
+type AnimeEntryRankingsProps = {
     rankings?: AL_AnimeDetailsById_Media_Rankings[] | AL_MangaDetailsById_Media_Rankings[]
 }
 
-export function MediaEntryRankings(props: MediaEntryRankingsProps) {
+export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
 
     const {
         rankings,
