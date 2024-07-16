@@ -1,20 +1,20 @@
 import capitalize from "lodash/capitalize"
 
-export function getLibraryCollectionTitle(type: string) {
+export function getLibraryCollectionTitle(type?: string) {
     switch (type) {
         case "CURRENT":
             return "Currently watching"
         default:
-            return capitalize(type)
+            return capitalize(type ?? "")
     }
 }
 
-export function getMangaCollectionTitle(type: string) {
+export function getMangaCollectionTitle(type?: string) {
     switch (type) {
         case "CURRENT":
             return "Currently reading"
         default:
-            return capitalize(type)
+            return capitalize(type ?? "")
     }
 }
 

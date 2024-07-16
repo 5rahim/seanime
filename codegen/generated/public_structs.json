@@ -2,8 +2,8 @@
   {
     "filepath": "../internal/api/anilist/client.go",
     "filename": "client.go",
-    "name": "ClientWrapper",
-    "formattedName": "AL_ClientWrapper",
+    "name": "AnilistClientImpl",
+    "formattedName": "AL_AnilistClientImpl",
     "package": "anilist",
     "fields": [
       {
@@ -9310,13 +9310,13 @@
   {
     "filepath": "../internal/api/anilist/client_mock.go",
     "filename": "client_mock.go",
-    "name": "MockClientWrapper",
-    "formattedName": "AL_MockClientWrapper",
+    "name": "MockAnilistClientImpl",
+    "formattedName": "AL_MockAnilistClientImpl",
     "package": "anilist",
     "fields": [
       {
-        "name": "realClientWrapper",
-        "jsonName": "realClientWrapper",
+        "name": "realAnilistClient",
+        "jsonName": "realAnilistClient",
         "goType": "AnilistClient",
         "typescriptType": "AL_AnilistClient",
         "usedStructName": "anilist.AnilistClient",
@@ -9336,7 +9336,7 @@
       }
     ],
     "comments": [
-      " MockClientWrapper is a mock implementation of the AnilistClient, used for tests.",
+      " MockAnilistClientImpl is a mock implementation of the AnilistClient, used for tests.",
       " It uses the real implementation of the AnilistClient to make requests then populates a cache with the results.",
       " This is to avoid making repeated requests to the AniList API during tests but still have realistic data."
     ]
@@ -23272,8 +23272,8 @@
         ]
       },
       {
-        "name": "AnilistClientWrapper",
-        "jsonName": "AnilistClientWrapper",
+        "name": "AnilistClient",
+        "jsonName": "AnilistClient",
         "goType": "anilist.AnilistClient",
         "typescriptType": "AL_AnilistClient",
         "usedStructName": "anilist.AnilistClient",
@@ -23840,40 +23840,22 @@
         "comments": []
       },
       {
-        "name": "logger",
-        "jsonName": "logger",
+        "name": "Logger",
+        "jsonName": "Logger",
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "currLocalFilesDbId",
-        "jsonName": "currLocalFilesDbId",
-        "goType": "uint",
-        "typescriptType": "number",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "currLocalFiles",
-        "jsonName": "currLocalFiles",
+        "name": "CurrMediaFillers",
+        "jsonName": "CurrMediaFillers",
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "currMediaFillers",
-        "jsonName": "currMediaFillers",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -24862,7 +24844,9 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " DEPRECATED"
+        ]
       },
       {
         "name": "SmallerEpisodeCarouselSize",
@@ -26646,6 +26630,664 @@
     ]
   },
   {
+    "filepath": "../internal/library/anime/anime_entry.go",
+    "filename": "anime_entry.go",
+    "name": "AnimeEntry",
+    "formattedName": "Anime_AnimeEntry",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntryListData",
+        "jsonName": "listData",
+        "goType": "AnimeEntryListData",
+        "typescriptType": "Anime_AnimeEntryListData",
+        "usedStructName": "anime.AnimeEntryListData",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntryLibraryData",
+        "jsonName": "libraryData",
+        "goType": "AnimeEntryLibraryData",
+        "typescriptType": "Anime_AnimeEntryLibraryData",
+        "usedStructName": "anime.AnimeEntryLibraryData",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntryDownloadInfo",
+        "jsonName": "downloadInfo",
+        "goType": "AnimeEntryDownloadInfo",
+        "typescriptType": "Anime_AnimeEntryDownloadInfo",
+        "usedStructName": "anime.AnimeEntryDownloadInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextEpisode",
+        "jsonName": "nextEpisode",
+        "goType": "AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDBId",
+        "jsonName": "aniDBId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentEpisodeCount",
+        "jsonName": "currentEpisodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry.go",
+    "filename": "anime_entry.go",
+    "name": "AnimeEntryListData",
+    "formattedName": "Anime_AnimeEntryListData",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "anilist.MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartedAt",
+        "jsonName": "startedAt",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry.go",
+    "filename": "anime_entry.go",
+    "name": "NewAnimeEntryOptions",
+    "formattedName": "Anime_NewAnimeEntryOptions",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " All local files"
+        ]
+      },
+      {
+        "name": "AnizipCache",
+        "jsonName": "AnizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_download_info.go",
+    "filename": "anime_entry_download_info.go",
+    "name": "AnimeEntryDownloadInfo",
+    "formattedName": "Anime_AnimeEntryDownloadInfo",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "EpisodesToDownload",
+        "jsonName": "episodesToDownload",
+        "goType": "[]AnimeEntryDownloadEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryDownloadEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryDownloadEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CanBatch",
+        "jsonName": "canBatch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BatchAll",
+        "jsonName": "batchAll",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HasInaccurateSchedule",
+        "jsonName": "hasInaccurateSchedule",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rewatch",
+        "jsonName": "rewatch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AbsoluteOffset",
+        "jsonName": "absoluteOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_download_info.go",
+    "filename": "anime_entry_download_info.go",
+    "name": "AnimeEntryDownloadEpisode",
+    "formattedName": "Anime_AnimeEntryDownloadEpisode",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "aniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_download_info.go",
+    "filename": "anime_entry_download_info.go",
+    "name": "NewAnimeEntryDownloadInfoOptions",
+    "formattedName": "Anime_NewAnimeEntryDownloadInfoOptions",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnizipMedia",
+        "jsonName": "AnizipMedia",
+        "goType": "anizip.Media",
+        "typescriptType": "Anizip_Media",
+        "usedStructName": "anizip.Media",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "Progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "Status",
+        "goType": "anilist.MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_library_data.go",
+    "filename": "anime_entry_library_data.go",
+    "name": "AnimeEntryLibraryData",
+    "formattedName": "Anime_AnimeEntryLibraryData",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AllFilesLocked",
+        "jsonName": "allFilesLocked",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SharedPath",
+        "jsonName": "sharedPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_library_data.go",
+    "filename": "anime_entry_library_data.go",
+    "name": "NewAnimeEntryLibraryDataOptions",
+    "formattedName": "Anime_NewAnimeEntryLibraryDataOptions",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "EntryLocalFiles",
+        "jsonName": "EntryLocalFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_simple.go",
+    "filename": "anime_entry_simple.go",
+    "name": "SimpleAnimeEntry",
+    "formattedName": "Anime_SimpleAnimeEntry",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntryListData",
+        "jsonName": "listData",
+        "goType": "AnimeEntryListData",
+        "typescriptType": "Anime_AnimeEntryListData",
+        "usedStructName": "anime.AnimeEntryListData",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeEntryLibraryData",
+        "jsonName": "libraryData",
+        "goType": "AnimeEntryLibraryData",
+        "typescriptType": "Anime_AnimeEntryLibraryData",
+        "usedStructName": "anime.AnimeEntryLibraryData",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NextEpisode",
+        "jsonName": "nextEpisode",
+        "goType": "AnimeEntryEpisode",
+        "typescriptType": "Anime_AnimeEntryEpisode",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentEpisodeCount",
+        "jsonName": "currentEpisodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_simple.go",
+    "filename": "anime_entry_simple.go",
+    "name": "SimpleAnimeEntryListData",
+    "formattedName": "Anime_SimpleAnimeEntryListData",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "anilist.MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartedAt",
+        "jsonName": "startedAt",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/anime_entry_simple.go",
+    "filename": "anime_entry_simple.go",
+    "name": "NewSimpleAnimeEntryOptions",
+    "formattedName": "Anime_NewSimpleAnimeEntryOptions",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " All local files"
+        ]
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/library/anime/autodownloader_rule.go",
     "filename": "autodownloader_rule.go",
     "name": "AutoDownloaderRuleTitleComparisonType",
@@ -27856,664 +28498,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/anime/media_entry.go",
-    "filename": "media_entry.go",
-    "name": "AnimeEntry",
-    "formattedName": "Anime_AnimeEntry",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntryListData",
-        "jsonName": "listData",
-        "goType": "AnimeEntryListData",
-        "typescriptType": "Anime_AnimeEntryListData",
-        "usedStructName": "anime.AnimeEntryListData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntryLibraryData",
-        "jsonName": "libraryData",
-        "goType": "AnimeEntryLibraryData",
-        "typescriptType": "Anime_AnimeEntryLibraryData",
-        "usedStructName": "anime.AnimeEntryLibraryData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntryDownloadInfo",
-        "jsonName": "downloadInfo",
-        "goType": "AnimeEntryDownloadInfo",
-        "typescriptType": "Anime_AnimeEntryDownloadInfo",
-        "usedStructName": "anime.AnimeEntryDownloadInfo",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextEpisode",
-        "jsonName": "nextEpisode",
-        "goType": "AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFiles",
-        "jsonName": "localFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AniDBId",
-        "jsonName": "aniDBId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CurrentEpisodeCount",
-        "jsonName": "currentEpisodeCount",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry.go",
-    "filename": "media_entry.go",
-    "name": "AnimeEntryListData",
-    "formattedName": "Anime_AnimeEntryListData",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Score",
-        "jsonName": "score",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "anilist.MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartedAt",
-        "jsonName": "startedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CompletedAt",
-        "jsonName": "completedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry.go",
-    "filename": "media_entry.go",
-    "name": "NewAnimeEntryOptions",
-    "formattedName": "Anime_NewAnimeEntryOptions",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "MediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFiles",
-        "jsonName": "LocalFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": [
-          " All local files"
-        ]
-      },
-      {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeCollection",
-        "jsonName": "AnimeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Platform",
-        "jsonName": "Platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MetadataProvider",
-        "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_download_info.go",
-    "filename": "media_entry_download_info.go",
-    "name": "AnimeEntryDownloadInfo",
-    "formattedName": "Anime_AnimeEntryDownloadInfo",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "EpisodesToDownload",
-        "jsonName": "episodesToDownload",
-        "goType": "[]AnimeEntryDownloadEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryDownloadEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryDownloadEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CanBatch",
-        "jsonName": "canBatch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BatchAll",
-        "jsonName": "batchAll",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "HasInaccurateSchedule",
-        "jsonName": "hasInaccurateSchedule",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Rewatch",
-        "jsonName": "rewatch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AbsoluteOffset",
-        "jsonName": "absoluteOffset",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_download_info.go",
-    "filename": "media_entry_download_info.go",
-    "name": "AnimeEntryDownloadEpisode",
-    "formattedName": "Anime_AnimeEntryDownloadEpisode",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AniDBEpisode",
-        "jsonName": "aniDBEpisode",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_download_info.go",
-    "filename": "media_entry_download_info.go",
-    "name": "NewAnimeEntryDownloadInfoOptions",
-    "formattedName": "Anime_NewAnimeEntryDownloadInfoOptions",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "LocalFiles",
-        "jsonName": "LocalFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnizipMedia",
-        "jsonName": "AnizipMedia",
-        "goType": "anizip.Media",
-        "typescriptType": "Anizip_Media",
-        "usedStructName": "anizip.Media",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Progress",
-        "jsonName": "Progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "Status",
-        "goType": "anilist.MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MetadataProvider",
-        "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_library_data.go",
-    "filename": "media_entry_library_data.go",
-    "name": "AnimeEntryLibraryData",
-    "formattedName": "Anime_AnimeEntryLibraryData",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "AllFilesLocked",
-        "jsonName": "allFilesLocked",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SharedPath",
-        "jsonName": "sharedPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_library_data.go",
-    "filename": "media_entry_library_data.go",
-    "name": "NewAnimeEntryLibraryDataOptions",
-    "formattedName": "Anime_NewAnimeEntryLibraryDataOptions",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "EntryLocalFiles",
-        "jsonName": "EntryLocalFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MediaId",
-        "jsonName": "MediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_simple.go",
-    "filename": "media_entry_simple.go",
-    "name": "SimpleAnimeEntry",
-    "formattedName": "Anime_SimpleAnimeEntry",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntryListData",
-        "jsonName": "listData",
-        "goType": "AnimeEntryListData",
-        "typescriptType": "Anime_AnimeEntryListData",
-        "usedStructName": "anime.AnimeEntryListData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeEntryLibraryData",
-        "jsonName": "libraryData",
-        "goType": "AnimeEntryLibraryData",
-        "typescriptType": "Anime_AnimeEntryLibraryData",
-        "usedStructName": "anime.AnimeEntryLibraryData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NextEpisode",
-        "jsonName": "nextEpisode",
-        "goType": "AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFiles",
-        "jsonName": "localFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CurrentEpisodeCount",
-        "jsonName": "currentEpisodeCount",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_simple.go",
-    "filename": "media_entry_simple.go",
-    "name": "SimpleAnimeEntryListData",
-    "formattedName": "Anime_SimpleAnimeEntryListData",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Score",
-        "jsonName": "score",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "anilist.MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartedAt",
-        "jsonName": "startedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CompletedAt",
-        "jsonName": "completedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/library/anime/media_entry_simple.go",
-    "filename": "media_entry_simple.go",
-    "name": "NewSimpleAnimeEntryOptions",
-    "formattedName": "Anime_NewSimpleAnimeEntryOptions",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "MediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LocalFiles",
-        "jsonName": "LocalFiles",
-        "goType": "[]LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": [
-          " All local files"
-        ]
-      },
-      {
-        "name": "AnimeCollection",
-        "jsonName": "AnimeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Platform",
-        "jsonName": "Platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/library/anime/missing_episodes.go",
     "filename": "missing_episodes.go",
     "name": "MissingEpisodes",
@@ -29686,6 +29670,15 @@
         "typescriptType": "Offline_HubInterface",
         "usedStructName": "offline.HubInterface",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -38425,8 +38418,8 @@
   {
     "filepath": "../internal/offline/models.go",
     "filename": "models.go",
-    "name": "SnapshotAnimeEntry",
-    "formattedName": "Offline_SnapshotAnimeEntry",
+    "name": "SnapshotMediaEntry",
+    "formattedName": "Offline_SnapshotMediaEntry",
     "package": "offline",
     "fields": [
       {
@@ -39754,8 +39747,8 @@
         "comments": []
       },
       {
-        "name": "anilistClientWrapper",
-        "jsonName": "anilistClientWrapper",
+        "name": "anilistClient",
+        "jsonName": "anilistClient",
         "goType": "anilist.AnilistClient",
         "typescriptType": "AL_AnilistClient",
         "usedStructName": "anilist.AnilistClient",
@@ -39798,20 +39791,38 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localPlatformEnabled",
+        "jsonName": "localPlatformEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
   },
   {
-    "filepath": "../internal/platform/local_anilist.go",
-    "filename": "local_anilist.go",
+    "filepath": "../internal/platform/local_platform.go",
+    "filename": "local_platform.go",
     "name": "LocalPlatform",
     "formattedName": "LocalPlatform",
     "package": "platform",
     "fields": [
       {
-        "name": "animeCollection",
-        "jsonName": "animeCollection",
+        "name": "localAnimeCollection",
+        "jsonName": "localAnimeCollection",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -39819,8 +39830,8 @@
         "comments": []
       },
       {
-        "name": "mangaCollection",
-        "jsonName": "mangaCollection",
+        "name": "localMangaCollection",
+        "jsonName": "localMangaCollection",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -39829,6 +39840,143 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/platform/local_platform_database.go",
+    "filename": "local_platform_database.go",
+    "name": "LocalPlatformDatabase",
+    "formattedName": "LocalPlatformDatabase",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "gormdb",
+        "jsonName": "gormdb",
+        "goType": "gorm.DB",
+        "typescriptType": "DB",
+        "usedStructName": "gorm.DB",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platform/local_platform_manager.go",
+    "filename": "local_platform_manager.go",
+    "name": "LocalPlatformManager",
+    "formattedName": "LocalPlatformManager",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " LocalPlatformManager takes care of storing, retrieving, updating, syncing data between the local database and the Anilist API"
+    ]
+  },
+  {
+    "filepath": "../internal/platform/local_platform_models.go",
+    "filename": "local_platform_models.go",
+    "name": "BaseModel",
+    "formattedName": "BaseModel",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "uint",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updatedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platform/local_platform_models.go",
+    "filename": "local_platform_models.go",
+    "name": "LocalMedia",
+    "formattedName": "LocalMedia",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Media ID"
+        ]
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Marshalled struct"
+        ]
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "platform.BaseModel"
+    ]
   },
   {
     "filepath": "../internal/test_utils/data.go",

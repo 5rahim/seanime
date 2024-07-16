@@ -5,30 +5,24 @@ import (
 	"github.com/seanime-app/seanime/internal/database/db"
 	"github.com/seanime-app/seanime/internal/database/models"
 	"github.com/seanime-app/seanime/internal/library/summary"
-	"time"
 )
 
-type ScanSummaryItem struct {
-	CreatedAt   time.Time            `json:"createdAt"`
-	ScanSummary *summary.ScanSummary `json:"scanSummary"`
-}
-
-func GetScanSummaries(db *db.Database) ([]*ScanSummaryItem, error) {
+func GetScanSummaries(database *db.Database) ([]*db.ScanSummaryItem, error) {
 	var res []*models.ScanSummary
-	err := db.Gorm().Find(&res).Error
+	err := database.Gorm().Find(&res).Error
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal the data
-	var items []*ScanSummaryItem
+	var items []*db.ScanSummaryItem
 	for _, r := range res {
 		smBytes := r.Value
 		var sm summary.ScanSummary
 		if err := json.Unmarshal(smBytes, &sm); err != nil {
 			return nil, err
 		}
-		items = append(items, &ScanSummaryItem{
+		items = append(items, &db.ScanSummaryItem{
 			CreatedAt:   r.CreatedAt,
 			ScanSummary: &sm,
 		})

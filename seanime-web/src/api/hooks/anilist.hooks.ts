@@ -9,12 +9,10 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     AL_AnimeCollection,
     AL_AnimeDetailsById_Media,
-    AL_DeleteEntry,
     AL_ListAnime,
     AL_ListRecentAnime,
     AL_Stats,
     AL_StudioDetails,
-    AL_UpdateMediaListEntry,
     Nullish,
 } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -61,7 +59,7 @@ export function useRefreshAnimeCollection() {
 export function useEditAnilistListEntry(id: Nullish<string | number>, type: "anime" | "manga") {
     const queryClient = useQueryClient()
 
-    return useServerMutation<AL_UpdateMediaListEntry, EditAnilistListEntry_Variables>({
+    return useServerMutation<boolean, EditAnilistListEntry_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.EditAnilistListEntry.endpoint,
         method: API_ENDPOINTS.ANILIST.EditAnilistListEntry.methods[0],
         mutationKey: [API_ENDPOINTS.ANILIST.EditAnilistListEntry.key, String(id)],
@@ -93,7 +91,7 @@ export function useGetAnilistAnimeDetails(id: Nullish<number | string>) {
 export function useDeleteAnilistListEntry(id: Nullish<string | number>, type: "anime" | "manga", onSuccess: () => void) {
     const queryClient = useQueryClient()
 
-    return useServerMutation<AL_DeleteEntry, DeleteAnilistListEntry_Variables>({
+    return useServerMutation<boolean, DeleteAnilistListEntry_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.endpoint,
         method: API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.methods[0],
         mutationKey: [API_ENDPOINTS.ANILIST.DeleteAnilistListEntry.key],

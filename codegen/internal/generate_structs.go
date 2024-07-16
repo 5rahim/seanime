@@ -51,6 +51,7 @@ var typePrefixesByPackage = map[string]string{
 	"auto_downloader":        "AutoDownloader_",
 	"entities":               "",
 	"db":                     "DB_",
+	"db_bridge":              "DB_",
 	"models":                 "Models_",
 	"playbackmanager":        "PlaybackManager_",
 	"torrent_client":         "TorrentClient_",

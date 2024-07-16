@@ -1,6 +1,15 @@
 package db
 
-import "github.com/seanime-app/seanime/internal/database/models"
+import (
+	"github.com/seanime-app/seanime/internal/database/models"
+	"github.com/seanime-app/seanime/internal/library/summary"
+	"time"
+)
+
+type ScanSummaryItem struct {
+	CreatedAt   time.Time            `json:"createdAt"`
+	ScanSummary *summary.ScanSummary `json:"scanSummary"`
+}
 
 func (db *Database) TrimScanSummaryEntries() {
 	go func() {

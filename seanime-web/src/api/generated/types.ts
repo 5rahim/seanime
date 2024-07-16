@@ -1189,6 +1189,136 @@ export type AL_UserStudioStats_Studio = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/library/anime/anime_entry.go
+ * - Filename: anime_entry.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntry = {
+    mediaId: number
+    media?: AL_BaseAnime
+    listData?: Anime_AnimeEntryListData
+    libraryData?: Anime_AnimeEntryLibraryData
+    downloadInfo?: Anime_AnimeEntryDownloadInfo
+    episodes?: Array<Anime_AnimeEntryEpisode>
+    nextEpisode?: Anime_AnimeEntryEpisode
+    localFiles?: Array<Anime_LocalFile>
+    aniDBId: number
+    currentEpisodeCount: number
+}
+
+/**
+ * - Filepath: internal/library/anime/anime_entry_download_info.go
+ * - Filename: anime_entry_download_info.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntryDownloadEpisode = {
+    episodeNumber: number
+    aniDBEpisode: string
+    episode?: Anime_AnimeEntryEpisode
+}
+
+/**
+ * - Filepath: internal/library/anime/anime_entry_download_info.go
+ * - Filename: anime_entry_download_info.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntryDownloadInfo = {
+    episodesToDownload?: Array<Anime_AnimeEntryDownloadEpisode>
+    canBatch: boolean
+    batchAll: boolean
+    hasInaccurateSchedule: boolean
+    rewatch: boolean
+    absoluteOffset: number
+}
+
+/**
+ * - Filepath: internal/library/anime/episode.go
+ * - Filename: episode.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntryEpisode = {
+    type: Anime_LocalFileType
+    /**
+     * e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
+     */
+    displayTitle: string
+    /**
+     * e.g, "Shibuya Incident - Gate, Open"
+     */
+    episodeTitle: string
+    episodeNumber: number
+    /**
+     * AniDB episode number
+     */
+    aniDBEpisode?: string
+    absoluteEpisodeNumber: number
+    /**
+     * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
+     */
+    progressNumber: number
+    localFile?: Anime_LocalFile
+    /**
+     * Is in the local files
+     */
+    isDownloaded: boolean
+    /**
+     * (image, airDate, length, summary, overview)
+     */
+    episodeMetadata?: Anime_AnimeEntryEpisodeMetadata
+    /**
+     * (episode, aniDBEpisode, type...)
+     */
+    fileMetadata?: Anime_LocalFileMetadata
+    /**
+     * No AniDB data
+     */
+    isInvalid: boolean
+    /**
+     * Alerts the user that there is a discrepancy between AniList and AniDB
+     */
+    metadataIssue?: string
+    baseAnime?: AL_BaseAnime
+}
+
+/**
+ * - Filepath: internal/library/anime/episode.go
+ * - Filename: episode.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntryEpisodeMetadata = {
+    aniDBId?: number
+    image?: string
+    airDate?: string
+    length?: number
+    summary?: string
+    overview?: string
+    isFiller?: boolean
+}
+
+/**
+ * - Filepath: internal/library/anime/anime_entry_library_data.go
+ * - Filename: anime_entry_library_data.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntryLibraryData = {
+    allFilesLocked: boolean
+    sharedPath: string
+}
+
+/**
+ * - Filepath: internal/library/anime/anime_entry.go
+ * - Filename: anime_entry.go
+ * - Package: anime
+ */
+export type Anime_AnimeEntryListData = {
+    progress?: number
+    score?: number
+    status?: AL_MediaListStatus
+    startedAt?: string
+    completedAt?: string
+}
+
+/**
  * - Filepath: internal/library/anime/autodownloader_rule.go
  * - Filename: autodownloader_rule.go
  * - Package: anime
@@ -1336,136 +1466,6 @@ export type Anime_LocalFileParsedData = {
  * - Package: anime
  */
 export type Anime_LocalFileType = "main" | "special" | "nc"
-
-/**
- * - Filepath: internal/library/anime/media_entry.go
- * - Filename: media_entry.go
- * - Package: anime
- */
-export type Anime_AnimeEntry = {
-    mediaId: number
-    media?: AL_BaseAnime
-    listData?: Anime_AnimeEntryListData
-    libraryData?: Anime_AnimeEntryLibraryData
-    downloadInfo?: Anime_AnimeEntryDownloadInfo
-    episodes?: Array<Anime_AnimeEntryEpisode>
-    nextEpisode?: Anime_AnimeEntryEpisode
-    localFiles?: Array<Anime_LocalFile>
-    aniDBId: number
-    currentEpisodeCount: number
-}
-
-/**
- * - Filepath: internal/library/anime/media_entry_download_info.go
- * - Filename: media_entry_download_info.go
- * - Package: anime
- */
-export type Anime_AnimeEntryDownloadEpisode = {
-    episodeNumber: number
-    aniDBEpisode: string
-    episode?: Anime_AnimeEntryEpisode
-}
-
-/**
- * - Filepath: internal/library/anime/media_entry_download_info.go
- * - Filename: media_entry_download_info.go
- * - Package: anime
- */
-export type Anime_AnimeEntryDownloadInfo = {
-    episodesToDownload?: Array<Anime_AnimeEntryDownloadEpisode>
-    canBatch: boolean
-    batchAll: boolean
-    hasInaccurateSchedule: boolean
-    rewatch: boolean
-    absoluteOffset: number
-}
-
-/**
- * - Filepath: internal/library/anime/episode.go
- * - Filename: episode.go
- * - Package: anime
- */
-export type Anime_AnimeEntryEpisode = {
-    type: Anime_LocalFileType
-    /**
-     * e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
-     */
-    displayTitle: string
-    /**
-     * e.g, "Shibuya Incident - Gate, Open"
-     */
-    episodeTitle: string
-    episodeNumber: number
-    /**
-     * AniDB episode number
-     */
-    aniDBEpisode?: string
-    absoluteEpisodeNumber: number
-    /**
-     * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
-     */
-    progressNumber: number
-    localFile?: Anime_LocalFile
-    /**
-     * Is in the local files
-     */
-    isDownloaded: boolean
-    /**
-     * (image, airDate, length, summary, overview)
-     */
-    episodeMetadata?: Anime_AnimeEntryEpisodeMetadata
-    /**
-     * (episode, aniDBEpisode, type...)
-     */
-    fileMetadata?: Anime_LocalFileMetadata
-    /**
-     * No AniDB data
-     */
-    isInvalid: boolean
-    /**
-     * Alerts the user that there is a discrepancy between AniList and AniDB
-     */
-    metadataIssue?: string
-    baseAnime?: AL_BaseAnime
-}
-
-/**
- * - Filepath: internal/library/anime/episode.go
- * - Filename: episode.go
- * - Package: anime
- */
-export type Anime_AnimeEntryEpisodeMetadata = {
-    aniDBId?: number
-    image?: string
-    airDate?: string
-    length?: number
-    summary?: string
-    overview?: string
-    isFiller?: boolean
-}
-
-/**
- * - Filepath: internal/library/anime/media_entry_library_data.go
- * - Filename: media_entry_library_data.go
- * - Package: anime
- */
-export type Anime_AnimeEntryLibraryData = {
-    allFilesLocked: boolean
-    sharedPath: string
-}
-
-/**
- * - Filepath: internal/library/anime/media_entry.go
- * - Filename: media_entry.go
- * - Package: anime
- */
-export type Anime_AnimeEntryListData = {
-    progress?: number
-    score?: number
-    status?: AL_MediaListStatus
-    startedAt?: string
-    completedAt?: string
-}
 
 /**
  * - Filepath: internal/library/anime/missing_episodes.go
@@ -2050,6 +2050,9 @@ export type Models_SilencedMediaEntry = {
  * - Package: models
  */
 export type Models_Theme = {
+    /**
+     * DEPRECATED
+     */
     animeEntryScreenLayout: string
     smallerEpisodeCarouselSize: boolean
     expandSidebarOnHover: boolean
