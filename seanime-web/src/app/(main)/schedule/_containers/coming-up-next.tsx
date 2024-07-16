@@ -22,7 +22,9 @@ export function ComingUpNext() {
 
     const media = React.useMemo(() => {
         // get all media
-        const _media = (animeCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
+        const _media = (animeCollection?.MediaListCollection?.lists?.filter(n => n.status !== "DROPPED")
+            .map(n => n?.entries)
+            .flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
         // keep media with next airing episodes
         let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
             .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)

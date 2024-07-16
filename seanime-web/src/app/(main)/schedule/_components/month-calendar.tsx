@@ -1,5 +1,4 @@
 import { AL_BaseAnime, Anime_AnimeEntryEpisode } from "@/api/generated/types"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -26,8 +25,6 @@ export function MonthCalendar(props: WeekCalendarProps) {
         missingEpisodes,
         ...rest
     } = props
-
-    const serverStatus = useServerStatus()
 
     // State for the current displayed month
     const [currentDate, setCurrentDate] = React.useState(new Date())
