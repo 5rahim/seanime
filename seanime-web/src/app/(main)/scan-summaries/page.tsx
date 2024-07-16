@@ -205,7 +205,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                 </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-2 overflow-x-auto">
-                <p className="text-sm text-left text-gray-500 italic line-clamp-1 max-w-full">{file.localFile.path}</p>
+                <p className="text-sm text-left text-[--muted] italic line-clamp-1 max-w-full">{file.localFile.path}</p>
                 <ScanSummaryFileParsedData localFile={file.localFile} />
                 {file.logs.map(log => (
                     <ScanSummaryLog key={log.id} log={log} />
