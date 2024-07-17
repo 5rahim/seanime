@@ -332,6 +332,10 @@ func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 			name:      "One Piece",
 			anilistId: 21,
 		},
+		{
+			name:      "Hibike! Euphonium 3",
+			anilistId: 109731,
+		},
 	}
 
 	for _, tt := range tests {

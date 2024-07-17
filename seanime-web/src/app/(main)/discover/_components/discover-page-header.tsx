@@ -151,7 +151,7 @@ export function DiscoverPageHeader() {
                                                     <span>{(randomTrending as AL_BaseAnime).episodes} episodes</span>}
                                             </p>
                                         )}
-                                        {randomTrending.meanScore && <div className="bg-gray-900 rounded-full w-fit inline-block">
+                                        {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
                                             <AnimeEntryAudienceScore
                                                 meanScore={randomTrending.meanScore}
                                             />

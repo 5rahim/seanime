@@ -96,6 +96,7 @@ func (a *App) initModulesOnce() {
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		AnizipCache:             a.AnizipCache,
+		Platform:                a.AnilistPlatform,
 	})
 
 	if !a.IsOffline() {
