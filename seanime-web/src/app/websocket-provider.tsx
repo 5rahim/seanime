@@ -1,6 +1,6 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { __openDrawersAtom } from "@/components/ui/drawer"
-import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -26,9 +26,9 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     useEffectOnce(() => {
 
         function connectWebSocket() {
-            const newSocket = new WebSocket(`${document.location.protocol == "https:" ? "wss" : "ws"}://${process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host}/events?id=${uuidv4()}`)
+            const newSocket = new WebSocket(`${document.location.protocol == "https:"
+                ? "wss"
+                : "ws"}://${getServerBaseUrl(true)}/events?id=${uuidv4()}`)
 
             newSocket.addEventListener("open", () => {
                 console.log("WebSocket connection opened")

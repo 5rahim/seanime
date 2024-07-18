@@ -1,7 +1,7 @@
 "use client"
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { Manga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
-import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 
@@ -30,19 +30,13 @@ export function useMangaReaderUtils() {
     const getChapterPageUrl = React.useCallback((url: string, isDownloaded: boolean | undefined, headers?: Record<string, string>) => {
         if (!isDownloaded) {
             if (headers && Object.keys(headers).length > 0) {
-                return process.env.NODE_ENV === "development"
-                    ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
-                        JSON.stringify(headers))}`
-                    : `${window?.location?.protocol}//${window?.location?.host}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
-                        JSON.stringify(
-                        headers))}`
+                return `${getServerBaseUrl()}/api/v1/image-proxy?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(
+                    JSON.stringify(headers))}`
             }
             return url
         }
 
-        return process.env.NODE_ENV === "development"
-            ? `http://${window?.location?.hostname}:${__DEV_SERVER_PORT}/manga-downloads/${url}`
-            : `${window?.location?.protocol}//${window?.location?.host}/manga-downloads/${url}`
+        return `${getServerBaseUrl()}/manga-downloads/${url}`
     }, [])
     return {
         getChapterPageUrl,

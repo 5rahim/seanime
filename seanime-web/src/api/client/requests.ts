@@ -1,5 +1,5 @@
 "use client"
-import { __DEV_SERVER_PORT } from "@/lib/server/config"
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
 import axios, { AxiosError } from "axios"
 import { useEffect } from "react"
@@ -27,9 +27,7 @@ export async function buildSeaQuery<T, D extends any = any>(
         params,
     }: SeaQuery<D>): Promise<T | undefined> {
     const res = await axios<T>({
-        url: typeof window !== "undefined" ? (`${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
-            ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-            : window?.location?.host) + endpoint) : "",
+        url: getServerBaseUrl() + endpoint,
         method,
         data,
         params,

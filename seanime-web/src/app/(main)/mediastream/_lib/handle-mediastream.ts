@@ -1,3 +1,4 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_AnimeEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -9,7 +10,6 @@ import {
 } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
-import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { WSEvents } from "@/lib/server/ws-events"
 import { isMobile } from "@/lib/utils/browser-detection"
 import {
@@ -218,9 +218,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (mediaContainer?.streamUrl) {
             logger("MEDIASTREAM").info("Media container", mediaContainer)
 
-            const _newUrl = typeof window !== "undefined" ? (`${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host) + mediaContainer.streamUrl) : undefined
+            const _newUrl = `${getServerBaseUrl()}${mediaContainer.streamUrl}`
 
             logger("MEDIASTREAM").info("Received new stream URL", _newUrl, "streamType:", mediaContainer.streamType)
 
@@ -248,9 +246,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
             logger("MEDIASTREAM").info("Loading JASSUB renderer")
 
-            const fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host) + `/api/v1/mediastream/att/${name}`) || []
+            const fonts = mediaContainer?.mediaInfo?.fonts?.map(name => `${getServerBaseUrl()}/api/v1/mediastream/att/${name}`) || []
 
             // Extracted fonts
             let availableFonts: Record<string, string> = {}
@@ -273,9 +269,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             }
             if (Object.keys(availableFonts).length === 0) {
                 availableFonts = {
-                    "liberation sans": `${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
-                        ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                        : window?.location?.host) + `/jassub/default.woff2`,
+                    "liberation sans": getServerBaseUrl() + `/jassub/default.woff2`,
                 }
             }
 
@@ -513,11 +507,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     // Subtitle endpoint URI
     const subtitleEndpointUri = React.useMemo(() => {
-        const baseUri = typeof window !== "undefined" ? (`${window?.location?.protocol}//` + (process.env.NODE_ENV === "development"
-            ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-            : window?.location?.host)) : ""
         if (mediaContainer?.streamUrl && mediaContainer?.streamType) {
-            return `${baseUri}/api/v1/mediastream/subs`
+            return `${getServerBaseUrl()}/api/v1/mediastream/subs`
         }
         return ""
     }, [mediaContainer?.streamUrl, mediaContainer?.streamType])
