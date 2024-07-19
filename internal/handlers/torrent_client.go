@@ -81,7 +81,7 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 		if b.Dir == "" {
 			return c.RespondWithError(errors.New("directory not found"))
 		}
-		openDirInExplorer(b.Dir)
+		OpenDirInExplorer(b.Dir)
 	}
 
 	return c.RespondWithData(true)

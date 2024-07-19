@@ -198,6 +198,9 @@ func (a *App) InitOrRefreshModules() {
 	}
 
 	a.Settings = settings // Store settings instance in app
+	if settings != nil && settings.Library != nil {
+		a.LibraryDir = settings.Library.LibraryPath
+	}
 
 	// +---------------------+
 	// |   Module settings   |

@@ -80,7 +80,8 @@ type (
 			Torrentstream *models.TorrentstreamSettings
 		}
 		SelfUpdater        *updater.SelfUpdater
-		TotalLibrarySize   uint64                   // Initialized in modules.go
+		TotalLibrarySize   uint64 // Initialized in modules.go
+		LibraryDir         string
 		animeCollection    *anilist.AnimeCollection // TODO: Rename to animeCollection
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection    *anilist.MangaCollection

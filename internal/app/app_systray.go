@@ -91,27 +91,31 @@ func StartApp(webFS embed.FS) {
 }
 
 func addQuitItem() {
-	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
+	systray.AddSeparator()
+	mQuit := systray.AddMenuItem("Quit Seanime", "Quit the whole app")
 	mQuit.Enable()
 	go func() {
 		<-mQuit.ClickedCh
-		log.Trace().Msg("systray: Requesting quit")
+		log.Trace().Msg("systray: Quitting system tray")
 		systray.Quit()
 		log.Trace().Msg("systray: Quit system tray")
 	}()
-	systray.AddSeparator()
 }
 
 func onReady(webFS embed.FS, app *core.App, flags core.SeanimeFlags, selfupdater *updater.SelfUpdater) func() {
 	return func() {
-		addQuitItem()
 		systray.SetTemplateIcon(icon.Data, icon.Data)
 		systray.SetTitle("Seanime")
-		systray.SetTooltip("Seanime v2.0.0")
+		systray.SetTooltip("Seanime")
 		log.Trace().Msg("systray: App is ready")
 
 		// Menu items
-		mWeb := systray.AddMenuItem("Open web interface", "Open web interface")
+		mWeb := systray.AddMenuItem("Open Web Interface", "Open web interface")
+		mOpenLibrary := systray.AddMenuItem("Open Anime Library", "Open anime library")
+		mOpenDataDir := systray.AddMenuItem("Open Data Directory", "Open data directory")
+		mOpenLogsDir := systray.AddMenuItem("Open Logs Directory", "Open logs directory")
+
+		addQuitItem()
 
 		go func() {
 			// Close the systray when the app exits
@@ -171,6 +175,12 @@ func onReady(webFS embed.FS, app *core.App, flags core.SeanimeFlags, selfupdater
 				select {
 				case <-mWeb.ClickedCh:
 					_ = browser.OpenURL(app.Config.GetServerURI("127.0.0.1"))
+				case <-mOpenLibrary.ClickedCh:
+					handlers.OpenDirInExplorer(app.LibraryDir)
+				case <-mOpenDataDir.ClickedCh:
+					handlers.OpenDirInExplorer(app.Config.Data.AppDataDir)
+				case <-mOpenLogsDir.ClickedCh:
+					handlers.OpenDirInExplorer(app.Config.Logs.Dir)
 				}
 			}
 		}()

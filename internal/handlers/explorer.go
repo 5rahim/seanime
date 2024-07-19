@@ -24,13 +24,17 @@ func HandleOpenInExplorer(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	openDirInExplorer(p.Path)
+	OpenDirInExplorer(p.Path)
 
 	return c.RespondWithData(true)
 
 }
 
-func openDirInExplorer(dir string) {
+func OpenDirInExplorer(dir string) {
+	if dir == "" {
+		return
+	}
+
 	cmd := ""
 	var args []string
 

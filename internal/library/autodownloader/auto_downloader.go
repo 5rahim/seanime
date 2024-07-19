@@ -66,7 +66,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		platform:                opts.Platform,
 		anizipCache:             opts.AnizipCache,
 		settings: &models.AutoDownloaderSettings{
-			Provider:              torrent.ProviderNyaa, // Default provider, will be updated after the settings are fetched
+			Provider:              torrent.ProviderAnimeTosho, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
 			Enabled:               false,
 			DownloadAutomatically: false,
