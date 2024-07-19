@@ -3,8 +3,8 @@ package playbackmanager
 import (
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
 )
 
 // StartRandomVideo starts a random video from the collection.

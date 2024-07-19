@@ -3,10 +3,10 @@ package torrent_client
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/platform"
-	torrent_analyzer "github.com/seanime-app/seanime/internal/torrents/analyzer"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platform"
+	torrent_analyzer "seanime/internal/torrents/analyzer"
+	"seanime/internal/torrents/torrent"
 	"time"
 )
 

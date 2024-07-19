@@ -2,8 +2,8 @@ package db
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm/clause"
+	"seanime/internal/database/models"
 )
 
 func (db *Database) UpsertAccount(acc *models.Account) (*models.Account, error) {

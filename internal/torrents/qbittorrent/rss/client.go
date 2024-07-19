@@ -3,10 +3,10 @@ package qbittorrent_rss
 import (
 	"encoding/json"
 	"github.com/rs/zerolog"
-	qbittorrent_model "github.com/seanime-app/seanime/internal/torrents/qbittorrent/model"
-	qbittorrent_util "github.com/seanime-app/seanime/internal/torrents/qbittorrent/util"
 	"net/http"
 	"net/url"
+	qbittorrent_model "seanime/internal/torrents/qbittorrent/model"
+	qbittorrent_util "seanime/internal/torrents/qbittorrent/util"
 )
 
 type Client struct {

@@ -3,10 +3,10 @@ package handlers
 import (
 	"errors"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/torrentstream"
+	"seanime/internal/database/models"
+	"seanime/internal/library/anime"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/torrentstream"
 )
 
 // HandleGetTorrentstreamEpisodeCollection

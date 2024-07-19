@@ -2,10 +2,10 @@ package qbittorrent_transfer
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/torrents/qbittorrent/model"
-	"github.com/seanime-app/seanime/internal/torrents/qbittorrent/util"
 	"net/http"
 	"net/url"
+	"seanime/internal/torrents/qbittorrent/model"
+	"seanime/internal/torrents/qbittorrent/util"
 	"strconv"
 )
 

@@ -3,13 +3,13 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/updater"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/updater"
+	"seanime/internal/util"
 )
 
 // HandleDownloadTorrentFile

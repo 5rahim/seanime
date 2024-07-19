@@ -5,8 +5,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/api/anilist"
+	"seanime/internal/util/limiter"
 	"sync"
 	"time"
 )

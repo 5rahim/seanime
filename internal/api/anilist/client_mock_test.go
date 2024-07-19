@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"seanime/internal/test_utils"
 	"testing"
 )
 

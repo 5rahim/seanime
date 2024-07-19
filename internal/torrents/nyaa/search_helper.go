@@ -3,7 +3,7 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/api/anilist"
+	"seanime/internal/api/anilist"
 	"strings"
 )
 

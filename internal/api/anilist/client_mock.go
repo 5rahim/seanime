@@ -5,10 +5,10 @@ import (
 	"github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"log"
 	"os"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 )
 
 // This file contains helper functions for testing the anilist package

@@ -3,8 +3,8 @@ package onlinestream
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/onlinestream/providers"
-	"github.com/seanime-app/seanime/internal/util/comparison"
+	"seanime/internal/onlinestream/providers"
+	"seanime/internal/util/comparison"
 	"strings"
 )
 

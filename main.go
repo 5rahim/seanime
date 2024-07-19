@@ -2,7 +2,7 @@ package main
 
 import (
 	"embed"
-	"github.com/seanime-app/seanime/internal/app"
+	"seanime/internal/app"
 )
 
 //go:embed all:web

@@ -7,10 +7,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"regexp"
+	"seanime/internal/util"
 	"strconv"
 	"strings"
 )

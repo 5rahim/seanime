@@ -3,9 +3,9 @@ package torrentstream
 import (
 	"fmt"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	itorrent "github.com/seanime-app/seanime/internal/torrents/torrent"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	itorrent "seanime/internal/torrents/torrent"
 	"time"
 )
 

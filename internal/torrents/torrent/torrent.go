@@ -2,13 +2,13 @@ package torrent
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"github.com/seanime-app/seanime/internal/torrents/seadex"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
-	"github.com/seanime-app/seanime/seanime-parser"
 	"net/http"
+	"seanime/internal/torrents/animetosho"
+	"seanime/internal/torrents/nyaa"
+	"seanime/internal/torrents/seadex"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
+	"seanime/seanime-parser"
 	"strconv"
 	"time"
 )

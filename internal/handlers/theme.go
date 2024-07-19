@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime/internal/database/models"
+import "seanime/internal/database/models"
 
 // HandleGetTheme
 //

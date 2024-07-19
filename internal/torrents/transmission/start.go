@@ -3,9 +3,9 @@ package transmission
 import (
 	"context"
 	"errors"
-	"github.com/seanime-app/seanime/internal/util"
 	"os/exec"
 	"runtime"
+	"seanime/internal/util"
 	"time"
 )
 

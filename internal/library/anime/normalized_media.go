@@ -1,8 +1,8 @@
 package anime
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/api/anilist"
+	"seanime/internal/util/result"
 )
 
 type NormalizedMedia struct {

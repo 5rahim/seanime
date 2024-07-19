@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 

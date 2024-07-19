@@ -4,9 +4,9 @@ import (
 	"cmp"
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platform"
 	"slices"
 )
 

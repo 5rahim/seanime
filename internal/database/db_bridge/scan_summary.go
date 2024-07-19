@@ -2,9 +2,9 @@ package db_bridge
 
 import (
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/summary"
+	"seanime/internal/database/db"
+	"seanime/internal/database/models"
+	"seanime/internal/library/summary"
 )
 
 func GetScanSummaries(database *db.Database) ([]*db.ScanSummaryItem, error) {

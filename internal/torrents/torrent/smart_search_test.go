@@ -3,13 +3,13 @@ package torrent
 import (
 	"context"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/test_utils"
+	"seanime/internal/torrents/animetosho"
+	"seanime/internal/torrents/nyaa"
+	"seanime/internal/util"
 	"testing"
 )
 

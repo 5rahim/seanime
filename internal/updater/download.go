@@ -6,11 +6,11 @@ import (
 	"compress/gzip"
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"seanime/internal/util"
 )
 
 var (

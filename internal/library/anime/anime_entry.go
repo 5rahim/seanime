@@ -3,11 +3,11 @@ package anime
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/platform"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/platform"
 	"sort"
 )
 

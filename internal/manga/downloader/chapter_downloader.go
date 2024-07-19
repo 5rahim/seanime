@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util"
 	_ "golang.org/x/image/bmp"  // Register BMP format
 	_ "golang.org/x/image/tiff" // Register Tiff format
 	_ "golang.org/x/image/webp" // Register WebP format
@@ -19,6 +15,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/manga/providers"
+	"seanime/internal/util"
 	"sync"
 )
 

@@ -9,11 +9,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gocolly/colly"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"net/url"
 	"regexp"
+	"seanime/internal/util"
 	"strings"
 )
 

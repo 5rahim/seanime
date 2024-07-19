@@ -1,14 +1,14 @@
 package playbackmanager_test
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/playbackmanager"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/require"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 

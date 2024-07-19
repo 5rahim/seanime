@@ -3,10 +3,10 @@ package animetosho
 import (
 	"fmt"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/util/result"
 	"io"
 	"net/http"
 	"net/url"
+	"seanime/internal/util/result"
 	"strings"
 )
 

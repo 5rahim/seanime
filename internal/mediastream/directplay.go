@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/seanime-app/seanime/internal/events"
 	"io"
 	"os"
+	"seanime/internal/events"
 	"strconv"
 	"strings"
 )

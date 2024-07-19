@@ -2,12 +2,12 @@ package onlinestream
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/onlinestream/providers"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/onlinestream/providers"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 

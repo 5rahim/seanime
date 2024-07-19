@@ -3,12 +3,12 @@ package offline
 import (
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
+	"seanime/internal/manga"
+	"seanime/internal/util/limiter"
 	"slices"
 	"time"
 )

@@ -1,6 +1,6 @@
 package manga
 
-import "github.com/seanime-app/seanime/internal/manga/providers"
+import "seanime/internal/manga/providers"
 
 // GetChapter returns a chapter from the container
 func (cc *ChapterContainer) GetChapter(id string) (ret *manga_providers.ChapterDetails, found bool) {

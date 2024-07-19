@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/util/limiter"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/util/limiter"
+	"seanime/internal/util/result"
 )
 
 type (

@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime/internal/discordrpc/presence"
+import "seanime/internal/discordrpc/presence"
 
 // HandleSetDiscordMangaActivity
 //

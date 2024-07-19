@@ -2,8 +2,8 @@ package offline
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/util/image_downloader"
+	"seanime/internal/library/anime"
+	"seanime/internal/util/image_downloader"
 	"sync"
 	"time"
 )

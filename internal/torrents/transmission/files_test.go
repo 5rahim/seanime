@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hekmon/transmissionrpc/v3"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )

@@ -3,8 +3,8 @@ package onlinestream_providers
 import (
 	"errors"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/util"
 	"testing"
 )
 

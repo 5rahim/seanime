@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/summary"
+	"seanime/internal/database/models"
+	"seanime/internal/library/summary"
 	"time"
 )
 

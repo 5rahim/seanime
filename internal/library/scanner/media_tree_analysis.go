@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/util/limiter"
 )
 
 type (

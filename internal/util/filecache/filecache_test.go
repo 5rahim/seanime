@@ -2,9 +2,9 @@ package filecache
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"path/filepath"
+	"seanime/internal/test_utils"
 	"sync"
 	"testing"
 	"time"

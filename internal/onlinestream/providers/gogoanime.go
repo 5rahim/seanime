@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/onlinestream/sources"
-	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
 	"net/url"
+	"seanime/internal/onlinestream/sources"
+	"seanime/internal/util"
 	"strconv"
 	"strings"
 )

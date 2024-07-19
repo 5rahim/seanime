@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm/clause"
+	"seanime/internal/database/models"
 )
 
 // TrimLocalFileEntries will trim the local file entries if there are more than 10 entries.

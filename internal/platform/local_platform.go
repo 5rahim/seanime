@@ -2,7 +2,7 @@ package platform
 
 import (
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
+	"seanime/internal/api/anilist"
 )
 
 type LocalPlatform struct {

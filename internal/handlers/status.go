@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/library/anime"
 	"runtime"
+	"seanime/internal/database/models"
+	"seanime/internal/library/anime"
 )
 
 // Status is a struct containing the user data, settings, and OS.

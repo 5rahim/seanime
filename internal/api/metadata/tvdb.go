@@ -3,9 +3,9 @@ package metadata
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/api/mappings"
-	"github.com/seanime-app/seanime/internal/api/tvdb"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"seanime/internal/api/mappings"
+	"seanime/internal/api/tvdb"
+	"seanime/internal/util/filecache"
 	"strconv"
 	"time"
 )

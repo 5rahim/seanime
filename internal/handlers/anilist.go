@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/util/result"
 	"strconv"
 	"time"
 )

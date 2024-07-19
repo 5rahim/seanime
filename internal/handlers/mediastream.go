@@ -3,11 +3,11 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/mediastream"
 	"os"
 	"path/filepath"
+	"seanime/internal/database/models"
+	"seanime/internal/events"
+	"seanime/internal/mediastream"
 )
 
 // HandleGetMediastreamSettings

@@ -1,10 +1,10 @@
 package autodownloader
 
 import (
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/seanime-parser"
+	"seanime/internal/torrents/animetosho"
+	"seanime/internal/torrents/nyaa"
+	"seanime/internal/torrents/torrent"
+	"seanime/seanime-parser"
 	"strconv"
 )
 

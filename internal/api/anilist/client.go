@@ -9,9 +9,9 @@ import (
 	"github.com/Yamashou/gqlgenc/graphqljson"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
+	"seanime/internal/util"
 	"strconv"
 	"time"
 )

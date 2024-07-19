@@ -3,13 +3,13 @@ package anime
 import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/platform"
+	"seanime/internal/util"
 	"slices"
 	"sort"
 )

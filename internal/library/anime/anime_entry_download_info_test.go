@@ -2,11 +2,11 @@ package anime
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/test_utils"
 	"testing"
 )
 

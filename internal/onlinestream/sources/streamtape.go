@@ -2,10 +2,10 @@ package onlinestream_sources
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"regexp"
+	"seanime/internal/util"
 	"strings"
 )
 

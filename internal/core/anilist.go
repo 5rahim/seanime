@@ -2,8 +2,8 @@ package core
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/models"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/models"
 )
 
 func (a *App) GetAccount() (*models.Account, error) {

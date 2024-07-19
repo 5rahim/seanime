@@ -3,8 +3,8 @@ package summary
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
 )
 
 const (

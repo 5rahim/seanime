@@ -5,12 +5,12 @@ import (
 	"context"
 	"errors"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/mal"
-	"github.com/seanime-app/seanime/internal/discordrpc/presence"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/mal"
+	"seanime/internal/discordrpc/presence"
+	"seanime/internal/events"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/util"
 )
 
 var (

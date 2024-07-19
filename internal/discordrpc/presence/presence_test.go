@@ -1,8 +1,8 @@
 package discordrpc_presence
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/database/models"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )

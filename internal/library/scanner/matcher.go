@@ -6,13 +6,13 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/summary"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
 	"github.com/sourcegraph/conc/pool"
 	"math"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/summary"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"time"
 )
 

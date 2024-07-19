@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/library/anime"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
 	"strings"
 )
 

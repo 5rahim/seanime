@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anizip"
+	"seanime/internal/api/anizip"
 )
 
 // HandlePopulateTVDBEpisodes

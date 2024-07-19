@@ -5,10 +5,10 @@ package app
 import (
 	"embed"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/core"
-	"github.com/seanime-app/seanime/internal/cron"
-	"github.com/seanime-app/seanime/internal/handlers"
-	"github.com/seanime-app/seanime/internal/updater"
+	"seanime/internal/core"
+	"seanime/internal/cron"
+	"seanime/internal/handlers"
+	"seanime/internal/updater"
 	"time"
 )
 

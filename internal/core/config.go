@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+	"seanime/internal/constants"
 	"strconv"
 )
 

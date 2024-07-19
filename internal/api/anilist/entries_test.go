@@ -1,10 +1,10 @@
 package anilist
 
 import (
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 	"testing"
 )
 

@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
+	"seanime/internal/api/anilist"
+	"seanime/internal/torrents/torrent"
 )
 
 // HandleSearchTorrent

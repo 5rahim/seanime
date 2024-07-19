@@ -2,9 +2,9 @@ package offline
 
 import (
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/manga"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
+	"seanime/internal/manga"
 )
 
 type (

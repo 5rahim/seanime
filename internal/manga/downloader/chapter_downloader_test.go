@@ -1,12 +1,12 @@
 package chapter_downloader
 
 import (
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/manga/providers"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )

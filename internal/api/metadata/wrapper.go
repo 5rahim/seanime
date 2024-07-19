@@ -2,10 +2,10 @@ package metadata
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/tvdb"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/tvdb"
+	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
 )

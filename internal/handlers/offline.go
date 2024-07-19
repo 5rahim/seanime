@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/offline"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/offline"
 )
 
 var creatingOfflineSnapshot = false

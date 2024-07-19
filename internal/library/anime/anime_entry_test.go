@@ -2,13 +2,13 @@ package anime
 
 import (
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 

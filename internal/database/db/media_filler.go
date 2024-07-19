@@ -3,8 +3,8 @@ package db
 import (
 	"github.com/goccy/go-json"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/filler"
-	"github.com/seanime-app/seanime/internal/database/models"
+	"seanime/internal/api/filler"
+	"seanime/internal/database/models"
 	"time"
 )
 

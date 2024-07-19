@@ -1,12 +1,12 @@
 package torrent_client
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )

@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/seanime-app/seanime/internal/database/db_bridge"
+import "seanime/internal/database/db_bridge"
 
 // HandlePlaybackPlayVideo
 //

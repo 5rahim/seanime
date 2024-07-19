@@ -9,12 +9,12 @@ import (
 	"github.com/anacrolix/torrent/storage"
 	"github.com/dustin/go-humanize"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"seanime/internal/mediaplayers/mediaplayer"
 	"strings"
 	"time"
 )

@@ -2,7 +2,7 @@ package onlinestream_providers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/onlinestream/sources"
+	"seanime/internal/onlinestream/sources"
 )
 
 var (

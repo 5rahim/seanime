@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/scanner"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/scanner"
 )
 
 // DUMMY HANDLER

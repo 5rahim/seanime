@@ -1,8 +1,8 @@
 package mediaplayer
 
 import (
-	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
 	"testing"
 	"time"
 )

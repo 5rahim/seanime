@@ -4,7 +4,7 @@ package main
 
 import (
 	"flag"
-	"github.com/seanime-app/seanime/codegen/internal"
+	"seanime/codegen/internal"
 )
 
 func main() {

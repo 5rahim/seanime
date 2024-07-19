@@ -5,12 +5,12 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"log"
 	"os"
 	"path/filepath"
+	"seanime/internal/database/models"
 	"time"
 )
 

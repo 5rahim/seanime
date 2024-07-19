@@ -3,9 +3,9 @@ package anime_test
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/library/anime"
 	"github.com/stretchr/testify/assert"
 	"path/filepath"
+	"seanime/internal/library/anime"
 	"strings"
 	"testing"
 )

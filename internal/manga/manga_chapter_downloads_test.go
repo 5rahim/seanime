@@ -2,12 +2,12 @@ package manga
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 

@@ -3,9 +3,9 @@ package core
 import (
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/seanime-app/seanime/internal/constants"
 	"golang.org/x/term"
 	"os"
+	"seanime/internal/constants"
 	"strings"
 )
 

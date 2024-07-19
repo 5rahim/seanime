@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm/clause"
+	"seanime/internal/database/models"
 )
 
 func (db *Database) GetTheme() (*models.Theme, error) {

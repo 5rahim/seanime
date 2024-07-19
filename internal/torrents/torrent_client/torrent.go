@@ -2,8 +2,8 @@ package torrent_client
 
 import (
 	"github.com/hekmon/transmissionrpc/v3"
-	"github.com/seanime-app/seanime/internal/torrents/qbittorrent/model"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/torrents/qbittorrent/model"
+	"seanime/internal/util"
 )
 
 const (

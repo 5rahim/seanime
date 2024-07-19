@@ -4,14 +4,14 @@ import (
 	"errors"
 	"github.com/rs/zerolog"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/scanner"
+	"seanime/internal/platform"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 )
 
 type (

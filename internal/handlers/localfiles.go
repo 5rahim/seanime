@@ -3,11 +3,11 @@ package handlers
 import (
 	"errors"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/filesystem"
 	"github.com/sourcegraph/conc/pool"
 	"os"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/filesystem"
 )
 
 // HandleGetLocalFiles

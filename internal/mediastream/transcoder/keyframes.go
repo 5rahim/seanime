@@ -3,10 +3,10 @@ package transcoder
 import (
 	"bufio"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
-	"github.com/seanime-app/seanime/internal/util/result"
 	"os/exec"
 	"path/filepath"
+	"seanime/internal/mediastream/videofile"
+	"seanime/internal/util/result"
 	"strconv"
 	"strings"
 	"sync"

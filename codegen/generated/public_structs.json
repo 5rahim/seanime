@@ -23549,6 +23549,15 @@
         ]
       },
       {
+        "name": "LibraryDir",
+        "jsonName": "LibraryDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "animeCollection",
         "jsonName": "animeCollection",
         "goType": "anilist.AnimeCollection",
@@ -34209,170 +34218,6 @@
       {
         "name": "DownloadDir",
         "jsonName": "DownloadDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediaplayers/libmpv/_libmpv.go",
-    "filename": "_libmpv.go",
-    "name": "LibMpv",
-    "formattedName": "LibMpv",
-    "package": "libmpv",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "playback",
-        "jsonName": "playback",
-        "goType": "Playback",
-        "typescriptType": "Playback",
-        "usedStructName": "libmpv.Playback",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "cancelFunc",
-        "jsonName": "cancelFunc",
-        "goType": "context.CancelFunc",
-        "typescriptType": "CancelFunc",
-        "usedStructName": "context.CancelFunc",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "instance",
-        "jsonName": "instance",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mu",
-        "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
-        "usedStructName": "sync.Mutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "playbackMu",
-        "jsonName": "playbackMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "subscribers",
-        "jsonName": "subscribers",
-        "goType": "map[string]Subscriber",
-        "typescriptType": "Record\u003cstring, Subscriber\u003e",
-        "usedStructName": "libmpv.Subscriber",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Subscribers to the mpv events"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediaplayers/libmpv/_libmpv.go",
-    "filename": "_libmpv.go",
-    "name": "Subscriber",
-    "formattedName": "Subscriber",
-    "package": "libmpv",
-    "fields": [
-      {
-        "name": "ClosedCh",
-        "jsonName": "ClosedCh",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediaplayers/libmpv/_libmpv.go",
-    "filename": "_libmpv.go",
-    "name": "Playback",
-    "formattedName": "Playback",
-    "package": "libmpv",
-    "fields": [
-      {
-        "name": "Filename",
-        "jsonName": "Filename",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Paused",
-        "jsonName": "Paused",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Position",
-        "jsonName": "Position",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "Duration",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsRunning",
-        "jsonName": "IsRunning",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Filepath",
-        "jsonName": "Filepath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

@@ -3,10 +3,10 @@ package discordrpc_presence
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/constants"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/discordrpc/client"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/constants"
+	"seanime/internal/database/models"
+	"seanime/internal/discordrpc/client"
+	"seanime/internal/util"
 	"sync"
 	"time"
 )

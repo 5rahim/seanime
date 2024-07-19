@@ -1,8 +1,8 @@
 package metadata
 
 import (
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 

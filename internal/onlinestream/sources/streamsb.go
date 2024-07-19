@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
+	"seanime/internal/util"
 	"strings"
 )
 

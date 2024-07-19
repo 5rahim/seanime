@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/library/summary"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/scanner"
+	"seanime/internal/library/summary"
 )
 
 // HandleScanLocalFiles

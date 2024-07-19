@@ -7,11 +7,11 @@ package transcoder
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
-	"github.com/seanime-app/seanime/internal/util/result"
 	"os"
 	"path"
 	"path/filepath"
+	"seanime/internal/mediastream/videofile"
+	"seanime/internal/util/result"
 	"time"
 )
 

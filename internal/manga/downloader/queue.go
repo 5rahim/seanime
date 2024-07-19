@@ -3,11 +3,11 @@ package chapter_downloader
 import (
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/database/db"
+	"seanime/internal/database/models"
+	"seanime/internal/events"
+	"seanime/internal/manga/providers"
+	"seanime/internal/util"
 	"sync"
 	"time"
 )

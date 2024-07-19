@@ -2,7 +2,7 @@ package filler
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/util"
 	"testing"
 )
 

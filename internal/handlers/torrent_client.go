@@ -3,13 +3,13 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/events"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/torrents/torrent_client"
+	"seanime/internal/util"
 	"strings"
 )
 

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/util"
 	"strings"
 )
 

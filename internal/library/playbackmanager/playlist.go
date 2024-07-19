@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/library/anime"
 	"sync"
 )
 

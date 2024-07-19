@@ -2,8 +2,8 @@ package mal
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 

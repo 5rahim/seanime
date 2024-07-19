@@ -2,7 +2,7 @@ package parallel
 
 import (
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/util/limiter"
 	"sync"
 )
 

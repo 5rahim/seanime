@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga"
-	chapter_downloader "github.com/seanime-app/seanime/internal/manga/downloader"
-	"github.com/seanime-app/seanime/internal/manga/providers"
+	"seanime/internal/events"
+	"seanime/internal/manga"
+	chapter_downloader "seanime/internal/manga/downloader"
+	"seanime/internal/manga/providers"
 	"time"
 )
 

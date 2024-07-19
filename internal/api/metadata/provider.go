@@ -2,7 +2,7 @@ package metadata
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"seanime/internal/util/filecache"
 )
 
 type (

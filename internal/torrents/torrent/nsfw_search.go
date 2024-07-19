@@ -1,6 +1,6 @@
 package torrent
 
-import "github.com/seanime-app/seanime/internal/torrents/nyaa"
+import "seanime/internal/torrents/nyaa"
 
 func NewNsfwSearch(query string, cache *nyaa.SearchCache) (ret *SearchData, err error) {
 	ret = &SearchData{

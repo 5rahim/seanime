@@ -2,9 +2,9 @@ package manga
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platform"
+	"seanime/internal/util/filecache"
 )
 
 type (

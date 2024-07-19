@@ -2,8 +2,8 @@ package torrent
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
+	"seanime/internal/torrents/animetosho"
+	"seanime/internal/torrents/nyaa"
 	"strings"
 )
 

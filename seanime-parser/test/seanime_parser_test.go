@@ -3,12 +3,12 @@ package seanime_parser
 import (
 	"bytes"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/seanime-parser"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/unicode/norm"
 	"io/ioutil"
 	"log"
 	"os"
+	"seanime/seanime-parser"
 	"strconv"
 	"strings"
 	"testing"

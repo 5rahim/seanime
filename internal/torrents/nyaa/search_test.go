@@ -3,11 +3,11 @@ package nyaa
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platform"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 	"testing"
 )
 

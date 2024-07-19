@@ -1,7 +1,7 @@
 package platform
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
+	"seanime/internal/api/anilist"
 )
 
 type Platform interface {

@@ -2,10 +2,10 @@ package scanner
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
+	"seanime/internal/util"
 	"testing"
 )
 

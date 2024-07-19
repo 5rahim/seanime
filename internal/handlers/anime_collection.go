@@ -3,8 +3,8 @@ package handlers
 import (
 	"errors"
 	"github.com/dustin/go-humanize"
-	"github.com/seanime-app/seanime/internal/database/db_bridge"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
 )
 
 //var libraryCollectionMap = result.NewResultMap[string, *anime.LibraryCollection]()

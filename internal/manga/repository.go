@@ -3,9 +3,6 @@ package manga
 import (
 	"bytes"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	_ "golang.org/x/image/bmp"  // Register BMP format
 	_ "golang.org/x/image/tiff" // Register Tiff format
 	_ "golang.org/x/image/webp" // Register WebP format
@@ -13,6 +10,9 @@ import (
 	_ "image/jpeg" // Register JPEG format
 	_ "image/png"  // Register PNG format
 	"net/http"
+	"seanime/internal/events"
+	"seanime/internal/manga/providers"
+	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
 	"sync"

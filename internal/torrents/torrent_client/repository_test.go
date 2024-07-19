@@ -2,12 +2,12 @@ package torrent_client
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/torrents/transmission"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
+	"seanime/internal/torrents/qbittorrent"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/torrents/transmission"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/result"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"strings"
 	"time"
 )

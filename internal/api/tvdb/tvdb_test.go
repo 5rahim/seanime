@@ -3,10 +3,10 @@ package tvdb
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 

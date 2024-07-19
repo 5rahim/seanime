@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/mal"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/mal"
+	"seanime/internal/events"
+	"seanime/internal/manga"
+	"seanime/internal/manga/providers"
+	"seanime/internal/util/result"
 	"time"
 )
 

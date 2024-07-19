@@ -2,9 +2,9 @@ package db
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"seanime/internal/database/models"
 )
 
 func (db *Database) GetMalInfo() (*models.Mal, error) {

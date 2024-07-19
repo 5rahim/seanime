@@ -1,16 +1,16 @@
 package offline
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	db2 "github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/platform"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
+	db2 "seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/manga"
+	"seanime/internal/platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 

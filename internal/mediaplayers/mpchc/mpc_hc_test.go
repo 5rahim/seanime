@@ -1,9 +1,9 @@
 package mpchc
 
 import (
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )
