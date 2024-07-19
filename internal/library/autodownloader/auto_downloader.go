@@ -83,6 +83,8 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 // If the AutoDownloader is not active, it will start it if the settings are enabled.
 // If the AutoDownloader is active, it will stop it if the settings are disabled.
 func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, provider string) {
+	defer util.HandlePanicInModuleThen("autodownloader/SetSettings", func() {})
+
 	if ad == nil {
 		return
 	}
@@ -104,6 +106,8 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, p
 }
 
 func (ad *AutoDownloader) SetTorrentClientRepository(repo *torrent_client.Repository) {
+	defer util.HandlePanicInModuleThen("autodownloader/SetTorrentClientRepository", func() {})
+
 	if ad == nil {
 		return
 	}
@@ -112,6 +116,8 @@ func (ad *AutoDownloader) SetTorrentClientRepository(repo *torrent_client.Reposi
 
 // Start will start the auto downloader in a goroutine
 func (ad *AutoDownloader) Start() {
+	defer util.HandlePanicInModuleThen("autodownloader/Start", func() {})
+
 	if ad == nil {
 		return
 	}
@@ -132,6 +138,8 @@ func (ad *AutoDownloader) Start() {
 }
 
 func (ad *AutoDownloader) Run() {
+	defer util.HandlePanicInModuleThen("autodownloader/Run", func() {})
+
 	if ad == nil {
 		return
 	}
@@ -145,6 +153,8 @@ func (ad *AutoDownloader) Run() {
 // CleanUpDownloadedItems will clean up downloaded items from the database.
 // This should be run after a scan is completed.
 func (ad *AutoDownloader) CleanUpDownloadedItems() {
+	defer util.HandlePanicInModuleThen("autodownloader/CleanUpDownloadedItems", func() {})
+
 	if ad == nil {
 		return
 	}
@@ -157,6 +167,8 @@ func (ad *AutoDownloader) CleanUpDownloadedItems() {
 }
 
 func (ad *AutoDownloader) start() {
+	defer util.HandlePanicInModuleThen("autodownloader/start", func() {})
+
 	if ad.settings.Enabled {
 		ad.logger.Info().Msg("autodownloader: Module started")
 	}
@@ -188,6 +200,8 @@ func (ad *AutoDownloader) start() {
 }
 
 func (ad *AutoDownloader) checkForNewEpisodes() {
+	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
+
 	ad.mu.Lock()
 	if ad == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
 		return
@@ -333,6 +347,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	listEntry *anilist.MediaListEntry,
 	localEntry *anime.LocalFileWrapperEntry,
 ) (int, bool) {
+	defer util.HandlePanicInModuleThen("autodownloader/torrentFollowsRule", func() {})
 
 	if ok := ad.isReleaseGroupMatch(t.ParsedData.ReleaseGroup, rule); !ok {
 		return -1, false
@@ -355,9 +370,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 }
 
 func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int) {
-	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {
-
-	})
+	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {})
 
 	ad.mu.Lock()
 	defer ad.mu.Unlock()

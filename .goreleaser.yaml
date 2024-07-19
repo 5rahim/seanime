@@ -3,29 +3,94 @@ before:
     - go mod tidy
 
 builds:
-  - env:
-      - CGO_ENABLED=0
-    main: .
+  #  - id: seanime-darwin-amd64
+  #    binary: seanime
+  #    main: .
+  #    goarch:
+  #      - amd64
+  #    goos:
+  #      - darwin
+  #    env:
+  #      - CGO_ENABLED=1
+  #      - CC=clang
+  #    flags:
+  #      - -trimpath
+  #    ldflags:
+  #      - -s -w
+  #
+  #  - id: seanime-darwin-arm64
+  #    binary: seanime
+  #    main: .
+  #    goarch:
+  #      - arm64
+  #    goos:
+  #      - darwin
+  #    env:
+  #      - CGO_ENABLED=1
+  #      - CC=clang
+  #    flags:
+  #      - -trimpath
+  #    ldflags:
+  #      - -s -w
+
+  - id: seanime-darwin-amd64
     binary: seanime
-    goos:
-      - linux
-      - darwin
-      - windows
+    main: .
     goarch:
       - amd64
-      - arm64
-    goarm:
-      - 6
-      - 7
-    ignore:
-      - goos: windows
-        goarch: arm64
+    goos:
+      - darwin
+    env:
+      - CGO_ENABLED=0
 
-checksum:
-  name_template: 'checksums.txt'
+  - id: seanime-darwin-arm64
+    binary: seanime
+    main: .
+    goarch:
+      - arm64
+    goos:
+      - darwin
+    env:
+      - CGO_ENABLED=0
+
+  - id: seanime-linux-amd64
+    binary: seanime
+    main: .
+    goarch:
+      - amd64
+    goos:
+      - linux
+    env:
+      - CGO_ENABLED=0
+
+  - id: seanime-linux-arm64
+    binary: seanime
+    main: .
+    goarch:
+      - arm64
+    goos:
+      - linux
+    env:
+      - CGO_ENABLED=0
+
+  - id: seanime-windows-amd64
+    binary: seanime
+    main: .
+    goarch:
+      - amd64
+    goos:
+      - windows
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+    flags:
+      - -trimpath
+      - -buildmode=exe
+    ldflags:
+      - -s -w -H=windowsgui
 
 archives:
-  - id: sea-archive
+  - id: seanime
     name_template: '{{- .ProjectName }}-
         {{- .Version }}_
         {{- if eq .Os "darwin" }}MacOS
@@ -37,6 +102,7 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+    wrap_in_directory: true
     files:
       - LICENSE
 

@@ -33,6 +33,7 @@ import (
 	"github.com/seanime-app/seanime/internal/updater"
 	"github.com/seanime-app/seanime/internal/util"
 	"github.com/seanime-app/seanime/internal/util/filecache"
+	"os"
 	"runtime"
 	"sync"
 )
@@ -92,6 +93,10 @@ type (
 
 // NewApp creates a new server instance
 func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
+	defer util.HandlePanicInModuleThen("core", func() {
+		os.Exit(1) // Exit the app if a panic occurs
+	})
+
 	logger := util.NewLogger()
 
 	logger.Info().Msgf("app: Seanime %s-%s", constants.Version, constants.VersionName)
