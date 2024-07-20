@@ -2,7 +2,6 @@ package vlc
 
 import (
 	"errors"
-	"os/exec"
 	"runtime"
 	"seanime/internal/util"
 	"time"
@@ -54,7 +53,7 @@ func (vlc *VLC) Start() error {
 
 	// Start VLC
 	exe := vlc.getExecutablePath()
-	cmd := exec.Command(exe)
+	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {
 		return errors.New("failed to start VLC")

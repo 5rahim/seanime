@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"seanime/internal/mediaplayers/mpvipc"
+	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
@@ -397,7 +398,7 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 		binaryPath = m.AppPath
 	}
 
-	cmd = exec.CommandContext(cmdCtx, binaryPath, args...)
+	cmd = util.NewCmdCtx(cmdCtx, binaryPath, args...)
 
 	m.Logger.Trace().Msgf("mpv: Command: %s", strings.Join(cmd.Args, " "))
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"seanime/internal/util"
 )
 
 func GetFileSubsCacheDir(outDir string, hash string) string {
@@ -40,7 +40,7 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 		}
 	}
 
-	cmd := exec.CommandContext(
+	cmd := util.NewCmdCtx(
 		context.Background(),
 		ffmpegPath,
 		"-dump_attachment:t", "",

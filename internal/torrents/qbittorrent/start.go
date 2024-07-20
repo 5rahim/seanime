@@ -2,7 +2,6 @@ package qbittorrent
 
 import (
 	"errors"
-	"os/exec"
 	"runtime"
 	"seanime/internal/util"
 	"time"
@@ -48,7 +47,7 @@ func (c *Client) Start() error {
 	}
 
 	exe := c.getExecutablePath()
-	cmd := exec.Command(exe)
+	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {
 		return errors.New("failed to start qBittorrent")

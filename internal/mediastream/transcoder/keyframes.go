@@ -3,9 +3,9 @@ package transcoder
 import (
 	"bufio"
 	"github.com/rs/zerolog"
-	"os/exec"
 	"path/filepath"
 	"seanime/internal/mediastream/videofile"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strconv"
 	"strings"
@@ -104,7 +104,7 @@ func getKeyframes(ffprobePath string, path string, kf *Keyframe, hash string, lo
 	// We instruct ffprobe to return the timestamp and flags of each frame.
 	// Although it's possible to request ffprobe to return only i-frames (keyframes) using the -skip_frame nokey option, this approach is highly inefficient.
 	// The inefficiency arises because when this option is used, ffmpeg processes every single frame, which significantly slows down the operation.
-	cmd := exec.Command(
+	cmd := util.NewCmd(
 		"ffprobe",
 		"-loglevel", "error",
 		"-select_streams", "v:0",

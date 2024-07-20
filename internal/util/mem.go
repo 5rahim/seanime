@@ -15,11 +15,11 @@ func ProgramIsRunning(name string) bool {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("tasklist")
+		cmd = NewCmd("tasklist")
 	case "linux":
-		cmd = exec.Command("pgrep", name)
+		cmd = NewCmd("pgrep", name)
 	case "darwin":
-		cmd = exec.Command("pgrep", name)
+		cmd = NewCmd("pgrep", name)
 	default:
 		return false
 	}

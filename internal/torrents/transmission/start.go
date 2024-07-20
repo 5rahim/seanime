@@ -3,7 +3,6 @@ package transmission
 import (
 	"context"
 	"errors"
-	"os/exec"
 	"runtime"
 	"seanime/internal/util"
 	"time"
@@ -50,7 +49,7 @@ func (c *Transmission) Start() error {
 	}
 
 	exe := c.getExecutablePath()
-	cmd := exec.Command(exe)
+	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {
 		return errors.New("failed to start Transmission")

@@ -260,7 +260,7 @@ func (su *SelfUpdater) Run() error {
 }
 
 func openWindows(path string) error {
-	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", path)
+	cmd := util.NewCmd("cmd", "/c", "start", "cmd", "/k", path)
 	return cmd.Start()
 }
 

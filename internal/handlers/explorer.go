@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"os"
-	"os/exec"
 	"runtime"
+	"seanime/internal/util"
 	"strings"
 )
 
@@ -51,7 +51,7 @@ func OpenDirInExplorer(dir string) {
 	default:
 		return
 	}
-	cmdObj := exec.Command(cmd, args...)
+	cmdObj := util.NewCmd(cmd, args...)
 	cmdObj.Stdout = os.Stdout
 	cmdObj.Stderr = os.Stderr
 	_ = cmdObj.Run()

@@ -9,7 +9,6 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"gorm.io/gorm"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"seanime/internal/api/anilist"
@@ -20,6 +19,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
+	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"seanime/internal/util/result"
 	"slices"
@@ -190,7 +190,7 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 	default:
 		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
-	cmdObj := exec.Command(cmd, args...)
+	cmdObj := util.NewCmd(cmd, args...)
 	cmdObj.Stdout = os.Stdout
 	cmdObj.Stderr = os.Stderr
 	err = cmdObj.Run()

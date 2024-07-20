@@ -2,7 +2,7 @@ package mpchc
 
 import (
 	"errors"
-	"os/exec"
+	"seanime/internal/util"
 	"strings"
 	"time"
 )
@@ -28,7 +28,7 @@ func (api *MpcHc) getExecutablePath() string {
 }
 
 func (api *MpcHc) isRunning(executable string) bool {
-	cmd := exec.Command("tasklist")
+	cmd := util.NewCmd("tasklist")
 	output, err := cmd.Output()
 	if err != nil {
 		return false
@@ -44,7 +44,7 @@ func (api *MpcHc) Start() error {
 		return nil
 	}
 
-	cmd := exec.Command(exe)
+	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {
 		return errors.New("failed to start MPC-HC")
