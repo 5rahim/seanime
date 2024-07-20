@@ -21,7 +21,26 @@ import (
 	"seanime/internal/updater"
 	"seanime/internal/util"
 	"time"
+
+	"github.com/gonutz/w32/v2"
 )
+
+func hideConsole() {
+	console := w32.GetConsoleWindow()
+	if console == 0 {
+		return // no console attached
+	}
+	// If this application is the process that created the console window, then
+	// this program was not compiled with the -H=windowsgui flag and on start-up
+	// it created a console along with the main application window. In this case
+	// hide the console window.
+	// See
+	// http://stackoverflow.com/questions/9009333/how-to-check-if-the-program-is-run-from-a-console
+	_, consoleProcID := w32.GetWindowThreadProcessId(console)
+	if w32.GetCurrentProcessId() == consoleProcID {
+		w32.ShowWindow(console, w32.SW_HIDE)
+	}
+}
 
 func setupSignalHandling(file *os.File) {
 	sigChan := make(chan os.Signal, 1)
@@ -39,6 +58,8 @@ func setupSignalHandling(file *os.File) {
 
 func StartApp(webFS embed.FS) {
 	onExit := func() {}
+
+	hideConsole()
 
 	// Print the header
 	core.PrintHeader()
@@ -78,7 +99,7 @@ func StartApp(webFS embed.FS) {
 			log.Error().Msgf("Recovered from panic: %v", r)
 			util.WriteGlobalLogBufferToFile(logFile)
 			_ = logFile.Close()
-			os.Exit(1) // Exit with an error code
+			os.Exit(1)
 		} else {
 			// Ensure buffer is flushed on normal exit
 			util.WriteGlobalLogBufferToFile(logFile)

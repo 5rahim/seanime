@@ -54,6 +54,9 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to PlaybackManager
 	a.PlaybackManager.SetAnimeCollection(ret)
 
+	// Save the collection to AutoDownloader
+	a.AutoDownloader.SetAnimeCollection(ret)
+
 	return ret, nil
 }
 

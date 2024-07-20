@@ -3,6 +3,7 @@ package autodownloader
 import (
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
@@ -11,7 +12,6 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
-	"seanime/internal/platform"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrents/torrent_client"
 	"seanime/internal/util"
@@ -31,7 +31,7 @@ type (
 		logger                  *zerolog.Logger
 		torrentClientRepository *torrent_client.Repository
 		database                *db.Database
-		platform                platform.Platform
+		animeCollection         mo.Option[*anilist.AnimeCollection]
 		wsEventManager          events.WSEventManagerInterface
 		settings                *models.AutoDownloaderSettings
 		anizipCache             *anizip.Cache
@@ -47,7 +47,6 @@ type (
 		TorrentClientRepository *torrent_client.Repository
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
-		Platform                platform.Platform
 		AnizipCache             *anizip.Cache
 	}
 
@@ -63,7 +62,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		torrentClientRepository: opts.TorrentClientRepository,
 		database:                opts.Database,
 		wsEventManager:          opts.WSEventManager,
-		platform:                opts.Platform,
+		animeCollection:         mo.None[*anilist.AnimeCollection](),
 		anizipCache:             opts.AnizipCache,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              torrent.ProviderAnimeTosho, // Default provider, will be updated after the settings are fetched
@@ -103,6 +102,10 @@ func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, p
 			ad.stopCh <- struct{}{} // Stop the auto downloader
 		}
 	}()
+}
+
+func (ad *AutoDownloader) SetAnimeCollection(ac *anilist.AnimeCollection) {
+	ad.animeCollection = mo.Some(ac)
 }
 
 func (ad *AutoDownloader) SetTorrentClientRepository(repo *torrent_client.Repository) {
@@ -662,16 +665,11 @@ func (ad *AutoDownloader) isEpisodeMatch(
 }
 
 func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
-	if rule == nil || rule.MediaId == 0 {
+	if rule == nil || rule.MediaId == 0 || ad.animeCollection.IsAbsent() {
 		return nil, false
 	}
 
-	animeCollection, err := ad.platform.GetAnimeCollection(false)
-	if err != nil {
-		return nil, false
-	}
-
-	listEntry, found := animeCollection.GetListEntryFromAnimeId(rule.MediaId)
+	listEntry, found := ad.animeCollection.MustGet().GetListEntryFromAnimeId(rule.MediaId)
 	if !found {
 		return nil, false
 	}

@@ -78,7 +78,7 @@ type (
 		SecondarySettings       struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
-		}
+		} // Struct for other settings sent to client
 		SelfUpdater        *updater.SelfUpdater
 		TotalLibrarySize   uint64 // Initialized in modules.go
 		LibraryDir         string

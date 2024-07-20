@@ -96,7 +96,6 @@ func (a *App) initModulesOnce() {
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		AnizipCache:             a.AnizipCache,
-		Platform:                a.AnilistPlatform,
 	})
 
 	if !a.IsOffline() {
@@ -399,6 +398,8 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		a.TorrentstreamRepository.Shutdown()
 	})
 
+	// Set torrent streaming settings in secondary settings
+	// so the client can use them
 	a.SecondarySettings.Torrentstream = settings
 }
 

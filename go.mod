@@ -22,6 +22,7 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/gofiber/contrib/websocket v1.3.1
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/gonutz/w32/v2 v2.11.1
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
