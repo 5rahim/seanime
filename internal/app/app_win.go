@@ -25,6 +25,8 @@ import (
 	"github.com/gonutz/w32/v2"
 )
 
+// hideConsole will hide the terminal window if the app was not started with the -H=windowsgui flag.
+// NOTE: This will only minimize the terminal window on Windows 11 if the 'default terminal app' is set to 'Windows Terminal' or 'Let Windows choose' instead of 'Windows Console Host'
 func hideConsole() {
 	console := w32.GetConsoleWindow()
 	if console == 0 {
