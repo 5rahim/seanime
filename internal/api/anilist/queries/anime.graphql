@@ -1,5 +1,5 @@
 query AnimeCollection ($userName: String) {
-  MediaListCollection(userName: $userName, type: ANIME) {
+  MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: ANIME) {
     lists {
       status
       name
@@ -31,7 +31,7 @@ query AnimeCollection ($userName: String) {
 }
 
 query AnimeCollectionWithRelations ($userName: String) {
-  MediaListCollection(userName: $userName, type: ANIME) {
+  MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: ANIME) {
     lists {
       status
       name

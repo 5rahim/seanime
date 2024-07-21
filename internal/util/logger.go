@@ -6,6 +6,7 @@ import (
 	"github.com/fatih/color"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -28,6 +29,7 @@ const (
 )
 
 var logBuffer bytes.Buffer
+var logBufferMutex = &sync.Mutex{}
 
 func NewLogger() *zerolog.Logger {
 
@@ -125,9 +127,15 @@ func NewLogger() *zerolog.Logger {
 }
 
 func WriteGlobalLogBufferToFile(file *os.File) {
+	if file == nil {
+		return
+	}
+	logBufferMutex.Lock()
+	defer logBufferMutex.Unlock()
 	if _, err := logBuffer.WriteTo(file); err != nil {
 		fmt.Print("Failed to write log buffer to file")
 	}
+	logBuffer.Reset()
 }
 
 func colorize(s interface{}, c color.Attribute) string {

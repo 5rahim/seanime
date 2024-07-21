@@ -6304,7 +6304,7 @@ func (t *GetViewer) GetViewer() *GetViewer_Viewer {
 }
 
 const AnimeCollectionDocument = `query AnimeCollection ($userName: String) {
-	MediaListCollection(userName: $userName, type: ANIME) {
+	MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: ANIME) {
 		lists {
 			status
 			name
@@ -6404,7 +6404,7 @@ func (c *Client) AnimeCollection(ctx context.Context, userName *string, intercep
 }
 
 const AnimeCollectionWithRelationsDocument = `query AnimeCollectionWithRelations ($userName: String) {
-	MediaListCollection(userName: $userName, type: ANIME) {
+	MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: ANIME) {
 		lists {
 			status
 			name
@@ -7278,7 +7278,7 @@ func (c *Client) DeleteEntry(ctx context.Context, mediaListEntryID *int, interce
 }
 
 const MangaCollectionDocument = `query MangaCollection ($userName: String) {
-	MediaListCollection(userName: $userName, type: MANGA) {
+	MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: MANGA) {
 		lists {
 			status
 			name

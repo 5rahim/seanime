@@ -45,6 +45,10 @@ func hideConsole() {
 }
 
 func setupSignalHandling(file *os.File) {
+	if file == nil {
+		return
+	}
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
@@ -78,17 +82,12 @@ func StartApp(webFS embed.FS) {
 
 	// Create log file
 	logFilePath := filepath.Join(app.Config.Logs.Dir, fmt.Sprintf("seanime-%s.log", time.Now().Format("2006-01-02_15-04-05")))
-	// Delete if log file already exists
-	_ = os.Remove(logFilePath)
 	// Open the log file
-	logFile, err := os.OpenFile(
+	logFile, _ := os.OpenFile(
 		logFilePath,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0664,
 	)
-	if err != nil {
-		return
-	}
 
 	log.Logger = *app.Logger
 	golog.SetOutput(app.Logger)
@@ -106,6 +105,13 @@ func StartApp(webFS embed.FS) {
 			// Ensure buffer is flushed on normal exit
 			util.WriteGlobalLogBufferToFile(logFile)
 			_ = logFile.Close()
+		}
+	}()
+
+	go func() {
+		for {
+			util.WriteGlobalLogBufferToFile(logFile)
+			time.Sleep(5 * time.Second)
 		}
 	}()
 

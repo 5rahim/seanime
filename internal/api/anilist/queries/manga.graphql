@@ -1,5 +1,5 @@
 query MangaCollection ($userName: String) {
-  MediaListCollection(userName: $userName, type: MANGA) {
+  MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: MANGA) {
     lists {
       status
       name
