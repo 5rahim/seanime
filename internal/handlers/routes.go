@@ -263,7 +263,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1Manga := v1.Group("/manga")
-	v1Manga.Get("/provider-extensions", makeHandler(app, HandleGetMangaProviderExtensions))
 	v1Manga.Post("/anilist/collection", makeHandler(app, HandleGetAnilistMangaCollection))
 	v1Manga.Get("/anilist/collection/raw", makeHandler(app, HandleGetRawAnilistMangaCollection))
 	v1Manga.Post("/anilist/collection/raw", makeHandler(app, HandleGetRawAnilistMangaCollection))
@@ -341,6 +340,15 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/torrentstream/start", makeHandler(app, HandleTorrentstreamStartStream))
 	v1.Post("/torrentstream/stop", makeHandler(app, HandleTorrentstreamStopStream))
 	v1.Post("/torrentstream/drop", makeHandler(app, HandleTorrentstreamDropTorrent))
+
+	//
+	// Extensions
+	//
+
+	v1Extensions := v1.Group("/extensions")
+	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
+	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
+	v1Extensions.Get("/list/torrent-provider", makeHandler(app, HandleListTorrentProviderExtensions))
 
 	//
 	// Websocket

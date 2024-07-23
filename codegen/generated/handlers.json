@@ -1804,14 +1804,14 @@
     }
   },
   {
-    "name": "HandleGetMangaProviderExtensions",
-    "trimmedName": "GetMangaProviderExtensions",
+    "name": "HandleListMangaProviderExtensions",
+    "trimmedName": "ListMangaProviderExtensions",
     "comments": [
-      "HandleGetMangaProviderExtensions",
+      "HandleListMangaProviderExtensions",
       "",
       "\t@summary returns the available manga providers.",
-      "\t@route /api/v1/manga/provider-extensions [GET]",
-      "\t@returns []extension.MangaProviderExtensionItem",
+      "\t@route /api/v1/extensions/list/manga-provider [GET]",
+      "\t@returns []extension_repo.MangaProviderExtensionItem",
       ""
     ],
     "filepath": "internal/handlers/extensions.go",
@@ -1819,15 +1819,69 @@
     "api": {
       "summary": "returns the available manga providers.",
       "descriptions": [],
-      "endpoint": "/api/v1/manga/provider-extensions",
+      "endpoint": "/api/v1/extensions/list/manga-provider",
       "methods": [
         "GET"
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]extension.MangaProviderExtensionItem",
-      "returnGoType": "extension.MangaProviderExtensionItem",
-      "returnTypescriptType": "Array\u003cExtension_MangaProviderExtensionItem\u003e"
+      "returns": "[]extension_repo.MangaProviderExtensionItem",
+      "returnGoType": "extension_repo.MangaProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_MangaProviderExtensionItem\u003e"
+    }
+  },
+  {
+    "name": "HandleListOnlinestreamProviderExtensions",
+    "trimmedName": "ListOnlinestreamProviderExtensions",
+    "comments": [
+      "HandleListOnlinestreamProviderExtensions",
+      "",
+      "\t@summary returns the available manga providers.",
+      "\t@route /api/v1/extensions/list/onlinestream-provider [GET]",
+      "\t@returns []extension_repo.OnlinestreamProviderExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the available manga providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/onlinestream-provider",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.OnlinestreamProviderExtensionItem",
+      "returnGoType": "extension_repo.OnlinestreamProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_OnlinestreamProviderExtensionItem\u003e"
+    }
+  },
+  {
+    "name": "HandleListTorrentProviderExtensions",
+    "trimmedName": "ListTorrentProviderExtensions",
+    "comments": [
+      "HandleListTorrentProviderExtensions",
+      "",
+      "\t@summary returns the available manga providers.",
+      "\t@route /api/v1/extensions/list/torrent-provider [GET]",
+      "\t@returns []extension_repo.TorrentProviderExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the available manga providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/torrent-provider",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.TorrentProviderExtensionItem",
+      "returnGoType": "extension_repo.TorrentProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_TorrentProviderExtensionItem\u003e"
     }
   },
   {
@@ -3925,7 +3979,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],

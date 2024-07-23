@@ -28,7 +28,7 @@ func TestExternalGoMangaExtension(t *testing.T) {
 	// This should load all the extensions in the directory
 	repo.LoadExternalExtensions()
 
-	ext, found := repo.GetMangaExtensionByID("externalMangapill")
+	ext, found := repo.GetMangaProviderExtensionByID("externalMangapill")
 	require.True(t, found)
 
 	t.Logf("\nExtension:\n\tID: %s \n\tName: %s", ext.GetID(), ext.GetName())
@@ -57,7 +57,7 @@ func TestBuiltinMangaExtension(t *testing.T) {
 
 	// Load all extensions
 	// This should load all the extensions in the directory
-	repo.LoadBuiltInMangaExtension(extension.Extension{
+	repo.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:            "seanime-builtin-mangapill",
 		Type:          "manga-provider",
 		Name:          "Mangapill",
@@ -69,7 +69,7 @@ func TestBuiltinMangaExtension(t *testing.T) {
 		Payload:       "",
 	}, manga_providers.NewMangapill(logger))
 
-	ext, found := repo.GetMangaExtensionByID("seanime-builtin-mangapill")
+	ext, found := repo.GetMangaProviderExtensionByID("seanime-builtin-mangapill")
 	require.True(t, found)
 
 	t.Logf("\nExtension:\n\tID: %s \n\tName: %s", ext.GetID(), ext.GetName())

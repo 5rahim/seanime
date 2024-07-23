@@ -2,14 +2,14 @@ package onlinestream
 
 import (
 	"errors"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
-	"seanime/internal/onlinestream/providers"
+	"seanime/internal/extension"
 	"seanime/internal/platform"
 	"seanime/internal/util/filecache"
+	"seanime/internal/util/result"
 	"strconv"
 	"strings"
 	"time"
@@ -18,8 +18,7 @@ import (
 type (
 	Repository struct {
 		logger                *zerolog.Logger
-		gogo                  hibikeonlinestream.Provider
-		zoro                  hibikeonlinestream.Provider
+		providerExtensions    *result.Map[string, extension.OnlinestreamProviderExtension]
 		fileCacher            *filecache.Cacher
 		anizipCache           *anizip.Cache
 		platform              platform.Platform
@@ -77,11 +76,14 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                opts.Logger,
 		anizipCache:           opts.AnizipCache,
 		fileCacher:            opts.FileCacher,
-		gogo:                  onlinestream_providers.NewGogoanime(opts.Logger),
-		zoro:                  onlinestream_providers.NewZoro(opts.Logger),
+		providerExtensions:    result.NewResultMap[string, extension.OnlinestreamProviderExtension](),
 		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
 		platform:              opts.Platform,
 	}
+}
+
+func (r *Repository) SetProviderExtensions(exts *result.Map[string, extension.OnlinestreamProviderExtension]) {
+	r.providerExtensions = exts
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,8 +132,13 @@ func (r *Repository) EmptyCache(mediaId int) error {
 }
 
 func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime, dubbed bool) ([]*Episode, error) {
+	episodes := make([]*Episode, 0)
 
 	mId := media.GetID()
+
+	if provider == "" {
+		return episodes, nil
+	}
 
 	// +---------------------+
 	// |       Anizip        |
@@ -144,13 +151,12 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	// |    Episode list     |
 	// +---------------------+
 
-	// Only fetch the episode list from the provider without episode servers
+	// Fetch the episode list from the provider
+	// "from" and "to" are set to 0 in order not to fetch episode servers
 	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), 0, 0, dubbed)
 	if err != nil {
 		return nil, err
 	}
-
-	episodes := make([]*Episode, 0)
 
 	for _, episodeDetails := range ec.ProviderEpisodeList {
 		if foundAnizipMedia {
@@ -216,12 +222,12 @@ func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dub
 				Number:       ep.Number,
 				VideoSources: make([]*VideoSource, 0),
 			}
-			for _, ss := range ep.Servers {
+			for _, es := range ep.Servers {
 
-				for _, vs := range ss.VideoSources {
+				for _, vs := range es.VideoSources {
 					s.VideoSources = append(s.VideoSources, &VideoSource{
-						Server:  string(ss.Server),
-						Headers: ss.Headers,
+						Server:  es.Server,
+						Headers: es.Headers,
 						URL:     vs.URL,
 						Quality: vs.Quality,
 					})

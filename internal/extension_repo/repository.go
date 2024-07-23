@@ -33,6 +33,17 @@ type (
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	}
+
+	OnlinestreamProviderExtensionItem struct {
+		ID             string   `json:"id"`
+		Name           string   `json:"name"`
+		EpisodeServers []string `json:"episodeServers"`
+	}
+
+	TorrentProviderExtensionItem struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}
 )
 
 type NewRepositoryOptions struct {
@@ -70,6 +81,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lists
+// - Lists are used to display available options to the user based on the extensions installed
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem {
@@ -77,6 +89,35 @@ func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem
 
 	r.mangaProviderExtensions.Range(func(key string, ext extension.MangaProviderExtension) bool {
 		ret = append(ret, &MangaProviderExtensionItem{
+			ID:   ext.GetID(),
+			Name: ext.GetName(),
+		})
+		return true
+	})
+
+	return ret
+}
+
+func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProviderExtensionItem {
+	ret := make([]*OnlinestreamProviderExtensionItem, 0)
+
+	r.onlinestreamProviderExtensions.Range(func(key string, ext extension.OnlinestreamProviderExtension) bool {
+		ret = append(ret, &OnlinestreamProviderExtensionItem{
+			ID:             ext.GetID(),
+			Name:           ext.GetName(),
+			EpisodeServers: ext.GetProvider().GetEpisodeServers(),
+		})
+		return true
+	})
+
+	return ret
+}
+
+func (r *Repository) ListTorrentProviderExtensions() []*TorrentProviderExtensionItem {
+	ret := make([]*TorrentProviderExtensionItem, 0)
+
+	r.torrentProviderExtensions.Range(func(key string, ext extension.TorrentProviderExtension) bool {
+		ret = append(ret, &TorrentProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
 		})
@@ -107,12 +148,30 @@ func (r *Repository) CheckForUpdates() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) GetMangaExtensions() *result.Map[string, extension.MangaProviderExtension] {
+func (r *Repository) GetMangaProviderExtensions() *result.Map[string, extension.MangaProviderExtension] {
 	return r.mangaProviderExtensions
 }
 
-func (r *Repository) GetMangaExtensionByID(id string) (extension.MangaProviderExtension, bool) {
+func (r *Repository) GetMangaProviderExtensionByID(id string) (extension.MangaProviderExtension, bool) {
 	ext, found := r.mangaProviderExtensions.Get(id)
+	return ext, found
+}
+
+func (r *Repository) GetOnlinestreamProviderExtensions() *result.Map[string, extension.OnlinestreamProviderExtension] {
+	return r.onlinestreamProviderExtensions
+}
+
+func (r *Repository) GetOnlinestreamProviderExtensionByID(id string) (extension.OnlinestreamProviderExtension, bool) {
+	ext, found := r.onlinestreamProviderExtensions.Get(id)
+	return ext, found
+}
+
+func (r *Repository) GetTorrentProviderExtensions() *result.Map[string, extension.TorrentProviderExtension] {
+	return r.torrentProviderExtensions
+}
+
+func (r *Repository) GetTorrentProviderExtensionByID(id string) (extension.TorrentProviderExtension, bool) {
+	ext, found := r.torrentProviderExtensions.Get(id)
 	return ext, found
 }
 
@@ -120,14 +179,14 @@ func (r *Repository) GetMangaExtensionByID(id string) (extension.MangaProviderEx
 // Built-in extensions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) LoadBuiltInMangaExtension(info extension.Extension, provider hibikemanga.Provider) {
+func (r *Repository) LoadBuiltInMangaProviderExtension(info extension.Extension, provider hibikemanga.Provider) {
 	r.mangaProviderExtensions.Set(info.ID, extension.NewMangaProviderExtension(&info, provider))
 }
 
-func (r *Repository) LoadBuiltInTorrentExtension(info extension.Extension, provider hibiketorrent.Provider) {
+func (r *Repository) LoadBuiltInTorrentProviderExtension(info extension.Extension, provider hibiketorrent.Provider) {
 	r.torrentProviderExtensions.Set(info.ID, extension.NewTorrentProviderExtension(&info, provider))
 }
 
-func (r *Repository) LoadBuiltInOnlinestreamExtension(info extension.Extension, provider hibikeonlinestream.Provider) {
+func (r *Repository) LoadBuiltInOnlinestreamProviderExtension(info extension.Extension, provider hibikeonlinestream.Provider) {
 	r.onlinestreamProviderExtensions.Set(info.ID, extension.NewOnlinestreamProviderExtension(&info, provider))
 }

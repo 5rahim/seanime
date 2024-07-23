@@ -405,10 +405,20 @@ export const API_ENDPOINTS = {
         },
     },
     EXTENSIONS: {
-        GetMangaProviderExtensions: {
-            key: "EXTENSIONS-get-manga-provider-extensions",
+        ListMangaProviderExtensions: {
+            key: "EXTENSIONS-list-manga-provider-extensions",
             methods: ["GET"],
-            endpoint: "/api/v1/manga/provider-extensions",
+            endpoint: "/api/v1/extensions/list/manga-provider",
+        },
+        ListOnlinestreamProviderExtensions: {
+            key: "EXTENSIONS-list-onlinestream-provider-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/onlinestream-provider",
+        },
+        ListTorrentProviderExtensions: {
+            key: "EXTENSIONS-list-torrent-provider-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/torrent-provider",
         },
     },
     FILECACHE: {

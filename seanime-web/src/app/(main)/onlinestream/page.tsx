@@ -88,13 +88,13 @@ export default function Page() {
         episodeLoading,
         isErrorEpisodeSource,
         isErrorProvider,
+        provider,
     } = useHandleOnlinestream({
         mediaId,
         ref,
     })
 
     const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
-
 
     /** AniSkip **/
     const { data: aniSkipData } = useSkipData(media?.idMal, currentEpisodeNumber)
@@ -288,13 +288,17 @@ export default function Page() {
                             "flex gap-4 w-full flex-col 2xl:flex-row",
                         )}
                     >
-                        {/*<div className="space-y-4">*/}
                         <div
                             className={cn(
                                 "aspect-video relative w-full self-start mx-auto",
                             )}
                         >
-                            {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
+                            {!provider ? (
+                                <div className="flex items-center flex-col justify-center w-full h-full">
+                                    <LuffyError title="No provider selected" />
+                                    {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
+                                </div>
+                            ) : isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
                                 streamType="on-demand"
                                 playsInline
                                 ref={ref}

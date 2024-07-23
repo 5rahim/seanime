@@ -796,7 +796,7 @@ export type UpdateOfflineEntryListData_Variables = {
 export type GetOnlineStreamEpisodeList_Variables = {
     mediaId: number
     dubbed: boolean
-    provider: string
+    provider?: string
 }
 
 /**

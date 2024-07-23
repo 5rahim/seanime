@@ -20,7 +20,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 	type body struct {
 		MediaId  int    `json:"mediaId"`
 		Dubbed   bool   `json:"dubbed"`
-		Provider string `json:"provider"`
+		Provider string `json:"provider,omitempty"` // Can be empty since we still have the media id
 	}
 
 	var b body

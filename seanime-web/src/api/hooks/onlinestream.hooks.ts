@@ -9,14 +9,14 @@ import { Nullish, Onlinestream_EpisodeListResponse, Onlinestream_EpisodeSource }
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useGetOnlineStreamEpisodeList(id: Nullish<string | number>, provider: string, dubbed: boolean) {
+export function useGetOnlineStreamEpisodeList(id: Nullish<string | number>, provider: Nullish<string>, dubbed: boolean) {
     return useServerQuery<Onlinestream_EpisodeListResponse, GetOnlineStreamEpisodeList_Variables>({
         endpoint: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.endpoint,
         method: API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.methods[0],
         queryKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlineStreamEpisodeList.key, String(id), provider, dubbed],
         data: {
             mediaId: Number(id),
-            provider,
+            provider: provider!,
             dubbed,
         },
         enabled: !!id,
@@ -24,7 +24,7 @@ export function useGetOnlineStreamEpisodeList(id: Nullish<string | number>, prov
 }
 
 export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
-    provider: string,
+    provider: Nullish<string>,
     episodeNumber: Nullish<number>,
     dubbed: boolean,
     enabled: boolean,
@@ -37,9 +37,9 @@ export function useGetOnlineStreamEpisodeSource(id: Nullish<string | number>,
             mediaId: Number(id),
             episodeNumber: episodeNumber!,
             dubbed: dubbed,
-            provider: provider,
+            provider: provider!,
         },
-        enabled: enabled,
+        enabled: enabled && !!provider,
     })
 }
 

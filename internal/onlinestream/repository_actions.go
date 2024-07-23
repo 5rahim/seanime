@@ -53,8 +53,10 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 
 	// Key identifying the provider episode list in the file cache.
 	// It includes "dubbed" because Gogoanime has a different entry for dubbed anime.
-	providerEpisodeListKey := fmt.Sprintf("%d$%s$%v", mId, string(provider), dubbed)
+	// e.g. 1$provider$true
+	providerEpisodeListKey := fmt.Sprintf("%d$%s$%v", mId, provider, dubbed)
 
+	// Create the episode container
 	ec := &episodeContainer{
 		Provider:            provider,
 		Episodes:            make([]*episodeData, 0),
@@ -75,7 +77,7 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 		var err error
 		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, titles, dubbed)
 		if err != nil {
-			r.logger.Error().Err(err).Msg("onlinestream: failed to get provider episodes")
+			r.logger.Error().Err(err).Msg("onlinestream: Failed to get provider episodes")
 			return nil, err // ErrNoAnimeFound or ErrNoEpisodes
 		}
 		_ = r.fileCacher.Set(fcEpisodeListBucket, providerEpisodeListKey, providerEpisodeList)
@@ -168,37 +170,18 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 //	episodeServers, err := getProviderEpisodeServers(provider, episodeDetails[0])
 func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *hibikeonlinestream.EpisodeDetails) ([]*hibikeonlinestream.EpisodeServer, error) {
 	var providerServers []*hibikeonlinestream.EpisodeServer
-	switch provider {
-	case onlinestream_providers.GogoanimeProvider:
-		res, err := r.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
+
+	providerExtension, ok := r.providerExtensions.Get(provider)
+	if !ok {
+		return nil, fmt.Errorf("provider extension '%s' not found", provider)
+	}
+
+	for _, episodeServer := range providerExtension.GetProvider().GetEpisodeServers() {
+		res, err := providerExtension.GetProvider().FindEpisodeServer(episodeDetails, episodeServer)
 		if err == nil {
+			// Add the server to the list for the episode
 			providerServers = append(providerServers, res)
 		}
-		res, err = r.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.GogocdnServer)
-		if err == nil {
-			providerServers = append(providerServers, res)
-		}
-		//res, err = os.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.StreamSBServer)
-		//if err == nil {
-		//	providerServers = append(providerServers, res)
-		//}
-	case onlinestream_providers.ZoroProvider:
-		res, err := r.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.VidcloudServer)
-		if err == nil {
-			providerServers = append(providerServers, res)
-		}
-		res, err = r.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
-		if err == nil {
-			providerServers = append(providerServers, res)
-		}
-		//res, err = os.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.StreamtapeServer)
-		//if err == nil {
-		//	providerServers = append(providerServers, res)
-		//}
-		//res, err = os.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.StreamSBServer)
-		//if err == nil {
-		//	providerServers = append(providerServers, res)
-		//}
 	}
 
 	if len(providerServers) == 0 {
@@ -218,36 +201,31 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []
 		englishTitle = strings.ReplaceAll(*titles[1], ":", "")
 	}
 
+	providerExtension, ok := r.providerExtensions.Get(provider)
+	if !ok {
+		return nil, fmt.Errorf("provider extension '%s' not found", provider)
+	}
+
 	// Get search results.
 	var searchResults []*hibikeonlinestream.SearchResult
-	switch provider {
-	case onlinestream_providers.GogoanimeProvider:
-		res, err := r.gogo.Search(romajiTitle, dubbed)
+
+	// Search by romaji title
+	res, err := providerExtension.GetProvider().Search(romajiTitle, dubbed)
+	if err == nil {
+		searchResults = res
+	} else {
+		// Search by english title
+		res, err = providerExtension.GetProvider().Search(englishTitle, dubbed)
 		if err == nil {
 			searchResults = res
-		} else {
-			res, err = r.gogo.Search(englishTitle, dubbed)
-			if err == nil {
-				searchResults = res
-			}
-		}
-	case onlinestream_providers.ZoroProvider:
-		res, err := r.zoro.Search(romajiTitle, dubbed)
-		if err == nil {
-			searchResults = res
-		} else {
-			res, err = r.zoro.Search(englishTitle, dubbed)
-			if err == nil {
-				searchResults = res
-			}
 		}
 	}
+
 	if len(searchResults) == 0 {
 		return nil, ErrNoAnimeFound
 	}
 
 	// Filter results to get the best match.
-
 	compBestResults := make([]*comparison.LevenshteinResult, 0, len(searchResults))
 	for _, r := range searchResults {
 		// Compare search result title with all titles.
@@ -273,20 +251,9 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []
 	}
 
 	// Fetch episodes.
-
-	switch provider {
-	case onlinestream_providers.GogoanimeProvider:
-		res, err := r.gogo.FindEpisode(bestResult.ID)
-		if err != nil {
-			return nil, err
-		}
-		ret = res
-	case onlinestream_providers.ZoroProvider:
-		res, err := r.zoro.FindEpisode(bestResult.ID)
-		if err != nil {
-			return nil, err
-		}
-		ret = res
+	ret, err = providerExtension.GetProvider().FindEpisode(bestResult.ID)
+	if err != nil {
+		return nil, err
 	}
 
 	if len(ret) == 0 {

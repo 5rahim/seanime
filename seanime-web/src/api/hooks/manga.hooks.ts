@@ -12,7 +12,6 @@ import {
     AL_ListManga,
     AL_MangaCollection,
     AL_MangaDetailsById_Media,
-    Extension_MangaProviderExtensionItem,
     Manga_ChapterContainer,
     Manga_Collection,
     Manga_Entry,
@@ -20,15 +19,6 @@ import {
     Nullish,
 } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
-
-export function useGetMangaProviderExtensions() {
-    return useServerQuery<Array<Extension_MangaProviderExtensionItem>>({
-        endpoint: API_ENDPOINTS.MANGA.GetMangaProviderExtensions.endpoint,
-        method: API_ENDPOINTS.MANGA.GetMangaProviderExtensions.methods[0],
-        queryKey: [API_ENDPOINTS.MANGA.GetMangaProviderExtensions.key],
-        enabled: true,
-    })
-}
 
 export function useGetAnilistMangaCollection() {
     return useServerQuery<AL_MangaCollection, GetAnilistMangaCollection_Variables>({

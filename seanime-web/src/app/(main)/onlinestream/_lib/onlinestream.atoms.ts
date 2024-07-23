@@ -2,7 +2,7 @@ import { OnlinestreamProvider } from "@/app/(main)/onlinestream/_lib/onlinestrea
 import { atom } from "jotai/index"
 import { atomWithStorage } from "jotai/utils"
 
-export const __onlinestream_selectedProviderAtom = atomWithStorage<string>("sea-onlinestream-provider", OnlinestreamProvider.GOGOANIME)
+export const __onlinestream_selectedProviderAtom = atomWithStorage<string | null>("sea-onlinestream-provider", OnlinestreamProvider.GOGOANIME)
 
 export const __onlinestream_selectedDubbedAtom = atom<boolean>(false)
 

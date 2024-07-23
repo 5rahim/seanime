@@ -3,6 +3,7 @@ package onlinestream_providers
 import (
 	"errors"
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
@@ -11,7 +12,6 @@ import (
 	"net/http"
 	"net/url"
 	"seanime/internal/onlinestream/sources"
-	"seanime/internal/util"
 	"strconv"
 	"strings"
 
@@ -28,10 +28,14 @@ type Zoro struct {
 func NewZoro(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	return &Zoro{
 		BaseURL:   "https://hianime.to",
-		UserAgent: util.GetRandomUserAgent(),
+		UserAgent: browser.Firefox(),
 		Client:    &http.Client{},
 		logger:    logger,
 	}
+}
+
+func (z *Zoro) GetEpisodeServers() []string {
+	return []string{VidcloudServer, VidstreamingServer}
 }
 
 func (z *Zoro) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {

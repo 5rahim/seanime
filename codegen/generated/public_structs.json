@@ -27501,6 +27501,71 @@
   {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
+    "name": "OnlinestreamProviderExtensionItem",
+    "formattedName": "ExtensionRepo_OnlinestreamProviderExtensionItem",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeServers",
+        "jsonName": "episodeServers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "TorrentProviderExtensionItem",
+    "formattedName": "ExtensionRepo_TorrentProviderExtensionItem",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
     "name": "NewRepositoryOptions",
     "formattedName": "ExtensionRepo_NewRepositoryOptions",
     "package": "extension_repo",
@@ -39821,21 +39886,10 @@
         "comments": []
       },
       {
-        "name": "gogo",
-        "jsonName": "gogo",
-        "goType": "hibikeonlinestream.Provider",
-        "typescriptType": "HibikeOnlinestream_Provider",
-        "usedStructName": "hibikeonlinestream.Provider",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "zoro",
-        "jsonName": "zoro",
-        "goType": "hibikeonlinestream.Provider",
-        "typescriptType": "HibikeOnlinestream_Provider",
-        "usedStructName": "hibikeonlinestream.Provider",
+        "name": "providerExtensions",
+        "jsonName": "providerExtensions",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []

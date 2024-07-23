@@ -39,6 +39,7 @@ type _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider struct {
 	IValue             interface{}
 	WFindEpisode       func(id string) ([]*onlinestream.EpisodeDetails, error)
 	WFindEpisodeServer func(episode *onlinestream.EpisodeDetails, server string) (*onlinestream.EpisodeServer, error)
+	WGetEpisodeServers func() []string
 	WSearch            func(query string, dub bool) ([]*onlinestream.SearchResult, error)
 }
 
@@ -47,6 +48,9 @@ func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpiso
 }
 func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpisodeServer(episode *onlinestream.EpisodeDetails, server string) (*onlinestream.EpisodeServer, error) {
 	return W.WFindEpisodeServer(episode, server)
+}
+func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) GetEpisodeServers() []string {
+	return W.WGetEpisodeServers()
 }
 func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) Search(query string, dub bool) ([]*onlinestream.SearchResult, error) {
 	return W.WSearch(query, dub)

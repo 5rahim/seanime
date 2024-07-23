@@ -1,11 +1,12 @@
 import { AL_MangaDetailsById_Media, HibikeManga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
-import { useEmptyMangaEntryCache, useGetMangaEntryChapters, useGetMangaProviderExtensions } from "@/api/hooks/manga.hooks"
+import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import { useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
+import { useHandleMangaProviders } from "@/app/(main)/manga/_lib/handle-manga-providers"
 import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -43,7 +44,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Provider extensions
      */
-    const { data: providerExtensions } = useGetMangaProviderExtensions()
+    const { providerOptions } = useHandleMangaProviders()
 
     /**
      * Current provider
@@ -214,10 +215,7 @@ export function ChapterList(props: ChapterListProps) {
             <div className="flex gap-2 items-center">
                 <Select
                     fieldClass="w-fit"
-                    options={providerExtensions?.map(p => ({
-                        label: p.name,
-                        value: p.id,
-                    })) ?? []}
+                    options={providerOptions}
                     value={provider}
                     onValueChange={v => setProvider({
                         mId: mediaId,

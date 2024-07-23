@@ -3,18 +3,21 @@ package core
 import (
 	"seanime/internal/extension"
 	"seanime/internal/manga/providers"
+	"seanime/internal/onlinestream/providers"
 )
 
 func (a *App) LoadBuiltInExtensions() {
 
 	// Load the extensions to the manga repository
-	a.MangaRepository.SetProviderExtensions(a.ExtensionRepository.GetMangaExtensions())
+	a.MangaRepository.SetProviderExtensions(a.ExtensionRepository.GetMangaProviderExtensions())
+	// Load the extensions to the online stream repository
+	a.OnlinestreamRepository.SetProviderExtensions(a.ExtensionRepository.GetOnlinestreamProviderExtensions())
 
 	//
 	// Built-in manga providers
 	//
 
-	a.ExtensionRepository.LoadBuiltInMangaExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:            "comick",
 		Name:          "ComicK",
 		Version:       "1.0.0",
@@ -25,7 +28,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Description:   "",
 	}, manga_providers.NewComicK(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:       "mangapill",
 		Name:     "Mangapill",
 		Version:  "1.0.0",
@@ -34,7 +37,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:   "Seanime",
 	}, manga_providers.NewMangapill(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:       "mangasee",
 		Name:     "Mangasee",
 		Version:  "1.0.0",
@@ -43,7 +46,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:   "Seanime",
 	}, manga_providers.NewMangasee(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:       "mangadex",
 		Name:     "Mangadex",
 		Version:  "1.0.0",
@@ -52,7 +55,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:   "Seanime",
 	}, manga_providers.NewMangadex(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInMangaExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:       "manganato",
 		Name:     "Manganato",
 		Version:  "1.0.0",
@@ -60,6 +63,28 @@ func (a *App) LoadBuiltInExtensions() {
 		Type:     extension.TypeMangaProvider,
 		Author:   "Seanime",
 	}, manga_providers.NewManganato(a.Logger))
+
+	//
+	// Built-in online stream providers
+	//
+
+	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+		ID:       "gogoanime",
+		Name:     "Gogoanime",
+		Version:  "1.0.0",
+		Language: extension.LanguageGo,
+		Type:     extension.TypeOnlinestreamProvider,
+		Author:   "Seanime",
+	}, onlinestream_providers.NewGogoanime(a.Logger))
+
+	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+		ID:       "zoro",
+		Name:     "Hianime",
+		Version:  "1.0.0",
+		Language: extension.LanguageGo,
+		Type:     extension.TypeOnlinestreamProvider,
+		Author:   "Seanime",
+	}, onlinestream_providers.NewZoro(a.Logger))
 
 }
 

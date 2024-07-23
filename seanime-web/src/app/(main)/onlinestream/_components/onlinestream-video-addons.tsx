@@ -1,5 +1,5 @@
 import { useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
-import { ONLINESTREAM_PROVIDERS } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
+import { useHandleOnlinestreamProviders } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
     __onlinestream_autoNextAtom,
@@ -119,6 +119,7 @@ export function OnlinestreamPlaybackSubmenu() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
+    const { providerOptions } = useHandleOnlinestreamProviders()
 
     const { servers, changeProvider, changeServer } = useOnlinestreamManagerContext()
 
@@ -138,8 +139,8 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
             />
             <Select
                 label="Provider"
-                value={provider}
-                options={ONLINESTREAM_PROVIDERS}
+                value={provider || ""}
+                options={providerOptions}
                 onValueChange={(v) => {
                     changeProvider(v)
                 }}
@@ -174,6 +175,8 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
         ...rest
     } = props
 
+    const { providerOptions } = useHandleOnlinestreamProviders()
+
     const { changeProvider, servers, changeServer } = useOnlinestreamManagerContext()
 
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
@@ -195,8 +198,8 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
             </Tooltip.Root>
             <Menu.Content className={menuClass} placement="top">
                 <RadioGroup
-                    value={provider}
-                    options={ONLINESTREAM_PROVIDERS}
+                    value={provider || ""}
+                    options={providerOptions}
                     onValueChange={(v) => {
                         changeProvider(v)
                     }}
