@@ -27053,8 +27053,55 @@
         "comments": []
       },
       {
-        "name": "TotalEpisodes",
-        "jsonName": "totalEpisodes",
+        "name": "EpisodeCount",
+        "jsonName": "episodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartDate",
+        "jsonName": "startDate",
+        "goType": "FuzzyDate",
+        "typescriptType": "HibikeTorrent_FuzzyDate",
+        "usedStructName": "vendor_hibike_torrent.FuzzyDate",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filename": "types.go",
+    "name": "FuzzyDate",
+    "formattedName": "HibikeTorrent_FuzzyDate",
+    "package": "vendor_hibike_torrent",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -27095,15 +27142,6 @@
         "jsonName": "batch",
         "goType": "bool",
         "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
@@ -27178,6 +27216,15 @@
         "jsonName": "aniDbEID",
         "goType": "int",
         "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BestReleases",
+        "jsonName": "bestReleases",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
