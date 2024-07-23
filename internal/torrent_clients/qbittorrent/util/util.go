@@ -9,7 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
-	"seanime/internal/torrents/qbittorrent/model"
+	"seanime/internal/torrent_clients/qbittorrent/model"
 	"strings"
 )
 

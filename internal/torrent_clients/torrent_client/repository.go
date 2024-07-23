@@ -5,9 +5,9 @@ import (
 	"errors"
 	"github.com/hekmon/transmissionrpc/v3"
 	"github.com/rs/zerolog"
-	"seanime/internal/torrents/qbittorrent"
-	"seanime/internal/torrents/qbittorrent/model"
-	"seanime/internal/torrents/transmission"
+	"seanime/internal/torrent_clients/qbittorrent"
+	"seanime/internal/torrent_clients/qbittorrent/model"
+	"seanime/internal/torrent_clients/transmission"
 	"strconv"
 	"time"
 )

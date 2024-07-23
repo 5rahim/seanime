@@ -2,7 +2,7 @@ package qbittorrent
 
 import (
 	"seanime/internal/test_utils"
-	"seanime/internal/torrents/qbittorrent/model"
+	"seanime/internal/torrent_clients/qbittorrent/model"
 	"seanime/internal/util"
 	"testing"
 )

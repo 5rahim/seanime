@@ -16,9 +16,9 @@ import (
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
 	"seanime/internal/offline"
-	"seanime/internal/torrents/qbittorrent"
+	"seanime/internal/torrent_clients/qbittorrent"
+	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent_client"
-	"seanime/internal/torrents/transmission"
 	"seanime/internal/torrentstream"
 )
 

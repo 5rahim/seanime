@@ -2,7 +2,7 @@ package torrent_client
 
 import (
 	"github.com/hekmon/transmissionrpc/v3"
-	"seanime/internal/torrents/qbittorrent/model"
+	"seanime/internal/torrent_clients/qbittorrent/model"
 	"seanime/internal/util"
 )
 
