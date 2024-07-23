@@ -1,9 +1,6 @@
 package extension_repo
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/rs/zerolog"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
@@ -11,6 +8,10 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"seanime/internal/yaegi_interp"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
 type (

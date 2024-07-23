@@ -1,17 +1,11 @@
 package extension_repo
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"seanime/internal/extension"
-	"seanime/internal/util"
-	"strings"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,172 +87,11 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	case extension.TypeOnlinestreamProvider:
 		// Load online streaming provider
 		r.loadExternalOnlinestreamProviderExtension(&ext)
+	case extension.TypeTorrentProvider:
+		// Load torrent provider
+		r.loadExternalTorrentProviderExtension(&ext)
 	default:
 		r.logger.Error().Str("type", string(ext.Type)).Msg("extension repo: Extension type not supported")
 	}
 
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Manga
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) {
-
-	switch ext.Language {
-	case extension.LanguageGo:
-		r.loadExternalMangaExtensionGo(ext)
-	case extension.LanguageJavascript:
-		// TODO
-	}
-
-	r.logger.Debug().Str("id", ext.ID).Msg("extension repo: Loaded manga provider extension")
-}
-
-//
-// Go
-//
-
-func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) {
-
-	extensionPackageName := "ext_" + util.GenerateCryptoID()
-
-	r.logger.Debug().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extension repo: Loading manga provider")
-
-	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
-
-	// Load the extension payload
-	_, err := r.yaegiInterp.Eval(payload)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extension repo: Failed to load extension payload")
-		return
-	}
-
-	// Get the provider
-	newProviderFuncVal, err := r.yaegiInterp.Eval(extensionPackageName + `.NewProvider`)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extension repo: Failed to load manga provider from extension")
-		return
-	}
-
-	newProviderFunc, ok := newProviderFuncVal.Interface().(func(logger *zerolog.Logger) hibikemanga.Provider)
-	if !ok {
-		r.logger.Error().Str("id", ext.ID).Msg("extension repo: Failed to invoke provider constructor")
-		return
-	}
-
-	provider := newProviderFunc(r.logger)
-
-	// Add the extension to the map
-	r.mangaProviderExtensions.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Online streaming
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Extension) {
-
-	switch ext.Language {
-	case extension.LanguageGo:
-		r.loadExternalOnlinestreamProviderExtensionGo(ext)
-	case extension.LanguageJavascript:
-		// TODO
-	}
-
-	r.logger.Debug().Str("id", ext.ID).Msg("extension repo: Loaded online streaming provider extension")
-}
-
-//
-// Go
-//
-
-func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.Extension) {
-
-	extensionPackageName := "ext_" + util.GenerateCryptoID()
-
-	r.logger.Debug().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extension repo: Loading online streaming provider")
-
-	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
-
-	// Load the extension payload
-	_, err := r.yaegiInterp.Eval(payload)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extension repo: Failed to load extension payload")
-		return
-	}
-
-	// Get the provider
-	newProviderFuncVal, err := r.yaegiInterp.Eval(extensionPackageName + `.NewProvider`)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extension repo: Failed to load online streaming provider from extension")
-		return
-	}
-
-	newProviderFunc, ok := newProviderFuncVal.Interface().(func(logger *zerolog.Logger) hibikeonlinestream.Provider)
-	if !ok {
-		r.logger.Error().Str("id", ext.ID).Msg("extension repo: Failed to invoke provider constructor")
-		return
-	}
-
-	provider := newProviderFunc(r.logger)
-
-	// Add the extension to the map
-	r.onlinestreamProviderExtensions.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Torrent provider
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) loadExternalTorrentProviderExtension(ext *extension.Extension) {
-
-	switch ext.Language {
-	case extension.LanguageGo:
-		r.loadExternalOnlinestreamProviderExtensionGo(ext)
-	case extension.LanguageJavascript:
-		// TODO
-	}
-
-	r.logger.Debug().Str("id", ext.ID).Msg("extension repo: Loaded online streaming provider extension")
-}
-
-//
-// Go
-//
-
-func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Extension) {
-
-	extensionPackageName := "ext_" + util.GenerateCryptoID()
-
-	r.logger.Debug().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extension repo: Loading torrent provider")
-
-	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
-
-	// Load the extension payload
-	_, err := r.yaegiInterp.Eval(payload)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extension repo: Failed to load extension payload")
-		return
-	}
-
-	// Get the provider
-	newProviderFuncVal, err := r.yaegiInterp.Eval(extensionPackageName + `.NewProvider`)
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extension repo: Failed to load torrent provider from extension")
-		return
-	}
-
-	newProviderFunc, ok := newProviderFuncVal.Interface().(func(logger *zerolog.Logger) hibiketorrent.Provider)
-	if !ok {
-		r.logger.Error().Str("id", ext.ID).Msg("extension repo: Failed to invoke provider constructor")
-		return
-	}
-
-	provider := newProviderFunc(r.logger)
-
-	// Add the extension to the map
-	r.torrentProviderExtensions.Set(ext.ID, extension.NewTorrentProviderExtension(ext, provider))
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

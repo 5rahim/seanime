@@ -139,7 +139,7 @@ func onReady(webFS embed.FS, app *core.App, flags core.SeanimeFlags, selfupdater
 		log.Trace().Msg("systray: App is ready")
 
 		// Menu items
-		mWeb := systray.AddMenuItem("Open Web Interface", "Open web interface")
+		mWeb := systray.AddMenuItem(app.Config.GetServerURI("127.0.0.1"), "Open web interface")
 		mOpenLibrary := systray.AddMenuItem("Open Anime Library", "Open anime library")
 		mOpenDataDir := systray.AddMenuItem("Open Data Directory", "Open data directory")
 		mOpenLogsDir := systray.AddMenuItem("Open Logs Directory", "Open logs directory")
