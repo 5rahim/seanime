@@ -19,24 +19,28 @@ type (
 	}
 
 	Media struct {
-		// ID AniList ID of the media.
+		// AniList ID of the media.
 		ID int `json:"id"`
-		// IDMal MyAnimeList ID of the media.
+		// MyAnimeList ID of the media.
 		IDMal *int `json:"idMal,omitempty"`
-		// Status returns the AniList status of the media.
 		// e.g. "FINISHED", "RELEASING", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"
 		Status *string `json:"status,omitempty"`
-		// Format returns the format of the media.
 		// e.g. "TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA", "MUSIC"
 		Format *string `json:"format,omitempty"`
-		// EnglishTitle returns the English title of the media.
 		// e.g. "Attack on Titan"
 		EnglishTitle *string `json:"englishTitle,omitempty"`
-		// RomajiTitle returns the Romaji title of the media.
 		// e.g. "Shingeki no Kyojin"
 		RomajiTitle *string `json:"romajiTitle,omitempty"`
 		// TotalEpisodes returns the total number of episodes of the media.
-		TotalEpisodes *int `json:"totalEpisodes,omitempty"`
+		EpisodeCount *int `json:"episodeCount,omitempty"`
+		// StartDate of the media.
+		StartDate *FuzzyDate `json:"startDate,omitempty"`
+	}
+
+	FuzzyDate struct {
+		Year  int  `json:"year"`
+		Month *int `json:"month"`
+		Day   *int `json:"day"`
 	}
 
 	SearchOptions struct {
@@ -45,8 +49,6 @@ type (
 		Query string `json:"query"`
 		// Indicates if the search is for a batch torrent.
 		Batch bool `json:"batch"`
-		// Episode number of the torrent.
-		EpisodeNumber int `json:"episodeNumber"`
 	}
 
 	SmartSearchOptions struct {
@@ -64,6 +66,8 @@ type (
 		AniDbAID int `json:"aniDbAID"`
 		// AniDB Episode ID of the media.
 		AniDbEID int `json:"aniDbEID"`
+		// Look for the best release.
+		BestReleases bool `json:"bestReleases"`
 	}
 
 	AnimeTorrent struct {

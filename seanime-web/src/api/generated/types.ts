@@ -1559,20 +1559,6 @@ export type DB_ScanSummaryItem = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Extension
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/extension/repository.go
- * - Filename: repository.go
- * - Package: extension
- */
-export type Extension_MangaProviderExtensionItem = {
-    id: string
-    name: string
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Handlers
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1649,8 +1635,8 @@ export type Status = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/manga/manga_chapter.go
- * - Filename: manga_chapter.go
+ * - Filepath: internal/manga/repository_actions.go
+ * - Filename: repository_actions.go
  * - Package: manga
  */
 export type Manga_ChapterContainer = {
@@ -1739,8 +1725,8 @@ export type Manga_MediaDownloadData = {
 }
 
 /**
- * - Filepath: internal/manga/manga_chapter.go
- * - Filename: manga_chapter.go
+ * - Filepath: internal/manga/repository_actions.go
+ * - Filename: repository_actions.go
  * - Package: manga
  */
 export type Manga_PageContainer = {
@@ -1759,8 +1745,8 @@ export type Manga_PageContainer = {
 }
 
 /**
- * - Filepath: internal/manga/manga_chapter.go
- * - Filename: manga_chapter.go
+ * - Filepath: internal/manga/repository_actions.go
+ * - Filename: repository_actions.go
  * - Package: manga
  */
 export type Manga_PageDimension = {

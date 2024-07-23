@@ -23344,9 +23344,9 @@
       {
         "name": "ExtensionRepository",
         "jsonName": "ExtensionRepository",
-        "goType": "extension.Repository",
-        "typescriptType": "Extension_Repository",
-        "usedStructName": "extension.Repository",
+        "goType": "extension_repo.Repository",
+        "typescriptType": "ExtensionRepo_Repository",
+        "usedStructName": "extension_repo.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -26406,12 +26406,40 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/repository.go",
-    "filename": "repository.go",
-    "name": "Repository",
-    "formattedName": "Extension_Repository",
-    "package": "extension",
+    "filepath": "../internal/extension/testdir/mangapill.go",
+    "filename": "mangapill.go",
+    "name": "Mangapill",
+    "formattedName": "Mangapill",
+    "package": "main",
     "fields": [
+      {
+        "name": "Url",
+        "jsonName": "Url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Client",
+        "jsonName": "Client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "logger",
         "jsonName": "logger",
@@ -26420,109 +26448,6 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
-        "comments": []
-      },
-      {
-        "name": "extensionDir",
-        "jsonName": "extensionDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "yaegiInterp",
-        "jsonName": "yaegiInterp",
-        "goType": "interp.Interpreter",
-        "typescriptType": "Interpreter",
-        "usedStructName": "interp.Interpreter",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaProviderExtensions",
-        "jsonName": "mangaProviderExtensions",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "torrentProviderExtensions",
-        "jsonName": "torrentProviderExtensions",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "onlinestreamProviderExtensions",
-        "jsonName": "onlinestreamProviderExtensions",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/repository.go",
-    "filename": "repository.go",
-    "name": "MangaProviderExtensionItem",
-    "formattedName": "Extension_MangaProviderExtensionItem",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/repository.go",
-    "filename": "repository.go",
-    "name": "NewRepositoryOptions",
-    "formattedName": "Extension_NewRepositoryOptions",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ExtensionDir",
-        "jsonName": "ExtensionDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
         "comments": []
       }
     ],
@@ -27425,6 +27350,129 @@
         "jsonName": "confirmed",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "ExtensionRepo_Repository",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionDir",
+        "jsonName": "extensionDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "yaegiInterp",
+        "jsonName": "yaegiInterp",
+        "goType": "interp.Interpreter",
+        "typescriptType": "Interpreter",
+        "usedStructName": "interp.Interpreter",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaProviderExtensions",
+        "jsonName": "mangaProviderExtensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentProviderExtensions",
+        "jsonName": "torrentProviderExtensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onlinestreamProviderExtensions",
+        "jsonName": "onlinestreamProviderExtensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "MangaProviderExtensionItem",
+    "formattedName": "ExtensionRepo_MangaProviderExtensionItem",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "ExtensionRepo_NewRepositoryOptions",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExtensionDir",
+        "jsonName": "ExtensionDir",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -32896,142 +32944,6 @@
     ]
   },
   {
-    "filepath": "../internal/manga/manga_chapter.go",
-    "filename": "manga_chapter.go",
-    "name": "ChapterContainer",
-    "formattedName": "Manga_ChapterContainer",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Chapters",
-        "jsonName": "chapters",
-        "goType": "[]hibikemanga.ChapterDetails",
-        "typescriptType": "Array\u003cHibikeManga_ChapterDetails\u003e",
-        "usedStructName": "hibikemanga.ChapterDetails",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_chapter.go",
-    "filename": "manga_chapter.go",
-    "name": "PageContainer",
-    "formattedName": "Manga_PageContainer",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterId",
-        "jsonName": "chapterId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Pages",
-        "jsonName": "pages",
-        "goType": "[]hibikemanga.ChapterPage",
-        "typescriptType": "Array\u003cHibikeManga_ChapterPage\u003e",
-        "usedStructName": "hibikemanga.ChapterPage",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PageDimensions",
-        "jsonName": "pageDimensions",
-        "goType": "map[int]PageDimension",
-        "typescriptType": "Record\u003cnumber, Manga_PageDimension\u003e",
-        "usedStructName": "manga.PageDimension",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Indexed by page number"
-        ]
-      },
-      {
-        "name": "IsDownloaded",
-        "jsonName": "isDownloaded",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": [
-          " TODO remove"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_chapter.go",
-    "filename": "manga_chapter.go",
-    "name": "PageDimension",
-    "formattedName": "Manga_PageDimension",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "Width",
-        "jsonName": "width",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Height",
-        "jsonName": "height",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/manga/manga_downloader.go",
     "filename": "manga_downloader.go",
     "name": "Downloader",
@@ -35053,51 +34965,10 @@
         "comments": []
       },
       {
-        "name": "comick",
-        "jsonName": "comick",
-        "goType": "manga_providers.ComicK",
-        "typescriptType": "Manga_ComicK",
-        "usedStructName": "manga_providers.ComicK",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangasee",
-        "jsonName": "mangasee",
-        "goType": "manga_providers.Mangasee",
-        "typescriptType": "Manga_Mangasee",
-        "usedStructName": "manga_providers.Mangasee",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangadex",
-        "jsonName": "mangadex",
-        "goType": "manga_providers.Mangadex",
-        "typescriptType": "Manga_Mangadex",
-        "usedStructName": "manga_providers.Mangadex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangapill",
-        "jsonName": "mangapill",
-        "goType": "manga_providers.Mangapill",
-        "typescriptType": "Manga_Mangapill",
-        "usedStructName": "manga_providers.Mangapill",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "manganato",
-        "jsonName": "manganato",
-        "goType": "manga_providers.Manganato",
-        "typescriptType": "Manga_Manganato",
-        "usedStructName": "manga_providers.Manganato",
+        "name": "providerExtensions",
+        "jsonName": "providerExtensions",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []
@@ -35203,6 +35074,142 @@
         "jsonName": "DownloadDir",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/repository_actions.go",
+    "filename": "repository_actions.go",
+    "name": "ChapterContainer",
+    "formattedName": "Manga_ChapterContainer",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Chapters",
+        "jsonName": "chapters",
+        "goType": "[]hibikemanga.ChapterDetails",
+        "typescriptType": "Array\u003cHibikeManga_ChapterDetails\u003e",
+        "usedStructName": "hibikemanga.ChapterDetails",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/repository_actions.go",
+    "filename": "repository_actions.go",
+    "name": "PageContainer",
+    "formattedName": "Manga_PageContainer",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterId",
+        "jsonName": "chapterId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Pages",
+        "jsonName": "pages",
+        "goType": "[]hibikemanga.ChapterPage",
+        "typescriptType": "Array\u003cHibikeManga_ChapterPage\u003e",
+        "usedStructName": "hibikemanga.ChapterPage",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageDimensions",
+        "jsonName": "pageDimensions",
+        "goType": "map[int]PageDimension",
+        "typescriptType": "Record\u003cnumber, Manga_PageDimension\u003e",
+        "usedStructName": "manga.PageDimension",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Indexed by page number"
+        ]
+      },
+      {
+        "name": "IsDownloaded",
+        "jsonName": "isDownloaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " TODO remove"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/repository_actions.go",
+    "filename": "repository_actions.go",
+    "name": "PageDimension",
+    "formattedName": "Manga_PageDimension",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "height",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
