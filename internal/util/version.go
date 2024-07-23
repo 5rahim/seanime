@@ -56,3 +56,8 @@ func CompareVersion(prevVersion string, currVersion string) (int, bool) {
 
 	return 0, false
 }
+
+func VersionIsOlderThan(version string, compare string) bool {
+	diff, _ := CompareVersion(version, compare)
+	return diff > 0
+}

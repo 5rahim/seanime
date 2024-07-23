@@ -3,6 +3,7 @@ package onlinestream
 import (
 	"errors"
 	"fmt"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"seanime/internal/onlinestream/providers"
 	"seanime/internal/util/comparison"
 	"strings"
@@ -17,21 +18,21 @@ var (
 type (
 	// episodeContainer contains results of fetching the episodes from the provider.
 	episodeContainer struct {
-		Provider onlinestream_providers.Provider
+		Provider string
 		// List of episode details from the provider.
 		// It is used to get the episode servers.
-		ProviderEpisodeList []*onlinestream_providers.EpisodeDetails
+		ProviderEpisodeList []*hibikeonlinestream.EpisodeDetails
 		// List of episodes with their servers.
 		Episodes []*episodeData
 	}
 
 	// episodeData contains some details about a provider episode and all available servers.
 	episodeData struct {
-		Provider onlinestream_providers.Provider
+		Provider string
 		ID       string
 		Number   int
 		Title    string
-		Servers  []*onlinestream_providers.EpisodeServer
+		Servers  []*hibikeonlinestream.EpisodeServer
 	}
 )
 
@@ -40,10 +41,10 @@ type (
 //   - This function can be used to only get the episode details by setting 'from' and 'to' to 0.
 //
 // Since the episode details are cached, we can request episode servers multiple times without fetching the episode details again.
-func (r *Repository) getEpisodeContainer(provider onlinestream_providers.Provider, mId int, titles []*string, from int, to int, dubbed bool) (*episodeContainer, error) {
+func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*string, from int, to int, dubbed bool) (*episodeContainer, error) {
 
 	r.logger.Debug().
-		Str("provider", string(provider)).
+		Str("provider", provider).
 		Int("mediaId", mId).
 		Int("from", from).
 		Int("to", to).
@@ -57,7 +58,7 @@ func (r *Repository) getEpisodeContainer(provider onlinestream_providers.Provide
 	ec := &episodeContainer{
 		Provider:            provider,
 		Episodes:            make([]*episodeData, 0),
-		ProviderEpisodeList: make([]*onlinestream_providers.EpisodeDetails, 0),
+		ProviderEpisodeList: make([]*hibikeonlinestream.EpisodeDetails, 0),
 	}
 
 	// Get the episode details from the provider.
@@ -69,7 +70,7 @@ func (r *Repository) getEpisodeContainer(provider onlinestream_providers.Provide
 	fcEpisodeListBucket := r.getFcEpisodeListBucket(provider, mId)
 	fcEpisodeDataBucket := r.getFcEpisodeDataBucket(provider, mId)
 
-	var providerEpisodeList []*onlinestream_providers.EpisodeDetails
+	var providerEpisodeList []*hibikeonlinestream.EpisodeDetails
 	if found, _ := r.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
 		var err error
 		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, titles, dubbed)
@@ -112,12 +113,12 @@ func (r *Repository) getEpisodeContainer(provider onlinestream_providers.Provide
 			// Zoro dubs
 			if provider == onlinestream_providers.ZoroProvider && dubbed {
 				// If the episode details have both sub and dub, we need to get the dub episode.
-				if !strings.HasSuffix(episodeDetails.ID, string(onlinestream_providers.SubAndDub)) {
+				if !strings.HasSuffix(episodeDetails.ID, string(hibikeonlinestream.SubAndDub)) {
 					// Skip sub-only episodes
 					continue
 				}
 				// Replace "both" with "dub" so that [getProviderEpisodeServers] can find the dub episode.
-				episodeDetails.ID = strings.Replace(episodeDetails.ID, string(onlinestream_providers.SubAndDub), string(onlinestream_providers.Dub), 1)
+				episodeDetails.ID = strings.Replace(episodeDetails.ID, string(hibikeonlinestream.SubAndDub), string(hibikeonlinestream.Dub), 1)
 			}
 
 			// Fetch episode servers
@@ -165,8 +166,8 @@ func (r *Repository) getEpisodeContainer(provider onlinestream_providers.Provide
 //
 //	episodeDetails, _ := getProviderEpisodeListFromTitles(provider, titles, dubbed)
 //	episodeServers, err := getProviderEpisodeServers(provider, episodeDetails[0])
-func (r *Repository) getProviderEpisodeServers(provider onlinestream_providers.Provider, episodeDetails *onlinestream_providers.EpisodeDetails) ([]*onlinestream_providers.EpisodeServer, error) {
-	var providerServers []*onlinestream_providers.EpisodeServer
+func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *hibikeonlinestream.EpisodeDetails) ([]*hibikeonlinestream.EpisodeServer, error) {
+	var providerServers []*hibikeonlinestream.EpisodeServer
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
 		res, err := r.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
@@ -207,10 +208,10 @@ func (r *Repository) getProviderEpisodeServers(provider onlinestream_providers.P
 	return providerServers, nil
 }
 
-// getProviderEpisodeListFromTitles gets all the onlinestream_providers.EpisodeDetails from the provider based on the anime's titles.
+// getProviderEpisodeListFromTitles gets all the hibikeonlinestream.EpisodeDetails from the provider based on the anime's titles.
 // It returns ErrNoAnimeFound if the anime is not found or ErrNoEpisodes if no episodes are found.
-func (r *Repository) getProviderEpisodeListFromTitles(provider onlinestream_providers.Provider, titles []*string, dubbed bool) ([]*onlinestream_providers.EpisodeDetails, error) {
-	var ret []*onlinestream_providers.EpisodeDetails
+func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []*string, dubbed bool) ([]*hibikeonlinestream.EpisodeDetails, error) {
+	var ret []*hibikeonlinestream.EpisodeDetails
 	romajiTitle := strings.ReplaceAll(*titles[0], ":", "")
 	englishTitle := ""
 	if len(titles) > 1 {
@@ -218,7 +219,7 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider onlinestream_prov
 	}
 
 	// Get search results.
-	var searchResults []*onlinestream_providers.SearchResult
+	var searchResults []*hibikeonlinestream.SearchResult
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
 		res, err := r.gogo.Search(romajiTitle, dubbed)
@@ -263,7 +264,7 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider onlinestream_prov
 	}
 
 	// Get most accurate search result.
-	var bestResult *onlinestream_providers.SearchResult
+	var bestResult *hibikeonlinestream.SearchResult
 	for _, r := range searchResults {
 		if r.Title == *compBestResult.OriginalValue {
 			bestResult = r
@@ -275,13 +276,13 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider onlinestream_prov
 
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
-		res, err := r.gogo.FindEpisodeDetails(bestResult.ID)
+		res, err := r.gogo.FindEpisode(bestResult.ID)
 		if err != nil {
 			return nil, err
 		}
 		ret = res
 	case onlinestream_providers.ZoroProvider:
-		res, err := r.zoro.FindEpisodeDetails(bestResult.ID)
+		res, err := r.zoro.FindEpisode(bestResult.ID)
 		if err != nil {
 			return nil, err
 		}

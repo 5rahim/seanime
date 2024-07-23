@@ -2,6 +2,7 @@ package onlinestream
 
 import (
 	"errors"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
@@ -17,8 +18,8 @@ import (
 type (
 	Repository struct {
 		logger                *zerolog.Logger
-		gogo                  *onlinestream_providers.Gogoanime
-		zoro                  *onlinestream_providers.Zoro
+		gogo                  hibikeonlinestream.Provider
+		zoro                  hibikeonlinestream.Provider
 		fileCacher            *filecache.Cacher
 		anizipCache           *anizip.Cache
 		platform              platform.Platform
@@ -89,16 +90,16 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 // "Episode data" refers to the episodeData struct
 //
 //	e.g., onlinestream_zoro_episode-data_123
-func (r *Repository) getFcEpisodeDataBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
-	return filecache.NewBucket("onlinestream_"+string(provider)+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
+func (r *Repository) getFcEpisodeDataBucket(provider string, mediaId int) filecache.Bucket {
+	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 // getFcEpisodeListBucket returns a episode data bucket for the provider and mediaId.
 // "Episode list" refers to a slice of onlinestream_providers.EpisodeDetails
 //
 //	e.g., onlinestream_zoro_episode-list_123
-func (r *Repository) getFcEpisodeListBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
-	return filecache.NewBucket("onlinestream_"+string(provider)+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
+func (r *Repository) getFcEpisodeListBucket(provider string, mediaId int) filecache.Bucket {
+	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +145,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	// +---------------------+
 
 	// Only fetch the episode list from the provider without episode servers
-	ec, err := r.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), 0, 0, dubbed)
+	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), 0, 0, dubbed)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +204,7 @@ func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dub
 	// |   Episode servers   |
 	// +---------------------+
 
-	ec, err := r.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), number, number, dubbed)
+	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), number, number, dubbed)
 	if err != nil {
 		return nil, err
 	}

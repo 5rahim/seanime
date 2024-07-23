@@ -71,7 +71,7 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := gogo.FindEpisodeDetails(tt.id)
+			episodes, err := gogo.FindEpisode(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}

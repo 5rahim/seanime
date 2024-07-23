@@ -77,3 +77,42 @@ func TestCompareVersion(t *testing.T) {
 		})
 	}
 }
+
+func TestVersionIsOlderThan(t *testing.T) {
+
+	testCases := []struct {
+		name           string
+		version        string
+		compare        string
+		expectedOutput bool
+	}{
+		{
+			name:           "Version is older than compare",
+			version:        "1.7.3",
+			compare:        "2.0.0",
+			expectedOutput: true,
+		},
+		{
+			name:           "Version is newer than compare",
+			version:        "2.0.1",
+			compare:        "2.0.0",
+			expectedOutput: false,
+		},
+		{
+			name:           "Version is equal to compare",
+			version:        "2.0.0",
+			compare:        "2.0.0",
+			expectedOutput: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := VersionIsOlderThan(tc.version, tc.compare)
+			if output != tc.expectedOutput {
+				t.Errorf("Expected output to be %v, got %v", tc.expectedOutput, output)
+			}
+		})
+	}
+
+}

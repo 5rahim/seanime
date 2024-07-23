@@ -83,7 +83,7 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := zoro.FindEpisodeDetails(tt.id)
+			episodes, err := zoro.FindEpisode(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}

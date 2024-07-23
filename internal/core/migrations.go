@@ -62,6 +62,17 @@ func (a *App) runMigrations() {
 				}
 				done = true
 			}
+			if util.VersionIsOlderThan(a.previousVersion, "2.0.0") {
+				a.Logger.Debug().Msg("app: Executing version migration task")
+				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
+					return strings.HasPrefix(filename, "onlinestream_")
+				})
+				if err != nil {
+					a.Logger.Error().Err(err).Msg("app: MIGRATION FAILED; READ THIS")
+					a.Logger.Error().Msg("app: Failed to remove online streaming cache files, please clear them manually by going to the settings. Ignore this message if you have no online streaming cache files.")
+				}
+				done = true
+			}
 		}
 	}()
 

@@ -10,5 +10,3 @@
 	yaegi extract "github.com/a/b"
 	yaegi extract "github.com/a/b/c"
 	```
-
-2. Rename the new files package name to `extension`
