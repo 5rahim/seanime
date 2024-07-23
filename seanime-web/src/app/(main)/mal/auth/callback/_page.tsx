@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import React from "react"
 
-export default function Page() {
+export default function _page() {
 
     const router = useRouter()
     const qc = useQueryClient()

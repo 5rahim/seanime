@@ -19,7 +19,6 @@ import { ANILIST_OAUTH_URL } from "@/lib/server/config"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { BiCalendarAlt, BiChart, BiDownload, BiLogOut } from "react-icons/bi"
@@ -27,7 +26,7 @@ import { FaBookReader, FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { IoCloudOffline, IoLibrary } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
-import { SiAnilist, SiMyanimelist } from "react-icons/si"
+import { SiAnilist } from "react-icons/si"
 
 /**
  * @description
@@ -161,12 +160,6 @@ export function MainSidebar() {
                                 href: "/scan-summaries",
                                 isCurrent: pathname === "/scan-summaries",
                             },
-                            // {
-                            //     iconType: MdSyncAlt,
-                            //     name: "List sync",
-                            //     href: "/list-sync",
-                            //     isCurrent: pathname === "/list-sync",
-                            // },
                             {
                                 iconType: FiSearch,
                                 name: "Search",
@@ -195,12 +188,6 @@ export function MainSidebar() {
                                     href: "/offline-mode",
                                     isCurrent: pathname.includes("/offline-mode"),
                                 },
-                                // {
-                                //     iconType: LuLayoutDashboard,
-                                //     name: "UI Settings",
-                                //     href: "/settings/ui",
-                                //     isCurrent: pathname.includes("/settings/ui"),
-                                // },
                                 {
                                     iconType: FiSettings,
                                     name: "Settings",
@@ -208,11 +195,6 @@ export function MainSidebar() {
                                     isCurrent: pathname === ("/settings"),
                                 },
                                 ...(ctx.isBelowBreakpoint ? [
-                                    {
-                                        iconType: SiMyanimelist,
-                                        name: "MyAnimeList",
-                                        href: "/mal",
-                                    },
                                     {
                                         iconType: BiLogOut,
                                         name: "Sign out",
@@ -254,11 +236,6 @@ export function MainSidebar() {
                             open={dropdownOpen}
                             onOpenChange={setDropdownOpen}
                         >
-                            <Link href="/mal">
-                                <DropdownMenuItem>
-                                    <SiMyanimelist className="text-lg text-indigo-200" /> MyAnimeList
-                                </DropdownMenuItem>
-                            </Link>
                             <DropdownMenuItem onClick={confirmSignOut.open}>
                                 <BiLogOut /> Sign out
                             </DropdownMenuItem>

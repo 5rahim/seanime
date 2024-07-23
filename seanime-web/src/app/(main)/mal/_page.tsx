@@ -9,7 +9,7 @@ import { SiMyanimelist } from "react-icons/si"
 
 export const dynamic = "force-static"
 
-export default function Page() {
+export default function _page() {
     const status = useServerStatus()
 
     const OAUTH_URL = React.useMemo(() => {
