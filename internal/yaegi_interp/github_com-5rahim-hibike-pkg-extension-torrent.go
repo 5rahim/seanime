@@ -9,6 +9,9 @@ import (
 
 func init() {
 	Symbols["github.com/5rahim/hibike/pkg/extension/torrent/torrent"] = map[string]reflect.Value{
+		// function, constant and variable definitions
+		"Resolutions": reflect.ValueOf(&torrent.Resolutions).Elem(),
+
 		// type definitions
 		"AnimeTorrent":       reflect.ValueOf((*torrent.AnimeTorrent)(nil)),
 		"FuzzyDate":          reflect.ValueOf((*torrent.FuzzyDate)(nil)),
@@ -31,6 +34,7 @@ type _github_com_5rahim_hibike_pkg_extension_torrent_Provider struct {
 	WGetTorrentMagnetLink func(torrent *torrent.AnimeTorrent) (string, error)
 	WSearch               func(opts torrent.SearchOptions) ([]*torrent.AnimeTorrent, error)
 	WSmartSearch          func(opts torrent.SmartSearchOptions) ([]*torrent.AnimeTorrent, error)
+	WSupportsAdult        func() bool
 }
 
 func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) CanFindBestRelease() bool {
@@ -50,4 +54,7 @@ func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) Search(opts to
 }
 func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) SmartSearch(opts torrent.SmartSearchOptions) ([]*torrent.AnimeTorrent, error) {
 	return W.WSmartSearch(opts)
+}
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) SupportsAdult() bool {
+	return W.WSupportsAdult()
 }
