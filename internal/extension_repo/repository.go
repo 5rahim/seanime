@@ -14,6 +14,7 @@ import (
 )
 
 type (
+	// Repository manages all extensions
 	Repository struct {
 		logger *zerolog.Logger
 		// Absolute path to the directory containing all extensions

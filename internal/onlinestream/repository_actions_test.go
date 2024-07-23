@@ -22,7 +22,7 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 	//fileCacher, _ := filecache.NewCacher(filepath.Join(test_utils.ConfigData.Path.DataDir, "cache"))
 	fileCacher, _ := filecache.NewCacher(filepath.Join(tempDir, "cache"))
 
-	os := New(&NewOnlineStreamOptions{
+	os := NewRepository(&NewRepositoryOptions{
 		Logger:     util.NewLogger(),
 		FileCacher: fileCacher,
 	})

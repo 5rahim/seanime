@@ -40,9 +40,9 @@ type (
 //   - This function can be used to only get the episode details by setting 'from' and 'to' to 0.
 //
 // Since the episode details are cached, we can request episode servers multiple times without fetching the episode details again.
-func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Provider, mId int, titles []*string, from int, to int, dubbed bool) (*episodeContainer, error) {
+func (r *Repository) getEpisodeContainer(provider onlinestream_providers.Provider, mId int, titles []*string, from int, to int, dubbed bool) (*episodeContainer, error) {
 
-	os.logger.Debug().
+	r.logger.Debug().
 		Str("provider", string(provider)).
 		Int("mediaId", mId).
 		Int("from", from).
@@ -61,25 +61,25 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 	}
 
 	// Get the episode details from the provider.
-	os.logger.Debug().
+	r.logger.Debug().
 		Str("key", providerEpisodeListKey).
 		Msgf("onlinestream: Fetching %s episode list", provider)
 
 	// Bucket
-	fcEpisodeListBucket := os.getFcEpisodeListBucket(provider, mId)
-	fcEpisodeDataBucket := os.getFcEpisodeDataBucket(provider, mId)
+	fcEpisodeListBucket := r.getFcEpisodeListBucket(provider, mId)
+	fcEpisodeDataBucket := r.getFcEpisodeDataBucket(provider, mId)
 
 	var providerEpisodeList []*onlinestream_providers.EpisodeDetails
-	if found, _ := os.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
+	if found, _ := r.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
 		var err error
-		providerEpisodeList, err = os.getProviderEpisodeListFromTitles(provider, titles, dubbed)
+		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, titles, dubbed)
 		if err != nil {
-			os.logger.Error().Err(err).Msg("onlinestream: failed to get provider episodes")
+			r.logger.Error().Err(err).Msg("onlinestream: failed to get provider episodes")
 			return nil, err // ErrNoAnimeFound or ErrNoEpisodes
 		}
-		_ = os.fileCacher.Set(fcEpisodeListBucket, providerEpisodeListKey, providerEpisodeList)
+		_ = r.fileCacher.Set(fcEpisodeListBucket, providerEpisodeListKey, providerEpisodeList)
 	} else {
-		os.logger.Debug().
+		r.logger.Debug().
 			Str("key", providerEpisodeListKey).
 			Msg("onlinestream: Cache HIT for episode list")
 	}
@@ -93,16 +93,16 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 			// Check if the episode is cached to avoid fetching the sources again.
 			key := fmt.Sprintf("%d$%s$%d$%v", mId, provider, episodeDetails.Number, dubbed)
 
-			os.logger.Debug().
+			r.logger.Debug().
 				Str("key", key).
 				Msgf("onlinestream: Fetching episode '%d' servers", episodeDetails.Number)
 
 			// Check episode cache
 			var cached *episodeData
-			if found, _ := os.fileCacher.Get(fcEpisodeDataBucket, key, &cached); found {
+			if found, _ := r.fileCacher.Get(fcEpisodeDataBucket, key, &cached); found {
 				ec.Episodes = append(ec.Episodes, cached)
 
-				os.logger.Debug().
+				r.logger.Debug().
 					Str("key", key).
 					Msgf("onlinestream: Cache HIT for episode '%d' servers", episodeDetails.Number)
 
@@ -121,9 +121,9 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 			}
 
 			// Fetch episode servers
-			servers, err := os.getProviderEpisodeServers(provider, episodeDetails)
+			servers, err := r.getProviderEpisodeServers(provider, episodeDetails)
 			if err != nil {
-				os.logger.Error().Err(err).Msgf("onlinestream: failed to get episode '%d' servers", episodeDetails.Number)
+				r.logger.Error().Err(err).Msgf("onlinestream: failed to get episode '%d' servers", episodeDetails.Number)
 				continue
 			}
 
@@ -135,23 +135,23 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 			}
 			ec.Episodes = append(ec.Episodes, episode)
 
-			os.logger.Debug().
+			r.logger.Debug().
 				Str("key", key).
 				Msgf("onlinestream: Found %d servers for episode '%d'", len(servers), episodeDetails.Number)
 
-			_ = os.fileCacher.Set(fcEpisodeDataBucket, key, episode)
+			_ = r.fileCacher.Set(fcEpisodeDataBucket, key, episode)
 
 		}
 
 	}
 
 	if from > 0 && to > 0 && len(ec.Episodes) == 0 {
-		os.logger.Error().Msg("onlinestream: No episodes found")
+		r.logger.Error().Msg("onlinestream: No episodes found")
 		return nil, ErrNoEpisodes
 	}
 
 	if len(ec.ProviderEpisodeList) == 0 {
-		os.logger.Error().Msg("onlinestream: No episodes found")
+		r.logger.Error().Msg("onlinestream: No episodes found")
 		return nil, ErrNoEpisodes
 	}
 
@@ -165,15 +165,15 @@ func (os *OnlineStream) getEpisodeContainer(provider onlinestream_providers.Prov
 //
 //	episodeDetails, _ := getProviderEpisodeListFromTitles(provider, titles, dubbed)
 //	episodeServers, err := getProviderEpisodeServers(provider, episodeDetails[0])
-func (os *OnlineStream) getProviderEpisodeServers(provider onlinestream_providers.Provider, episodeDetails *onlinestream_providers.EpisodeDetails) ([]*onlinestream_providers.EpisodeServer, error) {
+func (r *Repository) getProviderEpisodeServers(provider onlinestream_providers.Provider, episodeDetails *onlinestream_providers.EpisodeDetails) ([]*onlinestream_providers.EpisodeServer, error) {
 	var providerServers []*onlinestream_providers.EpisodeServer
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
-		res, err := os.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
+		res, err := r.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
 		if err == nil {
 			providerServers = append(providerServers, res)
 		}
-		res, err = os.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.GogocdnServer)
+		res, err = r.gogo.FindEpisodeServer(episodeDetails, onlinestream_providers.GogocdnServer)
 		if err == nil {
 			providerServers = append(providerServers, res)
 		}
@@ -182,11 +182,11 @@ func (os *OnlineStream) getProviderEpisodeServers(provider onlinestream_provider
 		//	providerServers = append(providerServers, res)
 		//}
 	case onlinestream_providers.ZoroProvider:
-		res, err := os.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.VidcloudServer)
+		res, err := r.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.VidcloudServer)
 		if err == nil {
 			providerServers = append(providerServers, res)
 		}
-		res, err = os.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
+		res, err = r.zoro.FindEpisodeServer(episodeDetails, onlinestream_providers.VidstreamingServer)
 		if err == nil {
 			providerServers = append(providerServers, res)
 		}
@@ -209,7 +209,7 @@ func (os *OnlineStream) getProviderEpisodeServers(provider onlinestream_provider
 
 // getProviderEpisodeListFromTitles gets all the onlinestream_providers.EpisodeDetails from the provider based on the anime's titles.
 // It returns ErrNoAnimeFound if the anime is not found or ErrNoEpisodes if no episodes are found.
-func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_providers.Provider, titles []*string, dubbed bool) ([]*onlinestream_providers.EpisodeDetails, error) {
+func (r *Repository) getProviderEpisodeListFromTitles(provider onlinestream_providers.Provider, titles []*string, dubbed bool) ([]*onlinestream_providers.EpisodeDetails, error) {
 	var ret []*onlinestream_providers.EpisodeDetails
 	romajiTitle := strings.ReplaceAll(*titles[0], ":", "")
 	englishTitle := ""
@@ -221,21 +221,21 @@ func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_p
 	var searchResults []*onlinestream_providers.SearchResult
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
-		res, err := os.gogo.Search(romajiTitle, dubbed)
+		res, err := r.gogo.Search(romajiTitle, dubbed)
 		if err == nil {
 			searchResults = res
 		} else {
-			res, err = os.gogo.Search(englishTitle, dubbed)
+			res, err = r.gogo.Search(englishTitle, dubbed)
 			if err == nil {
 				searchResults = res
 			}
 		}
 	case onlinestream_providers.ZoroProvider:
-		res, err := os.zoro.Search(romajiTitle, dubbed)
+		res, err := r.zoro.Search(romajiTitle, dubbed)
 		if err == nil {
 			searchResults = res
 		} else {
-			res, err = os.zoro.Search(englishTitle, dubbed)
+			res, err = r.zoro.Search(englishTitle, dubbed)
 			if err == nil {
 				searchResults = res
 			}
@@ -275,13 +275,13 @@ func (os *OnlineStream) getProviderEpisodeListFromTitles(provider onlinestream_p
 
 	switch provider {
 	case onlinestream_providers.GogoanimeProvider:
-		res, err := os.gogo.FindEpisodeDetails(bestResult.ID)
+		res, err := r.gogo.FindEpisodeDetails(bestResult.ID)
 		if err != nil {
 			return nil, err
 		}
 		ret = res
 	case onlinestream_providers.ZoroProvider:
-		res, err := os.zoro.FindEpisodeDetails(bestResult.ID)
+		res, err := r.zoro.FindEpisodeDetails(bestResult.ID)
 		if err != nil {
 			return nil, err
 		}

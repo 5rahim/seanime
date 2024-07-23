@@ -15,7 +15,7 @@ import (
 )
 
 type (
-	OnlineStream struct {
+	Repository struct {
 		logger                *zerolog.Logger
 		gogo                  *onlinestream_providers.Gogoanime
 		zoro                  *onlinestream_providers.Zoro
@@ -63,7 +63,7 @@ type (
 )
 
 type (
-	NewOnlineStreamOptions struct {
+	NewRepositoryOptions struct {
 		Logger      *zerolog.Logger
 		FileCacher  *filecache.Cacher
 		AnizipCache *anizip.Cache
@@ -71,8 +71,8 @@ type (
 	}
 )
 
-func New(opts *NewOnlineStreamOptions) *OnlineStream {
-	return &OnlineStream{
+func NewRepository(opts *NewRepositoryOptions) *Repository {
+	return &Repository{
 		logger:                opts.Logger,
 		anizipCache:           opts.AnizipCache,
 		fileCacher:            opts.FileCacher,
@@ -89,7 +89,7 @@ func New(opts *NewOnlineStreamOptions) *OnlineStream {
 // "Episode data" refers to the episodeData struct
 //
 //	e.g., onlinestream_zoro_episode-data_123
-func (os *OnlineStream) getFcEpisodeDataBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
+func (r *Repository) getFcEpisodeDataBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
 	return filecache.NewBucket("onlinestream_"+string(provider)+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
@@ -97,15 +97,15 @@ func (os *OnlineStream) getFcEpisodeDataBucket(provider onlinestream_providers.P
 // "Episode list" refers to a slice of onlinestream_providers.EpisodeDetails
 //
 //	e.g., onlinestream_zoro_episode-list_123
-func (os *OnlineStream) getFcEpisodeListBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
+func (r *Repository) getFcEpisodeListBucket(provider onlinestream_providers.Provider, mediaId int) filecache.Bucket {
 	return filecache.NewBucket("onlinestream_"+string(provider)+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (os *OnlineStream) getMedia(mId int) (*anilist.BaseAnime, error) {
-	media, err := os.anilistBaseAnimeCache.GetOrSet(mId, func() (*anilist.BaseAnime, error) {
-		media, err := os.platform.GetAnime(mId)
+func (r *Repository) getMedia(mId int) (*anilist.BaseAnime, error) {
+	media, err := r.anilistBaseAnimeCache.GetOrSet(mId, func() (*anilist.BaseAnime, error) {
+		media, err := r.platform.GetAnime(mId)
 		if err != nil {
 			return nil, err
 		}
@@ -117,18 +117,18 @@ func (os *OnlineStream) getMedia(mId int) (*anilist.BaseAnime, error) {
 	return media, nil
 }
 
-func (os *OnlineStream) GetMedia(mId int) (*anilist.BaseAnime, error) {
-	return os.getMedia(mId)
+func (r *Repository) GetMedia(mId int) (*anilist.BaseAnime, error) {
+	return r.getMedia(mId)
 }
 
-func (os *OnlineStream) EmptyCache(mediaId int) error {
-	_ = os.fileCacher.RemoveAllBy(func(filename string) bool {
+func (r *Repository) EmptyCache(mediaId int) error {
+	_ = r.fileCacher.RemoveAllBy(func(filename string) bool {
 		return strings.HasPrefix(filename, "onlinestream_") && strings.Contains(filename, strconv.Itoa(mediaId))
 	})
 	return nil
 }
 
-func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseAnime, dubbed bool) ([]*Episode, error) {
+func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime, dubbed bool) ([]*Episode, error) {
 
 	mId := media.GetID()
 
@@ -136,7 +136,7 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseAni
 	// |       Anizip        |
 	// +---------------------+
 
-	anizipMedia, err := anizip.FetchAniZipMediaC("anilist", mId, os.anizipCache)
+	anizipMedia, err := anizip.FetchAniZipMediaC("anilist", mId, r.anizipCache)
 	foundAnizipMedia := err == nil && anizipMedia != nil
 
 	// +---------------------+
@@ -144,7 +144,7 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseAni
 	// +---------------------+
 
 	// Only fetch the episode list from the provider without episode servers
-	ec, err := os.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), 0, 0, dubbed)
+	ec, err := r.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), 0, 0, dubbed)
 	if err != nil {
 		return nil, err
 	}
@@ -188,13 +188,13 @@ func (os *OnlineStream) GetMediaEpisodes(provider string, media *anilist.BaseAni
 	return episodes, nil
 }
 
-func (os *OnlineStream) GetEpisodeSources(provider string, mId int, number int, dubbed bool) (*EpisodeSource, error) {
+func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dubbed bool) (*EpisodeSource, error) {
 
 	// +---------------------+
 	// |        Media        |
 	// +---------------------+
 
-	media, err := os.getMedia(mId)
+	media, err := r.getMedia(mId)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func (os *OnlineStream) GetEpisodeSources(provider string, mId int, number int, 
 	// |   Episode servers   |
 	// +---------------------+
 
-	ec, err := os.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), number, number, dubbed)
+	ec, err := r.getEpisodeContainer(onlinestream_providers.Provider(provider), mId, media.GetAllTitles(), number, number, dubbed)
 	if err != nil {
 		return nil, err
 	}

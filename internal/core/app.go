@@ -67,7 +67,7 @@ type (
 		AutoScanner             *autoscanner.AutoScanner
 		PlaybackManager         *playbackmanager.PlaybackManager
 		FileCacher              *filecache.Cacher
-		Onlinestream            *onlinestream.OnlineStream
+		OnlinestreamRepository  *onlinestream.Repository
 		MangaRepository         *manga.Repository
 		MetadataProvider        *metadata.Provider
 		DiscordPresence         *discordrpc_presence.Presence
@@ -165,7 +165,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Online Stream
-	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{
+	onlineStream := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
 		Logger:      logger,
 		FileCacher:  fileCacher,
 		AnizipCache: anizipCache,
@@ -207,7 +207,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Version:                 constants.Version,
 		Updater:                 updater.New(constants.Version, logger),
 		FileCacher:              fileCacher,
-		Onlinestream:            onlineStream,
+		OnlinestreamRepository:  onlineStream,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
 		ExtensionRepository:     extensionRepository,
